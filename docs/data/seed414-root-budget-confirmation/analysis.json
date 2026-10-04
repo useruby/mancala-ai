@@ -1,0 +1,1957 @@
+{
+  "action_change_rate": 0.125,
+  "action_changes": 16,
+  "decision": "confirmation_criteria_not_met",
+  "interpretation": "First-action quality diagnostic under two frozen continuation references; not overall strength or promotion evidence.",
+  "primary": {
+    "bootstrap_95_interval": [
+      0.001953125,
+      0.048828125
+    ],
+    "mean_gain": 0.0234375,
+    "metric": "per-state mean across reference-specific FF1536-minus-FF384 score gains",
+    "paired_units": 128,
+    "resamples": 10000,
+    "seed": 414
+  },
+  "reference_mean_gains": {
+    "original_O0_E4": 0.01953125,
+    "seed455": 0.02734375
+  },
+  "reference_mean_margin_changes": {
+    "original_O0_E4": 0.140625,
+    "seed455": 0.421875
+  },
+  "schema": "seed414-root-budget-confirmation-analysis-v1",
+  "search_timing": {
+    "continuation_total_seconds": {
+      "original_O0_E4": 368.8622527664993,
+      "seed455": 375.2075800560415
+    },
+    "physical_continuations": 288,
+    "root_mean_seconds": 0.140323504785556,
+    "root_total_seconds": 17.961408612551168
+  },
+  "state_results": [
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 1,
+        "384": 1
+      },
+      "opening_index": 0,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "f19d148f8ec401c6e03f24eb5df96879169c7e7e760789a243765b9da4e8460e",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 3,
+        "384": 3
+      },
+      "opening_index": 1,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "59a7f1e8d6fce4746fffe13a8429c5eb3ae701731e82f6c94ecbadbd688cbeb3",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": true,
+      "actions": {
+        "1536": 3,
+        "384": 2
+      },
+      "opening_index": 2,
+      "paired_gain": 0.25,
+      "reference_gains": {
+        "original_O0_E4": 0.5,
+        "seed455": 0.0
+      },
+      "state_hash": "a221812fd14c1ab51294f9471e09327bbcffc274707d9b9a7568291a40647cfb",
+      "zero_gain_observation": false
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 3,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "f16f0d612dd32ab8a402d10224952aeec4428283838e98cd1e7f58d21b1869be",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 2,
+        "384": 2
+      },
+      "opening_index": 4,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "82ce8d5ea30e04f23c0d17b817985b373c3b1b6cd96d8729ef85537234b6ceaf",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 3,
+        "384": 3
+      },
+      "opening_index": 5,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "97065d7cc02774d4a4b8adc69c2d0a830cf803910b54be1d995d4a6533c4cdbc",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 1,
+        "384": 1
+      },
+      "opening_index": 6,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "43abb78f0dd17101026b3fbf32d9a24e22d8f2c993d9b4bfdcef820df7a28c62",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 7,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "5a5f0cd18786e790a161a1dc5155f0390b4347e6de5ba68d8b863a2c6fe16039",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 8,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "94813bf3c19851a11b36eb1aa800be0cbb07bcecaa0e2647ba508e98e6706883",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 2,
+        "384": 2
+      },
+      "opening_index": 9,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "53b3f53bbaf78c0fb1224b9d670cfd2e77dc75a01f8afcad602e4fdeff384122",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 2,
+        "384": 2
+      },
+      "opening_index": 10,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "f1b04a4a770e7212105327f0ec5b59d1a2b5dfc59a9d401e1763734fbcec5f3a",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 0,
+        "384": 0
+      },
+      "opening_index": 11,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "fcb4197bbe86d41520ceebf93d17f19a72fbebab0d3225184373eb24e6385fbe",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 3,
+        "384": 3
+      },
+      "opening_index": 12,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "35e3ae1afeea072915169b53d2c7ce980a9f1ed6c74de40a5dfdb25d34a853e4",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": true,
+      "actions": {
+        "1536": 0,
+        "384": 1
+      },
+      "opening_index": 13,
+      "paired_gain": 0.5,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 1.0
+      },
+      "state_hash": "70d38461711cc10337e18ba7073f5a305b0dcb23fbc231857f7d388280eda200",
+      "zero_gain_observation": false
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 14,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "c52f6a0b37a1e4399aafeedbc7bf751d19e2e2a4077ae5c2eda7601995b25cb1",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 0,
+        "384": 0
+      },
+      "opening_index": 15,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "7ae9b63a6da23e895331419bdc7534e57a44466d9a8a4f3b9b5e80e1057edec7",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 1,
+        "384": 1
+      },
+      "opening_index": 16,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "d1748b55eb67b975af89c472a67a2e2b9324300d26f3390d9ef811bcd74bc7a5",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 0,
+        "384": 0
+      },
+      "opening_index": 17,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "ab798e1da60c7a5c2f88afb4459b7aa071a94f2461511eafe9e50e949ff4ac75",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 1,
+        "384": 1
+      },
+      "opening_index": 18,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "53880f7d269b30c2cedeb03d4ec963337b68eab8d28725a020c047a8c2198994",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 1,
+        "384": 1
+      },
+      "opening_index": 19,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "5cd1237185d9d772a247a5b2111b4f832e963de4ba4c9381b2a9fb227ff8e971",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 0,
+        "384": 0
+      },
+      "opening_index": 20,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "2d8f5162671bdaf9b3d20f9c27a68cfb6d8cfc022eaeef403ea716295b8e7cbf",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 0,
+        "384": 0
+      },
+      "opening_index": 21,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "ec51541ef4ef8b8b222c6d162010bbcb541cdc33d947423b77e750d4b9a0ab7f",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 22,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "9c688e4604887e3316fe9166be02085d40675d02c888178876fedaf551e14f4e",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 3,
+        "384": 3
+      },
+      "opening_index": 23,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "32fce0d3077f97b7f2057757eabc14df76b2dff6ab1a12a267e587e5e30ea807",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 24,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "6c957b1b9086adedeb552b810807e2d5cb9affc6dcd0142bfad47a05a1337345",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 25,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "c0fc3d6ac668cc4020933cc8917c206573c107331e9bb9cb436f5e080409aa89",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 26,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "26be4b20c15d5ff880bfb358a72bc6186de4c723c3ed785f5afeb5f3692c0073",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": true,
+      "actions": {
+        "1536": 3,
+        "384": 1
+      },
+      "opening_index": 27,
+      "paired_gain": 0.75,
+      "reference_gains": {
+        "original_O0_E4": 0.5,
+        "seed455": 1.0
+      },
+      "state_hash": "9f99b779c376ad8e1353b4d6cfe1488ebb3050dda1114a86b94ab812dfdb67cd",
+      "zero_gain_observation": false
+    },
+    {
+      "action_changed": true,
+      "actions": {
+        "1536": 0,
+        "384": 4
+      },
+      "opening_index": 28,
+      "paired_gain": 0.25,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.5
+      },
+      "state_hash": "dfd2643033505247f058ac7dce65bf800c5aac67ebe5b88700c46dde82a778fd",
+      "zero_gain_observation": false
+    },
+    {
+      "action_changed": true,
+      "actions": {
+        "1536": 2,
+        "384": 4
+      },
+      "opening_index": 29,
+      "paired_gain": -0.25,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": -0.5
+      },
+      "state_hash": "2c5408f32afdd9c78747d13a6e086b5e395debfc2dbc624cb0f27e89ea890f4d",
+      "zero_gain_observation": false
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 0,
+        "384": 0
+      },
+      "opening_index": 30,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "f419667172b47f68b10ea8cfdcb93e1da05c1718736faf8e66b1be8b7e310a1f",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 31,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "7fa03b64b28d136c9c49f58efedabda7b128b798992d4af2294850a52bcbdf13",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": true,
+      "actions": {
+        "1536": 1,
+        "384": 4
+      },
+      "opening_index": 32,
+      "paired_gain": 0.5,
+      "reference_gains": {
+        "original_O0_E4": 0.5,
+        "seed455": 0.5
+      },
+      "state_hash": "8d33d19b427ae5653c2ccba49cdf3107300ca7731d9fa5037674746f63067e05",
+      "zero_gain_observation": false
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 33,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "dca70cfad7d78eaada719782c5172fec3a034d3efb8c37c1b8099c2634696a59",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 34,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "2771b0d8fe2f95f9b86f55c01fea5bef144190225da72c356a20de26a634a19e",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 1,
+        "384": 1
+      },
+      "opening_index": 35,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "02cea1cf2d5416dd86d3138d00b8b765f1b983c8e03ce6ec364bffe5110414d2",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 36,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "7f81914b2178ad55cd24cf9aa9da0b538adaa8c21df2e35a44180343457dad91",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 37,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "5a9bec253d4969bf2fea047a9d72a9618f834bfc1fee125dddcfc05a951220a6",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 3,
+        "384": 3
+      },
+      "opening_index": 38,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "fd66062278c7293461417b973ce528703b629dad2879a12d6ac40c3f05b0026d",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 39,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "ad14a56202479394b5140eb33587a5f1aa2ec04b4474c9562321b02a375a7fc6",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 40,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "9c9dac3e9b0f4177d9de6aefec7dc7e9fa2a69ab627989df80a25f0c5cec6412",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 41,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "0474f868a79a0ace332e839509c9ff722229e6f3c365117406f85ed97de7fe9e",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 42,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "4b87981c1ff2ffb6acf18e5dc61a58277896ffba368806b0f6edbea6242efadd",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 2,
+        "384": 2
+      },
+      "opening_index": 43,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "b412148a44a983e8a6f2a75c88d6ae98d759c1aada462c01131b111719a9aa68",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 44,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "1f2788bb191b565fc5244eb35af1de33f889a8d087d365537587c58efc47f805",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 3,
+        "384": 3
+      },
+      "opening_index": 45,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "2475e6c6211666b1ad87129851c253163be432731dc2c4b253de50c4d138852b",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 46,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "6e1a2616178ec4b1a737c7a767960eac17dda5d11dd4cb0922f217520d3f78ac",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 2,
+        "384": 2
+      },
+      "opening_index": 47,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "0718b2df7210c002602abf5336cc63936b46474285604990ef42b4821f925564",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 48,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "029f730c3b33ae27da6bd534d6ff7d24c0aad32bec0cb9af57fc3a672af21478",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 49,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "ec1146049f9bc3c32e9a99c48dc8785ced980ae067b89b6db5bbddae4a3b7fd2",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 3,
+        "384": 3
+      },
+      "opening_index": 50,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "840ad792020904b19d93eb032b087ef93cbd285a8d5569c0fdad07d194587381",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 3,
+        "384": 3
+      },
+      "opening_index": 51,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "40dd9e9c485b832d07a713b815dde39c9ab4614317a9805955a96a810bd25296",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 52,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "a9929dd8fe0b33ba0fc1d1f1ccd4214db2b01f36d2d9462ed3da5173778de527",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 0,
+        "384": 0
+      },
+      "opening_index": 53,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "d5cd1950f208daeb2b35ff1894190dfbe18215ff6f19526d8eaf5625abd4d2c0",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 54,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "dd2855f60a2f14581abff6eecb995d78621691f2a3482d30459e3cd2fa6fc4de",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 55,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "ab7ca526afc9849dd050913dcbe3100bcadc149175633a5c98e7fe60d3865922",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 56,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "848c82ad6280e5cc03742a836924ecb77e5a1c3d621ce30c9b5f5bd6ea497f7f",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 57,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "a4bcb43df8ef74ffdad95d09be57e1ee0f002e15039fdc6a658a4bccdd76e1f9",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 58,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "6c04e2b568e01c9d1cefb1f8c849fc72f216f3c7f64cf3f577543b3f5577df6d",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": true,
+      "actions": {
+        "1536": 0,
+        "384": 2
+      },
+      "opening_index": 59,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "e8485f4fc350d5615e7571a355cb908a39e966fb00c732d65f7ec2c961ad5b30",
+      "zero_gain_observation": false
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 3,
+        "384": 3
+      },
+      "opening_index": 60,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "4edeb66000bfddfd04ea752edbc9bb9b48247cd93e12685c6bd4d02b6228441c",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 0,
+        "384": 0
+      },
+      "opening_index": 61,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "43cff6115691309528930b00660da1e4d77c397c1631f6d5b07ea092ff3150a3",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 62,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "1fe0d0ef80b7c515b9228268cdd11ad9cebf810207ae3be2476c9500c189c830",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": true,
+      "actions": {
+        "1536": 5,
+        "384": 4
+      },
+      "opening_index": 63,
+      "paired_gain": 0.75,
+      "reference_gains": {
+        "original_O0_E4": 1.0,
+        "seed455": 0.5
+      },
+      "state_hash": "8e55f72647109c2bb722de80f05cd5cfa9d515865928c028d77f59b9efbac08e",
+      "zero_gain_observation": false
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 64,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "a6b920bbe349077d4603eedfdb6b3fef7d15cc7b03324e0c38294428a1c27d66",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 2,
+        "384": 2
+      },
+      "opening_index": 65,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "be6db9f4b12b49ad4f99e1dde8bdda12013b710d06ee5b3e7bffb56029d20530",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 2,
+        "384": 2
+      },
+      "opening_index": 66,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "9215c2052b3ea7dd6addd55d93372b1368c24bd7c229c40acec471b0a190786f",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": true,
+      "actions": {
+        "1536": 0,
+        "384": 4
+      },
+      "opening_index": 67,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "e3300df33689f75b31c870343a57fee8221c559b92b073b2dce0b1f826321ff0",
+      "zero_gain_observation": false
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 1,
+        "384": 1
+      },
+      "opening_index": 68,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "406a467828a0aec965223f5070339fdd4b422e9862fccbc2335118690196d25f",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 1,
+        "384": 1
+      },
+      "opening_index": 69,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "80b73e366479687b4216bb6749b27c05d12612deb5ec92f7c069d62a2980f866",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 70,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "8756e4625cc41d6aba97956c2f8bc5ae47d9137eed017da710930f98535dfe19",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 1,
+        "384": 1
+      },
+      "opening_index": 71,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "3693d463cc11fe8915f058c18b97b7f796b07a6e7146fdc240c1fd549932da0a",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 72,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "cde79fb193deb4ef49c487b206573c19e9c8b76f3a34f452f9a55a0da4467dce",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 1,
+        "384": 1
+      },
+      "opening_index": 73,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "690d1de7bccf725b7bc8feb79a652c977e9f90b9cc2cc7849b11dad6cea0f65f",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 74,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "f3080995903df186aeba11c53bd7a984529cdbf3f975403c5b0eaa3f6bb5f590",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 0,
+        "384": 0
+      },
+      "opening_index": 75,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "e103e1f6a9f8aa163991726a8720e0e5d04a389f55f89b13619fd7db6668fd7f",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 0,
+        "384": 0
+      },
+      "opening_index": 76,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "c6e88655832041609e8010927706aaafcf7be7b11aaeeb16ee1f53d8ba2bfb78",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 77,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "f49185ccfe5fce9eed16b9afa756c700a340576979d98726508b26e1a94b585e",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 78,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "91e1844bf73afb8b7eeac7f8be910fa502224a847bbdcc689f53a7f1e99a1875",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 79,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "a8ce860bc6e7b8036482d95ec01e0cdf3b87653494d1badb47e9c02d04142911",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 80,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "b8c7097dd15116b27877be4e229470750b938462f8a61bbe4429f7437b81e78b",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 81,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "129287ded905f8dd04dab8695bde3cfd5ec9028f47824e3933c4b7a688529abc",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 1,
+        "384": 1
+      },
+      "opening_index": 82,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "91fa964256c92be970d89515a8ee13704d68a141e99d362a1418f225f2186916",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 3,
+        "384": 3
+      },
+      "opening_index": 83,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "256c2580c5a75bce38bbee5b9326ede70fe1fb4fdb37973733b4b582af1260c6",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 1,
+        "384": 1
+      },
+      "opening_index": 84,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "934bca55434dd1b9ca3bd14208b8fa5ca819d0ca8b3bac384634cd28547a2db9",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": true,
+      "actions": {
+        "1536": 4,
+        "384": 5
+      },
+      "opening_index": 85,
+      "paired_gain": 0.25,
+      "reference_gains": {
+        "original_O0_E4": 0.5,
+        "seed455": 0.0
+      },
+      "state_hash": "ef44e1cd6bb9b57e6b97838c200ed7d0fd0369082c13e80163c865576602daa9",
+      "zero_gain_observation": false
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 0,
+        "384": 0
+      },
+      "opening_index": 86,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "0fac9a2b307bddaa5d2cbc2738c771fddbcabbc564eda906feec6cb5864fc619",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 1,
+        "384": 1
+      },
+      "opening_index": 87,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "9189851d0196474d7d6ea9761d9625dad247ba5d2ab8478debc07f38a1869e03",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 88,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "05098b13b28d7286c485d5e7b4f8beee2c47b56ba4c09f78ee1f50bbe00eb406",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 1,
+        "384": 1
+      },
+      "opening_index": 89,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "f7b69d058397ac8957bdc53b93a326c8c334fd4c25a4f034b04e091c96f9e0e2",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 2,
+        "384": 2
+      },
+      "opening_index": 90,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "dd448f68403611650f682cdc77f89a3c053f097083cddbf3a58314d9cb39cfd8",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 2,
+        "384": 2
+      },
+      "opening_index": 91,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "0c9d27666333acfc8931010bfdb358c21bf4fd8271b2213da2401b0f2d7264d1",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": true,
+      "actions": {
+        "1536": 3,
+        "384": 2
+      },
+      "opening_index": 92,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "69aed497c3a813e1d23a769264215c9cd5ec71b06ffad44267cfe17cf6d45a7c",
+      "zero_gain_observation": false
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 1,
+        "384": 1
+      },
+      "opening_index": 93,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "a490b9d1c3bcbdd2a0ad71690c3a01b8a6c0b2229707460003e58bcdde0640fe",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 2,
+        "384": 2
+      },
+      "opening_index": 94,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "39c5a02294208270ea9663098f9092206c1082ad32180b0160a63e1baa706b49",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 95,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "a8e7e94781ffd91b9d6d35f1000c843cff46331841f7c33bed7a884a901015c8",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 0,
+        "384": 0
+      },
+      "opening_index": 96,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "cda8887d8d757150c46955e78e7b34e3f0301b274add843b57ef291f0978e8a5",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 97,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "39cbdce9d4af77c1351c0bc981be7f9d9db01a3483dc53c7e69e10c15b9a524a",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 3,
+        "384": 3
+      },
+      "opening_index": 98,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "492818a0bc38e82cb2fc78133ae8fa172271f6475a482420f8067488b006b6d9",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 1,
+        "384": 1
+      },
+      "opening_index": 99,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "6fd92585f6dc268b6d26cb510165db770f4a6f2c27bd3d523714614b3be85428",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 100,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "f67fc3e2961c1591b69060c22f9b3d807abaec5f2a51a8b35c2497279de45a2d",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 101,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "d8f837710f466bad33dc8310db93c47138506d165ea21025a44db05a716e5a37",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 102,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "60557bfbdc5bc0c5a02cf05e562f09f6214c11e41d6b3ef03a368fb06e4c21af",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 3,
+        "384": 3
+      },
+      "opening_index": 103,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "aae5c411b54670542e5950ab62eedcbb107216776f07fceb12a90d89fb890b71",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 2,
+        "384": 2
+      },
+      "opening_index": 104,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "0833f16e92575bd88f91b699c76ba1db0fe1e5a583baa1e5acfd0fef87dafbc4",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 1,
+        "384": 1
+      },
+      "opening_index": 105,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "4001e7fe114748f70c4187f319ad7fa1a390b99b01effd5bc7776313338f010d",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": true,
+      "actions": {
+        "1536": 0,
+        "384": 2
+      },
+      "opening_index": 106,
+      "paired_gain": 0.25,
+      "reference_gains": {
+        "original_O0_E4": -0.5,
+        "seed455": 1.0
+      },
+      "state_hash": "6dfb925bb0b8070a2878abd0d81e6b0c8a14961e064da4b9082fed4d772c49e6",
+      "zero_gain_observation": false
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 0,
+        "384": 0
+      },
+      "opening_index": 107,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "1de16a4cc3bff086adbd5c0f477f5461e053fd237bfb2c09058fd1a99dcd3fc6",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": true,
+      "actions": {
+        "1536": 4,
+        "384": 1
+      },
+      "opening_index": 108,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "f45015e197d53ad80553b1794f162ae82ac39fde0b688711f2253bdd2c760a10",
+      "zero_gain_observation": false
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 0,
+        "384": 0
+      },
+      "opening_index": 109,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "4df096218122047a5943ccc9a32c6bd2cb631df2a862ca91a713b8326493d8bd",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": true,
+      "actions": {
+        "1536": 2,
+        "384": 5
+      },
+      "opening_index": 110,
+      "paired_gain": -0.5,
+      "reference_gains": {
+        "original_O0_E4": -0.5,
+        "seed455": -0.5
+      },
+      "state_hash": "f050c7f5789db5893e0c2f493c1e77af46297fd47f5b9ceb0491863df8f62bf0",
+      "zero_gain_observation": false
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 2,
+        "384": 2
+      },
+      "opening_index": 111,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "5148bc2a34fcfe586d282a172cd5a20ba441153bcc0eca248ec316b9dbb09da8",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 2,
+        "384": 2
+      },
+      "opening_index": 112,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "34e62ca0995c94e6a9fdf80ae65da996f2a5eacddaf3ec9a758171f59f91b2de",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 0,
+        "384": 0
+      },
+      "opening_index": 113,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "7824ac78b6a69c0b74c5365617cd586b3a3bf1d9cbcb06448ef682361aa40438",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 0,
+        "384": 0
+      },
+      "opening_index": 114,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "dfd051050af2b84295ef2ef2d5a48afc5486da9704d1399f95fa532c3775c1a1",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 3,
+        "384": 3
+      },
+      "opening_index": 115,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "0a2e2f6c2bded7f7dc5eb869c147300212ee1125f247f52556b99f13e4210db4",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 4,
+        "384": 4
+      },
+      "opening_index": 116,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "226bf038248f8c4b81a0376b08e9909ac75f2dd145ae5926848633d0572bdf56",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 2,
+        "384": 2
+      },
+      "opening_index": 117,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "b896eacc8bc3123afbf4e772f33aa9bc6d168cfde06304dd064e6318b2e51e5b",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 1,
+        "384": 1
+      },
+      "opening_index": 118,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "faaa8b8f08f5f610431492ccf7b0cb24d906c180fd11b46e1ef90a83f17e76a8",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 0,
+        "384": 0
+      },
+      "opening_index": 119,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "1b7eeffabc5b7e03b632b83fd996956fe75746880c312fee4ebfdc908b3bf6f8",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 0,
+        "384": 0
+      },
+      "opening_index": 120,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "920e9e5dcd7f05778d774629ba9cb15fdb4e8fa56af47a77a48c487050226f50",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 0,
+        "384": 0
+      },
+      "opening_index": 121,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "1150c18fd7a2d1f33348ec7198c55e0d027f79756714ef2ae815e6643277d0b0",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 3,
+        "384": 3
+      },
+      "opening_index": 122,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "be827766795bc9cbbff17bf641e0241968c6651ebf484239a4dfa7999b6b86b0",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": true,
+      "actions": {
+        "1536": 5,
+        "384": 4
+      },
+      "opening_index": 123,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "23f446d086085dd4a19d0910f1315826f342d197140251e3f4b782c76aedcb8f",
+      "zero_gain_observation": false
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 5,
+        "384": 5
+      },
+      "opening_index": 124,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "c760b3d42d87304089e6732f12887d4ec84d999213b573d813c0184b3c62b372",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": true,
+      "actions": {
+        "1536": 2,
+        "384": 3
+      },
+      "opening_index": 125,
+      "paired_gain": 0.25,
+      "reference_gains": {
+        "original_O0_E4": 0.5,
+        "seed455": 0.0
+      },
+      "state_hash": "a51923ca7fcc5b696d79b406bdf94b62bf654a1187cac7d381ae3397bb52142f",
+      "zero_gain_observation": false
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 1,
+        "384": 1
+      },
+      "opening_index": 126,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "2bb009f9f3dd8815c790cd09b7ac9b333c28e335419c8b5b8876a5394c8ca8ad",
+      "zero_gain_observation": true
+    },
+    {
+      "action_changed": false,
+      "actions": {
+        "1536": 0,
+        "384": 0
+      },
+      "opening_index": 127,
+      "paired_gain": 0.0,
+      "reference_gains": {
+        "original_O0_E4": 0.0,
+        "seed455": 0.0
+      },
+      "state_hash": "149248adc255a0eb91be630fed4475e5c426dd92cb7138a50790370244e380e5",
+      "zero_gain_observation": true
+    }
+  ]
+}

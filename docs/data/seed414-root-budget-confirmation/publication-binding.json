@@ -1,0 +1,31 @@
+{
+  "analysis_source_sha256": "4f8fbba6e6b1104fde695d3306064bc14a057e5c997262a80c0be8bd5a8427f7",
+  "hashes": {
+    "aliases": "f04107933e43683d6c5eba3e33a79d1f1fb135750d3d9740e040b6b0526755a0",
+    "analysis": "800930b4531a39a5c823107eead4c644ebf39b7a72a0f8d1f9af4dd3ad5807d4",
+    "matrix": "9bcbfa5e6808da01b91d430a7267c24e873780617bcdd222c162b206c84c583c",
+    "probes": "22df7b5cad94364945aa1fd42e8d889baf306d0215c0d522b5eab1a64047fa36",
+    "proof": "cf972371bfef9b814150bd649aebeb5cadea76b80a928b4f5019d9eb6d745554",
+    "registration": "43b7543b984ca0e30cf114938db02a1d1b880c85e6ad4b51ce0720dc1e6a6575",
+    "results": "71cb9b675eae87850cb0393f1a294f762612ae80ae19d50b03cce8cae0335ed3",
+    "suite": "acb28f84e82aaace9f1ca88fa6b53bbbc01d410bbf83c2efaa2c5a81abfec095",
+    "trajectories": "c4dd80401bf693924e0a66ecf7aaf5d94e757cd67cb62af714ee3a4cd1cb4251"
+  },
+  "schema": "seed414-root-budget-confirmation-publication-binding-v1",
+  "source_snapshot_hashes": {
+    "analysis": "4f8fbba6e6b1104fde695d3306064bc14a057e5c997262a80c0be8bd5a8427f7",
+    "arena": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "exclusion": "ae370890b4230bb780fdaf08380c6bd1f6a7ddf5c190e6d3ba2dfb4a68ed18eb",
+    "native_adapter": "49fe76e8dc0e827db3181397dee7bfbcf3b1b35234757be1ac441ea09eefab6a",
+    "opening_suite": "5c15d541574905ff9d7c75bc8daf8813311e22f22f220563e18cb9b85fb8bd87",
+    "population": "c2919fd0f30c919d831c7a7435e909eb1578d67fc7670abbb48cda581d1a2680",
+    "publisher": "7e7c5b93c09643aefef6c41ab15fda2b07cdab4870e14c5c8eaa521a6143f2be",
+    "rules": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "runner": "d27ef70c48d48aa67266ba6843800a3f3e80bf9be56355b5ec4ee908f1383cba",
+    "runtime_search_policy": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
+    "seed_contract": "be5ed17519f86040cdac2a2380d4dd907015b927c6b80fedc85f7d668b9422c3",
+    "verifier": "796afed6c15796211ab15845421b9b7d2edfada63f99f5c57f688aca9c8cc7ed"
+  },
+  "verification_command": "PYTHONPATH=. python -m ml.alphazero_lite.verify_seed414_root_budget_confirmation",
+  "verifier_sha256": "796afed6c15796211ab15845421b9b7d2edfada63f99f5c57f688aca9c8cc7ed"
+}

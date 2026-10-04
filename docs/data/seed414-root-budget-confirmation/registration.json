@@ -1,0 +1,7833 @@
+{
+  "analysis": {
+    "adaptive_extension": false,
+    "bootstrap_resamples": 10000,
+    "bootstrap_seed": 414,
+    "bootstrap_units": 128,
+    "confirm_if": "mean >= 0.03, lower interval > 0, and both reference means >= 0",
+    "interval": [
+      0.025,
+      0.975
+    ],
+    "primary": "state-wise mean of the two reference-specific score gains, FF1536 minus FF384, averaged across all 128 states including unchanged-action zero gains"
+  },
+  "exclusion_proof_sha256": "cf972371bfef9b814150bd649aebeb5cadea76b80a928b4f5019d9eb6d745554",
+  "runtime_identities": {
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "references": {
+      "original_O0_E4": {
+        "artifact_files": {
+          "metadata.json": "c26123bbefc4b2c7c7a75178d908928b57c74ba1ff26254a09711e4fd0d5bade",
+          "model.npz": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4",
+          "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+          "weights.json": "fc090a3bfb0a82fd5e66a96237347219d98ab2b3eeb5f9ddbee8fb17e472dfa4"
+        },
+        "checkpoint_sha256": "4bc05f8284d5adb5beac5090dbf2c09686c84831131cf3ceede606587ec127f4",
+        "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+      },
+      "seed455": {
+        "artifact_files": {
+          "metadata.json": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+          "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+          "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+        },
+        "checkpoint_sha256": "c18beeaa16ebaa038cd383cfd222705c636e2b6398c7270e6674d33231aa9dd1",
+        "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+      }
+    },
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+  },
+  "schema": "seed414-root-budget-confirmation-registration-v1",
+  "scope": "fresh first-action quality diagnostic; not overall strength or promotion evidence",
+  "search": {
+    "c_puct": 1.25,
+    "continuation_simulations": 1536,
+    "exact_leaf_solving": "disabled",
+    "exact_root_objective": "final_score_margin",
+    "exact_root_solve_threshold": 16,
+    "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+    "options": {
+      "fpu_mode": "zero",
+      "normalize_values": false,
+      "reuse_subtree": false,
+      "root_policy_mode": "deterministic",
+      "root_temperature": 0.0,
+      "tactical_root_bias": 0.0
+    },
+    "root_simulations": 1536,
+    "snapshots": [
+      384,
+      1536
+    ]
+  },
+  "seed_contract": {
+    "base_seed": 414,
+    "continuation_first_ply": 1,
+    "excluded_identity_fields": [
+      "budget",
+      "branch",
+      "reference"
+    ],
+    "name": "azlite_eval_seed_v2",
+    "root_ply": 0,
+    "suite_sha256": "acb28f84e82aaace9f1ca88fa6b53bbbc01d410bbf83c2efaa2c5a81abfec095"
+  },
+  "source_sha256": {
+    "analysis": "4f8fbba6e6b1104fde695d3306064bc14a057e5c997262a80c0be8bd5a8427f7",
+    "arena": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "exclusion": "ae370890b4230bb780fdaf08380c6bd1f6a7ddf5c190e6d3ba2dfb4a68ed18eb",
+    "native_adapter": "49fe76e8dc0e827db3181397dee7bfbcf3b1b35234757be1ac441ea09eefab6a",
+    "opening_suite": "5c15d541574905ff9d7c75bc8daf8813311e22f22f220563e18cb9b85fb8bd87",
+    "population": "c2919fd0f30c919d831c7a7435e909eb1578d67fc7670abbb48cda581d1a2680",
+    "publisher": "7e7c5b93c09643aefef6c41ab15fda2b07cdab4870e14c5c8eaa521a6143f2be",
+    "rules": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "runner": "d27ef70c48d48aa67266ba6843800a3f3e80bf9be56355b5ec4ee908f1383cba",
+    "runtime_search_policy": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
+    "seed_contract": "be5ed17519f86040cdac2a2380d4dd907015b927c6b80fedc85f7d668b9422c3",
+    "verifier": "796afed6c15796211ab15845421b9b7d2edfada63f99f5c57f688aca9c8cc7ed"
+  },
+  "states": [
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "3",
+      "legal_actions": [
+        0,
+        1,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 0,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 8,
+      "prefix_moves": [
+        3,
+        3,
+        2,
+        3,
+        2,
+        1,
+        5,
+        1
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        3,
+        9,
+        2,
+        3,
+        8,
+        7,
+        5,
+        7
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          6,
+          0,
+          3,
+          3,
+          8,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          5,
+          4,
+          0,
+          0,
+          7,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_hash": "f19d148f8ec401c6e03f24eb5df96879169c7e7e760789a243765b9da4e8460e",
+      "store_diff": 1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        2,
+        3,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 1,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 7,
+      "prefix_moves": [
+        0,
+        4,
+        1,
+        2,
+        0,
+        4,
+        2
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        0,
+        10,
+        1,
+        8,
+        6,
+        4,
+        8
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          6,
+          0,
+          8,
+          3,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          1,
+          0,
+          6,
+          6,
+          0,
+          6
+        ],
+        "player_store": 2
+      },
+      "state_hash": "59a7f1e8d6fce4746fffe13a8429c5eb3ae701731e82f6c94ecbadbd688cbeb3",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "1",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 2,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 7,
+      "prefix_moves": [
+        1,
+        2,
+        4,
+        4,
+        0,
+        0,
+        3
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        1,
+        8,
+        10,
+        4,
+        6,
+        0,
+        9
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          6,
+          2,
+          0,
+          2,
+          8
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          3,
+          8,
+          6,
+          1,
+          7
+        ],
+        "player_store": 1
+      },
+      "state_hash": "a221812fd14c1ab51294f9471e09327bbcffc274707d9b9a7568291a40647cfb",
+      "store_diff": -2
+    },
+    {
+      "alternate_prefixes": [
+        [
+          0,
+          11,
+          0,
+          8,
+          11,
+          6,
+          1
+        ]
+      ],
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 3,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 7,
+      "prefix_moves": [
+        0,
+        5,
+        0,
+        2,
+        0,
+        1,
+        5
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        0,
+        11,
+        0,
+        8,
+        6,
+        1,
+        11
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          6,
+          1,
+          6,
+          6,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          0,
+          0,
+          7,
+          6,
+          6,
+          5
+        ],
+        "player_store": 1
+      },
+      "state_hash": "f16f0d612dd32ab8a402d10224952aeec4428283838e98cd1e7f58d21b1869be",
+      "store_diff": 2
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "4",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 4,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 7,
+      "prefix_moves": [
+        4,
+        3,
+        3,
+        1,
+        2,
+        5,
+        2
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        4,
+        9,
+        3,
+        7,
+        8,
+        5,
+        8
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          7,
+          1,
+          0,
+          4,
+          8,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          6,
+          4,
+          4,
+          0,
+          1,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_hash": "82ce8d5ea30e04f23c0d17b817985b373c3b1b6cd96d8729ef85537234b6ceaf",
+      "store_diff": 0
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "3",
+      "legal_actions": [
+        0,
+        2,
+        3,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 5,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 7,
+      "prefix_moves": [
+        3,
+        5,
+        4,
+        3,
+        1,
+        4,
+        2
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        3,
+        11,
+        4,
+        9,
+        1,
+        4,
+        8
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          6,
+          5,
+          0,
+          1,
+          6,
+          2
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          0,
+          6,
+          1,
+          0,
+          8
+        ],
+        "player_store": 3
+      },
+      "state_hash": "97065d7cc02774d4a4b8adc69c2d0a830cf803910b54be1d995d4a6533c4cdbc",
+      "store_diff": 0
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "4",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 6,
+      "phase_bucket": "early",
+      "pit_sum": 41,
+      "ply": 8,
+      "prefix_moves": [
+        4,
+        2,
+        5,
+        5,
+        1,
+        2,
+        2,
+        5
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        4,
+        8,
+        11,
+        5,
+        7,
+        2,
+        8,
+        5
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          7,
+          0,
+          0,
+          8,
+          7,
+          1
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          6,
+          5,
+          0,
+          6,
+          1,
+          0
+        ],
+        "player_store": 4
+      },
+      "state_hash": "43abb78f0dd17101026b3fbf32d9a24e22d8f2c993d9b4bfdcef820df7a28c62",
+      "store_diff": 1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 7,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 8,
+      "prefix_moves": [
+        0,
+        3,
+        2,
+        0,
+        4,
+        2,
+        1,
+        4
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        0,
+        9,
+        2,
+        6,
+        4,
+        8,
+        1,
+        10
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          6,
+          0,
+          3,
+          0,
+          8
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          3,
+          1,
+          2,
+          8,
+          2,
+          7
+        ],
+        "player_store": 3
+      },
+      "state_hash": "5a5f0cd18786e790a161a1dc5155f0390b4347e6de5ba68d8b863a2c6fe16039",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "2",
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 8,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 8,
+      "prefix_moves": [
+        2,
+        5,
+        0,
+        3,
+        5,
+        1,
+        5,
+        0
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        2,
+        5,
+        6,
+        3,
+        11,
+        1,
+        5,
+        6
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          8,
+          7,
+          6,
+          5,
+          0
+        ],
+        "opponent_store": 1,
+        "player_pits": [
+          5,
+          0,
+          2,
+          2,
+          7,
+          0
+        ],
+        "player_store": 5
+      },
+      "state_hash": "94813bf3c19851a11b36eb1aa800be0cbb07bcecaa0e2647ba508e98e6706883",
+      "store_diff": 4
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "5",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 9,
+      "phase_bucket": "early",
+      "pit_sum": 36,
+      "ply": 8,
+      "prefix_moves": [
+        5,
+        2,
+        1,
+        5,
+        0,
+        3,
+        3,
+        0
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        5,
+        8,
+        1,
+        11,
+        0,
+        3,
+        9,
+        0
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          6,
+          1,
+          0,
+          6,
+          1
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          0,
+          4,
+          8,
+          0,
+          7,
+          2
+        ],
+        "player_store": 9
+      },
+      "state_hash": "53b3f53bbaf78c0fb1224b9d670cfd2e77dc75a01f8afcad602e4fdeff384122",
+      "store_diff": -6
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "1",
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 10,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 8,
+      "prefix_moves": [
+        1,
+        0,
+        5,
+        5,
+        3,
+        0,
+        5,
+        1
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        1,
+        6,
+        5,
+        11,
+        3,
+        6,
+        5,
+        1
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          8,
+          7,
+          6,
+          5,
+          0
+        ],
+        "opponent_store": 1,
+        "player_pits": [
+          5,
+          0,
+          7,
+          0,
+          6,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_hash": "f1b04a4a770e7212105327f0ec5b59d1a2b5dfc59a9d401e1763734fbcec5f3a",
+      "store_diff": -2
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "5",
+      "legal_actions": [
+        0,
+        1,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 11,
+      "phase_bucket": "early",
+      "pit_sum": 41,
+      "ply": 8,
+      "prefix_moves": [
+        5,
+        0,
+        0,
+        4,
+        3,
+        2,
+        2,
+        0
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        5,
+        6,
+        0,
+        10,
+        3,
+        8,
+        2,
+        6
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          9,
+          0,
+          6,
+          1,
+          7
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          2,
+          7,
+          0,
+          0,
+          7,
+          2
+        ],
+        "player_store": 3
+      },
+      "state_hash": "fcb4197bbe86d41520ceebf93d17f19a72fbebab0d3225184373eb24e6385fbe",
+      "store_diff": -1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "2",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 12,
+      "phase_bucket": "early",
+      "pit_sum": 38,
+      "ply": 7,
+      "prefix_moves": [
+        2,
+        1,
+        2,
+        5,
+        2,
+        1,
+        5
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        2,
+        1,
+        8,
+        11,
+        2,
+        7,
+        5
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          1,
+          2,
+          7,
+          7,
+          0
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          0,
+          1,
+          0,
+          8,
+          7,
+          0
+        ],
+        "player_store": 2
+      },
+      "state_hash": "35e3ae1afeea072915169b53d2c7ce980a9f1ed6c74de40a5dfdb25d34a853e4",
+      "store_diff": 6
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "5",
+      "legal_actions": [
+        0,
+        1,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 13,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 8,
+      "prefix_moves": [
+        5,
+        0,
+        0,
+        2,
+        2,
+        1,
+        3,
+        1
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        5,
+        6,
+        0,
+        8,
+        2,
+        7,
+        3,
+        7
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          3,
+          7,
+          7,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          2,
+          6,
+          0,
+          0,
+          7,
+          2
+        ],
+        "player_store": 3
+      },
+      "state_hash": "70d38461711cc10337e18ba7073f5a305b0dcb23fbc231857f7d388280eda200",
+      "store_diff": 1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "1",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 14,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 7,
+      "prefix_moves": [
+        1,
+        4,
+        4,
+        3,
+        0,
+        3,
+        1
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        1,
+        10,
+        4,
+        9,
+        0,
+        3,
+        7
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          6,
+          0,
+          7,
+          1,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          2,
+          6,
+          0,
+          2,
+          8
+        ],
+        "player_store": 3
+      },
+      "state_hash": "c52f6a0b37a1e4399aafeedbc7bf751d19e2e2a4077ae5c2eda7601995b25cb1",
+      "store_diff": 0
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "3",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 15,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 7,
+      "prefix_moves": [
+        3,
+        3,
+        1,
+        1,
+        5,
+        5,
+        1
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        3,
+        9,
+        1,
+        7,
+        5,
+        11,
+        1
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          6,
+          1,
+          6,
+          2,
+          7,
+          0
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          0,
+          7,
+          2,
+          7,
+          0
+        ],
+        "player_store": 2
+      },
+      "state_hash": "7ae9b63a6da23e895331419bdc7534e57a44466d9a8a4f3b9b5e80e1057edec7",
+      "store_diff": 0
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "5",
+      "legal_actions": [
+        0,
+        1,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 16,
+      "phase_bucket": "early",
+      "pit_sum": 40,
+      "ply": 8,
+      "prefix_moves": [
+        5,
+        4,
+        1,
+        2,
+        1,
+        2,
+        3,
+        0
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        5,
+        10,
+        1,
+        2,
+        7,
+        8,
+        3,
+        6
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          2,
+          7,
+          3,
+          8
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          7,
+          1,
+          0,
+          0,
+          7,
+          3
+        ],
+        "player_store": 4
+      },
+      "state_hash": "d1748b55eb67b975af89c472a67a2e2b9324300d26f3390d9ef811bcd74bc7a5",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "3",
+      "legal_actions": [
+        0,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 17,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 8,
+      "prefix_moves": [
+        3,
+        2,
+        3,
+        1,
+        4,
+        1,
+        3,
+        3
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        3,
+        8,
+        9,
+        1,
+        4,
+        7,
+        9,
+        3
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          6,
+          0,
+          2,
+          0,
+          8,
+          8
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          5,
+          0,
+          5,
+          0,
+          1,
+          7
+        ],
+        "player_store": 3
+      },
+      "state_hash": "ab798e1da60c7a5c2f88afb4459b7aa071a94f2461511eafe9e50e949ff4ac75",
+      "store_diff": 0
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "4",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 18,
+      "phase_bucket": "early",
+      "pit_sum": 41,
+      "ply": 8,
+      "prefix_moves": [
+        4,
+        3,
+        0,
+        4,
+        2,
+        0,
+        2,
+        4
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        4,
+        9,
+        0,
+        10,
+        2,
+        6,
+        8,
+        4
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          7,
+          0,
+          2,
+          2,
+          8
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          2,
+          6,
+          0,
+          6,
+          0,
+          8
+        ],
+        "player_store": 3
+      },
+      "state_hash": "53880f7d269b30c2cedeb03d4ec963337b68eab8d28725a020c047a8c2198994",
+      "store_diff": -1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "2",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 19,
+      "phase_bucket": "early",
+      "pit_sum": 41,
+      "ply": 8,
+      "prefix_moves": [
+        2,
+        4,
+        3,
+        1,
+        5,
+        3,
+        0,
+        1
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        2,
+        4,
+        9,
+        1,
+        11,
+        3,
+        6,
+        7
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          8,
+          3,
+          7,
+          2
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          7,
+          2,
+          2,
+          0,
+          2,
+          8
+        ],
+        "player_store": 3
+      },
+      "state_hash": "5cd1237185d9d772a247a5b2111b4f832e963de4ba4c9381b2a9fb227ff8e971",
+      "store_diff": -1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "3",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 20,
+      "phase_bucket": "early",
+      "pit_sum": 41,
+      "ply": 8,
+      "prefix_moves": [
+        3,
+        5,
+        0,
+        4,
+        1,
+        2,
+        3,
+        5
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        3,
+        11,
+        0,
+        10,
+        1,
+        8,
+        9,
+        5
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          7,
+          6,
+          1,
+          1,
+          3,
+          4
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          2,
+          1,
+          7,
+          2,
+          7,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_hash": "2d8f5162671bdaf9b3d20f9c27a68cfb6d8cfc022eaeef403ea716295b8e7cbf",
+      "store_diff": 1
+    },
+    {
+      "alternate_prefixes": [
+        [
+          3,
+          9,
+          1,
+          6,
+          2,
+          8,
+          3,
+          6
+        ]
+      ],
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "3",
+      "legal_actions": [
+        0,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 21,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 8,
+      "prefix_moves": [
+        3,
+        3,
+        1,
+        0,
+        2,
+        0,
+        3,
+        2
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        3,
+        9,
+        1,
+        6,
+        2,
+        6,
+        3,
+        8
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          6,
+          0,
+          2,
+          7,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          0,
+          0,
+          0,
+          8,
+          8
+        ],
+        "player_store": 2
+      },
+      "state_hash": "ec51541ef4ef8b8b222c6d162010bbcb541cdc33d947423b77e750d4b9a0ab7f",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "4",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 22,
+      "phase_bucket": "early",
+      "pit_sum": 40,
+      "ply": 8,
+      "prefix_moves": [
+        4,
+        5,
+        5,
+        0,
+        5,
+        4,
+        1,
+        3
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        4,
+        11,
+        5,
+        6,
+        11,
+        10,
+        1,
+        9
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          7,
+          6,
+          0,
+          1,
+          2
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          7,
+          1,
+          8,
+          5,
+          1,
+          1
+        ],
+        "player_store": 3
+      },
+      "state_hash": "9c688e4604887e3316fe9166be02085d40675d02c888178876fedaf551e14f4e",
+      "store_diff": -2
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "4",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 23,
+      "phase_bucket": "early",
+      "pit_sum": 35,
+      "ply": 8,
+      "prefix_moves": [
+        4,
+        0,
+        0,
+        3,
+        1,
+        2,
+        2,
+        4
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        4,
+        6,
+        0,
+        9,
+        1,
+        8,
+        2,
+        10
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          1,
+          0,
+          1,
+          0,
+          8
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          3,
+          1,
+          1,
+          8,
+          3,
+          7
+        ],
+        "player_store": 10
+      },
+      "state_hash": "32fce0d3077f97b7f2057757eabc14df76b2dff6ab1a12a267e587e5e30ea807",
+      "store_diff": 7
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "4",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 24,
+      "phase_bucket": "early",
+      "pit_sum": 40,
+      "ply": 8,
+      "prefix_moves": [
+        4,
+        0,
+        5,
+        4,
+        0,
+        2,
+        2,
+        1
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        4,
+        6,
+        5,
+        10,
+        0,
+        8,
+        2,
+        7
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          1,
+          8,
+          2,
+          8
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          2,
+          8,
+          1,
+          6,
+          2,
+          1
+        ],
+        "player_store": 5
+      },
+      "state_hash": "6c957b1b9086adedeb552b810807e2d5cb9affc6dcd0142bfad47a05a1337345",
+      "store_diff": 2
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "4",
+      "legal_actions": [
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 25,
+      "phase_bucket": "early",
+      "pit_sum": 34,
+      "ply": 8,
+      "prefix_moves": [
+        4,
+        3,
+        3,
+        0,
+        4,
+        0,
+        2,
+        3
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        4,
+        9,
+        3,
+        6,
+        10,
+        0,
+        2,
+        9
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          7,
+          5,
+          0,
+          0,
+          7
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          0,
+          0,
+          0,
+          3,
+          3,
+          8
+        ],
+        "player_store": 4
+      },
+      "state_hash": "c0fc3d6ac668cc4020933cc8917c206573c107331e9bb9cb436f5e080409aa89",
+      "store_diff": -6
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "3",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 26,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 7,
+      "prefix_moves": [
+        3,
+        4,
+        0,
+        2,
+        5,
+        3,
+        3
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        3,
+        10,
+        0,
+        8,
+        11,
+        3,
+        9
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          5,
+          4,
+          0,
+          0,
+          2,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          2,
+          8,
+          6,
+          0,
+          8,
+          7
+        ],
+        "player_store": 1
+      },
+      "state_hash": "26be4b20c15d5ff880bfb358a72bc6186de4c723c3ed785f5afeb5f3692c0073",
+      "store_diff": -3
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "3",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 27,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 8,
+      "prefix_moves": [
+        3,
+        2,
+        1,
+        2,
+        3,
+        2,
+        0,
+        3
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        3,
+        8,
+        7,
+        2,
+        3,
+        8,
+        0,
+        9
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          5,
+          0,
+          0,
+          0,
+          7,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          1,
+          6,
+          2,
+          2,
+          8,
+          6
+        ],
+        "player_store": 2
+      },
+      "state_hash": "9f99b779c376ad8e1353b4d6cfe1488ebb3050dda1114a86b94ab812dfdb67cd",
+      "store_diff": 0
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "3",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 28,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 7,
+      "prefix_moves": [
+        3,
+        4,
+        2,
+        1,
+        4,
+        5,
+        1
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        3,
+        10,
+        2,
+        1,
+        4,
+        11,
+        1
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          6,
+          5,
+          5,
+          5,
+          1,
+          0
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          0,
+          3,
+          3,
+          0,
+          8
+        ],
+        "player_store": 4
+      },
+      "state_hash": "dfd2643033505247f058ac7dce65bf800c5aac67ebe5b88700c46dde82a778fd",
+      "store_diff": -2
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 29,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 7,
+      "prefix_moves": [
+        0,
+        2,
+        4,
+        1,
+        0,
+        3,
+        4
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        0,
+        8,
+        10,
+        1,
+        6,
+        3,
+        10
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          6,
+          2,
+          6,
+          0,
+          8
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          1,
+          0,
+          7,
+          0,
+          7,
+          6
+        ],
+        "player_store": 2
+      },
+      "state_hash": "2c5408f32afdd9c78747d13a6e086b5e395debfc2dbc624cb0f27e89ea890f4d",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "3",
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 30,
+      "phase_bucket": "early",
+      "pit_sum": 41,
+      "ply": 8,
+      "prefix_moves": [
+        3,
+        2,
+        5,
+        3,
+        3,
+        0,
+        5,
+        1
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        3,
+        8,
+        11,
+        3,
+        9,
+        0,
+        5,
+        7
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          6,
+          0,
+          2,
+          2,
+          8,
+          2
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          0,
+          7,
+          6,
+          1,
+          7,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_hash": "f419667172b47f68b10ea8cfdcb93e1da05c1718736faf8e66b1be8b7e310a1f",
+      "store_diff": 1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "2",
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 31,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 7,
+      "prefix_moves": [
+        2,
+        1,
+        4,
+        3,
+        3,
+        5,
+        0
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        2,
+        1,
+        10,
+        3,
+        9,
+        5,
+        6
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          7,
+          7,
+          2,
+          3,
+          8
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          6,
+          1,
+          1,
+          0,
+          7,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_hash": "7fa03b64b28d136c9c49f58efedabda7b128b798992d4af2294850a52bcbdf13",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 32,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 8,
+      "prefix_moves": [
+        0,
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        2
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        0,
+        6,
+        1,
+        2,
+        9,
+        4,
+        11,
+        2
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          7,
+          6,
+          1,
+          7,
+          0
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          2,
+          2,
+          0,
+          9,
+          0,
+          7
+        ],
+        "player_store": 3
+      },
+      "state_hash": "8d33d19b427ae5653c2ccba49cdf3107300ca7731d9fa5037674746f63067e05",
+      "store_diff": -1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "4",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 33,
+      "phase_bucket": "early",
+      "pit_sum": 41,
+      "ply": 7,
+      "prefix_moves": [
+        4,
+        4,
+        1,
+        3,
+        2,
+        5,
+        4
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        4,
+        10,
+        1,
+        3,
+        8,
+        11,
+        4
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          7,
+          6,
+          0,
+          5,
+          1,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          6,
+          1,
+          6,
+          1,
+          0,
+          8
+        ],
+        "player_store": 4
+      },
+      "state_hash": "dca70cfad7d78eaada719782c5172fec3a034d3efb8c37c1b8099c2634696a59",
+      "store_diff": -1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "4",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 34,
+      "phase_bucket": "early",
+      "pit_sum": 40,
+      "ply": 8,
+      "prefix_moves": [
+        4,
+        4,
+        3,
+        0,
+        3,
+        2,
+        4,
+        1
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        4,
+        10,
+        3,
+        6,
+        9,
+        2,
+        4,
+        1
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          6,
+          5,
+          0,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          6,
+          0,
+          1,
+          2,
+          1,
+          9
+        ],
+        "player_store": 5
+      },
+      "state_hash": "2771b0d8fe2f95f9b86f55c01fea5bef144190225da72c356a20de26a634a19e",
+      "store_diff": -2
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "5",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 35,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 8,
+      "prefix_moves": [
+        5,
+        0,
+        1,
+        4,
+        1,
+        2,
+        2,
+        0
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        5,
+        6,
+        1,
+        10,
+        1,
+        8,
+        2,
+        6
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          8,
+          1,
+          6,
+          1,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          1,
+          0,
+          6,
+          6,
+          2
+        ],
+        "player_store": 2
+      },
+      "state_hash": "02cea1cf2d5416dd86d3138d00b8b765f1b983c8e03ce6ec364bffe5110414d2",
+      "store_diff": 0
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "2",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 36,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 8,
+      "prefix_moves": [
+        2,
+        0,
+        0,
+        4,
+        4,
+        5,
+        3,
+        1
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        2,
+        0,
+        6,
+        4,
+        10,
+        5,
+        9,
+        1
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          8,
+          7,
+          0,
+          2,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          2,
+          0,
+          4,
+          8,
+          1,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_hash": "7f81914b2178ad55cd24cf9aa9da0b538adaa8c21df2e35a44180343457dad91",
+      "store_diff": -2
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 37,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 7,
+      "prefix_moves": [
+        0,
+        2,
+        0,
+        5,
+        4,
+        1,
+        3
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        0,
+        8,
+        6,
+        5,
+        10,
+        1,
+        9
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          6,
+          2,
+          0,
+          1,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          2,
+          1,
+          8,
+          7,
+          6,
+          1
+        ],
+        "player_store": 2
+      },
+      "state_hash": "5a9bec253d4969bf2fea047a9d72a9618f834bfc1fee125dddcfc05a951220a6",
+      "store_diff": -1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "2",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 38,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 7,
+      "prefix_moves": [
+        2,
+        3,
+        4,
+        1,
+        0,
+        1,
+        5
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        2,
+        3,
+        10,
+        1,
+        0,
+        7,
+        11
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          5,
+          0,
+          5,
+          5,
+          1,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          2,
+          3,
+          3,
+          9,
+          8
+        ],
+        "player_store": 3
+      },
+      "state_hash": "fd66062278c7293461417b973ce528703b629dad2879a12d6ac40c3f05b0026d",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 39,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 8,
+      "prefix_moves": [
+        0,
+        2,
+        0,
+        4,
+        3,
+        2,
+        1,
+        4
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        0,
+        8,
+        6,
+        4,
+        9,
+        2,
+        7,
+        4
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          0,
+          3,
+          1,
+          8,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          2,
+          7,
+          0,
+          6,
+          0,
+          7
+        ],
+        "player_store": 2
+      },
+      "state_hash": "ad14a56202479394b5140eb33587a5f1aa2ec04b4474c9562321b02a375a7fc6",
+      "store_diff": 1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "1",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 40,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 8,
+      "prefix_moves": [
+        1,
+        4,
+        2,
+        0,
+        4,
+        4,
+        5,
+        5
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        1,
+        10,
+        2,
+        6,
+        4,
+        10,
+        5,
+        11
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          7,
+          7,
+          7,
+          1,
+          0
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          2,
+          1,
+          7,
+          1,
+          1
+        ],
+        "player_store": 3
+      },
+      "state_hash": "9c9dac3e9b0f4177d9de6aefec7dc7e9fa2a69ab627989df80a25f0c5cec6412",
+      "store_diff": 1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "1",
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 41,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 7,
+      "prefix_moves": [
+        1,
+        0,
+        2,
+        5,
+        5,
+        4,
+        0
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        1,
+        6,
+        2,
+        11,
+        5,
+        10,
+        0
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          6,
+          6,
+          6,
+          0,
+          1
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          3,
+          3,
+          8,
+          7,
+          1
+        ],
+        "player_store": 3
+      },
+      "state_hash": "0474f868a79a0ace332e839509c9ff722229e6f3c365117406f85ed97de7fe9e",
+      "store_diff": 1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 42,
+      "phase_bucket": "early",
+      "pit_sum": 41,
+      "ply": 8,
+      "prefix_moves": [
+        0,
+        5,
+        3,
+        4,
+        5,
+        2,
+        2,
+        0
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        0,
+        11,
+        3,
+        10,
+        5,
+        8,
+        2,
+        6
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          8,
+          1,
+          7,
+          2,
+          3
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          4,
+          7,
+          0,
+          1,
+          7,
+          1
+        ],
+        "player_store": 3
+      },
+      "state_hash": "4b87981c1ff2ffb6acf18e5dc61a58277896ffba368806b0f6edbea6242efadd",
+      "store_diff": -1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "4",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 43,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 8,
+      "prefix_moves": [
+        4,
+        0,
+        5,
+        1,
+        1,
+        2,
+        0,
+        5
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        4,
+        6,
+        5,
+        7,
+        1,
+        2,
+        6,
+        5
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          1,
+          8,
+          7,
+          6,
+          6
+        ],
+        "opponent_store": 1,
+        "player_pits": [
+          5,
+          0,
+          0,
+          6,
+          2,
+          0
+        ],
+        "player_store": 5
+      },
+      "state_hash": "b412148a44a983e8a6f2a75c88d6ae98d759c1aada462c01131b111719a9aa68",
+      "store_diff": -4
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "5",
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 44,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 7,
+      "prefix_moves": [
+        5,
+        0,
+        4,
+        1,
+        3,
+        5,
+        3
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        5,
+        6,
+        4,
+        7,
+        3,
+        11,
+        3
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          0,
+          7,
+          6,
+          6,
+          0
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          6,
+          5,
+          0,
+          3,
+          2
+        ],
+        "player_store": 3
+      },
+      "state_hash": "1f2788bb191b565fc5244eb35af1de33f889a8d087d365537587c58efc47f805",
+      "store_diff": -1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "1",
+      "legal_actions": [
+        0,
+        2,
+        3,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 45,
+      "phase_bucket": "early",
+      "pit_sum": 45,
+      "ply": 8,
+      "prefix_moves": [
+        1,
+        1,
+        3,
+        0,
+        4,
+        3,
+        1,
+        0
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        1,
+        7,
+        3,
+        6,
+        4,
+        9,
+        1,
+        6
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          4,
+          7,
+          0,
+          7,
+          7
+        ],
+        "opponent_store": 1,
+        "player_pits": [
+          5,
+          0,
+          7,
+          1,
+          0,
+          7
+        ],
+        "player_store": 2
+      },
+      "state_hash": "2475e6c6211666b1ad87129851c253163be432731dc2c4b253de50c4d138852b",
+      "store_diff": 1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "5",
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 46,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 7,
+      "prefix_moves": [
+        5,
+        2,
+        4,
+        5,
+        1,
+        4,
+        0
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        5,
+        8,
+        4,
+        11,
+        1,
+        4,
+        6
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          7,
+          1,
+          6,
+          6,
+          1
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          6,
+          0,
+          6,
+          6,
+          0,
+          3
+        ],
+        "player_store": 3
+      },
+      "state_hash": "6e1a2616178ec4b1a737c7a767960eac17dda5d11dd4cb0922f217520d3f78ac",
+      "store_diff": 0
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "3",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 47,
+      "phase_bucket": "early",
+      "pit_sum": 41,
+      "ply": 7,
+      "prefix_moves": [
+        3,
+        2,
+        5,
+        4,
+        1,
+        4,
+        2
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        3,
+        8,
+        11,
+        4,
+        7,
+        10,
+        2
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          7,
+          1,
+          2,
+          6,
+          0,
+          2
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          6,
+          6,
+          0,
+          3,
+          1,
+          7
+        ],
+        "player_store": 3
+      },
+      "state_hash": "0718b2df7210c002602abf5336cc63936b46474285604990ef42b4821f925564",
+      "store_diff": 1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 48,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 8,
+      "prefix_moves": [
+        0,
+        1,
+        3,
+        0,
+        4,
+        5,
+        1,
+        4
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        0,
+        7,
+        3,
+        6,
+        4,
+        11,
+        1,
+        10
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          3,
+          7,
+          7,
+          0,
+          1
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          2,
+          1,
+          8,
+          3,
+          2,
+          7
+        ],
+        "player_store": 3
+      },
+      "state_hash": "029f730c3b33ae27da6bd534d6ff7d24c0aad32bec0cb9af57fc3a672af21478",
+      "store_diff": 1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "3",
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 49,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 8,
+      "prefix_moves": [
+        3,
+        0,
+        4,
+        5,
+        1,
+        0,
+        1,
+        1
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        3,
+        6,
+        4,
+        11,
+        1,
+        0,
+        7,
+        1
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          0,
+          7,
+          6,
+          6,
+          1
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          1,
+          0,
+          8,
+          3,
+          2,
+          8
+        ],
+        "player_store": 3
+      },
+      "state_hash": "ec1146049f9bc3c32e9a99c48dc8785ced980ae067b89b6db5bbddae4a3b7fd2",
+      "store_diff": -1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "5",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 50,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 8,
+      "prefix_moves": [
+        5,
+        2,
+        2,
+        0,
+        3,
+        4,
+        4,
+        0
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        5,
+        8,
+        2,
+        0,
+        9,
+        4,
+        10,
+        0
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          6,
+          6,
+          1,
+          1,
+          0,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          0,
+          8,
+          3,
+          7,
+          0,
+          3
+        ],
+        "player_store": 3
+      },
+      "state_hash": "840ad792020904b19d93eb032b087ef93cbd285a8d5569c0fdad07d194587381",
+      "store_diff": 0
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "1",
+      "legal_actions": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 51,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 8,
+      "prefix_moves": [
+        1,
+        1,
+        3,
+        3,
+        5,
+        0,
+        1,
+        1
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        1,
+        7,
+        3,
+        9,
+        5,
+        6,
+        7,
+        1
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          8,
+          3,
+          9,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          5,
+          0,
+          6,
+          0,
+          6,
+          0
+        ],
+        "player_store": 2
+      },
+      "state_hash": "40dd9e9c485b832d07a713b815dde39c9ab4614317a9805955a96a810bd25296",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "2",
+      "legal_actions": [
+        0,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 52,
+      "phase_bucket": "early",
+      "pit_sum": 45,
+      "ply": 8,
+      "prefix_moves": [
+        2,
+        1,
+        1,
+        2,
+        3,
+        0,
+        2,
+        2
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        2,
+        1,
+        7,
+        2,
+        9,
+        0,
+        8,
+        2
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          0,
+          0,
+          1,
+          7,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          1,
+          2,
+          0,
+          9,
+          7,
+          7
+        ],
+        "player_store": 1
+      },
+      "state_hash": "a9929dd8fe0b33ba0fc1d1f1ccd4214db2b01f36d2d9462ed3da5173778de527",
+      "store_diff": 1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "3",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 53,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 7,
+      "prefix_moves": [
+        3,
+        2,
+        4,
+        5,
+        5,
+        3,
+        2
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        3,
+        8,
+        10,
+        5,
+        11,
+        3,
+        8
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          6,
+          5,
+          0,
+          7,
+          0,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          6,
+          6,
+          6,
+          0,
+          7,
+          0
+        ],
+        "player_store": 2
+      },
+      "state_hash": "d5cd1950f208daeb2b35ff1894190dfbe18215ff6f19526d8eaf5625abd4d2c0",
+      "store_diff": -1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 54,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 8,
+      "prefix_moves": [
+        0,
+        1,
+        2,
+        2,
+        4,
+        0,
+        3,
+        1
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        0,
+        7,
+        2,
+        8,
+        4,
+        6,
+        9,
+        1
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          2,
+          2,
+          0,
+          8,
+          8
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          2,
+          0,
+          2,
+          8,
+          2,
+          7
+        ],
+        "player_store": 3
+      },
+      "state_hash": "dd2855f60a2f14581abff6eecb995d78621691f2a3482d30459e3cd2fa6fc4de",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "5",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 55,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 7,
+      "prefix_moves": [
+        5,
+        5,
+        1,
+        3,
+        2,
+        0,
+        1
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        5,
+        11,
+        1,
+        3,
+        8,
+        0,
+        1
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          6,
+          6,
+          0,
+          5,
+          5,
+          1
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          0,
+          8,
+          1,
+          7,
+          3
+        ],
+        "player_store": 4
+      },
+      "state_hash": "ab7ca526afc9849dd050913dcbe3100bcadc149175633a5c98e7fe60d3865922",
+      "store_diff": -2
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "4",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 56,
+      "phase_bucket": "early",
+      "pit_sum": 40,
+      "ply": 8,
+      "prefix_moves": [
+        4,
+        5,
+        5,
+        3,
+        0,
+        3,
+        5,
+        2
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        4,
+        11,
+        5,
+        9,
+        0,
+        3,
+        11,
+        8
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          7,
+          7,
+          0,
+          1,
+          6,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          1,
+          7,
+          6,
+          0,
+          2,
+          2
+        ],
+        "player_store": 4
+      },
+      "state_hash": "848c82ad6280e5cc03742a836924ecb77e5a1c3d621ce30c9b5f5bd6ea497f7f",
+      "store_diff": 0
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "4",
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 57,
+      "phase_bucket": "early",
+      "pit_sum": 41,
+      "ply": 7,
+      "prefix_moves": [
+        4,
+        5,
+        1,
+        2,
+        0,
+        3,
+        0
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        4,
+        11,
+        1,
+        2,
+        6,
+        9,
+        0
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          7,
+          5,
+          0,
+          6,
+          2
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          0,
+          2,
+          1,
+          7,
+          3,
+          8
+        ],
+        "player_store": 4
+      },
+      "state_hash": "a4bcb43df8ef74ffdad95d09be57e1ee0f002e15039fdc6a658a4bccdd76e1f9",
+      "store_diff": 1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "2",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 58,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 8,
+      "prefix_moves": [
+        2,
+        5,
+        0,
+        1,
+        2,
+        5,
+        0,
+        3
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        2,
+        5,
+        6,
+        1,
+        8,
+        5,
+        0,
+        9
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          6,
+          0,
+          0,
+          7,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          1,
+          3,
+          3,
+          8,
+          7,
+          1
+        ],
+        "player_store": 3
+      },
+      "state_hash": "6c04e2b568e01c9d1cefb1f8c849fc72f216f3c7f64cf3f577543b3f5577df6d",
+      "store_diff": 1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 59,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 7,
+      "prefix_moves": [
+        0,
+        4,
+        4,
+        2,
+        0,
+        3,
+        1
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        0,
+        10,
+        4,
+        8,
+        0,
+        9,
+        1
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          6,
+          6,
+          1,
+          0,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          0,
+          7,
+          6,
+          1,
+          6
+        ],
+        "player_store": 2
+      },
+      "state_hash": "e8485f4fc350d5615e7571a355cb908a39e966fb00c732d65f7ec2c961ad5b30",
+      "store_diff": 1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "1",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 60,
+      "phase_bucket": "early",
+      "pit_sum": 45,
+      "ply": 7,
+      "prefix_moves": [
+        1,
+        1,
+        0,
+        2,
+        3,
+        5,
+        1
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        1,
+        7,
+        0,
+        8,
+        3,
+        11,
+        1
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          1,
+          1,
+          6,
+          6,
+          0
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          2,
+          0,
+          8,
+          2,
+          8,
+          6
+        ],
+        "player_store": 1
+      },
+      "state_hash": "4edeb66000bfddfd04ea752edbc9bb9b48247cd93e12685c6bd4d02b6228441c",
+      "store_diff": 1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "3",
+      "legal_actions": [
+        0,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 61,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 8,
+      "prefix_moves": [
+        3,
+        0,
+        0,
+        4,
+        1,
+        1,
+        3,
+        0
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        3,
+        6,
+        0,
+        10,
+        1,
+        7,
+        9,
+        0
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          0,
+          6,
+          0,
+          2,
+          8
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          0,
+          2,
+          9,
+          2,
+          7,
+          6
+        ],
+        "player_store": 2
+      },
+      "state_hash": "43cff6115691309528930b00660da1e4d77c397c1631f6d5b07ea092ff3150a3",
+      "store_diff": 1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 62,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 7,
+      "prefix_moves": [
+        0,
+        4,
+        5,
+        5,
+        2,
+        2,
+        4
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        0,
+        10,
+        5,
+        11,
+        2,
+        8,
+        4
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          7,
+          7,
+          1,
+          6,
+          1,
+          1
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          3,
+          7,
+          0,
+          7,
+          0,
+          2
+        ],
+        "player_store": 3
+      },
+      "state_hash": "1fe0d0ef80b7c515b9228268cdd11ad9cebf810207ae3be2476c9500c189c830",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "1",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 63,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 8,
+      "prefix_moves": [
+        1,
+        2,
+        1,
+        0,
+        5,
+        5,
+        3,
+        3
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        1,
+        8,
+        7,
+        0,
+        11,
+        5,
+        9,
+        3
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          6,
+          2,
+          3,
+          1,
+          8,
+          1
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          2,
+          3,
+          8,
+          0,
+          8,
+          1
+        ],
+        "player_store": 2
+      },
+      "state_hash": "8e55f72647109c2bb722de80f05cd5cfa9d515865928c028d77f59b9efbac08e",
+      "store_diff": 1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "3",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 64,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 8,
+      "prefix_moves": [
+        3,
+        2,
+        0,
+        1,
+        2,
+        4,
+        3,
+        0
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        3,
+        8,
+        6,
+        1,
+        8,
+        4,
+        9,
+        0
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          6,
+          1,
+          0,
+          7,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          2,
+          7,
+          3,
+          2,
+          8
+        ],
+        "player_store": 2
+      },
+      "state_hash": "a6b920bbe349077d4603eedfdb6b3fef7d15cc7b03324e0c38294428a1c27d66",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "1",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 65,
+      "phase_bucket": "early",
+      "pit_sum": 41,
+      "ply": 8,
+      "prefix_moves": [
+        1,
+        3,
+        4,
+        1,
+        5,
+        3,
+        0,
+        4
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        1,
+        9,
+        4,
+        7,
+        11,
+        3,
+        6,
+        10
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          8,
+          2,
+          0,
+          2
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          7,
+          2,
+          7,
+          1,
+          3,
+          7
+        ],
+        "player_store": 2
+      },
+      "state_hash": "be6db9f4b12b49ad4f99e1dde8bdda12013b710d06ee5b3e7bffb56029d20530",
+      "store_diff": -3
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "1",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 66,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 8,
+      "prefix_moves": [
+        1,
+        4,
+        4,
+        1,
+        0,
+        5,
+        4,
+        3
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        1,
+        10,
+        4,
+        7,
+        6,
+        5,
+        10,
+        3
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          3,
+          8,
+          7,
+          0,
+          8
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          6,
+          1,
+          5,
+          0,
+          1,
+          1
+        ],
+        "player_store": 3
+      },
+      "state_hash": "9215c2052b3ea7dd6addd55d93372b1368c24bd7c229c40acec471b0a190786f",
+      "store_diff": 0
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "2",
+      "legal_actions": [
+        0,
+        1,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 67,
+      "phase_bucket": "early",
+      "pit_sum": 37,
+      "ply": 7,
+      "prefix_moves": [
+        2,
+        0,
+        3,
+        3,
+        0,
+        2,
+        1
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        2,
+        0,
+        9,
+        3,
+        6,
+        2,
+        7
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          1,
+          2,
+          7,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          2,
+          5,
+          0,
+          0,
+          7,
+          6
+        ],
+        "player_store": 9
+      },
+      "state_hash": "e3300df33689f75b31c870343a57fee8221c559b92b073b2dce0b1f826321ff0",
+      "store_diff": 7
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 68,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 8,
+      "prefix_moves": [
+        0,
+        4,
+        3,
+        2,
+        3,
+        2,
+        0,
+        3
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        0,
+        10,
+        3,
+        8,
+        9,
+        2,
+        6,
+        9
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          6,
+          1,
+          0,
+          4,
+          8
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          2,
+          7,
+          0,
+          1,
+          7,
+          6
+        ],
+        "player_store": 2
+      },
+      "state_hash": "406a467828a0aec965223f5070339fdd4b422e9862fccbc2335118690196d25f",
+      "store_diff": -2
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "5",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 69,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 8,
+      "prefix_moves": [
+        5,
+        0,
+        1,
+        3,
+        1,
+        5,
+        2,
+        2
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        5,
+        6,
+        1,
+        9,
+        1,
+        11,
+        2,
+        8
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          7,
+          0,
+          1,
+          7,
+          1
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          2,
+          1,
+          7,
+          7,
+          2
+        ],
+        "player_store": 2
+      },
+      "state_hash": "80b73e366479687b4216bb6749b27c05d12612deb5ec92f7c069d62a2980f866",
+      "store_diff": -1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "1",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 70,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 8,
+      "prefix_moves": [
+        1,
+        1,
+        4,
+        4,
+        3,
+        5,
+        4,
+        5
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        1,
+        7,
+        4,
+        10,
+        3,
+        11,
+        4,
+        5
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          7,
+          3,
+          7,
+          6,
+          1,
+          1
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          7,
+          2,
+          7,
+          1,
+          0,
+          0
+        ],
+        "player_store": 4
+      },
+      "state_hash": "8756e4625cc41d6aba97956c2f8bc5ae47d9137eed017da710930f98535dfe19",
+      "store_diff": -2
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 71,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 7,
+      "prefix_moves": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        2,
+        2
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        0,
+        8,
+        9,
+        4,
+        11,
+        2,
+        8
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          6,
+          6,
+          0,
+          1,
+          6,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          2,
+          7,
+          0,
+          7,
+          2,
+          6
+        ],
+        "player_store": 2
+      },
+      "state_hash": "3693d463cc11fe8915f058c18b97b7f796b07a6e7146fdc240c1fd549932da0a",
+      "store_diff": -1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "5",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 72,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 7,
+      "prefix_moves": [
+        5,
+        2,
+        2,
+        1,
+        5,
+        3,
+        3
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        5,
+        8,
+        2,
+        1,
+        11,
+        3,
+        9
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          6,
+          6,
+          1,
+          0,
+          6,
+          1
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          2,
+          3,
+          0,
+          7,
+          3
+        ],
+        "player_store": 3
+      },
+      "state_hash": "cde79fb193deb4ef49c487b206573c19e9c8b76f3a34f452f9a55a0da4467dce",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 73,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 7,
+      "prefix_moves": [
+        0,
+        3,
+        5,
+        2,
+        0,
+        5,
+        0
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        0,
+        9,
+        5,
+        8,
+        0,
+        11,
+        0
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          5,
+          0,
+          1,
+          6,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          0,
+          8,
+          7,
+          6,
+          6,
+          0
+        ],
+        "player_store": 1
+      },
+      "state_hash": "690d1de7bccf725b7bc8feb79a652c977e9f90b9cc2cc7849b11dad6cea0f65f",
+      "store_diff": 2
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 74,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 7,
+      "prefix_moves": [
+        0,
+        1,
+        4,
+        2,
+        2,
+        3,
+        3
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        0,
+        7,
+        4,
+        8,
+        2,
+        9,
+        3
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          7,
+          2,
+          1,
+          0,
+          7,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          2,
+          7,
+          1,
+          0,
+          2,
+          7
+        ],
+        "player_store": 3
+      },
+      "state_hash": "f3080995903df186aeba11c53bd7a984529cdbf3f975403c5b0eaa3f6bb5f590",
+      "store_diff": -1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "4",
+      "legal_actions": [
+        0,
+        2,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 75,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 7,
+      "prefix_moves": [
+        4,
+        1,
+        3,
+        1,
+        4,
+        5,
+        4
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        4,
+        7,
+        9,
+        1,
+        4,
+        11,
+        4
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          0,
+          5,
+          0,
+          6,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          6,
+          1,
+          6,
+          6,
+          0,
+          8
+        ],
+        "player_store": 2
+      },
+      "state_hash": "e103e1f6a9f8aa163991726a8720e0e5d04a389f55f89b13619fd7db6668fd7f",
+      "store_diff": 1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "5",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 76,
+      "phase_bucket": "early",
+      "pit_sum": 36,
+      "ply": 7,
+      "prefix_moves": [
+        5,
+        3,
+        0,
+        5,
+        2,
+        2,
+        1
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        5,
+        9,
+        0,
+        11,
+        2,
+        8,
+        1
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          6,
+          0,
+          1,
+          6,
+          1
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          2,
+          0,
+          1,
+          8,
+          7,
+          2
+        ],
+        "player_store": 9
+      },
+      "state_hash": "c6e88655832041609e8010927706aaafcf7be7b11aaeeb16ee1f53d8ba2bfb78",
+      "store_diff": -6
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 77,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 8,
+      "prefix_moves": [
+        0,
+        2,
+        1,
+        3,
+        5,
+        0,
+        0,
+        4
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        0,
+        8,
+        7,
+        3,
+        11,
+        0,
+        6,
+        4
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          3,
+          3,
+          8,
+          8,
+          1
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          7,
+          6,
+          1,
+          0,
+          6
+        ],
+        "player_store": 2
+      },
+      "state_hash": "f49185ccfe5fce9eed16b9afa756c700a340576979d98726508b26e1a94b585e",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "1",
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 78,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 7,
+      "prefix_moves": [
+        1,
+        2,
+        1,
+        4,
+        5,
+        3,
+        0
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        1,
+        8,
+        7,
+        4,
+        11,
+        3,
+        6
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          3,
+          4,
+          7,
+          7,
+          1
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          5,
+          1,
+          6,
+          0,
+          2,
+          7
+        ],
+        "player_store": 2
+      },
+      "state_hash": "91e1844bf73afb8b7eeac7f8be910fa502224a847bbdcc689f53a7f1e99a1875",
+      "store_diff": 1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "2",
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 79,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 7,
+      "prefix_moves": [
+        2,
+        0,
+        3,
+        3,
+        5,
+        4,
+        0
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        2,
+        0,
+        9,
+        3,
+        11,
+        4,
+        6
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          7,
+          7,
+          2,
+          7,
+          1
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          2,
+          6,
+          2,
+          1,
+          0,
+          7
+        ],
+        "player_store": 3
+      },
+      "state_hash": "a8ce860bc6e7b8036482d95ec01e0cdf3b87653494d1badb47e9c02d04142911",
+      "store_diff": 0
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 80,
+      "phase_bucket": "early",
+      "pit_sum": 40,
+      "ply": 8,
+      "prefix_moves": [
+        0,
+        5,
+        4,
+        0,
+        2,
+        2,
+        3,
+        1
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        0,
+        11,
+        4,
+        6,
+        2,
+        8,
+        3,
+        7
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          2,
+          7,
+          7,
+          2
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          2,
+          8,
+          1,
+          0,
+          2,
+          7
+        ],
+        "player_store": 3
+      },
+      "state_hash": "b8c7097dd15116b27877be4e229470750b938462f8a61bbe4429f7437b81e78b",
+      "store_diff": -2
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "1",
+      "legal_actions": [
+        0,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 81,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 8,
+      "prefix_moves": [
+        1,
+        4,
+        0,
+        3,
+        3,
+        1,
+        2,
+        0
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        1,
+        10,
+        0,
+        9,
+        3,
+        7,
+        8,
+        0
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          0,
+          0,
+          2,
+          3,
+          8
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          0,
+          4,
+          7,
+          0,
+          7,
+          7
+        ],
+        "player_store": 1
+      },
+      "state_hash": "129287ded905f8dd04dab8695bde3cfd5ec9028f47824e3933c4b7a688529abc",
+      "store_diff": 3
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "5",
+      "legal_actions": [
+        0,
+        1,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 82,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 8,
+      "prefix_moves": [
+        5,
+        2,
+        2,
+        1,
+        3,
+        2,
+        5,
+        2
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        5,
+        8,
+        2,
+        1,
+        9,
+        2,
+        11,
+        2
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          5,
+          0,
+          0,
+          6,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          2,
+          0,
+          9,
+          7,
+          2
+        ],
+        "player_store": 2
+      },
+      "state_hash": "91fa964256c92be970d89515a8ee13704d68a141e99d362a1418f225f2186916",
+      "store_diff": 1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "5",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 83,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 8,
+      "prefix_moves": [
+        5,
+        0,
+        1,
+        1,
+        3,
+        0,
+        4,
+        3
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        5,
+        6,
+        1,
+        7,
+        3,
+        6,
+        4,
+        9
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          3,
+          8,
+          0,
+          7,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          1,
+          6,
+          1,
+          0,
+          3
+        ],
+        "player_store": 3
+      },
+      "state_hash": "256c2580c5a75bce38bbee5b9326ede70fe1fb4fdb37973733b4b582af1260c6",
+      "store_diff": 1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "3",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 84,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 8,
+      "prefix_moves": [
+        3,
+        0,
+        2,
+        1,
+        5,
+        0,
+        2,
+        4
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        3,
+        6,
+        2,
+        1,
+        11,
+        0,
+        8,
+        4
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          6,
+          1,
+          7,
+          7,
+          2
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          1,
+          2,
+          3,
+          4,
+          0,
+          9
+        ],
+        "player_store": 3
+      },
+      "state_hash": "934bca55434dd1b9ca3bd14208b8fa5ca819d0ca8b3bac384634cd28547a2db9",
+      "store_diff": -1
+    },
+    {
+      "alternate_prefixes": [
+        [
+          3,
+          8,
+          10,
+          2,
+          7,
+          3,
+          6
+        ]
+      ],
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "2",
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 85,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 8,
+      "prefix_moves": [
+        2,
+        3,
+        2,
+        4,
+        2,
+        1,
+        0,
+        3
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        2,
+        3,
+        8,
+        10,
+        2,
+        7,
+        6,
+        3
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          1,
+          2,
+          7,
+          2,
+          8
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          5,
+          5,
+          0,
+          0,
+          7,
+          6
+        ],
+        "player_store": 2
+      },
+      "state_hash": "ef44e1cd6bb9b57e6b97838c200ed7d0fd0369082c13e80163c865576602daa9",
+      "store_diff": 1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "5",
+      "legal_actions": [
+        0,
+        1,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 86,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 7,
+      "prefix_moves": [
+        5,
+        1,
+        2,
+        4,
+        3,
+        0,
+        4
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        5,
+        7,
+        8,
+        4,
+        9,
+        0,
+        4
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          6,
+          1,
+          0,
+          0,
+          7,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          0,
+          7,
+          6,
+          5,
+          0,
+          3
+        ],
+        "player_store": 3
+      },
+      "state_hash": "0fac9a2b307bddaa5d2cbc2738c771fddbcabbc564eda906feec6cb5864fc619",
+      "store_diff": 0
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 87,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 7,
+      "prefix_moves": [
+        0,
+        0,
+        1,
+        2,
+        0,
+        3,
+        2
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        0,
+        6,
+        1,
+        2,
+        6,
+        3,
+        8
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          8,
+          0,
+          7,
+          6,
+          5
+        ],
+        "opponent_store": 1,
+        "player_pits": [
+          1,
+          1,
+          0,
+          0,
+          8,
+          7
+        ],
+        "player_store": 3
+      },
+      "state_hash": "9189851d0196474d7d6ea9761d9625dad247ba5d2ab8478debc07f38a1869e03",
+      "store_diff": 2
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "1",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 88,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 8,
+      "prefix_moves": [
+        1,
+        4,
+        3,
+        0,
+        0,
+        4,
+        5,
+        2
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        1,
+        10,
+        3,
+        6,
+        0,
+        10,
+        5,
+        8
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          7,
+          0,
+          7,
+          2,
+          9
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          1,
+          3,
+          6,
+          1,
+          7,
+          0
+        ],
+        "player_store": 2
+      },
+      "state_hash": "05098b13b28d7286c485d5e7b4f8beee2c47b56ba4c09f78ee1f50bbe00eb406",
+      "store_diff": 0
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "1",
+      "legal_actions": [
+        0,
+        1,
+        2
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 89,
+      "phase_bucket": "early",
+      "pit_sum": 36,
+      "ply": 8,
+      "prefix_moves": [
+        1,
+        5,
+        1,
+        2,
+        4,
+        2,
+        5,
+        1
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        1,
+        11,
+        1,
+        8,
+        10,
+        2,
+        11,
+        1
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          5,
+          1,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          7,
+          0,
+          0,
+          6,
+          6,
+          6
+        ],
+        "player_store": 8
+      },
+      "state_hash": "f7b69d058397ac8957bdc53b93a326c8c334fd4c25a4f034b04e091c96f9e0e2",
+      "store_diff": -4
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "1",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 90,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 7,
+      "prefix_moves": [
+        1,
+        4,
+        5,
+        2,
+        4,
+        3,
+        0
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        1,
+        10,
+        5,
+        8,
+        4,
+        9,
+        0
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          7,
+          6,
+          1,
+          0,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          0,
+          3,
+          7,
+          6,
+          1,
+          2
+        ],
+        "player_store": 3
+      },
+      "state_hash": "dd448f68403611650f682cdc77f89a3c053f097083cddbf3a58314d9cb39cfd8",
+      "store_diff": 0
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "2",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 91,
+      "phase_bucket": "early",
+      "pit_sum": 41,
+      "ply": 8,
+      "prefix_moves": [
+        2,
+        4,
+        5,
+        3,
+        1,
+        4,
+        0,
+        2
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        2,
+        4,
+        11,
+        3,
+        7,
+        4,
+        6,
+        8
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          1,
+          0,
+          7,
+          7,
+          3
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          7,
+          6,
+          2,
+          0,
+          0,
+          8
+        ],
+        "player_store": 3
+      },
+      "state_hash": "0c9d27666333acfc8931010bfdb358c21bf4fd8271b2213da2401b0f2d7264d1",
+      "store_diff": -1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "4",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 92,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 8,
+      "prefix_moves": [
+        4,
+        0,
+        1,
+        4,
+        0,
+        1,
+        0,
+        5
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        4,
+        6,
+        1,
+        10,
+        0,
+        7,
+        0,
+        11
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          6,
+          6,
+          1,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          4,
+          8,
+          7,
+          3,
+          8
+        ],
+        "player_store": 1
+      },
+      "state_hash": "69aed497c3a813e1d23a769264215c9cd5ec71b06ffad44267cfe17cf6d45a7c",
+      "store_diff": -2
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "1",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 93,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 8,
+      "prefix_moves": [
+        1,
+        0,
+        0,
+        3,
+        0,
+        5,
+        4,
+        4
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        1,
+        6,
+        0,
+        9,
+        0,
+        11,
+        4,
+        10
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          6,
+          6,
+          1,
+          0,
+          1
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          2,
+          5,
+          8,
+          8,
+          0,
+          6
+        ],
+        "player_store": 1
+      },
+      "state_hash": "a490b9d1c3bcbdd2a0ad71690c3a01b8a6c0b2229707460003e58bcdde0640fe",
+      "store_diff": -2
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "2",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 94,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 8,
+      "prefix_moves": [
+        2,
+        4,
+        5,
+        0,
+        1,
+        0,
+        5,
+        3
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        2,
+        4,
+        11,
+        0,
+        7,
+        6,
+        5,
+        9
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          2,
+          8,
+          0,
+          8,
+          4
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          7,
+          3,
+          7,
+          1,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_hash": "39c5a02294208270ea9663098f9092206c1082ad32180b0160a63e1baa706b49",
+      "store_diff": 0
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "5",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 95,
+      "phase_bucket": "early",
+      "pit_sum": 41,
+      "ply": 7,
+      "prefix_moves": [
+        5,
+        1,
+        4,
+        2,
+        0,
+        3,
+        3
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        5,
+        7,
+        10,
+        2,
+        6,
+        9,
+        3
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          2,
+          7,
+          0,
+          2,
+          8
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          6,
+          6,
+          1,
+          0,
+          6,
+          2
+        ],
+        "player_store": 3
+      },
+      "state_hash": "a8e7e94781ffd91b9d6d35f1000c843cff46331841f7c33bed7a884a901015c8",
+      "store_diff": 1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "3",
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 96,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 7,
+      "prefix_moves": [
+        3,
+        5,
+        0,
+        3,
+        1,
+        2,
+        3
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        3,
+        11,
+        0,
+        9,
+        1,
+        8,
+        9
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          6,
+          4,
+          0,
+          0,
+          7,
+          2
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          0,
+          7,
+          2,
+          7,
+          7
+        ],
+        "player_store": 2
+      },
+      "state_hash": "cda8887d8d757150c46955e78e7b34e3f0301b274add843b57ef291f0978e8a5",
+      "store_diff": -1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "4",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 97,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 8,
+      "prefix_moves": [
+        4,
+        1,
+        4,
+        0,
+        0,
+        3,
+        5,
+        5
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        4,
+        7,
+        10,
+        0,
+        6,
+        3,
+        11,
+        5
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          3,
+          7,
+          7,
+          2,
+          1
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          2,
+          7,
+          7,
+          1,
+          3,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_hash": "39cbdce9d4af77c1351c0bc981be7f9d9db01a3483dc53c7e69e10c15b9a524a",
+      "store_diff": 0
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 98,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 8,
+      "prefix_moves": [
+        0,
+        5,
+        0,
+        2,
+        3,
+        4,
+        4,
+        5
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        0,
+        11,
+        0,
+        8,
+        9,
+        4,
+        10,
+        5
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          6,
+          6,
+          2,
+          1,
+          0,
+          3
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          2,
+          9,
+          7,
+          6,
+          0,
+          0
+        ],
+        "player_store": 2
+      },
+      "state_hash": "492818a0bc38e82cb2fc78133ae8fa172271f6475a482420f8067488b006b6d9",
+      "store_diff": 2
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 99,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 8,
+      "prefix_moves": [
+        0,
+        3,
+        2,
+        0,
+        3,
+        0,
+        0,
+        2
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        0,
+        9,
+        2,
+        6,
+        3,
+        6,
+        0,
+        8
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          7,
+          0,
+          2,
+          7,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          1,
+          7,
+          0,
+          0,
+          7,
+          6
+        ],
+        "player_store": 2
+      },
+      "state_hash": "6fd92585f6dc268b6d26cb510165db770f4a6f2c27bd3d523714614b3be85428",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 100,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 7,
+      "prefix_moves": [
+        0,
+        0,
+        1,
+        5,
+        1,
+        4,
+        5
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        0,
+        6,
+        1,
+        5,
+        7,
+        4,
+        11
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          1,
+          8,
+          8,
+          6,
+          0
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          2,
+          1,
+          7,
+          7,
+          0,
+          1
+        ],
+        "player_store": 3
+      },
+      "state_hash": "f67fc3e2961c1591b69060c22f9b3d807abaec5f2a51a8b35c2497279de45a2d",
+      "store_diff": 1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "4",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 101,
+      "phase_bucket": "early",
+      "pit_sum": 40,
+      "ply": 8,
+      "prefix_moves": [
+        4,
+        4,
+        5,
+        0,
+        5,
+        1,
+        2,
+        0
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        4,
+        10,
+        5,
+        6,
+        11,
+        1,
+        8,
+        0
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          7,
+          0,
+          7,
+          2,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          0,
+          2,
+          7,
+          7,
+          3,
+          2
+        ],
+        "player_store": 4
+      },
+      "state_hash": "d8f837710f466bad33dc8310db93c47138506d165ea21025a44db05a716e5a37",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "5",
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 102,
+      "phase_bucket": "early",
+      "pit_sum": 41,
+      "ply": 8,
+      "prefix_moves": [
+        5,
+        4,
+        4,
+        1,
+        2,
+        5,
+        0,
+        4
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        5,
+        10,
+        4,
+        7,
+        2,
+        5,
+        6,
+        4
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          1,
+          7,
+          6,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          5,
+          0,
+          5,
+          0,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_hash": "60557bfbdc5bc0c5a02cf05e562f09f6214c11e41d6b3ef03a368fb06e4c21af",
+      "store_diff": -1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "4",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 103,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 7,
+      "prefix_moves": [
+        4,
+        0,
+        3,
+        4,
+        2,
+        2,
+        4
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        4,
+        6,
+        3,
+        10,
+        2,
+        8,
+        4
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          6,
+          0,
+          6,
+          1,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          5,
+          0,
+          1,
+          0,
+          8
+        ],
+        "player_store": 4
+      },
+      "state_hash": "aae5c411b54670542e5950ab62eedcbb107216776f07fceb12a90d89fb890b71",
+      "store_diff": 2
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 104,
+      "phase_bucket": "early",
+      "pit_sum": 41,
+      "ply": 8,
+      "prefix_moves": [
+        0,
+        4,
+        2,
+        5,
+        3,
+        3,
+        5,
+        0
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        0,
+        10,
+        2,
+        11,
+        3,
+        9,
+        5,
+        6
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          7,
+          7,
+          2,
+          3,
+          2
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          4,
+          8,
+          1,
+          0,
+          7,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_hash": "0833f16e92575bd88f91b699c76ba1db0fe1e5a583baa1e5acfd0fef87dafbc4",
+      "store_diff": -1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "2",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 105,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 8,
+      "prefix_moves": [
+        2,
+        0,
+        2,
+        0,
+        3,
+        1,
+        5,
+        0
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        2,
+        0,
+        8,
+        6,
+        3,
+        7,
+        5,
+        6
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          5,
+          8,
+          8,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          1,
+          5,
+          1,
+          0,
+          7,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_hash": "4001e7fe114748f70c4187f319ad7fa1a390b99b01effd5bc7776313338f010d",
+      "store_diff": 1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "4",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 106,
+      "phase_bucket": "early",
+      "pit_sum": 41,
+      "ply": 8,
+      "prefix_moves": [
+        4,
+        1,
+        4,
+        0,
+        3,
+        1,
+        5,
+        4
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        4,
+        7,
+        10,
+        0,
+        9,
+        1,
+        11,
+        4
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          7,
+          1,
+          5,
+          0,
+          1,
+          0
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          2,
+          1,
+          8,
+          7,
+          0,
+          9
+        ],
+        "player_store": 3
+      },
+      "state_hash": "6dfb925bb0b8070a2878abd0d81e6b0c8a14961e064da4b9082fed4d772c49e6",
+      "store_diff": 1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "2",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 107,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 8,
+      "prefix_moves": [
+        2,
+        3,
+        3,
+        1,
+        1,
+        0,
+        4,
+        4
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        2,
+        3,
+        9,
+        1,
+        7,
+        6,
+        4,
+        10
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          2,
+          7,
+          3,
+          0,
+          8
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          6,
+          1,
+          2,
+          2,
+          1,
+          9
+        ],
+        "player_store": 3
+      },
+      "state_hash": "1de16a4cc3bff086adbd5c0f477f5461e053fd237bfb2c09058fd1a99dcd3fc6",
+      "store_diff": 0
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "2",
+      "legal_actions": [
+        0,
+        1,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 108,
+      "phase_bucket": "early",
+      "pit_sum": 45,
+      "ply": 7,
+      "prefix_moves": [
+        2,
+        1,
+        0,
+        2,
+        3,
+        3,
+        0
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        2,
+        1,
+        6,
+        2,
+        9,
+        3,
+        6
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          7,
+          6,
+          1,
+          6,
+          5
+        ],
+        "opponent_store": 1,
+        "player_pits": [
+          5,
+          1,
+          0,
+          0,
+          7,
+          7
+        ],
+        "player_store": 2
+      },
+      "state_hash": "f45015e197d53ad80553b1794f162ae82ac39fde0b688711f2253bdd2c760a10",
+      "store_diff": 1
+    },
+    {
+      "alternate_prefixes": [
+        [
+          3,
+          8,
+          7,
+          0,
+          10,
+          2,
+          8,
+          0
+        ]
+      ],
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "3",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 109,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 8,
+      "prefix_moves": [
+        3,
+        2,
+        1,
+        0,
+        4,
+        0,
+        2,
+        2
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        3,
+        8,
+        7,
+        0,
+        10,
+        0,
+        8,
+        2
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          6,
+          1,
+          0,
+          7,
+          0,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          7,
+          0,
+          3,
+          7,
+          6
+        ],
+        "player_store": 2
+      },
+      "state_hash": "4df096218122047a5943ccc9a32c6bd2cb631df2a862ca91a713b8326493d8bd",
+      "store_diff": 0
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "2",
+      "legal_actions": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 110,
+      "phase_bucket": "early",
+      "pit_sum": 41,
+      "ply": 8,
+      "prefix_moves": [
+        2,
+        4,
+        1,
+        3,
+        5,
+        0,
+        4,
+        2
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        2,
+        4,
+        7,
+        9,
+        5,
+        6,
+        10,
+        2
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          2,
+          8,
+          2,
+          0,
+          8
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          6,
+          6,
+          0,
+          7,
+          1,
+          1
+        ],
+        "player_store": 3
+      },
+      "state_hash": "f050c7f5789db5893e0c2f493c1e77af46297fd47f5b9ceb0491863df8f62bf0",
+      "store_diff": 1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "1",
+      "legal_actions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 111,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 7,
+      "prefix_moves": [
+        1,
+        3,
+        5,
+        3,
+        4,
+        1,
+        0
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        1,
+        9,
+        5,
+        9,
+        4,
+        7,
+        0
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          6,
+          0,
+          7,
+          1,
+          7,
+          6
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          1,
+          6,
+          6,
+          1,
+          2
+        ],
+        "player_store": 3
+      },
+      "state_hash": "5148bc2a34fcfe586d282a172cd5a20ba441153bcc0eca248ec316b9dbb09da8",
+      "store_diff": 1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "5",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 112,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 7,
+      "prefix_moves": [
+        5,
+        1,
+        0,
+        1,
+        2,
+        4,
+        1
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        5,
+        7,
+        6,
+        1,
+        8,
+        4,
+        7
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          2,
+          8,
+          7,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          5,
+          1,
+          6,
+          5,
+          0,
+          2
+        ],
+        "player_store": 2
+      },
+      "state_hash": "34e62ca0995c94e6a9fdf80ae65da996f2a5eacddaf3ec9a758171f59f91b2de",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "4",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 113,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 7,
+      "prefix_moves": [
+        4,
+        4,
+        1,
+        4,
+        5,
+        3,
+        2
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        4,
+        10,
+        1,
+        4,
+        11,
+        3,
+        8
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          6,
+          6,
+          0,
+          5,
+          1,
+          1
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          1,
+          6,
+          0,
+          1,
+          8
+        ],
+        "player_store": 3
+      },
+      "state_hash": "7824ac78b6a69c0b74c5365617cd586b3a3bf1d9cbcb06448ef682361aa40438",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "3",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 114,
+      "phase_bucket": "early",
+      "pit_sum": 40,
+      "ply": 8,
+      "prefix_moves": [
+        3,
+        5,
+        1,
+        2,
+        2,
+        5,
+        3,
+        5
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        3,
+        11,
+        1,
+        2,
+        8,
+        11,
+        9,
+        5
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          7,
+          6,
+          1,
+          1,
+          7,
+          2
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          6,
+          1,
+          0,
+          2,
+          7,
+          0
+        ],
+        "player_store": 4
+      },
+      "state_hash": "dfd051050af2b84295ef2ef2d5a48afc5486da9704d1399f95fa532c3775c1a1",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 115,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 8,
+      "prefix_moves": [
+        0,
+        4,
+        5,
+        0,
+        2,
+        0,
+        4,
+        2
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        0,
+        10,
+        5,
+        6,
+        2,
+        6,
+        4,
+        8
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          8,
+          0,
+          7,
+          2,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          2,
+          7,
+          1,
+          6,
+          0,
+          2
+        ],
+        "player_store": 3
+      },
+      "state_hash": "0a2e2f6c2bded7f7dc5eb869c147300212ee1125f247f52556b99f13e4210db4",
+      "store_diff": 1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 116,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 8,
+      "prefix_moves": [
+        0,
+        3,
+        0,
+        1,
+        4,
+        1,
+        5,
+        5
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        0,
+        9,
+        0,
+        7,
+        4,
+        7,
+        5,
+        11
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          6,
+          1,
+          8,
+          2,
+          6,
+          0
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          1,
+          7,
+          6,
+          6,
+          1,
+          0
+        ],
+        "player_store": 2
+      },
+      "state_hash": "226bf038248f8c4b81a0376b08e9909ac75f2dd145ae5926848633d0572bdf56",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "2",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 117,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 8,
+      "prefix_moves": [
+        2,
+        3,
+        0,
+        1,
+        3,
+        5,
+        5,
+        2
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        2,
+        3,
+        6,
+        1,
+        9,
+        5,
+        11,
+        2
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          7,
+          6,
+          1,
+          7,
+          0
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          6,
+          2,
+          0,
+          3,
+          9,
+          1
+        ],
+        "player_store": 3
+      },
+      "state_hash": "b896eacc8bc3123afbf4e772f33aa9bc6d168cfde06304dd064e6318b2e51e5b",
+      "store_diff": -1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "1",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 118,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 8,
+      "prefix_moves": [
+        1,
+        4,
+        0,
+        2,
+        0,
+        4,
+        4,
+        3
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        1,
+        10,
+        0,
+        8,
+        6,
+        4,
+        10,
+        9
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          6,
+          2,
+          0,
+          1,
+          8
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          1,
+          3,
+          7,
+          7,
+          0,
+          7
+        ],
+        "player_store": 1
+      },
+      "state_hash": "faaa8b8f08f5f610431492ccf7b0cb24d906c180fd11b46e1ef90a83f17e76a8",
+      "store_diff": -3
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "4",
+      "legal_actions": [
+        0,
+        1,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 119,
+      "phase_bucket": "early",
+      "pit_sum": 41,
+      "ply": 7,
+      "prefix_moves": [
+        4,
+        2,
+        4,
+        1,
+        2,
+        0,
+        1
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        4,
+        8,
+        10,
+        1,
+        2,
+        6,
+        7
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          2,
+          7,
+          2,
+          8
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          6,
+          1,
+          0,
+          6,
+          2,
+          7
+        ],
+        "player_store": 3
+      },
+      "state_hash": "1b7eeffabc5b7e03b632b83fd996956fe75746880c312fee4ebfdc908b3bf6f8",
+      "store_diff": -1
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "0",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 120,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 7,
+      "prefix_moves": [
+        0,
+        4,
+        4,
+        5,
+        3,
+        0,
+        1
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        0,
+        10,
+        4,
+        11,
+        3,
+        6,
+        7
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          8,
+          6,
+          2,
+          2
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          3,
+          8,
+          6,
+          0,
+          1,
+          6
+        ],
+        "player_store": 2
+      },
+      "state_hash": "920e9e5dcd7f05778d774629ba9cb15fdb4e8fa56af47a77a48c487050226f50",
+      "store_diff": -2
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "1",
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 121,
+      "phase_bucket": "early",
+      "pit_sum": 44,
+      "ply": 7,
+      "prefix_moves": [
+        1,
+        5,
+        5,
+        4,
+        1,
+        1,
+        0
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        1,
+        11,
+        5,
+        10,
+        1,
+        7,
+        6
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          1,
+          7,
+          7,
+          2,
+          3
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          6,
+          0,
+          7,
+          6,
+          5,
+          0
+        ],
+        "player_store": 1
+      },
+      "state_hash": "1150c18fd7a2d1f33348ec7198c55e0d027f79756714ef2ae815e6643277d0b0",
+      "store_diff": -2
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": false,
+      "first_move_family": "2",
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 122,
+      "phase_bucket": "early",
+      "pit_sum": 42,
+      "ply": 8,
+      "prefix_moves": [
+        2,
+        0,
+        3,
+        1,
+        5,
+        1,
+        5,
+        1
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        2,
+        0,
+        9,
+        1,
+        5,
+        7,
+        11,
+        1
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          0,
+          6,
+          2,
+          7,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          2,
+          0,
+          4,
+          8,
+          8,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_hash": "be827766795bc9cbbff17bf641e0241968c6651ebf484239a4dfa7999b6b86b0",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": true,
+      "first_move_family": "5",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 123,
+      "phase_bucket": "early",
+      "pit_sum": 40,
+      "ply": 8,
+      "prefix_moves": [
+        5,
+        4,
+        4,
+        0,
+        5,
+        3,
+        3,
+        0
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        5,
+        10,
+        4,
+        6,
+        11,
+        3,
+        9,
+        0
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          8,
+          6,
+          0,
+          2,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          0,
+          8,
+          6,
+          1,
+          3,
+          3
+        ],
+        "player_store": 4
+      },
+      "state_hash": "23f446d086085dd4a19d0910f1315826f342d197140251e3f4b782c76aedcb8f",
+      "store_diff": 0
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "1",
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 124,
+      "phase_bucket": "early",
+      "pit_sum": 43,
+      "ply": 7,
+      "prefix_moves": [
+        1,
+        2,
+        5,
+        2,
+        3,
+        1,
+        1
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        1,
+        8,
+        11,
+        2,
+        9,
+        1,
+        7
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          0,
+          1,
+          1,
+          7,
+          2
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          6,
+          0,
+          1,
+          8,
+          6,
+          6
+        ],
+        "player_store": 1
+      },
+      "state_hash": "c760b3d42d87304089e6732f12887d4ec84d999213b573d813c0184b3c62b372",
+      "store_diff": 3
+    },
+    {
+      "alternate_prefixes": [
+        [
+          5,
+          10,
+          4,
+          9,
+          1,
+          5,
+          6
+        ]
+      ],
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "4",
+      "legal_actions": [
+        0,
+        2,
+        3,
+        4
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 125,
+      "phase_bucket": "early",
+      "pit_sum": 41,
+      "ply": 7,
+      "prefix_moves": [
+        4,
+        4,
+        5,
+        3,
+        1,
+        0,
+        5
+      ],
+      "side_to_move": 0,
+      "source_prefix_moves_absolute": [
+        4,
+        10,
+        5,
+        9,
+        1,
+        6,
+        5
+      ],
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          7,
+          6,
+          1,
+          2,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          0,
+          5,
+          5,
+          1,
+          0
+        ],
+        "player_store": 4
+      },
+      "state_hash": "a51923ca7fcc5b696d79b406bdf94b62bf654a1187cac7d381ae3397bb52142f",
+      "store_diff": 1
+    },
+    {
+      "capture_available": false,
+      "extra_turn_available": false,
+      "first_move_family": "5",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 126,
+      "phase_bucket": "early",
+      "pit_sum": 40,
+      "ply": 8,
+      "prefix_moves": [
+        5,
+        5,
+        3,
+        0,
+        4,
+        1,
+        5,
+        4
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        5,
+        11,
+        3,
+        6,
+        10,
+        1,
+        11,
+        4
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          7,
+          7,
+          6,
+          0,
+          0
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          7,
+          0,
+          7,
+          1,
+          0,
+          3
+        ],
+        "player_store": 4
+      },
+      "state_hash": "2bb009f9f3dd8815c790cd09b7ac9b333c28e335419c8b5b8876a5394c8ca8ad",
+      "store_diff": 0
+    },
+    {
+      "capture_available": true,
+      "extra_turn_available": true,
+      "first_move_family": "4",
+      "legal_actions": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "opening_contract": "arena_player_relative_v2",
+      "opening_index": 127,
+      "phase_bucket": "early",
+      "pit_sum": 41,
+      "ply": 8,
+      "prefix_moves": [
+        4,
+        3,
+        2,
+        0,
+        2,
+        1,
+        4,
+        3
+      ],
+      "side_to_move": 1,
+      "source_prefix_moves_absolute": [
+        4,
+        9,
+        2,
+        0,
+        8,
+        7,
+        10,
+        3
+      ],
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          6,
+          1,
+          2,
+          3,
+          0,
+          8
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          1,
+          6,
+          2,
+          0,
+          4,
+          8
+        ],
+        "player_store": 3
+      },
+      "state_hash": "149248adc255a0eb91be630fed4475e5c426dd92cb7138a50790370244e380e5",
+      "store_diff": 1
+    }
+  ],
+  "suite_count": 128,
+  "suite_sha256": "acb28f84e82aaace9f1ca88fa6b53bbbc01d410bbf83c2efaa2c5a81abfec095"
+}
