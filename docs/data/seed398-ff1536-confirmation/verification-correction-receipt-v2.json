@@ -1,0 +1,8 @@
+{
+  "schema": "seed398-ff1536-confirmation-verification-correction-v2",
+  "predecessor_receipt_sha256": "481a3c997e2f724a6c7fb4d261b872df472aa29c39e8606a96fc9fe1e77329a5",
+  "original_publication_binding_sha256": "6a5cc5870b2fd8b73999e8527f1218b7fb2758f58d9a4e92b35c39410d4ea003",
+  "current_verifier_sha256": "1261c7cc07ba4102bbd7c8c34bfcbad41cd995a3cab928c9cd0a3bd31c99c1b7",
+  "probe_validation_helper_sha256": "f5fb1db12334beeb8d2c95f9a93f439146bbe24b3539fe01b68ef740ead70d8d",
+  "correction": "Mandatory successor receipt restores byte-exact frozen raw-probe binding and internal registration binding, independently derives the ordered FF1536 action map from one identity-matched legal FF probe per registered state, and reconciles the full ordered mapping. Verification remains artifact-independent and read-only."
+}
