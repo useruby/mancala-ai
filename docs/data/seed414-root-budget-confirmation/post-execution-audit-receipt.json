@@ -1,0 +1,29 @@
+{
+  "audit_timing": "after_execution",
+  "bindings": {
+    "audit_source_sha256": "043d6520af8f81fe15c6f4e607eb7990e3aa8fc4072b0e6283c4dba9b0e7a9d1",
+    "corrected_proof_sha256": "8e6829c75bb8884bd45b9ee86f583345fadf68e034ff97f0ac96a5420d33f697",
+    "historical_proof_sha256": "8c825e47a1bbbc46af42813322003819dee77a0cfc0d168373593c292e8f19c2",
+    "original_proof_sha256": "cf972371bfef9b814150bd649aebeb5cadea76b80a928b4f5019d9eb6d745554",
+    "registration_sha256": "43b7543b984ca0e30cf114938db02a1d1b880c85e6ad4b51ce0720dc1e6a6575",
+    "suite_sha256": "acb28f84e82aaace9f1ca88fa6b53bbbc01d410bbf83c2efaa2c5a81abfec095",
+    "validated_outcome_ledger_binding_sha256": "873fd4a66fd4fb0e6cab2454457a5ad936f8f8d7b613250d43b5a9b46de63ab5",
+    "validated_outcome_ledger_published_hash_source_sha256": "541f19b94734f62a50611a73dc30c5719c4ea9c675c226f03daa042864c377a9",
+    "validated_outcome_ledger_sha256": "bc6749a6efb1c6f0765d0fb0f980ddec861d9fc749e185a59018aef3e2683802"
+  },
+  "collision_report": {
+    "collision_count": 0,
+    "collisions": [],
+    "suite_state_count": 128
+  },
+  "counts": {
+    "additional_identities": 63471,
+    "additional_unique_identities": 68623,
+    "corrected_union": 171434,
+    "games": 4096
+  },
+  "decision": "confirmation_criteria_not_met",
+  "preregistration_exclusion_proof_was_complete": false,
+  "schema": "seed414-post-execution-audit-receipt-v1",
+  "statement": "This audit occurred after execution. It corrects historical coverage only and does not claim the original preregistration exclusion proof was complete."
+}
