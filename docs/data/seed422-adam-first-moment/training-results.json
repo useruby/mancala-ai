@@ -1,0 +1,209 @@
+{
+  "execution_amendment_sha256": "df4d61b329d5ae5fad8be88acc9b9d9c703cd6f713086350df5fbd72cc80c6a9",
+  "fixed_checkpoint": "E4",
+  "lanes": {
+    "A": {
+      "epochs": {
+        "1": "1d76767b6fcd44794f0aef31f2274f5cb0880a3bcd47f296dac418c205595e47",
+        "2": "e1899ce5e0f2faa708a8c529ee48fd3cc61417c93c45ba642d24f80cc197ebed",
+        "3": "60a22c5fe01fab3ccdc5cbe49b45c41f1d94adb75e53e02d326c8525961031e6",
+        "4": "836fc769c62126b649ce9691494719506b88efec0746769c9a589522d08cb2cd"
+      },
+      "history": [
+        {
+          "audit_source_samples": 0.0,
+          "behavior_anchor_loss": 0.0,
+          "epoch": 1,
+          "exact_root_masked_examples_sampled": 0,
+          "examples_sampled": 134502,
+          "gradient_norm": 1.5973201070878444,
+          "learning_rate": 0.001,
+          "optimizer_updates": 263,
+          "pairwise_loss": 0.0,
+          "policy_active_examples_sampled": 134502,
+          "policy_loss": 0.9423706506594959,
+          "total_loss": 1.0044610910542564,
+          "validation_exact_root_masked_rows": 0.0,
+          "validation_policy_active_rows": 14946.0,
+          "validation_policy_loss": 0.9496895670890808,
+          "validation_total_loss": 1.012851357460022,
+          "validation_value_loss": 0.21053944528102875,
+          "value_loss": 0.20696813695331037
+        },
+        {
+          "audit_source_samples": 0.0,
+          "behavior_anchor_loss": 0.0,
+          "epoch": 2,
+          "exact_root_masked_examples_sampled": 0,
+          "examples_sampled": 134502,
+          "gradient_norm": 1.7054933935504133,
+          "learning_rate": 0.001,
+          "optimizer_updates": 263,
+          "pairwise_loss": 0.0,
+          "policy_active_examples_sampled": 134502,
+          "policy_loss": 0.9190006766029184,
+          "total_loss": 0.9801785975354705,
+          "validation_exact_root_masked_rows": 0.0,
+          "validation_policy_active_rows": 14946.0,
+          "validation_policy_loss": 0.953343391418457,
+          "validation_total_loss": 1.0156129598617554,
+          "validation_value_loss": 0.2075653076171875,
+          "value_loss": 0.20392638937828658
+        },
+        {
+          "audit_source_samples": 0.0,
+          "behavior_anchor_loss": 0.0,
+          "epoch": 3,
+          "exact_root_masked_examples_sampled": 0,
+          "examples_sampled": 134502,
+          "gradient_norm": 1.6939478891978523,
+          "learning_rate": 0.001,
+          "optimizer_updates": 263,
+          "pairwise_loss": 0.0,
+          "policy_active_examples_sampled": 134502,
+          "policy_loss": 0.902506951823434,
+          "total_loss": 0.9631847263289042,
+          "validation_exact_root_masked_rows": 0.0,
+          "validation_policy_active_rows": 14946.0,
+          "validation_policy_loss": 0.9482554793357849,
+          "validation_total_loss": 1.0103589296340942,
+          "validation_value_loss": 0.20701168477535248,
+          "value_loss": 0.20225924021164274
+        },
+        {
+          "audit_source_samples": 0.0,
+          "behavior_anchor_loss": 0.0,
+          "epoch": 4,
+          "exact_root_masked_examples_sampled": 0,
+          "examples_sampled": 134502,
+          "gradient_norm": 1.8187137291507114,
+          "learning_rate": 0.001,
+          "optimizer_updates": 263,
+          "pairwise_loss": 0.0,
+          "policy_active_examples_sampled": 134502,
+          "policy_loss": 0.8884156622814134,
+          "total_loss": 0.9486270458526032,
+          "validation_exact_root_masked_rows": 0.0,
+          "validation_policy_active_rows": 14946.0,
+          "validation_policy_loss": 0.9556283950805664,
+          "validation_total_loss": 1.0179673433303833,
+          "validation_value_loss": 0.20779633522033691,
+          "value_loss": 0.2007045951519629
+        }
+      ],
+      "history_provenance": {
+        "execution_amendment_sha256": "df4d61b329d5ae5fad8be88acc9b9d9c703cd6f713086350df5fbd72cc80c6a9",
+        "matched_epoch_checkpoints": true,
+        "matched_epoch_permutations": true,
+        "path": "docs/data/seed416-policy-target-softening/training-results.json",
+        "sha256": "d663291f8feda9b5c16820cdde38542a1e83ba8240130c46c7e0438de6bee0c6"
+      },
+      "initialization_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "multiplicity_sha256": "529cca2a76e2230c66a1ee8c757d6eac8cd7b30ad638bd698cde16cf4ae558ef",
+      "optimizer_parameter_group": {
+        "betas": [
+          0.9,
+          0.999
+        ],
+        "eps": 1e-08,
+        "lr": 0.001,
+        "weight_decay": 0.0
+      },
+      "optimizer_updates": 1052,
+      "parameter_drift_l2": 6.995381137394854,
+      "permutations": {
+        "1": "edd9bba1847451ee5c08ee2988c5a39e3b41dfef8c8730b9cee9f76a1431a879",
+        "2": "992d6e41d2114b6f2f87c6eae52386b90a6b76bf6327d3a168f85747ff68dabf",
+        "3": "295d162a0348c925a0ae689363fff14845aad6f9ee730373edc3fe201302b238",
+        "4": "5266784e5a81d5b94a5991307fcf958f7c37900837d4729c368d68502fb8f5d3"
+      }
+    },
+    "B": {
+      "epochs": {
+        "1": "61a88ef30591addb39ad4f09c7a1e29c9c2419d538fd3024287a51889a7d5d31",
+        "2": "c1165b7b143b7d7f9dbe34b06e0b5af1504b9e808fc0de33543f98b44f3efd9f",
+        "3": "6d279301daf80794db809638aa443c0f92090c999e854a47882970df0ac9b076",
+        "4": "78da174747aff7c18d015b78573b6f7bb6ccc7476d74b30c515cc77b3028936b"
+      },
+      "history": [
+        {
+          "audit_source_samples": 0.0,
+          "behavior_anchor_loss": 0.0,
+          "epoch": 1,
+          "exact_root_masked_examples_sampled": 0,
+          "examples_sampled": 134502,
+          "gradient_norm": 2.1716598452006295,
+          "optimizer_updates": 263,
+          "pairwise_loss": 0.0,
+          "policy_active_examples_sampled": 134502,
+          "policy_loss": 0.9892593470363109,
+          "total_loss": 1.0525453090667725,
+          "value_loss": 0.21095319930818143
+        },
+        {
+          "audit_source_samples": 0.0,
+          "behavior_anchor_loss": 0.0,
+          "epoch": 2,
+          "exact_root_masked_examples_sampled": 0,
+          "examples_sampled": 134502,
+          "gradient_norm": 1.841759759248231,
+          "optimizer_updates": 263,
+          "pairwise_loss": 0.0,
+          "policy_active_examples_sampled": 134502,
+          "policy_loss": 0.9596423348093214,
+          "total_loss": 1.0221364976335388,
+          "value_loss": 0.2083138642202312
+        },
+        {
+          "audit_source_samples": 0.0,
+          "behavior_anchor_loss": 0.0,
+          "epoch": 3,
+          "exact_root_masked_examples_sampled": 0,
+          "examples_sampled": 134502,
+          "gradient_norm": 1.7693303344592175,
+          "optimizer_updates": 263,
+          "pairwise_loss": 0.0,
+          "policy_active_examples_sampled": 134502,
+          "policy_loss": 0.9435705338594125,
+          "total_loss": 1.0055396982925473,
+          "value_loss": 0.20656387417262045
+        },
+        {
+          "audit_source_samples": 0.0,
+          "behavior_anchor_loss": 0.0,
+          "epoch": 4,
+          "exact_root_masked_examples_sampled": 0,
+          "examples_sampled": 134502,
+          "gradient_norm": 1.7536957813834069,
+          "optimizer_updates": 263,
+          "pairwise_loss": 0.0,
+          "policy_active_examples_sampled": 134502,
+          "policy_loss": 0.9277445109624827,
+          "total_loss": 0.9890234449970405,
+          "value_loss": 0.20426310417543345
+        }
+      ],
+      "initialization_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "multiplicity_sha256": "529cca2a76e2230c66a1ee8c757d6eac8cd7b30ad638bd698cde16cf4ae558ef",
+      "optimizer_parameter_group": {
+        "betas": [
+          0.0,
+          0.999
+        ],
+        "eps": 1e-08,
+        "lr": 0.001,
+        "weight_decay": 0.0
+      },
+      "optimizer_updates": 1052,
+      "parameter_drift_l2": 7.850687528626538,
+      "permutations": {
+        "1": "edd9bba1847451ee5c08ee2988c5a39e3b41dfef8c8730b9cee9f76a1431a879",
+        "2": "992d6e41d2114b6f2f87c6eae52386b90a6b76bf6327d3a168f85747ff68dabf",
+        "3": "295d162a0348c925a0ae689363fff14845aad6f9ee730373edc3fe201302b238",
+        "4": "5266784e5a81d5b94a5991307fcf958f7c37900837d4729c368d68502fb8f5d3"
+      }
+    }
+  },
+  "optimizer_updates_per_lane": 1052,
+  "registration_sha256": "f9beec18cfd30395de4b03a85ebb2b0a6b286571348b00b560c09072a7de9298"
+}

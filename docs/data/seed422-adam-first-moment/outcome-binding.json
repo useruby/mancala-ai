@@ -1,0 +1,393 @@
+{
+  "lanes": {
+    "A": {
+      "games": 1024,
+      "games_sha256": "ff1b48dea6a41d959372e0c048155f81602406b2cb7631b58733b4b3abdc7f26",
+      "report": {
+        "budget_summary": {
+          "mean_final_simulations": 384.0,
+          "p95_root_latency_ms": 127.96,
+          "trigger_counts": {
+            "fixed_budget": 1024
+          }
+        },
+        "confidence_interval_95": {
+          "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+          "lower": 0.45242410873683914,
+          "method": "wilson_score",
+          "upper": 0.5135239517425189
+        },
+        "draws": 97,
+        "games": 1024,
+        "games_played": 1024,
+        "hard_suite_buckets": {
+          "late": {
+            "games": 899,
+            "score": null
+          },
+          "midgame": {
+            "games": 111,
+            "score": null
+          },
+          "opening": {
+            "games": 14,
+            "score": null
+          }
+        },
+        "losses": 481,
+        "notes": {
+          "base_seed": 422,
+          "challenger_path": "/home/alex/Mancala/ai/.tmp/seed422-adam-first-moment/artifacts/A",
+          "challenger_root_prior_transform": null,
+          "challenger_runtime_policy_inherited": false,
+          "challenger_simulations": 384,
+          "current_path": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/opponent-artifact",
+          "current_root_prior_transform": null,
+          "current_simulations": 384,
+          "exact_leaf_solve_mode": "disabled",
+          "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+          "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+          "exact_root_objective": "final_score_margin",
+          "exact_root_solve_threshold": 16,
+          "exact_root_solver": "native_kvtb_root_action_probe_v1",
+          "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+          "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+          "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+          "exact_solve_semantics": "network_priors_exact_leaf_value",
+          "exact_solve_stone_threshold": null,
+          "exact_solve_value_mode": "wdl",
+          "move_time_mean_ms": 50.27,
+          "move_time_p95_ms": 127.96,
+          "random_opening_plies": 0,
+          "root_prior_transform": null,
+          "runtime_search_policy_mode": "puct_exact_root_hybrid",
+          "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+          "search_configuration_ledger_output": null,
+          "search_configuration_ledger_sha256": "34252d1d9c32ff0adb3502f1a460be499572134199f8280ad3a7ad77acbb6722",
+          "search_options": {
+            "fpu_mode": "zero",
+            "normalize_values": false,
+            "reuse_subtree": false,
+            "root_policy_mode": "deterministic",
+            "root_temperature": 0.0,
+            "tactical_root_bias": 0.0
+          },
+          "search_outcome_ledger_output": null,
+          "search_outcome_ledger_sha256": "df6b177fa5b5415c7f8194ce750196d1224850ec5006d85a3de2cfac545a2001",
+          "search_profile": {
+            "c_puct": 1.25,
+            "challenger_runtime_policy_inherited": false,
+            "challenger_simulations": 384,
+            "current_simulations": 384,
+            "exact_leaf_solve_mode": "disabled",
+            "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+            "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+            "exact_root_objective": "final_score_margin",
+            "exact_root_solve_enabled": true,
+            "exact_root_solve_threshold": 16,
+            "exact_root_solver": "native_kvtb_root_action_probe_v1",
+            "exact_root_solver_max_solved_seeds": 16,
+            "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+            "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+            "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+            "exact_solve_semantics": "network_priors_exact_leaf_value",
+            "exact_solve_stone_threshold": null,
+            "exact_solve_value_mode": "wdl",
+            "hash": "45774f498a34b237126d8b1fad52a51c79572186d7789ab6e4c0e3aba6ec5984",
+            "kind": "arena_eval",
+            "player_mode": "puct",
+            "runtime_search_policy_mode": "puct_exact_root_hybrid",
+            "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+            "search_options": {
+              "fpu_mode": "zero",
+              "normalize_values": false,
+              "reuse_subtree": false,
+              "root_policy_mode": "deterministic",
+              "root_temperature": 0.0,
+              "tactical_root_bias": 0.0
+            },
+            "simulations": 384,
+            "version": "v1"
+          },
+          "search_profile_hash": "45774f498a34b237126d8b1fad52a51c79572186d7789ab6e4c0e3aba6ec5984",
+          "seed": 422,
+          "seed_contract": "azlite_eval_seed_v2",
+          "seed_identity_ledger_sha256": "f429c038de7466b253bcee500a24ca603969ef4561046c589400656f42d780f7",
+          "seed_ledger_hash": "f429c038de7466b253bcee500a24ca603969ef4561046c589400656f42d780f7",
+          "seed_ledger_output": null,
+          "seed_ledger_records": 33441,
+          "suite_sha256": "74619aed20aaa9be4f6c0a1c1cb74263a782d8200c4c9e0907f66e7ca8b301a2",
+          "value_transform_hash": null,
+          "value_transform_summary": null,
+          "worker_game_counts": [
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            42,
+            42,
+            42,
+            42,
+            42,
+            42,
+            42,
+            42
+          ],
+          "workers_requested": 24,
+          "workers_used": 24
+        },
+        "opening_cache_summary": {
+          "latency_delta_ms": null,
+          "opening_bucket_quality_delta": null,
+          "runtime_hit_rate": null,
+          "training_hit_rate": null
+        },
+        "promotion_decision": {
+          "passed": false
+        },
+        "root_prior_telemetry": {
+          "challenger": {
+            "activation_count": 0,
+            "activation_rate": 0.0,
+            "average_mass_shift": null,
+            "legal_move_context_counts": {
+              "legal_move_count": 0,
+              "no_extra_turn_capture_count": 0,
+              "no_extra_turn_noncapture_seed5_count": 0,
+              "seed4_extra_turn_count": 0
+            },
+            "root_states_evaluated": 10512,
+            "top_changed_move_feature_patterns": []
+          },
+          "current": {
+            "activation_count": 0,
+            "activation_rate": 0.0,
+            "average_mass_shift": null,
+            "legal_move_context_counts": {
+              "legal_move_count": 0,
+              "no_extra_turn_capture_count": 0,
+              "no_extra_turn_noncapture_seed5_count": 0,
+              "seed4_extra_turn_count": 0
+            },
+            "root_states_evaluated": 10286,
+            "top_changed_move_feature_patterns": []
+          }
+        },
+        "schema": "arena_v1",
+        "score": 0.48291015625,
+        "threshold": 0.55,
+        "threshold_margin": -0.06708984375000004,
+        "unstable_decision": false,
+        "wins": 446
+      },
+      "report_sha256": "c9ef246f9b79e0e8088a5643f9129c081099b80b3d433d7ff32daf79d9abb5a0"
+    },
+    "B": {
+      "games": 1024,
+      "games_sha256": "0a51168195f0a2b56f04e54879e9273d600e1e8ad6e8587166adb0d9c2d4bd33",
+      "report": {
+        "budget_summary": {
+          "mean_final_simulations": 384.0,
+          "p95_root_latency_ms": 128.22,
+          "trigger_counts": {
+            "fixed_budget": 1024
+          }
+        },
+        "confidence_interval_95": {
+          "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+          "lower": 0.46894584291329156,
+          "method": "wilson_score",
+          "upper": 0.5300812445289758
+        },
+        "draws": 85,
+        "games": 1024,
+        "games_played": 1024,
+        "hard_suite_buckets": {
+          "late": {
+            "games": 892,
+            "score": null
+          },
+          "midgame": {
+            "games": 116,
+            "score": null
+          },
+          "opening": {
+            "games": 16,
+            "score": null
+          }
+        },
+        "losses": 470,
+        "notes": {
+          "base_seed": 422,
+          "challenger_path": "/home/alex/Mancala/ai/.tmp/seed422-adam-first-moment/artifacts/B",
+          "challenger_root_prior_transform": null,
+          "challenger_runtime_policy_inherited": false,
+          "challenger_simulations": 384,
+          "current_path": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/opponent-artifact",
+          "current_root_prior_transform": null,
+          "current_simulations": 384,
+          "exact_leaf_solve_mode": "disabled",
+          "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+          "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+          "exact_root_objective": "final_score_margin",
+          "exact_root_solve_threshold": 16,
+          "exact_root_solver": "native_kvtb_root_action_probe_v1",
+          "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+          "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+          "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+          "exact_solve_semantics": "network_priors_exact_leaf_value",
+          "exact_solve_stone_threshold": null,
+          "exact_solve_value_mode": "wdl",
+          "move_time_mean_ms": 50.19,
+          "move_time_p95_ms": 128.22,
+          "random_opening_plies": 0,
+          "root_prior_transform": null,
+          "runtime_search_policy_mode": "puct_exact_root_hybrid",
+          "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+          "search_configuration_ledger_output": null,
+          "search_configuration_ledger_sha256": "3d774f7eec8b9e5de244070f3e632c3b5a9de77d2f5daa77cd3389d2a7aa2fc8",
+          "search_options": {
+            "fpu_mode": "zero",
+            "normalize_values": false,
+            "reuse_subtree": false,
+            "root_policy_mode": "deterministic",
+            "root_temperature": 0.0,
+            "tactical_root_bias": 0.0
+          },
+          "search_outcome_ledger_output": null,
+          "search_outcome_ledger_sha256": "7e9e5a6fbd6c5c9367480057a841e2abd3e497d426b81c587f8657807c78dc70",
+          "search_profile": {
+            "c_puct": 1.25,
+            "challenger_runtime_policy_inherited": false,
+            "challenger_simulations": 384,
+            "current_simulations": 384,
+            "exact_leaf_solve_mode": "disabled",
+            "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+            "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+            "exact_root_objective": "final_score_margin",
+            "exact_root_solve_enabled": true,
+            "exact_root_solve_threshold": 16,
+            "exact_root_solver": "native_kvtb_root_action_probe_v1",
+            "exact_root_solver_max_solved_seeds": 16,
+            "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+            "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+            "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+            "exact_solve_semantics": "network_priors_exact_leaf_value",
+            "exact_solve_stone_threshold": null,
+            "exact_solve_value_mode": "wdl",
+            "hash": "45774f498a34b237126d8b1fad52a51c79572186d7789ab6e4c0e3aba6ec5984",
+            "kind": "arena_eval",
+            "player_mode": "puct",
+            "runtime_search_policy_mode": "puct_exact_root_hybrid",
+            "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+            "search_options": {
+              "fpu_mode": "zero",
+              "normalize_values": false,
+              "reuse_subtree": false,
+              "root_policy_mode": "deterministic",
+              "root_temperature": 0.0,
+              "tactical_root_bias": 0.0
+            },
+            "simulations": 384,
+            "version": "v1"
+          },
+          "search_profile_hash": "45774f498a34b237126d8b1fad52a51c79572186d7789ab6e4c0e3aba6ec5984",
+          "seed": 422,
+          "seed_contract": "azlite_eval_seed_v2",
+          "seed_identity_ledger_sha256": "654a4377148d49afeff3d82d0457d40c8154c420cf22cee86c864f1098550aac",
+          "seed_ledger_hash": "654a4377148d49afeff3d82d0457d40c8154c420cf22cee86c864f1098550aac",
+          "seed_ledger_output": null,
+          "seed_ledger_records": 33358,
+          "suite_sha256": "74619aed20aaa9be4f6c0a1c1cb74263a782d8200c4c9e0907f66e7ca8b301a2",
+          "value_transform_hash": null,
+          "value_transform_summary": null,
+          "worker_game_counts": [
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            43,
+            42,
+            42,
+            42,
+            42,
+            42,
+            42,
+            42,
+            42
+          ],
+          "workers_requested": 24,
+          "workers_used": 24
+        },
+        "opening_cache_summary": {
+          "latency_delta_ms": null,
+          "opening_bucket_quality_delta": null,
+          "runtime_hit_rate": null,
+          "training_hit_rate": null
+        },
+        "promotion_decision": {
+          "passed": false
+        },
+        "root_prior_telemetry": {
+          "challenger": {
+            "activation_count": 0,
+            "activation_rate": 0.0,
+            "average_mass_shift": null,
+            "legal_move_context_counts": {
+              "legal_move_count": 0,
+              "no_extra_turn_capture_count": 0,
+              "no_extra_turn_noncapture_seed5_count": 0,
+              "seed4_extra_turn_count": 0
+            },
+            "root_states_evaluated": 10236,
+            "top_changed_move_feature_patterns": []
+          },
+          "current": {
+            "activation_count": 0,
+            "activation_rate": 0.0,
+            "average_mass_shift": null,
+            "legal_move_context_counts": {
+              "legal_move_count": 0,
+              "no_extra_turn_capture_count": 0,
+              "no_extra_turn_noncapture_seed5_count": 0,
+              "seed4_extra_turn_count": 0
+            },
+            "root_states_evaluated": 10470,
+            "top_changed_move_feature_patterns": []
+          }
+        },
+        "schema": "arena_v1",
+        "score": 0.49951171875,
+        "threshold": 0.55,
+        "threshold_margin": -0.050488281250000044,
+        "unstable_decision": false,
+        "wins": 469
+      },
+      "report_sha256": "530bc5b1a01ad8a177b166db5b4390e372adde1448287ab300fd4c8574fdc0a2"
+    }
+  },
+  "runtime_binding_sha256": "e9cd522a43f81831ea9f14544cb535b994e38d02ae2bd7722ae53721d995d868"
+}

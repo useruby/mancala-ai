@@ -1,0 +1,207 @@
+{
+  "analysis": {
+    "advance": "B-A >= 0.03 AND paired lower bound > 0 AND B score >= 0.53 AND B opening-cluster lower bound > 0.5",
+    "beta_sweep": false,
+    "bootstrap_samples": 10000,
+    "bootstrap_seed": 422,
+    "checkpoint_selection": "none; fixed final E4",
+    "cluster": "opening",
+    "confidence": 0.95,
+    "otherwise": "retain baseline and close fixed beta1 intervention",
+    "primary": "paired B-minus-A opening-average score",
+    "promotion": false
+  },
+  "evaluation": {
+    "adaptive_extension": false,
+    "both_seats": true,
+    "c_puct": 1.25,
+    "candidate_lanes": [
+      "A",
+      "B"
+    ],
+    "exact_leaf_solve": "disabled",
+    "games": 2048,
+    "games_per_lane": 1024,
+    "native_root_solve_threshold": 16,
+    "new_outcomes_only": true,
+    "opponent": ".tmp/seed461-order-confirmation/opponent-artifact",
+    "opponent_files": {
+      "metadata.json": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+      "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+    },
+    "runtime_hashes": {
+      "native_probe": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "runtime_policy": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "tablebase": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+    },
+    "seed": 422,
+    "seed_contract": "azlite_eval_seed_v2",
+    "simulations_per_side": 384
+  },
+  "exclusion_proof": {
+    "identity_count": 266575,
+    "identity_set_sha256": "f6713bebfe1ded09ed15e45f17a11566d0012f03fe7719138fdc832bbb1339f7",
+    "path": "opening-exclusion-proof.json",
+    "sha256": "cab7f492bdcfc34a82c7e46b7aebb78ef9f8391154f81dc0e3ff2389a2773e91",
+    "suite_overlap": 0
+  },
+  "hypothesis": "Adam accumulated first-moment state may contribute to harmful training dynamics despite aggregate replay-gradient alignment; unconfirmed.",
+  "intervention": {
+    "A": {
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "optimizer": "Adam"
+    },
+    "B": {
+      "betas": [
+        0.0,
+        0.999
+      ],
+      "optimizer": "Adam"
+    },
+    "common": {
+      "eps": 1e-08,
+      "lr": 0.001,
+      "scheduler": "none",
+      "weight_decay": 0.0
+    }
+  },
+  "registration_sha256": "66991bddf0f401b2ce1e353813bf507437e0570252cf186070e01d164c330879",
+  "runtime": {
+    "device": "cpu",
+    "numpy": "2.5.2",
+    "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+    "python": "3.14.7",
+    "torch": "2.13.0+cu130",
+    "torch_interop_threads": 24,
+    "torch_threads": 24
+  },
+  "schema": "seed422-adam-first-moment-registration-v1",
+  "source_hashes": {
+    "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "ml/alphazero_lite/build_opening_suite.py": "5c15d541574905ff9d7c75bc8daf8813311e22f22f220563e18cb9b85fb8bd87",
+    "ml/alphazero_lite/evaluation_seed_contract.py": "be5ed17519f86040cdac2a2380d4dd907015b927c6b80fedc85f7d668b9422c3",
+    "ml/alphazero_lite/export_artifact.py": "f720f34c8b77b32a0f20a00ddcd4f428167235bf0f5a52c29ebbde31663ae481",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/run_seed422_adam_memory.py": "0b03dbafd9157665922cd23286ac948cb720abb9702f66f67730f875e1d2116a",
+    "ml/alphazero_lite/runtime_search_policy.py": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
+    "ml/alphazero_lite/seed416_policy_target_softening.py": "f9c4b0ba7081a4e632d3c624f0199a7629072aafe9cf82aad264bd9ae9ad93ca",
+    "ml/alphazero_lite/seed422_adam_memory_analysis.py": "b23a803da2f8367f6db7653acb6c986f99754327db0c06f4aa403f9d39d354f8",
+    "ml/alphazero_lite/seed422_exclusions.py": "e707b978399ebe9592c00f4eed2915b44edf5214d3177a7f5762a545adf1227a",
+    "ml/alphazero_lite/test_seed422_adam_memory.py": "d13da8099593469d88e68a5d0fb8658c1c57dea7eb1f25e3a54a0f47e4a4b1c5",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/verify_seed422_adam_memory.py": "7c1e1610119cb763d4abdca403eeea0cf95dd392a62ba4e93299ebac585ad99c"
+  },
+  "source_snapshots": "execution-source-snapshots/",
+  "status": "registered_before_training_and_model_probing",
+  "suite": {
+    "count": 512,
+    "path": "openings.jsonl",
+    "seed": 422,
+    "sha256": "74619aed20aaa9be4f6c0a1c1cb74263a782d8200c4c9e0907f66e7ca8b301a2",
+    "strictly_replayed": true,
+    "unique_nonterminal_gt32": true
+  },
+  "training": {
+    "architecture": {
+      "hidden_sizes": [
+        96,
+        3
+      ],
+      "input_encoding": "kalah_v3",
+      "model": "residual_v3"
+    },
+    "batch_size": 512,
+    "epoch_permutations": {
+      "epoch_sha256": {
+        "1": "edd9bba1847451ee5c08ee2988c5a39e3b41dfef8c8730b9cee9f76a1431a879",
+        "2": "992d6e41d2114b6f2f87c6eae52386b90a6b76bf6327d3a168f85747ff68dabf",
+        "3": "295d162a0348c925a0ae689363fff14845aad6f9ee730373edc3fe201302b238",
+        "4": "5266784e5a81d5b94a5991307fcf958f7c37900837d4729c368d68502fb8f5d3"
+      },
+      "path": "docs/data/seed416-policy-target-softening/training-freeze-v3/epoch-permutations.json.gz",
+      "sha256": "d868edebd9ae1876cbc5b9edca6fa0df9d3e6184b97246847f9012dfe2d293d1"
+    },
+    "epochs": 4,
+    "expected_A_E4_checkpoint_sha256": "836fc769c62126b649ce9691494719506b88efec0746769c9a589522d08cb2cd",
+    "expected_A_identity_source": "published #416 evaluation-binding candidate A checkpoint_sha256 and model.npz identity",
+    "expected_updates_per_lane": 1052,
+    "final_checkpoint": "fixed E4",
+    "fresh_value_target_mode": "default",
+    "gradient_clip_global_norm": 1,
+    "historical_value_target_mode": "sharpened",
+    "huber_delta": 1,
+    "initializer": {
+      "path": "/home/alex/Mancala/ai/.tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/parent_init_checkpoint.npz",
+      "sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+    },
+    "initializer_seed": 416,
+    "replays": [
+      {
+        "A_target_path": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/derivatives/A/fresh.jsonl",
+        "A_target_sha256": "5c089a5c8f2ba1fc04529631eb15d5a8ef9b49eb273fefbc0444ca3fd85a7049",
+        "name": "fresh",
+        "source_path": "/home/alex/Mancala/ai/.tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/self_play.jsonl",
+        "source_sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+        "value_target_mode": "default",
+        "weight": 1
+      },
+      {
+        "A_target_path": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/derivatives/A/generic_bootstrap.jsonl",
+        "A_target_sha256": "6996657767cd75801967a67bdc0574012467743d31bccb1fff8f039dbe7f3da7",
+        "name": "generic_bootstrap",
+        "source_path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl",
+        "source_sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2",
+        "value_target_mode": "sharpened",
+        "weight": 4
+      },
+      {
+        "A_target_path": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/derivatives/A/random_teacher.jsonl",
+        "A_target_sha256": "1172e2ad6da263990de3546cfc7f04338440f82a02aedd49b92a58e68faeea7d",
+        "name": "random_teacher",
+        "source_path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl",
+        "source_sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6",
+        "value_target_mode": "sharpened",
+        "weight": 1
+      },
+      {
+        "A_target_path": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/derivatives/A/opening_disagreement.jsonl",
+        "A_target_sha256": "0218563175aeb94315c7086510557c7490152af8a69c6f5fe9e7a04217f10055",
+        "name": "opening_disagreement",
+        "source_path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl",
+        "source_sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2",
+        "value_target_mode": "sharpened",
+        "weight": 8
+      },
+      {
+        "A_target_path": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/derivatives/A/stability.jsonl",
+        "A_target_sha256": "81ae668eb6a9a5b34f073ca544df15d8e6d2f86659c2df3f203791d99c7a93c6",
+        "name": "stability",
+        "source_path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl",
+        "source_sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff",
+        "value_target_mode": "sharpened",
+        "weight": 4
+      }
+    ],
+    "source_row_split": {
+      "path": "docs/data/seed416-policy-target-softening/training-freeze-v3/source-row-split.json.gz",
+      "sha256": "f7b69ab8fd6c19128a29f9ae9a11a7ac42a5d26630368ff74e906f29ddb6be44",
+      "train_count": 134502,
+      "train_positions_sha256": "b351b2b46ff0bd66fe581315f01e15210dffb01193a5dfef13016e0e79c95579",
+      "validation_count": 14946,
+      "validation_positions_sha256": "d3ea59844a1cdf6980007e0f4f7c59a9b954b48f947a1972af0a97cc341d799a"
+    },
+    "value_loss": "huber",
+    "value_loss_weight": 0.3,
+    "weights": [
+      1,
+      4,
+      1,
+      8,
+      4
+    ]
+  }
+}
