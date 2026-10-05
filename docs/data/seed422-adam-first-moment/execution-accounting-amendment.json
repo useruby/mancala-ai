@@ -1,0 +1,28 @@
+{
+  "A_epoch_checkpoint_hashes": {
+    "1": "1d76767b6fcd44794f0aef31f2274f5cb0880a3bcd47f296dac418c205595e47",
+    "2": "e1899ce5e0f2faa708a8c529ee48fd3cc61417c93c45ba642d24f80cc197ebed",
+    "3": "60a22c5fe01fab3ccdc5cbe49b45c41f1d94adb75e53e02d326c8525961031e6",
+    "4": "836fc769c62126b649ce9691494719506b88efec0746769c9a589522d08cb2cd"
+  },
+  "A_history_source": {
+    "justification": "All four A epoch checkpoint hashes and the four frozen permutation hashes match #416 exactly; the optimizer/target/split/initialization settings are also the frozen #416 A settings.",
+    "path": "docs/data/seed416-policy-target-softening/training-results.json",
+    "sha256": "d663291f8feda9b5c16820cdde38542a1e83ba8240130c46c7e0438de6bee0c6"
+  },
+  "A_identity_reproduced": true,
+  "failed_post_training_lookup": "state_dict['w_policy']; checkpoint_from_model exports that tensor as 'w_policy' while state_dict uses module parameter names",
+  "no_extra_training_samples_or_arena_games": true,
+  "original_frozen_driver_sha256": "0b03dbafd9157665922cd23286ac948cb720abb9702f66f67730f875e1d2116a",
+  "protocol_changes": [],
+  "reason": "The frozen driver completed A's 1,052 updates and wrote E1\u2013E4, then its post-training parameter-drift report looked up model.state_dict keys using the exported checkpoint key namespace and raised KeyError('w_policy'). No optimizer step or checkpoint write was affected.",
+  "registration_sha256": "f9beec18cfd30395de4b03a85ebb2b0a6b286571348b00b560c09072a7de9298",
+  "schema": "seed422-post-A-bookkeeping-amendment-v1",
+  "supplemental_execution_source": {
+    "path": "ml/alphazero_lite/seed422_recovery.py",
+    "sha256": "89bd02b94c0da29ac140864771b26672d35822bf51382b03411aa157c7f2b0e0",
+    "snapshot": "execution-source-snapshots/seed422_recovery.py",
+    "snapshot_sha256": "89bd02b94c0da29ac140864771b26672d35822bf51382b03411aa157c7f2b0e0"
+  },
+  "timing": "after complete A E4; before B execution"
+}
