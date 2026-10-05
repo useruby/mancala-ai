@@ -29,6 +29,12 @@ jobs:
       - name: Smoke test run manifest
         run: python -m unittest ml.alphazero_lite.test_run_manifest -v
 
+      - name: Install portable verifier dependency
+        run: python -m pip install numpy
+
+      - name: Portable seed422 publication regression
+        run: python -m unittest ml.alphazero_lite.test_seed425_publication_portable -v
+
       - name: Validate forensic reference artifact
         run: python -m ml.alphazero_lite.validate_forensic_reference_artifact
 
