@@ -1,0 +1,97 @@
+{
+  "accounting": {
+    "compact_row": "global index assigned in registered source order and raw-line order to each parsed, loader-eligible row; the frozen call has exclude_buckets=None, so expected skipped raw lines are explicitly empty",
+    "denominator_eligible_source_rows": "distinct validation compact rows; numerator is distinct validation compact rows whose identity occurs in any training row",
+    "denominator_unique_identity": "validation unique identities; numerator is identities also present in training",
+    "denominator_weighted_positions": "expanded validation positions; numerator is expanded validation positions whose identity occurs in any training row; weighted copies are exposure accounting only, not independent observations",
+    "loaded_targets": "actual frozen train.load_jsonl_replay called with policy_target_mode=sharpened, value_target_mode=default, and registered per-source replay_value_target_modes; per-source target arrays are hash-bound; source feature arrays compared with loaded x",
+    "raw_line": "1-based line number within each registered source file",
+    "source_attribution": "additive membership-pattern table partitions shared identities by exact train/validation source-membership sets; source-pair exposures are pairwise and overlap when identities occur in multiple sources",
+    "split": "ordered freeze train_positions and validation_positions index the expanded positions; both ordered int64 arrays checked by exact equality and registered SHA256; source-row sets are checked disjoint and complete",
+    "weighted_position_order": "source order; within each source the complete compact index sequence repeated weight times, matching np.tile(np.arange(source_start, source_end), weight); copy is not an independent source row"
+  },
+  "chronology": {
+    "amendment": "These values were observed before exact frozen np.tile weighted-position order was reconstructed. Preliminary expansion repeated each row consecutively; the loader repeats the complete source compact-row sequence by weight. The provisional overlap values are superseded by this hash-bound reconstruction and are retained here only to document chronology.",
+    "classification": "retrospective data-only audit; not part of or prospective to the #416 historical training freeze",
+    "preliminary_observations": [
+      "87,625 eligible rows",
+      "149,448 weighted positions",
+      "6,974 shared canonical identities",
+      ">32 overlap 5,109/5,973"
+    ]
+  },
+  "decision_rules": {
+    "canonical": "any canonical intersection means canonical_state_overlap_detected; zero intersection means canonical_state_disjoint",
+    "metric_correction": "if >=5% of >32 weighted validation positions share a canonical identity with training, recommend a separately authorized validation-metric correction using an identity-disjoint holdout",
+    "otherwise": "close the diagnostic without authorizing training or replay changes"
+  },
+  "execution_source_snapshots": {
+    "execution-source-snapshots/fresh_p1_adapter_teacher_audit.py": "435e8452b3676bf57e70fd04dfa271b988a321fe783aed1f5061f350437a6b49",
+    "execution-source-snapshots/run_seed426_overlap_audit.py": "6be75c15fba52006cd248e7f6887ac16fc3e58d748c323ab05c680f0a7396e4c",
+    "execution-source-snapshots/seed426_overlap_analysis.py": "1821206c72a5c25ff2691b6723a69836caee5c63c35c582ade6f2fd4fe6e4afb",
+    "execution-source-snapshots/self_play.py": "2f207d6c289ceabff2e313eae657b06fafd9444f2b5146c01cd6030d9944499d",
+    "execution-source-snapshots/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "execution-source-snapshots/verify_seed426_overlap_audit.py": "2b4972e5c185dac4b28df8cce3a9f774a4b5e877bd66f56db4e187c33aa70c05"
+  },
+  "execution_sources": {
+    "analysis": "1821206c72a5c25ff2691b6723a69836caee5c63c35c582ade6f2fd4fe6e4afb",
+    "frozen_train": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "kalah_v3_encoder": "2f207d6c289ceabff2e313eae657b06fafd9444f2b5146c01cd6030d9944499d",
+    "runner": "6be75c15fba52006cd248e7f6887ac16fc3e58d748c323ab05c680f0a7396e4c",
+    "state_decoder": "435e8452b3676bf57e70fd04dfa271b988a321fe783aed1f5061f350437a6b49",
+    "verifier": "2b4972e5c185dac4b28df8cce3a9f774a4b5e877bd66f56db4e187c33aa70c05"
+  },
+  "identity_definitions": {
+    "canonical": "ordered JSON integer tuple (player_pits[6], opponent_pits[6], player_store, opponent_store, current_player); all fields retained; byte-string JSON encoding with compact separators",
+    "input": "exact loaded input vector serialized as 27 consecutive little-endian IEEE-754 binary32 values; equality is byte equality; group membership reported independently from canonical identity"
+  },
+  "registrations": {
+    "frozen_train": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "kalah_v3_encoder": "2f207d6c289ceabff2e313eae657b06fafd9444f2b5146c01cd6030d9944499d",
+    "seed416-v3": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+    "source_split": "f7b69ab8fd6c19128a29f9ae9a11a7ac42a5d26630368ff74e906f29ddb6be44"
+  },
+  "schema": "seed426-canonical-overlap-manifest-v1",
+  "sources": [
+    {
+      "eligibility": "no exclusion buckets",
+      "name": "fresh",
+      "policy_target_mode": "sharpened",
+      "sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+      "value_target_mode": "default",
+      "weight": 1
+    },
+    {
+      "eligibility": "no exclusion buckets",
+      "name": "generic_bootstrap",
+      "policy_target_mode": "sharpened",
+      "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2",
+      "value_target_mode": "sharpened",
+      "weight": 4
+    },
+    {
+      "eligibility": "no exclusion buckets",
+      "name": "random_teacher",
+      "policy_target_mode": "sharpened",
+      "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6",
+      "value_target_mode": "sharpened",
+      "weight": 1
+    },
+    {
+      "eligibility": "no exclusion buckets",
+      "name": "opening_disagreement",
+      "policy_target_mode": "sharpened",
+      "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2",
+      "value_target_mode": "sharpened",
+      "weight": 8
+    },
+    {
+      "eligibility": "no exclusion buckets",
+      "name": "stability",
+      "policy_target_mode": "sharpened",
+      "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff",
+      "value_target_mode": "sharpened",
+      "weight": 4
+    }
+  ]
+}
