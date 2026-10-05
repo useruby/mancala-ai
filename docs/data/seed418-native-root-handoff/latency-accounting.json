@@ -1,0 +1,8 @@
+{
+  "scope": "warm adapter query plus neural tie-breaking; process startup/prewarm excluded and reported separately",
+  "native_process_startup_ms": 0.26783207431435585,
+  "native_prewarm_ms": 3650.2215871587396,
+  "startup_plus_prewarm_ms": 3650.489419233054,
+  "warm_native_decision_mean_ms": 0.1586179296282353,
+  "warm_native_decision_p95_ms": 0.2574899699538946
+}

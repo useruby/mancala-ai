@@ -1,0 +1,10 @@
+{
+  "analysis.json": "7226afa55669ae306c6a86fdd84373d24a9f4dea1b0973732ed253b031b584f7",
+  "cohort-manifest.json": "a9e624ebafea4c0962fd69bb7b57d37773c4ac5767bdd6831b8fd363cc3d67fd",
+  "execution-checkpoint-v2.jsonl": "4606c5b6604a7333f5d172c94b75cd4ccc56c17715b1b089da474a1e34b4720a",
+  "latency-accounting.json": "f7157c8f6f1f349a1369f929c4c8ee706833707062aa5418e727a9c7f38af64f",
+  "oracle-records.jsonl": "c0c58955cf6510aaaeedffaafe156ea32e1f8e169a8a0ead93b6c2553d3a3a8b",
+  "preregistration.json": "c97ec9e26a84ec25b314bd75dcdaaa87ff4ed2dd2ea04179ac2bd912748e5b08",
+  "results.md": "cfcda7864eae8ae4d82b52155bbd2b6bdf0b0384dac8ec02086230291d878b38",
+  "search-records.jsonl": "1b1e5d4c69bb3991bac2750c99475eb9a2485a07c0b67555ddd5a8a790b54037"
+}

@@ -1,0 +1,46 @@
+{
+  "by_active_pit_stones": {
+    "17": {
+      "exact_optimal_action_rate": 1.0,
+      "mean_final_margin_regret": 0.0,
+      "n": 3,
+      "wdl_inferior_choice_rate": 0.0
+    },
+    "18": {
+      "exact_optimal_action_rate": 0.6,
+      "mean_final_margin_regret": 1.2,
+      "n": 5,
+      "wdl_inferior_choice_rate": 0.0
+    },
+    "19": {
+      "exact_optimal_action_rate": 0.6875,
+      "mean_final_margin_regret": 1.5,
+      "n": 16,
+      "wdl_inferior_choice_rate": 0.125
+    },
+    "20": {
+      "exact_optimal_action_rate": 0.6666666666666666,
+      "mean_final_margin_regret": 1.4285714285714286,
+      "n": 21,
+      "wdl_inferior_choice_rate": 0.047619047619047616
+    },
+    "21": {
+      "exact_optimal_action_rate": 0.8674698795180723,
+      "mean_final_margin_regret": 0.5783132530120482,
+      "n": 83,
+      "wdl_inferior_choice_rate": 0.012048192771084338
+    }
+  },
+  "complete_exact_coverage": true,
+  "decision": "stop_seed418_branch",
+  "exact_optimal_action_rate": 0.8046875,
+  "interpretation": "retrospective feasibility diagnostic; not strength, promotion, or runtime-change evidence",
+  "mean_final_margin_regret": 0.84375,
+  "n": 128,
+  "native_decision_latency_ms": {
+    "mean": 0.1586179296282353,
+    "p95_nearest_rank": 0.2574899699538946
+  },
+  "schema": "seed418-analysis-v1",
+  "wdl_inferior_choice_rate": 0.03125
+}

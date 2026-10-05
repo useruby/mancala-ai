@@ -1,0 +1,69 @@
+{
+  "artifacts": {
+    "artifact_dir": ".tmp/seed416-policy-target-softening/seed455-init-runtime-check",
+    "metadata_sha256": "28e5f8ae049c251856061d02145c4666309e9154b767df306bfa08c08d1b6d72",
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "runtime_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "tablebase_generation_metadata_sha256": "7355f547548213118df14ad01458ceac02d32f7d70d28a43463f30f1a2a60d79",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+  },
+  "decision_rules": {
+    "advance_if": [
+      "wdl_inferior_choice_rate>=0.05",
+      "mean_final_margin_regret>=1",
+      "warm_native_decision_mean_ms<=200",
+      "warm_native_decision_p95_ms<=350"
+    ],
+    "require_complete_coverage": true,
+    "sample_extension": false,
+    "threshold_sweep": false
+  },
+  "execution_amendment": {
+    "accepted_run_accounting_correction": "The corrected run used the actual #416 opening-state hash and completed 128 searches plus exact queries. Its post-run aggregation initially failed because in-memory search rows were not appended, despite complete paired checkpoint records. This aggregation-only correction does not alter searches, queries, states, seeds, or rules.",
+    "rejected_preliminary_run": "A preliminary execution was rejected because its azlite_eval_seed_v2 opening_state_hash mistakenly used the decision-state hash; it is excluded from this evidence.",
+    "resume_compatible_registration_sha256": "80765bdb69541b1a74e657f3130dcfac144916c484b2a9ff07f86ad637974ccb"
+  },
+  "manifest_sha256": "a9e624ebafea4c0962fd69bb7b57d37773c4ac5767bdd6831b8fd363cc3d67fd",
+  "native": {
+    "domain_evidence": "KVTB1 generation metadata header declares tier/max_tier 21; native adapter queries all states without the Python threshold-16 handoff.",
+    "implementation_identity": "native_kvtb_root_action_probe_v1",
+    "tablebase_declared_max_tier": 21
+  },
+  "schema": "seed418-preregistration-v1",
+  "scope": "retrospective native-root-handoff feasibility only",
+  "search": {
+    "c_puct": 1.25,
+    "exact_leaf_solve": "disabled",
+    "exact_root_solve_threshold": 16,
+    "options": {
+      "fpu_mode": "zero",
+      "normalize_values": false,
+      "reuse_subtree": false,
+      "root_policy_mode": "deterministic",
+      "root_temperature": 0.0,
+      "tactical_root_bias": 0.0
+    },
+    "seed": 418,
+    "seed_contract": "azlite_eval_seed_v2",
+    "simulations": 384
+  },
+  "source_ledger_sha256": "82721f623e86c2c5e0af63cf4c5b7be303f932b3c4a3446f5be4b5279deee3e1",
+  "source_suite_sha256": "a1c3de5cf43ce4c3e27be4119017bead381592a67790e7bd9e8330e2dd1643b7",
+  "sources": {
+    "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "ml/alphazero_lite/endgame_tablebase.py": "fe00e7b48277e2f8a5795232f78b25df4d29449b7b5dc819a09771999b2350f5",
+    "ml/alphazero_lite/evaluation_seed_contract.py": "be5ed17519f86040cdac2a2380d4dd907015b927c6b80fedc85f7d668b9422c3",
+    "ml/alphazero_lite/exact_root_decision.py": "c806a7c3c3a8fd7d7be800f59fc568c670889164a46c7acbde8ff92473776905",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/native_exact_root_tablebase.py": "49fe76e8dc0e827db3181397dee7bfbcf3b1b35234757be1ac441ea09eefab6a",
+    "ml/alphazero_lite/runtime_search_policy.py": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
+    "ml/alphazero_lite/seed416_public_validation.py": "f2907e9dbae2b57757b61c9c6cd09a045990cba07feb46110aa2e90486a3f7fd",
+    "ml/alphazero_lite/seed418_analysis.py": "18f79263efe226109890fffeef6abe3b864922ec07b7c8ba5f84c69d79cbe994",
+    "ml/alphazero_lite/seed418_native_root_handoff.py": "d7f74466c3a92483c7b03c196d79a953579c4749a8446aa4a35f1ff4055c3603",
+    "ml/alphazero_lite/test_seed418_native_root_handoff.py": "67f9f54c013c2d15f1c5260adb255ec48f02ac7f64c3264ba235aa8364f306c9",
+    "ml/alphazero_lite/verify_seed416_policy_target_softening.py": "10f109066f265afc387449f9f6286e838ede3e65470470501b163c45405e5803",
+    "ml/alphazero_lite/verify_seed418_native_root_handoff.py": "d7ad22a5c71a11df4fa03c8930474a939ab0db09a5854ddd5473f7390fab6485",
+    "native/kalah_v1_tablebase/kalah_v1_tablebase.cc": "15547ffccaecf940c02fd9e74fc2f52db15dca9718cadbe455e08ea1f4e20956"
+  }
+}
