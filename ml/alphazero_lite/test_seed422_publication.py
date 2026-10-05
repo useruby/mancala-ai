@@ -7,6 +7,7 @@ from pathlib import Path
 
 from ml.alphazero_lite.seed422_recovery import reconcile_resume_progress
 from ml.alphazero_lite.verify_seed422_adam_memory import DATA, verify
+from ml.alphazero_lite.seed422_corrected_analysis import analyze
 
 
 class Seed422PublicationTests(unittest.TestCase):
@@ -77,6 +78,34 @@ class Seed422PublicationTests(unittest.TestCase):
         self.assertFalse(result["runtime_artifacts_required"])
         self.assertEqual(result["game_count"], 2048)
         self.assertEqual(result["suite_count"], 512)
+
+    def test_corrected_seat_accounting_uses_512_game_denominators(self):
+        rows = [
+            json.loads(line)
+            for line in (DATA / "outcome-ledger.jsonl").read_text().splitlines()
+        ]
+        result = analyze(rows)
+        self.assertEqual(
+            result["lanes"]["A"]["seat_scores"], {"0": 0.5322265625, "1": 0.43359375}
+        )
+        self.assertEqual(
+            result["lanes"]["B"]["seat_scores"], {"0": 0.533203125, "1": 0.4658203125}
+        )
+        self.assertEqual(
+            result["decision"], "retain_baseline_close_fixed_beta1_intervention"
+        )
+        rows.pop()
+        with self.assertRaisesRegex(ValueError, "expected_exactly_2048_games"):
+            analyze(rows)
+
+    def test_correction_verifier_and_publication(self):
+        from ml.alphazero_lite.verify_seed422_correction import (
+            verify as verify_correction,
+        )
+
+        result = verify_correction()
+        self.assertTrue(result["verified"])
+        self.assertTrue(result["primary_estimates_unchanged"])
 
 
 if __name__ == "__main__":
