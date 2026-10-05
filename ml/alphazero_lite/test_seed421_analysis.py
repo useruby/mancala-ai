@@ -94,8 +94,10 @@ def test_rejects_corrupt_timed_pair(mutation, error):
     if mutation == "seed":
         row["seed"] += 1
     elif mutation == "action":
+        row["result"]["off"]["selected_action"] = 5
         row["result"]["on"]["selected_action"] = 5
     elif mutation == "policy":
+        row["result"]["off"]["policy"][0] = 0.5
         row["result"]["on"]["policy"][0] = 0.5
     elif mutation == "cache":
         row["cache"]["hits"] = 1
@@ -115,3 +117,18 @@ def test_resume_accepts_valid_partial_and_rejects_duplicate():
         validate_ledger([row, copy.deepcopy(row)], cohort, "b" * 64, complete=False)
     with pytest.raises(ValueError, match="incomplete_evidence"):
         validate_ledger([row], cohort, "b" * 64, complete=True)
+
+
+def test_resume_rejects_a_corrupted_recovered_record():
+    root, row = sample()
+    recovered = copy.deepcopy(row)
+    recovered["request_counts"]["off"] += 1
+    with pytest.raises(ValueError, match="timed_request_count_mismatch"):
+        validate_ledger([recovered], cohort32(root), "b" * 64, complete=False)
+
+
+def test_rejects_different_search_outputs():
+    root, row = sample()
+    row["result"]["on"]["root_q"] = 0.4
+    with pytest.raises(ValueError, match="output_mismatch"):
+        validate_ledger([row], cohort32(root), "b" * 64, complete=False)
