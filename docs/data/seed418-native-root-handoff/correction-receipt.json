@@ -1,0 +1,34 @@
+{
+  "schema": "seed418-provenance-correction-v1",
+  "correction": "Append-only provenance and public-verification correction. Existing execution checkpoint, manifest, search/oracle records, analysis, latency accounting, publication registration, and evidence binding are retained byte-for-byte.",
+  "accepted_registration_sha256": "80765bdb69541b1a74e657f3130dcfac144916c484b2a9ff07f86ad637974ccb",
+  "accepted_registration_archive": null,
+  "provenance_status": "original accepted registration bytes and corresponding execution-source snapshots are unavailable in reachable repository history; the recorded checkpoint registration hash is preserved but cannot be independently matched to original bytes",
+  "original_execution_freeze_independently_verifiable": false,
+  "post_execution_publication_registration": {
+    "path": "preregistration.json",
+    "sha256": "c97ec9e26a84ec25b314bd75dcdaaa87ff4ed2dd2ea04179ac2bd912748e5b08"
+  },
+  "completed_checkpoint": {
+    "path": "execution-checkpoint-v2.jsonl",
+    "sha256": "4606c5b6604a7333f5d172c94b75cd4ccc56c17715b1b089da474a1e34b4720a",
+    "rows": 128,
+    "registration_identity": "Each checkpoint row records the accepted registration SHA256 above."
+  },
+  "manifest": {"path": "cohort-manifest.json", "sha256": "a9e624ebafea4c0962fd69bb7b57d37773c4ac5767bdd6831b8fd363cc3d67fd"},
+  "published_records": {
+    "search-records.jsonl": "1b1e5d4c69bb3991bac2750c99475eb9a2485a07c0b67555ddd5a8a790b54037",
+    "oracle-records.jsonl": "c0c58955cf6510aaaeedffaafe156ea32e1f8e169a8a0ead93b6c2553d3a3a8b"
+  },
+  "analysis": {"path": "analysis.json", "sha256": "7226afa55669ae306c6a86fdd84373d24a9f4dea1b0973732ed253b031b584f7"},
+  "existing_evidence_binding": {"path": "evidence-binding.json", "sha256": "02b1a23762c0520f11ba7009b25e00e95e1ffab3ddcbec6b743910602b38e88f"},
+  "execution_history": {
+    "rejected_preliminary_attempt": "Rejected because azlite_eval_seed_v2 opening_state_hash used the decision-state hash in place of the #416 opening-state hash. It is excluded from published evidence. Preliminary attempt artifacts are unavailable.",
+    "accepted_run_aggregation_correction": "Completed 128 searches and exact queries are present as paired checkpoint rows. Initial aggregation omitted in-memory search rows; publication was recovered from the completed checkpoint without repeating searches or queries.",
+    "attempt_evidence_availability": "No preliminary-attempt record or raw logs are available for independent inspection; the disclosure above is based on the recorded publication registration."
+  },
+  "new_verification_sources": {
+    "ml/alphazero_lite/seed418_cohort_replay.py": "e407b54e77d3775139221604ababe83916d9caacb4c579d5923cdbfa2044ef29",
+    "ml/alphazero_lite/verify_seed418_public_correction.py": "1fbe1ea5b96a460d8649c7568009de845f96fe2226127dc535a1bd2fc2a7d355"
+  }
+}
