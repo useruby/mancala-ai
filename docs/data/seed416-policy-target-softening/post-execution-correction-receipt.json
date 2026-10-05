@@ -1,0 +1,17 @@
+{
+  "schema": "seed416-post-execution-correction-receipt-v1",
+  "correction_scope": "public evidence validation and analysis calculation only",
+  "archived_verifier_sha256": "ed15ad725d002bc6df99d53c0f0251f31c5af66ab0ba04bcfc4fe4e00ce10788",
+  "archive_record_sha256": "cc5c0347e119d337b0ca2b4e162f8c91a16eeba760a050834584ed286540db54",
+  "registration_sha256": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+  "registration_supersession_sha256": "be0dff5942d09dcb7a63da61b22241431becccf611df105ded318be030132dc2",
+  "evaluation_binding_sha256": "380d5db079164a52c9ae0223bc99ef62a207e0a64f9a1c5ffffe7525690e2f6c",
+  "outcome_binding_sha256": "03b8ea9cd9e8e7212064a7279083d7eec53e4a28c72b392582406d7a806b9ba4",
+  "post_first_lane_accounting_amendment_sha256": "6e0b596419ae8ac282d2c1581ee9792dea37e13459467d56c081e5b53724971a",
+  "corrected_verifier_sha256": "10f109066f265afc387449f9f6286e838ede3e65470470501b163c45405e5803",
+  "validation_helper_sha256": "f2907e9dbae2b57757b61c9c6cd09a045990cba07feb46110aa2e90486a3f7fd",
+  "analysis_helper_sha256": "5bc30c5f2ebfe3d3969b80a79875e364e47e00fc05e63a5c3c18835381b13b7d",
+  "historic_receipts_rewritten": false,
+  "runner_or_execution_changed": false,
+  "scientific_inputs_or_thresholds_changed": false
+}

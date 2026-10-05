@@ -13,6 +13,13 @@ from typing import Any
 
 import numpy as np
 
+from ml.alphazero_lite.seed416_public_validation import (
+    lane_games_sha256,
+    validate_openings,
+    validate_records,
+)
+from ml.alphazero_lite.seed416_validation_analysis import bootstrap_paired
+
 
 def digest(path: Path) -> str:
     h = hashlib.sha256()
@@ -49,6 +56,10 @@ def verify(root: Path) -> dict[str, Any]:
     ledger_path = data / "outcome-ledger.jsonl"
     matrix_path = data / "per-opening-matrix.json"
     analysis_path = data / "analysis.json"
+    archive_path = (
+        data / "verify_seed416_policy_target_softening_pre_correction.archive.json"
+    )
+    receipt_path = data / "post-execution-correction-receipt.json"
     evidence_paths = [
         registration_path,
         suite_path,
@@ -58,6 +69,8 @@ def verify(root: Path) -> dict[str, Any]:
         ledger_path,
         matrix_path,
         analysis_path,
+        archive_path,
+        receipt_path,
         training_path,
         supersession_path,
         split_path,
@@ -125,35 +138,52 @@ def verify(root: Path) -> dict[str, Any]:
         or not amendment.get("no_adaptive_extension")
     ):
         raise ValueError("execution_amendment_binding_invalid")
+    archive = read_json(archive_path)
+    receipt = read_json(receipt_path)
+    if (
+        archive.get("source_commit") != "9692fc1"
+        or archive.get("source_sha256")
+        != "ed15ad725d002bc6df99d53c0f0251f31c5af66ab0ba04bcfc4fe4e00ce10788"
+        or archive.get("source_path")
+        != "ml/alphazero_lite/verify_seed416_policy_target_softening.py"
+        or receipt.get("archived_verifier_sha256") != archive.get("source_sha256")
+        or receipt.get("archive_record_sha256") != digest(archive_path)
+        or receipt.get("registration_sha256") != digest(registration_path)
+        or receipt.get("registration_supersession_sha256") != digest(supersession_path)
+        or receipt.get("evaluation_binding_sha256") != digest(binding_path)
+        or receipt.get("outcome_binding_sha256") != digest(outcomes_path)
+        or receipt.get("post_first_lane_accounting_amendment_sha256")
+        != digest(amendment_path)
+        or receipt.get("corrected_verifier_sha256") != digest(Path(__file__))
+        or receipt.get("validation_helper_sha256")
+        != digest(root / "ml/alphazero_lite/seed416_public_validation.py")
+        or receipt.get("analysis_helper_sha256")
+        != digest(root / "ml/alphazero_lite/seed416_validation_analysis.py")
+    ):
+        raise ValueError("post_execution_correction_receipt_invalid")
     replacements = amendment.get("source_replacements", {}) if amendment else {}
     for name, expected in registration.get("source_hashes", {}).items():
         source = root / name
         actual = digest(source) if source.is_file() else None
         replacement = replacements.get(name)
-        if actual != expected and not (
-            replacement is not None
-            and replacement.get("preregistered_sha256") == expected
-            and replacement.get("post_run_sha256") == actual
+        if (
+            actual != expected
+            and not (
+                replacement is not None
+                and replacement.get("preregistered_sha256") == expected
+                and replacement.get("post_run_sha256") == actual
+            )
+            and not (
+                name == "ml/alphazero_lite/verify_seed416_policy_target_softening.py"
+                and actual == receipt["corrected_verifier_sha256"]
+            )
         ):
             raise ValueError(f"execution_source_hash_mismatch:{name}")
     suite = read_jsonl(suite_path)
     if len(suite) != 512 or len({row["state_hash"] for row in suite}) != 512:
         raise ValueError("suite_count_or_uniqueness_invalid")
-    for row in suite:
-        state = row["state"]
-        stones = sum(state["player_pits"]) + sum(state["opponent_pits"])
-        if (
-            stones <= 32
-            or sum(state["player_pits"]) == 0
-            or sum(state["opponent_pits"]) == 0
-        ):
-            raise ValueError("suite_phase_or_terminal_invalid")
     proof = read_json(proof_path)
-    excluded = set(proof["excluded_identities"])
-    if len(excluded) != proof["combined_union_count"] or proof["suite_overlap"] != 0:
-        raise ValueError("exclusion_proof_count_invalid")
-    if any(row["state_hash"] in excluded for row in suite):
-        raise ValueError("suite_overlaps_exclusion_union")
+    validate_openings(suite, proof)
     binding = read_json(binding_path)
     if binding["registration_sha256"] != digest(registration_path) or binding[
         "suite_sha256"
@@ -200,6 +230,13 @@ def verify(root: Path) -> dict[str, Any]:
     rows = read_jsonl(ledger_path)
     if len(rows) != 2048:
         raise ValueError("outcome_ledger_count_invalid")
+    validate_records(rows, suite)
+    for lane in ("A", "B"):
+        if (
+            lane_games_sha256(rows, lane)
+            != outcome_binding["lanes"][lane]["games_sha256"]
+        ):
+            raise ValueError(f"bound_public_games_hash_mismatch:{lane}")
     counts: Counter[tuple[str, str]] = Counter()
     seats: dict[tuple[str, str], set[int]] = {}
     for row in rows:
@@ -238,8 +275,6 @@ def verify(root: Path) -> dict[str, Any]:
         raise ValueError("opening_matrix_mismatch")
     if analysis.get("samples") != 10000 or analysis.get("seed") != 416:
         raise ValueError("bootstrap_registration_mismatch")
-    from ml.alphazero_lite.seed416_policy_target_softening import bootstrap_paired
-
     recomputed = bootstrap_paired(rows, samples=10000, seed=416)
     for key in (
         "primary_mean_B_minus_A",

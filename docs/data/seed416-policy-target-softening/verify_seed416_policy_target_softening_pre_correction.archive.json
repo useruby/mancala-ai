@@ -1,0 +1,6 @@
+{
+  "archive_kind": "immutable_git_object_reference",
+  "source_commit": "9692fc1",
+  "source_path": "ml/alphazero_lite/verify_seed416_policy_target_softening.py",
+  "source_sha256": "ed15ad725d002bc6df99d53c0f0251f31c5af66ab0ba04bcfc4fe4e00ce10788"
+}

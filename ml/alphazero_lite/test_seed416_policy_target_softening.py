@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import hashlib
 import gzip
+import shutil
 from pathlib import Path
 
 import numpy as np
@@ -322,7 +323,28 @@ def _synthetic_publication(root: Path) -> None:
 
 
 def test_public_verifier_is_read_only_and_rejects_altered_ledger(tmp_path) -> None:
-    _synthetic_publication(tmp_path)
+    repository = Path(__file__).resolve().parents[2]
+    source_data = repository / "docs/data/seed416-policy-target-softening"
+    destination = tmp_path / "docs/data/seed416-policy-target-softening"
+    shutil.copytree(source_data, destination)
+    registration = json.loads((destination / "registration-v3.json").read_text())
+    for name in registration["source_hashes"]:
+        source = repository / name
+        target = tmp_path / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+    shutil.copy2(
+        repository / "ml/alphazero_lite/verify_seed416_policy_target_softening.py",
+        tmp_path / "ml/alphazero_lite/verify_seed416_policy_target_softening.py",
+    )
+    for name in (
+        "seed416_public_validation.py",
+        "seed416_validation_analysis.py",
+    ):
+        shutil.copy2(
+            repository / "ml/alphazero_lite" / name,
+            tmp_path / "ml/alphazero_lite" / name,
+        )
     paths = sorted(
         path
         for path in (tmp_path / "docs/data/seed416-policy-target-softening").rglob("*")
@@ -335,8 +357,12 @@ def test_public_verifier_is_read_only_and_rejects_altered_ledger(tmp_path) -> No
     ledger = tmp_path / "docs/data/seed416-policy-target-softening/outcome-ledger.jsonl"
     lines = ledger.read_text().splitlines()
     altered = json.loads(lines[0])
-    altered["opponent_score"] = 0.0
+    altered["game"]["trajectory"] = "0"
     lines[0] = json.dumps(altered)
     ledger.write_text("\n".join(lines) + "\n")
+    analysis_path = ledger.parent / "analysis.json"
+    analysis = json.loads(analysis_path.read_text())
+    analysis["outcome_ledger_sha256"] = hashlib.sha256(ledger.read_bytes()).hexdigest()
+    analysis_path.write_text(json.dumps(analysis, indent=2, sort_keys=True) + "\n")
     with pytest.raises(ValueError):
         verify(tmp_path)
