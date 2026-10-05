@@ -1,0 +1,36 @@
+{
+  "by_budget": {
+    "1536": {
+      "by_phase": {
+        "17-32": -0.006627690162482741,
+        ">32": -0.06066969209542612
+      },
+      "mean_off_latency_ms": 124.465557,
+      "mean_on_latency_ms": 129.41613771875,
+      "mean_paired_relative_speedup": -0.03364869112895443,
+      "off_p95_nearest_rank_ms": 144.453818,
+      "on_p95_nearest_rank_ms": 153.583182
+    },
+    "384": {
+      "bootstrap_95_percentile_interval": [
+        -0.08275793457798393,
+        -0.04431057864790289
+      ],
+      "by_phase": {
+        "17-32": -0.039714899846951805,
+        ">32": -0.08519827130140362
+      },
+      "mean_off_latency_ms": 30.644678916666667,
+      "mean_on_latency_ms": 32.65645186458333,
+      "mean_paired_relative_speedup": -0.062456585574177714,
+      "off_p95_nearest_rank_ms": 33.926886,
+      "on_p95_nearest_rank_ms": 37.000813
+    }
+  },
+  "complete_pairs": true,
+  "decision": "stop_memoization_branch",
+  "ledger_sha256": "e15cd9eee96c55a717d587aa9340a6ccc6912b8d05f0b9d51cb4e1d161f052c5",
+  "registration_sha256": "61a2feabc297f67a8970f5e348cdc58e97d3e943b7909d2f6c54599c4977e928",
+  "schema": "seed421-analysis-v1",
+  "search_count": 512
+}
