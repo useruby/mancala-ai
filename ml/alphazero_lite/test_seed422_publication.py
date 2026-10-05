@@ -2,6 +2,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -106,6 +111,132 @@ class Seed422PublicationTests(unittest.TestCase):
         result = verify_correction()
         self.assertTrue(result["verified"])
         self.assertTrue(result["primary_estimates_unchanged"])
+
+    def test_portable_public_entry_point_on_relocated_evidence(self):
+        repository = Path(__file__).resolve().parents[2]
+        git_files = subprocess.run(
+            [
+                "git",
+                "ls-files",
+                "-z",
+                "--",
+                "ml",
+                "docs/data/seed414-root-budget-confirmation",
+                "docs/data/seed416-policy-target-softening",
+                "docs/data/seed418-native-root-handoff",
+                "docs/data/seed420-artifact-evaluator-memoization",
+                "docs/data/seed421-memoization-timing-correction",
+                "docs/data/seed422-adam-first-moment",
+            ],
+            cwd=repository,
+            check=True,
+            stdout=subprocess.PIPE,
+        ).stdout.split(b"\0")
+        relative_files = [Path(path.decode()) for path in git_files if path]
+        with tempfile.TemporaryDirectory(
+            prefix="seed422-public-verifier-", dir=repository / ".tmp"
+        ) as temporary:
+            relocated = Path(temporary)
+            for relative in relative_files:
+                source = repository / relative
+                target = relocated / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, target)
+            # The new entry points are part of this branch and may not yet be
+            # present in git's index when the focused tests are run.
+            for name in (
+                "seed422_public_exclusions.py",
+                "verify_seed422_publication.py",
+            ):
+                source = repository / "ml/alphazero_lite" / name
+                target = relocated / "ml/alphazero_lite" / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, target)
+            receipt_source = (
+                repository
+                / "docs/data/seed422-adam-first-moment/supplemental-verification-receipt.json"
+            )
+            receipt_target = (
+                relocated
+                / "docs/data/seed422-adam-first-moment/supplemental-verification-receipt.json"
+            )
+            shutil.copy2(receipt_source, receipt_target)
+            documentation = repository / "docs/seed422-publication-verification.md"
+            documentation_target = (
+                relocated / "docs/seed422-publication-verification.md"
+            )
+            documentation_target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(documentation, documentation_target)
+
+            all_paths = list(relocated.rglob("*"))
+            self.assertFalse(any(path.is_symlink() for path in all_paths))
+            self.assertFalse(any("model-artifact" in path.parts for path in all_paths))
+            self.assertFalse(
+                any(".tmp" in path.relative_to(relocated).parts for path in all_paths)
+            )
+            fixture_hashes = {
+                path.relative_to(relocated): hashlib.sha256(
+                    path.read_bytes()
+                ).hexdigest()
+                for path in all_paths
+                if path.is_file()
+            }
+            env = {**os.environ, "PYTHONPATH": str(relocated)}
+            command = [
+                sys.executable,
+                str(relocated / "ml/alphazero_lite/verify_seed422_publication.py"),
+                "--root",
+                str(relocated),
+            ]
+
+            def invoke(expected_success: bool) -> subprocess.CompletedProcess[str]:
+                result = subprocess.run(
+                    command,
+                    cwd=relocated,
+                    env=env,
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                )
+                if expected_success:
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    payload = json.loads(result.stdout)
+                    self.assertTrue(payload["verified"])
+                    self.assertEqual(payload["excluded_identity_count"], 266575)
+                    self.assertEqual(
+                        payload["decision"],
+                        "retain_baseline_close_fixed_beta1_intervention",
+                    )
+                else:
+                    self.assertNotEqual(result.returncode, 0)
+                return result
+
+            invoke(expected_success=True)
+            for path in all_paths:
+                if path.is_file():
+                    self.assertEqual(
+                        hashlib.sha256(path.read_bytes()).hexdigest(),
+                        fixture_hashes[path.relative_to(relocated)],
+                    )
+
+            data = relocated / "docs/data/seed422-adam-first-moment"
+            mutations = {
+                "registered source": relocated / "ml/alphazero_lite/arena.py",
+                "registered snapshot": data
+                / "execution-source-snapshots/ml/alphazero_lite/arena.py",
+                "amendment": data / "execution-accounting-amendment.json",
+                "runtime binding and candidate identity": data / "runtime-binding.json",
+                "outcome binding and report": data / "outcome-binding.json",
+                "raw ledger": data / "outcome-ledger.jsonl",
+                "training settings": data / "training-results.json",
+            }
+            for _label, path in mutations.items():
+                original = path.read_bytes()
+                try:
+                    path.write_bytes(original + b" ")
+                    invoke(expected_success=False)
+                finally:
+                    path.write_bytes(original)
 
 
 if __name__ == "__main__":
