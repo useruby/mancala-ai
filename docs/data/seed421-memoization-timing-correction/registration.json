@@ -1,0 +1,702 @@
+{
+  "artifact_identity": "49513aabb887dbf0c56d1dfc4c94cf782bcf0816c6dd8c078b827eb19318ed83",
+  "cohort_sha256": "60da97a50c4271c775430b7d92ebdf8150e979121f38b39d0b6b62b04a2ad1f7",
+  "decision_rules": {
+    "advance": "all equivalence checks pass; 384 mean paired relative speedup >= 0.15 and root-cluster bootstrap 95% lower bound > 0; neither phase speedup < -0.05; 1536 mean paired relative speedup >= 0",
+    "bootstrap_resamples": 10000,
+    "bootstrap_seed": 420,
+    "cluster": "root; repetitions remain paired within root",
+    "equivalence_required": true
+  },
+  "execution_source_hashes": {
+    "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "ml/alphazero_lite/eval_cache.py": "7f9da64a0ec2b3c00418727d8d5d0de5257037d47dc42cd2b8e72071fb70b8f6",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/memoized_evaluator.py": "ab18fc9a31d8559cdcbc8b9b44c778a5eb0e88ebe11bc391c387a1b22b9c03d3",
+    "ml/alphazero_lite/seed420_experiment.py": "3a8599b35b6814c0319e3df3811a55851f9e27f1fc7ebdfffae882897cbb6528",
+    "ml/alphazero_lite/seed421_analysis.py": "ca6b6cb84ec40e6dcef7011f807b879ed6a6732066512db910c1b52b12dfb01a",
+    "ml/alphazero_lite/seed421_experiment.py": "75243a96641cf0b93b177d93fc1f8c3b127a1cbd98ebb13c21ec537e72d37c2c",
+    "ml/alphazero_lite/seed421_verify.py": "ca9ba082f17eac99ffea17835fea72710c6fc296ef5f9b4c3820ccb60d37380a",
+    "ml/alphazero_lite/self_play.py": "2f207d6c289ceabff2e313eae657b06fafd9444f2b5146c01cd6030d9944499d"
+  },
+  "protocol": "correction rerun of seed420; not a sample extension or capacity sweep",
+  "schema": "seed421-memoization-registration-v1",
+  "search": {
+    "budgets": [
+      384,
+      1536
+    ],
+    "c_puct": 1.25,
+    "cache_capacity": 4096,
+    "dirichlet_noise": false,
+    "exact_leaf_solve": false,
+    "exact_root_contract": "roots are selected under the frozen seed455 root-16 contract; PUCT leaves are not solved",
+    "fpu_mode": "zero",
+    "instrumented_pairs_per_root_budget": 1,
+    "normalize_values": false,
+    "reuse_subtree": false,
+    "rng_seed": "int(SHA256('420:rng:'+state_hash+':'+budget+':'+rep)[:16],16)",
+    "root_fpu_mode": "zero",
+    "root_policy_mode": "deterministic",
+    "root_temperature": 0.0,
+    "seed_contexts": [
+      {
+        "budget": 384,
+        "parity_seed": 11292136572205947337,
+        "root_hash": "abc2a835f3571b1c0ac702f3cd17dd813f6eefceabc4ca94fbea1de3103bee10",
+        "timed_seeds": [
+          17169773987558360300,
+          7805224908666445926,
+          10591613821543594965
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 5537435691098597885,
+        "root_hash": "abc2a835f3571b1c0ac702f3cd17dd813f6eefceabc4ca94fbea1de3103bee10",
+        "timed_seeds": [
+          16989667892780166758,
+          17290580825939881485,
+          17253360859165367718
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 16542718066967414784,
+        "root_hash": "b96b9ba1aa01af6b3c25f3d1420b4aeab0d8783d8f5e3db4de4fd5d8b3dc698c",
+        "timed_seeds": [
+          15807634900568624659,
+          4106069574198001836,
+          1140952309749408367
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 10845251802876519809,
+        "root_hash": "b96b9ba1aa01af6b3c25f3d1420b4aeab0d8783d8f5e3db4de4fd5d8b3dc698c",
+        "timed_seeds": [
+          10633560130484235012,
+          5987006840098820275,
+          16275251230238494814
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 11136109312283889915,
+        "root_hash": "e921b3e1a591fe72faed770ecfd8c4b57d0fae01e115ed4073fcb3fdd738dbc2",
+        "timed_seeds": [
+          9991494471018148843,
+          12036146374759722214,
+          229367023761273627
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 12705154089661009010,
+        "root_hash": "e921b3e1a591fe72faed770ecfd8c4b57d0fae01e115ed4073fcb3fdd738dbc2",
+        "timed_seeds": [
+          15653219743975673505,
+          17565447720292733386,
+          14413570664318138342
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 16374071236349771382,
+        "root_hash": "dec9399b1830a799d43aa4c05fbfd40a3fcf3a710f836d24b2fce13bdb848e46",
+        "timed_seeds": [
+          15298220674110842916,
+          16694386890350812242,
+          15196957925246923541
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 4866483384409487891,
+        "root_hash": "dec9399b1830a799d43aa4c05fbfd40a3fcf3a710f836d24b2fce13bdb848e46",
+        "timed_seeds": [
+          11418392957587452735,
+          3017010289512359272,
+          5768182363422416792
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 13104550824647612361,
+        "root_hash": "038c7bf2a9bf8b6b604be6b245446869a9c0c99f7293a8d2501f991d51057157",
+        "timed_seeds": [
+          49635299607068551,
+          14846990527063056731,
+          12609751953503583814
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 13510196046271138631,
+        "root_hash": "038c7bf2a9bf8b6b604be6b245446869a9c0c99f7293a8d2501f991d51057157",
+        "timed_seeds": [
+          8472032717437364207,
+          5540445842133426422,
+          17660171160639042125
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 1325739502103049716,
+        "root_hash": "c3e2cacebcd8d98630cd1f0c47713cd45404a0d5c7425f7ea9e21d30b9462dd3",
+        "timed_seeds": [
+          565672595299638745,
+          883820850738556732,
+          18243521236420843955
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 17879745302713646605,
+        "root_hash": "c3e2cacebcd8d98630cd1f0c47713cd45404a0d5c7425f7ea9e21d30b9462dd3",
+        "timed_seeds": [
+          3603120602531556825,
+          441470334488976439,
+          8717661326535211525
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 392589515793482628,
+        "root_hash": "c70f78151a9c65263bd2d9dd12d018f8aa42f7d203c00c258f642a8916be4436",
+        "timed_seeds": [
+          2930786047090060782,
+          13374357802782153349,
+          570381846031995187
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 11688695381221193104,
+        "root_hash": "c70f78151a9c65263bd2d9dd12d018f8aa42f7d203c00c258f642a8916be4436",
+        "timed_seeds": [
+          6886959790021122855,
+          6660780593930041322,
+          993118231940478098
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 13840324316594105769,
+        "root_hash": "9b9c54b9097021d0daccd31826e53109cf6b25b963ea0d64ed827f45e205f313",
+        "timed_seeds": [
+          3700127614165795827,
+          7486884237616690860,
+          14702022885130330519
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 1697248976233306887,
+        "root_hash": "9b9c54b9097021d0daccd31826e53109cf6b25b963ea0d64ed827f45e205f313",
+        "timed_seeds": [
+          9141021947250977144,
+          5915201278298372747,
+          13681665451323926042
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 3117146378538138058,
+        "root_hash": "6e74713f776a68868d4c3d6391808ab70ec34bdd51bcf7372b7f8748e2f1e366",
+        "timed_seeds": [
+          10069342267283917876,
+          12619106245251725756,
+          10975838844146044888
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 2473692683836454807,
+        "root_hash": "6e74713f776a68868d4c3d6391808ab70ec34bdd51bcf7372b7f8748e2f1e366",
+        "timed_seeds": [
+          3697164136006488889,
+          5548621989896431546,
+          2243344046901341046
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 13018502953490520972,
+        "root_hash": "52ec94b9df38961be165a2c29f689b933ef39f75483ce011b8d36ccd9058a9aa",
+        "timed_seeds": [
+          10607442835607394031,
+          9067078667243012687,
+          10046383003913616210
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 5314604262855539181,
+        "root_hash": "52ec94b9df38961be165a2c29f689b933ef39f75483ce011b8d36ccd9058a9aa",
+        "timed_seeds": [
+          1965876438794869491,
+          8076687283714990648,
+          14784158144081267627
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 1599312376471062747,
+        "root_hash": "4547f09b27189781fe98bb50ef72417b3eb0cefb8ba77424401e5f7031ac6e49",
+        "timed_seeds": [
+          17703008440866650101,
+          14848225400706702890,
+          5770010728698566723
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 2860398902635990274,
+        "root_hash": "4547f09b27189781fe98bb50ef72417b3eb0cefb8ba77424401e5f7031ac6e49",
+        "timed_seeds": [
+          4484538942601852520,
+          17803607039204964464,
+          2365041513805988103
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 14158599730587202192,
+        "root_hash": "0e93bb71938eab477cb86c0e03ddb06280a75e142c346760294aba3de70dd1f8",
+        "timed_seeds": [
+          6447331451858595087,
+          13593847867611985959,
+          17846738208956489026
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 6906129186552115085,
+        "root_hash": "0e93bb71938eab477cb86c0e03ddb06280a75e142c346760294aba3de70dd1f8",
+        "timed_seeds": [
+          4877102236020150635,
+          9378108331942057767,
+          844340744133354731
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 1983854343866623035,
+        "root_hash": "ecdd74a73e73e23e067849958982945fa0d3acbf850c4f1e8b9d366fa883824a",
+        "timed_seeds": [
+          16464580640473861942,
+          2897336321105478575,
+          700402050487722351
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 15912302550787006861,
+        "root_hash": "ecdd74a73e73e23e067849958982945fa0d3acbf850c4f1e8b9d366fa883824a",
+        "timed_seeds": [
+          8794795851912584986,
+          1055959391989326320,
+          15484985411922942275
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 4285984140926431364,
+        "root_hash": "5d6246592de273f4e3960d6ae9a60a42463350014248a246f8f308f405bc31f1",
+        "timed_seeds": [
+          4895865679965643312,
+          1039591841220451597,
+          2886037979815502751
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 7337973922623087545,
+        "root_hash": "5d6246592de273f4e3960d6ae9a60a42463350014248a246f8f308f405bc31f1",
+        "timed_seeds": [
+          5629796744188682896,
+          2240649237003077554,
+          12713505056411095416
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 8758530889849067806,
+        "root_hash": "19d4e9b5c73fe98238610a8df2fc607a662b9ef474b0574b4dc4fcc09209a3dd",
+        "timed_seeds": [
+          7146802882658600041,
+          10206022662641064823,
+          12043823714214636108
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 3155194419040550488,
+        "root_hash": "19d4e9b5c73fe98238610a8df2fc607a662b9ef474b0574b4dc4fcc09209a3dd",
+        "timed_seeds": [
+          13754877741455032350,
+          5096802550059225656,
+          17710217327855807738
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 12841727961000064301,
+        "root_hash": "21d9ac284dd0c8078de1fa921a03527494bc4b42bfc6bf0dd0f2548365b36919",
+        "timed_seeds": [
+          10489286420439328879,
+          13217732568931740965,
+          9223998097506839620
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 701384981814560154,
+        "root_hash": "21d9ac284dd0c8078de1fa921a03527494bc4b42bfc6bf0dd0f2548365b36919",
+        "timed_seeds": [
+          11808110799554874445,
+          647470747244231553,
+          14700845754573120383
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 1486252862919069185,
+        "root_hash": "200fb404c478cdc38cd3b9dbdfbbb66836358358ebe3beebc8ac4555558f33b7",
+        "timed_seeds": [
+          11336437139333495152,
+          411919311830359559,
+          3348764728071554503
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 17411689389549605802,
+        "root_hash": "200fb404c478cdc38cd3b9dbdfbbb66836358358ebe3beebc8ac4555558f33b7",
+        "timed_seeds": [
+          14940267728926838697,
+          9902177894213071061,
+          17260501809727964124
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 6341896176322299842,
+        "root_hash": "a130f59566bb93b17052727b00bcbdf52fd380f61ebfc59387e541fb2e3b8e40",
+        "timed_seeds": [
+          5102045278997074004,
+          15014386151657109094,
+          3256784840346523333
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 1890654860692715259,
+        "root_hash": "a130f59566bb93b17052727b00bcbdf52fd380f61ebfc59387e541fb2e3b8e40",
+        "timed_seeds": [
+          17109108101555469484,
+          14226183716065915345,
+          11182339205822561345
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 17062452098133573021,
+        "root_hash": "656f5bdda812bf8d51957e8880f325d6d208335eb2d8c795b3a74839d5b2e8d7",
+        "timed_seeds": [
+          8390658376548191133,
+          3929225892012884801,
+          13192311914078520562
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 15480408321491023241,
+        "root_hash": "656f5bdda812bf8d51957e8880f325d6d208335eb2d8c795b3a74839d5b2e8d7",
+        "timed_seeds": [
+          10192809280711947978,
+          3753344293304012154,
+          2417221662821889155
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 5478535186524732137,
+        "root_hash": "e995edb154e2eeba116c14f378a920ccd6aad666a0ac9a7ac07db59905fb04e6",
+        "timed_seeds": [
+          17745027444331565538,
+          1750263824698703493,
+          2476528150682940873
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 11230300148517507613,
+        "root_hash": "e995edb154e2eeba116c14f378a920ccd6aad666a0ac9a7ac07db59905fb04e6",
+        "timed_seeds": [
+          6348568232052756145,
+          14774982915458135104,
+          4182039716111555404
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 17343762516058682371,
+        "root_hash": "48d112492dff349e7de5df5b52bf740c84f867980bc444980e2984f92607f052",
+        "timed_seeds": [
+          14278773666499187720,
+          4499859478118565570,
+          13251970252872999853
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 16168571331597692841,
+        "root_hash": "48d112492dff349e7de5df5b52bf740c84f867980bc444980e2984f92607f052",
+        "timed_seeds": [
+          5581744820950137271,
+          17008958992130889240,
+          2511208485375448752
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 17459072858821282143,
+        "root_hash": "2ac1a572016097593092300ff76eb502ddb5d9adbe6c8c0377e5c4abbfb72e47",
+        "timed_seeds": [
+          9696497642856570911,
+          2273247206312721079,
+          93731045231527858
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 9789857672361910207,
+        "root_hash": "2ac1a572016097593092300ff76eb502ddb5d9adbe6c8c0377e5c4abbfb72e47",
+        "timed_seeds": [
+          6299587821478403339,
+          1960469131423021633,
+          14797398953251869547
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 476963652050251304,
+        "root_hash": "43e237e4b08c8aa63de55272748aa746f3a95eb36a46beff3718419c79b0e139",
+        "timed_seeds": [
+          9184778275693227727,
+          5416326519294535088,
+          11453938308888439146
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 14268013554448931518,
+        "root_hash": "43e237e4b08c8aa63de55272748aa746f3a95eb36a46beff3718419c79b0e139",
+        "timed_seeds": [
+          15310162518525546674,
+          6304969932862423396,
+          17509822882155892181
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 6991567651837050574,
+        "root_hash": "818c61ce6d6e04c3bbc45cdc68e76fd08329d1f09cc3217bad8d3f3ad029adf6",
+        "timed_seeds": [
+          13151762024127163707,
+          6525733929795767198,
+          2102903381329334914
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 13942364767909686510,
+        "root_hash": "818c61ce6d6e04c3bbc45cdc68e76fd08329d1f09cc3217bad8d3f3ad029adf6",
+        "timed_seeds": [
+          5580775072248648014,
+          11532357771299148614,
+          3511897990666711692
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 9936894489888224270,
+        "root_hash": "d2ebe60595a67fcac0f0ffa587e7d805a629ff318cc6785786cf2db305d65768",
+        "timed_seeds": [
+          3676941112086840589,
+          12710540146430668579,
+          3793230772189636515
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 11017524921836463586,
+        "root_hash": "d2ebe60595a67fcac0f0ffa587e7d805a629ff318cc6785786cf2db305d65768",
+        "timed_seeds": [
+          16742546754899531708,
+          8099748933256754566,
+          14516747413774432424
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 1556348206855463728,
+        "root_hash": "c307491172898b56eb3e1ff7b165071ccd2eb688d2662701478c976f149f47f5",
+        "timed_seeds": [
+          4038515670323723852,
+          8766193214641477185,
+          13028211650065713450
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 3245239237397297240,
+        "root_hash": "c307491172898b56eb3e1ff7b165071ccd2eb688d2662701478c976f149f47f5",
+        "timed_seeds": [
+          9101536950647887829,
+          18011196884796945555,
+          2055224025199838396
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 11200149719320304243,
+        "root_hash": "f3ebaa75eb75b186b2532711a9ba02fa92e2e98f07b585e19203ff64e39deb7c",
+        "timed_seeds": [
+          4246232119797769268,
+          9162889120229678809,
+          15293159493083048435
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 13425781631190535615,
+        "root_hash": "f3ebaa75eb75b186b2532711a9ba02fa92e2e98f07b585e19203ff64e39deb7c",
+        "timed_seeds": [
+          939742752801362007,
+          13946168020412028800,
+          13635573493202655806
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 3906218361544291851,
+        "root_hash": "7b41bca5539260aba6dc0e3afcb0b4d913428e38e468240d5e25b74bf4a0005a",
+        "timed_seeds": [
+          16019743953568816683,
+          15625412788432586238,
+          3052469733296785351
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 10423281279273305117,
+        "root_hash": "7b41bca5539260aba6dc0e3afcb0b4d913428e38e468240d5e25b74bf4a0005a",
+        "timed_seeds": [
+          345621796071024538,
+          10889530336628557235,
+          6441723795760607986
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 11643498223014454647,
+        "root_hash": "e27fbbaa837a2b5075537fa0fb354eb0909ca7bee3b5cb32a821b4c3b4ccc3b2",
+        "timed_seeds": [
+          3977988244920009001,
+          10049296886690089233,
+          10404685607829863370
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 9755331100314137054,
+        "root_hash": "e27fbbaa837a2b5075537fa0fb354eb0909ca7bee3b5cb32a821b4c3b4ccc3b2",
+        "timed_seeds": [
+          6084109519376628524,
+          6277651825006444554,
+          13143928007011751964
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 2001211770952334627,
+        "root_hash": "4f0b126679bdb34fe7d1103bec857e912dd83bb211c9c048a117d4c6dff51b2f",
+        "timed_seeds": [
+          11121474379874962358,
+          12681372586608156869,
+          14799494821955134733
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 15085754309075865015,
+        "root_hash": "4f0b126679bdb34fe7d1103bec857e912dd83bb211c9c048a117d4c6dff51b2f",
+        "timed_seeds": [
+          6138309011628129972,
+          9912262475608224845,
+          7736971537250069416
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 11881857221239094467,
+        "root_hash": "199ab9a7471b1a34ea17b98067761a7d1b7cf7b96ed92908fde765e3bda1d0cd",
+        "timed_seeds": [
+          11713908538356875022,
+          2247230898161090858,
+          6003148537907655260
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 4306197309346984224,
+        "root_hash": "199ab9a7471b1a34ea17b98067761a7d1b7cf7b96ed92908fde765e3bda1d0cd",
+        "timed_seeds": [
+          7032361416970509209,
+          625378488444786429,
+          4269914034581104212
+        ]
+      },
+      {
+        "budget": 384,
+        "parity_seed": 2269755539554040248,
+        "root_hash": "72266111864547d5d5c9c6d196c5649a395bab645ce702c8d60d98dad1c3b68e",
+        "timed_seeds": [
+          5256777152136268684,
+          2809783369302362985,
+          12097890891814041126
+        ]
+      },
+      {
+        "budget": 1536,
+        "parity_seed": 1725248230583722358,
+        "root_hash": "72266111864547d5d5c9c6d196c5649a395bab645ce702c8d60d98dad1c3b68e",
+        "timed_seeds": [
+          16389004052943077934,
+          10870393935831843458,
+          14706809527085325900
+        ]
+      }
+    ],
+    "tactical_root_bias": 0.0,
+    "timed_order": "rep 0 off-on, rep 1 on-off, rep 2 off-on",
+    "timed_pairs_per_root_budget": 3
+  },
+  "seed420_registration_sha256": "b0ab2f95a6bd10e8dcee24edbb7ad519ed4b283a51785953aa58ee144cc51437",
+  "seed455_artifact_files": {
+    "metadata.json": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+    "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+  },
+  "source_hashes": {
+    "evaluation_binding": "380d5db079164a52c9ae0223bc99ef62a207e0a64f9a1c5ffffe7525690e2f6c",
+    "seed416_registration": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+    "suite": "a1c3de5cf43ce4c3e27be4119017bead381592a67790e7bd9e8330e2dd1643b7",
+    "trajectory_ledger": "82721f623e86c2c5e0af63cf4c5b7be303f932b3c4a3446f5be4b5279deee3e1"
+  },
+  "status": "frozen-before-searches",
+  "timing_scope": "external complete-search wall time; tracing disabled in both timed conditions"
+}
