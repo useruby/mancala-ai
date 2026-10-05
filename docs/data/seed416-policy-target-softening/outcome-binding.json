@@ -1,0 +1,36 @@
+{
+  "evaluation_binding_sha256": "380d5db079164a52c9ae0223bc99ef62a207e0a64f9a1c5ffffe7525690e2f6c",
+  "lanes": {
+    "A": {
+      "game_count": 1024,
+      "games": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/A-games.jsonl",
+      "games_sha256": "84dad05d36929132058cdef5395a48af77126f5a27089da43634953ededbafb3",
+      "opening_count": 512,
+      "report": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/A-arena.json",
+      "report_sha256": "4eea19bf145975e2ba38f690d6212128996602cd3b9756a4481b7006219608f2",
+      "search_configuration_ledger_path": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/A-search-configurations.jsonl",
+      "search_configuration_ledger_sha256": "0db6099099e5e58d6780ff9c4ad2b1689cd8b5a94700f4b10d62fb107db51667",
+      "search_outcome_ledger_path": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/A-search-outcomes.jsonl",
+      "search_outcome_ledger_sha256": "5a807f68add5d06d08e832dd737723ec7a1a62e42bc5540c7440a02cc6bb3580",
+      "seed_identity_ledger_path": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/A-seed-identities.jsonl",
+      "seed_identity_ledger_sha256": "6f5ab7ed67bee4925ce8e2fc5ef896ed3644c81d926a75f3a1914bcdab184559"
+    },
+    "B": {
+      "game_count": 1024,
+      "games": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/B-games.jsonl",
+      "games_sha256": "b226985f140220eb57f5700028b1ba86ee59daccd7664c6d8f67e2025b491552",
+      "opening_count": 512,
+      "report": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/B-arena.json",
+      "report_sha256": "48752b7edda15bd5fb7c8d69333613328f6fbf5b8efaaa8f116f9cdd3384b193",
+      "search_configuration_ledger_path": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/B-search-configurations.jsonl",
+      "search_configuration_ledger_sha256": "a298c587ffefe5f0afed0f88f2054ed607d09b372838b39d4fca567ac6fa3442",
+      "search_outcome_ledger_path": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/B-search-outcomes.jsonl",
+      "search_outcome_ledger_sha256": "e27d303b38df7d1e75fb14a6f37ae23097337a6da94ed25db4d909e00720583c",
+      "seed_identity_ledger_path": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/B-seed-identities.jsonl",
+      "seed_identity_ledger_sha256": "f4f195ece322b8b2ee78e9b21334982a19016debbd03587ecfe819ad5afb3d5d"
+    }
+  },
+  "matched_initial_seed_contexts": 1024,
+  "schema": "seed416-outcome-binding-v1",
+  "status": "completed_2048_games"
+}

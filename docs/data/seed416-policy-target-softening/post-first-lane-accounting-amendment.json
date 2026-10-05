@@ -1,0 +1,28 @@
+{
+  "A_lane": {
+    "draws": 96,
+    "games_played": 1024,
+    "games_sha256": "84dad05d36929132058cdef5395a48af77126f5a27089da43634953ededbafb3",
+    "losses": 461,
+    "report_sha256": "4eea19bf145975e2ba38f690d6212128996602cd3b9756a4481b7006219608f2",
+    "score": 0.5029296875,
+    "wins": 467
+  },
+  "evaluation_binding_sha256": "380d5db079164a52c9ae0223bc99ef62a207e0a64f9a1c5ffffe7525690e2f6c",
+  "no_adaptive_extension": true,
+  "reason": "The first-lane verifier treated absolute pit indices in the arena trajectory ledger as relative moves. The arena output is valid; this amendment corrects only strict ledger replay and evidence validation, not game generation, seeds, candidate selection, search budget, runtime, or analysis thresholds.",
+  "registration_sha256": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+  "schema": "seed416-post-first-lane-accounting-amendment-v1",
+  "source_replacements": {
+    "ml/alphazero_lite/run_seed416_policy_target_softening.py": {
+      "post_run_sha256": "f5242f04c579b20d705cf243c8c1d2357ede8f98c47f6c94dac476c98da1d409",
+      "preregistered_sha256": "ecc429bc615baffa72ba9478dbf8af9252303251cd9c29f2a3033519f3e60a58"
+    },
+    "ml/alphazero_lite/verify_seed416_policy_target_softening.py": {
+      "post_run_sha256": "ed15ad725d002bc6df99d53c0f0251f31c5af66ab0ba04bcfc4fe4e00ce10788",
+      "preregistered_sha256": "9630fe7c9da0f6bc8d7f9f976bcd57f3bae36d81e5d848f3ab399f06173cc03a"
+    }
+  },
+  "suite_sha256": "a1c3de5cf43ce4c3e27be4119017bead381592a67790e7bd9e8330e2dd1643b7",
+  "timing": "after fixed A lane completed and before B lane launch"
+}

@@ -1,0 +1,11 @@
+{
+  "candidate_arena_probes_preceded_supersession": false,
+  "failed_initialization_preflight_was_candidate_strength_evidence": false,
+  "optimizer_updates_preceded_supersession": false,
+  "replacement_registration": "registration-v3.json",
+  "replacement_registration_sha256": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+  "schema": "seed416-registration-supersession-v1",
+  "superseded_reason": "The pretraining runtime parity check compared unmasked model priors to the runtime's legal-masked policy. Runtime parameter hashes matched exactly; this corrected check masks legal actions before function comparison. No optimizer update or candidate arena probe occurred.",
+  "superseded_registration": "registration-v2.json",
+  "training_or_model_probes_preceded_supersession": true
+}

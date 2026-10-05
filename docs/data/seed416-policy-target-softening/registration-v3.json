@@ -1,0 +1,486 @@
+{
+  "analysis": {
+    "bootstrap_samples": 10000,
+    "bootstrap_seed": 416,
+    "cluster": "opening; matched across lanes",
+    "confidence": 0.95
+  },
+  "derivative_semantics": "B applies sqrt to the stored sharpened policy distribution; it does not recover original visit counts.",
+  "derivatives": {
+    "fresh": {
+      "A": {
+        "by_source_and_phase": {
+          "unknown:early": {
+            "changed_rows": 0,
+            "mean_entropy_delta_nats": 0.0,
+            "mean_source_entropy_nats": 0.4755131797814256,
+            "mean_target_entropy_nats": 0.4755131797814256,
+            "rows": 16000
+          },
+          "unknown:late": {
+            "changed_rows": 0,
+            "mean_entropy_delta_nats": 0.0,
+            "mean_source_entropy_nats": 0.007843033966176157,
+            "mean_target_entropy_nats": 0.007843033966176157,
+            "rows": 19278
+          },
+          "unknown:mid": {
+            "changed_rows": 0,
+            "mean_entropy_delta_nats": 0.0,
+            "mean_source_entropy_nats": 0.09078429495847509,
+            "mean_target_entropy_nats": 0.09078429495847509,
+            "rows": 31455
+          }
+        },
+        "changed_rows": 0,
+        "derivative": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/derivatives/A/fresh.jsonl",
+        "derivative_sha256": "5c089a5c8f2ba1fc04529631eb15d5a8ef9b49eb273fefbc0444ca3fd85a7049",
+        "lane": "A",
+        "rows": 66733,
+        "source": "/home/alex/Mancala/ai/.tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/self_play.jsonl",
+        "source_sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab"
+      },
+      "B": {
+        "by_source_and_phase": {
+          "unknown:early": {
+            "changed_rows": 15999,
+            "mean_entropy_delta_nats": 0.5479653312341066,
+            "mean_source_entropy_nats": 0.4755131797814256,
+            "mean_target_entropy_nats": 1.0234785110155322,
+            "rows": 16000
+          },
+          "unknown:late": {
+            "changed_rows": 2824,
+            "mean_entropy_delta_nats": 0.007885743356375619,
+            "mean_source_entropy_nats": 0.007843033966176157,
+            "mean_target_entropy_nats": 0.015728777322551776,
+            "rows": 19278
+          },
+          "unknown:mid": {
+            "changed_rows": 27688,
+            "mean_entropy_delta_nats": 0.0952824110328176,
+            "mean_source_entropy_nats": 0.09078429495847509,
+            "mean_target_entropy_nats": 0.18606670599129269,
+            "rows": 31455
+          }
+        },
+        "changed_rows": 46511,
+        "derivative": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/derivatives/B/fresh.jsonl",
+        "derivative_sha256": "571965fc096d56df01b0ebfd44569a5db337ebf7d1f4784dd056c733054add4f",
+        "lane": "B",
+        "rows": 66733,
+        "source": "/home/alex/Mancala/ai/.tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/self_play.jsonl",
+        "source_sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab"
+      }
+    },
+    "generic_bootstrap": {
+      "A": {
+        "by_source_and_phase": {
+          "unknown:early": {
+            "changed_rows": 0,
+            "mean_entropy_delta_nats": 0.0,
+            "mean_source_entropy_nats": 0.5996748064894045,
+            "mean_target_entropy_nats": 0.5996748064894045,
+            "rows": 5430
+          },
+          "unknown:late": {
+            "changed_rows": 0,
+            "mean_entropy_delta_nats": 0.0,
+            "mean_source_entropy_nats": 0.20454588176101038,
+            "mean_target_entropy_nats": 0.20454588176101038,
+            "rows": 1194
+          },
+          "unknown:mid": {
+            "changed_rows": 0,
+            "mean_entropy_delta_nats": 0.0,
+            "mean_source_entropy_nats": 0.31021343584619576,
+            "mean_target_entropy_nats": 0.31021343584619576,
+            "rows": 7317
+          }
+        },
+        "changed_rows": 0,
+        "derivative": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/derivatives/A/generic_bootstrap.jsonl",
+        "derivative_sha256": "6996657767cd75801967a67bdc0574012467743d31bccb1fff8f039dbe7f3da7",
+        "lane": "A",
+        "rows": 13941,
+        "source": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl",
+        "source_sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2"
+      },
+      "B": {
+        "by_source_and_phase": {
+          "unknown:early": {
+            "changed_rows": 5430,
+            "mean_entropy_delta_nats": 0.47396724512296473,
+            "mean_source_entropy_nats": 0.5996748064894045,
+            "mean_target_entropy_nats": 1.0736420516123693,
+            "rows": 5430
+          },
+          "unknown:late": {
+            "changed_rows": 409,
+            "mean_entropy_delta_nats": 0.057673849543374595,
+            "mean_source_entropy_nats": 0.20454588176101038,
+            "mean_target_entropy_nats": 0.262219731304385,
+            "rows": 1194
+          },
+          "unknown:mid": {
+            "changed_rows": 6007,
+            "mean_entropy_delta_nats": 0.2775403051875912,
+            "mean_source_entropy_nats": 0.31021343584619576,
+            "mean_target_entropy_nats": 0.587753741033787,
+            "rows": 7317
+          }
+        },
+        "changed_rows": 11846,
+        "derivative": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/derivatives/B/generic_bootstrap.jsonl",
+        "derivative_sha256": "3b75f925ff127a9f32ef1bdc0b61aff50abfbfef8a1baf2b3d52dfedfaff20e3",
+        "lane": "B",
+        "rows": 13941,
+        "source": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl",
+        "source_sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2"
+      }
+    },
+    "opening_disagreement": {
+      "A": {
+        "by_source_and_phase": {
+          "opening_puct_disagreement:early": {
+            "changed_rows": 0,
+            "mean_entropy_delta_nats": 0.0,
+            "mean_source_entropy_nats": 0.835718992266508,
+            "mean_target_entropy_nats": 0.835718992266508,
+            "rows": 563
+          },
+          "opening_puct_disagreement:late": {
+            "changed_rows": 0,
+            "mean_entropy_delta_nats": 0.0,
+            "mean_source_entropy_nats": 0.06285899867359168,
+            "mean_target_entropy_nats": 0.06285899867359168,
+            "rows": 545
+          },
+          "opening_puct_disagreement:mid": {
+            "changed_rows": 0,
+            "mean_entropy_delta_nats": 0.0,
+            "mean_source_entropy_nats": 0.07115372366645588,
+            "mean_target_entropy_nats": 0.07115372366645588,
+            "rows": 892
+          }
+        },
+        "changed_rows": 0,
+        "derivative": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/derivatives/A/opening_disagreement.jsonl",
+        "derivative_sha256": "0218563175aeb94315c7086510557c7490152af8a69c6f5fe9e7a04217f10055",
+        "lane": "A",
+        "rows": 2000,
+        "source": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl",
+        "source_sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2"
+      },
+      "B": {
+        "by_source_and_phase": {
+          "opening_puct_disagreement:early": {
+            "changed_rows": 563,
+            "mean_entropy_delta_nats": 0.34342580706879744,
+            "mean_source_entropy_nats": 0.835718992266508,
+            "mean_target_entropy_nats": 1.1791447993353055,
+            "rows": 563
+          },
+          "opening_puct_disagreement:late": {
+            "changed_rows": 545,
+            "mean_entropy_delta_nats": 0.3329199182414225,
+            "mean_source_entropy_nats": 0.06285899867359168,
+            "mean_target_entropy_nats": 0.39577891691501416,
+            "rows": 545
+          },
+          "opening_puct_disagreement:mid": {
+            "changed_rows": 892,
+            "mean_entropy_delta_nats": 0.3792435293935147,
+            "mean_source_entropy_nats": 0.07115372366645588,
+            "mean_target_entropy_nats": 0.4503972530599706,
+            "rows": 892
+          }
+        },
+        "changed_rows": 2000,
+        "derivative": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/derivatives/B/opening_disagreement.jsonl",
+        "derivative_sha256": "fe8c5e21fffb67bc726fa0520bcbcaa20730ba6a9241c82807c2099be18e863d",
+        "lane": "B",
+        "rows": 2000,
+        "source": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl",
+        "source_sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2"
+      }
+    },
+    "random_teacher": {
+      "A": {
+        "by_source_and_phase": {
+          "unknown:early": {
+            "changed_rows": 0,
+            "mean_entropy_delta_nats": 0.0,
+            "mean_source_entropy_nats": 0.7411057265190465,
+            "mean_target_entropy_nats": 0.7411057265190465,
+            "rows": 239
+          },
+          "unknown:late": {
+            "changed_rows": 0,
+            "mean_entropy_delta_nats": 0.0,
+            "mean_source_entropy_nats": 0.6826666842123741,
+            "mean_target_entropy_nats": 0.6826666842123741,
+            "rows": 706
+          },
+          "unknown:mid": {
+            "changed_rows": 0,
+            "mean_entropy_delta_nats": 0.0,
+            "mean_source_entropy_nats": 0.6900456463284812,
+            "mean_target_entropy_nats": 0.6900456463284812,
+            "rows": 2006
+          }
+        },
+        "changed_rows": 0,
+        "derivative": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/derivatives/A/random_teacher.jsonl",
+        "derivative_sha256": "1172e2ad6da263990de3546cfc7f04338440f82a02aedd49b92a58e68faeea7d",
+        "lane": "A",
+        "rows": 2951,
+        "source": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl",
+        "source_sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6"
+      },
+      "B": {
+        "by_source_and_phase": {
+          "unknown:early": {
+            "changed_rows": 239,
+            "mean_entropy_delta_nats": 0.4425629585159133,
+            "mean_source_entropy_nats": 0.7411057265190465,
+            "mean_target_entropy_nats": 1.1836686850349598,
+            "rows": 239
+          },
+          "unknown:late": {
+            "changed_rows": 305,
+            "mean_entropy_delta_nats": 0.03127431507750911,
+            "mean_source_entropy_nats": 0.6826666842123741,
+            "mean_target_entropy_nats": 0.7139409992898832,
+            "rows": 706
+          },
+          "unknown:mid": {
+            "changed_rows": 1730,
+            "mean_entropy_delta_nats": 0.24035774113332642,
+            "mean_source_entropy_nats": 0.6900456463284812,
+            "mean_target_entropy_nats": 0.9304033874618076,
+            "rows": 2006
+          }
+        },
+        "changed_rows": 2274,
+        "derivative": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/derivatives/B/random_teacher.jsonl",
+        "derivative_sha256": "f1931c16b06bc7cd50d1fcde153ef35afae640452dd2f9b81c253a2239ed6f3a",
+        "lane": "B",
+        "rows": 2951,
+        "source": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl",
+        "source_sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6"
+      }
+    },
+    "stability": {
+      "A": {
+        "by_source_and_phase": {
+          "equal_budget_stability_anchor:early": {
+            "changed_rows": 0,
+            "mean_entropy_delta_nats": 0.0,
+            "mean_source_entropy_nats": 0.464920498397584,
+            "mean_target_entropy_nats": 0.464920498397584,
+            "rows": 1039
+          },
+          "equal_budget_stability_anchor:late": {
+            "changed_rows": 0,
+            "mean_entropy_delta_nats": 0.0,
+            "mean_source_entropy_nats": 0.0009254916972470309,
+            "mean_target_entropy_nats": 0.0009254916972470309,
+            "rows": 325
+          },
+          "equal_budget_stability_anchor:mid": {
+            "changed_rows": 0,
+            "mean_entropy_delta_nats": 0.0,
+            "mean_source_entropy_nats": 0.004090111682072815,
+            "mean_target_entropy_nats": 0.004090111682072815,
+            "rows": 636
+          }
+        },
+        "changed_rows": 0,
+        "derivative": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/derivatives/A/stability.jsonl",
+        "derivative_sha256": "81ae668eb6a9a5b34f073ca544df15d8e6d2f86659c2df3f203791d99c7a93c6",
+        "lane": "A",
+        "rows": 2000,
+        "source": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl",
+        "source_sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff"
+      },
+      "B": {
+        "by_source_and_phase": {
+          "equal_budget_stability_anchor:early": {
+            "changed_rows": 1039,
+            "mean_entropy_delta_nats": 0.440341271770608,
+            "mean_source_entropy_nats": 0.464920498397584,
+            "mean_target_entropy_nats": 0.905261770168192,
+            "rows": 1039
+          },
+          "equal_budget_stability_anchor:late": {
+            "changed_rows": 288,
+            "mean_entropy_delta_nats": 0.04438411243525784,
+            "mean_source_entropy_nats": 0.0009254916972470309,
+            "mean_target_entropy_nats": 0.04530960413250487,
+            "rows": 325
+          },
+          "equal_budget_stability_anchor:mid": {
+            "changed_rows": 615,
+            "mean_entropy_delta_nats": 0.11719065255378944,
+            "mean_source_entropy_nats": 0.004090111682072815,
+            "mean_target_entropy_nats": 0.12128076423586225,
+            "rows": 636
+          }
+        },
+        "changed_rows": 1942,
+        "derivative": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/derivatives/B/stability.jsonl",
+        "derivative_sha256": "268c6947b66b64e235e98a88d975e7f04ff2cf86fab6381fac071163a983fa09",
+        "lane": "B",
+        "rows": 2000,
+        "source": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl",
+        "source_sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff"
+      }
+    }
+  },
+  "evaluation": {
+    "adaptive_extension": false,
+    "both_seats": true,
+    "c_puct": 1.25,
+    "games": 2048,
+    "games_per_lane": 1024,
+    "opponent": "frozen seed455",
+    "primary": "paired mean B-minus-A score against seed455 across opening clusters",
+    "seed": 416,
+    "seed_contract": "azlite_eval_seed_v2",
+    "simulations_per_side": 384
+  },
+  "exclusion_proof": "opening-exclusion-proof-v3.json",
+  "exclusion_proof_sha256": "064e9877b5d9cf438dec3be4d98305b547c746a8433531148b78bc971eda9318",
+  "frozen_evaluation_runtime": {
+    "native_probe": {
+      "path": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+      "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48"
+    },
+    "opponent_artifact": "/home/alex/Mancala/ai/.tmp/seed461-order-confirmation/opponent-artifact",
+    "opponent_files": {
+      "metadata.json": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+      "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+    },
+    "runtime_policy": {
+      "path": "/home/alex/Mancala/ai/model-artifact/current/search_policy.json",
+      "sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+    },
+    "tablebase": {
+      "path": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+      "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+    }
+  },
+  "hypothesis": "Less concentrated policy supervision produces a stronger successor at the same search budget.",
+  "replays": [
+    {
+      "name": "fresh",
+      "path": "/home/alex/Mancala/ai/.tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/self_play.jsonl",
+      "sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+      "value_target_mode": "default",
+      "weight": 1
+    },
+    {
+      "name": "generic_bootstrap",
+      "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl",
+      "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2",
+      "value_target_mode": "sharpened",
+      "weight": 4
+    },
+    {
+      "name": "random_teacher",
+      "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl",
+      "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6",
+      "value_target_mode": "sharpened",
+      "weight": 1
+    },
+    {
+      "name": "opening_disagreement",
+      "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl",
+      "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2",
+      "value_target_mode": "sharpened",
+      "weight": 8
+    },
+    {
+      "name": "stability",
+      "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl",
+      "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff",
+      "value_target_mode": "sharpened",
+      "weight": 4
+    }
+  ],
+  "schema": "seed416-policy-target-softening-registration-v1",
+  "seed455_initialization": {
+    "path": "/home/alex/Mancala/ai/.tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/parent_init_checkpoint.npz",
+    "sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+  },
+  "source_hashes": {
+    "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "ml/alphazero_lite/build_opening_suite.py": "5c15d541574905ff9d7c75bc8daf8813311e22f22f220563e18cb9b85fb8bd87",
+    "ml/alphazero_lite/evaluation_seed_contract.py": "be5ed17519f86040cdac2a2380d4dd907015b927c6b80fedc85f7d668b9422c3",
+    "ml/alphazero_lite/export_artifact.py": "f720f34c8b77b32a0f20a00ddcd4f428167235bf0f5a52c29ebbde31663ae481",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/native_exact_root_tablebase.py": "49fe76e8dc0e827db3181397dee7bfbcf3b1b35234757be1ac441ea09eefab6a",
+    "ml/alphazero_lite/run_seed416_policy_target_softening.py": "ecc429bc615baffa72ba9478dbf8af9252303251cd9c29f2a3033519f3e60a58",
+    "ml/alphazero_lite/runtime_search_policy.py": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
+    "ml/alphazero_lite/seed414_post_execution_audit.py": "043d6520af8f81fe15c6f4e607eb7990e3aa8fc4072b0e6283c4dba9b0e7a9d1",
+    "ml/alphazero_lite/seed416_policy_target_softening.py": "f9c4b0ba7081a4e632d3c624f0199a7629072aafe9cf82aad264bd9ae9ad93ca",
+    "ml/alphazero_lite/self_play.py": "2f207d6c289ceabff2e313eae657b06fafd9444f2b5146c01cd6030d9944499d",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/verify_seed416_policy_target_softening.py": "9630fe7c9da0f6bc8d7f9f976bcd57f3bae36d81e5d848f3ab399f06173cc03a"
+  },
+  "status": "registered_before_training_and_model_probing",
+  "suite": {
+    "active_stones_gt": 32,
+    "nonterminal": true,
+    "openings": 512,
+    "overlap": 0,
+    "path": "/home/alex/Mancala/ai/docs/data/seed416-policy-target-softening/openings-v3.jsonl",
+    "seed": 416,
+    "sha256": "a1c3de5cf43ce4c3e27be4119017bead381592a67790e7bd9e8330e2dd1643b7",
+    "unique": true
+  },
+  "training": {
+    "architecture": {
+      "hidden_sizes": [
+        96,
+        3
+      ],
+      "input_encoding": "kalah_v3",
+      "model": "residual_v3"
+    },
+    "batch_size": 512,
+    "epoch_permutations": {
+      "epoch_sha256": {
+        "1": "edd9bba1847451ee5c08ee2988c5a39e3b41dfef8c8730b9cee9f76a1431a879",
+        "2": "992d6e41d2114b6f2f87c6eae52386b90a6b76bf6327d3a168f85747ff68dabf",
+        "3": "295d162a0348c925a0ae689363fff14845aad6f9ee730373edc3fe201302b238",
+        "4": "5266784e5a81d5b94a5991307fcf958f7c37900837d4729c368d68502fb8f5d3"
+      },
+      "path": "docs/data/seed416-policy-target-softening/training-freeze-v3/epoch-permutations.json.gz",
+      "sha256": "d868edebd9ae1876cbc5b9edca6fa0df9d3e6184b97246847f9012dfe2d293d1"
+    },
+    "epochs": 4,
+    "final_checkpoint": "E4; fixed; validation loss does not select",
+    "grad_clip": 1,
+    "huber_delta": 1,
+    "lr": 0.001,
+    "optimizer": "Adam",
+    "order_seed": 416,
+    "scheduler": "none",
+    "seed": 416,
+    "source_row_split": {
+      "path": "docs/data/seed416-policy-target-softening/training-freeze-v3/source-row-split.json.gz",
+      "sha256": "f7b69ab8fd6c19128a29f9ae9a11a7ac42a5d26630368ff74e906f29ddb6be44",
+      "train_count": 134502,
+      "train_positions_sha256": "b351b2b46ff0bd66fe581315f01e15210dffb01193a5dfef13016e0e79c95579",
+      "validation_count": 14946,
+      "validation_positions_sha256": "d3ea59844a1cdf6980007e0f4f7c59a9b954b48f947a1972af0a97cc341d799a"
+    },
+    "validation_fraction": 0.1,
+    "value_loss": "huber",
+    "value_loss_weight": 0.3,
+    "weight_decay": 0
+  }
+}
