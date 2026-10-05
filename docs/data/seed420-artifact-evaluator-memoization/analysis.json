@@ -1,0 +1,790 @@
+{
+  "by_budget": {
+    "1536": {
+      "by_phase": {
+        "17-32": {
+          "evaluation_accounting": {
+            "baseline_neural_calls": 62802,
+            "baseline_requests": 62802,
+            "cache_evictions": 0,
+            "cache_hits": 7695,
+            "cache_misses": 55107,
+            "cache_neural_calls": 55107,
+            "cache_requests": 62802,
+            "peak_entries_max": 1524
+          },
+          "mean_off_latency_ms": 123.06240879166667,
+          "mean_on_latency_ms": 114.99463437499999,
+          "mean_paired_relative_speedup": 0.06966841118220894,
+          "off_p95_nearest_rank_ms": 145.909885,
+          "on_p95_nearest_rank_ms": 144.448528,
+          "per_root_median_latency_ms": {
+            "199ab9a7471b1a34ea17b98067761a7d1b7cf7b96ed92908fde765e3bda1d0cd": {
+              "off_median_ms": 112.544016,
+              "on_median_ms": 101.789117,
+              "paired_relative_speedup": 0.08681885807961265
+            },
+            "200fb404c478cdc38cd3b9dbdfbbb66836358358ebe3beebc8ac4555558f33b7": {
+              "off_median_ms": 145.79421,
+              "on_median_ms": 142.935178,
+              "paired_relative_speedup": 0.0263058144516216
+            },
+            "2ac1a572016097593092300ff76eb502ddb5d9adbe6c8c0377e5c4abbfb72e47": {
+              "off_median_ms": 145.909885,
+              "on_median_ms": 144.448528,
+              "paired_relative_speedup": 0.017440865369552604
+            },
+            "43e237e4b08c8aa63de55272748aa746f3a95eb36a46beff3718419c79b0e139": {
+              "off_median_ms": 109.90683,
+              "on_median_ms": 90.078098,
+              "paired_relative_speedup": 0.1801914573107394
+            },
+            "48d112492dff349e7de5df5b52bf740c84f867980bc444980e2984f92607f052": {
+              "off_median_ms": 126.951322,
+              "on_median_ms": 121.744524,
+              "paired_relative_speedup": 0.04167846986620538
+            },
+            "4f0b126679bdb34fe7d1103bec857e912dd83bb211c9c048a117d4c6dff51b2f": {
+              "off_median_ms": 143.486253,
+              "on_median_ms": 135.032678,
+              "paired_relative_speedup": 0.0191117636457695
+            },
+            "656f5bdda812bf8d51957e8880f325d6d208335eb2d8c795b3a74839d5b2e8d7": {
+              "off_median_ms": 139.678228,
+              "on_median_ms": 138.034134,
+              "paired_relative_speedup": 0.008537362806897791
+            },
+            "72266111864547d5d5c9c6d196c5649a395bab645ce702c8d60d98dad1c3b68e": {
+              "off_median_ms": 135.265257,
+              "on_median_ms": 122.263531,
+              "paired_relative_speedup": 0.10525361286406347
+            },
+            "7b41bca5539260aba6dc0e3afcb0b4d913428e38e468240d5e25b74bf4a0005a": {
+              "off_median_ms": 100.806282,
+              "on_median_ms": 77.017899,
+              "paired_relative_speedup": 0.2344915595557341
+            },
+            "818c61ce6d6e04c3bbc45cdc68e76fd08329d1f09cc3217bad8d3f3ad029adf6": {
+              "off_median_ms": 142.8209,
+              "on_median_ms": 140.509198,
+              "paired_relative_speedup": 0.01693378527638589
+            },
+            "a130f59566bb93b17052727b00bcbdf52fd380f61ebfc59387e541fb2e3b8e40": {
+              "off_median_ms": 134.820107,
+              "on_median_ms": 133.385058,
+              "paired_relative_speedup": 0.010520502731254336
+            },
+            "c307491172898b56eb3e1ff7b165071ccd2eb688d2662701478c976f149f47f5": {
+              "off_median_ms": 121.707257,
+              "on_median_ms": 114.098481,
+              "paired_relative_speedup": 0.05986992963087384
+            },
+            "d2ebe60595a67fcac0f0ffa587e7d805a629ff318cc6785786cf2db305d65768": {
+              "off_median_ms": 135.213233,
+              "on_median_ms": 126.381835,
+              "paired_relative_speedup": 0.05993245013618478
+            },
+            "e27fbbaa837a2b5075537fa0fb354eb0909ca7bee3b5cb32a821b4c3b4ccc3b2": {
+              "off_median_ms": 137.757085,
+              "on_median_ms": 123.671158,
+              "paired_relative_speedup": 0.10945791336302273
+            },
+            "e995edb154e2eeba116c14f378a920ccd6aad666a0ac9a7ac07db59905fb04e6": {
+              "off_median_ms": 107.229033,
+              "on_median_ms": 96.724579,
+              "paired_relative_speedup": 0.09501485320006836
+            },
+            "f3ebaa75eb75b186b2532711a9ba02fa92e2e98f07b585e19203ff64e39deb7c": {
+              "off_median_ms": 26.009814,
+              "on_median_ms": 24.890686,
+              "paired_relative_speedup": 0.04313538062735659
+            }
+          },
+          "roots": 16
+        },
+        ">32": {
+          "evaluation_accounting": {
+            "baseline_neural_calls": 70149,
+            "baseline_requests": 70149,
+            "cache_evictions": 0,
+            "cache_hits": 1797,
+            "cache_misses": 68352,
+            "cache_neural_calls": 68352,
+            "cache_requests": 70149,
+            "peak_entries_max": 1525
+          },
+          "mean_off_latency_ms": 141.07666527083333,
+          "mean_on_latency_ms": 138.80132256250002,
+          "mean_paired_relative_speedup": 0.01770430313292245,
+          "off_p95_nearest_rank_ms": 153.727773,
+          "on_p95_nearest_rank_ms": 151.194294,
+          "per_root_median_latency_ms": {
+            "038c7bf2a9bf8b6b604be6b245446869a9c0c99f7293a8d2501f991d51057157": {
+              "off_median_ms": 139.404849,
+              "on_median_ms": 136.424621,
+              "paired_relative_speedup": 0.012817260853959319
+            },
+            "0e93bb71938eab477cb86c0e03ddb06280a75e142c346760294aba3de70dd1f8": {
+              "off_median_ms": 148.893764,
+              "on_median_ms": 147.690815,
+              "paired_relative_speedup": 0.0477118133676935
+            },
+            "19d4e9b5c73fe98238610a8df2fc607a662b9ef474b0574b4dc4fcc09209a3dd": {
+              "off_median_ms": 145.591034,
+              "on_median_ms": 140.209694,
+              "paired_relative_speedup": 0.03944381950362648
+            },
+            "21d9ac284dd0c8078de1fa921a03527494bc4b42bfc6bf0dd0f2548365b36919": {
+              "off_median_ms": 147.254409,
+              "on_median_ms": 146.90765,
+              "paired_relative_speedup": -0.0037879915476301588
+            },
+            "4547f09b27189781fe98bb50ef72417b3eb0cefb8ba77424401e5f7031ac6e49": {
+              "off_median_ms": 144.742767,
+              "on_median_ms": 141.529155,
+              "paired_relative_speedup": 0.010890135158072226
+            },
+            "52ec94b9df38961be165a2c29f689b933ef39f75483ce011b8d36ccd9058a9aa": {
+              "off_median_ms": 150.495706,
+              "on_median_ms": 150.399911,
+              "paired_relative_speedup": 0.007803426517234157
+            },
+            "5d6246592de273f4e3960d6ae9a60a42463350014248a246f8f308f405bc31f1": {
+              "off_median_ms": 148.833377,
+              "on_median_ms": 146.114154,
+              "paired_relative_speedup": 0.017683134506398804
+            },
+            "6e74713f776a68868d4c3d6391808ab70ec34bdd51bcf7372b7f8748e2f1e366": {
+              "off_median_ms": 141.906724,
+              "on_median_ms": 141.598178,
+              "paired_relative_speedup": 0.0024858075815553334
+            },
+            "9b9c54b9097021d0daccd31826e53109cf6b25b963ea0d64ed827f45e205f313": {
+              "off_median_ms": 140.897517,
+              "on_median_ms": 141.050937,
+              "paired_relative_speedup": -0.00856757115613667
+            },
+            "abc2a835f3571b1c0ac702f3cd17dd813f6eefceabc4ca94fbea1de3103bee10": {
+              "off_median_ms": 67.861445,
+              "on_median_ms": 62.281942,
+              "paired_relative_speedup": 0.08137046151247766
+            },
+            "b96b9ba1aa01af6b3c25f3d1420b4aeab0d8783d8f5e3db4de4fd5d8b3dc698c": {
+              "off_median_ms": 146.660529,
+              "on_median_ms": 146.65418,
+              "paired_relative_speedup": 0.006850074764679439
+            },
+            "c3e2cacebcd8d98630cd1f0c47713cd45404a0d5c7425f7ea9e21d30b9462dd3": {
+              "off_median_ms": 152.570593,
+              "on_median_ms": 151.194294,
+              "paired_relative_speedup": 0.010802179108788253
+            },
+            "c70f78151a9c65263bd2d9dd12d018f8aa42f7d203c00c258f642a8916be4436": {
+              "off_median_ms": 145.85203,
+              "on_median_ms": 143.851149,
+              "paired_relative_speedup": 0.019417156332325023
+            },
+            "dec9399b1830a799d43aa4c05fbfd40a3fcf3a710f836d24b2fce13bdb848e46": {
+              "off_median_ms": 149.290657,
+              "on_median_ms": 143.997068,
+              "paired_relative_speedup": 0.03720061367387285
+            },
+            "e921b3e1a591fe72faed770ecfd8c4b57d0fae01e115ed4073fcb3fdd738dbc2": {
+              "off_median_ms": 149.80551,
+              "on_median_ms": 148.361569,
+              "paired_relative_speedup": -0.001907720141811249
+            },
+            "ecdd74a73e73e23e067849958982945fa0d3acbf850c4f1e8b9d366fa883824a": {
+              "off_median_ms": 128.034914,
+              "on_median_ms": 127.367784,
+              "paired_relative_speedup": 0.0030562500916542167
+            }
+          },
+          "roots": 16
+        }
+      },
+      "cache_totals": {
+        "evictions": 0,
+        "hits": 9492,
+        "misses": 123459,
+        "neural_calls": 123459,
+        "requests": 132951
+      },
+      "mean_off_latency_ms": 132.06953703125,
+      "mean_on_latency_ms": 126.89797846875,
+      "mean_paired_relative_speedup": 0.04368635715756569,
+      "off_p95_nearest_rank_ms": 152.570593,
+      "on_p95_nearest_rank_ms": 151.037125,
+      "peak_entries_max": 1525,
+      "per_root_median_latency_ms": {
+        "038c7bf2a9bf8b6b604be6b245446869a9c0c99f7293a8d2501f991d51057157": {
+          "off_median_ms": 139.404849,
+          "on_median_ms": 136.424621,
+          "paired_relative_speedup": 0.012817260853959319
+        },
+        "0e93bb71938eab477cb86c0e03ddb06280a75e142c346760294aba3de70dd1f8": {
+          "off_median_ms": 148.893764,
+          "on_median_ms": 147.690815,
+          "paired_relative_speedup": 0.0477118133676935
+        },
+        "199ab9a7471b1a34ea17b98067761a7d1b7cf7b96ed92908fde765e3bda1d0cd": {
+          "off_median_ms": 112.544016,
+          "on_median_ms": 101.789117,
+          "paired_relative_speedup": 0.08681885807961265
+        },
+        "19d4e9b5c73fe98238610a8df2fc607a662b9ef474b0574b4dc4fcc09209a3dd": {
+          "off_median_ms": 145.591034,
+          "on_median_ms": 140.209694,
+          "paired_relative_speedup": 0.03944381950362648
+        },
+        "200fb404c478cdc38cd3b9dbdfbbb66836358358ebe3beebc8ac4555558f33b7": {
+          "off_median_ms": 145.79421,
+          "on_median_ms": 142.935178,
+          "paired_relative_speedup": 0.0263058144516216
+        },
+        "21d9ac284dd0c8078de1fa921a03527494bc4b42bfc6bf0dd0f2548365b36919": {
+          "off_median_ms": 147.254409,
+          "on_median_ms": 146.90765,
+          "paired_relative_speedup": -0.0037879915476301588
+        },
+        "2ac1a572016097593092300ff76eb502ddb5d9adbe6c8c0377e5c4abbfb72e47": {
+          "off_median_ms": 145.909885,
+          "on_median_ms": 144.448528,
+          "paired_relative_speedup": 0.017440865369552604
+        },
+        "43e237e4b08c8aa63de55272748aa746f3a95eb36a46beff3718419c79b0e139": {
+          "off_median_ms": 109.90683,
+          "on_median_ms": 90.078098,
+          "paired_relative_speedup": 0.1801914573107394
+        },
+        "4547f09b27189781fe98bb50ef72417b3eb0cefb8ba77424401e5f7031ac6e49": {
+          "off_median_ms": 144.742767,
+          "on_median_ms": 141.529155,
+          "paired_relative_speedup": 0.010890135158072226
+        },
+        "48d112492dff349e7de5df5b52bf740c84f867980bc444980e2984f92607f052": {
+          "off_median_ms": 126.951322,
+          "on_median_ms": 121.744524,
+          "paired_relative_speedup": 0.04167846986620538
+        },
+        "4f0b126679bdb34fe7d1103bec857e912dd83bb211c9c048a117d4c6dff51b2f": {
+          "off_median_ms": 143.486253,
+          "on_median_ms": 135.032678,
+          "paired_relative_speedup": 0.0191117636457695
+        },
+        "52ec94b9df38961be165a2c29f689b933ef39f75483ce011b8d36ccd9058a9aa": {
+          "off_median_ms": 150.495706,
+          "on_median_ms": 150.399911,
+          "paired_relative_speedup": 0.007803426517234157
+        },
+        "5d6246592de273f4e3960d6ae9a60a42463350014248a246f8f308f405bc31f1": {
+          "off_median_ms": 148.833377,
+          "on_median_ms": 146.114154,
+          "paired_relative_speedup": 0.017683134506398804
+        },
+        "656f5bdda812bf8d51957e8880f325d6d208335eb2d8c795b3a74839d5b2e8d7": {
+          "off_median_ms": 139.678228,
+          "on_median_ms": 138.034134,
+          "paired_relative_speedup": 0.008537362806897791
+        },
+        "6e74713f776a68868d4c3d6391808ab70ec34bdd51bcf7372b7f8748e2f1e366": {
+          "off_median_ms": 141.906724,
+          "on_median_ms": 141.598178,
+          "paired_relative_speedup": 0.0024858075815553334
+        },
+        "72266111864547d5d5c9c6d196c5649a395bab645ce702c8d60d98dad1c3b68e": {
+          "off_median_ms": 135.265257,
+          "on_median_ms": 122.263531,
+          "paired_relative_speedup": 0.10525361286406347
+        },
+        "7b41bca5539260aba6dc0e3afcb0b4d913428e38e468240d5e25b74bf4a0005a": {
+          "off_median_ms": 100.806282,
+          "on_median_ms": 77.017899,
+          "paired_relative_speedup": 0.2344915595557341
+        },
+        "818c61ce6d6e04c3bbc45cdc68e76fd08329d1f09cc3217bad8d3f3ad029adf6": {
+          "off_median_ms": 142.8209,
+          "on_median_ms": 140.509198,
+          "paired_relative_speedup": 0.01693378527638589
+        },
+        "9b9c54b9097021d0daccd31826e53109cf6b25b963ea0d64ed827f45e205f313": {
+          "off_median_ms": 140.897517,
+          "on_median_ms": 141.050937,
+          "paired_relative_speedup": -0.00856757115613667
+        },
+        "a130f59566bb93b17052727b00bcbdf52fd380f61ebfc59387e541fb2e3b8e40": {
+          "off_median_ms": 134.820107,
+          "on_median_ms": 133.385058,
+          "paired_relative_speedup": 0.010520502731254336
+        },
+        "abc2a835f3571b1c0ac702f3cd17dd813f6eefceabc4ca94fbea1de3103bee10": {
+          "off_median_ms": 67.861445,
+          "on_median_ms": 62.281942,
+          "paired_relative_speedup": 0.08137046151247766
+        },
+        "b96b9ba1aa01af6b3c25f3d1420b4aeab0d8783d8f5e3db4de4fd5d8b3dc698c": {
+          "off_median_ms": 146.660529,
+          "on_median_ms": 146.65418,
+          "paired_relative_speedup": 0.006850074764679439
+        },
+        "c307491172898b56eb3e1ff7b165071ccd2eb688d2662701478c976f149f47f5": {
+          "off_median_ms": 121.707257,
+          "on_median_ms": 114.098481,
+          "paired_relative_speedup": 0.05986992963087384
+        },
+        "c3e2cacebcd8d98630cd1f0c47713cd45404a0d5c7425f7ea9e21d30b9462dd3": {
+          "off_median_ms": 152.570593,
+          "on_median_ms": 151.194294,
+          "paired_relative_speedup": 0.010802179108788253
+        },
+        "c70f78151a9c65263bd2d9dd12d018f8aa42f7d203c00c258f642a8916be4436": {
+          "off_median_ms": 145.85203,
+          "on_median_ms": 143.851149,
+          "paired_relative_speedup": 0.019417156332325023
+        },
+        "d2ebe60595a67fcac0f0ffa587e7d805a629ff318cc6785786cf2db305d65768": {
+          "off_median_ms": 135.213233,
+          "on_median_ms": 126.381835,
+          "paired_relative_speedup": 0.05993245013618478
+        },
+        "dec9399b1830a799d43aa4c05fbfd40a3fcf3a710f836d24b2fce13bdb848e46": {
+          "off_median_ms": 149.290657,
+          "on_median_ms": 143.997068,
+          "paired_relative_speedup": 0.03720061367387285
+        },
+        "e27fbbaa837a2b5075537fa0fb354eb0909ca7bee3b5cb32a821b4c3b4ccc3b2": {
+          "off_median_ms": 137.757085,
+          "on_median_ms": 123.671158,
+          "paired_relative_speedup": 0.10945791336302273
+        },
+        "e921b3e1a591fe72faed770ecfd8c4b57d0fae01e115ed4073fcb3fdd738dbc2": {
+          "off_median_ms": 149.80551,
+          "on_median_ms": 148.361569,
+          "paired_relative_speedup": -0.001907720141811249
+        },
+        "e995edb154e2eeba116c14f378a920ccd6aad666a0ac9a7ac07db59905fb04e6": {
+          "off_median_ms": 107.229033,
+          "on_median_ms": 96.724579,
+          "paired_relative_speedup": 0.09501485320006836
+        },
+        "ecdd74a73e73e23e067849958982945fa0d3acbf850c4f1e8b9d366fa883824a": {
+          "off_median_ms": 128.034914,
+          "on_median_ms": 127.367784,
+          "paired_relative_speedup": 0.0030562500916542167
+        },
+        "f3ebaa75eb75b186b2532711a9ba02fa92e2e98f07b585e19203ff64e39deb7c": {
+          "off_median_ms": 26.009814,
+          "on_median_ms": 24.890686,
+          "paired_relative_speedup": 0.04313538062735659
+        }
+      },
+      "timed_neural_call_totals": {
+        "off": 132951,
+        "on": 123459
+      },
+      "timed_request_totals": {
+        "off": 132951,
+        "on": 132951
+      }
+    },
+    "384": {
+      "bootstrap_95_percentile_interval": [
+        0.004902547020786667,
+        0.037225483202100076
+      ],
+      "by_phase": {
+        "17-32": {
+          "evaluation_accounting": {
+            "baseline_neural_calls": 17229,
+            "baseline_requests": 17229,
+            "cache_evictions": 0,
+            "cache_hits": 1077,
+            "cache_misses": 16152,
+            "cache_neural_calls": 16152,
+            "cache_requests": 17229,
+            "peak_entries_max": 381
+          },
+          "mean_off_latency_ms": 31.051585833333334,
+          "mean_on_latency_ms": 30.00002214583333,
+          "mean_paired_relative_speedup": 0.03739199424915037,
+          "off_p95_nearest_rank_ms": 34.480754,
+          "on_p95_nearest_rank_ms": 34.443251,
+          "per_root_median_latency_ms": {
+            "199ab9a7471b1a34ea17b98067761a7d1b7cf7b96ed92908fde765e3bda1d0cd": {
+              "off_median_ms": 30.352972,
+              "on_median_ms": 29.246803,
+              "paired_relative_speedup": 0.03584275446295412
+            },
+            "200fb404c478cdc38cd3b9dbdfbbb66836358358ebe3beebc8ac4555558f33b7": {
+              "off_median_ms": 34.022614,
+              "on_median_ms": 33.286438,
+              "paired_relative_speedup": 0.018145919657988344
+            },
+            "2ac1a572016097593092300ff76eb502ddb5d9adbe6c8c0377e5c4abbfb72e47": {
+              "off_median_ms": 34.480754,
+              "on_median_ms": 34.324326,
+              "paired_relative_speedup": 0.005194187913590209
+            },
+            "43e237e4b08c8aa63de55272748aa746f3a95eb36a46beff3718419c79b0e139": {
+              "off_median_ms": 28.267552,
+              "on_median_ms": 25.537854,
+              "paired_relative_speedup": 0.09923010317109764
+            },
+            "48d112492dff349e7de5df5b52bf740c84f867980bc444980e2984f92607f052": {
+              "off_median_ms": 33.265222,
+              "on_median_ms": 33.285738,
+              "paired_relative_speedup": -0.007064316551254338
+            },
+            "4f0b126679bdb34fe7d1103bec857e912dd83bb211c9c048a117d4c6dff51b2f": {
+              "off_median_ms": 33.924676,
+              "on_median_ms": 33.088378,
+              "paired_relative_speedup": 0.02436261622129528
+            },
+            "656f5bdda812bf8d51957e8880f325d6d208335eb2d8c795b3a74839d5b2e8d7": {
+              "off_median_ms": 31.928053,
+              "on_median_ms": 31.890731,
+              "paired_relative_speedup": 0.009775943895747855
+            },
+            "72266111864547d5d5c9c6d196c5649a395bab645ce702c8d60d98dad1c3b68e": {
+              "off_median_ms": 32.145961,
+              "on_median_ms": 30.022441,
+              "paired_relative_speedup": 0.06068890638337877
+            },
+            "7b41bca5539260aba6dc0e3afcb0b4d913428e38e468240d5e25b74bf4a0005a": {
+              "off_median_ms": 26.837975,
+              "on_median_ms": 22.816211,
+              "paired_relative_speedup": 0.18052043489610356
+            },
+            "818c61ce6d6e04c3bbc45cdc68e76fd08329d1f09cc3217bad8d3f3ad029adf6": {
+              "off_median_ms": 34.250869,
+              "on_median_ms": 33.300686,
+              "paired_relative_speedup": 0.009558050037146201
+            },
+            "a130f59566bb93b17052727b00bcbdf52fd380f61ebfc59387e541fb2e3b8e40": {
+              "off_median_ms": 33.241056,
+              "on_median_ms": 33.535228,
+              "paired_relative_speedup": -0.006562386094939134
+            },
+            "c307491172898b56eb3e1ff7b165071ccd2eb688d2662701478c976f149f47f5": {
+              "off_median_ms": 32.979659,
+              "on_median_ms": 31.752874,
+              "paired_relative_speedup": 0.0033624649129866055
+            },
+            "d2ebe60595a67fcac0f0ffa587e7d805a629ff318cc6785786cf2db305d65768": {
+              "off_median_ms": 33.367016,
+              "on_median_ms": 33.196705,
+              "paired_relative_speedup": 0.010740030524499075
+            },
+            "e27fbbaa837a2b5075537fa0fb354eb0909ca7bee3b5cb32a821b4c3b4ccc3b2": {
+              "off_median_ms": 33.806054,
+              "on_median_ms": 32.163675,
+              "paired_relative_speedup": 0.04101108537290688
+            },
+            "e995edb154e2eeba116c14f378a920ccd6aad666a0ac9a7ac07db59905fb04e6": {
+              "off_median_ms": 30.350056,
+              "on_median_ms": 28.678701,
+              "paired_relative_speedup": 0.04283588034255162
+            },
+            "f3ebaa75eb75b186b2532711a9ba02fa92e2e98f07b585e19203ff64e39deb7c": {
+              "off_median_ms": 12.809791,
+              "on_median_ms": 11.937686,
+              "paired_relative_speedup": 0.07063023284035329
+            }
+          },
+          "roots": 16
+        },
+        ">32": {
+          "evaluation_accounting": {
+            "baseline_neural_calls": 18057,
+            "baseline_requests": 18057,
+            "cache_evictions": 0,
+            "cache_hits": 231,
+            "cache_misses": 17826,
+            "cache_neural_calls": 17826,
+            "cache_requests": 18057,
+            "peak_entries_max": 385
+          },
+          "mean_off_latency_ms": 34.125036208333334,
+          "mean_on_latency_ms": 34.0611571875,
+          "mean_paired_relative_speedup": 0.0032036238136533644,
+          "off_p95_nearest_rank_ms": 37.515824,
+          "on_p95_nearest_rank_ms": 36.258102,
+          "per_root_median_latency_ms": {
+            "038c7bf2a9bf8b6b604be6b245446869a9c0c99f7293a8d2501f991d51057157": {
+              "off_median_ms": 33.562315,
+              "on_median_ms": 33.714101,
+              "paired_relative_speedup": -0.00578964206087454
+            },
+            "0e93bb71938eab477cb86c0e03ddb06280a75e142c346760294aba3de70dd1f8": {
+              "off_median_ms": 34.347557,
+              "on_median_ms": 34.06251,
+              "paired_relative_speedup": 0.005441802439514809
+            },
+            "19d4e9b5c73fe98238610a8df2fc607a662b9ef474b0574b4dc4fcc09209a3dd": {
+              "off_median_ms": 34.580903,
+              "on_median_ms": 34.819352,
+              "paired_relative_speedup": -0.0034191187494012607
+            },
+            "21d9ac284dd0c8078de1fa921a03527494bc4b42bfc6bf0dd0f2548365b36919": {
+              "off_median_ms": 34.572272,
+              "on_median_ms": 34.494571,
+              "paired_relative_speedup": -0.0029455314034523192
+            },
+            "4547f09b27189781fe98bb50ef72417b3eb0cefb8ba77424401e5f7031ac6e49": {
+              "off_median_ms": 34.265272,
+              "on_median_ms": 33.984961,
+              "paired_relative_speedup": 0.008177976537211721
+            },
+            "52ec94b9df38961be165a2c29f689b933ef39f75483ce011b8d36ccd9058a9aa": {
+              "off_median_ms": 36.257389,
+              "on_median_ms": 36.153792,
+              "paired_relative_speedup": 0.031311523859048986
+            },
+            "5d6246592de273f4e3960d6ae9a60a42463350014248a246f8f308f405bc31f1": {
+              "off_median_ms": 34.761339,
+              "on_median_ms": 35.032716,
+              "paired_relative_speedup": -0.01375010578052877
+            },
+            "6e74713f776a68868d4c3d6391808ab70ec34bdd51bcf7372b7f8748e2f1e366": {
+              "off_median_ms": 33.359825,
+              "on_median_ms": 33.42262,
+              "paired_relative_speedup": -0.0015746178493940954
+            },
+            "9b9c54b9097021d0daccd31826e53109cf6b25b963ea0d64ed827f45e205f313": {
+              "off_median_ms": 34.077687,
+              "on_median_ms": 37.56738,
+              "paired_relative_speedup": -0.11044805834720754
+            },
+            "abc2a835f3571b1c0ac702f3cd17dd813f6eefceabc4ca94fbea1de3103bee10": {
+              "off_median_ms": 24.192035,
+              "on_median_ms": 21.933745,
+              "paired_relative_speedup": 0.09590308551816072
+            },
+            "b96b9ba1aa01af6b3c25f3d1420b4aeab0d8783d8f5e3db4de4fd5d8b3dc698c": {
+              "off_median_ms": 35.168044,
+              "on_median_ms": 35.130837,
+              "paired_relative_speedup": -0.0030151791571045683
+            },
+            "c3e2cacebcd8d98630cd1f0c47713cd45404a0d5c7425f7ea9e21d30b9462dd3": {
+              "off_median_ms": 35.302112,
+              "on_median_ms": 35.861065,
+              "paired_relative_speedup": -0.009016938585540151
+            },
+            "c70f78151a9c65263bd2d9dd12d018f8aa42f7d203c00c258f642a8916be4436": {
+              "off_median_ms": 34.559631,
+              "on_median_ms": 34.184053,
+              "paired_relative_speedup": 0.03310396083209519
+            },
+            "dec9399b1830a799d43aa4c05fbfd40a3fcf3a710f836d24b2fce13bdb848e46": {
+              "off_median_ms": 35.25452,
+              "on_median_ms": 35.127656,
+              "paired_relative_speedup": -0.0016931018990013497
+            },
+            "e921b3e1a591fe72faed770ecfd8c4b57d0fae01e115ed4073fcb3fdd738dbc2": {
+              "off_median_ms": 34.545289,
+              "on_median_ms": 34.620658,
+              "paired_relative_speedup": 0.023370888230113098
+            },
+            "ecdd74a73e73e23e067849958982945fa0d3acbf850c4f1e8b9d366fa883824a": {
+              "off_median_ms": 33.588875,
+              "on_median_ms": 33.329371,
+              "paired_relative_speedup": 0.005601037434813896
+            }
+          },
+          "roots": 16
+        }
+      },
+      "cache_totals": {
+        "evictions": 0,
+        "hits": 1308,
+        "misses": 33978,
+        "neural_calls": 33978,
+        "requests": 35286
+      },
+      "mean_off_latency_ms": 32.58831102083334,
+      "mean_on_latency_ms": 32.030589666666664,
+      "mean_paired_relative_speedup": 0.020297809031401867,
+      "off_p95_nearest_rank_ms": 36.012185,
+      "on_p95_nearest_rank_ms": 36.131463,
+      "peak_entries_max": 385,
+      "per_root_median_latency_ms": {
+        "038c7bf2a9bf8b6b604be6b245446869a9c0c99f7293a8d2501f991d51057157": {
+          "off_median_ms": 33.562315,
+          "on_median_ms": 33.714101,
+          "paired_relative_speedup": -0.00578964206087454
+        },
+        "0e93bb71938eab477cb86c0e03ddb06280a75e142c346760294aba3de70dd1f8": {
+          "off_median_ms": 34.347557,
+          "on_median_ms": 34.06251,
+          "paired_relative_speedup": 0.005441802439514809
+        },
+        "199ab9a7471b1a34ea17b98067761a7d1b7cf7b96ed92908fde765e3bda1d0cd": {
+          "off_median_ms": 30.352972,
+          "on_median_ms": 29.246803,
+          "paired_relative_speedup": 0.03584275446295412
+        },
+        "19d4e9b5c73fe98238610a8df2fc607a662b9ef474b0574b4dc4fcc09209a3dd": {
+          "off_median_ms": 34.580903,
+          "on_median_ms": 34.819352,
+          "paired_relative_speedup": -0.0034191187494012607
+        },
+        "200fb404c478cdc38cd3b9dbdfbbb66836358358ebe3beebc8ac4555558f33b7": {
+          "off_median_ms": 34.022614,
+          "on_median_ms": 33.286438,
+          "paired_relative_speedup": 0.018145919657988344
+        },
+        "21d9ac284dd0c8078de1fa921a03527494bc4b42bfc6bf0dd0f2548365b36919": {
+          "off_median_ms": 34.572272,
+          "on_median_ms": 34.494571,
+          "paired_relative_speedup": -0.0029455314034523192
+        },
+        "2ac1a572016097593092300ff76eb502ddb5d9adbe6c8c0377e5c4abbfb72e47": {
+          "off_median_ms": 34.480754,
+          "on_median_ms": 34.324326,
+          "paired_relative_speedup": 0.005194187913590209
+        },
+        "43e237e4b08c8aa63de55272748aa746f3a95eb36a46beff3718419c79b0e139": {
+          "off_median_ms": 28.267552,
+          "on_median_ms": 25.537854,
+          "paired_relative_speedup": 0.09923010317109764
+        },
+        "4547f09b27189781fe98bb50ef72417b3eb0cefb8ba77424401e5f7031ac6e49": {
+          "off_median_ms": 34.265272,
+          "on_median_ms": 33.984961,
+          "paired_relative_speedup": 0.008177976537211721
+        },
+        "48d112492dff349e7de5df5b52bf740c84f867980bc444980e2984f92607f052": {
+          "off_median_ms": 33.265222,
+          "on_median_ms": 33.285738,
+          "paired_relative_speedup": -0.007064316551254338
+        },
+        "4f0b126679bdb34fe7d1103bec857e912dd83bb211c9c048a117d4c6dff51b2f": {
+          "off_median_ms": 33.924676,
+          "on_median_ms": 33.088378,
+          "paired_relative_speedup": 0.02436261622129528
+        },
+        "52ec94b9df38961be165a2c29f689b933ef39f75483ce011b8d36ccd9058a9aa": {
+          "off_median_ms": 36.257389,
+          "on_median_ms": 36.153792,
+          "paired_relative_speedup": 0.031311523859048986
+        },
+        "5d6246592de273f4e3960d6ae9a60a42463350014248a246f8f308f405bc31f1": {
+          "off_median_ms": 34.761339,
+          "on_median_ms": 35.032716,
+          "paired_relative_speedup": -0.01375010578052877
+        },
+        "656f5bdda812bf8d51957e8880f325d6d208335eb2d8c795b3a74839d5b2e8d7": {
+          "off_median_ms": 31.928053,
+          "on_median_ms": 31.890731,
+          "paired_relative_speedup": 0.009775943895747855
+        },
+        "6e74713f776a68868d4c3d6391808ab70ec34bdd51bcf7372b7f8748e2f1e366": {
+          "off_median_ms": 33.359825,
+          "on_median_ms": 33.42262,
+          "paired_relative_speedup": -0.0015746178493940954
+        },
+        "72266111864547d5d5c9c6d196c5649a395bab645ce702c8d60d98dad1c3b68e": {
+          "off_median_ms": 32.145961,
+          "on_median_ms": 30.022441,
+          "paired_relative_speedup": 0.06068890638337877
+        },
+        "7b41bca5539260aba6dc0e3afcb0b4d913428e38e468240d5e25b74bf4a0005a": {
+          "off_median_ms": 26.837975,
+          "on_median_ms": 22.816211,
+          "paired_relative_speedup": 0.18052043489610356
+        },
+        "818c61ce6d6e04c3bbc45cdc68e76fd08329d1f09cc3217bad8d3f3ad029adf6": {
+          "off_median_ms": 34.250869,
+          "on_median_ms": 33.300686,
+          "paired_relative_speedup": 0.009558050037146201
+        },
+        "9b9c54b9097021d0daccd31826e53109cf6b25b963ea0d64ed827f45e205f313": {
+          "off_median_ms": 34.077687,
+          "on_median_ms": 37.56738,
+          "paired_relative_speedup": -0.11044805834720754
+        },
+        "a130f59566bb93b17052727b00bcbdf52fd380f61ebfc59387e541fb2e3b8e40": {
+          "off_median_ms": 33.241056,
+          "on_median_ms": 33.535228,
+          "paired_relative_speedup": -0.006562386094939134
+        },
+        "abc2a835f3571b1c0ac702f3cd17dd813f6eefceabc4ca94fbea1de3103bee10": {
+          "off_median_ms": 24.192035,
+          "on_median_ms": 21.933745,
+          "paired_relative_speedup": 0.09590308551816072
+        },
+        "b96b9ba1aa01af6b3c25f3d1420b4aeab0d8783d8f5e3db4de4fd5d8b3dc698c": {
+          "off_median_ms": 35.168044,
+          "on_median_ms": 35.130837,
+          "paired_relative_speedup": -0.0030151791571045683
+        },
+        "c307491172898b56eb3e1ff7b165071ccd2eb688d2662701478c976f149f47f5": {
+          "off_median_ms": 32.979659,
+          "on_median_ms": 31.752874,
+          "paired_relative_speedup": 0.0033624649129866055
+        },
+        "c3e2cacebcd8d98630cd1f0c47713cd45404a0d5c7425f7ea9e21d30b9462dd3": {
+          "off_median_ms": 35.302112,
+          "on_median_ms": 35.861065,
+          "paired_relative_speedup": -0.009016938585540151
+        },
+        "c70f78151a9c65263bd2d9dd12d018f8aa42f7d203c00c258f642a8916be4436": {
+          "off_median_ms": 34.559631,
+          "on_median_ms": 34.184053,
+          "paired_relative_speedup": 0.03310396083209519
+        },
+        "d2ebe60595a67fcac0f0ffa587e7d805a629ff318cc6785786cf2db305d65768": {
+          "off_median_ms": 33.367016,
+          "on_median_ms": 33.196705,
+          "paired_relative_speedup": 0.010740030524499075
+        },
+        "dec9399b1830a799d43aa4c05fbfd40a3fcf3a710f836d24b2fce13bdb848e46": {
+          "off_median_ms": 35.25452,
+          "on_median_ms": 35.127656,
+          "paired_relative_speedup": -0.0016931018990013497
+        },
+        "e27fbbaa837a2b5075537fa0fb354eb0909ca7bee3b5cb32a821b4c3b4ccc3b2": {
+          "off_median_ms": 33.806054,
+          "on_median_ms": 32.163675,
+          "paired_relative_speedup": 0.04101108537290688
+        },
+        "e921b3e1a591fe72faed770ecfd8c4b57d0fae01e115ed4073fcb3fdd738dbc2": {
+          "off_median_ms": 34.545289,
+          "on_median_ms": 34.620658,
+          "paired_relative_speedup": 0.023370888230113098
+        },
+        "e995edb154e2eeba116c14f378a920ccd6aad666a0ac9a7ac07db59905fb04e6": {
+          "off_median_ms": 30.350056,
+          "on_median_ms": 28.678701,
+          "paired_relative_speedup": 0.04283588034255162
+        },
+        "ecdd74a73e73e23e067849958982945fa0d3acbf850c4f1e8b9d366fa883824a": {
+          "off_median_ms": 33.588875,
+          "on_median_ms": 33.329371,
+          "paired_relative_speedup": 0.005601037434813896
+        },
+        "f3ebaa75eb75b186b2532711a9ba02fa92e2e98f07b585e19203ff64e39deb7c": {
+          "off_median_ms": 12.809791,
+          "on_median_ms": 11.937686,
+          "paired_relative_speedup": 0.07063023284035329
+        }
+      },
+      "timed_neural_call_totals": {
+        "off": 35286,
+        "on": 33978
+      },
+      "timed_request_totals": {
+        "off": 35286,
+        "on": 35286
+      }
+    }
+  },
+  "complete_pairs": true,
+  "decision": "stop_memoization_branch",
+  "execution_order": "rep 0 off-on, rep 1 on-off, rep 2 off-on",
+  "interpretation": "performance-only retrospective cohort; does not establish playing-strength improvement",
+  "ledger_sha256": "0df1fe47720e9df8070a7df05d600333487b197f8754d6cd18952c4743b33d76",
+  "registration_sha256": "b0ab2f95a6bd10e8dcee24edbb7ad519ed4b283a51785953aa58ee144cc51437",
+  "schema": "seed420-analysis-v1",
+  "search_count": 512
+}
