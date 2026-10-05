@@ -1,0 +1,7607 @@
+{
+  "schema": "seed418-cohort-manifest-v1",
+  "selection": "lane A, challenger seat 0; first nonterminal decision at 17-21 active stones; canonical-state dedup; SHA256(418:state_hash); at most one/opening; first 128",
+  "source_ledger_sha256": "82721f623e86c2c5e0af63cf4c5b7be303f932b3c4a3446f5be4b5279deee3e1",
+  "source_suite_sha256": "a1c3de5cf43ce4c3e27be4119017bead381592a67790e7bd9e8330e2dd1643b7",
+  "states": [
+    {
+      "active_pit_stones": 19,
+      "decision_absolute_action": 2,
+      "decision_ply": 17,
+      "opening_index": 503,
+      "opening_prefix_moves": [
+        2,
+        3,
+        2,
+        4,
+        1,
+        5,
+        0
+      ],
+      "source_game_index": 1006,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "6cf649b20288d513a95b8a5c8e8aaf6f10770bcbae46cf1527cce35ba9bb83e6",
+      "source_record_sha256": "ad24ff3671b7a4cd9314cdadb065616c97494dd79ac0b6dfcef2231794e7a580",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          3,
+          0,
+          13
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          2,
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        "player_store": 17
+      },
+      "state_hash": "8eb84899a3c91bd9a30b458001c0e6240e40ed8871aca0ed2b05cc1c515381e5",
+      "trajectory_prefix_absolute": [
+        7,
+        0,
+        5,
+        4,
+        8,
+        9,
+        3,
+        4,
+        2,
+        5,
+        6,
+        3,
+        10,
+        4,
+        5,
+        3,
+        8
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 11,
+      "decision_ply": 20,
+      "opening_index": 270,
+      "opening_prefix_moves": [
+        0,
+        0,
+        3,
+        2,
+        0,
+        1,
+        4,
+        2
+      ],
+      "source_game_index": 540,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "3bd1d1ce51407e650c28302850837e451854ec190e1e5e2a80c234a93acef6d1",
+      "source_record_sha256": "4dd23cd0a87a96566d631eefbae498678c87bbca30603763bc7a31db8141d38f",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          2,
+          1,
+          1,
+          2,
+          1
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          2,
+          3,
+          1,
+          3,
+          2,
+          0
+        ],
+        "player_store": 14
+      },
+      "state_hash": "297f8d929d68a1e3e003021232c2f543db3e35d0d897cc8c3a7dfd829c3b4507",
+      "trajectory_prefix_absolute": [
+        1,
+        6,
+        5,
+        10,
+        5,
+        4,
+        5,
+        3,
+        7,
+        0,
+        11,
+        4,
+        5,
+        2,
+        8,
+        11,
+        10,
+        11,
+        9,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 19,
+      "opening_index": 117,
+      "opening_prefix_moves": [
+        2,
+        1,
+        5,
+        0,
+        0,
+        1,
+        2
+      ],
+      "source_game_index": 234,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "e7938c4bde07fef11555de661e1a5333eace6d2241e9b86aa4bae90e97647ccc",
+      "source_record_sha256": "dcda985f76eb6d88db8b737ad4035fe11a48436e381133cf2589b5eae8680b5f",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          1,
+          6,
+          0,
+          0,
+          1
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          1,
+          3,
+          0,
+          3,
+          3,
+          2
+        ],
+        "player_store": 15
+      },
+      "state_hash": "1e0f7f46640f0883692a0aa251b9b6e391b5015b49873db38e848b87fba450b5",
+      "trajectory_prefix_absolute": [
+        2,
+        3,
+        9,
+        4,
+        7,
+        5,
+        9,
+        6,
+        1,
+        11,
+        5,
+        3,
+        5,
+        4,
+        5,
+        0,
+        5,
+        2,
+        10
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 1,
+      "decision_ply": 22,
+      "opening_index": 406,
+      "opening_prefix_moves": [
+        5,
+        2,
+        3,
+        1,
+        4,
+        5,
+        1,
+        5
+      ],
+      "source_game_index": 812,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "94320baa39bfe91162e307bed23196278f006283038148f25a604015f6ff1a51",
+      "source_record_sha256": "a3ef15b90a491b48642f50ae3e962f69d007cd2e7bd1304e4f4307b4dcc92a05",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          2,
+          6,
+          1
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          4,
+          5,
+          3,
+          0,
+          0,
+          0
+        ],
+        "player_store": 16
+      },
+      "state_hash": "8900002d5805341b9af2563cdfa0dd32b2be4a204525ae7178c4b0416afdec04",
+      "trajectory_prefix_absolute": [
+        0,
+        5,
+        3,
+        5,
+        2,
+        9,
+        5,
+        0,
+        6,
+        4,
+        11,
+        5,
+        6,
+        3,
+        9,
+        11,
+        7,
+        11,
+        8,
+        5,
+        4,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 0,
+      "decision_ply": 16,
+      "opening_index": 385,
+      "opening_prefix_moves": [
+        3,
+        0,
+        0,
+        3,
+        2,
+        5,
+        1
+      ],
+      "source_game_index": 770,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "e70ed7b4cd2cc75a1058cdbea94e271ae280acb14570f5b5c82bf19049d2bae0",
+      "source_record_sha256": "478a55dc40bd26deef7e1476f48101f3aa13b8e7d6dee858610ae47fc4fbe390",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          2,
+          1,
+          1,
+          1
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          5,
+          1,
+          2,
+          8,
+          0,
+          0
+        ],
+        "player_store": 18
+      },
+      "state_hash": "5fcdbe030b9122861337526da42512872b5b00ccf0ed91c7a5c61e53739d2b11",
+      "trajectory_prefix_absolute": [
+        10,
+        4,
+        11,
+        0,
+        8,
+        2,
+        5,
+        11,
+        4,
+        5,
+        1,
+        10,
+        4,
+        11,
+        7,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 11,
+      "decision_ply": 12,
+      "opening_index": 177,
+      "opening_prefix_moves": [
+        4,
+        1,
+        5,
+        2,
+        2,
+        1,
+        5,
+        4
+      ],
+      "source_game_index": 354,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "04dc4bf37b148847ec33bd560aa21778b2d06e51469d4e0b3d842382c7dbeea7",
+      "source_record_sha256": "e18b6e3f06f39aff30c85ff7443d4574a4e073606e5dc0c319c71deaba1153d1",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          2,
+          0,
+          1,
+          1,
+          1
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          2,
+          1,
+          5,
+          0,
+          5,
+          1
+        ],
+        "player_store": 19
+      },
+      "state_hash": "591848964b6dc584721ecf5c785d91361b3da6f20b0c259b7af66776b6d0e70a",
+      "trajectory_prefix_absolute": [
+        4,
+        6,
+        5,
+        2,
+        9,
+        0,
+        10,
+        11,
+        5,
+        1,
+        5,
+        3
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 11,
+      "decision_ply": 26,
+      "opening_index": 224,
+      "opening_prefix_moves": [
+        0,
+        0,
+        5,
+        3,
+        4,
+        0,
+        5
+      ],
+      "source_game_index": 448,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "c6ef06255d5dc5e91c39decf20e15a3e78a55c071ab3027f9bfaff4af4d939aa",
+      "source_record_sha256": "4ab982ff4570dde6b322c01e928ff138908aeede593a2201dab70e7769c8b99d",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          0,
+          3,
+          0,
+          6,
+          1
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          0,
+          4,
+          2,
+          0,
+          0,
+          0
+        ],
+        "player_store": 17
+      },
+      "state_hash": "330b3e34abccf07dc618e62d695ca59e2f1ce51747f7731a9165ff54c2527d5e",
+      "trajectory_prefix_absolute": [
+        2,
+        8,
+        5,
+        3,
+        10,
+        5,
+        1,
+        11,
+        3,
+        2,
+        1,
+        7,
+        0,
+        11,
+        9,
+        3,
+        5,
+        8,
+        11,
+        7,
+        4,
+        11,
+        7,
+        5,
+        0,
+        9
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 11,
+      "decision_ply": 16,
+      "opening_index": 356,
+      "opening_prefix_moves": [
+        1,
+        3,
+        5,
+        4,
+        4,
+        5,
+        0
+      ],
+      "source_game_index": 712,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "a329e98f5cc5a7734efd30e462e9fcfb5cde52dd67d2e86827fe31ee2201c1bd",
+      "source_record_sha256": "e4a11c4b5123df64389f85d523953f120b475444a417f8ae09235341514a17fd",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          10,
+          0,
+          2,
+          2,
+          2
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          1,
+          2,
+          1,
+          0,
+          1,
+          0
+        ],
+        "player_store": 15
+      },
+      "state_hash": "a0f305a3353a9b2b1f73604c4d871e7618ed13510d75243f3eee694f341355f8",
+      "trajectory_prefix_absolute": [
+        9,
+        4,
+        5,
+        6,
+        3,
+        11,
+        10,
+        5,
+        4,
+        9,
+        2,
+        8,
+        5,
+        4,
+        5,
+        3
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 14,
+      "opening_index": 506,
+      "opening_prefix_moves": [
+        0,
+        4,
+        0,
+        0,
+        5,
+        2,
+        3,
+        0
+      ],
+      "source_game_index": 1012,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "af5e2bc708a0a14d4c170db95aed50230888bc16cd8cea16a5934b44fa9102f0",
+      "source_record_sha256": "a8d72dc8a9941f3cef334e71c8d5385c97bdde646444249629fd3a3db302e236",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          1,
+          1,
+          2,
+          9
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          1,
+          3,
+          3,
+          0,
+          0,
+          1
+        ],
+        "player_store": 13
+      },
+      "state_hash": "5e5756ae0d3374aeaf5ab25f6cb99e115e3ca213410a97ed746f63c68f462082",
+      "trajectory_prefix_absolute": [
+        5,
+        4,
+        10,
+        5,
+        2,
+        8,
+        5,
+        4,
+        9,
+        0,
+        7,
+        3,
+        5,
+        4
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 14,
+      "opening_index": 334,
+      "opening_prefix_moves": [
+        1,
+        1,
+        4,
+        2,
+        5,
+        5,
+        4,
+        3
+      ],
+      "source_game_index": 668,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "8ef212d37babe46b66ccc3e0ca43a966c4e706526991ad33c8741346579dd477",
+      "source_record_sha256": "904c3fbf769af35ab60cbaa61e8573e435cd5ade26fc172f26db8eb6ff2ed3a6",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          3,
+          4,
+          1,
+          0,
+          2
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          1,
+          2,
+          0,
+          2,
+          2,
+          1
+        ],
+        "player_store": 20
+      },
+      "state_hash": "c723f9cf3e1df9f8a8869780221d80bdf2f79be26aa3f61eaca1d70f50136216",
+      "trajectory_prefix_absolute": [
+        1,
+        11,
+        10,
+        5,
+        3,
+        11,
+        5,
+        4,
+        5,
+        0,
+        9,
+        5,
+        2,
+        10
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 6,
+      "decision_ply": 16,
+      "opening_index": 500,
+      "opening_prefix_moves": [
+        5,
+        0,
+        4,
+        3,
+        3,
+        2,
+        0,
+        5
+      ],
+      "source_game_index": 1000,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "a7b04c6e6cdb351ed864a0749ff47835cfa66b0e5b7375079fe9b48877234a66",
+      "source_record_sha256": "2cf4df8438b031f7dc1d95531860d69e729429f0f79a6eaff95d44c95cad1cd7",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          10,
+          1,
+          1,
+          4,
+          1,
+          0
+        ],
+        "opponent_store": 16,
+        "player_pits": [
+          1,
+          0,
+          1,
+          2,
+          0,
+          0
+        ],
+        "player_store": 11
+      },
+      "state_hash": "288531980f071ed6b42d1d084e7f6ced8cc743364ece9f73c1692d0003ba49c3",
+      "trajectory_prefix_absolute": [
+        10,
+        1,
+        11,
+        4,
+        8,
+        3,
+        9,
+        2,
+        7,
+        4,
+        11,
+        10,
+        11,
+        8,
+        5,
+        11
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 10,
+      "decision_ply": 12,
+      "opening_index": 112,
+      "opening_prefix_moves": [
+        5,
+        5,
+        2,
+        3,
+        3,
+        5,
+        4
+      ],
+      "source_game_index": 224,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "16de0a3a4ef7b78010d7512aed61504410587ace34012a1218f8e55982a37718",
+      "source_record_sha256": "73030e7bfe0ab63254417caabd01d4449e5d89f81479f3aa60f538cc1ed3a1bc",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          2,
+          3,
+          1,
+          2,
+          0
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          1,
+          0,
+          2,
+          3,
+          1,
+          5
+        ],
+        "player_store": 14
+      },
+      "state_hash": "42bde5e1aa1bb6841bfc2b8a3d0d62d761c0f1018d86ac72d14ce12b7de0c55c",
+      "trajectory_prefix_absolute": [
+        0,
+        11,
+        8,
+        4,
+        11,
+        10,
+        11,
+        9,
+        2,
+        6,
+        1,
+        11
+      ]
+    },
+    {
+      "active_pit_stones": 17,
+      "decision_absolute_action": 5,
+      "decision_ply": 13,
+      "opening_index": 421,
+      "opening_prefix_moves": [
+        3,
+        0,
+        2,
+        0,
+        4,
+        2,
+        2,
+        5
+      ],
+      "source_game_index": 842,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "cf5dfe825915f235d9a492480d988b46ba0bf8f1188844382178434876b5ca7b",
+      "source_record_sha256": "b791b9c83bebf0107f2f45cd95ccf7f029bc848a402b1c4b4d052352330a0e24",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          3,
+          4,
+          1,
+          0,
+          0
+        ],
+        "opponent_store": 17,
+        "player_pits": [
+          1,
+          0,
+          3,
+          1,
+          2,
+          1
+        ],
+        "player_store": 14
+      },
+      "state_hash": "b1345be81d5dbcb520e4df3888e16aba9ff2b25644e51fc05a49d452cf91a189",
+      "trajectory_prefix_absolute": [
+        10,
+        7,
+        3,
+        4,
+        9,
+        5,
+        10,
+        0,
+        5,
+        4,
+        5,
+        3,
+        11
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 7,
+      "decision_ply": 23,
+      "opening_index": 198,
+      "opening_prefix_moves": [
+        3,
+        0,
+        4,
+        5,
+        0,
+        2,
+        0
+      ],
+      "source_game_index": 396,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "c647f406cb524164c15e93eb381a9a0fa901ead1867c07549c5bd5c4659af30c",
+      "source_record_sha256": "6558fbf73cbed38e21dc2954b32ffa647b7cec51a70422886b269f0395045276",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          1,
+          1,
+          2,
+          0,
+          0
+        ],
+        "opponent_store": 19,
+        "player_pits": [
+          0,
+          0,
+          2,
+          0,
+          0,
+          14
+        ],
+        "player_store": 9
+      },
+      "state_hash": "65e5a510fe217becd7ad61761c1a368ee1c00c3b996d48556ff39559bf0af83a",
+      "trajectory_prefix_absolute": [
+        11,
+        9,
+        4,
+        11,
+        10,
+        3,
+        4,
+        1,
+        11,
+        7,
+        2,
+        11,
+        9,
+        11,
+        8,
+        3,
+        10,
+        1,
+        11,
+        7,
+        4,
+        6,
+        0
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 4,
+      "decision_ply": 23,
+      "opening_index": 497,
+      "opening_prefix_moves": [
+        1,
+        0,
+        0,
+        2,
+        3,
+        2,
+        2
+      ],
+      "source_game_index": 994,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "d4f9e466240b79575ab413e2fe8594d4eb67dfb24ba01b9523613d625367aef9",
+      "source_record_sha256": "eecb0018b034b33d3b690b0bcac1c7f77dfc449e9f442e1b540d60ad6869b5c4",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          1,
+          1,
+          0,
+          12,
+          0
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          2,
+          1,
+          1,
+          2,
+          0
+        ],
+        "player_store": 15
+      },
+      "state_hash": "588ed87f7a59d6f56570f50d160afbdfe75a76b8be6c62c61468659b53ba0787",
+      "trajectory_prefix_absolute": [
+        9,
+        4,
+        6,
+        5,
+        7,
+        3,
+        5,
+        4,
+        5,
+        2,
+        6,
+        1,
+        8,
+        9,
+        1,
+        11,
+        5,
+        4,
+        5,
+        3,
+        5,
+        0,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 8,
+      "decision_ply": 20,
+      "opening_index": 307,
+      "opening_prefix_moves": [
+        1,
+        0,
+        2,
+        3,
+        0,
+        1,
+        2
+      ],
+      "source_game_index": 614,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "ce606b1176a7243087730c15476c66a13582a557debf2d086df6f7a412048374",
+      "source_record_sha256": "78da34d73e74bb26b7f57682ae4efa330f52124ad359f1638ef7520ef6e904b1",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          1,
+          2,
+          1,
+          0,
+          0
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          2,
+          2,
+          5,
+          4,
+          2,
+          0
+        ],
+        "player_store": 13
+      },
+      "state_hash": "5029f72eb8f103be931fd6e634fa03d5cb3dedfc4473ed641bd0871a3cd04cea",
+      "trajectory_prefix_absolute": [
+        3,
+        6,
+        5,
+        10,
+        5,
+        1,
+        9,
+        4,
+        8,
+        6,
+        5,
+        0,
+        7,
+        10,
+        9,
+        11,
+        5,
+        11,
+        10,
+        11
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 4,
+      "decision_ply": 17,
+      "opening_index": 434,
+      "opening_prefix_moves": [
+        1,
+        3,
+        2,
+        4,
+        0,
+        5,
+        4,
+        4
+      ],
+      "source_game_index": 868,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "d551e58fee3c8d2ada99c8e6538728be425a938d8602fc76b1cc970653c8d21c",
+      "source_record_sha256": "561b872011f35a6b649fc47308e62b27fe4b71e75fd6a802ce42b23441ab6162",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          1,
+          0,
+          8,
+          0,
+          0
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          1,
+          0,
+          2,
+          1,
+          5,
+          0
+        ],
+        "player_store": 14
+      },
+      "state_hash": "cf87031eeef953ff26bfb0ee83b8b77abd0b97d7b36c5ff73a20dad21b826b2d",
+      "trajectory_prefix_absolute": [
+        8,
+        5,
+        3,
+        10,
+        6,
+        5,
+        1,
+        11,
+        2,
+        3,
+        0,
+        7,
+        5,
+        11,
+        10,
+        11,
+        8
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 11,
+      "decision_ply": 15,
+      "opening_index": 18,
+      "opening_prefix_moves": [
+        0,
+        4,
+        2,
+        1,
+        5,
+        0,
+        1,
+        3
+      ],
+      "source_game_index": 36,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "a447889a2232702bfc5be21aff23ee8127892b7dc75e17cc5718d14fe80929a7",
+      "source_record_sha256": "daef016ef2045256d7dd79852830c4ee599ad121c2297979602f270f9bc05ab8",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          3,
+          1,
+          4,
+          1
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          4,
+          4,
+          0,
+          3,
+          0,
+          0
+        ],
+        "player_store": 16
+      },
+      "state_hash": "38ca442ab654207b0cfc2116331b1d9f053cad1359fdb4455f773742143af765",
+      "trajectory_prefix_absolute": [
+        10,
+        8,
+        5,
+        1,
+        6,
+        5,
+        0,
+        9,
+        5,
+        2,
+        4,
+        11,
+        5,
+        7,
+        4
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 8,
+      "decision_ply": 6,
+      "opening_index": 299,
+      "opening_prefix_moves": [
+        5,
+        0,
+        4,
+        0,
+        0,
+        2,
+        1,
+        0
+      ],
+      "source_game_index": 598,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "405da1f0d1426519bcce073b15e90e2187eb5acdabbbbc0ed1753ba2cd4d1ff9",
+      "source_record_sha256": "82e2088646624c2dacd350ee278de06f54611e19afca559ac6484fdc6273e7fb",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          2,
+          2,
+          8,
+          0,
+          0,
+          5
+        ],
+        "player_store": 23
+      },
+      "state_hash": "47f5a6b012aa43fc73a817111ddb5ff894c31cde79e38dac2764e2a0fd42be33",
+      "trajectory_prefix_absolute": [
+        0,
+        9,
+        3,
+        11,
+        4,
+        3
+      ]
+    },
+    {
+      "active_pit_stones": 19,
+      "decision_absolute_action": 8,
+      "decision_ply": 17,
+      "opening_index": 6,
+      "opening_prefix_moves": [
+        5,
+        0,
+        1,
+        2,
+        1,
+        4,
+        3,
+        3
+      ],
+      "source_game_index": 12,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "fc953766e883b06c132f85e4ec44df80ae04756611aa19c9ed150d066b48bc11",
+      "source_record_sha256": "913d0de41bc63d5bffbfc1de5cc732bba4d59aed0587e3f0bcbfdfaf0cd480a7",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          0,
+          3,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          2,
+          3,
+          5,
+          0,
+          0,
+          4
+        ],
+        "player_store": 16
+      },
+      "state_hash": "1faafc0ba927a85da872bfbc18928bf75f09d2e3c236482dee2d1e1c9da7a3db",
+      "trajectory_prefix_absolute": [
+        4,
+        7,
+        2,
+        8,
+        11,
+        4,
+        1,
+        9,
+        5,
+        6,
+        0,
+        9,
+        10,
+        3,
+        4,
+        11,
+        3
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 3,
+      "decision_ply": 23,
+      "opening_index": 426,
+      "opening_prefix_moves": [
+        4,
+        3,
+        2,
+        0,
+        1,
+        4,
+        2
+      ],
+      "source_game_index": 852,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "d1024bdfda6b23f802472891ce133078ff6d83e521f832d985b11544dccd4702",
+      "source_record_sha256": "b19e69ed62a4a9a621e97594158df306162fc51d4ee3daef4afe3e94ee594abf",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          6,
+          1,
+          2,
+          0,
+          1
+        ],
+        "opponent_store": 18,
+        "player_pits": [
+          0,
+          2,
+          3,
+          3,
+          0,
+          0
+        ],
+        "player_store": 9
+      },
+      "state_hash": "a55d7f150aed8eec816a6dcdddf0d22c7a94bcb2ed5c557cff9e5119a5b3c8d8",
+      "trajectory_prefix_absolute": [
+        9,
+        0,
+        8,
+        0,
+        6,
+        5,
+        10,
+        3,
+        6,
+        4,
+        9,
+        5,
+        10,
+        8,
+        10,
+        1,
+        11,
+        0,
+        11,
+        10,
+        5,
+        4,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 2,
+      "decision_ply": 16,
+      "opening_index": 419,
+      "opening_prefix_moves": [
+        2,
+        5,
+        3,
+        0,
+        4,
+        2,
+        5,
+        3
+      ],
+      "source_game_index": 838,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "203dd7cf090aaf729fd47e4ecef960d56e5c18b9e41d996b5874ac1437dff1c7",
+      "source_record_sha256": "0deca5474d02c7e1063e93910af6238e4444c491d89253e64798a0968f254bb4",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          9,
+          2,
+          1,
+          1,
+          0
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          2,
+          0,
+          2,
+          2,
+          0,
+          1
+        ],
+        "player_store": 18
+      },
+      "state_hash": "bd62573098a3f953090b743e700d141130c325a2de7599084dfed02e2c13847b",
+      "trajectory_prefix_absolute": [
+        8,
+        5,
+        4,
+        11,
+        2,
+        9,
+        11,
+        6,
+        5,
+        0,
+        10,
+        5,
+        1,
+        11,
+        5,
+        4
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 4,
+      "decision_ply": 17,
+      "opening_index": 281,
+      "opening_prefix_moves": [
+        5,
+        0,
+        2,
+        1,
+        4,
+        1,
+        5
+      ],
+      "source_game_index": 562,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "3b8a4f022699fdf09c109204df8a491d2bf49f43fd3db1e509eeedf68e82c69e",
+      "source_record_sha256": "695bb9bcf0b3292301f88a34bfbf5c881a37dcc2094431a0655b37f51e8825cb",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          2,
+          1,
+          0,
+          0,
+          6
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          4,
+          2,
+          1,
+          2,
+          1,
+          0
+        ],
+        "player_store": 17
+      },
+      "state_hash": "a4456a114514f448dd8e242d89a6cb7bca1824f5dd5b988fea195e73305076de",
+      "trajectory_prefix_absolute": [
+        2,
+        0,
+        4,
+        7,
+        3,
+        8,
+        4,
+        5,
+        7,
+        1,
+        8,
+        4,
+        9,
+        2,
+        4,
+        5,
+        10
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 11,
+      "decision_ply": 19,
+      "opening_index": 167,
+      "opening_prefix_moves": [
+        0,
+        4,
+        5,
+        1,
+        2,
+        4,
+        4,
+        1
+      ],
+      "source_game_index": 334,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "cf155e4b6d3fa09fcb74038300a5c1014d2648424bae0078c978e791e5e35e55",
+      "source_record_sha256": "8bd9bf97f135956ccbcf617399039348855b454a6d47e42269373bbd14b556e8",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          2,
+          1,
+          3,
+          5,
+          1
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          3,
+          0,
+          0,
+          2,
+          1,
+          1
+        ],
+        "player_store": 17
+      },
+      "state_hash": "33dcacbef976854beb3ccc6db4354684226a4a2810b0d4855074413d8908d1de",
+      "trajectory_prefix_absolute": [
+        5,
+        1,
+        11,
+        5,
+        6,
+        4,
+        0,
+        11,
+        9,
+        5,
+        3,
+        8,
+        11,
+        5,
+        1,
+        5,
+        4,
+        5,
+        2
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 11,
+      "decision_ply": 10,
+      "opening_index": 83,
+      "opening_prefix_moves": [
+        2,
+        0,
+        2,
+        1,
+        2,
+        5,
+        5
+      ],
+      "source_game_index": 166,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "0cf765a6024fcc08b74572b677f37d58f2364236adc4f714812f46152ec8746b",
+      "source_record_sha256": "88ab78aa67731d237bc8205ea1c224d7d7589329ae216b155d0dea8ebe95e574",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          4,
+          5,
+          0,
+          0,
+          1
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          9,
+          0,
+          0,
+          2,
+          0
+        ],
+        "player_store": 15
+      },
+      "state_hash": "951ca3ecbba29347584276eb78406661f049c1f4811ef6b1d16ac2689e2c2a4e",
+      "trajectory_prefix_absolute": [
+        9,
+        3,
+        10,
+        4,
+        11,
+        2,
+        5,
+        9,
+        3,
+        10
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 20,
+      "opening_index": 46,
+      "opening_prefix_moves": [
+        3,
+        5,
+        4,
+        0,
+        1,
+        5,
+        3
+      ],
+      "source_game_index": 92,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "e2e928b710267a73c2543ffc169125925122246ae6f57862f81be23cdfb5979b",
+      "source_record_sha256": "66c866fa248f38f1bcd1110f7011b4a09fe126b3176d3139ef496b924427ccb3",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          4,
+          1,
+          2,
+          0,
+          0
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          0,
+          10,
+          1,
+          0,
+          1,
+          1
+        ],
+        "player_store": 17
+      },
+      "state_hash": "a993eb14280f2f54493c59d3dbd3f6fb837b6466ba0afbd11077dda2c57fd9c6",
+      "trajectory_prefix_absolute": [
+        2,
+        8,
+        5,
+        3,
+        5,
+        4,
+        5,
+        0,
+        10,
+        5,
+        6,
+        4,
+        5,
+        2,
+        11,
+        5,
+        4,
+        5,
+        3,
+        10
+      ]
+    },
+    {
+      "active_pit_stones": 19,
+      "decision_absolute_action": 5,
+      "decision_ply": 12,
+      "opening_index": 268,
+      "opening_prefix_moves": [
+        3,
+        3,
+        0,
+        1,
+        2,
+        2,
+        1
+      ],
+      "source_game_index": 536,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "581e8334f1f026c83d9502121f7e2ddc63f87ff80bc774ac14eca4fc7ddbe64d",
+      "source_record_sha256": "ad555fae57de8b4ec138d98e3744bb359ff255abf1e7d74a9659904650f6ffa1",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          9,
+          0,
+          2,
+          2,
+          0,
+          0
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          2,
+          0,
+          2,
+          1,
+          0,
+          1
+        ],
+        "player_store": 16
+      },
+      "state_hash": "1e0cc5f8355a981799d6ba9d695808fb57db7cf47832466605c2cccdabdf4fb9",
+      "trajectory_prefix_absolute": [
+        3,
+        5,
+        9,
+        8,
+        0,
+        11,
+        5,
+        4,
+        11,
+        10,
+        11,
+        7
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 4,
+      "decision_ply": 15,
+      "opening_index": 336,
+      "opening_prefix_moves": [
+        4,
+        5,
+        2,
+        2,
+        0,
+        3,
+        1,
+        1
+      ],
+      "source_game_index": 672,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "591a7b61a1ddedf863d221a7be23ed6d0db75452fb024a0e3ecadcd802f9a3fe",
+      "source_record_sha256": "aff4e1373c9ab0b4b5993d69731e04dc3d7b952ad6fd179685e97b2c9e0e7d82",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          5,
+          1,
+          3,
+          2,
+          2
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          2,
+          1,
+          1,
+          1,
+          1,
+          0
+        ],
+        "player_store": 12
+      },
+      "state_hash": "be04a7f52d2238023850faaec21680ae42e2a7fe7a199031be43f723088898b2",
+      "trajectory_prefix_absolute": [
+        4,
+        3,
+        11,
+        0,
+        10,
+        2,
+        11,
+        9,
+        3,
+        0,
+        6,
+        4,
+        8,
+        5,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 11,
+      "decision_ply": 13,
+      "opening_index": 283,
+      "opening_prefix_moves": [
+        3,
+        5,
+        1,
+        4,
+        2,
+        5,
+        2,
+        0
+      ],
+      "source_game_index": 566,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "326846d876b86f82356ff7d1f8eea4438f8ce8234f85279ab0d6a7633cb46bf7",
+      "source_record_sha256": "d713012b6da56e8e6f50fea08f96bb965e8fefe76c9bc71f11cb971db0e483da",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          7,
+          1,
+          1,
+          0,
+          4
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          2,
+          3,
+          1,
+          0,
+          1,
+          0
+        ],
+        "player_store": 24
+      },
+      "state_hash": "013d07796ac27108e91b53bd82ab70f9820de0dfa1c0271e5d7ce40eda5276e6",
+      "trajectory_prefix_absolute": [
+        5,
+        4,
+        9,
+        3,
+        5,
+        4,
+        5,
+        2,
+        10,
+        5,
+        4,
+        5,
+        3
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 11,
+      "decision_ply": 17,
+      "opening_index": 413,
+      "opening_prefix_moves": [
+        2,
+        0,
+        5,
+        0,
+        1,
+        5,
+        5,
+        3
+      ],
+      "source_game_index": 826,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "8fe8263cdb1c979d4f0404b41aab4279cea5b7c3836a2a2cb5c47b1c33a5b5fc",
+      "source_record_sha256": "3e233f6dd76f123bb9188f7256fd88276f60f7d59b0a50fe969031c4434231e5",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          5,
+          4,
+          0,
+          0,
+          1
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          0,
+          3,
+          3,
+          0,
+          1,
+          0
+        ],
+        "player_store": 14
+      },
+      "state_hash": "442ac6572084617b2bdb876461685618ea0154e8a4cc1772b77c6049e805b06a",
+      "trajectory_prefix_absolute": [
+        2,
+        11,
+        8,
+        3,
+        11,
+        9,
+        5,
+        1,
+        10,
+        4,
+        11,
+        0,
+        9,
+        3,
+        5,
+        11,
+        10
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 3,
+      "decision_ply": 10,
+      "opening_index": 448,
+      "opening_prefix_moves": [
+        4,
+        5,
+        1,
+        4,
+        1,
+        2,
+        5,
+        2
+      ],
+      "source_game_index": 896,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "6758c0780a64cc3fb8d46e68c32a1eb9d268abdd9e61e024249c4bca098e9fd5",
+      "source_record_sha256": "ed15942be2928487469362231841c2acb4db756ce886ed78b89efa7114e99342",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          0,
+          0,
+          1,
+          0
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          3,
+          0,
+          0,
+          11,
+          4,
+          0
+        ],
+        "player_store": 17
+      },
+      "state_hash": "f4ed67a918d7574d96f05722e2ce3f620272529f0d9273a97a18d92be1bed538",
+      "trajectory_prefix_absolute": [
+        0,
+        5,
+        4,
+        10,
+        2,
+        9,
+        5,
+        11,
+        1,
+        8
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 6,
+      "decision_ply": 13,
+      "opening_index": 26,
+      "opening_prefix_moves": [
+        2,
+        1,
+        2,
+        1,
+        0,
+        4,
+        0,
+        3
+      ],
+      "source_game_index": 52,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "cede27e9193550958fc21b1fcc18ec5b90fb07a77f659c05eac65cf90b2ae886",
+      "source_record_sha256": "01a545100eabe088d4db873761cd467b2da8e7a8d3471ab40685a95d8533375f",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          9,
+          3,
+          2,
+          1,
+          1,
+          0
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          1,
+          2,
+          0,
+          0,
+          1,
+          1
+        ],
+        "player_store": 13
+      },
+      "state_hash": "bddacf8e84d20db6e3de2355688bf37c635988063bc59327b66d23718198dc44",
+      "trajectory_prefix_absolute": [
+        2,
+        0,
+        11,
+        1,
+        8,
+        4,
+        11,
+        8,
+        5,
+        11,
+        10,
+        3,
+        11
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 9,
+      "decision_ply": 14,
+      "opening_index": 369,
+      "opening_prefix_moves": [
+        1,
+        3,
+        0,
+        5,
+        0,
+        4,
+        0
+      ],
+      "source_game_index": 738,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "2a7140c2d31425eff4b149c811221b9703fc179eaab5e4dd1e4dfc861ffa6191",
+      "source_record_sha256": "465b2c2f77eb6d0652a56370033fa082df707385f493351dadc505d2dade2c07",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          4,
+          7,
+          0,
+          0
+        ],
+        "opponent_store": 17,
+        "player_pits": [
+          4,
+          1,
+          3,
+          0,
+          1,
+          0
+        ],
+        "player_store": 11
+      },
+      "state_hash": "b3742f3605acf3a6161ce95a2f2de7107db596f9e791cda9bdcaf61659e15f63",
+      "trajectory_prefix_absolute": [
+        11,
+        6,
+        3,
+        8,
+        2,
+        11,
+        10,
+        4,
+        7,
+        5,
+        10,
+        1,
+        11,
+        3
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 7,
+      "decision_ply": 14,
+      "opening_index": 163,
+      "opening_prefix_moves": [
+        2,
+        0,
+        1,
+        2,
+        2,
+        5,
+        2
+      ],
+      "source_game_index": 326,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "fa904446a1d30a3499510ba60fab99249add676de2f6ce818d68ece7a691c6e2",
+      "source_record_sha256": "aea296372e3fd22f7158ac38169dfaf509eb8df56517a2dccc2192f0b904a47b",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          5,
+          0,
+          1,
+          1,
+          0
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          3,
+          5,
+          2,
+          0,
+          1,
+          0
+        ],
+        "player_store": 15
+      },
+      "state_hash": "d9ecf0148448ff0478e14942b9ea16638660fc1e91e6399b1a1c7b35e27681df",
+      "trajectory_prefix_absolute": [
+        1,
+        5,
+        3,
+        6,
+        9,
+        0,
+        10,
+        2,
+        5,
+        3,
+        5,
+        4,
+        11,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 11,
+      "decision_ply": 19,
+      "opening_index": 101,
+      "opening_prefix_moves": [
+        1,
+        3,
+        3,
+        0,
+        2,
+        4,
+        2
+      ],
+      "source_game_index": 202,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "e82b42a45fafdba79983bb3ef2fa5342d8dfe2de7a9d539eb98212047252313e",
+      "source_record_sha256": "788f44842ca4c9b18c94f437f939c2f3b689001643acd739ce6852ab85aecd15",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          2,
+          3,
+          1,
+          5,
+          1
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          0,
+          3,
+          1,
+          3,
+          1,
+          0
+        ],
+        "player_store": 20
+      },
+      "state_hash": "77994a94108b15059aa7a08ce1bcf6ca2a7ba0577194f06dda103ccee18fc044",
+      "trajectory_prefix_absolute": [
+        11,
+        3,
+        8,
+        0,
+        11,
+        7,
+        4,
+        9,
+        1,
+        3,
+        11,
+        4,
+        5,
+        5,
+        2,
+        5,
+        4,
+        5,
+        0
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 18,
+      "opening_index": 79,
+      "opening_prefix_moves": [
+        2,
+        0,
+        4,
+        2,
+        5,
+        4,
+        1
+      ],
+      "source_game_index": 158,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "fed596769c56bcd7188f44c0a427466b7e233dd9de04f97cc78b09e59675b802",
+      "source_record_sha256": "61cff3bdf36706878819f931d3a8e1c1c42e1f413b929bbd9f82f4e70c57ef20",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          6
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          0,
+          11,
+          0,
+          0,
+          2,
+          1
+        ],
+        "player_store": 13
+      },
+      "state_hash": "21c672294b1220d5cf1b996b4be0087555aeb9f3acd64b4c9fec575c59b24444",
+      "trajectory_prefix_absolute": [
+        11,
+        10,
+        3,
+        9,
+        5,
+        6,
+        3,
+        8,
+        4,
+        9,
+        10,
+        5,
+        0,
+        6,
+        3,
+        5,
+        2,
+        7
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 2,
+      "decision_ply": 24,
+      "opening_index": 427,
+      "opening_prefix_moves": [
+        0,
+        1,
+        4,
+        5,
+        3,
+        1,
+        0
+      ],
+      "source_game_index": 854,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "bd9233b33f4818d24189f7301829265daadb52731182f92844bdec51a0e0f7db",
+      "source_record_sha256": "293c0b33c999fbe14ec112be041a0afca680a6b2eac2b2b01d02480aa9cd4a4b",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          4,
+          5,
+          1,
+          1
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          1,
+          2,
+          6,
+          1,
+          0,
+          0
+        ],
+        "player_store": 16
+      },
+      "state_hash": "3b5fbadd72368f5d7e083a9482fbd0b063215e760fecc17d5ca10dbfe7460a6e",
+      "trajectory_prefix_absolute": [
+        6,
+        11,
+        9,
+        2,
+        11,
+        8,
+        3,
+        4,
+        11,
+        10,
+        5,
+        6,
+        1,
+        10,
+        11,
+        5,
+        4,
+        5,
+        3,
+        5,
+        0,
+        7,
+        4,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 17,
+      "opening_index": 219,
+      "opening_prefix_moves": [
+        0,
+        4,
+        5,
+        3,
+        0,
+        5,
+        2
+      ],
+      "source_game_index": 438,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "a6c79ac72fb142c8dbfa308514cd2dd2dd0b302a1e40247c8a49a8a3baef903a",
+      "source_record_sha256": "66949d8106c5970422f720c4878e8328a136001fa8049943cd813358e86e6756",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          1,
+          1,
+          2,
+          1
+        ],
+        "opponent_store": 21,
+        "player_pits": [
+          1,
+          4,
+          1,
+          0,
+          8,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_hash": "f040606bcbf1939372b531febe2937f6d98ec54084ad1e9433d50ba754bc2090",
+      "trajectory_prefix_absolute": [
+        6,
+        11,
+        10,
+        11,
+        9,
+        0,
+        8,
+        5,
+        0,
+        11,
+        10,
+        3,
+        11,
+        9,
+        2,
+        11,
+        7
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 3,
+      "decision_ply": 14,
+      "opening_index": 460,
+      "opening_prefix_moves": [
+        5,
+        1,
+        2,
+        0,
+        4,
+        3,
+        1
+      ],
+      "source_game_index": 920,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "917951b22133dbba83826b255b65dfdd6d53d20ff05cf52862166ade3d029914",
+      "source_record_sha256": "34e330cf347a586f65aa157c1cc780777c895704f32cfeb5e0d9850d5f213145",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          5,
+          0,
+          5,
+          0,
+          1
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          0,
+          0,
+          3,
+          5,
+          1,
+          0
+        ],
+        "player_store": 13
+      },
+      "state_hash": "2f6e7d22feb2a75621b31859cb017eff686fb5bf8afd3977492af08418257b9d",
+      "trajectory_prefix_absolute": [
+        5,
+        1,
+        11,
+        2,
+        9,
+        4,
+        10,
+        8,
+        11,
+        0,
+        6,
+        5,
+        10,
+        8
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 9,
+      "decision_ply": 13,
+      "opening_index": 328,
+      "opening_prefix_moves": [
+        0,
+        0,
+        4,
+        1,
+        5,
+        0,
+        1
+      ],
+      "source_game_index": 656,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "3d0581fe41708a250d6d369298a4c86e53b26d096a8e0481e69a55b37eaa1cf4",
+      "source_record_sha256": "4ac99139eaf46eca817047cc675f6cfc8420f26925ae1164de019c48c94003c3",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          3,
+          3,
+          0,
+          0
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          4,
+          0,
+          3,
+          2,
+          6,
+          0
+        ],
+        "player_store": 19
+      },
+      "state_hash": "f3d770341fa444b41b0e2fae99f94105cedc636b016072b91f9d95be11f07e55",
+      "trajectory_prefix_absolute": [
+        5,
+        0,
+        9,
+        2,
+        8,
+        3,
+        11,
+        5,
+        7,
+        11,
+        10,
+        1,
+        11
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 20,
+      "opening_index": 11,
+      "opening_prefix_moves": [
+        0,
+        5,
+        5,
+        2,
+        2,
+        3,
+        5
+      ],
+      "source_game_index": 22,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "5d5c112681fc6c855c6baa6c02eb91da5ad185e0c847af5d9211204ec35c8b81",
+      "source_record_sha256": "970b3cd6584930d6c76c45414cd0b3b778df7912eb80660a939b8b29f37b6233",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          1,
+          11,
+          0
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          1,
+          4,
+          1,
+          2,
+          0,
+          1
+        ],
+        "player_store": 18
+      },
+      "state_hash": "9872f2727b9036bf5a4f2e6a9559c3d5428a30f39312afade2392e480cd01851",
+      "trajectory_prefix_absolute": [
+        3,
+        11,
+        5,
+        1,
+        6,
+        5,
+        4,
+        7,
+        5,
+        0,
+        5,
+        4,
+        5,
+        3,
+        5,
+        2,
+        9,
+        8,
+        11,
+        4
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 10,
+      "decision_ply": 12,
+      "opening_index": 45,
+      "opening_prefix_moves": [
+        4,
+        0,
+        1,
+        4,
+        4,
+        2,
+        0
+      ],
+      "source_game_index": 90,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "7dd1bfa900401a557b9256ccb531e1c0a2ed39f6e32e63a459335a573611e529",
+      "source_record_sha256": "3e69e88d71e0e756848d539db4b9af785f8dff987c3b797b9f49fb5020eeebae",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          3,
+          2,
+          2,
+          0
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          2,
+          0,
+          10,
+          1,
+          1,
+          0
+        ],
+        "player_store": 19
+      },
+      "state_hash": "0ff324596757caa2afc3096426a12b7d4089c070c27ff0be8576b48fc162fb7c",
+      "trajectory_prefix_absolute": [
+        5,
+        10,
+        11,
+        9,
+        3,
+        11,
+        7,
+        5,
+        4,
+        5,
+        1,
+        11
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 1,
+      "decision_ply": 7,
+      "opening_index": 411,
+      "opening_prefix_moves": [
+        3,
+        0,
+        0,
+        5,
+        2,
+        0,
+        5,
+        3
+      ],
+      "source_game_index": 822,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "293988ba2fed4d48f7198ea3b023562f5670a8f3dacaea59d0c4fee35d953b9e",
+      "source_record_sha256": "4e5a5ced88ade024a6297671615004f8f1ccf44eb49e38eb86d5a3ae568ef893",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          1,
+          8,
+          1
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          3,
+          8,
+          0,
+          0,
+          0,
+          0
+        ],
+        "player_store": 14
+      },
+      "state_hash": "e94198664f081a2a5b36e13a01bae0aae84dac85356a9967ef4ea759f6285ccf",
+      "trajectory_prefix_absolute": [
+        3,
+        2,
+        11,
+        7,
+        5,
+        2,
+        6
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 15,
+      "opening_index": 195,
+      "opening_prefix_moves": [
+        5,
+        0,
+        2,
+        1,
+        2,
+        2,
+        1
+      ],
+      "source_game_index": 390,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "6839935e2a0da7caf4bfd860ab9484a894d5fdf7c645466956e2b35926f3aa7e",
+      "source_record_sha256": "81feea2b1e90ea9adc4f8b564e7f1135ebc32f8a7a406cbf0bef2432b88336d9",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          4,
+          0,
+          1,
+          1,
+          0,
+          0
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          2,
+          2,
+          1,
+          2,
+          0,
+          8
+        ],
+        "player_store": 19
+      },
+      "state_hash": "17d0e3941ee5756bb6d5a78230fb4bb20fd63acbae14feecb1ecc84234b0a015",
+      "trajectory_prefix_absolute": [
+        1,
+        10,
+        3,
+        11,
+        0,
+        8,
+        1,
+        10,
+        11,
+        9,
+        3,
+        2,
+        4,
+        10,
+        11
+      ]
+    },
+    {
+      "active_pit_stones": 17,
+      "decision_absolute_action": 0,
+      "decision_ply": 14,
+      "opening_index": 64,
+      "opening_prefix_moves": [
+        0,
+        2,
+        4,
+        5,
+        0,
+        1,
+        4
+      ],
+      "source_game_index": 128,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "4723559e881ab298b709d2cd5d8c8745be5e6e9f825bf7c2c73c2f4c756c87dd",
+      "source_record_sha256": "ac36fd9bbc95938177e3a99534b5e81ff517905dd5b4de1b39e8bce0bba009d0",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          5,
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          5,
+          0,
+          0,
+          2,
+          0,
+          4
+        ],
+        "player_store": 16
+      },
+      "state_hash": "838fc691d0b588586c37aab54f8ee68b3db9db2143f75d824830aaba4d337786",
+      "trajectory_prefix_absolute": [
+        5,
+        2,
+        11,
+        3,
+        8,
+        11,
+        10,
+        11,
+        9,
+        4,
+        10,
+        11,
+        2,
+        9
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 5,
+      "decision_ply": 10,
+      "opening_index": 189,
+      "opening_prefix_moves": [
+        3,
+        4,
+        0,
+        2,
+        4,
+        2,
+        0
+      ],
+      "source_game_index": 378,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "56a5b548d110fd99b22826a247147d1c7b024ef3f6f0cd6a96303e5ba8226a93",
+      "source_record_sha256": "164bb0ab09b4b4413719588907afa399205960e640b26ab2ae973e3388257786",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          8,
+          0,
+          8,
+          1,
+          0
+        ],
+        "opponent_store": 17,
+        "player_pits": [
+          0,
+          0,
+          1,
+          0,
+          1,
+          1
+        ],
+        "player_store": 11
+      },
+      "state_hash": "99a956fb408b8982c3b962052e58e3514dcd434fb2b807429ba686a804e3b504",
+      "trajectory_prefix_absolute": [
+        11,
+        3,
+        2,
+        10,
+        5,
+        4,
+        8,
+        5,
+        1,
+        6
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 23,
+      "opening_index": 499,
+      "opening_prefix_moves": [
+        2,
+        4,
+        5,
+        2,
+        1,
+        5,
+        3
+      ],
+      "source_game_index": 998,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "e9dff8fc79ca9515948f19da3cbe3b0535afecd8ae1fb383be35aa3bbf4116c3",
+      "source_record_sha256": "cce771fdcc6530dd149624aa0e4049be8eab8e47bf47897c32697d8fa5454d0f",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          1,
+          0,
+          0,
+          13,
+          1
+        ],
+        "opponent_store": 16,
+        "player_pits": [
+          1,
+          1,
+          2,
+          0,
+          1,
+          1
+        ],
+        "player_store": 11
+      },
+      "state_hash": "6b8e42ff79c2203603264a727404331a2f21a7e2b8c06c4dca77f10284af6e36",
+      "trajectory_prefix_absolute": [
+        0,
+        1,
+        11,
+        6,
+        11,
+        8,
+        4,
+        3,
+        11,
+        6,
+        5,
+        11,
+        7,
+        11,
+        8,
+        2,
+        5,
+        4,
+        5,
+        1,
+        6,
+        3,
+        9
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 11,
+      "decision_ply": 19,
+      "opening_index": 397,
+      "opening_prefix_moves": [
+        2,
+        3,
+        2,
+        0,
+        0,
+        4,
+        4
+      ],
+      "source_game_index": 794,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "86c0e7e7a956a6eef6b9779e33d154c4cd078b467968bbaa9700950c6c12909d",
+      "source_record_sha256": "eb49f75d9f96aec219c8ef958648a13cc7ae6175a1100060aeba491c8d2d5b1a",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          11,
+          1,
+          0,
+          0,
+          4
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          0,
+          1,
+          0,
+          2,
+          0,
+          1
+        ],
+        "player_store": 19
+      },
+      "state_hash": "fe10dcb2b2862b3575301c5c759bcd8c6adf82ca993a75ef39984aac880f1364",
+      "trajectory_prefix_absolute": [
+        9,
+        3,
+        5,
+        10,
+        2,
+        11,
+        5,
+        1,
+        8,
+        5,
+        3,
+        5,
+        0,
+        5,
+        2,
+        10,
+        4,
+        9,
+        10
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 5,
+      "decision_ply": 22,
+      "opening_index": 422,
+      "opening_prefix_moves": [
+        2,
+        0,
+        1,
+        2,
+        4,
+        3,
+        2
+      ],
+      "source_game_index": 844,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "a800dd85c219b82b4bae8a62fc661caf96c3082f41dd4b2b487476c6095bef13",
+      "source_record_sha256": "0e5e7d51c39c5241e28a4dd9b2d47c262ba06d69a44575e92a140ddf81bf0478",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          7,
+          1,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 19,
+        "player_pits": [
+          0,
+          2,
+          2,
+          3,
+          1,
+          1
+        ],
+        "player_store": 9
+      },
+      "state_hash": "970fe0cb62bb39ae53b15015ff5e069c54e1ef75ef73ac53942ab2ae79e08bb3",
+      "trajectory_prefix_absolute": [
+        5,
+        10,
+        9,
+        1,
+        6,
+        5,
+        0,
+        10,
+        9,
+        3,
+        2,
+        4,
+        10,
+        5,
+        8,
+        11,
+        11,
+        10,
+        11,
+        9,
+        11,
+        10
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 21,
+      "opening_index": 392,
+      "opening_prefix_moves": [
+        3,
+        4,
+        1,
+        5,
+        4,
+        3,
+        3,
+        4
+      ],
+      "source_game_index": 784,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "da1b10ac1ff944d7f60c32b193fb470f22cae4aaa9aff11ca2101bec5252ae03",
+      "source_record_sha256": "e291eef2d734ebcedc56044a57401a2449d0bc34d41b1f24b066f39c284f45bb",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          2,
+          1,
+          2,
+          1
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          1,
+          6,
+          3,
+          2,
+          0,
+          1
+        ],
+        "player_store": 14
+      },
+      "state_hash": "eb5c217e56356b82c1fc5e778ba79ba5073e59d97fde368125208f79a775f017",
+      "trajectory_prefix_absolute": [
+        10,
+        11,
+        5,
+        6,
+        2,
+        11,
+        8,
+        5,
+        4,
+        5,
+        3,
+        5,
+        0,
+        11,
+        10,
+        11,
+        9,
+        11,
+        7,
+        5,
+        4
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 7,
+      "decision_ply": 19,
+      "opening_index": 215,
+      "opening_prefix_moves": [
+        5,
+        0,
+        2,
+        0,
+        5,
+        2,
+        1
+      ],
+      "source_game_index": 430,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "6ef533ab9dca761144d8f63c81a69da6c9a78cc36270557a64dfac646037072c",
+      "source_record_sha256": "0f32afd1d6807d8e6c347129ea1d3f6b6a4028a39ba28136f5c5d934fc824919",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          3,
+          1,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          0,
+          1,
+          0,
+          2,
+          11,
+          3
+        ],
+        "player_store": 17
+      },
+      "state_hash": "74b0992430fba84e4b491b79bb144b4bf1cc87208196a25ccee0a99480055673",
+      "trajectory_prefix_absolute": [
+        0,
+        11,
+        8,
+        5,
+        1,
+        11,
+        8,
+        5,
+        3,
+        11,
+        9,
+        11,
+        10,
+        2,
+        11,
+        8,
+        1,
+        6,
+        0
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 15,
+      "opening_index": 241,
+      "opening_prefix_moves": [
+        4,
+        0,
+        0,
+        2,
+        3,
+        5,
+        0
+      ],
+      "source_game_index": 482,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "ac825ae6924896ef92cce0507972e103305adb73ee19541277abd03ef505dc35",
+      "source_record_sha256": "0e4fd0c11362b15426d3a4008c28e46ba28015f5b7612bc69acb17ad9b2b67f9",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          0,
+          1,
+          3,
+          0,
+          0
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          0,
+          1,
+          1,
+          0,
+          12
+        ],
+        "player_store": 15
+      },
+      "state_hash": "8deae9b81501084cd5bb9c5b7221b55a78dd9c31878a6ee1f17e14c159f7b1f9",
+      "trajectory_prefix_absolute": [
+        10,
+        4,
+        1,
+        11,
+        9,
+        3,
+        4,
+        2,
+        10,
+        11,
+        3,
+        8,
+        0,
+        7,
+        4
+      ]
+    },
+    {
+      "active_pit_stones": 19,
+      "decision_absolute_action": 5,
+      "decision_ply": 12,
+      "opening_index": 76,
+      "opening_prefix_moves": [
+        5,
+        0,
+        1,
+        1,
+        2,
+        3,
+        2
+      ],
+      "source_game_index": 152,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "0a4c8fae0e3731eab34e13a1e49ae918e750df441a91eff30c3cf2ef3c3080de",
+      "source_record_sha256": "928c3a39ac89e843b510b276e2ad813543244178cf14cd573aac1122e2ab2054",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          0,
+          0,
+          1,
+          10
+        ],
+        "opponent_store": 23,
+        "player_pits": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          4
+        ],
+        "player_store": 6
+      },
+      "state_hash": "79db04a10582457e906ed4dbcaf28f73c3f015de9ace9d43f389f0536ae6f24b",
+      "trajectory_prefix_absolute": [
+        6,
+        3,
+        8,
+        5,
+        6,
+        0,
+        10,
+        4,
+        7,
+        3,
+        9,
+        8
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 11,
+      "opening_index": 481,
+      "opening_prefix_moves": [
+        4,
+        0,
+        3,
+        0,
+        0,
+        3,
+        4
+      ],
+      "source_game_index": 962,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "b3f37b9aa3d2b53780347a723bc22f6fbfff41e08017543092284f9f924ed93a",
+      "source_record_sha256": "1d4fef61451a8b8866809dc58549ac95c223c573eadf0297a8b52641115d95de",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          3,
+          3,
+          0,
+          10
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          4,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "player_store": 15
+      },
+      "state_hash": "05558d7657882cebd6ca70fe98ae99921e806605f3a9fda24a81cf2c51e738d1",
+      "trajectory_prefix_absolute": [
+        3,
+        10,
+        2,
+        8,
+        5,
+        10,
+        6,
+        3,
+        7,
+        5,
+        4
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 24,
+      "opening_index": 1,
+      "opening_prefix_moves": [
+        0,
+        0,
+        5,
+        3,
+        0,
+        2,
+        4,
+        0
+      ],
+      "source_game_index": 2,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "bf7c213ad0dd0422740c71369766b097c39406ba2fe9cd85f4c843c80453bb3a",
+      "source_record_sha256": "c471711542cc0417863b07f43c3ef941a25178f592286ef7fcbe4f72a4be94f5",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          3,
+          5,
+          3,
+          1,
+          0
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          3,
+          0,
+          1,
+          1,
+          1,
+          1
+        ],
+        "player_store": 15
+      },
+      "state_hash": "0219b2173ee2098a454c0dde4b8315d9bb74f6245e0fbb160dcc84821b8fd588",
+      "trajectory_prefix_absolute": [
+        5,
+        3,
+        7,
+        5,
+        2,
+        10,
+        3,
+        2,
+        11,
+        0,
+        7,
+        2,
+        9,
+        5,
+        11,
+        7,
+        3,
+        6,
+        4,
+        11,
+        10,
+        5,
+        1,
+        11
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 5,
+      "decision_ply": 15,
+      "opening_index": 345,
+      "opening_prefix_moves": [
+        4,
+        3,
+        2,
+        1,
+        2,
+        5,
+        1
+      ],
+      "source_game_index": 690,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "f76de98d6d27c0e72f9dac6845cd6a4c0e39fb7fcbe92a212ca7c25fb1ab28e9",
+      "source_record_sha256": "173d405f93361936e60b996f4e8a0d4ab75bb646b00e0727bb7cb1555ec61ea5",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          4,
+          2,
+          0,
+          0,
+          1
+        ],
+        "opponent_store": 21,
+        "player_pits": [
+          2,
+          1,
+          0,
+          2,
+          6,
+          1
+        ],
+        "player_store": 7
+      },
+      "state_hash": "64e40cf9ca0e4b8c596bd5688b6eb546b618e3feb1e2ba1482823379707a5093",
+      "trajectory_prefix_absolute": [
+        7,
+        11,
+        9,
+        5,
+        11,
+        6,
+        11,
+        8,
+        3,
+        11,
+        9,
+        5,
+        2,
+        11,
+        10
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 7,
+      "decision_ply": 16,
+      "opening_index": 191,
+      "opening_prefix_moves": [
+        2,
+        0,
+        5,
+        0,
+        2,
+        1,
+        1,
+        0
+      ],
+      "source_game_index": 382,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "5c609d5fa77dca0066fb32d738eab887a341e1b2e3dcb3f5e8b214781c18a01a",
+      "source_record_sha256": "c1f58b5a3f39ba74598a11e4d2df737253a6378c55d0594f935201353085e054",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          3,
+          3,
+          1,
+          1,
+          0
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          3,
+          3,
+          2,
+          4,
+          0,
+          0
+        ],
+        "player_store": 15
+      },
+      "state_hash": "cbc5007717c1dc9faee252916479e023ab97282c196b86648629e3c67bd475be",
+      "trajectory_prefix_absolute": [
+        3,
+        9,
+        2,
+        4,
+        8,
+        6,
+        0,
+        7,
+        9,
+        1,
+        10,
+        4,
+        5,
+        11,
+        5,
+        4
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 11,
+      "decision_ply": 19,
+      "opening_index": 393,
+      "opening_prefix_moves": [
+        2,
+        0,
+        1,
+        3,
+        5,
+        1,
+        2,
+        1
+      ],
+      "source_game_index": 786,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "67cc73a4876066598939dc10b2491ac890fd0fa9e8b96ac54b2de330785b540f",
+      "source_record_sha256": "b76a70765b0528bdf1a1066ee23bcdf1d5332f1092dc11f3c46535c689ee74a0",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          2,
+          2,
+          2,
+          0,
+          7
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          2,
+          2,
+          2,
+          0,
+          0,
+          1
+        ],
+        "player_store": 16
+      },
+      "state_hash": "4c2fa07ca6013d1219ee15b04052cda05a4b6563a92a39dea7dd91928b285893",
+      "trajectory_prefix_absolute": [
+        11,
+        6,
+        11,
+        9,
+        3,
+        4,
+        10,
+        2,
+        8,
+        4,
+        3,
+        9,
+        0,
+        7,
+        5,
+        5,
+        3,
+        10,
+        4
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 12,
+      "opening_index": 420,
+      "opening_prefix_moves": [
+        2,
+        0,
+        0,
+        5,
+        1,
+        1,
+        0
+      ],
+      "source_game_index": 840,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "f54d4120474aa43de66935841ff0ef84427dffbe13d51720e26b775d4fe6e270",
+      "source_record_sha256": "a9572c4dd2d7d7778dd629bc6cba26fdde3d789732ada6edea8cc3936b401001",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          0,
+          1,
+          2,
+          7
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          2,
+          2,
+          1,
+          3,
+          0,
+          1
+        ],
+        "player_store": 16
+      },
+      "state_hash": "51540ee8daae59912773dd00d1b6f16faa21d395b9d37d529881432db0864c16",
+      "trajectory_prefix_absolute": [
+        6,
+        5,
+        3,
+        6,
+        5,
+        4,
+        9,
+        5,
+        2,
+        8,
+        5,
+        4
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 11,
+      "decision_ply": 20,
+      "opening_index": 90,
+      "opening_prefix_moves": [
+        0,
+        1,
+        5,
+        3,
+        2,
+        4,
+        1
+      ],
+      "source_game_index": 180,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "e433080f3043a9355e5ba642b51bd166f01894f931c49fed2724a1766cd0627b",
+      "source_record_sha256": "95b52e826d8fa88383cae1f9184a3b8f24f96ea02a200b83c4ca0e9f0cff76e8",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          0,
+          0,
+          3,
+          1,
+          1
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          1,
+          3,
+          6,
+          2,
+          0,
+          1
+        ],
+        "player_store": 12
+      },
+      "state_hash": "e2566b6373d88a30a78642652bc6bbe8842e4ec51792d9ba36bee84065954ef9",
+      "trajectory_prefix_absolute": [
+        8,
+        4,
+        10,
+        6,
+        3,
+        10,
+        9,
+        1,
+        10,
+        5,
+        6,
+        0,
+        11,
+        5,
+        7,
+        4,
+        11,
+        10,
+        11,
+        8
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 10,
+      "decision_ply": 12,
+      "opening_index": 441,
+      "opening_prefix_moves": [
+        3,
+        3,
+        5,
+        1,
+        4,
+        4,
+        3
+      ],
+      "source_game_index": 882,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "fb0ecd06968460a21774d79fa1f17db0f2b2425dee724292cb04b52b38a1bdb3",
+      "source_record_sha256": "274aeed06d260f401db385f2fea3f64510879521c00be09342a86e991a760d93",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          2,
+          8,
+          1,
+          1,
+          0
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          1,
+          2,
+          0,
+          2,
+          2,
+          1
+        ],
+        "player_store": 21
+      },
+      "state_hash": "215d4343217a2178deb81b31e0c64f2f03f4e8c2ac0fe0ce376bb3958eb1eab5",
+      "trajectory_prefix_absolute": [
+        5,
+        1,
+        5,
+        0,
+        5,
+        4,
+        5,
+        3,
+        5,
+        4,
+        11,
+        2
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 5,
+      "decision_ply": 20,
+      "opening_index": 56,
+      "opening_prefix_moves": [
+        3,
+        3,
+        1,
+        5,
+        5,
+        1,
+        3
+      ],
+      "source_game_index": 112,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "a3dd60fd8b86f327c6f7d4088eac802721adefda3ced4cad434619104156bbcb",
+      "source_record_sha256": "7bfe997617be6cfeea4b81cf6fba99aff56d2cb8534fe65b53a69261685c0daa",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          3,
+          1,
+          5,
+          0
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          0,
+          2,
+          5,
+          0,
+          2,
+          1
+        ],
+        "player_store": 14
+      },
+      "state_hash": "2135e264e036ab953c9f360f19b63cd8e651d1c1f26d71534a7d9fb31311d5d0",
+      "trajectory_prefix_absolute": [
+        0,
+        5,
+        3,
+        5,
+        2,
+        10,
+        5,
+        6,
+        3,
+        8,
+        5,
+        1,
+        5,
+        4,
+        9,
+        11,
+        5,
+        6,
+        3,
+        7
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 9,
+      "decision_ply": 13,
+      "opening_index": 190,
+      "opening_prefix_moves": [
+        3,
+        3,
+        0,
+        4,
+        5,
+        0,
+        4,
+        1
+      ],
+      "source_game_index": 380,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "f7e4024a02c2d97dd7a002d76b341eaabf8457cc33200e0db20750831603d4fa",
+      "source_record_sha256": "7700ea47d1a7b8c7972ee608877cdec6654a0fe3aa3c0fb8f1e271e9e7f3494f",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          1,
+          0,
+          2,
+          1,
+          12
+        ],
+        "opponent_store": 20,
+        "player_pits": [
+          0,
+          0,
+          2,
+          2,
+          0,
+          0
+        ],
+        "player_store": 8
+      },
+      "state_hash": "3b913953e92dfd11c41865b7aa8f734e9056a23f4d6e65cacbf153062d246c5f",
+      "trajectory_prefix_absolute": [
+        2,
+        9,
+        10,
+        8,
+        5,
+        2,
+        7,
+        0,
+        6,
+        1,
+        8,
+        5,
+        4
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 4,
+      "decision_ply": 14,
+      "opening_index": 34,
+      "opening_prefix_moves": [
+        3,
+        2,
+        3,
+        4,
+        5,
+        4,
+        2
+      ],
+      "source_game_index": 68,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "ba83ab27c4baad576ead5db0e70940a753fa475a55603b8b6aa26600e84ea88d",
+      "source_record_sha256": "eab028f954fc7404ffeaa9ad9b9af88c3239daa7bbf04348091a7b8e6d8f8587",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          9,
+          1,
+          0,
+          0,
+          1
+        ],
+        "opponent_store": 19,
+        "player_pits": [
+          0,
+          0,
+          0,
+          1,
+          5,
+          0
+        ],
+        "player_store": 9
+      },
+      "state_hash": "22bad1ed9f18a61b7109548e45ed9bbd186ff80608cf3ae3c61382f5b0b65cb1",
+      "trajectory_prefix_absolute": [
+        0,
+        5,
+        6,
+        1,
+        11,
+        10,
+        3,
+        11,
+        9,
+        2,
+        8,
+        5,
+        10,
+        9
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 3,
+      "decision_ply": 36,
+      "opening_index": 437,
+      "opening_prefix_moves": [
+        2,
+        1,
+        0,
+        2,
+        1,
+        3,
+        1
+      ],
+      "source_game_index": 874,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "afde5259ed012635d97dbddd43bac2be9792d860e3ed9200694aa78ebd1f8bad",
+      "source_record_sha256": "8a25e389fd1bf589248c041c0c55a84f1adc543d1dcdc415c6115e2d61485968",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          1,
+          0,
+          9,
+          0
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          1,
+          4,
+          2,
+          3,
+          1,
+          0
+        ],
+        "player_store": 15
+      },
+      "state_hash": "2326eeb81ce7de88eb63079889fbf95adb80cc6db3a362417a93d448e800d390",
+      "trajectory_prefix_absolute": [
+        8,
+        0,
+        3,
+        10,
+        3,
+        11,
+        2,
+        9,
+        3,
+        7,
+        1,
+        10,
+        3,
+        11,
+        8,
+        4,
+        5,
+        9,
+        6,
+        5,
+        4,
+        5,
+        3,
+        8,
+        5,
+        4,
+        9,
+        5,
+        2,
+        7,
+        5,
+        0,
+        9,
+        4,
+        11,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 11,
+      "decision_ply": 16,
+      "opening_index": 494,
+      "opening_prefix_moves": [
+        3,
+        2,
+        4,
+        1,
+        3,
+        3,
+        1
+      ],
+      "source_game_index": 988,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "e1891327ef63df3c0233c94e6651dbc9031ebefbfbcbbd87fa889351291736e6",
+      "source_record_sha256": "a1521c5fd88a6fba2a51e44eb0e69f5dfcb02bc96c8937ba66ac22978395de06",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          8,
+          0,
+          1,
+          1,
+          2
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          2,
+          2,
+          1,
+          0,
+          0,
+          0
+        ],
+        "player_store": 13
+      },
+      "state_hash": "1d7288a7c20cb74278f068b9384c6cd323c6853b247c3a411efbb5b95ae83cf6",
+      "trajectory_prefix_absolute": [
+        11,
+        0,
+        6,
+        11,
+        10,
+        11,
+        9,
+        2,
+        9,
+        3,
+        4,
+        11,
+        8,
+        1,
+        10,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 19,
+      "decision_absolute_action": 0,
+      "decision_ply": 6,
+      "opening_index": 432,
+      "opening_prefix_moves": [
+        0,
+        4,
+        5,
+        0,
+        4,
+        4,
+        1,
+        0
+      ],
+      "source_game_index": 864,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "51f609951ef450d0ff0615dc4443b0f7bf1a98192bb6d1e6e9b80c209a37e87f",
+      "source_record_sha256": "e56dc30950f0b43f48525ff28e82ace284f011c4c1009468c8bb3b013f4f3956",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          1,
+          0,
+          6,
+          1,
+          1
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          3,
+          2,
+          0,
+          0,
+          0,
+          5
+        ],
+        "player_store": 15
+      },
+      "state_hash": "c2d439ad558ba159e14fe5251f131e68627b7557dc117d531cdcda3e09d6bfb1",
+      "trajectory_prefix_absolute": [
+        2,
+        11,
+        4,
+        8,
+        2,
+        6
+      ]
+    },
+    {
+      "active_pit_stones": 18,
+      "decision_absolute_action": 3,
+      "decision_ply": 23,
+      "opening_index": 197,
+      "opening_prefix_moves": [
+        1,
+        5,
+        2,
+        1,
+        0,
+        4,
+        1,
+        5
+      ],
+      "source_game_index": 394,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "61a898e16dfb4dfa88b2c6c946e5714ab5548496d79b65c3efe40323f24ffb8f",
+      "source_record_sha256": "c9d6d4a47f8a763cd73199521ecc4d9d930e26aa235d6c6dcbf88f45d3d54f9e",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          3,
+          4,
+          0,
+          0
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          3,
+          1,
+          2,
+          2,
+          1,
+          0
+        ],
+        "player_store": 16
+      },
+      "state_hash": "0b84c30a66e86979a06da6824a8de77f94d36b8dffd9f6c929c93cd39acbe016",
+      "trajectory_prefix_absolute": [
+        8,
+        0,
+        5,
+        4,
+        5,
+        3,
+        6,
+        5,
+        1,
+        9,
+        5,
+        2,
+        5,
+        3,
+        5,
+        4,
+        8,
+        7,
+        10,
+        5,
+        6,
+        4,
+        11
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 7,
+      "decision_ply": 20,
+      "opening_index": 287,
+      "opening_prefix_moves": [
+        5,
+        3,
+        2,
+        0,
+        5,
+        4,
+        0
+      ],
+      "source_game_index": 574,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "e7b35760cce452cfc159998b611c504bcf1fe099c1e95d546f6c4a6471222a11",
+      "source_record_sha256": "2ad3862fe01b41538c0bd84b253bab05794a667d35dab3502217808d0978136a",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          9,
+          0,
+          2,
+          0,
+          0
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          0,
+          9,
+          0,
+          0,
+          0,
+          0
+        ],
+        "player_store": 13
+      },
+      "state_hash": "4b89dde95cb24a1c5249865f29d7bb1379f71392565c60376623e81b7466a420",
+      "trajectory_prefix_absolute": [
+        11,
+        10,
+        3,
+        11,
+        9,
+        11,
+        10,
+        11,
+        8,
+        2,
+        4,
+        0,
+        11,
+        10,
+        3,
+        5,
+        11,
+        4,
+        10,
+        2
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 5,
+      "decision_ply": 17,
+      "opening_index": 58,
+      "opening_prefix_moves": [
+        1,
+        1,
+        2,
+        5,
+        0,
+        0,
+        5,
+        2
+      ],
+      "source_game_index": 116,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "4ef0ac83a582d9ae10147c5477d279d78de6ccf97808d3fb6fcf0af25fc52af5",
+      "source_record_sha256": "c35849f9fa79e48b173a2bc95d26ba6dd7139bc0abda1683ea4ba6b7b5f10326",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          1,
+          1,
+          1,
+          0,
+          8
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          1,
+          0,
+          2,
+          2,
+          2,
+          1
+        ],
+        "player_store": 16
+      },
+      "state_hash": "0a1bdc7ea8d63321e0f42bd20a9ffe348e808a0f593b3e00a3b22ffd98734166",
+      "trajectory_prefix_absolute": [
+        3,
+        9,
+        2,
+        5,
+        6,
+        4,
+        7,
+        5,
+        1,
+        5,
+        3,
+        5,
+        2,
+        9,
+        6,
+        0,
+        10
+      ]
+    },
+    {
+      "active_pit_stones": 19,
+      "decision_absolute_action": 9,
+      "decision_ply": 13,
+      "opening_index": 327,
+      "opening_prefix_moves": [
+        0,
+        2,
+        0,
+        5,
+        3,
+        1,
+        2
+      ],
+      "source_game_index": 654,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "ad5f0a5efc3394499a59d77734128f300d6c88312798a00ccb107005ad73144a",
+      "source_record_sha256": "c2bc0792b044346af253753a3939ff2ea9cc2facac3b2cf152da809cafc386c8",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          5,
+          3,
+          3,
+          3,
+          0
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          0,
+          1,
+          0,
+          2,
+          0,
+          1
+        ],
+        "player_store": 18
+      },
+      "state_hash": "4980467ecd3ffed44730d1bfd02b5fdcd8b56357d0355bb64e3b6e57f9747b75",
+      "trajectory_prefix_absolute": [
+        0,
+        7,
+        3,
+        11,
+        2,
+        9,
+        11,
+        10,
+        11,
+        8,
+        5,
+        6,
+        4
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 4,
+      "decision_ply": 18,
+      "opening_index": 298,
+      "opening_prefix_moves": [
+        4,
+        1,
+        0,
+        5,
+        3,
+        2,
+        2
+      ],
+      "source_game_index": 596,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "23313ca94d5acc04de925c4695625b89ae4486db63bb65f20be7f9d86924023b",
+      "source_record_sha256": "0cb83d526b162ee5ff3924e71e830cfa07b00c2dfeac29d7111776d565f891d7",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          1,
+          0,
+          11,
+          8
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "player_store": 15
+      },
+      "state_hash": "4ab85dccd757e7a45bf1f8cab4cb0bf6bf7648b2a429e001da438ca97738b047",
+      "trajectory_prefix_absolute": [
+        5,
+        0,
+        5,
+        4,
+        5,
+        2,
+        6,
+        1,
+        9,
+        5,
+        2,
+        6,
+        4,
+        7,
+        5,
+        3,
+        9,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 1,
+      "decision_ply": 16,
+      "opening_index": 361,
+      "opening_prefix_moves": [
+        1,
+        5,
+        2,
+        2,
+        1,
+        3,
+        3,
+        1
+      ],
+      "source_game_index": 722,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "f66c8e9ba953f86dc6658f6442712569dee7a0aefc7111ec0c6981f43c064c8d",
+      "source_record_sha256": "0777e2d7510b4f2588527f9736ad9421740baf6547671fce61ecc4e170493745",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          2,
+          13,
+          1
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          0,
+          1,
+          2,
+          0,
+          1,
+          0
+        ],
+        "player_store": 14
+      },
+      "state_hash": "7f528bad52965b066914ebd75afc676b39ac9c92928f45f360e6edaa6b8d80ce",
+      "trajectory_prefix_absolute": [
+        0,
+        5,
+        8,
+        7,
+        4,
+        11,
+        5,
+        2,
+        9,
+        11,
+        6,
+        1,
+        8,
+        5,
+        0,
+        7
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 7,
+      "opening_index": 278,
+      "opening_prefix_moves": [
+        1,
+        0,
+        0,
+        5,
+        3,
+        1,
+        1,
+        3
+      ],
+      "source_game_index": 556,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "421c08c964dd022ca65009e1be3818ee6b4636a2173ca4300678f62e70b3a0fc",
+      "source_record_sha256": "c082c239488e4c22408731e358b817b345b040c075ae25aff18f6aeda830392b",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          0,
+          2,
+          0,
+          2,
+          0
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          3,
+          0,
+          0,
+          1,
+          10
+        ],
+        "player_store": 15
+      },
+      "state_hash": "0be20874fcd0701ab54ef127d3ca99de14781a5b67881ac2602fd60a6407a63f",
+      "trajectory_prefix_absolute": [
+        2,
+        10,
+        4,
+        11,
+        2,
+        9,
+        3
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 3,
+      "decision_ply": 22,
+      "opening_index": 86,
+      "opening_prefix_moves": [
+        1,
+        1,
+        5,
+        5,
+        3,
+        4,
+        4
+      ],
+      "source_game_index": 172,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "db0fcb11317220a18436bb750d17afc8a38d543c27fadb013d0a88980c1271e8",
+      "source_record_sha256": "8de69c3a9c0a00d550c5c0771f08e04c2430dfdca7e64f18a046b785d36cbca5",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          2,
+          0,
+          1,
+          0
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          3,
+          1,
+          12,
+          1,
+          1,
+          0
+        ],
+        "player_store": 16
+      },
+      "state_hash": "9588c6f6e4a3046a5ed0a457c11f56bda2af24982322983749643a8ba6e9e02f",
+      "trajectory_prefix_absolute": [
+        11,
+        6,
+        0,
+        11,
+        8,
+        4,
+        5,
+        10,
+        9,
+        5,
+        3,
+        5,
+        4,
+        5,
+        1,
+        5,
+        4,
+        7,
+        10,
+        9,
+        3,
+        11
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 11,
+      "decision_ply": 16,
+      "opening_index": 139,
+      "opening_prefix_moves": [
+        1,
+        2,
+        5,
+        0,
+        1,
+        4,
+        3
+      ],
+      "source_game_index": 278,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "d8d60d2073c01c8fb5fe8660353635b6fb9d713574e93347c90a31c03aa33378",
+      "source_record_sha256": "4631388ecba5217ec2068ca5d90b63d21c07956a7bef454e4c0921909ab6e4f0",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          4,
+          3,
+          0,
+          4,
+          1
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          0,
+          5,
+          0,
+          1,
+          1,
+          1
+        ],
+        "player_store": 14
+      },
+      "state_hash": "2babe519ed18a2fd76715950b04b8d3ada1556ec22ce505d7eeb9e630d61ece9",
+      "trajectory_prefix_absolute": [
+        1,
+        11,
+        0,
+        10,
+        3,
+        10,
+        1,
+        11,
+        4,
+        5,
+        11,
+        9,
+        2,
+        11,
+        6,
+        0
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 15,
+      "opening_index": 352,
+      "opening_prefix_moves": [
+        2,
+        5,
+        1,
+        4,
+        4,
+        1,
+        5
+      ],
+      "source_game_index": 704,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "c2d6911492b97e66fe76a2eb6fd0fed76b6a205abf378f39b893e3bcce9d4d98",
+      "source_record_sha256": "ca987b40e729984351fb5864c8fea072d262e0d35a616dfd92bf7ef6949e9f03",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          2,
+          0,
+          1,
+          1,
+          1
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          3,
+          4,
+          2,
+          2,
+          1,
+          2
+        ],
+        "player_store": 18
+      },
+      "state_hash": "879047761fd6b31980b612afbcc952115046d05b8838cadafecca1f2d4b58e0e",
+      "trajectory_prefix_absolute": [
+        1,
+        5,
+        0,
+        11,
+        2,
+        5,
+        3,
+        11,
+        9,
+        5,
+        4,
+        11,
+        10,
+        11,
+        8
+      ]
+    },
+    {
+      "active_pit_stones": 19,
+      "decision_absolute_action": 4,
+      "decision_ply": 5,
+      "opening_index": 142,
+      "opening_prefix_moves": [
+        4,
+        3,
+        3,
+        0,
+        1,
+        4,
+        5,
+        1
+      ],
+      "source_game_index": 284,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "dd73a876c3a1f01232d3c2a4c2a710dab52cfc06bf54584e02790bfcd32e97e3",
+      "source_record_sha256": "594c769a3f73a55d7d756f441e57cd3fc65568b3a02638a2496ae28f060ecc96",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          1,
+          7,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 16,
+        "player_pits": [
+          0,
+          0,
+          6,
+          2,
+          2,
+          0
+        ],
+        "player_store": 13
+      },
+      "state_hash": "716207c123121888c7d104c5ab26602c264c19381f101fa0754e3a1caacff1b7",
+      "trajectory_prefix_absolute": [
+        5,
+        11,
+        9,
+        11,
+        10
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 6,
+      "decision_ply": 18,
+      "opening_index": 73,
+      "opening_prefix_moves": [
+        3,
+        1,
+        2,
+        0,
+        5,
+        0,
+        4,
+        0
+      ],
+      "source_game_index": 146,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "9cbf4913976d6bd0c6cc8298a23681b8d203494ab3ecda6c0da52e3f0e566366",
+      "source_record_sha256": "f876cd97fb9573044fa28bb84afd6210921e8e9c1b36150b2f10421b6ff59b16",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 18,
+        "player_pits": [
+          6,
+          1,
+          3,
+          0,
+          1,
+          9
+        ],
+        "player_store": 9
+      },
+      "state_hash": "bf90f6ff421cbe98600100fd875721c0460e68ed69735f59ca042556450342e3",
+      "trajectory_prefix_absolute": [
+        11,
+        9,
+        3,
+        1,
+        11,
+        6,
+        11,
+        8,
+        4,
+        9,
+        3,
+        8,
+        1,
+        11,
+        1,
+        10,
+        3,
+        11
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 5,
+      "decision_ply": 15,
+      "opening_index": 223,
+      "opening_prefix_moves": [
+        0,
+        2,
+        4,
+        5,
+        5,
+        2,
+        0,
+        4
+      ],
+      "source_game_index": 446,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "70a693d8eae1ba430e0b42daa54dba48448ef5ec3fbf66fbd12e3580d12bc181",
+      "source_record_sha256": "35962327d193d74d84fb02b0cb4d53a1a2c1f4da22f4113f9f81603db1700aa5",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          11,
+          3,
+          0,
+          2,
+          2
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "player_store": 15
+      },
+      "state_hash": "afaf8adddf8327cd0149cb24d281ff507cb2ccc6f4db00bdd0c631ce8e3e529e",
+      "trajectory_prefix_absolute": [
+        5,
+        0,
+        11,
+        1,
+        8,
+        11,
+        10,
+        5,
+        4,
+        11,
+        10,
+        5,
+        3,
+        9,
+        6
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 10,
+      "decision_ply": 17,
+      "opening_index": 424,
+      "opening_prefix_moves": [
+        0,
+        5,
+        3,
+        2,
+        3,
+        4,
+        5
+      ],
+      "source_game_index": 848,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "bff02a0134fe97c794cb6ff01628c945528e2dd23d4c1fe2dcd120346cc8a2af",
+      "source_record_sha256": "129ec5d7422ec00535ced3efd23fdb213919ad728756c2e4fbd0a1ed30b56fb5",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          0,
+          12,
+          0
+        ],
+        "opponent_store": 18,
+        "player_pits": [
+          0,
+          5,
+          3,
+          1,
+          0,
+          0
+        ],
+        "player_store": 9
+      },
+      "state_hash": "65e9b959b50948cdabf2fd060fb9ff9766e4257f3c0908f30a6d6b434060b06d",
+      "trajectory_prefix_absolute": [
+        1,
+        6,
+        2,
+        11,
+        9,
+        4,
+        3,
+        7,
+        5,
+        8,
+        4,
+        7,
+        0,
+        11,
+        0,
+        9,
+        11
+      ]
+    },
+    {
+      "active_pit_stones": 19,
+      "decision_absolute_action": 5,
+      "decision_ply": 10,
+      "opening_index": 414,
+      "opening_prefix_moves": [
+        1,
+        2,
+        3,
+        5,
+        3,
+        2,
+        2
+      ],
+      "source_game_index": 828,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "82a3bf981e626147f8e983dbfb7f6d24ac7ed41fe3a0cec7b7a4ba17ccdaf001",
+      "source_record_sha256": "4a7389195346f36eca943284d086df9261cec920b8520a8a164fe56ec1aa8b34",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          0,
+          1,
+          10,
+          0
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          0,
+          2,
+          1,
+          0,
+          0,
+          3
+        ],
+        "player_store": 16
+      },
+      "state_hash": "9739c6ff778d63d3003bff3d429f190e2e39b011177a738e1129d2ba17ee0cdc",
+      "trajectory_prefix_absolute": [
+        5,
+        4,
+        6,
+        5,
+        3,
+        9,
+        11,
+        4,
+        3,
+        8
+      ]
+    },
+    {
+      "active_pit_stones": 19,
+      "decision_absolute_action": 7,
+      "decision_ply": 13,
+      "opening_index": 24,
+      "opening_prefix_moves": [
+        2,
+        3,
+        2,
+        0,
+        5,
+        4,
+        3,
+        2
+      ],
+      "source_game_index": 48,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "c0db2debac5c97d882b7aca3a55c0a69a27b78e03ca574f2fd1f8713744c0864",
+      "source_record_sha256": "1af0fa9eadaf9f86fc0f32267799bdb379d844edf26f791e7b065afa4a089c26",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          2,
+          3,
+          0,
+          4,
+          0
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          0,
+          5,
+          2,
+          3,
+          0,
+          0
+        ],
+        "player_store": 14
+      },
+      "state_hash": "dee59c426f30b0c8791d0b9f8285b89d824915171945e64ed8b887c7960dfa2c",
+      "trajectory_prefix_absolute": [
+        2,
+        9,
+        0,
+        5,
+        3,
+        2,
+        7,
+        5,
+        4,
+        11,
+        5,
+        9,
+        4
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 2,
+      "decision_ply": 11,
+      "opening_index": 373,
+      "opening_prefix_moves": [
+        3,
+        5,
+        1,
+        2,
+        2,
+        1,
+        4,
+        3
+      ],
+      "source_game_index": 746,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "366ed70f800d9459aa475a8c403f4faf1e8cfd1571759c6e9e8ba4d85fdabe18",
+      "source_record_sha256": "58108c977e75b8602ae6334ec0c6d4d58b4dfa9ccef1163ef1013eb8e14c97b5",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          5,
+          9,
+          0,
+          0
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          4,
+          3,
+          0,
+          0,
+          0
+        ],
+        "player_store": 15
+      },
+      "state_hash": "7cde0232923b054b59e98de2cebcadd366794937a67c3efe16cd28a2c4a5d25c",
+      "trajectory_prefix_absolute": [
+        0,
+        4,
+        7,
+        5,
+        11,
+        10,
+        11,
+        6,
+        3,
+        11,
+        10
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 1,
+      "decision_ply": 15,
+      "opening_index": 155,
+      "opening_prefix_moves": [
+        0,
+        1,
+        4,
+        3,
+        5,
+        1,
+        1,
+        4
+      ],
+      "source_game_index": 310,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "a5fdea7ee1f1f45449bfb1e6048465c020bed9fc9b74c2ddbd89e1a42118810a",
+      "source_record_sha256": "457876d39d099b2740c56c4d11b6ba3fd225c1ff6f2043b0e537ce0397b26094",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          3,
+          1,
+          2,
+          0,
+          1
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          7,
+          3,
+          1,
+          0,
+          0,
+          0
+        ],
+        "player_store": 19
+      },
+      "state_hash": "c719923e2bf32a35f0555a1e801b6b87f1f3fe8afc930e4394cca7735bf121be",
+      "trajectory_prefix_absolute": [
+        5,
+        4,
+        11,
+        5,
+        2,
+        9,
+        11,
+        8,
+        5,
+        3,
+        11,
+        5,
+        4,
+        10,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 19,
+      "decision_absolute_action": 6,
+      "decision_ply": 11,
+      "opening_index": 145,
+      "opening_prefix_moves": [
+        4,
+        3,
+        1,
+        0,
+        2,
+        4,
+        2
+      ],
+      "source_game_index": 290,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "e86dba5c698317818871410972dadaf114f0870868cbf8eba7f86819487c3193",
+      "source_record_sha256": "a8a853c2f6992a7cf82b6089cc543a557101c7836dc0dc3749edf3b56c21b02e",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          0,
+          1,
+          0,
+          1,
+          0,
+          11
+        ],
+        "player_store": 16
+      },
+      "state_hash": "c25c664e7af509e7c1f4e3b291309396a1b99b73ced7fbabec6bdf08a7c50ea3",
+      "trajectory_prefix_absolute": [
+        11,
+        0,
+        9,
+        3,
+        8,
+        4,
+        11,
+        10,
+        11,
+        9,
+        2
+      ]
+    },
+    {
+      "active_pit_stones": 17,
+      "decision_absolute_action": 5,
+      "decision_ply": 13,
+      "opening_index": 65,
+      "opening_prefix_moves": [
+        0,
+        5,
+        5,
+        2,
+        2,
+        5,
+        4
+      ],
+      "source_game_index": 130,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "027d12a2a33fcd0fb2a01b75d0d9ed67b8be6f96578c869054b9a577ceaa2c8d",
+      "source_record_sha256": "4549531d885dc6809d7ff8a15d5958487b4f0a145000e7fab8b4da6f17178e45",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          2,
+          0,
+          3,
+          1,
+          0
+        ],
+        "opponent_store": 17,
+        "player_pits": [
+          0,
+          8,
+          0,
+          0,
+          1,
+          1
+        ],
+        "player_store": 14
+      },
+      "state_hash": "aa7242166e74ff72d441a096bf0e76967ab27c0e962d54d21ed2cb39d1756a5e",
+      "trajectory_prefix_absolute": [
+        5,
+        4,
+        11,
+        9,
+        2,
+        11,
+        6,
+        5,
+        3,
+        11,
+        10,
+        11,
+        8
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 10,
+      "decision_ply": 13,
+      "opening_index": 200,
+      "opening_prefix_moves": [
+        0,
+        4,
+        1,
+        0,
+        4,
+        1,
+        5,
+        4
+      ],
+      "source_game_index": 400,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "6d65d8b7d372df6934c30be9795e1b27a57b6b6683c049165b04e0f3a30d70bc",
+      "source_record_sha256": "15b2f02e4c89264a852726d3b7a0c4ab686dcbeda8a552ed335445951617c6b7",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          0,
+          0,
+          11,
+          1,
+          0
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          1,
+          2,
+          2,
+          0,
+          0,
+          3
+        ],
+        "player_store": 14
+      },
+      "state_hash": "614ff48d29059f963712fcb5425ad2bf4f25ae7522846d53c719bce92cc2a287",
+      "trajectory_prefix_absolute": [
+        2,
+        11,
+        5,
+        6,
+        4,
+        5,
+        3,
+        10,
+        11,
+        8,
+        4,
+        3,
+        11
+      ]
+    },
+    {
+      "active_pit_stones": 19,
+      "decision_absolute_action": 5,
+      "decision_ply": 15,
+      "opening_index": 216,
+      "opening_prefix_moves": [
+        2,
+        3,
+        3,
+        0,
+        0,
+        2,
+        5
+      ],
+      "source_game_index": 432,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "7192c20077410bb6babdb6cfe6e4461c97e0cedf6a92ad7db9ecffebf0c95a7e",
+      "source_record_sha256": "d5021d53c4ae8cf13fae946d43ea57449ab2026009352d696309010778bdcd08",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          0,
+          1,
+          2,
+          0
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          0,
+          11,
+          1,
+          0,
+          2,
+          1
+        ],
+        "player_store": 19
+      },
+      "state_hash": "15a0953d08f8840e16ecf90fcdafccfc327c83e40f338a99ddc5914bd21d1000",
+      "trajectory_prefix_absolute": [
+        3,
+        2,
+        10,
+        4,
+        7,
+        5,
+        10,
+        0,
+        5,
+        4,
+        9,
+        2,
+        11,
+        3,
+        8
+      ]
+    },
+    {
+      "active_pit_stones": 19,
+      "decision_absolute_action": 8,
+      "decision_ply": 21,
+      "opening_index": 263,
+      "opening_prefix_moves": [
+        5,
+        0,
+        4,
+        3,
+        5,
+        1,
+        5
+      ],
+      "source_game_index": 526,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "54fdf0e1c98dd98a954c48a8abb74c4a5ef5801c075ec2adbe87d01fe319fc61",
+      "source_record_sha256": "8a734a1c670a9ab7b507351b5130467c54b786e0b7cd1d011b33ffcad572ebde",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          11,
+          3,
+          0,
+          1,
+          0
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          0,
+          0,
+          2,
+          1,
+          1,
+          0
+        ],
+        "player_store": 19
+      },
+      "state_hash": "4b650180cccadc8a1f791196b30f3ef11b510cbaa6852e9f4ff40307a8cfce26",
+      "trajectory_prefix_absolute": [
+        2,
+        8,
+        5,
+        0,
+        5,
+        3,
+        11,
+        5,
+        8,
+        2,
+        9,
+        11,
+        6,
+        4,
+        10,
+        3,
+        4,
+        5,
+        11,
+        9,
+        1
+      ]
+    },
+    {
+      "active_pit_stones": 20,
+      "decision_absolute_action": 4,
+      "decision_ply": 17,
+      "opening_index": 137,
+      "opening_prefix_moves": [
+        4,
+        5,
+        0,
+        3,
+        5,
+        5,
+        0
+      ],
+      "source_game_index": 274,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "f8928e177f444aabcfd5ba5af521c64ab4c23406352d8b63f90fa955bc061614",
+      "source_record_sha256": "da51b508f6d45255cc9b6ccb12e99a489d07aad14caeea01b6e41cd0f9fc045c",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          8,
+          0,
+          0,
+          1
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          1,
+          0,
+          9,
+          0,
+          1,
+          0
+        ],
+        "player_store": 13
+      },
+      "state_hash": "0b972913645ae25782f5e0076b2cfe43ea67ec12e29aca0a22b46b48a9c52d0d",
+      "trajectory_prefix_absolute": [
+        11,
+        10,
+        4,
+        5,
+        3,
+        11,
+        9,
+        5,
+        1,
+        7,
+        5,
+        4,
+        5,
+        3,
+        11,
+        10,
+        9
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 8,
+      "decision_ply": 25,
+      "opening_index": 372,
+      "opening_prefix_moves": [
+        3,
+        2,
+        0,
+        1,
+        2,
+        5,
+        0
+      ],
+      "source_game_index": 744,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "5e151604dfac8061b5006f5724b3b626165c32f224c26de2427fa3f1abb9be12",
+      "source_record_sha256": "ad4d65028cb20651cd9777b309c512a6783b4fb7778f30711a4fdd42bd569d63",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          1,
+          1,
+          0,
+          12
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          3,
+          1,
+          2,
+          0,
+          1,
+          0
+        ],
+        "player_store": 13
+      },
+      "state_hash": "787db650c5d9f9a8710170b761899f383eff4cfb0a9eed9f0a513c6dff35d379",
+      "trajectory_prefix_absolute": [
+        2,
+        9,
+        5,
+        1,
+        6,
+        3,
+        5,
+        0,
+        8,
+        5,
+        4,
+        10,
+        5,
+        6,
+        4,
+        8,
+        5,
+        3,
+        9,
+        7,
+        5,
+        4,
+        5,
+        3,
+        10
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 6,
+      "decision_ply": 11,
+      "opening_index": 275,
+      "opening_prefix_moves": [
+        5,
+        1,
+        2,
+        3,
+        3,
+        5,
+        4,
+        4
+      ],
+      "source_game_index": 550,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "7ce4ef9b607567772ae14db8d695cbe09dcc593f52f858f13c6dc5268757cbc1",
+      "source_record_sha256": "63f63dbc2e5c1b7c1e7d767ce8e7d763d05fe2f64194a7e30c8a20d15da58cfe",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          4,
+          2,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          0,
+          9,
+          1,
+          1,
+          2,
+          1
+        ],
+        "player_store": 20
+      },
+      "state_hash": "d0f7591fcb30daf19d7f2073385ec08471e30b69f724f91184c56adc21d18d72",
+      "trajectory_prefix_absolute": [
+        5,
+        4,
+        11,
+        2,
+        6,
+        5,
+        4,
+        5,
+        3,
+        5,
+        0
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 4,
+      "decision_ply": 16,
+      "opening_index": 187,
+      "opening_prefix_moves": [
+        4,
+        0,
+        0,
+        3,
+        0,
+        2,
+        3,
+        0
+      ],
+      "source_game_index": 374,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "a4c72fb517b83fa7d26a27c7ccef93f4e47847f4fe43f8d9bf0de7d6d6e71319",
+      "source_record_sha256": "2c7197411e9c0ff9cbac7000bb088e8416f551fe4e423a88fdbae04f02fac709",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          6,
+          3,
+          2,
+          0,
+          1
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          2,
+          2,
+          1,
+          2,
+          2,
+          0
+        ],
+        "player_store": 15
+      },
+      "state_hash": "59681408d35687e60f8f9ec03e65d8fec08c40ee7ffd3ef3ddce4618711a89df",
+      "trajectory_prefix_absolute": [
+        2,
+        10,
+        1,
+        11,
+        1,
+        8,
+        3,
+        9,
+        4,
+        9,
+        2,
+        5,
+        11,
+        6,
+        11,
+        10
+      ]
+    },
+    {
+      "active_pit_stones": 18,
+      "decision_absolute_action": 5,
+      "decision_ply": 17,
+      "opening_index": 196,
+      "opening_prefix_moves": [
+        4,
+        2,
+        3,
+        5,
+        1,
+        1,
+        0,
+        2
+      ],
+      "source_game_index": 392,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "fe7fc9e243ce7337efe6dad8ebd4d348bd488c2330d1760a1d3c1ffe98edbdcd",
+      "source_record_sha256": "7186426f2493d754ed76ac7cb602101942c1a1b441a2715b6a9f240e6534d95a",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          9,
+          0,
+          0,
+          0,
+          1
+        ],
+        "opponent_store": 20,
+        "player_pits": [
+          0,
+          4,
+          0,
+          2,
+          0,
+          1
+        ],
+        "player_store": 10
+      },
+      "state_hash": "9dd851bec4b262bbd362830181a5e88cd7934fdfccd32ca59cda3469c7467b1f",
+      "trajectory_prefix_absolute": [
+        6,
+        3,
+        9,
+        5,
+        8,
+        4,
+        11,
+        0,
+        10,
+        5,
+        11,
+        6,
+        11,
+        9,
+        4,
+        10,
+        8
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 0,
+      "decision_ply": 6,
+      "opening_index": 37,
+      "opening_prefix_moves": [
+        4,
+        1,
+        3,
+        1,
+        3,
+        0,
+        4,
+        3
+      ],
+      "source_game_index": 74,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "fab07b6c35fb4375233f485ef8eb1b0b6192f6cf8508d7faa6d2dc9c2c191b22",
+      "source_record_sha256": "535d7592491224425faef182b17ac4c26374423fe2cf94caf6e5634c26daa7e9",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "opponent_store": 18,
+        "player_pits": [
+          8,
+          1,
+          8,
+          0,
+          0,
+          0
+        ],
+        "player_store": 9
+      },
+      "state_hash": "8a69108b43f85c5d4da7d6e1e66724f3b43d80b17595b93cda60bd403f3ff1d5",
+      "trajectory_prefix_absolute": [
+        11,
+        4,
+        9,
+        3,
+        8,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 4,
+      "decision_ply": 17,
+      "opening_index": 395,
+      "opening_prefix_moves": [
+        5,
+        4,
+        2,
+        0,
+        0,
+        3,
+        5,
+        5
+      ],
+      "source_game_index": 790,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "e44a396705e684b377ae82bed50cdbc7e5ab9afb217ed3f45720f42b3d89304d",
+      "source_record_sha256": "8c9b87e879c4c7d6d80c05e44e4cbcf539b989a65b8070c524fec32238dd52d2",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          2,
+          0,
+          3,
+          4,
+          0
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          5,
+          0,
+          3,
+          1,
+          1,
+          0
+        ],
+        "player_store": 18
+      },
+      "state_hash": "963cf0d3b724eed4397a8bf8124d71828046b230d0f0a4336fb1d5e2cdb5a23f",
+      "trajectory_prefix_absolute": [
+        10,
+        1,
+        9,
+        5,
+        2,
+        11,
+        7,
+        4,
+        8,
+        5,
+        3,
+        11,
+        5,
+        4,
+        5,
+        1,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 0,
+      "decision_ply": 12,
+      "opening_index": 68,
+      "opening_prefix_moves": [
+        4,
+        3,
+        2,
+        1,
+        2,
+        4,
+        0
+      ],
+      "source_game_index": 136,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "28a7f7a8c00e5a64bdb6bfc540b602f17519792b09bbb810e08ae87c00237e59",
+      "source_record_sha256": "21250a06ef5f2c4ab5deeea14550705d504cb613332320dbf7fed176207cb68f",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          1,
+          4,
+          2,
+          0,
+          1
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          2,
+          3,
+          3,
+          0,
+          4,
+          0
+        ],
+        "player_store": 15
+      },
+      "state_hash": "e2aa9fc436bf6b11ab377623d704b4fb3d59cd2a987e2e1d6a1dbc95e93e931d",
+      "trajectory_prefix_absolute": [
+        5,
+        6,
+        11,
+        10,
+        11,
+        9,
+        11,
+        7,
+        3,
+        11,
+        10,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 7,
+      "decision_ply": 19,
+      "opening_index": 52,
+      "opening_prefix_moves": [
+        3,
+        5,
+        0,
+        4,
+        0,
+        3,
+        4,
+        2
+      ],
+      "source_game_index": 104,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "b164414c56fb5976ecef9da9268f74d47cef02f60ecaf5569ff79dec71145d31",
+      "source_record_sha256": "251cf880778e971a7ac8b28323699974643d521783c1adac6213d23f2ac7e5ad",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          9,
+          0,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          6,
+          3,
+          2,
+          1,
+          0,
+          0
+        ],
+        "player_store": 14
+      },
+      "state_hash": "285edb7f5362007f9b6a069499d995d8727bc439e1b8aaf0e0b4a7f67ae127cb",
+      "trajectory_prefix_absolute": [
+        5,
+        11,
+        1,
+        6,
+        5,
+        2,
+        11,
+        8,
+        11,
+        9,
+        5,
+        4,
+        5,
+        3,
+        11,
+        10,
+        5,
+        4,
+        11
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 1,
+      "decision_ply": 7,
+      "opening_index": 248,
+      "opening_prefix_moves": [
+        4,
+        0,
+        1,
+        1,
+        3,
+        5,
+        5,
+        4
+      ],
+      "source_game_index": 496,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "72f7249b608ba681129349f9e3e595bd417c4a425d3e721ecea5c7895bece15c",
+      "source_record_sha256": "39acd2a6973a7a182a4fc62014662c94782174a434416e92d8903f0f9b455596",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          8,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          0,
+          4,
+          8,
+          0,
+          0,
+          0
+        ],
+        "player_store": 12
+      },
+      "state_hash": "4bae52c0ad90ab30fada479f3faa8f901ebf5204dd99c1711ee406b46a611b32",
+      "trajectory_prefix_absolute": [
+        3,
+        9,
+        4,
+        11,
+        3,
+        10,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 8,
+      "decision_ply": 10,
+      "opening_index": 57,
+      "opening_prefix_moves": [
+        1,
+        3,
+        2,
+        0,
+        4,
+        5,
+        3,
+        1
+      ],
+      "source_game_index": 114,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "fc6b692011ad3351d3d03c8699844774e29e55d8db7dc87f055f63aa248d5c72",
+      "source_record_sha256": "047c198481cb7f12286a1b19f95b1744de959f70f25d4cf1e59e67d1bb7e89d6",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          3,
+          2,
+          0,
+          1,
+          0
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          1,
+          2,
+          0,
+          0,
+          0,
+          11
+        ],
+        "player_store": 14
+      },
+      "state_hash": "014317288e4f7a4b2755b3a160541b10e016d3576842cc8d238444bc613f5c4f",
+      "trajectory_prefix_absolute": [
+        1,
+        11,
+        10,
+        0,
+        11,
+        9,
+        3,
+        11,
+        6,
+        4
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 4,
+      "decision_ply": 14,
+      "opening_index": 9,
+      "opening_prefix_moves": [
+        4,
+        0,
+        0,
+        2,
+        2,
+        3,
+        2
+      ],
+      "source_game_index": 18,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "b04300c249cdbce04e9167731748c455385f2461a42ce1e50c30ef45bcfe90b1",
+      "source_record_sha256": "785ef414c00eabab9cb61f9530d819086cd15f77f696650e9da4ce8f42cfb7d2",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          4,
+          2,
+          0,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          1,
+          0,
+          0,
+          0,
+          2,
+          12
+        ],
+        "player_store": 14
+      },
+      "state_hash": "f33443d508ea2dfc05c808ea702ad6af3150b88538a01bc07d152f9c509bf7f3",
+      "trajectory_prefix_absolute": [
+        10,
+        4,
+        3,
+        8,
+        0,
+        11,
+        4,
+        1,
+        9,
+        11,
+        10,
+        11,
+        8,
+        3
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 0,
+      "decision_ply": 14,
+      "opening_index": 115,
+      "opening_prefix_moves": [
+        2,
+        0,
+        0,
+        5,
+        1,
+        0,
+        0,
+        1
+      ],
+      "source_game_index": 230,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "2f1c18c30c3a26da187a54dfab8472d0a615c95798f0a8e1b98f5794790525c4",
+      "source_record_sha256": "4835c6d74cc65a8d2f54ea1b98bcad1caf721acf36249af05e7922df61408074",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          1,
+          0,
+          0,
+          8,
+          7
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          2,
+          2,
+          0,
+          0,
+          1,
+          0
+        ],
+        "player_store": 15
+      },
+      "state_hash": "a81ba84c8e931b2758c6a6ea0e24f838ddf1ef495e92ee326cdfd139f926c076",
+      "trajectory_prefix_absolute": [
+        6,
+        5,
+        3,
+        8,
+        5,
+        4,
+        9,
+        5,
+        2,
+        5,
+        4,
+        5,
+        3,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 10,
+      "decision_ply": 14,
+      "opening_index": 425,
+      "opening_prefix_moves": [
+        4,
+        0,
+        0,
+        5,
+        1,
+        2,
+        3,
+        2
+      ],
+      "source_game_index": 850,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "d306f4a98ae9ff007e90ea4a59de5dc9235baf9b60cb3cd534d7e815bdf15684",
+      "source_record_sha256": "456dd6a630863504a3c74b92c84591697972f381f89a8641ce95e17a366f6492",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          4,
+          3,
+          0,
+          1,
+          0
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          2,
+          0,
+          5,
+          6,
+          0,
+          0
+        ],
+        "player_store": 19
+      },
+      "state_hash": "6a9bfe0b33781e4346336d627f065ef09403069221012d686f06f5eedec852ae",
+      "trajectory_prefix_absolute": [
+        4,
+        2,
+        10,
+        5,
+        6,
+        0,
+        10,
+        9,
+        4,
+        11,
+        5,
+        1,
+        5,
+        4
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 20,
+      "opening_index": 183,
+      "opening_prefix_moves": [
+        4,
+        3,
+        5,
+        5,
+        3,
+        4,
+        5,
+        1
+      ],
+      "source_game_index": 366,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "970331c0d1e8a3e219d7b11d4021a407a9eee3f9242248b92ce64f1ba57e2504",
+      "source_record_sha256": "c4f0c1a08a02be4e46519c60255f90c40a858c8aa72c68960a50385bc8e1b6b7",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          1,
+          0,
+          0,
+          6,
+          1
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          3,
+          4,
+          2,
+          0,
+          1,
+          2
+        ],
+        "player_store": 14
+      },
+      "state_hash": "8f1212bf87eb9a6a20710d938fe082b6097d444c8ea8f147ea15c023d04cf4e4",
+      "trajectory_prefix_absolute": [
+        11,
+        8,
+        5,
+        4,
+        5,
+        0,
+        11,
+        6,
+        5,
+        2,
+        11,
+        7,
+        5,
+        4,
+        11,
+        6,
+        3,
+        8,
+        11,
+        9
+      ]
+    },
+    {
+      "active_pit_stones": 18,
+      "decision_absolute_action": 4,
+      "decision_ply": 14,
+      "opening_index": 250,
+      "opening_prefix_moves": [
+        2,
+        5,
+        1,
+        5,
+        3,
+        4,
+        4,
+        3
+      ],
+      "source_game_index": 500,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "7034aeb85fe1d38a648c8aefdcd0418a58874d7fc04fe24c8fb404587dc13005",
+      "source_record_sha256": "00e94965f03f0e75ebdd92df544c4045540652cd8fa923f5e1e2ae94f3afe61f",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          3,
+          0,
+          0,
+          2,
+          0
+        ],
+        "opponent_store": 20,
+        "player_pits": [
+          0,
+          2,
+          0,
+          3,
+          3,
+          3
+        ],
+        "player_store": 10
+      },
+      "state_hash": "dcd87ecc23f3ecea369d68b9ba6bc383fc1d47c3c928ad0d8e7fd459bf6fcd8e",
+      "trajectory_prefix_absolute": [
+        3,
+        11,
+        5,
+        6,
+        1,
+        11,
+        10,
+        11,
+        8,
+        0,
+        11,
+        9,
+        11,
+        8
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 8,
+      "decision_ply": 12,
+      "opening_index": 331,
+      "opening_prefix_moves": [
+        2,
+        0,
+        3,
+        3,
+        1,
+        4,
+        1,
+        5
+      ],
+      "source_game_index": 662,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "4ea29dd6e9af740e7d48503f396e25076d5d2217ebbf8a85083d26ff6a89b94d",
+      "source_record_sha256": "fe22061fd520a96f774b0afc9df78f7855179bcfc18388ea366344ff50c0ed7b",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          0,
+          2,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          2,
+          4,
+          0,
+          0,
+          0,
+          11
+        ],
+        "player_store": 18
+      },
+      "state_hash": "0af634446387575abd48f77f7aa4a59b7f7fc96dd13946b5668f4b7f9d2386c5",
+      "trajectory_prefix_absolute": [
+        3,
+        0,
+        6,
+        11,
+        10,
+        2,
+        11,
+        9,
+        4,
+        10,
+        11,
+        3
+      ]
+    },
+    {
+      "active_pit_stones": 18,
+      "decision_absolute_action": 10,
+      "decision_ply": 12,
+      "opening_index": 277,
+      "opening_prefix_moves": [
+        1,
+        3,
+        0,
+        4,
+        0,
+        5,
+        4
+      ],
+      "source_game_index": 554,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "92bf78a6764059c74d4d962537a5b129ccbd8ecbe30d7319af4aeba8d20f7f5b",
+      "source_record_sha256": "b1da7770754603f0f4e5811f8b6ba8b2b8bbb95162a4109bab6831051a219e7e",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          7,
+          1,
+          1,
+          1,
+          0
+        ],
+        "opponent_store": 18,
+        "player_pits": [
+          0,
+          2,
+          3,
+          2,
+          1,
+          0
+        ],
+        "player_store": 12
+      },
+      "state_hash": "34eb8cb1cafc2d8cedbda7441f8b0870c5fd02397f09d8d6e1e65dc5d7fae4b4",
+      "trajectory_prefix_absolute": [
+        8,
+        3,
+        11,
+        9,
+        11,
+        8,
+        1,
+        10,
+        4,
+        5,
+        11,
+        0
+      ]
+    },
+    {
+      "active_pit_stones": 19,
+      "decision_absolute_action": 5,
+      "decision_ply": 22,
+      "opening_index": 89,
+      "opening_prefix_moves": [
+        5,
+        0,
+        1,
+        4,
+        4,
+        1,
+        0
+      ],
+      "source_game_index": 178,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "ec19b71ee52b81dfe18085ca5a3218f3218b10bc905cbb278163ae60bdd840c5",
+      "source_record_sha256": "27c55cdebdd06f1868ed95ee0a9815c4bbcf8378a6001af660bca87b941ded6a",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          4,
+          2,
+          3,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 17,
+        "player_pits": [
+          4,
+          0,
+          1,
+          2,
+          2,
+          1
+        ],
+        "player_store": 12
+      },
+      "state_hash": "990b2d41c402a4f1310f2ad2a596f517e6531f787214a5f1427af3c9fc165daf",
+      "trajectory_prefix_absolute": [
+        2,
+        8,
+        3,
+        9,
+        1,
+        5,
+        6,
+        4,
+        9,
+        8,
+        7,
+        10,
+        3,
+        4,
+        2,
+        5,
+        9,
+        11,
+        11,
+        10,
+        11,
+        9
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 6,
+      "decision_ply": 20,
+      "opening_index": 396,
+      "opening_prefix_moves": [
+        4,
+        4,
+        2,
+        1,
+        5,
+        3,
+        3
+      ],
+      "source_game_index": 792,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "06c0692db43249c8e05d39e5f7b95372a077688a9726a657accc909496d8249d",
+      "source_record_sha256": "fe7b5b36b790b37c22cacc45110802740c6a778b6e816fb4bf47c53f59b7b226",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          0,
+          3,
+          1,
+          5,
+          0
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          2,
+          0,
+          2,
+          3,
+          2,
+          1
+        ],
+        "player_store": 15
+      },
+      "state_hash": "5632cafd441cfe9762e6029a9da2e547bf4294a1d2c986c143d8cbb321eaeea5",
+      "trajectory_prefix_absolute": [
+        10,
+        11,
+        5,
+        8,
+        0,
+        11,
+        6,
+        5,
+        3,
+        5,
+        2,
+        5,
+        4,
+        11,
+        9,
+        11,
+        7,
+        5,
+        1,
+        11
+      ]
+    },
+    {
+      "active_pit_stones": 19,
+      "decision_absolute_action": 0,
+      "decision_ply": 16,
+      "opening_index": 147,
+      "opening_prefix_moves": [
+        3,
+        1,
+        1,
+        2,
+        4,
+        2,
+        0
+      ],
+      "source_game_index": 294,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "379795446ef3542eba708ff71e414c81259f09b71d5f0803dae03cac8e3f7e7f",
+      "source_record_sha256": "f9adf9dc264f237bab8be92d7a69e011e4ec9ee8421c3673fb29fd6ad8bc8061",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          0,
+          3,
+          0,
+          0
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          1,
+          0,
+          11,
+          0,
+          0,
+          3
+        ],
+        "player_store": 15
+      },
+      "state_hash": "a7aead59a702f680e87290cb9f96c5c46c038dc80fa8262109152c850c5670fd",
+      "trajectory_prefix_absolute": [
+        6,
+        9,
+        4,
+        3,
+        5,
+        7,
+        4,
+        10,
+        5,
+        0,
+        6,
+        3,
+        11,
+        4,
+        3,
+        8
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 3,
+      "decision_ply": 12,
+      "opening_index": 97,
+      "opening_prefix_moves": [
+        4,
+        2,
+        3,
+        3,
+        4,
+        5,
+        5,
+        1
+      ],
+      "source_game_index": 194,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "54560a25f26d8c508dee0284ef5e7cb273dabf330403a5dde9d42f4e7a6756c1",
+      "source_record_sha256": "02f46ca26d1a2ff574552a1987c9314c80d42e2227572292c234d4ffe3e3472d",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          11,
+          5,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 18,
+        "player_pits": [
+          1,
+          0,
+          1,
+          2,
+          0,
+          0
+        ],
+        "player_store": 9
+      },
+      "state_hash": "4cf96fff6366d105d2eaf445305dcf7fc8fe2c566c5c59f522355799d2f49e7e",
+      "trajectory_prefix_absolute": [
+        10,
+        3,
+        2,
+        9,
+        5,
+        6,
+        4,
+        11,
+        10,
+        11,
+        9,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 23,
+      "opening_index": 271,
+      "opening_prefix_moves": [
+        0,
+        0,
+        4,
+        5,
+        3,
+        4,
+        4,
+        1
+      ],
+      "source_game_index": 542,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "d9349212847e00fe4b69a8c68458376563edaba36c2977a4b085f5f60e50cc6e",
+      "source_record_sha256": "39c920118c44df14f8348d22e2a46a91983b28a7729bef9cf5fbb69ac9c7044c",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          1,
+          1,
+          0,
+          0,
+          10
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          1,
+          1,
+          0,
+          3,
+          1,
+          2
+        ],
+        "player_store": 16
+      },
+      "state_hash": "6aec74ffd74ccb2df687a5bb14e9ad4d8757e5d49f97c03cceadf5da15004e35",
+      "trajectory_prefix_absolute": [
+        0,
+        9,
+        1,
+        9,
+        5,
+        6,
+        3,
+        9,
+        4,
+        5,
+        2,
+        9,
+        5,
+        0,
+        6,
+        2,
+        8,
+        7,
+        9,
+        1,
+        8,
+        4,
+        10
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 8,
+      "decision_ply": 12,
+      "opening_index": 93,
+      "opening_prefix_moves": [
+        1,
+        3,
+        0,
+        4,
+        2,
+        0,
+        1
+      ],
+      "source_game_index": 186,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "87442b90b60aa35b2a62d9378dac79f70008a7567de611b9be347c3671338e36",
+      "source_record_sha256": "699ba3bba262c1f6453f67c371a61c2953d267d2f0119cb9f33590d6f31c5f5b",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          2,
+          5,
+          4,
+          1,
+          0
+        ],
+        "opponent_store": 16,
+        "player_pits": [
+          0,
+          5,
+          3,
+          1,
+          0,
+          0
+        ],
+        "player_store": 11
+      },
+      "state_hash": "fe3ae3d711e594e372c8dc22f48233a5a382a6e4a71b7c8fa7916561601d743a",
+      "trajectory_prefix_absolute": [
+        8,
+        4,
+        9,
+        10,
+        3,
+        7,
+        5,
+        10,
+        4,
+        11,
+        5,
+        4
+      ]
+    },
+    {
+      "active_pit_stones": 19,
+      "decision_absolute_action": 6,
+      "decision_ply": 16,
+      "opening_index": 459,
+      "opening_prefix_moves": [
+        0,
+        0,
+        1,
+        4,
+        5,
+        0,
+        4
+      ],
+      "source_game_index": 918,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "46d4f26bad8566dd360ab2e249545744726c04ec24ccc6ac71744fbadb7c892a",
+      "source_record_sha256": "9739181b88efd270e56df3f2804751ff6ef2b544fdd0187a0f68bb9cb8608209",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          4,
+          1,
+          10,
+          1,
+          0,
+          1
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "player_store": 19
+      },
+      "state_hash": "98d93051ec9504e234e96b5c2cf05a1d975f64c71e57b54dd553b6620f094e71",
+      "trajectory_prefix_absolute": [
+        1,
+        11,
+        9,
+        3,
+        11,
+        10,
+        2,
+        11,
+        10,
+        1,
+        11,
+        7,
+        4,
+        3,
+        9,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 8,
+      "decision_ply": 21,
+      "opening_index": 330,
+      "opening_prefix_moves": [
+        0,
+        2,
+        0,
+        3,
+        2,
+        5,
+        2
+      ],
+      "source_game_index": 660,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "ef777b24c33e472c263c57e35701bc792e61091ea219c3a80f74a7bfcf8053b4",
+      "source_record_sha256": "97ecfdd220f1bb41060d7f28772e5b095844055edd451f8ef29e6975e9b80031",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          4,
+          4,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          1,
+          4,
+          2,
+          3,
+          0,
+          1
+        ],
+        "player_store": 14
+      },
+      "state_hash": "06487956146693629674b06d591d2de5cfb299af01570d302266c47f64a51734",
+      "trajectory_prefix_absolute": [
+        1,
+        5,
+        2,
+        9,
+        3,
+        5,
+        7,
+        3,
+        6,
+        1,
+        7,
+        4,
+        9,
+        11,
+        5,
+        6,
+        0,
+        10,
+        5,
+        4,
+        11
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 23,
+      "opening_index": 28,
+      "opening_prefix_moves": [
+        2,
+        4,
+        0,
+        1,
+        2,
+        0,
+        4,
+        1
+      ],
+      "source_game_index": 56,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "4c46ac6d117248d0e4477b154b2525416df22a1fb9edba524620376b34f98a94",
+      "source_record_sha256": "009640f6712c7dfded2402e1419feb469dc9e59f315f5e813bdf21ae0aee107e",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          2,
+          5,
+          2,
+          3
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          4,
+          1,
+          2,
+          0,
+          0,
+          1
+        ],
+        "player_store": 14
+      },
+      "state_hash": "b3defbd807bb4de98ecf2848eda39b89899c2b0f6f2738af384ac19645f8e2bf",
+      "trajectory_prefix_absolute": [
+        9,
+        4,
+        7,
+        3,
+        8,
+        5,
+        9,
+        2,
+        11,
+        0,
+        3,
+        5,
+        6,
+        8,
+        11,
+        2,
+        10,
+        1,
+        5,
+        3,
+        5,
+        4,
+        7
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 11,
+      "decision_ply": 20,
+      "opening_index": 364,
+      "opening_prefix_moves": [
+        2,
+        1,
+        2,
+        4,
+        5,
+        4,
+        4
+      ],
+      "source_game_index": 728,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "19622bfe21597a506c433656bc7084ece92d9b3f8308ff8cdab6ddfe94c48bab",
+      "source_record_sha256": "c743c56c58edebd874853c4756c072b3e1b5f6f91b7c8659e24f4dae565d2804",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          10,
+          1,
+          0,
+          1,
+          1
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          2,
+          5,
+          0,
+          1,
+          0,
+          0
+        ],
+        "player_store": 16
+      },
+      "state_hash": "c44fa945c544a27a399b3bafef1d89a99fa4ef10f70cea4e8544d40dacc7cd78",
+      "trajectory_prefix_absolute": [
+        6,
+        9,
+        5,
+        0,
+        5,
+        4,
+        5,
+        3,
+        8,
+        11,
+        5,
+        6,
+        4,
+        5,
+        2,
+        10,
+        5,
+        4,
+        11,
+        9
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 13,
+      "opening_index": 148,
+      "opening_prefix_moves": [
+        0,
+        5,
+        0,
+        1,
+        5,
+        3,
+        4
+      ],
+      "source_game_index": 296,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "fb584a6f9c223c490adfd3914529b5b1b6101fa74c5318c9bcf7a8d7e92e72cb",
+      "source_record_sha256": "89b7a93a0ccc38d2ef8a66c3b3c024b1164998e2b584b86c9b586429bbc2bf63",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          3,
+          1,
+          1,
+          8
+        ],
+        "opponent_store": 17,
+        "player_pits": [
+          0,
+          3,
+          1,
+          2,
+          1,
+          1
+        ],
+        "player_store": 10
+      },
+      "state_hash": "83df5e44c7402c79b6fa3463a0966774632394ad2ef8610238863fa6b75f5ee6",
+      "trajectory_prefix_absolute": [
+        6,
+        10,
+        1,
+        8,
+        4,
+        6,
+        2,
+        9,
+        5,
+        10,
+        4,
+        7,
+        0
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 8,
+      "opening_index": 294,
+      "opening_prefix_moves": [
+        3,
+        0,
+        1,
+        4,
+        0,
+        5,
+        2,
+        2
+      ],
+      "source_game_index": 588,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "868aa701376b920965a52c72818e75954dcd9419f9d3b9377f9c5b30ddca3c1a",
+      "source_record_sha256": "f748b2afaaf55fe3bf3a7d3d25a582000ca44acd51ab3eab84baca962a539c26",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          2,
+          2,
+          0,
+          1,
+          0
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          0,
+          0,
+          1,
+          0,
+          1,
+          11
+        ],
+        "player_store": 17
+      },
+      "state_hash": "01587f5a71c136173d0b732a713a400917c0b0f85f7fca93ad54fa59fdd3b8c5",
+      "trajectory_prefix_absolute": [
+        0,
+        11,
+        7,
+        1,
+        4,
+        11,
+        3,
+        9
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 15,
+      "opening_index": 88,
+      "opening_prefix_moves": [
+        4,
+        2,
+        1,
+        2,
+        2,
+        5,
+        3
+      ],
+      "source_game_index": 176,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "dac4f8cd54df9bec8970be2e0abadc591d6c11d61c5ec350c07ca45305cbcc05",
+      "source_record_sha256": "703fb1d9bd5ae282702836546c61dd4e0877936fc7924eb23f1f4e28be810378",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          3,
+          1,
+          1,
+          0,
+          0
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          2,
+          3,
+          3,
+          0,
+          0,
+          6
+        ],
+        "player_store": 19
+      },
+      "state_hash": "5601e4bcd89f4f64490e30d58b7913e0a7e3ec0b2448a4145f87d57db16194b4",
+      "trajectory_prefix_absolute": [
+        4,
+        5,
+        1,
+        5,
+        4,
+        8,
+        3,
+        6,
+        5,
+        0,
+        10,
+        4,
+        11,
+        3,
+        4
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 10,
+      "decision_ply": 14,
+      "opening_index": 340,
+      "opening_prefix_moves": [
+        3,
+        3,
+        0,
+        2,
+        0,
+        4,
+        5
+      ],
+      "source_game_index": 680,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "30a7b4b58ac519a2ea9c77783f10bd1c279686e5fe986fb0c68439cdda375bb7",
+      "source_record_sha256": "788f978432ca423403c5eca7aaf9ac718c45a276c0b32f34aef40c6ce3806a9d",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          2,
+          2,
+          1,
+          3,
+          2
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          2,
+          3,
+          2,
+          0,
+          4,
+          0
+        ],
+        "player_store": 15
+      },
+      "state_hash": "e3a232d9bf81aea3126ca1615f91b5f1418736072ad2db5ae7821faf32dd77fb",
+      "trajectory_prefix_absolute": [
+        4,
+        7,
+        1,
+        11,
+        10,
+        4,
+        3,
+        11,
+        8,
+        2,
+        9,
+        5,
+        5,
+        3
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 4,
+      "decision_ply": 27,
+      "opening_index": 21,
+      "opening_prefix_moves": [
+        2,
+        0,
+        1,
+        3,
+        5,
+        2,
+        0
+      ],
+      "source_game_index": 42,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "2127cc6b4353aafb0b967061e6262b3bcc7aae0ea054f39b2be9cba7b5f29660",
+      "source_record_sha256": "0bd2dc085628ab99d92101616876871d1ee661d48b6baff2a492c3e5dd9fb74f",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          0,
+          0,
+          0,
+          1,
+          18,
+          0
+        ],
+        "player_store": 12
+      },
+      "state_hash": "de54ad79918f713c1362c96a2e176fbb3baa2ade63655316e0ec9b135445219e",
+      "trajectory_prefix_absolute": [
+        1,
+        8,
+        3,
+        5,
+        9,
+        2,
+        11,
+        1,
+        10,
+        3,
+        11,
+        8,
+        1,
+        6,
+        5,
+        0,
+        7,
+        5,
+        3,
+        11,
+        10,
+        1,
+        11,
+        8,
+        2,
+        9,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 7,
+      "decision_ply": 24,
+      "opening_index": 280,
+      "opening_prefix_moves": [
+        5,
+        0,
+        3,
+        0,
+        1,
+        5,
+        3,
+        4
+      ],
+      "source_game_index": 560,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "3eeef54196d5901821f39aa20945eb7aad6b6408fab0461b7e81e8bca50b1c38",
+      "source_record_sha256": "9f2ff5a642692fdd92b23f09181c10d20c7a2939cdc7bdcb057dd8806fda2717",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          5,
+          0,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          1,
+          4,
+          4,
+          0,
+          6,
+          1
+        ],
+        "player_store": 16
+      },
+      "state_hash": "36cc03ff7b426796aff3afe1cfd140807b277570a7a1d81bb63c7b9c6913a30a",
+      "trajectory_prefix_absolute": [
+        0,
+        4,
+        7,
+        2,
+        8,
+        4,
+        1,
+        5,
+        6,
+        2,
+        8,
+        4,
+        5,
+        3,
+        11,
+        5,
+        3,
+        9,
+        5,
+        0,
+        11,
+        10,
+        3,
+        11
+      ]
+    },
+    {
+      "active_pit_stones": 18,
+      "decision_absolute_action": 11,
+      "decision_ply": 18,
+      "opening_index": 212,
+      "opening_prefix_moves": [
+        2,
+        3,
+        5,
+        0,
+        3,
+        4,
+        0
+      ],
+      "source_game_index": 424,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "2e046c7b61f3ea16be441824fc0f72aade994d790ea18aa65badd3dea716e17a",
+      "source_record_sha256": "c169a8f6650898e2e9e333a8298ca97235324d5aea3f40b4718ce890872605ef",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          4,
+          0,
+          0,
+          0,
+          1
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          0,
+          4,
+          0,
+          0,
+          1,
+          7
+        ],
+        "player_store": 21
+      },
+      "state_hash": "970db92f786bc4a08bc26d59d288fb7a8b9442b5f61538967ca90905e39e9625",
+      "trajectory_prefix_absolute": [
+        7,
+        1,
+        11,
+        5,
+        11,
+        6,
+        4,
+        9,
+        5,
+        3,
+        11,
+        10,
+        4,
+        2,
+        0,
+        4,
+        3,
+        2
+      ]
+    },
+    {
+      "active_pit_stones": 19,
+      "decision_absolute_action": 6,
+      "decision_ply": 8,
+      "opening_index": 446,
+      "opening_prefix_moves": [
+        1,
+        5,
+        2,
+        2,
+        1,
+        5,
+        3
+      ],
+      "source_game_index": 892,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "7d16788e538c5a7c175fc280eed11c71deb157642f0319eb60b42267249de732",
+      "source_record_sha256": "f69790e8aa8c9ae961cd53f3c655d387965925e6f4c5ae8835a4d26a42907306",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          2,
+          3,
+          1,
+          11,
+          0
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "player_store": 16
+      },
+      "state_hash": "468d62139e19a4d8dccad8a4a926cb95aabb43ea719367e2a0a6213f5b4216ba",
+      "trajectory_prefix_absolute": [
+        6,
+        11,
+        8,
+        1,
+        7,
+        4,
+        9,
+        5
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 11,
+      "decision_ply": 12,
+      "opening_index": 120,
+      "opening_prefix_moves": [
+        4,
+        5,
+        2,
+        4,
+        5,
+        5,
+        3
+      ],
+      "source_game_index": 240,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "5243fa9986751531816d17bb005515604eec509fe3e47cbc26a1a9499f1074bb",
+      "source_record_sha256": "f6bba9594953d870c0cb671e2612b4eb6247afd21d89bfb20d162516ddd83e05",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          1,
+          2,
+          0,
+          1
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          1,
+          9,
+          1,
+          6,
+          0,
+          0
+        ],
+        "player_store": 15
+      },
+      "state_hash": "da4f331f047aeb751c23341bffc1b294196943ca80d25e50ee1bd6866667adc6",
+      "trajectory_prefix_absolute": [
+        4,
+        11,
+        10,
+        11,
+        8,
+        0,
+        11,
+        7,
+        5,
+        4,
+        11,
+        10
+      ]
+    },
+    {
+      "active_pit_stones": 21,
+      "decision_absolute_action": 5,
+      "decision_ply": 17,
+      "opening_index": 127,
+      "opening_prefix_moves": [
+        4,
+        5,
+        3,
+        3,
+        0,
+        2,
+        1
+      ],
+      "source_game_index": 254,
+      "source_game_within_opening": 0,
+      "source_opening_state_hash": "24877e45c325f0f31064c4da71bdf9950dbdc52bd45226892635bf0d40b8c7da",
+      "source_record_sha256": "76d6b21e60580610f8be4f1acb0d30d01016935aed398890a41fe084889a62a7",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          3,
+          1,
+          1,
+          2,
+          2
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          0,
+          0,
+          7,
+          3,
+          1,
+          1
+        ],
+        "player_store": 16
+      },
+      "state_hash": "4ad151b32383d7a306146a4542c4c57b696bb85b4c8857265991693515abbac6",
+      "trajectory_prefix_absolute": [
+        1,
+        10,
+        3,
+        8,
+        4,
+        11,
+        5,
+        11,
+        10,
+        11,
+        9,
+        6,
+        0,
+        5,
+        4,
+        5,
+        1
+      ]
+    }
+  ]
+}
