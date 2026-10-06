@@ -276,8 +276,11 @@ def test_actual_evaluation_verifier_relocated_read_only(tmp_path: Path) -> None:
         "ml/alphazero_lite/verify_seed426_overlap_audit.py",
         "ml/alphazero_lite/verify_seed427_publication.py",
         "ml/alphazero_lite/verify_seed427_evaluation.py",
+        "ml/alphazero_lite/verify_seed428_supplemental.py",
         "ml/alphazero_lite/seed427_validation_metrics.py",
         "ml/alphazero_lite/seed427_validation_subsets.py",
+        "ml/alphazero_lite/fresh_p1_adapter_teacher_audit.py",
+        "ml/alphazero_lite/kalah_rules.py",
         "ml/alphazero_lite/run_seed427_validation_evaluation.py",
         "ml/alphazero_lite/train.py",
         "ml/alphazero_lite/self_play.py",
@@ -298,21 +301,25 @@ def test_actual_evaluation_verifier_relocated_read_only(tmp_path: Path) -> None:
         if path.is_file()
     }
     env = {**os.environ, "PYTHONPATH": str(root), "PYTHONDONTWRITEBYTECODE": "1"}
-    result = subprocess.run(
-        [
-            sys.executable,
-            str(root / "ml/alphazero_lite/verify_seed427_evaluation.py"),
-            "--root",
-            str(root),
-        ],
-        cwd=tmp_path,
-        env=env,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert result.returncode == 0, result.stderr
-    assert json.loads(result.stdout)["status"] == "verified"
+    for entrypoint in (
+        "verify_seed427_evaluation.py",
+        "verify_seed428_supplemental.py",
+    ):
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(root / "ml/alphazero_lite" / entrypoint),
+                "--root",
+                str(root),
+            ],
+            cwd=tmp_path,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert result.returncode == 0, result.stderr
+        assert json.loads(result.stdout)["status"] == "verified"
     after = {
         path.relative_to(root): hashlib.sha256(path.read_bytes()).hexdigest()
         for path in root.rglob("*")
