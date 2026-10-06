@@ -1,0 +1,357 @@
+{
+  "analysis_plan": "docs/data/seed426-canonical-overlap/seed428-analysis-plan.md",
+  "cohorts": {
+    "seen/>32": {
+      "canonical_identities": 774,
+      "concentration": {
+        "equal_identity_contribution": {
+          "classification": "no single-source concentration",
+          "largest_positive_share": 0.5525001505853651,
+          "positive_contribution_total": 0.003249617145678851
+        },
+        "exposure_contribution": {
+          "classification": "concentrated",
+          "largest_positive_share": 0.9579976889299187,
+          "positive_contribution_total": 0.0036708253377086323
+        }
+      },
+      "global_policy_weight_denominator": 3166.0,
+      "identities_in_multiple_sources": 54,
+      "identity_concentration": {
+        "largest_absolute_identity": {
+          "canonical_identity": "[[6,2,1,9,2,1],[0,0,0,9,7,0],8,3,0]",
+          "equal_identity_delta": 1.7188885105891123
+        },
+        "largest_positive_identity_share": 0.029961063385638892,
+        "positive_delta_total": 57.37074443803019
+      },
+      "pairwise_shared_identity_counts": {
+        "fresh|generic_bootstrap": 44,
+        "fresh|opening_disagreement": 1,
+        "fresh|random_teacher": 4,
+        "fresh|stability": 5,
+        "generic_bootstrap|opening_disagreement": 0,
+        "generic_bootstrap|random_teacher": 9,
+        "generic_bootstrap|stability": 1,
+        "opening_disagreement|random_teacher": 0,
+        "opening_disagreement|stability": 0,
+        "random_teacher|stability": 0
+      },
+      "source_contributions": {
+        "fresh": {
+          "canonical_identities": 602,
+          "e4_policy_loss": 0.774605542868824,
+          "equal_identity_contribution": -0.03971547231216703,
+          "exposure_contribution": -0.01600351403097265,
+          "initializer_policy_loss": 0.8058815462157742,
+          "policy_loss_difference": -0.03127600334695026,
+          "weighted_positions": 1620
+        },
+        "generic_bootstrap": {
+          "canonical_identities": 179,
+          "e4_policy_loss": 0.9594742843938803,
+          "equal_identity_contribution": -0.006213659714007351,
+          "exposure_contribution": -0.008741861218419677,
+          "initializer_policy_loss": 0.979529887739907,
+          "policy_loss_difference": -0.02005560334602659,
+          "weighted_positions": 1380
+        },
+        "opening_disagreement": {
+          "canonical_identities": 9,
+          "e4_policy_loss": 1.4906762198016021,
+          "equal_identity_contribution": 0.0017954139623323495,
+          "exposure_contribution": 0.003516642189990258,
+          "initializer_policy_loss": 1.336041647947308,
+          "policy_loss_difference": 0.15463457185429383,
+          "weighted_positions": 72
+        },
+        "random_teacher": {
+          "canonical_identities": 27,
+          "e4_policy_loss": 1.4514060004588913,
+          "equal_identity_contribution": 0.0009981483112874137,
+          "exposure_contribution": 0.00015359404096461224,
+          "initializer_policy_loss": 1.4351967093357592,
+          "policy_loss_difference": 0.016209291123132078,
+          "weighted_positions": 30
+        },
+        "stability": {
+          "canonical_identities": 16,
+          "e4_policy_loss": 0.9914744529007481,
+          "equal_identity_contribution": 0.0004560548720590879,
+          "exposure_contribution": 5.891067537622182e-07,
+          "initializer_policy_loss": 0.9914453105260229,
+          "policy_loss_difference": 2.914237472517473e-05,
+          "weighted_positions": 64
+        }
+      },
+      "weighted_positions": 3166
+    },
+    "unseen/17-32": {
+      "canonical_identities": 2322,
+      "concentration": {
+        "equal_identity_contribution": {
+          "classification": "no single-source concentration",
+          "largest_positive_share": 0.49280407658690917,
+          "positive_contribution_total": 0.030554736184699737
+        },
+        "exposure_contribution": {
+          "classification": "no single-source concentration",
+          "largest_positive_share": 0.5451429844141823,
+          "positive_contribution_total": 0.0646683687535034
+        }
+      },
+      "global_policy_weight_denominator": 4013.0,
+      "identities_in_multiple_sources": 0,
+      "identity_concentration": {
+        "largest_absolute_identity": {
+          "canonical_identity": "[[1,2,1,1,2,2],[1,1,0,2,9,8],11,7,0]",
+          "equal_identity_delta": 2.0175813561374842
+        },
+        "largest_positive_identity_share": 0.006005449011777483,
+        "positive_delta_total": 335.958452428909
+      },
+      "pairwise_shared_identity_counts": {
+        "fresh|generic_bootstrap": 0,
+        "fresh|opening_disagreement": 0,
+        "fresh|random_teacher": 0,
+        "fresh|stability": 0,
+        "generic_bootstrap|opening_disagreement": 0,
+        "generic_bootstrap|random_teacher": 0,
+        "generic_bootstrap|stability": 0,
+        "opening_disagreement|random_teacher": 0,
+        "opening_disagreement|stability": 0,
+        "random_teacher|stability": 0
+      },
+      "source_contributions": {
+        "fresh": {
+          "canonical_identities": 1797,
+          "e4_policy_loss": 1.0836070216703966,
+          "equal_identity_contribution": 0.008134487644983451,
+          "exposure_contribution": 0.004988817940865192,
+          "initializer_policy_loss": 1.072521680365473,
+          "policy_loss_difference": 0.011085341304923595,
+          "weighted_positions": 1806
+        },
+        "generic_bootstrap": {
+          "canonical_identities": 352,
+          "e4_policy_loss": 1.0993354511776434,
+          "equal_identity_contribution": 0.015057498550857574,
+          "exposure_contribution": 0.0352535075394817,
+          "initializer_policy_loss": 0.9991425859113968,
+          "policy_loss_difference": 0.1001928652662465,
+          "weighted_positions": 1412
+        },
+        "opening_disagreement": {
+          "canonical_identities": 64,
+          "e4_policy_loss": 1.1104405557562267,
+          "equal_identity_contribution": 0.004602195682715025,
+          "exposure_contribution": 0.021303360827838097,
+          "initializer_policy_loss": 0.9434671436427222,
+          "policy_loss_difference": 0.16697341211350447,
+          "weighted_positions": 512
+        },
+        "random_teacher": {
+          "canonical_identities": 51,
+          "e4_policy_loss": 1.4722649165827866,
+          "equal_identity_contribution": 0.0018818121938558423,
+          "exposure_contribution": 0.0010888532056150676,
+          "initializer_policy_loss": 1.3865871143448794,
+          "policy_loss_difference": 0.08567780223790718,
+          "weighted_positions": 51
+        },
+        "stability": {
+          "canonical_identities": 58,
+          "e4_policy_loss": 0.5490809484596011,
+          "equal_identity_contribution": 0.0008787421122878452,
+          "exposure_contribution": 0.002033829239703341,
+          "initializer_policy_loss": 0.5139009625159394,
+          "policy_loss_difference": 0.03517998594366167,
+          "weighted_positions": 232
+        }
+      },
+      "weighted_positions": 4013
+    },
+    "unseen/<=16": {
+      "canonical_identities": 2116,
+      "concentration": {
+        "equal_identity_contribution": {
+          "classification": "no single-source concentration",
+          "largest_positive_share": 0.6769015758440537,
+          "positive_contribution_total": 0.017027543824382062
+        },
+        "exposure_contribution": {
+          "classification": "concentrated",
+          "largest_positive_share": 0.7768821867345762,
+          "positive_contribution_total": 0.030732625282158157
+        }
+      },
+      "global_policy_weight_denominator": 4086.0,
+      "identities_in_multiple_sources": 0,
+      "identity_concentration": {
+        "largest_absolute_identity": {
+          "canonical_identity": "[[1,1,1,0,1,1],[0,2,0,2,2,1],23,13,0]",
+          "equal_identity_delta": -3.6565622656197134
+        },
+        "largest_positive_identity_share": 0.011293143763197726,
+        "positive_delta_total": 232.6044530285225
+      },
+      "pairwise_shared_identity_counts": {
+        "fresh|generic_bootstrap": 0,
+        "fresh|opening_disagreement": 0,
+        "fresh|random_teacher": 0,
+        "fresh|stability": 0,
+        "generic_bootstrap|opening_disagreement": 0,
+        "generic_bootstrap|random_teacher": 0,
+        "generic_bootstrap|stability": 0,
+        "opening_disagreement|random_teacher": 0,
+        "opening_disagreement|stability": 0,
+        "random_teacher|stability": 0
+      },
+      "source_contributions": {
+        "fresh": {
+          "canonical_identities": 1527,
+          "e4_policy_loss": 0.8533804359738795,
+          "equal_identity_contribution": -0.12539904943293073,
+          "exposure_contribution": -0.06482394495860347,
+          "initializer_policy_loss": 1.025934598254566,
+          "policy_loss_difference": -0.1725541622806865,
+          "weighted_positions": 1535
+        },
+        "generic_bootstrap": {
+          "canonical_identities": 378,
+          "e4_policy_loss": 0.7120651009768035,
+          "equal_identity_contribution": 0.011525971247477904,
+          "exposure_contribution": 0.02387562913329735,
+          "initializer_policy_loss": 0.6475440555808691,
+          "policy_loss_difference": 0.0645210453959345,
+          "weighted_positions": 1512
+        },
+        "opening_disagreement": {
+          "canonical_identities": 101,
+          "e4_policy_loss": 0.8041078088008969,
+          "equal_identity_contribution": -0.0012875250862274742,
+          "exposure_contribution": -0.005334122530508733,
+          "initializer_policy_loss": 0.8310820967460192,
+          "policy_loss_difference": -0.026974287945122133,
+          "weighted_positions": 808
+        },
+        "random_teacher": {
+          "canonical_identities": 71,
+          "e4_policy_loss": 0.880832903143132,
+          "equal_identity_contribution": 0.002923524226395121,
+          "exposure_contribution": 0.0015166630018445383,
+          "initializer_policy_loss": 0.7982051028026415,
+          "policy_loss_difference": 0.08262780034049046,
+          "weighted_positions": 75
+        },
+        "stability": {
+          "canonical_identities": 39,
+          "e4_policy_loss": 0.5813952883330128,
+          "equal_identity_contribution": 0.0025780483505090357,
+          "exposure_contribution": 0.005340333147016269,
+          "initializer_policy_loss": 0.4415196393669329,
+          "policy_loss_difference": 0.13987564896607999,
+          "weighted_positions": 156
+        }
+      },
+      "weighted_positions": 4086
+    },
+    "unseen/>32": {
+      "canonical_identities": 1242,
+      "concentration": {
+        "equal_identity_contribution": {
+          "classification": "no single-source concentration",
+          "largest_positive_share": 0.4305422823968639,
+          "positive_contribution_total": 0.03815864222649381
+        },
+        "exposure_contribution": {
+          "classification": "no single-source concentration",
+          "largest_positive_share": 0.4707797567069284,
+          "positive_contribution_total": 0.055500647691489345
+        }
+      },
+      "global_policy_weight_denominator": 2607.0,
+      "identities_in_multiple_sources": 4,
+      "identity_concentration": {
+        "largest_absolute_identity": {
+          "canonical_identity": "[[1,6,2,0,7,1],[1,0,2,9,7,7],3,2,0]",
+          "equal_identity_delta": 2.667945172249092
+        },
+        "largest_positive_identity_share": 0.01423495432990728,
+        "positive_delta_total": 187.42210971789396
+      },
+      "pairwise_shared_identity_counts": {
+        "fresh|generic_bootstrap": 2,
+        "fresh|opening_disagreement": 1,
+        "fresh|random_teacher": 0,
+        "fresh|stability": 0,
+        "generic_bootstrap|opening_disagreement": 1,
+        "generic_bootstrap|random_teacher": 0,
+        "generic_bootstrap|stability": 0,
+        "opening_disagreement|random_teacher": 0,
+        "opening_disagreement|stability": 0,
+        "random_teacher|stability": 0
+      },
+      "source_contributions": {
+        "fresh": {
+          "canonical_identities": 851,
+          "e4_policy_loss": 1.2434937878466192,
+          "equal_identity_contribution": 0.016428908917359993,
+          "exposure_contribution": 0.007378005211797986,
+          "initializer_policy_loss": 1.2211021003179146,
+          "policy_loss_difference": 0.022391687528704716,
+          "weighted_positions": 859
+        },
+        "generic_bootstrap": {
+          "canonical_identities": 259,
+          "e4_policy_loss": 1.2300115789194828,
+          "equal_identity_contribution": 0.0143458266132394,
+          "exposure_contribution": 0.026128581417276302,
+          "initializer_policy_loss": 1.1647652075068016,
+          "policy_loss_difference": 0.06524637141268134,
+          "weighted_positions": 1044
+        },
+        "opening_disagreement": {
+          "canonical_identities": 46,
+          "e4_policy_loss": 1.373915531062771,
+          "equal_identity_contribution": 0.004069505986854672,
+          "exposure_contribution": 0.015678010919526888,
+          "initializer_policy_loss": 1.2628487526192749,
+          "policy_loss_difference": 0.11106677844349619,
+          "weighted_positions": 368
+        },
+        "random_teacher": {
+          "canonical_identities": 8,
+          "e4_policy_loss": 1.4448337729428213,
+          "equal_identity_contribution": -0.0006169616909476174,
+          "exposure_contribution": -0.00029392651329380163,
+          "initializer_policy_loss": 1.5406170754624389,
+          "policy_loss_difference": -0.09578330251961761,
+          "weighted_positions": 8
+        },
+        "stability": {
+          "canonical_identities": 82,
+          "e4_policy_loss": 0.9953774068363226,
+          "equal_identity_contribution": 0.0033144007090397457,
+          "exposure_contribution": 0.006316050142888169,
+          "initializer_policy_loss": 0.945176361950623,
+          "policy_loss_difference": 0.05020104488569956,
+          "weighted_positions": 328
+        }
+      },
+      "weighted_positions": 2607
+    }
+  },
+  "primary_reconciliation": {
+    "expected_seed427": {
+      "equal_canonical_identity": 0.03754168053554596,
+      "exposure_weighted": 0.05520672117819547
+    },
+    "reconciled": {
+      "equal_canonical_identity": 0.03754168053554619,
+      "exposure_weighted": 0.05520672117819554
+    }
+  },
+  "reconciliation_tolerance": 1e-12,
+  "schema": "seed428-source-attribution-v1"
+}
