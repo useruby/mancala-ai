@@ -1,0 +1,22 @@
+{
+  "schema": "seed430-arena-evidence-verification-correction-v1",
+  "kind": "post-execution verification correction; not part of the original prospective freeze",
+  "timing": "after completion and publication of the seed429 arena evidence",
+  "registration_sha256": "f21b8e3a2e5f2f0782f1ce2c28f4bdc2618d75235d63e7722da6746f86ecffa7",
+  "runtime_binding_sha256": "147d7a4ad51f97ed15e1421ae4992cbbde5ee69090efdab18b4925a506a060ba",
+  "arena_correction_receipt_sha256": "a89f9053616d4db9c01b2bb7d5d397324d553e7aa8b63e59a555fc92e7c33dc3",
+  "supplemental_sources": {
+    "ml/alphazero_lite/verify_seed430.py": "89f256e8e309b61fdfbf6e48de632dc6ee50df78dbf76c928c1a1918afd9dc1d",
+    "ml/alphazero_lite/test_seed430.py": "e1ca295a4e031859f697aa8a125ffb41d20510e66782e4021ec7b252d271eeaa"
+  },
+  "reconciliation": {
+    "recorded_chunks": 47,
+    "pre_repair_games": 1504,
+    "published_lane_games": {"A": 1024, "B": 1024},
+    "portable_claims": ["registration", "training", "runtime binding", "arena correction", "counts", "lane coverage", "unchanged-game-entry digest claims"],
+    "unverifiable_byte_claims": "Original run-local chunk and report bytes are not in the tracked publication; their recorded chunk, report, and game-entry digests cannot be independently recomputed. No reconstructed files are represented as originals."
+  },
+  "protocol_changed": false,
+  "analysis_changed": false,
+  "decision": "stop_normalization_branch"
+}
