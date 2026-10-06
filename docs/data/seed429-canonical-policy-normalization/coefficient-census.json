@@ -1,0 +1,415 @@
+{
+  "classification": "normalization changes float32 coefficients",
+  "coefficient_mass_conservation_scope": "sum of compact-row coefficients per source and active-stone bucket; not realized minibatch gradient contribution",
+  "control_coefficients_sha256": "74fee22b7aa93228a30804478e21bee54c72be58096da7667447e2b99e0dd384",
+  "expanded_replay_copy_counts_are_separately_recorded": true,
+  "expanded_replay_position_count": 149448,
+  "groups": {
+    "fresh/17-32": {
+      "affected_identities": 17321,
+      "affected_rows": 20121,
+      "effective_concentration": 0.0001247138970058145,
+      "effective_concentration_after": 5.773338721782808e-05,
+      "identities_with_multiple_compact_rows": 1180,
+      "mass_delta": 0.000578567385673523,
+      "maximum_positive_compact_row_multiplicity": 37,
+      "normalized_coefficient_range": [
+        0.031396038830280304,
+        1.1616535186767578
+      ],
+      "normalized_effective_concentration": 5.773338721782808e-05,
+      "normalized_mass": 20121.000578567386,
+      "normalized_positive_identity_mass_range": [
+        1.1616534367203712,
+        1.1616535484790802
+      ],
+      "original_coefficient_range": [
+        1.0,
+        1.0
+      ],
+      "original_mass": 20121.0,
+      "original_positive_identity_mass_range": [
+        1.0,
+        37.0
+      ],
+      "positive_identities": 17321,
+      "positive_identity_rows_repeated_beyond_first": 2800,
+      "positive_rows": 20121,
+      "training_rows": 20121,
+      "zero_mass_identities": 0
+    },
+    "fresh/>32": {
+      "affected_identities": 9390,
+      "affected_rows": 22012,
+      "effective_concentration": 0.008612552339168146,
+      "effective_concentration_after": 0.00010649627263045795,
+      "identities_with_multiple_compact_rows": 1616,
+      "mass_delta": -0.0009531686082482338,
+      "maximum_positive_compact_row_multiplicity": 1455,
+      "normalized_coefficient_range": [
+        0.0016111312434077263,
+        2.34419584274292
+      ],
+      "normalized_effective_concentration": 0.00010649627263045795,
+      "normalized_mass": 22011.99904683139,
+      "normalized_positive_identity_mass_range": [
+        2.34419584274292,
+        2.344196066260338
+      ],
+      "original_coefficient_range": [
+        1.0,
+        1.0
+      ],
+      "original_mass": 22012.0,
+      "original_positive_identity_mass_range": [
+        1.0,
+        1455.0
+      ],
+      "positive_identities": 9390,
+      "positive_identity_rows_repeated_beyond_first": 12622,
+      "positive_rows": 22012,
+      "training_rows": 22012,
+      "zero_mass_identities": 0
+    },
+    "generic_bootstrap/17-32": {
+      "affected_identities": 3445,
+      "affected_rows": 3507,
+      "effective_concentration": 0.0003014054176058653,
+      "effective_concentration_after": 0.0002902757619738752,
+      "identities_with_multiple_compact_rows": 41,
+      "mass_delta": 0.00016635656356811523,
+      "maximum_positive_compact_row_multiplicity": 7,
+      "normalized_coefficient_range": [
+        0.1454281508922577,
+        1.017997145652771
+      ],
+      "normalized_effective_concentration": 0.0002902757619738752,
+      "normalized_mass": 3507.0001663565636,
+      "normalized_positive_identity_mass_range": [
+        1.0179970562458038,
+        1.017997145652771
+      ],
+      "original_coefficient_range": [
+        1.0,
+        1.0
+      ],
+      "original_mass": 3507.0,
+      "original_positive_identity_mass_range": [
+        1.0,
+        7.0
+      ],
+      "positive_identities": 3445,
+      "positive_identity_rows_repeated_beyond_first": 62,
+      "positive_rows": 3507,
+      "training_rows": 3507,
+      "zero_mass_identities": 0
+    },
+    "generic_bootstrap/>32": {
+      "affected_identities": 3216,
+      "affected_rows": 5782,
+      "effective_concentration": 0.007025345299843345,
+      "effective_concentration_after": 0.00031094527363184084,
+      "identities_with_multiple_compact_rows": 449,
+      "mass_delta": -0.00010295165702700615,
+      "maximum_positive_compact_row_multiplicity": 387,
+      "normalized_coefficient_range": [
+        0.004645699169486761,
+        1.797885537147522
+      ],
+      "normalized_effective_concentration": 0.00031094527363184084,
+      "normalized_mass": 5781.999897048343,
+      "normalized_positive_identity_mass_range": [
+        1.7978854924440384,
+        1.7978856526315212
+      ],
+      "original_coefficient_range": [
+        1.0,
+        1.0
+      ],
+      "original_mass": 5782.0,
+      "original_positive_identity_mass_range": [
+        1.0,
+        387.0
+      ],
+      "positive_identities": 3216,
+      "positive_identity_rows_repeated_beyond_first": 2566,
+      "positive_rows": 5782,
+      "training_rows": 5782,
+      "zero_mass_identities": 0
+    },
+    "opening_disagreement/17-32": {
+      "affected_identities": 0,
+      "affected_rows": 0,
+      "effective_concentration": 0.0017482517482517483,
+      "effective_concentration_after": 0.0017482517482517483,
+      "identities_with_multiple_compact_rows": 0,
+      "mass_delta": 0.0,
+      "maximum_positive_compact_row_multiplicity": 1,
+      "normalized_coefficient_range": [
+        1.0,
+        1.0
+      ],
+      "normalized_effective_concentration": 0.0017482517482517483,
+      "normalized_mass": 572.0,
+      "normalized_positive_identity_mass_range": [
+        1.0,
+        1.0
+      ],
+      "original_coefficient_range": [
+        1.0,
+        1.0
+      ],
+      "original_mass": 572.0,
+      "original_positive_identity_mass_range": [
+        1.0,
+        1.0
+      ],
+      "positive_identities": 572,
+      "positive_identity_rows_repeated_beyond_first": 0,
+      "positive_rows": 572,
+      "training_rows": 572,
+      "zero_mass_identities": 0
+    },
+    "opening_disagreement/>32": {
+      "affected_identities": 0,
+      "affected_rows": 0,
+      "effective_concentration": 0.0018018018018018018,
+      "effective_concentration_after": 0.0018018018018018018,
+      "identities_with_multiple_compact_rows": 0,
+      "mass_delta": 0.0,
+      "maximum_positive_compact_row_multiplicity": 1,
+      "normalized_coefficient_range": [
+        1.0,
+        1.0
+      ],
+      "normalized_effective_concentration": 0.0018018018018018018,
+      "normalized_mass": 555.0,
+      "normalized_positive_identity_mass_range": [
+        1.0,
+        1.0
+      ],
+      "original_coefficient_range": [
+        1.0,
+        1.0
+      ],
+      "original_mass": 555.0,
+      "original_positive_identity_mass_range": [
+        1.0,
+        1.0
+      ],
+      "positive_identities": 555,
+      "positive_identity_rows_repeated_beyond_first": 0,
+      "positive_rows": 555,
+      "training_rows": 555,
+      "zero_mass_identities": 0
+    },
+    "random_teacher/17-32": {
+      "affected_identities": 751,
+      "affected_rows": 1090,
+      "effective_concentration": 0.0017136604662907162,
+      "effective_concentration_after": 0.0013315579227696404,
+      "identities_with_multiple_compact_rows": 233,
+      "mass_delta": -2.682209014892578e-06,
+      "maximum_positive_compact_row_multiplicity": 4,
+      "normalized_coefficient_range": [
+        0.36284953355789185,
+        1.4513981342315674
+      ],
+      "normalized_effective_concentration": 0.0013315579227696404,
+      "normalized_mass": 1089.999997317791,
+      "normalized_positive_identity_mass_range": [
+        1.451398104429245,
+        1.4513981342315674
+      ],
+      "original_coefficient_range": [
+        1.0,
+        1.0
+      ],
+      "original_mass": 1090.0,
+      "original_positive_identity_mass_range": [
+        1.0,
+        4.0
+      ],
+      "positive_identities": 751,
+      "positive_identity_rows_repeated_beyond_first": 339,
+      "positive_rows": 1090,
+      "training_rows": 1090,
+      "zero_mass_identities": 0
+    },
+    "random_teacher/>32": {
+      "affected_identities": 218,
+      "affected_rows": 355,
+      "effective_concentration": 0.00584804602261456,
+      "effective_concentration_after": 0.0045871559633027525,
+      "identities_with_multiple_compact_rows": 94,
+      "mass_delta": 4.112720489501953e-06,
+      "maximum_positive_compact_row_multiplicity": 4,
+      "normalized_coefficient_range": [
+        0.4071100950241089,
+        1.6284403800964355
+      ],
+      "normalized_effective_concentration": 0.0045871559633027525,
+      "normalized_mass": 355.0000041127205,
+      "normalized_positive_identity_mass_range": [
+        1.6284403800964355,
+        1.6284404397010803
+      ],
+      "original_coefficient_range": [
+        1.0,
+        1.0
+      ],
+      "original_mass": 355.0,
+      "original_positive_identity_mass_range": [
+        1.0,
+        4.0
+      ],
+      "positive_identities": 218,
+      "positive_identity_rows_repeated_beyond_first": 137,
+      "positive_rows": 355,
+      "training_rows": 355,
+      "zero_mass_identities": 0
+    },
+    "stability/17-32": {
+      "affected_identities": 0,
+      "affected_rows": 0,
+      "effective_concentration": 0.002044989775051125,
+      "effective_concentration_after": 0.002044989775051125,
+      "identities_with_multiple_compact_rows": 0,
+      "mass_delta": 0.0,
+      "maximum_positive_compact_row_multiplicity": 1,
+      "normalized_coefficient_range": [
+        1.0,
+        1.0
+      ],
+      "normalized_effective_concentration": 0.002044989775051125,
+      "normalized_mass": 489.0,
+      "normalized_positive_identity_mass_range": [
+        1.0,
+        1.0
+      ],
+      "original_coefficient_range": [
+        1.0,
+        1.0
+      ],
+      "original_mass": 489.0,
+      "original_positive_identity_mass_range": [
+        1.0,
+        1.0
+      ],
+      "positive_identities": 489,
+      "positive_identity_rows_repeated_beyond_first": 0,
+      "positive_rows": 489,
+      "training_rows": 489,
+      "zero_mass_identities": 0
+    },
+    "stability/>32": {
+      "affected_identities": 0,
+      "affected_rows": 0,
+      "effective_concentration": 0.0010131712259371835,
+      "effective_concentration_after": 0.0010131712259371835,
+      "identities_with_multiple_compact_rows": 0,
+      "mass_delta": 0.0,
+      "maximum_positive_compact_row_multiplicity": 1,
+      "normalized_coefficient_range": [
+        1.0,
+        1.0
+      ],
+      "normalized_effective_concentration": 0.0010131712259371835,
+      "normalized_mass": 987.0,
+      "normalized_positive_identity_mass_range": [
+        1.0,
+        1.0
+      ],
+      "original_coefficient_range": [
+        1.0,
+        1.0
+      ],
+      "original_mass": 987.0,
+      "original_positive_identity_mass_range": [
+        1.0,
+        1.0
+      ],
+      "positive_identities": 987,
+      "positive_identity_rows_repeated_beyond_first": 0,
+      "positive_rows": 987,
+      "training_rows": 987,
+      "zero_mass_identities": 0
+    }
+  },
+  "low_stone_coefficients_unchanged": true,
+  "normalization_is_noop": false,
+  "registered_seed416_registration_sha256": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+  "replay_sources": [
+    {
+      "compact_rows": 66733,
+      "expanded_replay_positions": 66733,
+      "expanded_training_positions": 60015,
+      "expanded_validation_positions": 6718,
+      "name": "fresh",
+      "path": "/home/alex/Mancala/ai/.tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/self_play.jsonl",
+      "replay_weight": 1,
+      "sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+      "value_target_mode": "default",
+      "weight": 1
+    },
+    {
+      "compact_rows": 13941,
+      "expanded_replay_positions": 55764,
+      "expanded_training_positions": 50352,
+      "expanded_validation_positions": 5412,
+      "name": "generic_bootstrap",
+      "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/generic_bootstrap.jsonl",
+      "replay_weight": 4,
+      "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2",
+      "value_target_mode": "sharpened",
+      "weight": 4
+    },
+    {
+      "compact_rows": 2951,
+      "expanded_replay_positions": 2951,
+      "expanded_training_positions": 2675,
+      "expanded_validation_positions": 276,
+      "name": "random_teacher",
+      "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/random_teacher_1200_train.jsonl",
+      "replay_weight": 1,
+      "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6",
+      "value_target_mode": "sharpened",
+      "weight": 1
+    },
+    {
+      "compact_rows": 2000,
+      "expanded_replay_positions": 16000,
+      "expanded_training_positions": 14240,
+      "expanded_validation_positions": 1760,
+      "name": "opening_disagreement",
+      "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/opening-disagreement/opening_puct_disagreement_replay.jsonl",
+      "replay_weight": 8,
+      "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2",
+      "value_target_mode": "sharpened",
+      "weight": 8
+    },
+    {
+      "compact_rows": 2000,
+      "expanded_replay_positions": 8000,
+      "expanded_training_positions": 7220,
+      "expanded_validation_positions": 780,
+      "name": "stability",
+      "path": "/home/alex/Mancala/ai/.tmp/fresh-uniform1200/replay-regeneration/stability/equal_budget_stability_replay.jsonl",
+      "replay_weight": 4,
+      "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff",
+      "value_target_mode": "sharpened",
+      "weight": 4
+    }
+  ],
+  "rows_changed": 52867,
+  "schema": "seed429-compact-coefficient-census-v1",
+  "source_row_count": 87625,
+  "source_weights_are_copy_multiplicity_not_new_compact_rows": true,
+  "target_arrays_preserved_by_construction": true,
+  "training_compact_row_count": 78863,
+  "training_expanded_position_count": 134502,
+  "treatment_coefficients_sha256": "f90123a4b6a4fca965c0fb50fc6d69cdf67bfa8bd3c65ebacac8848b91c23930",
+  "validation_coefficients_unchanged": true,
+  "validation_compact_row_count": 8762,
+  "validation_expanded_position_count": 14946
+}
