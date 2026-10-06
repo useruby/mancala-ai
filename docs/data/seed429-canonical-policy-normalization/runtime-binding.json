@@ -1,0 +1,81 @@
+{
+  "candidates": {
+    "A": {
+      "artifact": "docs/data/seed429-canonical-policy-normalization/runtime-artifacts/A",
+      "artifact_files": {
+        "metadata.json": "f46be9316c6d3757c32341f4af28707561ca53ccc7b3e3b7df702be9992c133b",
+        "model.npz": "836fc769c62126b649ce9691494719506b88efec0746769c9a589522d08cb2cd",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "204f8310af5ddc9e94eb92eb730f32c8f29ef7567f307a006af224160b44b8e5"
+      },
+      "checkpoint": "docs/data/seed429-canonical-policy-normalization/training-checkpoints/A/E4.npz",
+      "checkpoint_sha256": "836fc769c62126b649ce9691494719506b88efec0746769c9a589522d08cb2cd",
+      "runtime_contract": {
+        "challenger_runtime_policy_inherited": false,
+        "exact_leaf_solve_mode": "disabled",
+        "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+        "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "exact_root_objective": "final_score_margin",
+        "exact_root_solve_threshold": 16,
+        "exact_root_solver": "native_kvtb_root_action_probe_v1",
+        "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+        "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+        "runtime_search_policy_mode": "puct_exact_root_hybrid",
+        "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+      }
+    },
+    "B": {
+      "artifact": "docs/data/seed429-canonical-policy-normalization/runtime-artifacts/B",
+      "artifact_files": {
+        "metadata.json": "676cadf4fd0943bd5040d623798f3831f8a329bfff55538f9d5e87bf6d4e9be4",
+        "model.npz": "9b8979b4ed942f63a1df7da143f9b07100731c26f223e8b54bec9e7bb158d98d",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "f8d9c2c214d149cd80a3635f7bb73c78a29c348c4f186693717895fd1ede7a35"
+      },
+      "checkpoint": "docs/data/seed429-canonical-policy-normalization/training-checkpoints/B/E4.npz",
+      "checkpoint_sha256": "9b8979b4ed942f63a1df7da143f9b07100731c26f223e8b54bec9e7bb158d98d",
+      "runtime_contract": {
+        "challenger_runtime_policy_inherited": false,
+        "exact_leaf_solve_mode": "disabled",
+        "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+        "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "exact_root_objective": "final_score_margin",
+        "exact_root_solve_threshold": 16,
+        "exact_root_solver": "native_kvtb_root_action_probe_v1",
+        "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+        "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+        "runtime_search_policy_mode": "puct_exact_root_hybrid",
+        "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+      }
+    }
+  },
+  "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+  "opponent": "docs/data/seed429-canonical-policy-normalization/runtime-artifacts/seed455",
+  "opponent_files": {
+    "metadata.json": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+    "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+  },
+  "registration_sha256": "f21b8e3a2e5f2f0782f1ce2c28f4bdc2618d75235d63e7722da6746f86ecffa7",
+  "runtime_contract": {
+    "challenger_runtime_policy_inherited": false,
+    "exact_leaf_solve_mode": "disabled",
+    "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+    "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "exact_root_objective": "final_score_margin",
+    "exact_root_solve_threshold": 16,
+    "exact_root_solver": "native_kvtb_root_action_probe_v1",
+    "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+    "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+    "runtime_search_policy_mode": "puct_exact_root_hybrid",
+    "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+  },
+  "runtime_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+  "schema": "seed429-runtime-binding-v1",
+  "suite_sha256": "3e462c64ddbcb9ef4f7f6b2fe9d057030db5253eee3ee8dba3bac9eab0582111",
+  "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+  "training_results_sha256": "12dfb8cdba9f8019fa5aa8f449e449aa6ae3e89659d8e441f1cdf055bb2b4377"
+}

@@ -1,0 +1,142 @@
+{
+  "lanes": {
+    "A": {
+      "checkpoint_dir": "docs/data/seed429-canonical-policy-normalization/training-checkpoints/A",
+      "epoch_hashes": {
+        "1": "1d76767b6fcd44794f0aef31f2274f5cb0880a3bcd47f296dac418c205595e47",
+        "2": "e1899ce5e0f2faa708a8c529ee48fd3cc61417c93c45ba642d24f80cc197ebed",
+        "3": "60a22c5fe01fab3ccdc5cbe49b45c41f1d94adb75e53e02d326c8525961031e6",
+        "4": "836fc769c62126b649ce9691494719506b88efec0746769c9a589522d08cb2cd"
+      },
+      "history": [
+        {
+          "audit_source_samples": 0.0,
+          "behavior_anchor_loss": 0.0,
+          "epoch": 1,
+          "exact_root_masked_examples_sampled": 0,
+          "examples_sampled": 134502,
+          "gradient_norm": 1.5973201070878444,
+          "optimizer_updates": 263,
+          "pairwise_loss": 0.0,
+          "policy_active_examples_sampled": 134502,
+          "policy_loss": 0.9423706506594959,
+          "total_loss": 1.0044610910542564,
+          "value_loss": 0.20696813695331037
+        },
+        {
+          "audit_source_samples": 0.0,
+          "behavior_anchor_loss": 0.0,
+          "epoch": 2,
+          "exact_root_masked_examples_sampled": 0,
+          "examples_sampled": 134502,
+          "gradient_norm": 1.7054933935504133,
+          "optimizer_updates": 263,
+          "pairwise_loss": 0.0,
+          "policy_active_examples_sampled": 134502,
+          "policy_loss": 0.9190006766029184,
+          "total_loss": 0.9801785975354705,
+          "value_loss": 0.20392638937828658
+        },
+        {
+          "audit_source_samples": 0.0,
+          "behavior_anchor_loss": 0.0,
+          "epoch": 3,
+          "exact_root_masked_examples_sampled": 0,
+          "examples_sampled": 134502,
+          "gradient_norm": 1.6939478891978523,
+          "optimizer_updates": 263,
+          "pairwise_loss": 0.0,
+          "policy_active_examples_sampled": 134502,
+          "policy_loss": 0.902506951823434,
+          "total_loss": 0.9631847263289042,
+          "value_loss": 0.20225924021164274
+        },
+        {
+          "audit_source_samples": 0.0,
+          "behavior_anchor_loss": 0.0,
+          "epoch": 4,
+          "exact_root_masked_examples_sampled": 0,
+          "examples_sampled": 134502,
+          "gradient_norm": 1.8187137291507114,
+          "optimizer_updates": 263,
+          "pairwise_loss": 0.0,
+          "policy_active_examples_sampled": 134502,
+          "policy_loss": 0.8884156622814134,
+          "total_loss": 0.9486270458526032,
+          "value_loss": 0.2007045951519629
+        }
+      ],
+      "optimizer_updates": 1052
+    },
+    "B": {
+      "checkpoint_dir": "docs/data/seed429-canonical-policy-normalization/training-checkpoints/B",
+      "epoch_hashes": {
+        "1": "83c4d3d5e92ffc1546999493543a2f224e7759808a8810cf000e036a352c95c8",
+        "2": "a4e09752ffb210e3632bbe18781b325e623f2e84119bb5372b361b711615b3e4",
+        "3": "e93faec229e662b7fd1edd4f4a899a083d944f8f703baa3267b21eea7772eb65",
+        "4": "9b8979b4ed942f63a1df7da143f9b07100731c26f223e8b54bec9e7bb158d98d"
+      },
+      "history": [
+        {
+          "audit_source_samples": 0.0,
+          "behavior_anchor_loss": 0.0,
+          "epoch": 1,
+          "exact_root_masked_examples_sampled": 0,
+          "examples_sampled": 134502,
+          "gradient_norm": 1.7952800455406424,
+          "optimizer_updates": 263,
+          "pairwise_loss": 0.0,
+          "policy_active_examples_sampled": 134502,
+          "policy_loss": 1.0037437910816063,
+          "total_loss": 1.065935853542937,
+          "value_loss": 0.20730686952632643
+        },
+        {
+          "audit_source_samples": 0.0,
+          "behavior_anchor_loss": 0.0,
+          "epoch": 2,
+          "exact_root_masked_examples_sampled": 0,
+          "examples_sampled": 134502,
+          "gradient_norm": 1.841986102611825,
+          "optimizer_updates": 263,
+          "pairwise_loss": 0.0,
+          "policy_active_examples_sampled": 134502,
+          "policy_loss": 0.9778484140058887,
+          "total_loss": 1.0391306487326386,
+          "value_loss": 0.2042741062183344
+        },
+        {
+          "audit_source_samples": 0.0,
+          "behavior_anchor_loss": 0.0,
+          "epoch": 3,
+          "exact_root_masked_examples_sampled": 0,
+          "examples_sampled": 134502,
+          "gradient_norm": 1.9421840290371435,
+          "optimizer_updates": 263,
+          "pairwise_loss": 0.0,
+          "policy_active_examples_sampled": 134502,
+          "policy_loss": 0.9597053756731998,
+          "total_loss": 1.0206894505159936,
+          "value_loss": 0.2032802314019475
+        },
+        {
+          "audit_source_samples": 0.0,
+          "behavior_anchor_loss": 0.0,
+          "epoch": 4,
+          "exact_root_masked_examples_sampled": 0,
+          "examples_sampled": 134502,
+          "gradient_norm": 2.020128536400511,
+          "optimizer_updates": 263,
+          "pairwise_loss": 0.0,
+          "policy_active_examples_sampled": 134502,
+          "policy_loss": 0.9438529143768571,
+          "total_loss": 1.0044586089627372,
+          "value_loss": 0.2020189706590239
+        }
+      ],
+      "optimizer_updates": 1052
+    }
+  },
+  "registration_sha256": "f21b8e3a2e5f2f0782f1ce2c28f4bdc2618d75235d63e7722da6746f86ecffa7",
+  "schema": "seed429-training-results-v1"
+}

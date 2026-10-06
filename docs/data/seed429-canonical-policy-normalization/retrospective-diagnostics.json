@@ -1,0 +1,560 @@
+{
+  "aggregates": {
+    "A_E4": {
+      "all/17-32": {
+        "canonical_identity_denominator": 2743,
+        "equal_canonical_identity": {
+          "policy_loss": 1.0562277783041547,
+          "total_loss": 1.1248846245569952,
+          "value_loss": 0.22885615417613447
+        },
+        "exposure_weighted": {
+          "policy_loss": 1.0363760205794237,
+          "total_loss": 1.106458965651139,
+          "value_loss": 0.23360981690571794
+        },
+        "policy_weight_denominator": 4583.0,
+        "weighted_positions": 4583
+      },
+      "all/<=16": {
+        "canonical_identity_denominator": 2532,
+        "equal_canonical_identity": {
+          "policy_loss": 0.7997897460461287,
+          "total_loss": 0.838775671201475,
+          "value_loss": 0.12995308385115467
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.7720946188878213,
+          "total_loss": 0.8118215593272594,
+          "value_loss": 0.13242313479812715
+        },
+        "policy_weight_denominator": 4590.0,
+        "weighted_positions": 4590
+      },
+      "all/>32": {
+        "canonical_identity_denominator": 2016,
+        "equal_canonical_identity": {
+          "policy_loss": 1.117275550951414,
+          "total_loss": 1.203485014142291,
+          "value_loss": 0.28736487730292326
+        },
+        "exposure_weighted": {
+          "policy_loss": 1.037449740506725,
+          "total_loss": 1.111619244377042,
+          "value_loss": 0.24723167956772416
+        },
+        "policy_weight_denominator": 5773.0,
+        "weighted_positions": 5773
+      },
+      "all/overall": {
+        "canonical_identity_denominator": 7291,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9840526599362426,
+          "total_loss": 1.0472588551848623,
+          "value_loss": 0.21068731749539896
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.9556284594510852,
+          "total_loss": 1.0179673688398203,
+          "value_loss": 0.20779636462911685
+        },
+        "policy_weight_denominator": 14946.0,
+        "weighted_positions": 14946
+      },
+      "seen/17-32": {
+        "canonical_identity_denominator": 421,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9109484615493372,
+          "total_loss": 0.9734885958458922,
+          "value_loss": 0.2084671143218505
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.8235745768077067,
+          "total_loss": 0.8769173489909566,
+          "value_loss": 0.17780924061083286
+        },
+        "policy_weight_denominator": 570.0,
+        "weighted_positions": 570
+      },
+      "seen/<=16": {
+        "canonical_identity_denominator": 416,
+        "equal_canonical_identity": {
+          "policy_loss": 0.6922665077447456,
+          "total_loss": 0.7314486664146291,
+          "value_loss": 0.13060719556627803
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.6961382074830518,
+          "total_loss": 0.7293406518544308,
+          "value_loss": 0.11067481457126341
+        },
+        "policy_weight_denominator": 504.0,
+        "weighted_positions": 504
+      },
+      "seen/>32": {
+        "canonical_identity_denominator": 774,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9272422018892922,
+          "total_loss": 1.0077858429985185,
+          "value_loss": 0.26847880369742044
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.8822680747745356,
+          "total_loss": 0.9587534305546461,
+          "value_loss": 0.2549511859337018
+        },
+        "policy_weight_denominator": 3166.0,
+        "weighted_positions": 3166
+      },
+      "seen/overall": {
+        "canonical_identity_denominator": 1611,
+        "equal_canonical_identity": {
+          "policy_loss": 0.8623076559878319,
+          "total_loss": 0.9274659134453505,
+          "value_loss": 0.2171941915250616
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.852252804266045,
+          "total_loss": 0.9204820609895019,
+          "value_loss": 0.22743085574485644
+        },
+        "policy_weight_denominator": 4240.0,
+        "weighted_positions": 4240
+      },
+      "unseen/17-32": {
+        "canonical_identity_denominator": 2322,
+        "equal_canonical_identity": {
+          "policy_loss": 1.0825682573540163,
+          "total_loss": 1.1523341198573287,
+          "value_loss": 0.23255287501104127
+        },
+        "exposure_weighted": {
+          "policy_loss": 1.0666019919100689,
+          "total_loss": 1.1390626839407738,
+          "value_loss": 0.24153564010234999
+        },
+        "policy_weight_denominator": 4013.0,
+        "weighted_positions": 4013
+      },
+      "unseen/<=16": {
+        "canonical_identity_denominator": 2116,
+        "equal_canonical_identity": {
+          "policy_loss": 0.8209285301356255,
+          "total_loss": 0.8598758763013465,
+          "value_loss": 0.12982448721906995
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.7814636916602158,
+          "total_loss": 0.821995415755626,
+          "value_loss": 0.13510574698470063
+        },
+        "policy_weight_denominator": 4086.0,
+        "weighted_positions": 4086
+      },
+      "unseen/>32": {
+        "canonical_identity_denominator": 1242,
+        "equal_canonical_identity": {
+          "policy_loss": 1.2357021308017218,
+          "total_loss": 1.325442468623193,
+          "value_loss": 0.2991344594049033
+        },
+        "exposure_weighted": {
+          "policy_loss": 1.2259058792516846,
+          "total_loss": 1.297262959974167,
+          "value_loss": 0.23785693574160782
+        },
+        "policy_weight_denominator": 2607.0,
+        "weighted_positions": 2607
+      },
+      "unseen/overall": {
+        "canonical_identity_denominator": 5680,
+        "equal_canonical_identity": {
+          "policy_loss": 1.0185828010209061,
+          "total_loss": 1.0812353391887979,
+          "value_loss": 0.20884179389297178
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.9965693129897151,
+          "total_loss": 1.0565754115528176,
+          "value_loss": 0.2000203285436754
+        },
+        "policy_weight_denominator": 10706.0,
+        "weighted_positions": 10706
+      }
+    },
+    "B_E4": {
+      "all/17-32": {
+        "canonical_identity_denominator": 2743,
+        "equal_canonical_identity": {
+          "policy_loss": 1.0580124829750683,
+          "total_loss": 1.126283846470771,
+          "value_loss": 0.22757121165234134
+        },
+        "exposure_weighted": {
+          "policy_loss": 1.0457570197811845,
+          "total_loss": 1.116183476074239,
+          "value_loss": 0.234754854310182
+        },
+        "policy_weight_denominator": 4583.0,
+        "weighted_positions": 4583
+      },
+      "all/<=16": {
+        "canonical_identity_denominator": 2532,
+        "equal_canonical_identity": {
+          "policy_loss": 0.7907121233571845,
+          "total_loss": 0.8289171618697304,
+          "value_loss": 0.1273501283751529
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.7741293662254273,
+          "total_loss": 0.813699518472984,
+          "value_loss": 0.13190050749185608
+        },
+        "policy_weight_denominator": 4590.0,
+        "weighted_positions": 4590
+      },
+      "all/>32": {
+        "canonical_identity_denominator": 2016,
+        "equal_canonical_identity": {
+          "policy_loss": 1.1139133519154454,
+          "total_loss": 1.1999679046869722,
+          "value_loss": 0.2868485092384231
+        },
+        "exposure_weighted": {
+          "policy_loss": 1.0993581183425112,
+          "total_loss": 1.1738086473393332,
+          "value_loss": 0.24816842998940677
+        },
+        "policy_weight_denominator": 5773.0,
+        "weighted_positions": 5773
+      },
+      "all/overall": {
+        "canonical_identity_denominator": 7291,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9806419770405352,
+          "total_loss": 1.043389129141739,
+          "value_loss": 0.20915717367067896
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.9830424615163387,
+          "total_loss": 1.0455471016813331,
+          "value_loss": 0.20834880054998187
+        },
+        "policy_weight_denominator": 14946.0,
+        "weighted_positions": 14946
+      },
+      "seen/17-32": {
+        "canonical_identity_denominator": 421,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9734729106179242,
+          "total_loss": 1.0349950881733379,
+          "value_loss": 0.20507392518471235
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.9099742721133233,
+          "total_loss": 0.9624493883370534,
+          "value_loss": 0.17491705407910058
+        },
+        "policy_weight_denominator": 570.0,
+        "weighted_positions": 570
+      },
+      "seen/<=16": {
+        "canonical_identity_denominator": 416,
+        "equal_canonical_identity": {
+          "policy_loss": 0.6900789003970453,
+          "total_loss": 0.728502518957735,
+          "value_loss": 0.1280787285356328
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.6968008903444735,
+          "total_loss": 0.7290719485034732,
+          "value_loss": 0.10757019386333269
+        },
+        "policy_weight_denominator": 504.0,
+        "weighted_positions": 504
+      },
+      "seen/>32": {
+        "canonical_identity_denominator": 774,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9642581393901951,
+          "total_loss": 1.044970770867725,
+          "value_loss": 0.26904210492509983
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.9946065789130587,
+          "total_loss": 1.0715766077125624,
+          "value_loss": 0.2565667626650118
+        },
+        "policy_weight_denominator": 3166.0,
+        "weighted_positions": 3166
+      },
+      "seen/overall": {
+        "canonical_identity_denominator": 1611,
+        "equal_canonical_identity": {
+          "policy_loss": 0.8958663673639528,
+          "total_loss": 0.9606439209553148,
+          "value_loss": 0.2159251786378736
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.9478295784615456,
+          "total_loss": 1.0161933852395857,
+          "value_loss": 0.22787935592680056
+        },
+        "policy_weight_denominator": 4240.0,
+        "weighted_positions": 4240
+      },
+      "unseen/17-32": {
+        "canonical_identity_denominator": 2322,
+        "equal_canonical_identity": {
+          "policy_loss": 1.0733402865764283,
+          "total_loss": 1.142835339684905,
+          "value_loss": 0.23165017702825516
+        },
+        "exposure_weighted": {
+          "policy_loss": 1.0650433806510278,
+          "total_loss": 1.138019616121634,
+          "value_loss": 0.2432541182353543
+        },
+        "policy_weight_denominator": 4013.0,
+        "weighted_positions": 4013
+      },
+      "unseen/<=16": {
+        "canonical_identity_denominator": 2116,
+        "equal_canonical_identity": {
+          "policy_loss": 0.810496348665038,
+          "total_loss": 0.8486584149185914,
+          "value_loss": 0.12720688751184495
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.7836676804310075,
+          "total_loss": 0.8241381614648181,
+          "value_loss": 0.1349016034460352
+        },
+        "policy_weight_denominator": 4086.0,
+        "weighted_positions": 4086
+      },
+      "unseen/>32": {
+        "canonical_identity_denominator": 1242,
+        "equal_canonical_identity": {
+          "policy_loss": 1.2071767452282827,
+          "total_loss": 1.296560321414909,
+          "value_loss": 0.29794525395542154
+        },
+        "exposure_weighted": {
+          "policy_loss": 1.2265707665333998,
+          "total_loss": 1.297961557756808,
+          "value_loss": 0.23796930407802755
+        },
+        "policy_weight_denominator": 2607.0,
+        "weighted_positions": 2607
+      },
+      "unseen/overall": {
+        "canonical_identity_denominator": 5680,
+        "equal_canonical_identity": {
+          "policy_loss": 1.0046866085878898,
+          "total_loss": 1.0668578844917966,
+          "value_loss": 0.20723758634635667
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.9969881577756627,
+          "total_loss": 1.0571723359156888,
+          "value_loss": 0.20061392713342
+        },
+        "policy_weight_denominator": 10706.0,
+        "weighted_positions": 10706
+      }
+    },
+    "initializer": {
+      "all/17-32": {
+        "canonical_identity_denominator": 2743,
+        "equal_canonical_identity": {
+          "policy_loss": 1.0394014058991283,
+          "total_loss": 1.1093138221807133,
+          "value_loss": 0.23304138760528334
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.9882269497927038,
+          "total_loss": 1.058261164134886,
+          "value_loss": 0.2334473811406076
+        },
+        "policy_weight_denominator": 4583.0,
+        "weighted_positions": 4583
+      },
+      "all/<=16": {
+        "canonical_identity_denominator": 2532,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9327562238983751,
+          "total_loss": 0.9718627517639349,
+          "value_loss": 0.1303550928851995
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.8409992628011299,
+          "total_loss": 0.8806171883791711,
+          "value_loss": 0.13205975192680416
+        },
+        "policy_weight_denominator": 4590.0,
+        "weighted_positions": 4590
+      },
+      "all/>32": {
+        "canonical_identity_denominator": 2016,
+        "equal_canonical_identity": {
+          "policy_loss": 1.110533079370241,
+          "total_loss": 1.1987004503306384,
+          "value_loss": 0.2938912365346583
+        },
+        "exposure_weighted": {
+          "policy_loss": 1.0240768153220434,
+          "total_loss": 1.0989900618205584,
+          "value_loss": 0.24971082166171638
+        },
+        "policy_weight_denominator": 5773.0,
+        "weighted_positions": 5773
+      },
+      "all/overall": {
+        "canonical_identity_denominator": 7291,
+        "equal_canonical_identity": {
+          "policy_loss": 1.0220342207245097,
+          "total_loss": 1.0862960375222257,
+          "value_loss": 0.2142060559923863
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.9568597739871073,
+          "total_loss": 1.0194375375873588,
+          "value_loss": 0.2085925453341713
+        },
+        "policy_weight_denominator": 14946.0,
+        "weighted_positions": 14946
+      },
+      "seen/17-32": {
+        "canonical_identity_denominator": 421,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9698400480431257,
+          "total_loss": 1.0324441082422329,
+          "value_loss": 0.20868020066369028
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.8917271599520427,
+          "total_loss": 0.9457307291037503,
+          "value_loss": 0.18001189717235902
+        },
+        "policy_weight_denominator": 570.0,
+        "weighted_positions": 570
+      },
+      "seen/<=16": {
+        "canonical_identity_denominator": 416,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9437872120037399,
+          "total_loss": 0.9856825034001935,
+          "value_loss": 0.13965097132151208
+        },
+        "exposure_weighted": {
+          "policy_loss": 1.004034950944306,
+          "total_loss": 1.0405054226164592,
+          "value_loss": 0.12156823890717716
+        },
+        "policy_weight_denominator": 504.0,
+        "weighted_positions": 504
+      },
+      "seen/>32": {
+        "canonical_identity_denominator": 774,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9699217167697877,
+          "total_loss": 1.0544823372345815,
+          "value_loss": 0.28186873488264585
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.9033426246862193,
+          "total_loss": 0.9822621726709299,
+          "value_loss": 0.26306515994903534
+        },
+        "policy_weight_denominator": 3166.0,
+        "weighted_positions": 3166
+      },
+      "seen/overall": {
+        "canonical_identity_denominator": 1611,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9631517996272673,
+          "total_loss": 1.0309573060236044,
+          "value_loss": 0.22601835465445716
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.9137501995766898,
+          "total_loss": 0.9842743602037729,
+          "value_loss": 0.2350805354236103
+        },
+        "policy_weight_denominator": 4240.0,
+        "weighted_positions": 4240
+      },
+      "unseen/17-32": {
+        "canonical_identity_denominator": 2322,
+        "equal_canonical_identity": {
+          "policy_loss": 1.0520135211693165,
+          "total_loss": 1.1232510097638746,
+          "value_loss": 0.23745829531519322
+        },
+        "exposure_weighted": {
+          "policy_loss": 1.0019336231565654,
+          "total_loss": 1.0742448042962982,
+          "value_loss": 0.2410372704657762
+        },
+        "policy_weight_denominator": 4013.0,
+        "weighted_positions": 4013
+      },
+      "unseen/<=16": {
+        "canonical_identity_denominator": 2116,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9305875608304017,
+          "total_loss": 0.9691458251662584,
+          "value_loss": 0.12852754778618908
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.8208891338671698,
+          "total_loss": 0.8608952916450563,
+          "value_loss": 0.13335385925962162
+        },
+        "policy_weight_denominator": 4086.0,
+        "weighted_positions": 4086
+      },
+      "unseen/>32": {
+        "canonical_identity_denominator": 1242,
+        "equal_canonical_identity": {
+          "policy_loss": 1.1981604502661758,
+          "total_loss": 1.2885755063180364,
+          "value_loss": 0.301383520172869
+        },
+        "exposure_weighted": {
+          "policy_loss": 1.1706991580734891,
+          "total_loss": 1.2407470610716989,
+          "value_loss": 0.23349300999403252
+        },
+        "policy_weight_denominator": 2607.0,
+        "weighted_positions": 2607
+      },
+      "unseen/overall": {
+        "canonical_identity_denominator": 5680,
+        "equal_canonical_identity": {
+          "policy_loss": 1.0387348510744494,
+          "total_loss": 1.1019915826708664,
+          "value_loss": 0.210855771988056
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.9739328727635101,
+          "total_loss": 1.0333635484323431,
+          "value_loss": 0.198102252229443
+        },
+        "policy_weight_denominator": 10706.0,
+        "weighted_positions": 10706
+      }
+    }
+  },
+  "checkpoints": {
+    "A_E4": "836fc769c62126b649ce9691494719506b88efec0746769c9a589522d08cb2cd",
+    "B_E4": "9b8979b4ed942f63a1df7da143f9b07100731c26f223e8b54bec9e7bb158d98d",
+    "initializer": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+  },
+  "classification": "retrospective diagnostics; not checkpoint selection or arena gate",
+  "diagnostic_evidence_sha256": "0a6ffd789d0d74674842c5a1c6043ed80d3f7ca0592b61db1e46adfd30aca932",
+  "membership_sha256": "554f3bd016a0f920ef253538d741a91cb27c9882d2dba94cf7509030af8ca385",
+  "prediction_evidence_sha256": "9504588ee40c57fc86c2278caafa708ac53550a2b968272cadd96e7e8bcdfe8b",
+  "schema": "seed429-retrospective-diagnostics-v1"
+}

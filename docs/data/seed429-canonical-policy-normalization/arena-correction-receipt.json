@@ -1,0 +1,169 @@
+{
+  "A_E4_sha256": "836fc769c62126b649ce9691494719506b88efec0746769c9a589522d08cb2cd",
+  "candidate_artifacts": {
+    "A": {
+      "artifact": "docs/data/seed429-canonical-policy-normalization/runtime-artifacts/A",
+      "artifact_files": {
+        "metadata.json": "f46be9316c6d3757c32341f4af28707561ca53ccc7b3e3b7df702be9992c133b",
+        "model.npz": "836fc769c62126b649ce9691494719506b88efec0746769c9a589522d08cb2cd",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "204f8310af5ddc9e94eb92eb730f32c8f29ef7567f307a006af224160b44b8e5"
+      },
+      "checkpoint": "docs/data/seed429-canonical-policy-normalization/training-checkpoints/A/E4.npz",
+      "checkpoint_sha256": "836fc769c62126b649ce9691494719506b88efec0746769c9a589522d08cb2cd",
+      "runtime_contract": {
+        "challenger_runtime_policy_inherited": false,
+        "exact_leaf_solve_mode": "disabled",
+        "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+        "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "exact_root_objective": "final_score_margin",
+        "exact_root_solve_threshold": 16,
+        "exact_root_solver": "native_kvtb_root_action_probe_v1",
+        "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+        "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+        "runtime_search_policy_mode": "puct_exact_root_hybrid",
+        "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+      }
+    },
+    "B": {
+      "artifact": "docs/data/seed429-canonical-policy-normalization/runtime-artifacts/B",
+      "artifact_files": {
+        "metadata.json": "676cadf4fd0943bd5040d623798f3831f8a329bfff55538f9d5e87bf6d4e9be4",
+        "model.npz": "9b8979b4ed942f63a1df7da143f9b07100731c26f223e8b54bec9e7bb158d98d",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "f8d9c2c214d149cd80a3635f7bb73c78a29c348c4f186693717895fd1ede7a35"
+      },
+      "checkpoint": "docs/data/seed429-canonical-policy-normalization/training-checkpoints/B/E4.npz",
+      "checkpoint_sha256": "9b8979b4ed942f63a1df7da143f9b07100731c26f223e8b54bec9e7bb158d98d",
+      "runtime_contract": {
+        "challenger_runtime_policy_inherited": false,
+        "exact_leaf_solve_mode": "disabled",
+        "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+        "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "exact_root_objective": "final_score_margin",
+        "exact_root_solve_threshold": 16,
+        "exact_root_solver": "native_kvtb_root_action_probe_v1",
+        "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+        "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+        "runtime_search_policy_mode": "puct_exact_root_hybrid",
+        "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+      }
+    }
+  },
+  "changed_behavior": "only required parser output path construction and output-path recording; run_arena_worker receives the same candidate/opponent, game indexes, suite, search options, seeds, budgets, runtime contract, and game count",
+  "corrected_launcher": {
+    "command": "python -m ml.alphazero_lite.seed429_corrected_arena execute",
+    "outcome_rule": "the parser output file contains chunk report metadata; game and search ledgers are atomically bound in the sibling chunk JSON and final arena-evidence files",
+    "output_rule": ".tmp/seed429-canonical-policy-normalization/arena-chunks/{lane}/chunk-{start:04d}-report.json; start is the global game index of each registered 32-game chunk",
+    "parser_contract": "construct args through arena.parse_args with required --out set",
+    "readiness_command": "python -m ml.alphazero_lite.seed429_corrected_arena readiness",
+    "register_correction_command": "python -m ml.alphazero_lite.seed429_corrected_arena register-correction",
+    "verification_command": "python -m ml.alphazero_lite.verify_seed429_correction --require-complete"
+  },
+  "corrected_source_hashes": {
+    "ml/alphazero_lite/seed429_corrected_arena.py": "3817e9753ac1c286fd600d399487edc704417551fe6c4c6e134ebcd232f211a8",
+    "ml/alphazero_lite/verify_seed429_correction.py": "18132cfa6e2c93388f0629fb5d0d16ecfefcc9bed5465d0baaba094f09f203f7"
+  },
+  "corrected_source_snapshots": {
+    "ml/alphazero_lite/seed429_corrected_arena.py": "docs/data/seed429-canonical-policy-normalization/correction-source-snapshots/seed429_corrected_arena.py",
+    "ml/alphazero_lite/verify_seed429_correction.py": "docs/data/seed429-canonical-policy-normalization/correction-source-snapshots/verify_seed429_correction.py"
+  },
+  "failure": {
+    "failure": "arena.parse_args() rejected constructed argv because --out is required",
+    "frozen_runner": "ml/alphazero_lite/run_seed429_canonical_policy_normalization.py",
+    "games_or_chunks_completed": 0,
+    "parser_evidence": "usage: arena.py ... --out OUT; error: the following arguments are required: --out"
+  },
+  "frozen_opponent_files": {
+    "metadata.json": "8b9f4d02395271accd5accb5cde20ec6ddc4ecd63ded192b0b84d9ecf6c649ac",
+    "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+  },
+  "games_completed_before_correction": 0,
+  "original_execution_source_snapshots": {
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/build_opening_suite.py": "5c15d541574905ff9d7c75bc8daf8813311e22f22f220563e18cb9b85fb8bd87",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/endgame_tablebase.py": "fe00e7b48277e2f8a5795232f78b25df4d29449b7b5dc819a09771999b2350f5",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/evaluation_seed_contract.py": "be5ed17519f86040cdac2a2380d4dd907015b927c6b80fedc85f7d668b9422c3",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/exact_root_decision.py": "c806a7c3c3a8fd7d7be800f59fc568c670889164a46c7acbde8ff92473776905",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/export_artifact.py": "f720f34c8b77b32a0f20a00ddcd4f428167235bf0f5a52c29ebbde31663ae481",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/input_encodings.py": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/native_exact_root_tablebase.py": "49fe76e8dc0e827db3181397dee7bfbcf3b1b35234757be1ac441ea09eefab6a",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/opening_cache.py": "8ba33240d25c4cad54011b1f2712d0326ad09952c63515a4b794c585de5195ed",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/policy_prior_localization.py": "33cdcd8082389f5e1eba20856ee55328fd8c39942ccb1b5b0dbbf3c4d63313a5",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/report_validation.py": "5d1c02e8b1ac11b1224153769b6d843a046381ef0d64206d33f6b70c30399699",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/root_prior_transforms.py": "05892bb9d8af2e0551b3d45ced7a2c905db771a00283f04430ee6f49017afe0c",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/run_seed429_canonical_policy_normalization.py": "71aa940443a8e1ba417c9c35bf7aa5e3bf541fd70b41a3ec29388d84920a01c1",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/runtime_search_policy.py": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/search_ablation.py": "6c9a6b9bf85eb4826c1ba33964d5f8675f1402bd6cbd6008a06b6c15d05d4193",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/seed416_policy_target_softening.py": "f9c4b0ba7081a4e632d3c624f0199a7629072aafe9cf82aad264bd9ae9ad93ca",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/seed422_exclusions.py": "e707b978399ebe9592c00f4eed2915b44edf5214d3177a7f5762a545adf1227a",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/seed427_validation_metrics.py": "cffab5549e90ac3b28d4e531e664cdd17bb2ce496568fd152993d8b76647f408",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/seed427_validation_subsets.py": "a2670ea8e5af8b63aefda95977afab55975a500dbde4c245be94dd25d5681258",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/seed429_policy_normalization.py": "b2743afc7bc4acdadff9e25fc456f8dc3757dfd0c98c9bc214aee805d70011d6",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/self_play.py": "2f207d6c289ceabff2e313eae657b06fafd9444f2b5146c01cd6030d9944499d",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/shadow_root_q.py": "93563da902a4020a312fa02c175e6115ac98e9a03b0679ea0f6109434aab8b13",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/value_transforms.py": "d63bf9772389614cae22e3a599d2151bd0b4f7d1dfbb7f8e5079bb01c6e5a21b",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/verify_seed429_publication.py": "60a65b9f95835ce82eb5aac8b4b956f105b7b007c95e8fe8b71f06e2bbfc0634"
+  },
+  "protocol_identity": {
+    "adaptive_extension": false,
+    "advance": "paired B-A >= 0.03 and paired lower bound > 0 and B score >= 0.53 and B lower bound > 0.50",
+    "bootstrap_samples": 20000,
+    "bootstrap_seed": 429,
+    "both_seats": true,
+    "c_puct": 1.25,
+    "confidence": 0.95,
+    "games": 2048,
+    "games_per_arm": 1024,
+    "max_moves": 200,
+    "native_root_solve_threshold": 16,
+    "opponent": "frozen seed455",
+    "promotion": false,
+    "resumable_chunk_games": 32,
+    "search_options": {
+      "fpu_mode": "zero",
+      "normalize_values": false,
+      "reuse_subtree": false,
+      "root_policy_mode": "deterministic",
+      "root_temperature": 0.0,
+      "tactical_root_bias": 0.0
+    },
+    "seed": 429,
+    "seed_contract": "azlite_eval_seed_v2",
+    "simulations_per_side": 384,
+    "worker_count_per_chunk": 1
+  },
+  "protocol_unchanged": true,
+  "registration_sha256": "f21b8e3a2e5f2f0782f1ce2c28f4bdc2618d75235d63e7722da6746f86ecffa7",
+  "runtime_binding_sha256": "147d7a4ad51f97ed15e1421ae4992cbbde5ee69090efdab18b4925a506a060ba",
+  "schema": "seed429-pre-arena-output-launch-correction-v1",
+  "status": "registered_before_any_arena_game",
+  "suite_sha256": "3e462c64ddbcb9ef4f7f6b2fe9d057030db5253eee3ee8dba3bac9eab0582111",
+  "timing": "after A/B training and runtime binding; before arena games",
+  "training_lanes": {
+    "A": {
+      "epoch_sha256": {
+        "1": "1d76767b6fcd44794f0aef31f2274f5cb0880a3bcd47f296dac418c205595e47",
+        "2": "e1899ce5e0f2faa708a8c529ee48fd3cc61417c93c45ba642d24f80cc197ebed",
+        "3": "60a22c5fe01fab3ccdc5cbe49b45c41f1d94adb75e53e02d326c8525961031e6",
+        "4": "836fc769c62126b649ce9691494719506b88efec0746769c9a589522d08cb2cd"
+      },
+      "optimizer_updates": 1052
+    },
+    "B": {
+      "epoch_sha256": {
+        "1": "83c4d3d5e92ffc1546999493543a2f224e7759808a8810cf000e036a352c95c8",
+        "2": "a4e09752ffb210e3632bbe18781b325e623f2e84119bb5372b361b711615b3e4",
+        "3": "e93faec229e662b7fd1edd4f4a899a083d944f8f703baa3267b21eea7772eb65",
+        "4": "9b8979b4ed942f63a1df7da143f9b07100731c26f223e8b54bec9e7bb158d98d"
+      },
+      "optimizer_updates": 1052
+    }
+  },
+  "training_results_sha256": "12dfb8cdba9f8019fa5aa8f449e449aa6ae3e89659d8e441f1cdf055bb2b4377"
+}

@@ -1,0 +1,47 @@
+{
+  "draws": 104,
+  "games_played": 1024,
+  "losses": 445,
+  "notes": {
+    "base_seed": 429,
+    "search_profile": {
+      "c_puct": 1.25,
+      "challenger_runtime_policy_inherited": false,
+      "challenger_simulations": 384,
+      "current_simulations": 384,
+      "exact_leaf_solve_mode": "disabled",
+      "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+      "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "exact_root_objective": "final_score_margin",
+      "exact_root_solve_enabled": true,
+      "exact_root_solve_threshold": 16,
+      "exact_root_solver": "native_kvtb_root_action_probe_v1",
+      "exact_root_solver_max_solved_seeds": 16,
+      "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+      "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+      "exact_solve_semantics": "network_priors_exact_leaf_value",
+      "exact_solve_stone_threshold": null,
+      "exact_solve_value_mode": "wdl",
+      "hash": "45774f498a34b237126d8b1fad52a51c79572186d7789ab6e4c0e3aba6ec5984",
+      "kind": "arena_eval",
+      "player_mode": "puct",
+      "runtime_search_policy_mode": "puct_exact_root_hybrid",
+      "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "search_options": {
+        "fpu_mode": "zero",
+        "normalize_values": false,
+        "reuse_subtree": false,
+        "root_policy_mode": "deterministic",
+        "root_temperature": 0.0,
+        "tactical_root_bias": 0.0
+      },
+      "simulations": 384,
+      "version": "v1"
+    },
+    "seed_contract": "azlite_eval_seed_v2",
+    "suite_sha256": "3e462c64ddbcb9ef4f7f6b2fe9d057030db5253eee3ee8dba3bac9eab0582111"
+  },
+  "score": 0.5146484375,
+  "wins": 475
+}
