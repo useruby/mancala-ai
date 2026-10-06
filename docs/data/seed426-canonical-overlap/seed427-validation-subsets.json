@@ -1,0 +1,67 @@
+{
+  "counts": {
+    "all": {
+      "17-32": {
+        "canonical_identities": 2743,
+        "weighted_positions": 4583
+      },
+      "<=16": {
+        "canonical_identities": 2532,
+        "weighted_positions": 4590
+      },
+      ">32": {
+        "canonical_identities": 2016,
+        "weighted_positions": 5773
+      },
+      "canonical_identities": 7291,
+      "network_input_identities": 7291,
+      "weighted_positions": 14946
+    },
+    "input_identity_definition_difference": {
+      "input_disjoint_canonical_identities": 5680,
+      "input_disjoint_positions": 10706,
+      "strict_unseen_canonical_identities": 5680,
+      "strict_unseen_positions": 10706,
+      "validation_positions_canonical_seen_but_input_unseen": 0,
+      "validation_positions_canonical_unseen_but_input_seen": 0
+    },
+    "seen": {
+      "17-32": {
+        "canonical_identities": 421,
+        "weighted_positions": 570
+      },
+      "<=16": {
+        "canonical_identities": 416,
+        "weighted_positions": 504
+      },
+      ">32": {
+        "canonical_identities": 774,
+        "weighted_positions": 3166
+      },
+      "canonical_identities": 1611,
+      "network_input_identities": 1611,
+      "weighted_positions": 4240
+    },
+    "unseen": {
+      "17-32": {
+        "canonical_identities": 2322,
+        "weighted_positions": 4013
+      },
+      "<=16": {
+        "canonical_identities": 2116,
+        "weighted_positions": 4086
+      },
+      ">32": {
+        "canonical_identities": 1242,
+        "weighted_positions": 2607
+      },
+      "canonical_identities": 5680,
+      "network_input_identities": 5680,
+      "weighted_positions": 10706
+    }
+  },
+  "membership_rows": 14946,
+  "membership_sha256": "554f3bd016a0f920ef253538d741a91cb27c9882d2dba94cf7509030af8ca385",
+  "publication": "retrospective subset of frozen seed426 validation; not a new independent holdout",
+  "schema": "seed427-validation-subsets-v1"
+}

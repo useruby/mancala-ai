@@ -1,0 +1,17 @@
+{
+  "checkpoints_unchanged": {
+    "e4": "836fc769c62126b649ce9691494719506b88efec0746769c9a589522d08cb2cd",
+    "initializer": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+  },
+  "manifest_sha256": "7a72f03438380174fa71c2689999a3ff9b03853c38d0cf71706580339a3fb640",
+  "portable_verifier": {
+    "actual_entry_point": "ml/alphazero_lite/verify_seed427_evaluation.py",
+    "relocated_required_publication_test": "ml/alphazero_lite/test_seed427_validation_evaluation.py::test_actual_evaluation_verifier_relocated_read_only",
+    "result": "passed; unrelated working directory; read-only file hashes unchanged; no checkpoints required"
+  },
+  "prediction_evidence_sha256": "9504588ee40c57fc86c2278caafa708ac53550a2b968272cadd96e7e8bcdfe8b",
+  "results_json_sha256": "4899e990f2ff119d77b4c9f3a2f7bd8e24e2402449b4d4d52d13ad917f279172",
+  "schema": "seed427-evaluation-verification-receipt-v1",
+  "status": "verified",
+  "verifier_sha256": "7ce345e7ade7ca8751a047fc6f8fb6732ca81b8e2974c4999860fbd97767da13"
+}

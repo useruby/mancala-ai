@@ -1,0 +1,143 @@
+{
+  "architecture": {
+    "hidden_sizes": [
+      96,
+      3
+    ],
+    "input_encoding": "kalah_v3",
+    "model": "residual_v3"
+  },
+  "execution_sources": {
+    "ml/alphazero_lite/run_seed427_validation_evaluation.py": {
+      "sha256": "4a4db7e9a895c5c4c12a6ae8964380d5730ab2b81240eb0f40f3cc15d0ec26db",
+      "snapshot_sha256": "4a4db7e9a895c5c4c12a6ae8964380d5730ab2b81240eb0f40f3cc15d0ec26db"
+    },
+    "ml/alphazero_lite/seed427_validation_metrics.py": {
+      "sha256": "cffab5549e90ac3b28d4e531e664cdd17bb2ce496568fd152993d8b76647f408",
+      "snapshot_sha256": "cffab5549e90ac3b28d4e531e664cdd17bb2ce496568fd152993d8b76647f408"
+    },
+    "ml/alphazero_lite/seed427_validation_subsets.py": {
+      "sha256": "a2670ea8e5af8b63aefda95977afab55975a500dbde4c245be94dd25d5681258",
+      "snapshot_sha256": "a2670ea8e5af8b63aefda95977afab55975a500dbde4c245be94dd25d5681258"
+    }
+  },
+  "inference": {
+    "chunk_size": 512,
+    "device": "cpu",
+    "model_eval": true,
+    "row_order": "ascending compact row then original weighted-position order",
+    "torch_inference_mode": true
+  },
+  "input_encoding": "kalah_v3; 27 float32 values",
+  "interpretation": "retrospective subsets of historical seed416 validation; not a fresh independent holdout; no game-family independence inferred",
+  "lineage": {
+    "e4_authoritative_record": "seed416 lane A epoch 4; fixed final checkpoint",
+    "initializer_registration": {
+      "path": "/home/alex/Mancala/ai/.tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/parent_init_checkpoint.npz",
+      "sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+    },
+    "seed416_registration_v3_sha256": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+    "seed416_training_results_sha256": "d663291f8feda9b5c16820cdde38542a1e83ba8240130c46c7e0438de6bee0c6",
+    "seed422_registration_sha256": "f9beec18cfd30395de4b03a85ebb2b0a6b286571348b00b560c09072a7de9298",
+    "seed422_supplemental_verification_receipt_sha256": "deca4bfcabd50fd889ab188c68e755fdd1725df9068b96804e44ed3165ad0c9d",
+    "seed422_training_results_sha256": "04413bae8a03c83c89840b94027fa08f7d9945480c1e6132a1f2cb238301017a"
+  },
+  "losses": {
+    "equal_identity": "arithmetic mean row loss within each canonical identity, then arithmetic mean over canonical identities; row multiplicities retained within identity",
+    "policy": "legal-masked log_softmax cross entropy; numerator=sum(row CE*policy weight), denominator=sum(policy weights)",
+    "total": "policy + 0.3 * value",
+    "value": "smooth_l1_loss beta=1; numerator=sum(row Huber), denominator=weighted positions"
+  },
+  "membership": {
+    "canonical_input_definition_differences": 0,
+    "counts": {
+      "all": 14946,
+      "seen": 4240,
+      "unseen": 10706
+    },
+    "path": "docs/data/seed426-canonical-overlap/seed427-validation-membership.jsonl.gz",
+    "sha256": "554f3bd016a0f920ef253538d741a91cb27c9882d2dba94cf7509030af8ca385"
+  },
+  "models": {
+    "e4": {
+      "lineage_serialized_parameter_sha256": "0ac7c75e6d63baa60d6bae92ad9f36797313294c55eb3659fef0ceeeefe10a67",
+      "loaded_parameter_sha256": "1d46c76496e8cb39d4aa5ebfd5406752b9a695d526244e136324f6ebe46cb3d4",
+      "path": "/home/alex/Mancala/ai/.tmp/seed416-policy-target-softening/training/A/E4.npz",
+      "sha256": "836fc769c62126b649ce9691494719506b88efec0746769c9a589522d08cb2cd"
+    },
+    "initializer": {
+      "lineage_serialized_parameter_sha256": "fa2f9d79a92dafb39562ac27f24cf8541472226f5fa2be565f17d3946d080610",
+      "loaded_parameter_sha256": "558ea9af889d335948dec880b5bc46d871942da79f897dba132282b39381b0c4",
+      "path": "/home/alex/Mancala/ai/.tmp/seed455-nextgen-s461-default-value-root16/runs/seed455-nextgen-s461-default-value-root16-iter1/parent_init_checkpoint.npz",
+      "sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+    }
+  },
+  "phase1": {
+    "receipt_sha256": "1dd0f8e2442a32654b29c8969c1300cbbfecb83f84809d2a478290e0bda9209e",
+    "verification": {
+      "input_hashes": {
+        "fresh": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+        "generic_bootstrap": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2",
+        "opening_disagreement": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2",
+        "random_teacher": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6",
+        "stability": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff"
+      },
+      "split_positions": {
+        "train": 134502,
+        "validation": 14946
+      },
+      "status": "verified"
+    }
+  },
+  "schema": "seed427-frozen-validation-evaluation-v1",
+  "status": "frozen_before_forward_passes",
+  "targets": {
+    "exact_root_policy_loss_weight": 1.0,
+    "loaded_dtype": "all state, policy, and value arrays cast to float32 as in frozen train.load_jsonl_replay",
+    "policy_loss_weight": "train.policy_loss_weight_for_row; row-level weights bound in prediction evidence",
+    "policy_target_mode": "sharpened",
+    "source_target_arrays": {
+      "fresh": {
+        "eligible_rows": 66733,
+        "policy_float32_sha256": "2da96f9b1be2ed3084adc2839ca08cf9a2dd9eb6162f16cf51442770954080a5",
+        "value_float32_sha256": "03709069f12e38255b4fb0ff8330715181b240421ae6d0ef61a7cca613b19873"
+      },
+      "generic_bootstrap": {
+        "eligible_rows": 13941,
+        "policy_float32_sha256": "d99fa911fdffe74d9d4e9a160095f878be4d86d2d5d77c08ccde42bca521fc2c",
+        "value_float32_sha256": "e3272199d84f2482e9c56d12b0d289e89e8f26642fb7f45e50ae86c13964be31"
+      },
+      "opening_disagreement": {
+        "eligible_rows": 2000,
+        "policy_float32_sha256": "4beb70bcf0e03eeb577dcc678030e764a76521d5bb3129070bcabd790e592480",
+        "value_float32_sha256": "09d27a79b0711fd8a8d706ffeeedf0493af7b3cdd32fb26173f1ee8b783041b2"
+      },
+      "random_teacher": {
+        "eligible_rows": 2951,
+        "policy_float32_sha256": "ced4009d2853301fdc8663c1b77679875adb4fba4c027986037abd3584720909",
+        "value_float32_sha256": "fc253d38d4742722d7c15f86c22069574e5871a2d9c4333bbf02b3a027229b8d"
+      },
+      "stability": {
+        "eligible_rows": 2000,
+        "policy_float32_sha256": "d29ae3751940754f00e5abce08ce78abb3fc0fdc62cea5dfee95360eb4ee1281",
+        "value_float32_sha256": "a12f8ff3863adfa3e3eb24ca35194909708e626d050039553690598b464191b9"
+      }
+    },
+    "value_target_modes_by_source": {
+      "fresh": "default",
+      "generic_bootstrap": "sharpened",
+      "opening_disagreement": "sharpened",
+      "random_teacher": "sharpened",
+      "stability": "sharpened"
+    }
+  },
+  "tolerances": {
+    "absolute": 1e-06,
+    "e4_full_validation_expected": {
+      "policy_loss": 0.9556283950805664,
+      "total_loss": 1.0179673433303833,
+      "value_loss": 0.20779633522033691
+    },
+    "relative": 1e-05
+  }
+}
