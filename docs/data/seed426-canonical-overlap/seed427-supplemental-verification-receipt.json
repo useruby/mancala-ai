@@ -1,0 +1,15 @@
+{
+  "checks": {
+    "input_hashes": "registered replay SHA256s equal independently verified decompressed replay bytes",
+    "loader_identity": "results, seed416 registration, seed426 manifest, and frozen train source snapshot SHA256s agree",
+    "split_positions": "published train/validation lengths equal frozen partition lengths and source-accounting registered weighted-position totals"
+  },
+  "entry_point": "ml/alphazero_lite/verify_seed427_publication.py",
+  "publication": "seed426-canonical-overlap",
+  "publication_results_sha256": "102316ea8ad16a057211a2f37b116b2bb29db91ebd694c4151c16137800ed4fc",
+  "schema": "seed427-supplemental-verification-receipt-v1",
+  "status": "verified",
+  "supplemental_verifier_sha256": "ab28320f554a01184a0d658cd3e52090169310a14fdabe284515c2e8329503ae",
+  "test": "ml/alphazero_lite/test_seed427_publication.py",
+  "verification": "Actual entry point passed against the complete tracked seed426 publication relocated into an arbitrary path with spaces and invoked from an unrelated working directory; fixture hashes remained unchanged. Negative mutations for split counts, replay identities, and frozen loader identity were rejected."
+}

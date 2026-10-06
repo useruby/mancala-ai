@@ -1,0 +1,559 @@
+{
+  "checkpoint_sha256_after": {
+    "e4": "836fc769c62126b649ce9691494719506b88efec0746769c9a589522d08cb2cd",
+    "initializer": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+  },
+  "checkpoint_sha256_before": {
+    "e4": "836fc769c62126b649ce9691494719506b88efec0746769c9a589522d08cb2cd",
+    "initializer": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+  },
+  "e4_full_validation_parity": {
+    "policy_loss": {
+      "actual": 0.9556284594510852,
+      "expected": 0.9556283950805664,
+      "passed": true
+    },
+    "total_loss": {
+      "actual": 1.0179673688398203,
+      "expected": 1.0179673433303833,
+      "passed": true
+    },
+    "value_loss": {
+      "actual": 0.20779636462911685,
+      "expected": 0.20779633522033691,
+      "passed": true
+    }
+  },
+  "e4_minus_initializer": {
+    "all/17-32": {
+      "equal_canonical_identity": {
+        "policy_loss": 0.01682637240502638,
+        "total_loss": 0.015570802376281945,
+        "value_loss": -0.004185233429148866
+      },
+      "exposure_weighted": {
+        "policy_loss": 0.04814907078671993,
+        "total_loss": 0.04819780151625297,
+        "value_loss": 0.00016243576511035251
+      }
+    },
+    "all/<=16": {
+      "equal_canonical_identity": {
+        "policy_loss": -0.13296647785224636,
+        "total_loss": -0.13308708056245988,
+        "value_loss": -0.00040200903404483124
+      },
+      "exposure_weighted": {
+        "policy_loss": -0.06890464391330864,
+        "total_loss": -0.06879562905191172,
+        "value_loss": 0.0003633828713229814
+      }
+    },
+    "all/>32": {
+      "equal_canonical_identity": {
+        "policy_loss": 0.006742471581173026,
+        "total_loss": 0.004784563811652598,
+        "value_loss": -0.006526359231735057
+      },
+      "exposure_weighted": {
+        "policy_loss": 0.013372925184681472,
+        "total_loss": 0.012629182556483709,
+        "value_loss": -0.0024791420939922204
+      }
+    },
+    "all/overall": {
+      "equal_canonical_identity": {
+        "policy_loss": -0.03798156078826709,
+        "total_loss": -0.03903718233736342,
+        "value_loss": -0.0035187384969873337
+      },
+      "exposure_weighted": {
+        "policy_loss": -0.001231314536022099,
+        "total_loss": -0.0014701687475384695,
+        "value_loss": -0.0007961807050544389
+      }
+    },
+    "seen/17-32": {
+      "equal_canonical_identity": {
+        "policy_loss": -0.05889158649378856,
+        "total_loss": -0.05895551239634067,
+        "value_loss": -0.00021308634183977992
+      },
+      "exposure_weighted": {
+        "policy_loss": -0.06815258314433592,
+        "total_loss": -0.0688133801127937,
+        "value_loss": -0.002202656561526156
+      }
+    },
+    "seen/<=16": {
+      "equal_canonical_identity": {
+        "policy_loss": -0.2515207042589943,
+        "total_loss": -0.25423383698556434,
+        "value_loss": -0.009043775755234046
+      },
+      "exposure_weighted": {
+        "policy_loss": -0.3078967434612543,
+        "total_loss": -0.3111647707620284,
+        "value_loss": -0.010893424335913754
+      }
+    },
+    "seen/>32": {
+      "equal_canonical_identity": {
+        "policy_loss": -0.042679514880495484,
+        "total_loss": -0.046696494236063035,
+        "value_loss": -0.013389931185225412
+      },
+      "exposure_weighted": {
+        "policy_loss": -0.02107454991168367,
+        "total_loss": -0.023508742116283732,
+        "value_loss": -0.008113974015333536
+      }
+    },
+    "seen/overall": {
+      "equal_canonical_identity": {
+        "policy_loss": -0.10084414363943539,
+        "total_loss": -0.1034913925782539,
+        "value_loss": -0.008824163129395574
+      },
+      "exposure_weighted": {
+        "policy_loss": -0.0614973953106448,
+        "total_loss": -0.06379229921427099,
+        "value_loss": -0.007649679678753851
+      }
+    },
+    "unseen/17-32": {
+      "equal_canonical_identity": {
+        "policy_loss": 0.030554736184699838,
+        "total_loss": 0.0290831100934541,
+        "value_loss": -0.004905420304151947
+      },
+      "exposure_weighted": {
+        "policy_loss": 0.06466836875350346,
+        "total_loss": 0.0648178796444756,
+        "value_loss": 0.0004983696365737922
+      }
+    },
+    "unseen/<=16": {
+      "equal_canonical_identity": {
+        "policy_loss": -0.10965903069477623,
+        "total_loss": -0.10926994886491181,
+        "value_loss": 0.001296939432880867
+      },
+      "exposure_weighted": {
+        "policy_loss": -0.03942544220695399,
+        "total_loss": -0.038899875889430335,
+        "value_loss": 0.0017518877250790044
+      }
+    },
+    "unseen/>32": {
+      "equal_canonical_identity": {
+        "policy_loss": 0.03754168053554596,
+        "total_loss": 0.036866962305156514,
+        "value_loss": -0.002249060767965716
+      },
+      "exposure_weighted": {
+        "policy_loss": 0.05520672117819547,
+        "total_loss": 0.05651589890246811,
+        "value_loss": 0.004363925747575298
+      }
+    },
+    "unseen/overall": {
+      "equal_canonical_identity": {
+        "policy_loss": -0.020152050053543258,
+        "total_loss": -0.020756243482068504,
+        "value_loss": -0.002013978095084218
+      },
+      "exposure_weighted": {
+        "policy_loss": 0.022636440226204924,
+        "total_loss": 0.02321186312047452,
+        "value_loss": 0.0019180763142324087
+      }
+    }
+  },
+  "manifest_sha256": "7a72f03438380174fa71c2689999a3ff9b03853c38d0cf71706580339a3fb640",
+  "prediction_evidence_sha256": "9504588ee40c57fc86c2278caafa708ac53550a2b968272cadd96e7e8bcdfe8b",
+  "primary_comparison": {
+    "differences": {
+      "equal_canonical_identity": {
+        "policy_loss": 0.03754168053554596,
+        "total_loss": 0.036866962305156514,
+        "value_loss": -0.002249060767965716
+      },
+      "exposure_weighted": {
+        "policy_loss": 0.05520672117819547,
+        "total_loss": 0.05651589890246811,
+        "value_loss": 0.004363925747575298
+      }
+    },
+    "interpretation": "retrospective validation-loss comparison only; no strength claim or checkpoint selection",
+    "subset": "unseen/>32"
+  },
+  "results": {
+    "e4": {
+      "all/17-32": {
+        "canonical_identity_denominator": 2743,
+        "equal_canonical_identity": {
+          "policy_loss": 1.0562277783041547,
+          "total_loss": 1.1248846245569952,
+          "value_loss": 0.22885615417613447
+        },
+        "exposure_weighted": {
+          "policy_loss": 1.0363760205794237,
+          "total_loss": 1.106458965651139,
+          "value_loss": 0.23360981690571794
+        },
+        "policy_weight_denominator": 4583.0,
+        "weighted_positions": 4583
+      },
+      "all/<=16": {
+        "canonical_identity_denominator": 2532,
+        "equal_canonical_identity": {
+          "policy_loss": 0.7997897460461287,
+          "total_loss": 0.838775671201475,
+          "value_loss": 0.12995308385115467
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.7720946188878213,
+          "total_loss": 0.8118215593272594,
+          "value_loss": 0.13242313479812715
+        },
+        "policy_weight_denominator": 4590.0,
+        "weighted_positions": 4590
+      },
+      "all/>32": {
+        "canonical_identity_denominator": 2016,
+        "equal_canonical_identity": {
+          "policy_loss": 1.117275550951414,
+          "total_loss": 1.203485014142291,
+          "value_loss": 0.28736487730292326
+        },
+        "exposure_weighted": {
+          "policy_loss": 1.037449740506725,
+          "total_loss": 1.111619244377042,
+          "value_loss": 0.24723167956772416
+        },
+        "policy_weight_denominator": 5773.0,
+        "weighted_positions": 5773
+      },
+      "all/overall": {
+        "canonical_identity_denominator": 7291,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9840526599362426,
+          "total_loss": 1.0472588551848623,
+          "value_loss": 0.21068731749539896
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.9556284594510852,
+          "total_loss": 1.0179673688398203,
+          "value_loss": 0.20779636462911685
+        },
+        "policy_weight_denominator": 14946.0,
+        "weighted_positions": 14946
+      },
+      "seen/17-32": {
+        "canonical_identity_denominator": 421,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9109484615493372,
+          "total_loss": 0.9734885958458922,
+          "value_loss": 0.2084671143218505
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.8235745768077067,
+          "total_loss": 0.8769173489909566,
+          "value_loss": 0.17780924061083286
+        },
+        "policy_weight_denominator": 570.0,
+        "weighted_positions": 570
+      },
+      "seen/<=16": {
+        "canonical_identity_denominator": 416,
+        "equal_canonical_identity": {
+          "policy_loss": 0.6922665077447456,
+          "total_loss": 0.7314486664146291,
+          "value_loss": 0.13060719556627803
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.6961382074830518,
+          "total_loss": 0.7293406518544308,
+          "value_loss": 0.11067481457126341
+        },
+        "policy_weight_denominator": 504.0,
+        "weighted_positions": 504
+      },
+      "seen/>32": {
+        "canonical_identity_denominator": 774,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9272422018892922,
+          "total_loss": 1.0077858429985185,
+          "value_loss": 0.26847880369742044
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.8822680747745356,
+          "total_loss": 0.9587534305546461,
+          "value_loss": 0.2549511859337018
+        },
+        "policy_weight_denominator": 3166.0,
+        "weighted_positions": 3166
+      },
+      "seen/overall": {
+        "canonical_identity_denominator": 1611,
+        "equal_canonical_identity": {
+          "policy_loss": 0.8623076559878319,
+          "total_loss": 0.9274659134453505,
+          "value_loss": 0.2171941915250616
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.852252804266045,
+          "total_loss": 0.9204820609895019,
+          "value_loss": 0.22743085574485644
+        },
+        "policy_weight_denominator": 4240.0,
+        "weighted_positions": 4240
+      },
+      "unseen/17-32": {
+        "canonical_identity_denominator": 2322,
+        "equal_canonical_identity": {
+          "policy_loss": 1.0825682573540163,
+          "total_loss": 1.1523341198573287,
+          "value_loss": 0.23255287501104127
+        },
+        "exposure_weighted": {
+          "policy_loss": 1.0666019919100689,
+          "total_loss": 1.1390626839407738,
+          "value_loss": 0.24153564010234999
+        },
+        "policy_weight_denominator": 4013.0,
+        "weighted_positions": 4013
+      },
+      "unseen/<=16": {
+        "canonical_identity_denominator": 2116,
+        "equal_canonical_identity": {
+          "policy_loss": 0.8209285301356255,
+          "total_loss": 0.8598758763013465,
+          "value_loss": 0.12982448721906995
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.7814636916602158,
+          "total_loss": 0.821995415755626,
+          "value_loss": 0.13510574698470063
+        },
+        "policy_weight_denominator": 4086.0,
+        "weighted_positions": 4086
+      },
+      "unseen/>32": {
+        "canonical_identity_denominator": 1242,
+        "equal_canonical_identity": {
+          "policy_loss": 1.2357021308017218,
+          "total_loss": 1.325442468623193,
+          "value_loss": 0.2991344594049033
+        },
+        "exposure_weighted": {
+          "policy_loss": 1.2259058792516846,
+          "total_loss": 1.297262959974167,
+          "value_loss": 0.23785693574160782
+        },
+        "policy_weight_denominator": 2607.0,
+        "weighted_positions": 2607
+      },
+      "unseen/overall": {
+        "canonical_identity_denominator": 5680,
+        "equal_canonical_identity": {
+          "policy_loss": 1.0185828010209061,
+          "total_loss": 1.0812353391887979,
+          "value_loss": 0.20884179389297178
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.9965693129897151,
+          "total_loss": 1.0565754115528176,
+          "value_loss": 0.2000203285436754
+        },
+        "policy_weight_denominator": 10706.0,
+        "weighted_positions": 10706
+      }
+    },
+    "initializer": {
+      "all/17-32": {
+        "canonical_identity_denominator": 2743,
+        "equal_canonical_identity": {
+          "policy_loss": 1.0394014058991283,
+          "total_loss": 1.1093138221807133,
+          "value_loss": 0.23304138760528334
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.9882269497927038,
+          "total_loss": 1.058261164134886,
+          "value_loss": 0.2334473811406076
+        },
+        "policy_weight_denominator": 4583.0,
+        "weighted_positions": 4583
+      },
+      "all/<=16": {
+        "canonical_identity_denominator": 2532,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9327562238983751,
+          "total_loss": 0.9718627517639349,
+          "value_loss": 0.1303550928851995
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.8409992628011299,
+          "total_loss": 0.8806171883791711,
+          "value_loss": 0.13205975192680416
+        },
+        "policy_weight_denominator": 4590.0,
+        "weighted_positions": 4590
+      },
+      "all/>32": {
+        "canonical_identity_denominator": 2016,
+        "equal_canonical_identity": {
+          "policy_loss": 1.110533079370241,
+          "total_loss": 1.1987004503306384,
+          "value_loss": 0.2938912365346583
+        },
+        "exposure_weighted": {
+          "policy_loss": 1.0240768153220434,
+          "total_loss": 1.0989900618205584,
+          "value_loss": 0.24971082166171638
+        },
+        "policy_weight_denominator": 5773.0,
+        "weighted_positions": 5773
+      },
+      "all/overall": {
+        "canonical_identity_denominator": 7291,
+        "equal_canonical_identity": {
+          "policy_loss": 1.0220342207245097,
+          "total_loss": 1.0862960375222257,
+          "value_loss": 0.2142060559923863
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.9568597739871073,
+          "total_loss": 1.0194375375873588,
+          "value_loss": 0.2085925453341713
+        },
+        "policy_weight_denominator": 14946.0,
+        "weighted_positions": 14946
+      },
+      "seen/17-32": {
+        "canonical_identity_denominator": 421,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9698400480431257,
+          "total_loss": 1.0324441082422329,
+          "value_loss": 0.20868020066369028
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.8917271599520427,
+          "total_loss": 0.9457307291037503,
+          "value_loss": 0.18001189717235902
+        },
+        "policy_weight_denominator": 570.0,
+        "weighted_positions": 570
+      },
+      "seen/<=16": {
+        "canonical_identity_denominator": 416,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9437872120037399,
+          "total_loss": 0.9856825034001935,
+          "value_loss": 0.13965097132151208
+        },
+        "exposure_weighted": {
+          "policy_loss": 1.004034950944306,
+          "total_loss": 1.0405054226164592,
+          "value_loss": 0.12156823890717716
+        },
+        "policy_weight_denominator": 504.0,
+        "weighted_positions": 504
+      },
+      "seen/>32": {
+        "canonical_identity_denominator": 774,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9699217167697877,
+          "total_loss": 1.0544823372345815,
+          "value_loss": 0.28186873488264585
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.9033426246862193,
+          "total_loss": 0.9822621726709299,
+          "value_loss": 0.26306515994903534
+        },
+        "policy_weight_denominator": 3166.0,
+        "weighted_positions": 3166
+      },
+      "seen/overall": {
+        "canonical_identity_denominator": 1611,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9631517996272673,
+          "total_loss": 1.0309573060236044,
+          "value_loss": 0.22601835465445716
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.9137501995766898,
+          "total_loss": 0.9842743602037729,
+          "value_loss": 0.2350805354236103
+        },
+        "policy_weight_denominator": 4240.0,
+        "weighted_positions": 4240
+      },
+      "unseen/17-32": {
+        "canonical_identity_denominator": 2322,
+        "equal_canonical_identity": {
+          "policy_loss": 1.0520135211693165,
+          "total_loss": 1.1232510097638746,
+          "value_loss": 0.23745829531519322
+        },
+        "exposure_weighted": {
+          "policy_loss": 1.0019336231565654,
+          "total_loss": 1.0742448042962982,
+          "value_loss": 0.2410372704657762
+        },
+        "policy_weight_denominator": 4013.0,
+        "weighted_positions": 4013
+      },
+      "unseen/<=16": {
+        "canonical_identity_denominator": 2116,
+        "equal_canonical_identity": {
+          "policy_loss": 0.9305875608304017,
+          "total_loss": 0.9691458251662584,
+          "value_loss": 0.12852754778618908
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.8208891338671698,
+          "total_loss": 0.8608952916450563,
+          "value_loss": 0.13335385925962162
+        },
+        "policy_weight_denominator": 4086.0,
+        "weighted_positions": 4086
+      },
+      "unseen/>32": {
+        "canonical_identity_denominator": 1242,
+        "equal_canonical_identity": {
+          "policy_loss": 1.1981604502661758,
+          "total_loss": 1.2885755063180364,
+          "value_loss": 0.301383520172869
+        },
+        "exposure_weighted": {
+          "policy_loss": 1.1706991580734891,
+          "total_loss": 1.2407470610716989,
+          "value_loss": 0.23349300999403252
+        },
+        "policy_weight_denominator": 2607.0,
+        "weighted_positions": 2607
+      },
+      "unseen/overall": {
+        "canonical_identity_denominator": 5680,
+        "equal_canonical_identity": {
+          "policy_loss": 1.0387348510744494,
+          "total_loss": 1.1019915826708664,
+          "value_loss": 0.210855771988056
+        },
+        "exposure_weighted": {
+          "policy_loss": 0.9739328727635101,
+          "total_loss": 1.0333635484323431,
+          "value_loss": 0.198102252229443
+        },
+        "policy_weight_denominator": 10706.0,
+        "weighted_positions": 10706
+      }
+    }
+  },
+  "schema": "seed427-evaluation-receipt-v1",
+  "status": "completed"
+}
