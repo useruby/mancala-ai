@@ -1,0 +1,56 @@
+{
+  "arms": {
+    "A": {
+      "checkpoint_sha256": "afb164603b34d0449f463f3c8e475f9bb4408e7a704c031a6f000572e6c4e9c7",
+      "equal_input": {
+        "policy_ce": 1.2212629318237305,
+        "value_mse": 0.6210176944732666
+      },
+      "exposure_weighted": {
+        "policy_ce": 1.1877460479736328,
+        "value_mse": 0.48487260937690735
+      },
+      "full_training_objective": 1.0200607776641846,
+      "unseen_count": 2607
+    },
+    "B": {
+      "checkpoint_sha256": "b4bc13bec3ba50f40b722c75bbaa8de26cc3908ff695dd96de5278ce204b5069",
+      "equal_input": {
+        "policy_ce": 1.3294837474822998,
+        "value_mse": 0.6322288513183594
+      },
+      "exposure_weighted": {
+        "policy_ce": 1.3240010738372803,
+        "value_mse": 0.4885740876197815
+      },
+      "full_training_objective": 1.1402112245559692,
+      "unseen_count": 2607
+    },
+    "initializer": {
+      "equal_input": {
+        "policy_ce": 1.1981604099273682,
+        "value_mse": 0.6169980764389038
+      },
+      "exposure_weighted": {
+        "policy_ce": 1.170699119567871,
+        "value_mse": 0.4764106571674347
+      },
+      "full_training_objective": 1.0212922096252441,
+      "unseen_count": 2607
+    }
+  },
+  "decision": {
+    "checks": {
+      "B_minus_A_equal_input_policy": false,
+      "B_minus_A_exposure_weighted_policy": false,
+      "B_minus_initializer_equal_input_policy": false,
+      "B_minus_initializer_exposure_weighted_policy": false,
+      "training_objective_decreases": false,
+      "value_mse_guard_equal_input": false,
+      "value_mse_guard_exposure_weighted": false
+    },
+    "classification": "close_optimizer_direction_branch"
+  },
+  "registration_sha256": "d0ed204e2dec6483dbeb977605171cbb9f72818918b93e6580b289a93c1a9450",
+  "schema": "seed435-results-v1"
+}
