@@ -1,0 +1,42 @@
+{
+  "schema": "seed434-census-source-verification-v1",
+  "scope": "portable retrospective source-to-row verification only; no training, inference, searches, games, target changes, or promotion",
+  "authoritative_inputs": {
+    "docs/data/seed416-policy-target-softening/registration-v3.json": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+    "docs/data/seed416-policy-target-softening/training-freeze-v3/source-row-split.json.gz": "f7b69ab8fd6c19128a29f9ae9a11a7ac42a5d26630368ff74e906f29ddb6be44",
+    "docs/data/seed432-policy-target-compatibility/manifest.json": "5fcd9b28d0a6fa2fe99dbf5cc42a00c58c947684ac041218ae138067e3d62a1a",
+    "docs/data/seed432-policy-target-compatibility/results.json": "40d2de40f2d34cf8e7d53b7e331c92f5529267daa81be07a9bbaa0a61c2168b5",
+    "docs/data/seed432-policy-target-compatibility/row-accounting.jsonl.gz": "69ecd74dee49dd4b4070512ac9705d45efb140b07be994297dfcf33df5859200",
+    "docs/data/seed432-policy-target-compatibility/group-accounting.jsonl.gz": "97190943b2e17c15949c89a90423364135fc1c89a1d5e6afd07e000325cbf343",
+    "docs/data/seed433-seed432-census-correction/correction-receipt.json": "d915211825a3851988ac37a6ac71b1f5ebca029e170bb50ec78473cd2ee86b73",
+    "docs/data/seed433-seed432-census-correction/corrected-results.json": "85bbe9b8ca7ae9496d0d1c8d938487cb59a328d11a034722113a5ec06a62fae5",
+    "docs/data/seed426-canonical-overlap/sources/fresh.jsonl.gz": "5f5062416ae620e4e3491989f19c166d26840b3fead8074323f23eb01211746b",
+    "docs/data/seed426-canonical-overlap/sources/generic_bootstrap.jsonl.gz": "51132b09c453712b8f48ab748e5025b25338681f9f89dd65a1fe2598ca266330",
+    "docs/data/seed426-canonical-overlap/sources/random_teacher.jsonl.gz": "fa6f83e3fc6bb3c93f87e9b640b8d58213f526115e3fdf582c96d9b1b7b7d1d7",
+    "docs/data/seed426-canonical-overlap/sources/opening_disagreement.jsonl.gz": "5d73b65f57cf3e4199608c5cfbd80fa9656d5f267b5a823b12c7940a80824bdc",
+    "docs/data/seed426-canonical-overlap/sources/stability.jsonl.gz": "77de3df0a93f928f8e131566c1f18f83b7d0100874248e2d29a6cb37f6e45b36"
+  },
+  "supplemental_execution_sources": {
+    "ml/alphazero_lite/verify_seed434_census_source.py": "4b632366f7b1ad920b77c692c0b9993de5420b723deba71bc9d081522789ec51",
+    "ml/alphazero_lite/test_seed434_census_source.py": "4579f10aec05f4412b55552949996bbd1b7834ab7fef24da39070f1d916abe1e",
+    "ml/alphazero_lite/exact_root_policy_targets.py": "2aca4c1e2e9e9e199fb1d951b143c506785c23121531e26628a59c9afaf79898",
+    "ml/alphazero_lite/seed429_policy_normalization.py": "b2743afc7bc4acdadff9e25fc456f8dc3757dfd0c98c9bc214aee805d70011d6",
+    "ml/alphazero_lite/seed432_policy_target_census.py": "7b8dc48bdc1cf53d8dcfc53446e37edb2f84fdd583009d0693cc43a8e97204eb",
+    "ml/alphazero_lite/seed433_census_correction.py": "3b4b7cf7387ade4fc5598f1360059a2b19418bbecd46e7020a1f5808746567eb",
+    "ml/alphazero_lite/verify_seed433.py": "b65e28d35f9661c96c2cfdbd0e627269456c37363ea85028c1e9382db81d702a",
+    "ml/alphazero_lite/build_opening_suite.py": "5c15d541574905ff9d7c75bc8daf8813311e22f22f220563e18cb9b85fb8bd87",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32"
+  },
+  "verification_output": {
+    "status": "valid",
+    "output_sha256": "24acb9f863d8f9bbfb22fc37adeda7d585e3b86d98755691eb6653bf822cece6",
+    "compact_rows": 87625,
+    "expanded_positions": 149448,
+    "training_positions": 134502,
+    "validation_positions": 14946,
+    "all_seed432_rows_reproduce": true,
+    "all_seed433_corrected_results_reproduce": true,
+    "classification": "target_disagreement_not_material_under_registered_thresholds"
+  }
+}
