@@ -1,0 +1,56 @@
+{
+  "execution_sources": {
+    "ml/alphazero_lite/seed429_policy_normalization.py": "b2743afc7bc4acdadff9e25fc456f8dc3757dfd0c98c9bc214aee805d70011d6",
+    "ml/alphazero_lite/seed432_policy_target_census.py": "7b8dc48bdc1cf53d8dcfc53446e37edb2f84fdd583009d0693cc43a8e97204eb",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/verify_seed432.py": "75f886b7fea313d388af6188c60f75d83da3e6d275a7432d79b2a46851062caa"
+  },
+  "group_accounting_sha256": "97190943b2e17c15949c89a90423364135fc1c89a1d5e6afd07e000325cbf343",
+  "loader": "train.load_jsonl_replay; include_policy_loss_weights=True",
+  "policy_target_mode": "sharpened",
+  "protocol": "exact-input byte groups; no cross-partition merge; source target rows are loader outputs",
+  "registration_sha256": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+  "replays": [
+    {
+      "name": "fresh",
+      "sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+      "value_target_mode": "default",
+      "weight": 1
+    },
+    {
+      "name": "generic_bootstrap",
+      "sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2",
+      "value_target_mode": "sharpened",
+      "weight": 4
+    },
+    {
+      "name": "random_teacher",
+      "sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6",
+      "value_target_mode": "sharpened",
+      "weight": 1
+    },
+    {
+      "name": "opening_disagreement",
+      "sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2",
+      "value_target_mode": "sharpened",
+      "weight": 8
+    },
+    {
+      "name": "stability",
+      "sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff",
+      "value_target_mode": "sharpened",
+      "weight": 4
+    }
+  ],
+  "row_accounting_sha256": "69ecd74dee49dd4b4070512ac9705d45efb140b07be994297dfcf33df5859200",
+  "schema": "seed432-census-manifest-v1",
+  "split": {
+    "path": "docs/data/seed416-policy-target-softening/training-freeze-v3/source-row-split.json.gz",
+    "sha256": "f7b69ab8fd6c19128a29f9ae9a11a7ac42a5d26630368ff74e906f29ddb6be44",
+    "train_count": 134502,
+    "train_positions_sha256": "b351b2b46ff0bd66fe581315f01e15210dffb01193a5dfef13016e0e79c95579",
+    "validation_count": 14946,
+    "validation_positions_sha256": "d3ea59844a1cdf6980007e0f4f7c59a9b954b48f947a1972af0a97cc341d799a"
+  },
+  "split_sha256": "f7b69ab8fd6c19128a29f9ae9a11a7ac42a5d26630368ff74e906f29ddb6be44"
+}
