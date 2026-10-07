@@ -1,0 +1,48 @@
+{
+  "schema": "seed429-seed431-per-ply-verification-correction-v1",
+  "kind": "append-only post-execution verification correction",
+  "scope": "read-only replay and provenance verification; no training, forward passes, searches, games, checkpoint selection, or promotion",
+  "timing": "after seed429 evidence publication",
+  "registration_sha256": "f21b8e3a2e5f2f0782f1ce2c28f4bdc2618d75235d63e7722da6746f86ecffa7",
+  "runtime_binding_sha256": "147d7a4ad51f97ed15e1421ae4992cbbde5ee69090efdab18b4925a506a060ba",
+  "arena_correction_receipt_sha256": "a89f9053616d4db9c01b2bb7d5d397324d553e7aa8b63e59a555fc92e7c33dc3",
+  "seed430_correction_receipt_sha256": "326deafe9772243a3ce2ce8f1e0c76280850a8ad764a6ec84c248b592c7bb06d",
+  "outcome_binding_sha256": "3abf66f4ba8f28a78875c3ed66220c69d38115fb8316cce4e9a5364310496f09",
+  "analysis_sha256": "44994390aba1f35ef1bef735078989c202479d8420ed46f898c0dabe999e7386",
+  "frozen_source_sha256": {
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/evaluation_seed_contract.py": "be5ed17519f86040cdac2a2380d4dd907015b927c6b80fedc85f7d668b9422c3",
+    "docs/data/seed429-canonical-policy-normalization/execution-source-snapshots/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036"
+  },
+  "supplemental_sources": {
+    "ml/alphazero_lite/verify_seed431.py": "12c437a32fbdb46eb16951c593bba6f58f390dcc1cbf80484035ea05be2dd13b",
+    "ml/alphazero_lite/test_seed431.py": "3a800a77ee6d6336734e506cb61923b70eb432030044720f9d7c118fbd0a5f1d"
+  },
+  "replay": {
+    "trajectory_encoding": "absolute pits; actor-side ownership verified, relative selected_move computed as absolute - 6 * actor",
+    "opening_prefix_encoding": "relative actions; legal membership checked before pit_index conversion",
+    "records": {"A": 33438, "B": 33059},
+    "exact_root_decisions_included": true,
+    "extra_turns": "current_player transition is supplied solely by the frozen Kalah rules engine"
+  },
+  "reconciliation": {
+    "recorded_chunks": 47,
+    "pre_repair_games": 1504,
+    "result": "published game entries match the recorded digests",
+    "limitations": "Original run-local chunk/report bytes are unavailable, and repair timing is not independently verifiable."
+  },
+  "telemetry_hash_only": ["visit_hash", "cache_hit", "search_executed", "evaluation_profile_hash", "search and timing telemetry"],
+  "original_results": {
+    "games": 2048,
+    "games_per_lane": 1024,
+    "matched_openings": 512,
+    "paired_B_minus_A_mean": 0.0166015625,
+    "paired_B_minus_A_95_interval": [-0.00537109375, 0.03857421875],
+    "B_score_mean": 0.5146484375,
+    "B_score_95_interval": [0.49462890625, 0.53515625]
+  },
+  "decision": "stop_normalization_branch",
+  "protocol_changed": false,
+  "outcomes_changed": false,
+  "analysis_changed": false
+}
