@@ -1,0 +1,410 @@
+{
+  "classification": "target_disagreement_not_material_under_registered_thresholds",
+  "cross_entropy_equivalence_limitation": "For a fixed logits vector and preserved total coefficient, target averaging preserves weighted cross-entropy and gradient in exact arithmetic; this does not establish equivalence under minibatch/optimizer averaging.",
+  "decision_scope": "original control exposure and equal-input entries for training >32 stones only; treatment entries are secondary diagnostics",
+  "populations": {
+    "train/17-32": {
+      "equal_input": {
+        "aggregation_denominator": 22564.0,
+        "between_group_weighting": "one unit per positive-policy-mass exact-input group",
+        "entropy_decomposition": {
+          "between_source_js_nats": 0.00015247391733288346,
+          "within_source_js_nats": 0.0002678129700305159
+        },
+        "input_groups": 22564,
+        "mean_js_nats": 0.00042028688736339936,
+        "policy_mass": 25779.0,
+        "positive_mass_groups": 22564,
+        "weighted_top_action_disagreement": 0.001604747554047324,
+        "weighting": "equal_input",
+        "within_group_weighting": "policy coefficient without replay-copy multiplicity",
+        "zero_mass_groups": 0
+      },
+      "exposure": {
+        "aggregation_denominator": 41771.0,
+        "between_group_weighting": "total exposure mass",
+        "entropy_decomposition": {
+          "between_source_js_nats": 0.0006380549626571916,
+          "within_source_js_nats": 0.0006748943052703018
+        },
+        "input_groups": 22564,
+        "mean_js_nats": 0.0013129492679274932,
+        "policy_mass": 41771.0,
+        "positive_mass_groups": 22564,
+        "weighted_top_action_disagreement": 0.003846478008108792,
+        "weighting": "exposure",
+        "within_group_weighting": "replay multiplicity times policy coefficient",
+        "zero_mass_groups": 0
+      },
+      "seed429_treatment_equal_input": {
+        "aggregation_denominator": 22564.0,
+        "between_group_weighting": "one unit per positive-policy-mass exact-input group",
+        "entropy_decomposition": {
+          "between_source_js_nats": 0.00015660119857819973,
+          "within_source_js_nats": 0.00026185317240551493
+        },
+        "input_groups": 22564,
+        "mean_js_nats": 0.0004184543709837147,
+        "policy_mass": 25779.00074224174,
+        "positive_mass_groups": 22564,
+        "weighted_top_action_disagreement": 0.001602744393819899,
+        "weighting": "equal_input",
+        "within_group_weighting": "policy coefficient without replay-copy multiplicity",
+        "zero_mass_groups": 0
+      },
+      "seed429_treatment_exposure": {
+        "aggregation_denominator": 41771.00124131143,
+        "between_group_weighting": "total exposure mass",
+        "entropy_decomposition": {
+          "between_source_js_nats": 0.000602326431994666,
+          "within_source_js_nats": 0.00029316060134968244
+        },
+        "input_groups": 22564,
+        "mean_js_nats": 0.0008954870333443484,
+        "policy_mass": 41771.00124131143,
+        "positive_mass_groups": 22564,
+        "weighted_top_action_disagreement": 0.002752660534523972,
+        "weighting": "exposure",
+        "within_group_weighting": "replay multiplicity times policy coefficient",
+        "zero_mass_groups": 0
+      }
+    },
+    "train/gt32": {
+      "equal_input": {
+        "aggregation_denominator": 13738.0,
+        "between_group_weighting": "one unit per positive-policy-mass exact-input group",
+        "entropy_decomposition": {
+          "between_source_js_nats": 0.006983761257666799,
+          "within_source_js_nats": 0.0014019930705294011
+        },
+        "input_groups": 13738,
+        "mean_js_nats": 0.0083857543281962,
+        "policy_mass": 29691.0,
+        "positive_mass_groups": 13738,
+        "weighted_top_action_disagreement": 0.014203942895692065,
+        "weighting": "equal_input",
+        "within_group_weighting": "policy coefficient without replay-copy multiplicity",
+        "zero_mass_groups": 0
+      },
+      "exposure": {
+        "aggregation_denominator": 53883.0,
+        "between_group_weighting": "total exposure mass",
+        "entropy_decomposition": {
+          "between_source_js_nats": 0.06049101462239678,
+          "within_source_js_nats": 0.019780803141868458
+        },
+        "input_groups": 13738,
+        "mean_js_nats": 0.08027181776426524,
+        "policy_mass": 53883.0,
+        "positive_mass_groups": 13738,
+        "weighted_top_action_disagreement": 0.11190200538993444,
+        "weighting": "exposure",
+        "within_group_weighting": "replay multiplicity times policy coefficient",
+        "zero_mass_groups": 0
+      },
+      "seed429_treatment_equal_input": {
+        "aggregation_denominator": 13738.0,
+        "between_group_weighting": "one unit per positive-policy-mass exact-input group",
+        "entropy_decomposition": {
+          "between_source_js_nats": 0.007945070061559794,
+          "within_source_js_nats": 0.001346783709143887
+        },
+        "input_groups": 13738,
+        "mean_js_nats": 0.00929185377070368,
+        "policy_mass": 29690.998947992455,
+        "positive_mass_groups": 13738,
+        "weighted_top_action_disagreement": 0.01596633962782638,
+        "weighting": "equal_input",
+        "within_group_weighting": "policy coefficient without replay-copy multiplicity",
+        "zero_mass_groups": 0
+      },
+      "seed429_treatment_exposure": {
+        "aggregation_denominator": 53882.998639137484,
+        "between_group_weighting": "total exposure mass",
+        "entropy_decomposition": {
+          "between_source_js_nats": 0.018028634773376063,
+          "within_source_js_nats": 0.0033182960023825946
+        },
+        "input_groups": 13738,
+        "mean_js_nats": 0.021346930775758655,
+        "policy_mass": 53882.998639137484,
+        "positive_mass_groups": 13738,
+        "weighted_top_action_disagreement": 0.041326569429274596,
+        "weighting": "exposure",
+        "within_group_weighting": "replay multiplicity times policy coefficient",
+        "zero_mass_groups": 0
+      }
+    },
+    "train/le16": {
+      "equal_input": {
+        "aggregation_denominator": 20348.0,
+        "between_group_weighting": "one unit per positive-policy-mass exact-input group",
+        "entropy_decomposition": {
+          "between_source_js_nats": 1.7596016682076282e-05,
+          "within_source_js_nats": 2.728334599121158e-05
+        },
+        "input_groups": 20348,
+        "mean_js_nats": 4.487936267328787e-05,
+        "policy_mass": 23393.0,
+        "positive_mass_groups": 20348,
+        "weighted_top_action_disagreement": 0.0003112509009894502,
+        "weighting": "equal_input",
+        "within_group_weighting": "policy coefficient without replay-copy multiplicity",
+        "zero_mass_groups": 0
+      },
+      "exposure": {
+        "aggregation_denominator": 38848.0,
+        "between_group_weighting": "total exposure mass",
+        "entropy_decomposition": {
+          "between_source_js_nats": 2.9879871820158688e-05,
+          "within_source_js_nats": 5.375298862158445e-05
+        },
+        "input_groups": 20348,
+        "mean_js_nats": 8.363286044174314e-05,
+        "policy_mass": 38848.0,
+        "positive_mass_groups": 20348,
+        "weighted_top_action_disagreement": 0.0006092119714442614,
+        "weighting": "exposure",
+        "within_group_weighting": "replay multiplicity times policy coefficient",
+        "zero_mass_groups": 0
+      },
+      "seed429_treatment_equal_input": {
+        "aggregation_denominator": 20348.0,
+        "between_group_weighting": "one unit per positive-policy-mass exact-input group",
+        "entropy_decomposition": {
+          "between_source_js_nats": 1.7596016682076282e-05,
+          "within_source_js_nats": 2.728334599121158e-05
+        },
+        "input_groups": 20348,
+        "mean_js_nats": 4.487936267328787e-05,
+        "policy_mass": 23393.0,
+        "positive_mass_groups": 20348,
+        "weighted_top_action_disagreement": 0.0003112509009894502,
+        "weighting": "equal_input",
+        "within_group_weighting": "policy coefficient without replay-copy multiplicity",
+        "zero_mass_groups": 0
+      },
+      "seed429_treatment_exposure": {
+        "aggregation_denominator": 38848.0,
+        "between_group_weighting": "total exposure mass",
+        "entropy_decomposition": {
+          "between_source_js_nats": 2.9879871820158688e-05,
+          "within_source_js_nats": 5.375298862158445e-05
+        },
+        "input_groups": 20348,
+        "mean_js_nats": 8.363286044174314e-05,
+        "policy_mass": 38848.0,
+        "positive_mass_groups": 20348,
+        "weighted_top_action_disagreement": 0.0006092119714442614,
+        "weighting": "exposure",
+        "within_group_weighting": "replay multiplicity times policy coefficient",
+        "zero_mass_groups": 0
+      }
+    },
+    "validation/17-32": {
+      "equal_input": {
+        "aggregation_denominator": 2743.0,
+        "between_group_weighting": "one unit per positive-policy-mass exact-input group",
+        "entropy_decomposition": {
+          "between_source_js_nats": 0.0,
+          "within_source_js_nats": 6.205339040964357e-07
+        },
+        "input_groups": 2743,
+        "mean_js_nats": 6.205339040964357e-07,
+        "policy_mass": 2863.0,
+        "positive_mass_groups": 2743,
+        "weighted_top_action_disagreement": 0.0,
+        "weighting": "equal_input",
+        "within_group_weighting": "policy coefficient without replay-copy multiplicity",
+        "zero_mass_groups": 0
+      },
+      "exposure": {
+        "aggregation_denominator": 4583.0,
+        "between_group_weighting": "total exposure mass",
+        "entropy_decomposition": {
+          "between_source_js_nats": 0.0,
+          "within_source_js_nats": 9.588322036860296e-07
+        },
+        "input_groups": 2743,
+        "mean_js_nats": 9.588322036860296e-07,
+        "policy_mass": 4583.0,
+        "positive_mass_groups": 2743,
+        "weighted_top_action_disagreement": 0.0,
+        "weighting": "exposure",
+        "within_group_weighting": "replay multiplicity times policy coefficient",
+        "zero_mass_groups": 0
+      },
+      "seed429_treatment_equal_input": {
+        "aggregation_denominator": 2743.0,
+        "between_group_weighting": "one unit per positive-policy-mass exact-input group",
+        "entropy_decomposition": {
+          "between_source_js_nats": 0.0,
+          "within_source_js_nats": 6.205339040964357e-07
+        },
+        "input_groups": 2743,
+        "mean_js_nats": 6.205339040964357e-07,
+        "policy_mass": 2863.0,
+        "positive_mass_groups": 2743,
+        "weighted_top_action_disagreement": 0.0,
+        "weighting": "equal_input",
+        "within_group_weighting": "policy coefficient without replay-copy multiplicity",
+        "zero_mass_groups": 0
+      },
+      "seed429_treatment_exposure": {
+        "aggregation_denominator": 4583.0,
+        "between_group_weighting": "total exposure mass",
+        "entropy_decomposition": {
+          "between_source_js_nats": 0.0,
+          "within_source_js_nats": 9.588322036860296e-07
+        },
+        "input_groups": 2743,
+        "mean_js_nats": 9.588322036860296e-07,
+        "policy_mass": 4583.0,
+        "positive_mass_groups": 2743,
+        "weighted_top_action_disagreement": 0.0,
+        "weighting": "exposure",
+        "within_group_weighting": "replay multiplicity times policy coefficient",
+        "zero_mass_groups": 0
+      }
+    },
+    "validation/gt32": {
+      "equal_input": {
+        "aggregation_denominator": 2016.0,
+        "between_group_weighting": "one unit per positive-policy-mass exact-input group",
+        "entropy_decomposition": {
+          "between_source_js_nats": 0.005201044175958922,
+          "within_source_js_nats": 0.0009593036964512915
+        },
+        "input_groups": 2016,
+        "mean_js_nats": 0.0061603478724102136,
+        "policy_mass": 3276.0,
+        "positive_mass_groups": 2016,
+        "weighted_top_action_disagreement": 0.009216752496918182,
+        "weighting": "equal_input",
+        "within_group_weighting": "policy coefficient without replay-copy multiplicity",
+        "zero_mass_groups": 0
+      },
+      "exposure": {
+        "aggregation_denominator": 5773.0,
+        "between_group_weighting": "total exposure mass",
+        "entropy_decomposition": {
+          "between_source_js_nats": 0.0464076212319307,
+          "within_source_js_nats": 0.014656442993743154
+        },
+        "input_groups": 2016,
+        "mean_js_nats": 0.06106406422567384,
+        "policy_mass": 5773.0,
+        "positive_mass_groups": 2016,
+        "weighted_top_action_disagreement": 0.08107042317613702,
+        "weighting": "exposure",
+        "within_group_weighting": "replay multiplicity times policy coefficient",
+        "zero_mass_groups": 0
+      },
+      "seed429_treatment_equal_input": {
+        "aggregation_denominator": 2016.0,
+        "between_group_weighting": "one unit per positive-policy-mass exact-input group",
+        "entropy_decomposition": {
+          "between_source_js_nats": 0.005201044175958922,
+          "within_source_js_nats": 0.0009593036964512915
+        },
+        "input_groups": 2016,
+        "mean_js_nats": 0.0061603478724102136,
+        "policy_mass": 3276.0,
+        "positive_mass_groups": 2016,
+        "weighted_top_action_disagreement": 0.009216752496918182,
+        "weighting": "equal_input",
+        "within_group_weighting": "policy coefficient without replay-copy multiplicity",
+        "zero_mass_groups": 0
+      },
+      "seed429_treatment_exposure": {
+        "aggregation_denominator": 5773.0,
+        "between_group_weighting": "total exposure mass",
+        "entropy_decomposition": {
+          "between_source_js_nats": 0.0464076212319307,
+          "within_source_js_nats": 0.014656442993743154
+        },
+        "input_groups": 2016,
+        "mean_js_nats": 0.06106406422567384,
+        "policy_mass": 5773.0,
+        "positive_mass_groups": 2016,
+        "weighted_top_action_disagreement": 0.08107042317613702,
+        "weighting": "exposure",
+        "within_group_weighting": "replay multiplicity times policy coefficient",
+        "zero_mass_groups": 0
+      }
+    },
+    "validation/le16": {
+      "equal_input": {
+        "aggregation_denominator": 2532.0,
+        "between_group_weighting": "one unit per positive-policy-mass exact-input group",
+        "entropy_decomposition": {
+          "between_source_js_nats": 0.0,
+          "within_source_js_nats": 6.898983585031137e-07
+        },
+        "input_groups": 2532,
+        "mean_js_nats": 6.898983585031137e-07,
+        "policy_mass": 2623.0,
+        "positive_mass_groups": 2532,
+        "weighted_top_action_disagreement": 0.0,
+        "weighting": "equal_input",
+        "within_group_weighting": "policy coefficient without replay-copy multiplicity",
+        "zero_mass_groups": 0
+      },
+      "exposure": {
+        "aggregation_denominator": 4590.0,
+        "between_group_weighting": "total exposure mass",
+        "entropy_decomposition": {
+          "between_source_js_nats": 0.0,
+          "within_source_js_nats": 7.611427641524548e-07
+        },
+        "input_groups": 2532,
+        "mean_js_nats": 7.611427641524548e-07,
+        "policy_mass": 4590.0,
+        "positive_mass_groups": 2532,
+        "weighted_top_action_disagreement": 0.0,
+        "weighting": "exposure",
+        "within_group_weighting": "replay multiplicity times policy coefficient",
+        "zero_mass_groups": 0
+      },
+      "seed429_treatment_equal_input": {
+        "aggregation_denominator": 2532.0,
+        "between_group_weighting": "one unit per positive-policy-mass exact-input group",
+        "entropy_decomposition": {
+          "between_source_js_nats": 0.0,
+          "within_source_js_nats": 6.898983585031137e-07
+        },
+        "input_groups": 2532,
+        "mean_js_nats": 6.898983585031137e-07,
+        "policy_mass": 2623.0,
+        "positive_mass_groups": 2532,
+        "weighted_top_action_disagreement": 0.0,
+        "weighting": "equal_input",
+        "within_group_weighting": "policy coefficient without replay-copy multiplicity",
+        "zero_mass_groups": 0
+      },
+      "seed429_treatment_exposure": {
+        "aggregation_denominator": 4590.0,
+        "between_group_weighting": "total exposure mass",
+        "entropy_decomposition": {
+          "between_source_js_nats": 0.0,
+          "within_source_js_nats": 7.611427641524548e-07
+        },
+        "input_groups": 2532,
+        "mean_js_nats": 7.611427641524548e-07,
+        "policy_mass": 4590.0,
+        "positive_mass_groups": 2532,
+        "weighted_top_action_disagreement": 0.0,
+        "weighting": "exposure",
+        "within_group_weighting": "replay multiplicity times policy coefficient",
+        "zero_mass_groups": 0
+      }
+    }
+  },
+  "retrospective_correction": true,
+  "schema": "seed433-corrected-results-v1",
+  "source_seed432_results_sha256": "40d2de40f2d34cf8e7d53b7e331c92f5529267daa81be07a9bbaa0a61c2168b5",
+  "thresholds": {
+    "mean_js_nats": 0.05,
+    "weighted_top_action_disagreement": 0.1
+  }
+}

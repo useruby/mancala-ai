@@ -1,0 +1,9 @@
+{
+  "calculation_source_sha256": "3b4b7cf7387ade4fc5598f1360059a2b19418bbecd46e7020a1f5808746567eb",
+  "corrected_results_sha256": "85bbe9b8ca7ae9496d0d1c8d938487cb59a328d11a034722113a5ec06a62fae5",
+  "retrospective_correction": true,
+  "schema": "seed433-correction-receipt-v1",
+  "seed432_manifest_sha256": "5fcd9b28d0a6fa2fe99dbf5cc42a00c58c947684ac041218ae138067e3d62a1a",
+  "seed432_results_sha256": "40d2de40f2d34cf8e7d53b7e331c92f5529267daa81be07a9bbaa0a61c2168b5",
+  "verifier_source_sha256": "b65e28d35f9661c96c2cfdbd0e627269456c37363ea85028c1e9382db81d702a"
+}
