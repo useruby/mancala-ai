@@ -1,0 +1,175 @@
+{
+  "audit_telemetry": {
+    "A_deltas_sha256": "6ccfdbf173ede97a6c15b90ed65f939caa67bc207b1c211562cd6b31e73f7ea5",
+    "B_deltas_sha256": "e754b6fe387c558a3febada49d24dc6362c72da1700d94a2f0ee0b10bb48a6ae",
+    "cosines_sha256": "565a82ab63dcba774dc8c9df75026ad8f55fa0ab6f8169d8a9352ebee5e6819a",
+    "recovery_method": "replayed frozen 16-step protocols using original initializer, source targets, coefficients, split, permutation, and optimizer equations; both recovered final parameter arrays matched original final checkpoints bit-for-bit",
+    "telemetry_json_sha256": "56a778b3037db81482aab2e5d2299b5edc7276fb4a42c456c2c91f34e3dc83a9"
+  },
+  "frozen_input_hashes": {
+    "docs/data/seed416-policy-target-softening/registration-v3.json": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+    "docs/data/seed416-policy-target-softening/training-freeze-v3/epoch-permutations.json.gz": "d868edebd9ae1876cbc5b9edca6fa0df9d3e6184b97246847f9012dfe2d293d1",
+    "docs/data/seed416-policy-target-softening/training-freeze-v3/source-row-split.json.gz": "f7b69ab8fd6c19128a29f9ae9a11a7ac42a5d26630368ff74e906f29ddb6be44",
+    "docs/data/seed426-canonical-overlap/seed427-evaluation-manifest.json": "7a72f03438380174fa71c2689999a3ff9b03853c38d0cf71706580339a3fb640",
+    "docs/data/seed426-canonical-overlap/seed427-evaluation-results.json": "4899e990f2ff119d77b4c9f3a2f7bd8e24e2402449b4d4d52d13ad917f279172",
+    "docs/data/seed432-policy-target-compatibility/manifest.json": "5fcd9b28d0a6fa2fe99dbf5cc42a00c58c947684ac041218ae138067e3d62a1a",
+    "docs/data/seed433-seed432-census-correction/correction-receipt.json": "d915211825a3851988ac37a6ac71b1f5ebca029e170bb50ec78473cd2ee86b73"
+  },
+  "interpretation": "read-only predictions and deterministic audit reproduction; no training was extended or tuned",
+  "membership_row_count": 14946,
+  "membership_sha256": "554f3bd016a0f920ef253538d741a91cb27c9882d2dba94cf7509030af8ca385",
+  "original_evidence": {
+    "docs/data/seed435-adam-direction-screen/A-final.npz": "afb164603b34d0449f463f3c8e475f9bb4408e7a704c031a6f000572e6c4e9c7",
+    "docs/data/seed435-adam-direction-screen/A-updates.json": "140679058ed2fc08b83ea2ad9e53e5973b92a4fe4777786964a3f7a44cf827d5",
+    "docs/data/seed435-adam-direction-screen/B-final.npz": "b4bc13bec3ba50f40b722c75bbaa8de26cc3908ff695dd96de5278ce204b5069",
+    "docs/data/seed435-adam-direction-screen/B-updates.json": "bf99f4e2e2fa92ad4fb1dd98f2b803363a43df09d94a68761a821cbfb910c003",
+    "docs/data/seed435-adam-direction-screen/initializer.npz": "c18beeaa16ebaa038cd383cfd222705c636e2b6398c7270e6674d33231aa9dd1",
+    "docs/data/seed435-adam-direction-screen/registration.json": "d0ed204e2dec6483dbeb977605171cbb9f72818918b93e6580b289a93c1a9450",
+    "docs/data/seed435-adam-direction-screen/results.json": "0b94bddf275347fd867efa881c49f8cedff1dc2aa289b234b1c6eec90c6a9d40"
+  },
+  "prediction_archives": {
+    "A": "00d56a208cfd25c2cc4cae2bc3e7cd2e70be33aa4d2cf6d3199855e233cbaa82",
+    "B": "3d154d443c61e496a22141f2cef78af8a7b78028fc71f07bf708fd516aa36b23",
+    "initializer": "a9f18c655eb189832dcb3f10177da178f6c1239ca4050bf965cdeaaf09b11682"
+  },
+  "prediction_population_rows": 80119,
+  "recomputed_results": {
+    "decision": {
+      "checks": {
+        "B_minus_A_equal_input_policy": false,
+        "B_minus_A_exposure_weighted_policy": false,
+        "B_minus_initializer_equal_input_policy": false,
+        "B_minus_initializer_exposure_weighted_policy": false,
+        "training_objective_decreases": false,
+        "value_mse_guard_equal_input": false,
+        "value_mse_guard_exposure_weighted": false
+      },
+      "classification": "close_optimizer_direction_branch"
+    },
+    "metrics": {
+      "A": {
+        "equal_input_policy_ce": 1.2212629318237305,
+        "equal_input_value_mse": 0.6210176894682997,
+        "exposure_weighted_policy_ce": 1.1877460479736328,
+        "exposure_weighted_value_mse": 0.48487262516292995,
+        "full_training_objective": 1.0195943287224218
+      },
+      "B": {
+        "equal_input_policy_ce": 1.3294837474822998,
+        "equal_input_value_mse": 0.6322288057744545,
+        "exposure_weighted_policy_ce": 1.3240010738372803,
+        "exposure_weighted_value_mse": 0.4885740586785069,
+        "full_training_objective": 1.1397416710254755
+      },
+      "initializer": {
+        "equal_input_policy_ce": 1.1981604099273682,
+        "equal_input_value_mse": 0.6169980441226616,
+        "exposure_weighted_policy_ce": 1.170699119567871,
+        "exposure_weighted_value_mse": 0.47641066580331365,
+        "full_training_objective": 1.0214983344733433
+      }
+    },
+    "original_aggregate_discrepancies": {
+      "A": {
+        "equal_input.policy_ce": {
+          "difference": 0.0,
+          "original": 1.2212629318237305,
+          "recomputed": 1.2212629318237305
+        },
+        "equal_input.value_mse": {
+          "difference": -5.004966885380213e-09,
+          "original": 0.6210176944732666,
+          "recomputed": 0.6210176894682997
+        },
+        "exposure_weighted.policy_ce": {
+          "difference": 0.0,
+          "original": 1.1877460479736328,
+          "recomputed": 1.1877460479736328
+        },
+        "exposure_weighted.value_mse": {
+          "difference": 1.578602260021711e-08,
+          "original": 0.48487260937690735,
+          "recomputed": 0.48487262516292995
+        },
+        "full_training_objective": {
+          "difference": -0.00046644894176273155,
+          "original": 1.0200607776641846,
+          "recomputed": 1.0195943287224218
+        }
+      },
+      "B": {
+        "equal_input.policy_ce": {
+          "difference": 0.0,
+          "original": 1.3294837474822998,
+          "recomputed": 1.3294837474822998
+        },
+        "equal_input.value_mse": {
+          "difference": -4.554390486966042e-08,
+          "original": 0.6322288513183594,
+          "recomputed": 0.6322288057744545
+        },
+        "exposure_weighted.policy_ce": {
+          "difference": 0.0,
+          "original": 1.3240010738372803,
+          "recomputed": 1.3240010738372803
+        },
+        "exposure_weighted.value_mse": {
+          "difference": -2.8941274599070255e-08,
+          "original": 0.4885740876197815,
+          "recomputed": 0.4885740586785069
+        },
+        "full_training_objective": {
+          "difference": -0.00046955353049371595,
+          "original": 1.1402112245559692,
+          "recomputed": 1.1397416710254755
+        }
+      },
+      "initializer": {
+        "equal_input.policy_ce": {
+          "difference": 0.0,
+          "original": 1.1981604099273682,
+          "recomputed": 1.1981604099273682
+        },
+        "equal_input.value_mse": {
+          "difference": -3.231624223776208e-08,
+          "original": 0.6169980764389038,
+          "recomputed": 0.6169980441226616
+        },
+        "exposure_weighted.policy_ce": {
+          "difference": 0.0,
+          "original": 1.170699119567871,
+          "recomputed": 1.170699119567871
+        },
+        "exposure_weighted.value_mse": {
+          "difference": 8.635878956386733e-09,
+          "original": 0.4764106571674347,
+          "recomputed": 0.47641066580331365
+        },
+        "full_training_objective": {
+          "difference": 0.00020612484809912068,
+          "original": 1.0212922096252441,
+          "recomputed": 1.0214983344733433
+        }
+      }
+    }
+  },
+  "schema": "seed435-supplemental-verification-receipt-v1",
+  "status": "post_execution_verification",
+  "telemetry_verification": {
+    "paired_updates": 16,
+    "parameter_count": 22,
+    "status": "valid"
+  },
+  "tolerances": {
+    "absolute": 2e-06,
+    "prediction_absolute": 1e-07,
+    "relative": 2e-06
+  },
+  "verification_sources": {
+    "ml/alphazero_lite/seed435_adam_direction.py": "c153c859f430c1eb857e2176de9df3dd5d99590c3838324bd55eef7fb4df3d81",
+    "ml/alphazero_lite/seed435_telemetry_recovery.py": "db3321f3caf579aebb9251e79814dd2ee2e5cc6dfbb0ddea27d2fa5542dacf2c",
+    "ml/alphazero_lite/test_seed435_adam_direction.py": "34f4b414847e71125b6b2091ed4dd1acee3c6a6bd6a83bba4f83421360526cd7",
+    "ml/alphazero_lite/test_seed435_publication.py": "b34973539042a6387f6d2aa04cce304beaba8201acf8eddf48151acdea390641",
+    "ml/alphazero_lite/verify_seed435_publication.py": "ab17b13fe0ee2fb5fe900dfa6fbd63d05a818d523ba68c1542e897575247e7b4"
+  }
+}
