@@ -1,0 +1,16 @@
+{
+  "schema": "seed443-seed442-trajectory-report-v1",
+  "canonical_publication_verifier": "valid",
+  "independent_semantic_validator": "valid",
+  "legacy_structural_verifier": {
+    "status": "fails_on_raw_optimizer_archive",
+    "error": "first_moment_transition_invalid:A:1",
+    "explanation": "The legacy structural verifier interprets the un-copied raw exp_avg archive view as a step-specific post-state. It does not account for the documented CPU NumPy view aliasing; the append-only seed443 validator instead checks cloned pre-moments, recorded hashes and the supplemental reconstruction. No historical archive was changed."
+  },
+  "steps_per_arm": 16,
+  "classification": "close_kl_capped_step_branch",
+  "optimizer_raw_array_aliasing": {
+    "all_step_entries_alias_final_state": true,
+    "entries_per_moment_family_per_arm": 352
+  }
+}
