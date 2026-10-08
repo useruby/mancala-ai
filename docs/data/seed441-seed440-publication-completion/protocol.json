@@ -1,0 +1,80 @@
+{
+  "schema": "seed441-seed440-publication-completion-v1",
+  "status": "post-execution publication completion; supplemental sources formatted and frozen before the published evidence was regenerated",
+  "scope": "Reconstruct only seed440's already-defined A/B paths and midpoint evaluations. No optimizer, training, audit replay, new trajectories, searches, games, target changes, or promotion.",
+  "historical_bindings": {
+    "seed440_protocol": "docs/data/seed440-recorded-update-attribution/protocol.json",
+    "seed440_evidence_bindings": "docs/data/seed440-recorded-update-attribution/evidence-bindings.json",
+    "seed440_step_ledger": "docs/data/seed440-recorded-update-attribution/step-ledger.json",
+    "seed440_path_hashes": "docs/data/seed440-recorded-update-attribution/reconstructed-path-hashes.npz"
+  },
+  "paths": {
+    "arms": ["A", "B"],
+    "updates_per_arm": 16,
+    "prediction_states_per_arm": 17,
+    "midpoints_per_arm": 16,
+    "primary_arm": "A",
+    "initializer": "docs/data/seed429-canonical-policy-normalization/training-checkpoints/initializer.npz",
+    "actual_consumed_initializer_binding": "seed440 protocol initializer sha256; seed435 initializer archive is separately bound historical evidence",
+    "deltas": [
+      "docs/data/seed435-adam-direction-screen/A-audit-deltas.npz",
+      "docs/data/seed435-adam-direction-screen/B-audit-deltas.npz"
+    ],
+    "checkpoints": [
+      "docs/data/seed435-adam-direction-screen/A-final.npz",
+      "docs/data/seed435-adam-direction-screen/B-final.npz"
+    ],
+    "parameter_application": "seed440 registered order; archived float64 delta cast to float32 then added to disposable float32 parameters; midpoint is separately restored to pre-state before full-step application"
+  },
+  "membership": {
+    "source": "docs/data/seed426-canonical-overlap/seed427-validation-membership.jsonl.gz",
+    "predicate": "subset == unseen and active_stones > 32",
+    "selected_exposures": 2607,
+    "exact_input_identities": 1242,
+    "weightings": ["exposure_weighted", "equal_input"]
+  },
+  "arithmetic": {
+    "gradient": "production policy CE with legal masks; float32 chunk autograd gradients accumulated as float64 in selected exposure order",
+    "chunk_size": 512,
+    "dot": "float64 dot of flattened gradient and archived float64 delta",
+    "residual": "signed D - s, including nonlinear behavior and numerical effects",
+    "midpoint_residual": "CE_mid - CE_pre - 0.5*s",
+    "tolerance": {"absolute": 0.00003, "relative": 0.00003}
+  },
+  "classification": {
+    "primary_arm": "A",
+    "finite_step_residual_dominant": "D > 0 and R >= 0.75*D under both weightings",
+    "first_order_direction_dominant": "D > 0 and S >= 0.75*D under both weightings",
+    "otherwise": "mixed_or_no_common_dominance",
+    "priority": "finite_step_residual_dominant before first_order_direction_dominant"
+  },
+  "source_sha256": {
+    "ml/alphazero_lite/seed441_seed440_publication.py": "ec6f636f96b72035c472562fda07ea9aa2c79e47b5dde98bc6255ebc9eacbc11",
+    "ml/alphazero_lite/verify_seed441_seed440_publication.py": "0296978f89cc155a85d2c5fe45a412a01ea26ad9b338f6adfabc9a5de4cd2db1",
+    "ml/alphazero_lite/test_seed441_seed440_publication.py": "b16886362415981b08bcd8b0181eeef1aac72b6bdfb4e5f917dbe851af3a77f4"
+  },
+  "known_historical_sources": {
+    "array_loader": "ml/alphazero_lite/run_seed437_training_unseen_gradient_alignment.py; seed441 explicitly rebinds ROOT, DATA, OUT, REGISTRATION, INIT, and ADAM before invoking prepare_arrays",
+    "model_and_loss": "ml/alphazero_lite/train.py",
+    "replay_registration": "docs/data/seed416-policy-target-softening/registration-v3.json",
+    "replay_split": "resolved by registration source_row_split binding",
+    "seed435_parameter_order": "docs/data/seed435-adam-direction-screen/post-execution-telemetry.json"
+  },
+  "dependency_sha256": {
+    "docs/data/seed416-policy-target-softening/registration-v3.json": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+    "docs/data/seed416-policy-target-softening/training-freeze-v3/source-row-split.json.gz": "f7b69ab8fd6c19128a29f9ae9a11a7ac42a5d26630368ff74e906f29ddb6be44",
+    "docs/data/seed426-canonical-overlap/sources/fresh.jsonl.gz": "5f5062416ae620e4e3491989f19c166d26840b3fead8074323f23eb01211746b",
+    "docs/data/seed426-canonical-overlap/sources/generic_bootstrap.jsonl.gz": "51132b09c453712b8f48ab748e5025b25338681f9f89dd65a1fe2598ca266330",
+    "docs/data/seed426-canonical-overlap/sources/opening_disagreement.jsonl.gz": "5d73b65f57cf3e4199608c5cfbd80fa9656d5f267b5a823b12c7940a80824bdc",
+    "docs/data/seed426-canonical-overlap/sources/random_teacher.jsonl.gz": "fa6f83e3fc6bb3c93f87e9b640b8d58213f526115e3fdf582c96d9b1b7b7d1d7",
+    "docs/data/seed426-canonical-overlap/sources/stability.jsonl.gz": "77de3df0a93f928f8e131566c1f18f83b7d0100874248e2d29a6cb37f6e45b36",
+    "docs/data/seed426-canonical-overlap/seed427-validation-membership.jsonl.gz": "554f3bd016a0f920ef253538d741a91cb27c9882d2dba94cf7509030af8ca385",
+    "docs/data/seed429-canonical-policy-normalization/training-checkpoints/initializer.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "docs/data/seed435-adam-direction-screen/post-execution-telemetry.json": "56a778b3037db81482aab2e5d2299b5edc7276fb4a42c456c2c91f34e3dc83a9",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/run_seed437_training_unseen_gradient_alignment.py": "a557bd2433c508ad8f6642c126ac9cf0192f1c69bb1175711cb7caf0dcaa0d9c",
+    "ml/alphazero_lite/seed437_gradient_alignment.py": "a7a8cae13083e7c53cb61b0be1544e413dc340bac2049d07bd280f47eb72da3c",
+    "ml/alphazero_lite/seed440_recorded_update_attribution.py": "e057ae14cc5c95e78e9941577a08c421783173624d8302c99742d21b509617d7",
+    "ml/alphazero_lite/checkpoint_phase_selection.py": "2ab2713c7e6ad6c8f96876519e81cb39dfa7d96d93b11ae42fa4fa27b7033969"
+  }
+}
