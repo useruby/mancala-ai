@@ -1,0 +1,29 @@
+{
+  "schema": "seed438-correction-receipt-v1",
+  "observation": "Correction follows observation of seed437 original results.",
+  "original_evidence": {
+    "manifest_sha256": "5518632b3a1de810331df2f418c7f281070c9e557cf0c65c6e2fdbe6eacec084",
+    "gradient_vectors_sha256": "e13403097566e411af1a62bd00d1f49937beb17b3a35dc9563d6358fa5993618",
+    "results_sha256": "7f7b56ebaf403e2ddd2195e888870b435e9bde4602b9356a677fc1bb7c7f2c09"
+  },
+  "frozen_protocol_sha256": "704541af5eb8a6d4effad0430aaa94413ebeb9833fa607c4ff116721c6a33d8d",
+  "corrected_sources": {
+    "ml/alphazero_lite/run_seed438_seed437_gradient_correction.py": "de142d87f0e78003d073c061803ba63a66e9eb80c246573dc25234df4331c56e",
+    "ml/alphazero_lite/seed438_gradient_correction.py": "2ade97c499c9d1d12e59880b356805110559e998a878aa58d0041e3d9fd3e1f3",
+    "ml/alphazero_lite/test_seed438_gradient_correction.py": "2e881abbf82d74c30692eb452b9d19cc55bbc2d6032bcaef4f6aac6dff37dca4",
+    "ml/alphazero_lite/verify_seed438_seed437_gradient_correction.py": "35a019ec2f2a400c5d4ac3a2c7dbb6fdd59c2cd7f40e496d9df3b985d455bd76"
+  },
+  "corrected_vectors_sha256": "a921f1af3c129680978bc1e158a0fd41d8fce60cf2da10ffd1cbb36c7c2b9646",
+  "corrected_results_sha256": "bfd7c4166ea83a03a3c573386ec6a96f545c8b754f8ae349d3b28b4e580d97ba",
+  "classification": "no_persistent_training_objective_opposition",
+  "checkpoint_hashes_unchanged": {
+    "initializer": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "adam_a16": "afb164603b34d0449f463f3c8e475f9bb4408e7a704c031a6f000572e6c4e9c7"
+  },
+  "component_comparison_tolerances": {
+    "absolute": 2e-5,
+    "relative": 2e-5
+  },
+  "optimizer_steps": 0,
+  "diagnostic_forward_backward_only": true
+}
