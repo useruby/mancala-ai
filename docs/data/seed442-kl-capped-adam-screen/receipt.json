@@ -1,0 +1,27 @@
+{
+  "evidence_files_sha256": {
+    "docs/data/seed442-kl-capped-adam-screen/A-final.npz": "33cdf971bfbdf00eb9a94890218022afa23ead423c91aa9b79fd6b851371eb93",
+    "docs/data/seed442-kl-capped-adam-screen/A-predictions.npz": "64792e5e3ec26f39b012872faac1279f12950715f72e02bf2e9d6976238e251d",
+    "docs/data/seed442-kl-capped-adam-screen/B-final.npz": "4302216db4e359d3045ca00a01ab81f04b9ea85195432ca8cd6aaabd50cad2db",
+    "docs/data/seed442-kl-capped-adam-screen/B-predictions.npz": "f141af7549aff71ed79fa469dda456a2f9fb3703c9d6c4cc3381d138ab3d6ffd",
+    "docs/data/seed442-kl-capped-adam-screen/analysis.md": "698aaeb2008e6f56251e921e2ec6e93196d6987e00739507c919f59f515eca71",
+    "docs/data/seed442-kl-capped-adam-screen/evidence.json": "4e98c8559433b234512c8b6d907f3aed2c1a591deb21e7b4b587194ba4aca9e7",
+    "docs/data/seed442-kl-capped-adam-screen/guard-cohort.json": "d25c03960d1220c58f5401d9536862ce647a02a5f8d9abcf6ad7174da0c53297",
+    "docs/data/seed442-kl-capped-adam-screen/initializer-predictions.npz": "654e6b97553684c2ad9436025245813b6daf5ce4591d1c566f1eb8b5b1148969",
+    "docs/data/seed442-kl-capped-adam-screen/optimizer-state-reconstruction.npz": "7c3440b5e59ac222c0973d14ad49cd95aea1d56dda2ae9c2aec59db302952686",
+    "docs/data/seed442-kl-capped-adam-screen/registration.json": "53797e303dc6b1bc5bcb61c413eb5acd355737e8a65f6608485045b960c80974",
+    "docs/data/seed442-kl-capped-adam-screen/step-tensors.npz": "e50e915f5f4e2d75ae315750413e605da9008090197950d58b0593fe62d28562"
+  },
+  "interpretation": "retrospective validation screen; not evidence of playing strength",
+  "registration_sha256": "53797e303dc6b1bc5bcb61c413eb5acd355737e8a65f6608485045b960c80974",
+  "schema": "seed442-publication-receipt-v1",
+  "source_sha256": {
+    "ml/alphazero_lite/seed442_analysis.py": "9d9a944936c796722397a046f5f5895d93538c1f4246d197205428864518fb81",
+    "ml/alphazero_lite/seed442_kl_capped_adam.py": "08279f0f67a73c3fb52a00f54c4bc61f98e578aa6bb14a9527c5558cc3f37c8e",
+    "ml/alphazero_lite/test_seed442_kl_capped_adam.py": "bb6169b5dea3cd47a0a306fb984753154e13cfc8aaf9ca7141fe0cc428b46d9e",
+    "ml/alphazero_lite/test_seed442_publication.py": "96839a365c113a33694c8c6ecf09c3025f6bdd09b2a41c7f77d0dec997c8e885",
+    "ml/alphazero_lite/verify_seed442_kl_capped_adam.py": "659fb91e6ceb77fa8cc2ca837f3e568f145ae0f29ffc6ff28328c852a684a673",
+    "ml/alphazero_lite/verify_seed442_publication.py": "45a5c3b22ad104b2f3ea448e011a3fdfd7804e66cd6901292491642d677ee52a"
+  },
+  "status": "post-execution-verification-binding"
+}
