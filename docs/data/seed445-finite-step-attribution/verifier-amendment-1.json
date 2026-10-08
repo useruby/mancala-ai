@@ -1,0 +1,13 @@
+{
+  "schema": "seed445-post-execution-verifier-amendment-v1",
+  "status": "post_execution_independent_verifier_batching_correction",
+  "protocol_sha256": "35c859a8e07bfa80991a56a3a332f1ff35bb4cda12fc78521d5788d589a1076f",
+  "original_verifier_sha256": "d2a99f2437e2d7a5048927f6909717fc7b4975dcbd244a37a3d3a851a24757e9",
+  "corrected_verifier_sha256": "492273f86fef4297f5d67e329bd301f8a0255a1d10e7f981d090add1bbab5549",
+  "reason": "Initial independent replay used different forward batch boundaries for raw predictions than the runner, yielding a strict prediction-array mismatch. Replay now uses identical 512-row prediction batching while independently recomputing autograd gradients in 256-row chunks, and requires exact equality for recomputed full gradient vectors.",
+  "arithmetic_protocol_changed": false,
+  "runner_source_changed": false,
+  "published_runner_arrays_changed": false,
+  "classification_was_observed_before_amendment": true,
+  "interpretation": "This is an openly post-execution verifier implementation correction. Diagnostic classification remains retrospective only and is not prospective outcome evidence."
+}

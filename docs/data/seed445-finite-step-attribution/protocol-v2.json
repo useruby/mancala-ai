@@ -1,0 +1,285 @@
+{
+  "authoritative_input_sha256": {
+    "docs/data/seed416-policy-target-softening/registration-v3.json": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+    "docs/data/seed416-policy-target-softening/training-freeze-v3/source-row-split.json.gz": "f7b69ab8fd6c19128a29f9ae9a11a7ac42a5d26630368ff74e906f29ddb6be44",
+    "docs/data/seed426-canonical-overlap/seed427-validation-membership.jsonl.gz": "554f3bd016a0f920ef253538d741a91cb27c9882d2dba94cf7509030af8ca385",
+    "docs/data/seed426-canonical-overlap/sources/fresh.jsonl.gz": "5f5062416ae620e4e3491989f19c166d26840b3fead8074323f23eb01211746b",
+    "docs/data/seed426-canonical-overlap/sources/generic_bootstrap.jsonl.gz": "51132b09c453712b8f48ab748e5025b25338681f9f89dd65a1fe2598ca266330",
+    "docs/data/seed426-canonical-overlap/sources/opening_disagreement.jsonl.gz": "5d73b65f57cf3e4199608c5cfbd80fa9656d5f267b5a823b12c7940a80824bdc",
+    "docs/data/seed426-canonical-overlap/sources/random_teacher.jsonl.gz": "fa6f83e3fc6bb3c93f87e9b640b8d58213f526115e3fdf582c96d9b1b7b7d1d7",
+    "docs/data/seed426-canonical-overlap/sources/stability.jsonl.gz": "77de3df0a93f928f8e131566c1f18f83b7d0100874248e2d29a6cb37f6e45b36",
+    "docs/data/seed429-canonical-policy-normalization/training-checkpoints/initializer.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "docs/data/seed442-kl-capped-adam-screen/A-final.npz": "33cdf971bfbdf00eb9a94890218022afa23ead423c91aa9b79fd6b851371eb93",
+    "docs/data/seed442-kl-capped-adam-screen/B-final.npz": "4302216db4e359d3045ca00a01ab81f04b9ea85195432ca8cd6aaabd50cad2db",
+    "docs/data/seed442-kl-capped-adam-screen/evidence.json": "4e98c8559433b234512c8b6d907f3aed2c1a591deb21e7b4b587194ba4aca9e7",
+    "docs/data/seed442-kl-capped-adam-screen/receipt.json": "27b01dfad71636ea16ec4ef196dd9a0aa59ffe05351a0e2a5ea5ac08428e57c0",
+    "docs/data/seed442-kl-capped-adam-screen/registration.json": "53797e303dc6b1bc5bcb61c413eb5acd355737e8a65f6608485045b960c80974",
+    "docs/data/seed442-kl-capped-adam-screen/step-tensors.npz": "e50e915f5f4e2d75ae315750413e605da9008090197950d58b0593fe62d28562",
+    "docs/data/seed443-seed442-trajectory/receipt.json": "ec5e9a65c2b6ffe1577abf459fcaba236c6d59cce9634f9a97274b063ad72c2c",
+    "docs/data/seed443-seed442-trajectory/verification-report.json": "a87cff292ab86fe5499ee2c4772ff2ca4f5e15136fef43429ab385ab84ad60f1",
+    "docs/data/seed444-minibatch-denominator-audit/corrected-rerun-evidence.json": "5d4e4895862967939e9af6cb1acc69cbc0ba276c79e35e79e84129acd7b4d1e4",
+    "docs/data/seed444-minibatch-denominator-audit/corrected-rerun-registration-v2.json": "d96f703a1526e29332bbcfb9d42723a6c50da4934a51baf41f8bd333298f8cc4",
+    "docs/data/seed444-minibatch-denominator-audit/receipt.json": "540f8d95e7fb670b847577fe7b18ddd25ba1f7c61bb0ac0e57b7dec73a37b145"
+  },
+  "classification": {
+    "order": [
+      "if D>0 and S>=0.75D for both weightings: first_order_value_harm_dominant",
+      "else if D>0 and R>=0.75D for both weightings: finite_step_value_residual_dominant",
+      "else: mixed_or_no_common_value_dominance"
+    ],
+    "signed": true
+  },
+  "execution_source_sha256": {
+    "ml/alphazero_lite/seed429_policy_normalization.py": "b2743afc7bc4acdadff9e25fc456f8dc3757dfd0c98c9bc214aee805d70011d6",
+    "ml/alphazero_lite/seed442_kl_capped_adam.py": "08279f0f67a73c3fb52a00f54c4bc61f98e578aa6bb14a9527c5558cc3f37c8e",
+    "ml/alphazero_lite/seed444_minibatch_denominator.py": "ab4507e9b1a6e8b0db05f659ff3a2bf5851567b221cd0118d4342fe4bfce0e73",
+    "ml/alphazero_lite/seed445_finite_step_attribution.py": "49b457a56cdfc13d30562bb33d61396f616ad977d57738d8b57ef4ef0e09a072",
+    "ml/alphazero_lite/test_seed445_finite_step_attribution.py": "ce1c323c213ede67238be4a6e5cdcb8031413fc620e542426110a6791c726ff9",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/verify_seed434_census_source.py": "4b632366f7b1ad920b77c692c0b9993de5420b723deba71bc9d081522789ec51",
+    "ml/alphazero_lite/verify_seed443_seed442_trajectory.py": "ff2ae8018232131c9948b852a46613aa741e49b6ecf5bf443adffb7765671df0",
+    "ml/alphazero_lite/verify_seed445_finite_step_attribution.py": "d2a99f2437e2d7a5048927f6909717fc7b4975dcbd244a37a3d3a851a24757e9"
+  },
+  "gradient_arithmetic": "float32 autograd gradients converted to float64 and accumulated over deterministic chunks; retain every requires_grad parameter in named-parameter order, with correctly shaped float64 zeros for None gradients",
+  "group_arithmetic": "shared_trunk=input_layer/residual_layers; policy_head=policy_hidden_layer/policy_head; value_head=value_hidden_layer/value_head; group first-order dots reconcile to full dot; residual is not grouped",
+  "input_arithmetic": "reconstruct replay rows with portable compressed source snapshots and frozen registration/loader semantics; membership identities select exact input rows; no historical run-local paths",
+  "interpretation": "descriptive retrospective attribution, not causal interventions or prospective outcome evidence; residual includes nonlinear and numerical effects and is not pure curvature; authorizes no training, gate change, or strength claim",
+  "objectives": {
+    "policy_ce": "production legal-masked policy CE",
+    "value_mse": "mean squared prediction error; no training coefficient"
+  },
+  "parameter_layout": [
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.0.0.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 0,
+      "stop": 9216
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.0.0.bias",
+      "shape": [
+        96
+      ],
+      "start": 9216,
+      "stop": 9312
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.0.1.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 9312,
+      "stop": 18528
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.0.1.bias",
+      "shape": [
+        96
+      ],
+      "start": 18528,
+      "stop": 18624
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.1.0.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 18624,
+      "stop": 27840
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.1.0.bias",
+      "shape": [
+        96
+      ],
+      "start": 27840,
+      "stop": 27936
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.1.1.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 27936,
+      "stop": 37152
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.1.1.bias",
+      "shape": [
+        96
+      ],
+      "start": 37152,
+      "stop": 37248
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.2.0.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 37248,
+      "stop": 46464
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.2.0.bias",
+      "shape": [
+        96
+      ],
+      "start": 46464,
+      "stop": 46560
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.2.1.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 46560,
+      "stop": 55776
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.2.1.bias",
+      "shape": [
+        96
+      ],
+      "start": 55776,
+      "stop": 55872
+    },
+    {
+      "group": "shared_trunk",
+      "name": "input_layer.weight",
+      "shape": [
+        96,
+        27
+      ],
+      "start": 55872,
+      "stop": 58464
+    },
+    {
+      "group": "shared_trunk",
+      "name": "input_layer.bias",
+      "shape": [
+        96
+      ],
+      "start": 58464,
+      "stop": 58560
+    },
+    {
+      "group": "policy_head",
+      "name": "policy_hidden_layer.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 58560,
+      "stop": 67776
+    },
+    {
+      "group": "policy_head",
+      "name": "policy_hidden_layer.bias",
+      "shape": [
+        96
+      ],
+      "start": 67776,
+      "stop": 67872
+    },
+    {
+      "group": "value_head",
+      "name": "value_hidden_layer.weight",
+      "shape": [
+        48,
+        96
+      ],
+      "start": 67872,
+      "stop": 72480
+    },
+    {
+      "group": "value_head",
+      "name": "value_hidden_layer.bias",
+      "shape": [
+        48
+      ],
+      "start": 72480,
+      "stop": 72528
+    },
+    {
+      "group": "policy_head",
+      "name": "policy_head.weight",
+      "shape": [
+        6,
+        96
+      ],
+      "start": 72528,
+      "stop": 73104
+    },
+    {
+      "group": "policy_head",
+      "name": "policy_head.bias",
+      "shape": [
+        6
+      ],
+      "start": 73104,
+      "stop": 73110
+    },
+    {
+      "group": "value_head",
+      "name": "value_head.weight",
+      "shape": [
+        1,
+        48
+      ],
+      "start": 73110,
+      "stop": 73158
+    },
+    {
+      "group": "value_head",
+      "name": "value_head.bias",
+      "shape": [
+        1
+      ],
+      "start": 73158,
+      "stop": 73159
+    }
+  ],
+  "population": "unseen >32; 2,607 exposure rows and 1,242 exact-input identities",
+  "preserved_invalid_draft": {
+    "path": "docs/data/seed445-finite-step-attribution/protocol.json",
+    "reason": "preparation edits after initial draft changed source bytes; draft binding invalidated before any diagnostic gradient; original bytes preserved",
+    "sha256": "e1b7a0991261f14eec6386217dd10809c9c303591986579e44aebe6ed0495c68"
+  },
+  "primary_arm": "B",
+  "primary_objective": "unseen value MSE, unweighted by training coefficient",
+  "reference": "A and policy CE descriptive only",
+  "schema": "seed445-frozen-protocol-v2",
+  "status": "frozen_before_new_gradients",
+  "step": "16 accepted steps, 17 states; exact initializer/pre/post state continuity; B uses accepted archived post tensors including selected scales; float64 difference of adjacent float32 states; d=L(post)-L(pre); s=gradient L(pre) dot displacement; r=d-s",
+  "temporal_scope": "retrospective attribution; endpoints and failed gates were already known before protocol finalization; no prospective outcome claim",
+  "tolerances": {
+    "absolute": 2e-07,
+    "arithmetic_identity": "all scalar reconstruction checks use numpy.isclose with these tolerances; gradient archive comparisons exact after float64 serialization",
+    "relative": 2e-06
+  },
+  "weighting_arithmetic": "exposure weights are uniform over all 2,607 selected exposure rows; equal-input weights assign each of 1,242 identities equal total mass, retaining all selected exposures within each identity",
+  "weightings": {
+    "equal_input": "within-identity exposure mean then identities equal mass",
+    "exposure_weighted": "each exposure equal mass"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "artifacts_sha256": {
+    "docs/data/seed445-finite-step-attribution/analysis.md": "17edd438c23335bf8a1c8fb52073693b99cd07e020c95e61deeb4da0592af26b",
+    "docs/data/seed445-finite-step-attribution/gradients.npz": "5c501b3b12853dd5fdff18adf383c38d9c6d865ad920e4b9b0cee772a3752d44",
+    "docs/data/seed445-finite-step-attribution/parameter-layout.json": "624a974cc2843b818540abdf87905f420965915cd81a795e41ce46349a6c0529",
+    "docs/data/seed445-finite-step-attribution/predictions.npz": "c7735968aa6f20a687e1628c69d109151f855968614275b9fb4fc3b08b4415ad",
+    "docs/data/seed445-finite-step-attribution/protocol-v2.json": "35c859a8e07bfa80991a56a3a332f1ff35bb4cda12fc78521d5788d589a1076f",
+    "docs/data/seed445-finite-step-attribution/protocol.json": "e1b7a0991261f14eec6386217dd10809c9c303591986579e44aebe6ed0495c68",
+    "docs/data/seed445-finite-step-attribution/row-identities.json": "c44bb1c443d0b2a9232cefd98a84e2bb2d8582f5abdb432c5f0d2fd8ffc529e5",
+    "docs/data/seed445-finite-step-attribution/step-ledger.json": "e7cca5643ee4d20d5fdadf0f821bd5f22c3ce9a8c9fff7d571423269d512f43d",
+    "docs/data/seed445-finite-step-attribution/verifier-amendment-1.json": "6e56fe8eb996b42d74e6b4bab1ad1926e1530fc04eb2e2aa8ad20d09ac4d7200"
+  },
+  "historical_seed442_sha256": {
+    "docs/data/seed442-kl-capped-adam-screen/A-final.npz": "33cdf971bfbdf00eb9a94890218022afa23ead423c91aa9b79fd6b851371eb93",
+    "docs/data/seed442-kl-capped-adam-screen/B-final.npz": "4302216db4e359d3045ca00a01ab81f04b9ea85195432ca8cd6aaabd50cad2db",
+    "docs/data/seed442-kl-capped-adam-screen/receipt.json": "27b01dfad71636ea16ec4ef196dd9a0aa59ffe05351a0e2a5ea5ac08428e57c0",
+    "docs/data/seed442-kl-capped-adam-screen/registration.json": "53797e303dc6b1bc5bcb61c413eb5acd355737e8a65f6608485045b960c80974",
+    "docs/data/seed442-kl-capped-adam-screen/step-tensors.npz": "e50e915f5f4e2d75ae315750413e605da9008090197950d58b0593fe62d28562"
+  },
+  "protocol_sha256": "35c859a8e07bfa80991a56a3a332f1ff35bb4cda12fc78521d5788d589a1076f",
+  "schema": "seed445-publication-receipt-v1",
+  "status": "published_retrospective_attribution"
+}
