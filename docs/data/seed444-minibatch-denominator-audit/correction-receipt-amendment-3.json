@@ -1,0 +1,15 @@
+{
+  "schema": "seed444-correction-receipt-amendment-v3",
+  "initial_auxiliary_evidence": {
+    "aggregate_vectors_path": "docs/data/seed444-minibatch-denominator-audit/aggregate-vectors.npz",
+    "aggregate_vectors_sha256": "ac08480ff38d714f86943613ff538e256c52997f7a62e159ce0fcddf4401bd84",
+    "batch_ledger_path": "docs/data/seed444-minibatch-denominator-audit/batch-ledger.json",
+    "batch_ledger_sha256": "9ccec28ff80798e92e50ef2fd91920b8eb881ce33e1038650e01445539479e5d"
+  },
+  "interpretation": "These are initial-run auxiliary files associated with the superseded initial evidence. They are retained unchanged for transparency and are not the corrected rerun's aggregate vectors or ledger.",
+  "corrected_files": {
+    "aggregate_vectors": "docs/data/seed444-minibatch-denominator-audit/corrected-aggregate-vectors.npz",
+    "batch_ledger": "docs/data/seed444-minibatch-denominator-audit/corrected-batch-ledger.json",
+    "evidence": "docs/data/seed444-minibatch-denominator-audit/corrected-rerun-evidence.json"
+  }
+}

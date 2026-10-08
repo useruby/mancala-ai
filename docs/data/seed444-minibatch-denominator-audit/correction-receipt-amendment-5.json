@@ -1,0 +1,6 @@
+{
+  "schema": "seed444-publication-amendment-v2",
+  "active_stone_bucket_semantics_path": "docs/data/seed444-minibatch-denominator-audit/corrected-bucket-semantics.json",
+  "active_stone_bucket_semantics_sha256": "ebadcd1d16652d5092f294e1de6b98b583fed50f481fe61c68ff254c8fc9d33c",
+  "purpose": "Make explicit the deterministic descriptive bucket calculation already source-bound in the corrected run; it does not modify counts or results."
+}

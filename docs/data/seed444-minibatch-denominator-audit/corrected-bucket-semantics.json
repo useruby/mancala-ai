@@ -1,0 +1,12 @@
+{
+  "schema": "seed444-active-stone-bucket-semantics-v1",
+  "source_expression": "min(4, int(sum(encoded_state[:12], float64) * 48) // 12)",
+  "buckets": {
+    "0": "encoded active-stone sum scaled to integer range [0, 12)",
+    "1": "scaled range [12, 24)",
+    "2": "scaled range [24, 36)",
+    "3": "scaled range [36, 48)",
+    "4": "scaled range [48, infinity), saturated"
+  },
+  "purpose": "descriptive batch ledger stratification only; not a decision criterion"
+}

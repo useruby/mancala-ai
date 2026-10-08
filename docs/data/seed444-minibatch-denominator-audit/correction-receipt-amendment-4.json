@@ -1,0 +1,9 @@
+{
+  "schema": "seed444-publication-amendment-v1",
+  "equal_update_analysis_addendum": {
+    "path": "docs/data/seed444-minibatch-denominator-audit/analysis-addendum-equal-updates.md",
+    "sha256": "cf56374ab7c1e43c3cc7c5ec753c6c43b80da9907d78bda56e8f50c578e90ba3"
+  },
+  "supplements_original_publication_receipt_sha256": "540f8d95e7fb670b847577fe7b18ddd25ba1f7c61bb0ac0e57b7dec73a37b145",
+  "interpretation": "Reports equal-update averages and isolates final-partial-batch weighting from the denominator effect; the primary fixed-checkpoint comparison remains unchanged."
+}

@@ -1,0 +1,264 @@
+{
+  "batch_size": 512,
+  "checkpoints": {
+    "adam_a16": {
+      "path": "docs/data/seed435-adam-direction-screen/A-final.npz",
+      "sha256": "afb164603b34d0449f463f3c8e475f9bb4408e7a704c031a6f000572e6c4e9c7"
+    },
+    "initializer": {
+      "path": "docs/data/seed429-canonical-policy-normalization/training-checkpoints/initializer.npz",
+      "sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+    }
+  },
+  "decision": {
+    "degenerate_reference_norm_lte": 1e-12,
+    "material_threshold_inclusive": 0.05,
+    "statistic": "||G_batch-G_global||_2/||G_global||_2"
+  },
+  "execution_source_sha256": {
+    "ml/alphazero_lite/seed444_minibatch_denominator.py": "8ef6faa04dc790941722b315eef3e9963d1fcb7b03895ff66254c6aaad47601f",
+    "ml/alphazero_lite/test_seed444_minibatch_denominator.py": "60a62cca91c69802fdfb8d7fcc252fff6b5f1738da8816318bb2812de8dde5e0",
+    "ml/alphazero_lite/verify_seed444_minibatch_denominator.py": "6c42bbd550892866c53f04e224595b640efe5ea9b6683adb8e6d7dd616e8217c"
+  },
+  "loader_source_sha256": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+  "objective": "policy weighted_policy_loss per batch; mean Huber(delta=1); value coefficient 0.3 applied once",
+  "parameter_layout": [
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.0.0.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 0,
+      "stop": 9216
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.0.0.bias",
+      "shape": [
+        96
+      ],
+      "start": 9216,
+      "stop": 9312
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.0.1.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 9312,
+      "stop": 18528
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.0.1.bias",
+      "shape": [
+        96
+      ],
+      "start": 18528,
+      "stop": 18624
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.1.0.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 18624,
+      "stop": 27840
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.1.0.bias",
+      "shape": [
+        96
+      ],
+      "start": 27840,
+      "stop": 27936
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.1.1.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 27936,
+      "stop": 37152
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.1.1.bias",
+      "shape": [
+        96
+      ],
+      "start": 37152,
+      "stop": 37248
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.2.0.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 37248,
+      "stop": 46464
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.2.0.bias",
+      "shape": [
+        96
+      ],
+      "start": 46464,
+      "stop": 46560
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.2.1.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 46560,
+      "stop": 55776
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.2.1.bias",
+      "shape": [
+        96
+      ],
+      "start": 55776,
+      "stop": 55872
+    },
+    {
+      "group": "shared_trunk",
+      "name": "input_layer.weight",
+      "shape": [
+        96,
+        27
+      ],
+      "start": 55872,
+      "stop": 58464
+    },
+    {
+      "group": "shared_trunk",
+      "name": "input_layer.bias",
+      "shape": [
+        96
+      ],
+      "start": 58464,
+      "stop": 58560
+    },
+    {
+      "group": "policy_head",
+      "name": "policy_hidden_layer.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 58560,
+      "stop": 67776
+    },
+    {
+      "group": "policy_head",
+      "name": "policy_hidden_layer.bias",
+      "shape": [
+        96
+      ],
+      "start": 67776,
+      "stop": 67872
+    },
+    {
+      "group": "value_head",
+      "name": "value_hidden_layer.weight",
+      "shape": [
+        48,
+        96
+      ],
+      "start": 67872,
+      "stop": 72480
+    },
+    {
+      "group": "value_head",
+      "name": "value_hidden_layer.bias",
+      "shape": [
+        48
+      ],
+      "start": 72480,
+      "stop": 72528
+    },
+    {
+      "group": "policy_head",
+      "name": "policy_head.weight",
+      "shape": [
+        6,
+        96
+      ],
+      "start": 72528,
+      "stop": 73104
+    },
+    {
+      "group": "policy_head",
+      "name": "policy_head.bias",
+      "shape": [
+        6
+      ],
+      "start": 73104,
+      "stop": 73110
+    },
+    {
+      "group": "value_head",
+      "name": "value_head.weight",
+      "shape": [
+        1,
+        48
+      ],
+      "start": 73110,
+      "stop": 73158
+    },
+    {
+      "group": "value_head",
+      "name": "value_head.bias",
+      "shape": [
+        1
+      ],
+      "start": 73158,
+      "stop": 73159
+    }
+  ],
+  "permutation": {
+    "first_epoch_sha256": "af3ee4fa38a2f0391c818bc9c93c0562e6a532083268b4972d47ff58140f0d47",
+    "path": "docs/data/seed416-policy-target-softening/training-freeze-v3/epoch-permutations.json.gz",
+    "sha256": "d868edebd9ae1876cbc5b9edca6fa0df9d3e6184b97246847f9012dfe2d293d1"
+  },
+  "reconstruction_source_sha256": "4b632366f7b1ad920b77c692c0b9993de5420b723deba71bc9d081522789ec51",
+  "schema": "seed444-frozen-minibatch-denominator-registration-v1",
+  "semantics": "original float32 row coefficients and replay multiplicity; complete training positions in frozen epoch order; final partial batch included; fixed parameters; no clipping or updates",
+  "source_registration": {
+    "path": "docs/data/seed416-policy-target-softening/registration-v3.json",
+    "sha256": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066"
+  },
+  "sources": {
+    "docs/data/seed426-canonical-overlap/sources/fresh.jsonl.gz": "5f5062416ae620e4e3491989f19c166d26840b3fead8074323f23eb01211746b",
+    "docs/data/seed426-canonical-overlap/sources/generic_bootstrap.jsonl.gz": "51132b09c453712b8f48ab748e5025b25338681f9f89dd65a1fe2598ca266330",
+    "docs/data/seed426-canonical-overlap/sources/opening_disagreement.jsonl.gz": "5d73b65f57cf3e4199608c5cfbd80fa9656d5f267b5a823b12c7940a80824bdc",
+    "docs/data/seed426-canonical-overlap/sources/random_teacher.jsonl.gz": "fa6f83e3fc6bb3c93f87e9b640b8d58213f526115e3fdf582c96d9b1b7b7d1d7",
+    "docs/data/seed426-canonical-overlap/sources/stability.jsonl.gz": "77de3df0a93f928f8e131566c1f18f83b7d0100874248e2d29a6cb37f6e45b36"
+  },
+  "split": {
+    "path": "docs/data/seed416-policy-target-softening/training-freeze-v3/source-row-split.json.gz",
+    "sha256": "f7b69ab8fd6c19128a29f9ae9a11a7ac42a5d26630368ff74e906f29ddb6be44"
+  },
+  "status": "frozen_before_model_gradient_computation",
+  "tolerance": {
+    "absolute": 2e-05,
+    "relative": 2e-05
+  }
+}

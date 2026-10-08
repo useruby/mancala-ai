@@ -1,0 +1,18 @@
+{
+  "corrected_source_sha256": {
+    "ml/alphazero_lite/seed438_gradient_correction.py": "2ade97c499c9d1d12e59880b356805110559e998a878aa58d0041e3d9fd3e1f3",
+    "ml/alphazero_lite/seed444_minibatch_denominator.py": "ab4507e9b1a6e8b0db05f659ff3a2bf5851567b221cd0118d4342fe4bfce0e73",
+    "ml/alphazero_lite/test_seed444_minibatch_denominator.py": "f99434e4a40aa72a330695c5e3f58c2e2bd9b1e28ab666ab121b7962c7353f3c",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/verify_seed434_census_source.py": "4b632366f7b1ad920b77c692c0b9993de5420b723deba71bc9d081522789ec51",
+    "ml/alphazero_lite/verify_seed444_minibatch_denominator.py": "87ed7592f2fe866bf284ee70a0c0edb0b986b41ddc7298d72c3a5d60061c10a1"
+  },
+  "correction_occurred_after_initial_measurements_observed": true,
+  "earlier_corrected_binding_attempt": "input reconstruction stopped on an incompatible #438 result-key assertion before any model gradient was evaluated",
+  "earlier_corrected_binding_sha256": "325c9981cb4326bda1719786711d24c00497d29520ad269aff2ee874456d94a5",
+  "execution_stage": "new exact source hashes bound before the first corrected model gradient; all corrected results remain post-observation",
+  "original_correction_receipt_sha256": "190dbd8ae21ab363c4f779449160e8006efa1554d23ebde2b665a7f0be023b27",
+  "preserved_original_evidence_sha256": "6fcebc90d7b31bc7e9f4b857445e98dde31ce38f042dfb9b08b520199e06cc5a",
+  "preserved_original_registration_sha256": "b915cc8175b75d6be83d1246103b93983d9307176f7cd5556ee89c8a9faade4a",
+  "schema": "seed444-correction-receipt-amendment-v1"
+}
