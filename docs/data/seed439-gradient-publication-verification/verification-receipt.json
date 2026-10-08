@@ -1,0 +1,33 @@
+{
+  "schema": "seed439-gradient-publication-verification-v1",
+  "scope": "read-only independent semantic verification of seed438 publication",
+  "historical_evidence": {
+    "seed437_manifest_sha256": "5518632b3a1de810331df2f418c7f281070c9e557cf0c65c6e2fdbe6eacec084",
+    "seed437_vectors_sha256": "e13403097566e411af1a62bd00d1f49937beb17b3a35dc9563d6358fa5993618",
+    "seed437_results_sha256": "7f7b56ebaf403e2ddd2195e888870b435e9bde4602b9356a677fc1bb7c7f2c09",
+    "seed438_protocol_sha256": "704541af5eb8a6d4effad0430aaa94413ebeb9833fa607c4ff116721c6a33d8d",
+    "seed438_correction_receipt_sha256": "ceab25205064946c79f9a236cf47acc20229f3d01f82c962d841031977c036a7",
+    "seed438_results_sha256": "bfd7c4166ea83a03a3c573386ec6a96f545c8b754f8ae349d3b28b4e580d97ba",
+    "seed438_vectors_sha256": "a921f1af3c129680978bc1e158a0fd41d8fce60cf2da10ffd1cbb36c7c2b9646"
+  },
+  "verification_sources": {
+    "ml/alphazero_lite/verify_seed439_gradient_publication.py": "fef11ba60bd7e695a3ffc75936c1d7c00193d625e95caff5443fb16d19c1ac5b",
+    "ml/alphazero_lite/test_seed439_gradient_publication.py": "ef5140d16e10466b4313d94e645db9adf87d34f21da4d41a59578e5792dacdce"
+  },
+  "tolerance": {"absolute": 2e-5, "relative": 2e-5},
+  "recomputed_T_U_cosines": [0.6531898353880119, 0.8562423242095261, 0.5943104492522246, 0.8403643157031133],
+  "max_abs_vector_discrepancies": {
+    "adam_a16/0.3V_vs_scaled_original": 2.448359737172723e-09,
+    "adam_a16/P": 0.0,
+    "adam_a16/U_equal_input": 0.0,
+    "adam_a16/U_exposure": 0.0,
+    "initializer/0.3V_vs_scaled_original": 1.2061415581576806e-09,
+    "initializer/P": 0.0,
+    "initializer/U_equal_input": 0.0,
+    "initializer/U_exposure": 0.0
+  },
+  "classification": "no_persistent_training_objective_opposition",
+  "historical_evidence_unchanged": true,
+  "training_or_optimizer_steps": 0,
+  "promotion": false
+}
