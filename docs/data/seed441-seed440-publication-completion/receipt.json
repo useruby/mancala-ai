@@ -1,0 +1,53 @@
+{
+  "schema": "seed441-append-only-receipt-v1",
+  "status": "published",
+  "publication_status": "post-execution publication completion",
+  "historical_seed440": {
+    "protocol_sha256": "f63f048621c2a559348ea21a593f4139002ba73e5c38316ae1ae4ee6def89e27",
+    "evidence_bindings_sha256": "a6fa93abf36c2bbbdcf7fffd3d58cb0b867414c6c3bfdf1e69a658310d20b668",
+    "step_ledger_sha256": "e92fb8d5ff39f6f17c22b4e26cfb26e99e88b9e213ee97b4009b852f2e302a5c",
+    "path_hash_archive_sha256": "5dc0f5539c2e1031623cac644e729b1ed805dc00fc7d4e48d263181a1d1f6ebb",
+    "historical_bindings_validated": true,
+    "numeric_fields_compared": 779,
+    "maximum_absolute_numeric_discrepancy": 0.0,
+    "final_checkpoint_parameters_bit_identical": {"A": true, "B": true},
+    "classification": "finite_step_residual_dominant"
+  },
+  "supplemental_files": {
+    "protocol.json": "550c840bdab2ff59690dc2d705e6cc7984db02258cf776fa2a154bcd5133316f",
+    "completion.json": "2b88db83375486e5c248be7983c5f0f9582235712f5046ce417753e3047f1af6",
+    "predictions.npz": "03fb39c4bf7e543110f66e94ef068d9ec190dfb18716940bf2a64c1dbb1791a0",
+    "weighting-gradients.npz": "b5ce9d8c6df61eaa65053de714bfdcc3096d3ed849011c0232e32c783bbb70e5",
+    "row-identities.json": "df3ece8e6c31dcf8573eaf7a2aea1ea1cc6a38b3f0e4db2f0f45cc76c40c7132",
+    "parameter-layout.json": "413cf81d2ea6bb29d3748dbda2c76ee36b70677ac41789051927397dd00a9f7c"
+  },
+  "source_sha256": {
+    "ml/alphazero_lite/seed441_seed440_publication.py": "ec6f636f96b72035c472562fda07ea9aa2c79e47b5dde98bc6255ebc9eacbc11",
+    "ml/alphazero_lite/verify_seed441_seed440_publication.py": "ba05afa97ad280037fef394e220654c401940f86f542852ecf2935182f493c53",
+    "ml/alphazero_lite/test_seed441_seed440_publication.py": "b16886362415981b08bcd8b0181eeef1aac72b6bdfb4e5f917dbe851af3a77f4"
+  },
+  "coverage": {
+    "arms": ["A", "B"],
+    "updates_per_arm": 16,
+    "prediction_states_per_arm": 17,
+    "midpoints_per_arm": 16,
+    "weightings": ["exposure_weighted", "equal_input"],
+    "gradients_per_arm": 32,
+    "selected_exposures": 2607,
+    "exact_input_identities": 1242
+  },
+  "verification": {
+    "focused_tests": "51 passed across #435–441 focused suite, including physically copied source/evidence CLI",
+    "ruff": "check and format passed",
+    "python_quality_script": "passed",
+    "seed435_to_seed440_verifiers": "all passed",
+    "seed441_portable_verifier": "passed",
+    "historical_evidence_immutability": "verified by unchanged historical SHA-256 bindings",
+    "copied_evidence_immutability": "verified in unrelated-cwd, source-only checkout test"
+  },
+  "interpretive_limits": [
+    "The reconstructed intermediate states are derived from archived updates, not independently logged checkpoints.",
+    "Signed residuals include nonlinear behavior and numerical effects and are not pure curvature estimates.",
+    "This fixed-population retrospective attribution does not identify causal mechanism or establish playing strength."
+  ]
+}

@@ -1,0 +1,211 @@
+[
+  {
+    "name": "residual_layers.0.0.weight",
+    "shape": [
+      96,
+      96
+    ],
+    "start": 0,
+    "stop": 9216,
+    "group": "shared_trunk"
+  },
+  {
+    "name": "residual_layers.0.0.bias",
+    "shape": [
+      96
+    ],
+    "start": 9216,
+    "stop": 9312,
+    "group": "shared_trunk"
+  },
+  {
+    "name": "residual_layers.0.1.weight",
+    "shape": [
+      96,
+      96
+    ],
+    "start": 9312,
+    "stop": 18528,
+    "group": "shared_trunk"
+  },
+  {
+    "name": "residual_layers.0.1.bias",
+    "shape": [
+      96
+    ],
+    "start": 18528,
+    "stop": 18624,
+    "group": "shared_trunk"
+  },
+  {
+    "name": "residual_layers.1.0.weight",
+    "shape": [
+      96,
+      96
+    ],
+    "start": 18624,
+    "stop": 27840,
+    "group": "shared_trunk"
+  },
+  {
+    "name": "residual_layers.1.0.bias",
+    "shape": [
+      96
+    ],
+    "start": 27840,
+    "stop": 27936,
+    "group": "shared_trunk"
+  },
+  {
+    "name": "residual_layers.1.1.weight",
+    "shape": [
+      96,
+      96
+    ],
+    "start": 27936,
+    "stop": 37152,
+    "group": "shared_trunk"
+  },
+  {
+    "name": "residual_layers.1.1.bias",
+    "shape": [
+      96
+    ],
+    "start": 37152,
+    "stop": 37248,
+    "group": "shared_trunk"
+  },
+  {
+    "name": "residual_layers.2.0.weight",
+    "shape": [
+      96,
+      96
+    ],
+    "start": 37248,
+    "stop": 46464,
+    "group": "shared_trunk"
+  },
+  {
+    "name": "residual_layers.2.0.bias",
+    "shape": [
+      96
+    ],
+    "start": 46464,
+    "stop": 46560,
+    "group": "shared_trunk"
+  },
+  {
+    "name": "residual_layers.2.1.weight",
+    "shape": [
+      96,
+      96
+    ],
+    "start": 46560,
+    "stop": 55776,
+    "group": "shared_trunk"
+  },
+  {
+    "name": "residual_layers.2.1.bias",
+    "shape": [
+      96
+    ],
+    "start": 55776,
+    "stop": 55872,
+    "group": "shared_trunk"
+  },
+  {
+    "name": "input_layer.weight",
+    "shape": [
+      96,
+      27
+    ],
+    "start": 55872,
+    "stop": 58464,
+    "group": "shared_trunk"
+  },
+  {
+    "name": "input_layer.bias",
+    "shape": [
+      96
+    ],
+    "start": 58464,
+    "stop": 58560,
+    "group": "shared_trunk"
+  },
+  {
+    "name": "policy_hidden_layer.weight",
+    "shape": [
+      96,
+      96
+    ],
+    "start": 58560,
+    "stop": 67776,
+    "group": "policy_head"
+  },
+  {
+    "name": "policy_hidden_layer.bias",
+    "shape": [
+      96
+    ],
+    "start": 67776,
+    "stop": 67872,
+    "group": "policy_head"
+  },
+  {
+    "name": "value_hidden_layer.weight",
+    "shape": [
+      48,
+      96
+    ],
+    "start": 67872,
+    "stop": 72480,
+    "group": "value_head"
+  },
+  {
+    "name": "value_hidden_layer.bias",
+    "shape": [
+      48
+    ],
+    "start": 72480,
+    "stop": 72528,
+    "group": "value_head"
+  },
+  {
+    "name": "policy_head.weight",
+    "shape": [
+      6,
+      96
+    ],
+    "start": 72528,
+    "stop": 73104,
+    "group": "policy_head"
+  },
+  {
+    "name": "policy_head.bias",
+    "shape": [
+      6
+    ],
+    "start": 73104,
+    "stop": 73110,
+    "group": "policy_head"
+  },
+  {
+    "name": "value_head.weight",
+    "shape": [
+      1,
+      48
+    ],
+    "start": 73110,
+    "stop": 73158,
+    "group": "value_head"
+  },
+  {
+    "name": "value_head.bias",
+    "shape": [
+      1
+    ],
+    "start": 73158,
+    "stop": 73159,
+    "group": "value_head"
+  }
+]

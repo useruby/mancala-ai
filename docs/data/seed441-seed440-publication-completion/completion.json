@@ -1,0 +1,19 @@
+{
+  "archives": {
+    "parameter-layout": "parameter-layout.json",
+    "predictions": "predictions.npz",
+    "row-identities": "row-identities.json",
+    "weighting_gradients": "weighting-gradients.npz"
+  },
+  "classification": "finite_step_residual_dominant",
+  "interpretation": "Supplement to, and not a replacement for, seed440 historical evidence.",
+  "membership": {
+    "selected_exposures": 2607,
+    "unique_input_identities": 1242
+  },
+  "schema": "seed441-publication-completion-v1",
+  "seed440_bindings_sha256": "a6fa93abf36c2bbbdcf7fffd3d58cb0b867414c6c3bfdf1e69a658310d20b668",
+  "seed440_ledger_sha256": "e92fb8d5ff39f6f17c22b4e26cfb26e99e88b9e213ee97b4009b852f2e302a5c",
+  "seed440_protocol_sha256": "f63f048621c2a559348ea21a593f4139002ba73e5c38316ae1ae4ee6def89e27",
+  "status": "post-execution publication completion"
+}
