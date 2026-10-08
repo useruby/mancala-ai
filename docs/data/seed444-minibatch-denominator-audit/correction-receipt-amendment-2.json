@@ -1,0 +1,8 @@
+{
+  "amends_publication_receipt_sha256": "540f8d95e7fb670b847577fe7b18ddd25ba1f7c61bb0ac0e57b7dec73a37b145",
+  "corrected_verifier_status": "valid",
+  "physical_copy_evidence_before_after_identical": true,
+  "physical_copy_report_sha256": "ae4209f2210a1f6592f7a554f9e32aa57a9d93353275bae7f453870c71cb4c89",
+  "physical_copy_test_source_sha256": "a60b9a67aee5da5c96e28140cad70342cb606c60c79f6027171b06acf8f94ce3",
+  "schema": "seed444-correction-receipt-amendment-v2"
+}

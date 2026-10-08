@@ -1,0 +1,43 @@
+{
+  "classification": "denominator_mismatch_below_screen_threshold",
+  "command": [
+    "/home/alex/Mancala/ai/.venv/bin/python",
+    "-m",
+    "ml.alphazero_lite.verify_seed444_minibatch_denominator",
+    "--root",
+    "/home/alex/Mancala/ai/.tmp/seed444-physical-copy-kl1rzsqc/relocated root"
+  ],
+  "copied_root_is_physical_copy": true,
+  "cwd_was_unrelated": true,
+  "evidence_hashes_after": {
+    "docs/data/seed444-minibatch-denominator-audit/analysis.md": "cfac26781c1a606756e329fa06a0aa4b332b87325257ccce20889d74f0453d20",
+    "docs/data/seed444-minibatch-denominator-audit/corrected-aggregate-vectors.npz": "bc56de86f91652bcc549136cf4109a635937f9c243c28efa111b803ee27d433a",
+    "docs/data/seed444-minibatch-denominator-audit/corrected-batch-ledger.json": "9ccec28ff80798e92e50ef2fd91920b8eb881ce33e1038650e01445539479e5d",
+    "docs/data/seed444-minibatch-denominator-audit/corrected-coefficient-audit.json": "61295943079f3b09aa6f9be266e64d0f3e1fe770e108e3fb59c2932dc8519df6",
+    "docs/data/seed444-minibatch-denominator-audit/corrected-parameter-layout.json": "624a974cc2843b818540abdf87905f420965915cd81a795e41ce46349a6c0529",
+    "docs/data/seed444-minibatch-denominator-audit/corrected-rerun-evidence.json": "5d4e4895862967939e9af6cb1acc69cbc0ba276c79e35e79e84129acd7b4d1e4",
+    "docs/data/seed444-minibatch-denominator-audit/corrected-rerun-registration-v2.json": "d96f703a1526e29332bbcfb9d42723a6c50da4934a51baf41f8bd333298f8cc4",
+    "docs/data/seed444-minibatch-denominator-audit/corrected-rerun-registration.json": "325c9981cb4326bda1719786711d24c00497d29520ad269aff2ee874456d94a5",
+    "docs/data/seed444-minibatch-denominator-audit/correction-receipt-amendment-1.json": "91e703c6f6fc3b16c8609d98d8bac929daf65ef72fe915fc3dbe3b9792091c50",
+    "docs/data/seed444-minibatch-denominator-audit/correction-receipt.json": "190dbd8ae21ab363c4f779449160e8006efa1554d23ebde2b665a7f0be023b27",
+    "docs/data/seed444-minibatch-denominator-audit/evidence.json": "6fcebc90d7b31bc7e9f4b857445e98dde31ce38f042dfb9b08b520199e06cc5a",
+    "docs/data/seed444-minibatch-denominator-audit/registration.json": "b915cc8175b75d6be83d1246103b93983d9307176f7cd5556ee89c8a9faade4a"
+  },
+  "evidence_hashes_before": {
+    "docs/data/seed444-minibatch-denominator-audit/analysis.md": "cfac26781c1a606756e329fa06a0aa4b332b87325257ccce20889d74f0453d20",
+    "docs/data/seed444-minibatch-denominator-audit/corrected-aggregate-vectors.npz": "bc56de86f91652bcc549136cf4109a635937f9c243c28efa111b803ee27d433a",
+    "docs/data/seed444-minibatch-denominator-audit/corrected-batch-ledger.json": "9ccec28ff80798e92e50ef2fd91920b8eb881ce33e1038650e01445539479e5d",
+    "docs/data/seed444-minibatch-denominator-audit/corrected-coefficient-audit.json": "61295943079f3b09aa6f9be266e64d0f3e1fe770e108e3fb59c2932dc8519df6",
+    "docs/data/seed444-minibatch-denominator-audit/corrected-parameter-layout.json": "624a974cc2843b818540abdf87905f420965915cd81a795e41ce46349a6c0529",
+    "docs/data/seed444-minibatch-denominator-audit/corrected-rerun-evidence.json": "5d4e4895862967939e9af6cb1acc69cbc0ba276c79e35e79e84129acd7b4d1e4",
+    "docs/data/seed444-minibatch-denominator-audit/corrected-rerun-registration-v2.json": "d96f703a1526e29332bbcfb9d42723a6c50da4934a51baf41f8bd333298f8cc4",
+    "docs/data/seed444-minibatch-denominator-audit/corrected-rerun-registration.json": "325c9981cb4326bda1719786711d24c00497d29520ad269aff2ee874456d94a5",
+    "docs/data/seed444-minibatch-denominator-audit/correction-receipt-amendment-1.json": "91e703c6f6fc3b16c8609d98d8bac929daf65ef72fe915fc3dbe3b9792091c50",
+    "docs/data/seed444-minibatch-denominator-audit/correction-receipt.json": "190dbd8ae21ab363c4f779449160e8006efa1554d23ebde2b665a7f0be023b27",
+    "docs/data/seed444-minibatch-denominator-audit/evidence.json": "6fcebc90d7b31bc7e9f4b857445e98dde31ce38f042dfb9b08b520199e06cc5a",
+    "docs/data/seed444-minibatch-denominator-audit/registration.json": "b915cc8175b75d6be83d1246103b93983d9307176f7cd5556ee89c8a9faade4a"
+  },
+  "evidence_immutable": true,
+  "schema": "seed444-physical-copy-cli-verification-v1",
+  "status": "valid"
+}
