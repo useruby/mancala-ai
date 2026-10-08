@@ -1,0 +1,336 @@
+{
+  "bound_inputs": {
+    "checkpoints": {
+      "adam_a16": {
+        "path": "docs/data/seed435-adam-direction-screen/A-final.npz",
+        "sha256": "afb164603b34d0449f463f3c8e475f9bb4408e7a704c031a6f000572e6c4e9c7"
+      },
+      "initializer": {
+        "path": "docs/data/seed429-canonical-policy-normalization/training-checkpoints/initializer.npz",
+        "sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+      }
+    },
+    "counts": {
+      "compact_rows": 87625,
+      "replay_exposures": 149448,
+      "training_exposures": 134502,
+      "validation_exposures": 14946
+    },
+    "denominators": {
+      "U_equal": "1242 identities, inner denominator is each identity exposure count",
+      "U_exposure": "2607 exposures",
+      "policy": "sum(compact row policy coefficient * training replay multiplicity)",
+      "value": "134502 training exposures"
+    },
+    "membership": {
+      "exact_input_identities": 1242,
+      "path": "docs/data/seed426-canonical-overlap/seed427-validation-membership.jsonl.gz",
+      "selected_exposures": 2607,
+      "sha256": "554f3bd016a0f920ef253538d741a91cb27c9882d2dba94cf7509030af8ca385"
+    },
+    "model": {
+      "flat_parameter_layout": [
+        {
+          "group": "shared_trunk",
+          "name": "residual_layers.0.0.weight",
+          "shape": [
+            96,
+            96
+          ],
+          "start": 0,
+          "stop": 9216
+        },
+        {
+          "group": "shared_trunk",
+          "name": "residual_layers.0.0.bias",
+          "shape": [
+            96
+          ],
+          "start": 9216,
+          "stop": 9312
+        },
+        {
+          "group": "shared_trunk",
+          "name": "residual_layers.0.1.weight",
+          "shape": [
+            96,
+            96
+          ],
+          "start": 9312,
+          "stop": 18528
+        },
+        {
+          "group": "shared_trunk",
+          "name": "residual_layers.0.1.bias",
+          "shape": [
+            96
+          ],
+          "start": 18528,
+          "stop": 18624
+        },
+        {
+          "group": "shared_trunk",
+          "name": "residual_layers.1.0.weight",
+          "shape": [
+            96,
+            96
+          ],
+          "start": 18624,
+          "stop": 27840
+        },
+        {
+          "group": "shared_trunk",
+          "name": "residual_layers.1.0.bias",
+          "shape": [
+            96
+          ],
+          "start": 27840,
+          "stop": 27936
+        },
+        {
+          "group": "shared_trunk",
+          "name": "residual_layers.1.1.weight",
+          "shape": [
+            96,
+            96
+          ],
+          "start": 27936,
+          "stop": 37152
+        },
+        {
+          "group": "shared_trunk",
+          "name": "residual_layers.1.1.bias",
+          "shape": [
+            96
+          ],
+          "start": 37152,
+          "stop": 37248
+        },
+        {
+          "group": "shared_trunk",
+          "name": "residual_layers.2.0.weight",
+          "shape": [
+            96,
+            96
+          ],
+          "start": 37248,
+          "stop": 46464
+        },
+        {
+          "group": "shared_trunk",
+          "name": "residual_layers.2.0.bias",
+          "shape": [
+            96
+          ],
+          "start": 46464,
+          "stop": 46560
+        },
+        {
+          "group": "shared_trunk",
+          "name": "residual_layers.2.1.weight",
+          "shape": [
+            96,
+            96
+          ],
+          "start": 46560,
+          "stop": 55776
+        },
+        {
+          "group": "shared_trunk",
+          "name": "residual_layers.2.1.bias",
+          "shape": [
+            96
+          ],
+          "start": 55776,
+          "stop": 55872
+        },
+        {
+          "group": "shared_trunk",
+          "name": "input_layer.weight",
+          "shape": [
+            96,
+            27
+          ],
+          "start": 55872,
+          "stop": 58464
+        },
+        {
+          "group": "shared_trunk",
+          "name": "input_layer.bias",
+          "shape": [
+            96
+          ],
+          "start": 58464,
+          "stop": 58560
+        },
+        {
+          "group": "policy_head",
+          "name": "policy_hidden_layer.weight",
+          "shape": [
+            96,
+            96
+          ],
+          "start": 58560,
+          "stop": 67776
+        },
+        {
+          "group": "policy_head",
+          "name": "policy_hidden_layer.bias",
+          "shape": [
+            96
+          ],
+          "start": 67776,
+          "stop": 67872
+        },
+        {
+          "group": "value_head",
+          "name": "value_hidden_layer.weight",
+          "shape": [
+            48,
+            96
+          ],
+          "start": 67872,
+          "stop": 72480
+        },
+        {
+          "group": "value_head",
+          "name": "value_hidden_layer.bias",
+          "shape": [
+            48
+          ],
+          "start": 72480,
+          "stop": 72528
+        },
+        {
+          "group": "policy_head",
+          "name": "policy_head.weight",
+          "shape": [
+            6,
+            96
+          ],
+          "start": 72528,
+          "stop": 73104
+        },
+        {
+          "group": "policy_head",
+          "name": "policy_head.bias",
+          "shape": [
+            6
+          ],
+          "start": 73104,
+          "stop": 73110
+        },
+        {
+          "group": "value_head",
+          "name": "value_head.weight",
+          "shape": [
+            1,
+            48
+          ],
+          "start": 73110,
+          "stop": 73158
+        },
+        {
+          "group": "value_head",
+          "name": "value_head.bias",
+          "shape": [
+            1
+          ],
+          "start": 73158,
+          "stop": 73159
+        }
+      ],
+      "hidden_sizes": [
+        96,
+        3
+      ],
+      "input_features": 27,
+      "parameter_count": 73159,
+      "parameter_groups": {
+        "policy_head": [
+          "policy_hidden_layer.*",
+          "policy_head.*"
+        ],
+        "shared_trunk": [
+          "input_layer.*",
+          "residual_layers.*"
+        ],
+        "value_head": [
+          "value_hidden_layer.*",
+          "value_head.*"
+        ]
+      },
+      "type": "residual_v3"
+    },
+    "reconstruction_evidence": {
+      "membership_reconstructed_from_row_accounting": true,
+      "row_accounting_path": "docs/data/seed426-canonical-overlap/row-accounting.jsonl.gz",
+      "row_accounting_sha256": "2abf20006407a409c35a1bd45d1a04c1f07851d79660fc1226a9a60fea939cb0"
+    },
+    "registration": {
+      "path": "docs/data/seed416-policy-target-softening/registration-v3.json",
+      "sha256": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066"
+    },
+    "sources": [
+      {
+        "decompressed_sha256": "97bc0b031eb041a4582e67651b0f39d63d04e8a884c6e955e217b7bbb29dc3ab",
+        "name": "fresh",
+        "snapshot": "docs/data/seed426-canonical-overlap/sources/fresh.jsonl.gz",
+        "snapshot_sha256": "5f5062416ae620e4e3491989f19c166d26840b3fead8074323f23eb01211746b",
+        "weight": 1
+      },
+      {
+        "decompressed_sha256": "6a4d9898b5c6c7d59e54adc3fdb3d53a7714c727b4e294af70e0bd58e02487f2",
+        "name": "generic_bootstrap",
+        "snapshot": "docs/data/seed426-canonical-overlap/sources/generic_bootstrap.jsonl.gz",
+        "snapshot_sha256": "51132b09c453712b8f48ab748e5025b25338681f9f89dd65a1fe2598ca266330",
+        "weight": 4
+      },
+      {
+        "decompressed_sha256": "69c16f2ad4950fcaf31abf87b82667fe300917ea4beaa5b2ab3cb3810c5b14c6",
+        "name": "random_teacher",
+        "snapshot": "docs/data/seed426-canonical-overlap/sources/random_teacher.jsonl.gz",
+        "snapshot_sha256": "fa6f83e3fc6bb3c93f87e9b640b8d58213f526115e3fdf582c96d9b1b7b7d1d7",
+        "weight": 1
+      },
+      {
+        "decompressed_sha256": "49c25533c0555f495cdb63d443565fecef3d74e1de8548f795b5dc6fa0c547d2",
+        "name": "opening_disagreement",
+        "snapshot": "docs/data/seed426-canonical-overlap/sources/opening_disagreement.jsonl.gz",
+        "snapshot_sha256": "5d73b65f57cf3e4199608c5cfbd80fa9656d5f267b5a823b12c7940a80824bdc",
+        "weight": 8
+      },
+      {
+        "decompressed_sha256": "00e6703087dda4350b88e001c12aeb562db3d8c6349187b31fe3979d07bbcbff",
+        "name": "stability",
+        "snapshot": "docs/data/seed426-canonical-overlap/sources/stability.jsonl.gz",
+        "snapshot_sha256": "77de3df0a93f928f8e131566c1f18f83b7d0100874248e2d29a6cb37f6e45b36",
+        "weight": 4
+      }
+    ],
+    "split": {
+      "path": "docs/data/seed416-policy-target-softening/training-freeze-v3/source-row-split.json.gz",
+      "sha256": "f7b69ab8fd6c19128a29f9ae9a11a7ac42a5d26630368ff74e906f29ddb6be44",
+      "train_positions_sha256": "b351b2b46ff0bd66fe581315f01e15210dffb01193a5dfef13016e0e79c95579",
+      "validation_positions_sha256": "d3ea59844a1cdf6980007e0f4f7c59a9b954b48f947a1972af0a97cc341d799a"
+    }
+  },
+  "corrected_sources": {
+    "ml/alphazero_lite/run_seed438_seed437_gradient_correction.py": "de142d87f0e78003d073c061803ba63a66e9eb80c246573dc25234df4331c56e",
+    "ml/alphazero_lite/seed438_gradient_correction.py": "2ade97c499c9d1d12e59880b356805110559e998a878aa58d0041e3d9fd3e1f3",
+    "ml/alphazero_lite/test_seed438_gradient_correction.py": "2e881abbf82d74c30692eb452b9d19cc55bbc2d6032bcaef4f6aac6dff37dca4",
+    "ml/alphazero_lite/verify_seed438_seed437_gradient_correction.py": "35a019ec2f2a400c5d4ac3a2c7dbb6fdd59c2cd7f40e496d9df3b985d455bd76"
+  },
+  "decision_rule": "persistent_training_objective_opposition iff cosine(T,U) <= -0.05 for both U weightings at both checkpoints; otherwise no_persistent_training_objective_opposition",
+  "observation": "This correction follows observation of seed437 original results.",
+  "original_manifest_sha256": "5518632b3a1de810331df2f418c7f281070c9e557cf0c65c6e2fdbe6eacec084",
+  "original_results_sha256": "7f7b56ebaf403e2ddd2195e888870b435e9bde4602b9356a677fc1bb7c7f2c09",
+  "original_vectors_sha256": "e13403097566e411af1a62bd00d1f49937beb17b3a35dc9563d6358fa5993618",
+  "schema": "seed438-correction-protocol-v1",
+  "status": "frozen_before_corrected_gradient_execution",
+  "tolerance": {
+    "absolute": 2e-05,
+    "relative": 2e-05
+  },
+  "value_gradient": "Compute unweighted V; apply 0.3 once in row weights; T=P+0.3V."
+}
