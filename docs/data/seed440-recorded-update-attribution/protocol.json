@@ -1,0 +1,50 @@
+{
+  "schema": "seed440-frozen-attribution-protocol-v1",
+  "status": "frozen_after_synthetic_tests_and_formatting_before_attribution_execution",
+  "interpretation": "Observational retrospective diagnosis only. No training, optimizer steps, audit replay, searches, games, target changes, or promotion. Classification authorizes no intervention.",
+  "endpoint_results_observed_before_diagnostic_execution": {
+    "A16_minus_initializer_exposure_weighted_policy_ce": 0.01705,
+    "A16_minus_initializer_equal_input_policy_ce": 0.02310
+  },
+  "membership": {
+    "source": "docs/data/seed426-canonical-overlap/seed427-validation-membership.jsonl.gz",
+    "sha256": "554f3bd016a0f920ef253538d741a91cb27c9882d2dba94cf7509030af8ca385",
+    "selected_exposures": 2607,
+    "exact_input_identities": 1242
+  },
+  "initializer": {
+    "path": "docs/data/seed429-canonical-policy-normalization/training-checkpoints/initializer.npz",
+    "sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+  },
+  "source_update_vectors": {
+    "A": "docs/data/seed435-adam-direction-screen/A-audit-deltas.npz",
+    "A_sha256": "6ccfdbf173ede97a6c15b90ed65f939caa67bc207b1c211562cd6b31e73f7ea5",
+    "B": "docs/data/seed435-adam-direction-screen/B-audit-deltas.npz",
+    "B_sha256": "e754b6fe387c558a3febada49d24dc6362c72da1700d94a2f0ee0b10bb48a6ae",
+    "parameter_order": "seed435 post-execution-telemetry parameter_layout registered order",
+    "step_count": 16,
+    "application": "float32 add_ for each registered parameter tensor; archived float64 delta slice cast to float32; disposable model copies"
+  },
+  "arithmetic": {
+    "gradient_source": "production legal-mask and policy cross-entropy; autograd gradients accumulated as float64 sums of float32 chunk gradients in ascending selected-exposure order",
+    "chunk_size": 512,
+    "exposure_weighting": "global 2607-exposure mean",
+    "equal_input_weighting": "mean over 1242 exact-input identities; within each identity mean over all its exposures, retaining multiplicity",
+    "dot": "float64 flat-vector dot of gradient and archived delta",
+    "residual": "signed D - s; includes nonlinear behavior and numerical effects",
+    "midpoint": "theta + 0.5*d with float32 parameter addition; residual CE_mid - CE_pre - 0.5*s",
+    "tolerance": {"absolute": 0.00003, "relative": 0.00003}
+  },
+  "classification": {
+    "primary_arm": "A",
+    "finite_step_residual_dominant": "D>0 and R>=0.75*D under both weightings",
+    "first_order_direction_dominant": "D>0 and S>=0.75*D under both weightings",
+    "otherwise": "mixed_or_no_common_dominance",
+    "priority": "finite_step_residual_dominant, then first_order_direction_dominant"
+  },
+  "source_sha256": {
+    "ml/alphazero_lite/seed440_recorded_update_attribution.py": "e057ae14cc5c95e78e9941577a08c421783173624d8302c99742d21b509617d7",
+    "ml/alphazero_lite/test_seed440_recorded_update_attribution.py": "1c37c43283c06d2995eaa6e5abb8ecc69042d6199de5f515d70636a371444b5d",
+    "ml/alphazero_lite/verify_seed440_recorded_update_attribution.py": "d10ec3df67e9ab45a1f409add81bf1b4e6da9a3134566829283c7d29bc818b62"
+  }
+}
