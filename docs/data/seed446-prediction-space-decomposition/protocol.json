@@ -1,0 +1,22 @@
+{
+  "arithmetic": "float64 from archived float32 predictions/targets; c=2*weighted_mean((pre-target)*delta); q=weighted_mean(delta^2); s=dot(archived full gradient,float64 adjacent-state difference); n=c-s; d=c+q",
+  "authoritative_trajectory": "docs/data/seed442-kl-capped-adam-screen/step-tensors.npz",
+  "bound_seed445": "docs/data/seed445-finite-step-attribution/protocol-v2.json; receipt.json; verifier-amendment-1.json; predictions.npz; gradients.npz; step-ledger.json; parameter-layout.json; row-identities.json",
+  "classification": "B per weighting: R=Q+N; if R>0 and Q>=.75R squared_prediction_movement_dominant; else if R>0 and N>=.75R output_response_remainder_dominant; else mixed_or_no_common_residual_component",
+  "interpretation": "descriptive, signed, retrospective; n includes nonlinear and numerical effects; no causal claim or authorization",
+  "population": {
+    "exposures": 2607,
+    "identities": 1242
+  },
+  "schema": "seed446-frozen-protocol-v1",
+  "status": "retrospective_archived_input_decomposition",
+  "target_reconstruction": "seed416 registration-v3 loader semantics over bound compressed source snapshots; unseen and active_stones > 32 membership order; float32 loader value targets selected by compact_row",
+  "tolerances": {
+    "absolute": 2e-07,
+    "relative": 2e-06
+  },
+  "weightings": {
+    "equal_input": "equal identity mass, retaining within-identity exposures",
+    "exposure_weighted": "uniform across all exposure rows"
+  }
+}

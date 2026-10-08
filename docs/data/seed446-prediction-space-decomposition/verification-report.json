@@ -1,0 +1,13 @@
+{
+  "classification": "squared_prediction_movement_dominant",
+  "exposures": 2607,
+  "preserved_historical_classifications": {
+    "seed442": "close_kl_capped_step_branch",
+    "seed445": "finite_step_value_residual_dominant"
+  },
+  "status": "valid",
+  "weighting_classifications": {
+    "equal_input": "squared_prediction_movement_dominant",
+    "exposure_weighted": "squared_prediction_movement_dominant"
+  }
+}
