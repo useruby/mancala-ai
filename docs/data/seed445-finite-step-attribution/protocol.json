@@ -1,0 +1,40 @@
+{
+  "bound_inputs": [
+    "seed442 initializer, A/B endpoints, registration, step-tensors.npz, trajectory receipts and compressed replay snapshots",
+    "seed427 validation membership",
+    "seed416 loader semantics",
+    "residual_v3 full trainable parameter layout"
+  ],
+  "classification": {
+    "order": [
+      "if D>0 and S>=0.75D for both weightings: first_order_value_harm_dominant",
+      "else if D>0 and R>=0.75D for both weightings: finite_step_value_residual_dominant",
+      "else: mixed_or_no_common_value_dominance"
+    ],
+    "signed": true
+  },
+  "execution_source_sha256": {
+    "ml/alphazero_lite/seed445_finite_step_attribution.py": "a54c852126032fd997d86f84cddbbc94a69da044033fc9c4890d0f8d4500435e"
+  },
+  "interpretation": "descriptive retrospective attribution, not causal interventions or prospective outcome evidence; residual includes nonlinear and numerical effects and is not pure curvature; authorizes no training, gate change, or strength claim",
+  "objectives": {
+    "policy_ce": "production legal-masked policy CE",
+    "value_mse": "mean squared prediction error; no training coefficient"
+  },
+  "population": "unseen >32; 2,607 exposure rows and 1,242 exact-input identities",
+  "primary_arm": "B",
+  "primary_objective": "unseen value MSE, unweighted by training coefficient",
+  "reference": "A and policy CE descriptive only",
+  "schema": "seed445-frozen-protocol-v1",
+  "status": "frozen_before_new_gradients",
+  "step": "float64 difference of adjacent archived float32 accepted states; gradient at pre-state; d=post-pre objective; s=gradient dot displacement; r=d-s",
+  "temporal_scope": "retrospective attribution; endpoint outcomes and failed gates already known",
+  "tolerances": {
+    "absolute": 2e-07,
+    "relative": 2e-06
+  },
+  "weightings": {
+    "equal_input": "within-identity exposure mean then identities equal mass",
+    "exposure_weighted": "each exposure equal mass"
+  }
+}
