@@ -1,0 +1,25 @@
+{
+  "schema": "seed443-optimizer-array-inventory-v1",
+  "arms": ["A", "B"],
+  "steps_per_arm": 16,
+  "parameters_per_step": 22,
+  "raw_post_step_moment_arrays": {
+    "first_moment": "exp_avg",
+    "second_moment": "exp_avg_sq",
+    "assignment": "detach().cpu().numpy() without copy",
+    "step_specific_runtime_snapshots": false,
+    "entries_matching_step_16_reconstruction": {
+      "first_moment_per_arm": 352,
+      "first_moment_total": 704,
+      "second_moment_per_arm": 352,
+      "second_moment_total": 704
+    }
+  },
+  "cloned_pre_step_arrays": ["exp_avg_pre", "exp_avg_sq_pre"],
+  "moment_hashes": "recorded over cloned before and after optimizer moments",
+  "supplemental_reconstruction": {
+    "file": "docs/data/seed442-kl-capped-adam-screen/optimizer-state-reconstruction.npz",
+    "independently_logged_runtime_snapshots": false,
+    "validation": "reconstructed from clipped gradients and cloned pre-step moments; checked against recorded post-moment hashes and subsequent pre-step moments"
+  }
+}
