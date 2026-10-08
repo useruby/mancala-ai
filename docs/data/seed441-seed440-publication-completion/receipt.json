@@ -14,7 +14,7 @@
     "classification": "finite_step_residual_dominant"
   },
   "supplemental_files": {
-    "protocol.json": "e35142d6d88ac9bb2081ce38f5081184a92975946fc19dfd6537acc8dfe8bd57",
+    "protocol.json": "550c840bdab2ff59690dc2d705e6cc7984db02258cf776fa2a154bcd5133316f",
     "completion.json": "2b88db83375486e5c248be7983c5f0f9582235712f5046ce417753e3047f1af6",
     "predictions.npz": "03fb39c4bf7e543110f66e94ef068d9ec190dfb18716940bf2a64c1dbb1791a0",
     "weighting-gradients.npz": "b5ce9d8c6df61eaa65053de714bfdcc3096d3ed849011c0232e32c783bbb70e5",
@@ -23,7 +23,7 @@
   },
   "source_sha256": {
     "ml/alphazero_lite/seed441_seed440_publication.py": "ec6f636f96b72035c472562fda07ea9aa2c79e47b5dde98bc6255ebc9eacbc11",
-    "ml/alphazero_lite/verify_seed441_seed440_publication.py": "0296978f89cc155a85d2c5fe45a412a01ea26ad9b338f6adfabc9a5de4cd2db1",
+    "ml/alphazero_lite/verify_seed441_seed440_publication.py": "ba05afa97ad280037fef394e220654c401940f86f542852ecf2935182f493c53",
     "ml/alphazero_lite/test_seed441_seed440_publication.py": "b16886362415981b08bcd8b0181eeef1aac72b6bdfb4e5f917dbe851af3a77f4"
   },
   "coverage": {
@@ -37,7 +37,7 @@
     "exact_input_identities": 1242
   },
   "verification": {
-    "focused_tests": "50 passed across #435–441 focused suite; separate physically copied source/evidence CLI test passed",
+    "focused_tests": "51 passed across #435–441 focused suite, including physically copied source/evidence CLI",
     "ruff": "check and format passed",
     "python_quality_script": "passed",
     "seed435_to_seed440_verifiers": "all passed",

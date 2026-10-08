@@ -43,14 +43,14 @@
   },
   "classification": {
     "primary_arm": "A",
-    "finite_step_residual_dominant": "D > 0 and R >= 0.75*D under both weightings",
-    "first_order_direction_dominant": "D > 0 and S >= 0.75*D under both weightings",
+    "finite_step_residual_dominant": "D>0 and R>=0.75*D under both weightings",
+    "first_order_direction_dominant": "D>0 and S>=0.75*D under both weightings",
     "otherwise": "mixed_or_no_common_dominance",
-    "priority": "finite_step_residual_dominant before first_order_direction_dominant"
+    "priority": "finite_step_residual_dominant, then first_order_direction_dominant"
   },
   "source_sha256": {
     "ml/alphazero_lite/seed441_seed440_publication.py": "ec6f636f96b72035c472562fda07ea9aa2c79e47b5dde98bc6255ebc9eacbc11",
-    "ml/alphazero_lite/verify_seed441_seed440_publication.py": "0296978f89cc155a85d2c5fe45a412a01ea26ad9b338f6adfabc9a5de4cd2db1",
+    "ml/alphazero_lite/verify_seed441_seed440_publication.py": "ba05afa97ad280037fef394e220654c401940f86f542852ecf2935182f493c53",
     "ml/alphazero_lite/test_seed441_seed440_publication.py": "b16886362415981b08bcd8b0181eeef1aac72b6bdfb4e5f917dbe851af3a77f4"
   },
   "known_historical_sources": {
