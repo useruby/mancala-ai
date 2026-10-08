@@ -1,0 +1,23 @@
+{
+  "schema": "seed440-evidence-bindings-v1",
+  "interpretation": "Referenced historical evidence is immutable; reconstructed intermediate states are archive-defined and are not independently logged checkpoints.",
+  "seed435": {
+    "initializer": {"path": "docs/data/seed435-adam-direction-screen/initializer.npz", "sha256": "c18beeaa16ebaa038cd383cfd222705c636e2b6398c7270e6674d33231aa9dd1"},
+    "A16": {"path": "docs/data/seed435-adam-direction-screen/A-final.npz", "sha256": "afb164603b34d0449f463f3c8e475f9bb4408e7a704c031a6f000572e6c4e9c7"},
+    "B16": {"path": "docs/data/seed435-adam-direction-screen/B-final.npz", "sha256": "b4bc13bec3ba50f40b722c75bbaa8de26cc3908ff695dd96de5278ce204b5069"},
+    "A_update_vectors": {"path": "docs/data/seed435-adam-direction-screen/A-audit-deltas.npz", "sha256": "6ccfdbf173ede97a6c15b90ed65f939caa67bc207b1c211562cd6b31e73f7ea5"},
+    "B_update_vectors": {"path": "docs/data/seed435-adam-direction-screen/B-audit-deltas.npz", "sha256": "e754b6fe387c558a3febada49d24dc6362c72da1700d94a2f0ee0b10bb48a6ae"},
+    "initializer_predictions": {"path": "docs/data/seed435-adam-direction-screen/initializer-predictions.npz", "sha256": "a9f18c655eb189832dcb3f10177da178f6c1239ca4050bf965cdeaaf09b11682"},
+    "A16_predictions": {"path": "docs/data/seed435-adam-direction-screen/A-predictions.npz", "sha256": "00d56a208cfd25c2cc4cae2bc3e7cd2e70be33aa4d2cf6d3199855e233cbaa82"},
+    "B16_predictions": {"path": "docs/data/seed435-adam-direction-screen/B-predictions.npz", "sha256": "3d154d443c61e496a22141f2cef78af8a7b78028fc71f07bf708fd516aa36b23"}
+  },
+  "seed439_U_gradient_archive": {
+    "path": "docs/data/seed438-seed437-gradient-correction/corrected-gradient-vectors.npz",
+    "sha256": "a921f1af3c129680978bc1e158a0fd41d8fce60cf2da10ffd1cbb36c7c2b9646",
+    "note": "Contains verified endpoint U-gradients. Every path-state U-gradient used for seed440 s_t is recomputed by autograd and is not substituted with the endpoint vector."
+  },
+  "authoritative_membership": {
+    "path": "docs/data/seed426-canonical-overlap/seed427-validation-membership.jsonl.gz",
+    "sha256": "554f3bd016a0f920ef253538d741a91cb27c9882d2dba94cf7509030af8ca385"
+  }
+}
