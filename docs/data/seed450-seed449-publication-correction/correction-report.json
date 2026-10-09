@@ -1,0 +1,43 @@
+{
+  "classification": "frequency_concentrated_policy_gain",
+  "correction_timing": "post-execution correction; seed449 freeze and publication are unchanged",
+  "exposures": 2607,
+  "fresh_source_row_24": {
+    "exact_action_margins": {
+      "2": -24,
+      "5": -24
+    },
+    "exact_optimal_actions": [
+      2,
+      5
+    ],
+    "exact_root_metadata_present": true,
+    "exact_selected_action": 2,
+    "lane_a_stored_policy_unchanged": true,
+    "loader_mode_precedence": "policy_target_actual_mode takes precedence over policy_target_mode",
+    "policy_target_actual_mode": "exact_root_one_hot",
+    "policy_target_mode": "sharpened",
+    "production_validator_branch": "exact_root_one_hot: validates normalized target has a single unit-mass action, then returns before ordinary requested-mode matching; legality is checked first",
+    "raw_source_line": 24,
+    "stored_policy": [
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "teacher_source": "exact_root_tablebase"
+  },
+  "historical_absolute_derivatives_opened": false,
+  "historical_seed447_classification": "close_joint_output_cap_branch",
+  "identities": 1242,
+  "interpretation": "Frequency and source are confounded. The descriptive frequency classification is preserved; replay duplication is not established as causal and these data alone do not justify changing training weights.",
+  "lane_a_derivative_serialization": "exact_sha256_match",
+  "source_confound": {
+    "fresh_singleton_exposures": 840,
+    "random_teacher_singleton_exposures": 8
+  },
+  "source_reconstruction": "valid",
+  "status": "valid"
+}

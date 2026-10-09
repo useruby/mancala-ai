@@ -1,0 +1,60 @@
+{
+  "schema": "seed450-seed449-publication-correction-receipt-v1",
+  "status": "verified",
+  "timing": "post-execution correction; seed449 freeze and publication retained unchanged",
+  "entry_point": "ml/alphazero_lite/verify_seed450_seed449_correction.py",
+  "command": ".venv-azlite/bin/python ml/alphazero_lite/verify_seed450_seed449_correction.py --root .",
+  "report": "correction-report.json",
+  "report_sha256": "422648c9711fae5b24fa6b8e92536b39a5e82410962ac9ab34ac3d04d5b80eb3",
+  "readme_sha256": "e5af35de43d5bdb2678dbe281632ab73deb6e51d4bebf5a1efc9df4657306dde",
+  "implementation_sha256": "bde7b817d110335a0c889d63ed72b262312fda7012fd1dff6d76289890790f3c",
+  "test_sha256": "af19716a1e1dee210d5054d32509591ef2f3badcb982e638484920490e5923b0",
+  "dependencies_sha256": {
+    "ml/alphazero_lite/verify_seed449_policy_gain_localization.py": "b9b9cc39a2c1fc68161886118e9e219a12577f3a3d37443d0029e4894666ecf6",
+    "ml/alphazero_lite/seed416_policy_target_softening.py": "f9c4b0ba7081a4e632d3c624f0199a7629072aafe9cf82aad264bd9ae9ad93ca",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/exact_root_policy_targets.py": "2aca4c1e2e9e9e199fb1d951b143c506785c23121531e26628a59c9afaf79898",
+    "ml/alphazero_lite/seed449_arithmetic.py": "82ce1e7be94ab1370dd371d49c6a80d012f434a6b838ea427ded049c5489af65"
+  },
+  "historical_bindings": {
+    "seed416_registration_sha256": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+    "seed426_membership_sha256": "554f3bd016a0f920ef253538d741a91cb27c9882d2dba94cf7509030af8ca385",
+    "seed447_initializer_predictions_sha256": "654e6b97553684c2ad9436025245813b6daf5ce4591d1c566f1eb8b5b1148969",
+    "seed447_C_predictions_sha256": "f141af7549aff71ed79fa469dda456a2f9fb3703c9d6c4cc3381d138ab3d6ffd",
+    "seed447_T_predictions_sha256": "f0ca106216fd061f89f4c7d5e2e9fa2cbd249dbb894b55e26f643b3077fe3f22",
+    "seed447_ordered_targets_sha256": "ea801c7a7a7adc28cc7eb5c2b22a5e5a268e91052250924e907b4df0a8b734c7",
+    "seed449_registration_sha256": "64b9d824a4d52896b6caeb7993682f214851f129c20dbdc7a48413a70cde62f8",
+    "seed449_receipt_sha256": "4707df4e08f2343aae2c204d04d725adeb77eeb9951cacf3bb1efb33740abbe2",
+    "seed449_results_sha256": "79b3f96f5dafb033629a98c8b72eab8c575a6488a5419c5e12c0e31cc80b2556",
+    "seed449_ordered_rows_sha256": "c54d0066d5e53d5e4dafad4e9b67b0100ca725d7523335253196b72cc48544ae",
+    "seed449_identity_ledger_sha256": "b35c4e93494a564c08f45f00e26598d669bad890777a3a14b634a542ed84e754"
+  },
+  "compressed_snapshots_sha256": {
+    "fresh": "5f5062416ae620e4e3491989f19c166d26840b3fead8074323f23eb01211746b",
+    "generic_bootstrap": "51132b09c453712b8f48ab748e5025b25338681f9f89dd65a1fe2598ca266330",
+    "random_teacher": "fa6f83e3fc6bb3c93f87e9b640b8d58213f526115e3fdf582c96d9b1b7b7d1d7",
+    "opening_disagreement": "5d73b65f57cf3e4199608c5cfbd80fa9656d5f267b5a823b12c7940a80824bdc",
+    "stability": "77de3df0a93f928f8e131566c1f18f83b7d0100874248e2d29a6cb37f6e45b36"
+  },
+  "verification": {
+    "source_count": 5,
+    "lane_a_derivative_serialization": "exact byte serialization and registered SHA256 verified",
+    "historical_absolute_derivative_paths_opened": false,
+    "exposures": 2607,
+    "exact_input_identities": 1242,
+    "classification": "frequency_concentrated_policy_gain",
+    "historical_seed447_classification": "close_joint_output_cap_branch",
+    "endpoint_tolerance": {"atol": 2e-6, "rtol": 2e-6},
+    "singleton_source_counts": {"fresh": 840, "random_teacher": 8},
+    "physical_copy": "verified from relocated source checkout and separately copied committed evidence; unrelated cwd; historical path access denied; run-local derivatives/checkpoints excluded",
+    "publication_inventory_hashes_and_mtimes": "unchanged before/after read-only verification",
+    "focused_tests": "seed450 source/mode/derivative tests plus seed449 semantic and arithmetic regressions: 33 passed; separate expanded source-tamper cases: 9 passed",
+    "ruff": "focused check/format and script/ai/run_python_quality.sh passed",
+    "receipt_generation": "separate static correction artifact; verifier does not write receipts"
+  },
+  "limitations": [
+    "Frequency and source are confounded; the result is descriptive and does not establish replay duplication as causal.",
+    "These retrospective data alone do not justify changing training weights.",
+    "No training, gradients, model forward passes, search, games, target or coefficient changes, or promotion were performed."
+  ]
+}
