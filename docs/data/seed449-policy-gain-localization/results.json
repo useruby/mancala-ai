@@ -1,0 +1,211 @@
+{
+  "classification": "frequency_concentrated_policy_gain",
+  "comparisons": {
+    "C_minus_initializer": {
+      "comparison": "C",
+      "covariance_over_mean_exposure": -0.013183411995113935,
+      "difference": -0.013183411995113936,
+      "equal_identity_mean_change": -0.0016329800858137181,
+      "exposure_count": 2607,
+      "exposure_mean_change": -0.014816392080927655,
+      "gross_improvement_mass": -199.16705814749002,
+      "gross_worsening_mass": 160.54072399251163,
+      "identity_count": 1242,
+      "initial": "initializer",
+      "net_signed_mass": -38.626334154978395,
+      "population_covariance": -0.027672427593608717,
+      "strata": {
+        "1": {
+          "equal_identity_mean": 0.011024612133865649,
+          "equal_signed_contribution": 0.007527271408629686,
+          "exposure_count": 848,
+          "exposure_signed_contribution": 0.0035860648598074686,
+          "exposure_weighted_mean": 0.011024612133865649,
+          "identity_count": 848,
+          "improving_fraction": 0.5106132075471698,
+          "median_change": -0.0027604103088378906,
+          "unchanged_fraction": 0.0023584905660377358,
+          "worsening_fraction": 0.48702830188679247
+        },
+        "2-4": {
+          "equal_identity_mean": -0.029262992706377233,
+          "equal_signed_contribution": -0.00810504789935086,
+          "exposure_count": 1360,
+          "exposure_signed_contribution": -0.014782719037595224,
+          "exposure_weighted_mean": -0.028337168037507902,
+          "identity_count": 344,
+          "improving_fraction": 0.5779411764705882,
+          "median_change": -0.02088451385498047,
+          "unchanged_fraction": 0.0,
+          "worsening_fraction": 0.42205882352941176
+        },
+        ">=5": {
+          "equal_identity_mean": -0.026211257302098803,
+          "equal_signed_contribution": -0.0010552035950925445,
+          "exposure_count": 399,
+          "exposure_signed_contribution": -0.0036197379031398993,
+          "exposure_weighted_mean": -0.02365076870547799,
+          "identity_count": 50,
+          "improving_fraction": 0.6265664160401002,
+          "median_change": -0.016481637954711914,
+          "unchanged_fraction": 0.0,
+          "worsening_fraction": 0.37343358395989973
+        }
+      }
+    },
+    "T_minus_C": {
+      "comparison": "T",
+      "covariance_over_mean_exposure": -0.00891038646977261,
+      "difference": -0.00891038646977261,
+      "equal_identity_mean_change": 0.0003224778477079856,
+      "exposure_count": 2607,
+      "exposure_mean_change": -0.008587908622064626,
+      "gross_improvement_mass": -140.352497048676,
+      "gross_worsening_mass": 117.96381927095354,
+      "identity_count": 1242,
+      "initial": "C",
+      "net_signed_mass": -22.388677777722478,
+      "population_covariance": -0.018703202517469562,
+      "strata": {
+        "1": {
+          "equal_identity_mean": 0.006127314053405568,
+          "equal_signed_contribution": 0.004183544538879164,
+          "exposure_count": 848,
+          "exposure_signed_contribution": 0.001993081057647841,
+          "exposure_weighted_mean": 0.006127314053405568,
+          "identity_count": 848,
+          "improving_fraction": 0.4705188679245283,
+          "median_change": 0.010959416627883911,
+          "unchanged_fraction": 0.0023584905660377358,
+          "worsening_fraction": 0.527122641509434
+        },
+        "2-4": {
+          "equal_identity_mean": -0.008776785076195158,
+          "equal_signed_contribution": -0.0024309291998479343,
+          "exposure_count": 1360,
+          "exposure_signed_contribution": -0.00480091551588123,
+          "exposure_weighted_mean": -0.00920293143375174,
+          "identity_count": 344,
+          "improving_fraction": 0.49264705882352944,
+          "median_change": 0.0010794079862535,
+          "unchanged_fraction": 0.0,
+          "worsening_fraction": 0.5073529411764706
+        },
+        ">=5": {
+          "equal_identity_mean": -0.035524615284469395,
+          "equal_signed_contribution": -0.0014301374913232444,
+          "exposure_count": 399,
+          "exposure_signed_contribution": -0.005780074163831236,
+          "exposure_weighted_mean": -0.03776604848398003,
+          "identity_count": 50,
+          "improving_fraction": 0.5213032581453634,
+          "median_change": -0.011044204235076904,
+          "unchanged_fraction": 0.0,
+          "worsening_fraction": 0.47869674185463656
+        }
+      }
+    },
+    "T_minus_initializer": {
+      "comparison": "T",
+      "covariance_over_mean_exposure": -0.022093798464886547,
+      "difference": -0.022093798464886547,
+      "equal_identity_mean_change": -0.0013105022381057327,
+      "exposure_count": 2607,
+      "exposure_mean_change": -0.02340430070299228,
+      "gross_improvement_mass": -188.66667425259948,
+      "gross_worsening_mass": 127.6516623198986,
+      "identity_count": 1242,
+      "initial": "initializer",
+      "net_signed_mass": -61.01501193270087,
+      "population_covariance": -0.046375630111078286,
+      "strata": {
+        "1": {
+          "equal_identity_mean": 0.017151926187271217,
+          "equal_signed_contribution": 0.01171081594750885,
+          "exposure_count": 848,
+          "exposure_signed_contribution": 0.005579145917455309,
+          "exposure_weighted_mean": 0.017151926187271217,
+          "identity_count": 848,
+          "improving_fraction": 0.44693396226415094,
+          "median_change": 0.01542384922504425,
+          "unchanged_fraction": 0.0023584905660377358,
+          "worsening_fraction": 0.5507075471698113
+        },
+        "2-4": {
+          "equal_identity_mean": -0.03803977778257239,
+          "equal_signed_contribution": -0.010535977099198793,
+          "exposure_count": 1360,
+          "exposure_signed_contribution": -0.019583634553476455,
+          "exposure_weighted_mean": -0.03754009947125964,
+          "identity_count": 344,
+          "improving_fraction": 0.6102941176470589,
+          "median_change": -0.03225298970937729,
+          "unchanged_fraction": 0.0,
+          "worsening_fraction": 0.3897058823529412
+        },
+        ">=5": {
+          "equal_identity_mean": -0.0617358725865682,
+          "equal_signed_contribution": -0.002485341086415789,
+          "exposure_count": 399,
+          "exposure_signed_contribution": -0.009399812066971136,
+          "exposure_weighted_mean": -0.06141681718945802,
+          "identity_count": 50,
+          "improving_fraction": 0.7343358395989975,
+          "median_change": -0.06194370985031128,
+          "unchanged_fraction": 0.0,
+          "worsening_fraction": 0.2656641604010025
+        }
+      }
+    }
+  },
+  "endpoint_reconciliation": {
+    "C": {
+      "difference": 6.173093147765485e-10,
+      "equal_identity_difference": 3.0354216917771737e-09,
+      "reconstructed_equal_identity_policy_ce": 1.1965274735305813,
+      "reconstructed_policy_ce": 1.1558827700641394,
+      "seed447_equal_identity_policy_ce": 1.1965274704951596,
+      "seed447_exposure_weighted_policy_ce": 1.15588276944683
+    },
+    "T": {
+      "difference": 2.6292812371764285e-10,
+      "equal_identity_difference": -1.1877736572074582e-09,
+      "reconstructed_equal_identity_policy_ce": 1.1968499513782893,
+      "reconstructed_policy_ce": 1.1472948614420748,
+      "seed447_equal_identity_policy_ce": 1.196849952566063,
+      "seed447_exposure_weighted_policy_ce": 1.1472948611791467
+    },
+    "initializer": {
+      "difference": 2.835050416649665e-09,
+      "equal_identity_difference": 1.7396686313730925e-09,
+      "reconstructed_equal_identity_policy_ce": 1.198160453616395,
+      "reconstructed_policy_ce": 1.170699162145067,
+      "seed447_equal_identity_policy_ce": 1.1981604518767264,
+      "seed447_exposure_weighted_policy_ce": 1.1706991593100167
+    }
+  },
+  "historical_seed447_classification": "close_joint_output_cap_branch",
+  "limitations": [
+    "Retrospective descriptive analysis; aggregate seed447 outcomes were known.",
+    "Does not establish a causal benefit from changed training weights.",
+    "No new model forward passes, gradients, training, games, or promotion."
+  ],
+  "population": {
+    "canonical_identities": 1242,
+    "compact_source_rows": 1256,
+    "exposures": 2607,
+    "membership_count": 2607,
+    "registered_training_replay_copy_weight_total": 18,
+    "registered_training_replay_copy_weights_by_source": {
+      "fresh": 1,
+      "generic_bootstrap": 4,
+      "opening_disagreement": 8,
+      "random_teacher": 1,
+      "stability": 4
+    },
+    "replay_copy_weight_interpretation": "training-loader multiplicities; not validation exposure counts",
+    "unique_inputs": 1242
+  },
+  "registration_sha256": "64b9d824a4d52896b6caeb7993682f214851f129c20dbdc7a48413a70cde62f8",
+  "schema": "seed449-results-v1"
+}
