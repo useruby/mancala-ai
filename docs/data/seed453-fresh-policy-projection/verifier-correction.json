@@ -1,0 +1,19 @@
+{
+  "schema": "seed453-verifier-correction-v1",
+  "temporal_scope": "post-execution verifier correction; registration and experiment evidence remain unchanged",
+  "registered_verifier_sha256": "d374ccd36be1d3eb0cc1f346a330b3196f7d0d1436dded260ff0a297c49893e3",
+  "corrected_verifier_sha256": "f5408f0b34c5f38780c4e242e5429c0a2c1fc6e08e0c704f72ec74f6bdaabcca",
+  "registered_source_sha256": {
+    "ml/alphazero_lite/verify_seed453_fresh_policy_projection.py": "d374ccd36be1d3eb0cc1f346a330b3196f7d0d1436dded260ff0a297c49893e3",
+    "ml/alphazero_lite/seed453_fresh_policy_projection.py": "f771df6cc6ce57b05605c940c687b3a3567e435a446f1a73cb600e6cdf590161",
+    "ml/alphazero_lite/test_seed453_fresh_policy_projection.py": "bdff514e2b27c353853e3120b97d14fc022c67ad2fac0f8346c77b57d30fdab4"
+  },
+  "corrected_source_sha256": {
+    "ml/alphazero_lite/verify_seed453_fresh_policy_projection.py": "f5408f0b34c5f38780c4e242e5429c0a2c1fc6e08e0c704f72ec74f6bdaabcca",
+    "ml/alphazero_lite/seed453_fresh_policy_projection.py": "18c2997f86d2e6b904d95f35b930605463e2e4ec0f67ae895d6e1409fa48f241",
+    "ml/alphazero_lite/test_seed453_fresh_policy_projection.py": "91adf4680234b14d1a9b0d033e20fbd91787cb093d00d5fc87149c542a051d4e"
+  },
+  "correction": "Post-execution corrections preserve the registration. The independent verifier restores pre-step parameters before reconstructing trial KL and value movements; the originally frozen verifier had measured constraints at the raw Adam proposal. The runner now correctly routes the production replay loader to checkout-local Lane-A derivatives; the executed absolute-path derivative files were checked against all five registered derivative hashes and matched exactly. The tensor archive was split by arm for portable publication; all shard tensors were checked array-for-array against the original archive before it was removed. These corrections do not change reconstructed arrays, objective, gradients, optimizer, proposals, trials, or decision. Additional verifier checks cover trajectory, proposal norm, moments, activation, metrics, checkpoints, trial states, and semantic tamper rejection for gradients, proposals, moments, guard identities, scales, metrics, and decision.",
+  "protocol_changed": false,
+  "training_rerun": false
+}

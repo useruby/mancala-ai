@@ -1,0 +1,28 @@
+{
+  "files_sha256": {
+    "docs/data/seed453-fresh-policy-projection/B-final.npz": "2fd195b55a8bd3684b4626c7f153c6b65195f1bc4dc04c9b51425f7e3a3710da",
+    "docs/data/seed453-fresh-policy-projection/B-predictions.npz": "6834070be46363a3126df492947dda33c7cf09a224d78b345c3510ba00fe58dd",
+    "docs/data/seed453-fresh-policy-projection/C-final.npz": "bcf3e76b12896cd4017aac5a8eda0b938088c9bee216b59d07cfde05c095f026",
+    "docs/data/seed453-fresh-policy-projection/C-predictions.npz": "f0ca106216fd061f89f4c7d5e2e9fa2cbd249dbb894b55e26f643b3077fe3f22",
+    "docs/data/seed453-fresh-policy-projection/analysis.md": "9a9bb05b26203e59bcf1588ce7eca90f49ecbe67f3f0cabcdaeee9e962c0199b",
+    "docs/data/seed453-fresh-policy-projection/evidence.json": "b87cfc46d4a9b3e338404fe91691c6565cd616016a28b94c5042bbe8ae163d6f",
+    "docs/data/seed453-fresh-policy-projection/fresh-guard.json": "fcd20eafbffc7f88ae1ee6b73b53c3cb14049393bff295116ea89ec807aab5d0",
+    "docs/data/seed453-fresh-policy-projection/initializer-predictions.npz": "654e6b97553684c2ad9436025245813b6daf5ce4591d1c566f1eb8b5b1148969",
+    "docs/data/seed453-fresh-policy-projection/registration.json": "9805cba7e7808217cbb381a11816ba26c2ca5c7f4c9e539a4dd9e2daeb3529fd",
+    "docs/data/seed453-fresh-policy-projection/results.md": "c9d341fb9148cd45d7a465bc1fd15dfa1f33e1efc90a2b5604b73175b744b2c5",
+    "docs/data/seed453-fresh-policy-projection/source-snapshots/seed429_policy_normalization.py": "b2743afc7bc4acdadff9e25fc456f8dc3757dfd0c98c9bc214aee805d70011d6",
+    "docs/data/seed453-fresh-policy-projection/source-snapshots/seed435_adam_direction.py": "c153c859f430c1eb857e2176de9df3dd5d99590c3838324bd55eef7fb4df3d81",
+    "docs/data/seed453-fresh-policy-projection/source-snapshots/seed442_kl_capped_adam.py": "08279f0f67a73c3fb52a00f54c4bc61f98e578aa6bb14a9527c5558cc3f37c8e",
+    "docs/data/seed453-fresh-policy-projection/source-snapshots/seed447_joint_output_cap.py": "d5714115025be65062d36b9f6898a157f49ff4a3ecc29700ff0c9316b34bd16a",
+    "docs/data/seed453-fresh-policy-projection/source-snapshots/seed453_fresh_policy_projection.py": "f771df6cc6ce57b05605c940c687b3a3567e435a446f1a73cb600e6cdf590161",
+    "docs/data/seed453-fresh-policy-projection/source-snapshots/test_seed453_fresh_policy_projection.py": "bdff514e2b27c353853e3120b97d14fc022c67ad2fac0f8346c77b57d30fdab4",
+    "docs/data/seed453-fresh-policy-projection/source-snapshots/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "docs/data/seed453-fresh-policy-projection/source-snapshots/verify_seed434_census_source.py": "4b632366f7b1ad920b77c692c0b9993de5420b723deba71bc9d081522789ec51",
+    "docs/data/seed453-fresh-policy-projection/source-snapshots/verify_seed453_fresh_policy_projection.py": "d374ccd36be1d3eb0cc1f346a330b3196f7d0d1436dded260ff0a297c49893e3",
+    "docs/data/seed453-fresh-policy-projection/step-tensors-B.npz": "3d65ca7e3c53ae89dd62306840a3d1d57e48ee89164c34e29d93ba507ae733d3",
+    "docs/data/seed453-fresh-policy-projection/step-tensors-C.npz": "484252a6e15d70d9be323f186bbf13817c370d5594c6c12d37aa950e0d51d912",
+    "docs/data/seed453-fresh-policy-projection/verifier-correction.json": "72fa70efefaadbb2ba9aa5871613954a0eabbfa510b124709dd20cee36a1fd8f"
+  },
+  "registration_sha256": "9805cba7e7808217cbb381a11816ba26c2ca5c7f4c9e539a4dd9e2daeb3529fd",
+  "schema": "seed453-publication-receipt-v1"
+}
