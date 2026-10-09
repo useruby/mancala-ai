@@ -1,0 +1,18 @@
+{
+  "schema": "seed455-portability-verification-v1",
+  "status": "passed",
+  "test": "ml/alphazero_lite/test_seed455_physical_copy.py::test_verifier_cli_from_physical_copy_is_read_only_and_portable",
+  "execution": {
+    "interpreter": ".venv-azlite/bin/python",
+    "source_and_evidence": "physical copy in a temporary directory, including the ml source tree and every frozen evidence input",
+    "working_directory": "unrelated temporary working directory",
+    "historical_absolute_derivatives": "Python audit hook rejected any open of registered absolute derivative paths",
+    "original_checkout_evidence": "Python audit hook rejected any open under original checkout docs/data; verifier completed successfully"
+  },
+  "publication_read_only": {
+    "complete_inventory": true,
+    "sha256_unchanged": true,
+    "mtime_ns_unchanged": true
+  },
+  "test_result": "passed; verifier status valid"
+}

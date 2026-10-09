@@ -1,0 +1,26 @@
+{
+  "schema": "seed455-superseded-attempt-v1",
+  "attempts": [
+    {
+      "registration": "freeze.json",
+      "status": "aborted_before_measurements",
+      "failure": "The first cohort selection omitted the fresh-source predicate and rejected the fixed 859-row count before calculating measurements.",
+      "output_hashes": {},
+      "output_hash_note": "No attribution publication was written by this aborted execution."
+    },
+    {
+      "registration": "freeze-v2.json",
+      "status": "superseded_invalid_measurements",
+      "failure": "Archived pre/post tensors were interleaved as consecutive path states, producing a 32-entry path and zero-displacement results on alternating steps.",
+      "registration_sha256": "064721424a413a7a95a4a10bc6dda6b300785733652ae34f4543826b2f33cc90",
+      "source_sha256": {
+        "ml/alphazero_lite/seed455_fresh_projection_attribution.py": "03b5dc5f7c351a7f7f4a77265322c490a5d8ccbc58a2a46a22a1cf19a0991973",
+        "ml/alphazero_lite/verify_seed455_fresh_projection_attribution.py": "a64143154ee89c35d4e6a674a023b18bb8ef8f8c68ce2e390b52e7d6dafb64d2"
+      },
+      "output_hashes": {},
+      "output_hash_note": "The superseded results were overwritten by the corrected 17-state execution before a receipt/inventory was generated; their raw output bytes and hashes are unavailable and are not represented as evidence.",
+      "frozen_inputs_unchanged": true
+    }
+  ],
+  "final_attempt": "freeze-v5.json"
+}

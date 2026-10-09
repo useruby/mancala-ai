@@ -1,0 +1,26 @@
+{
+  "schema": "seed455-independent-verification-v1",
+  "status": "valid",
+  "registration": "freeze-v7.json",
+  "registration_sha256": "ab4651ca6a9aa12356356c17e0d2913fad7fb8168fc1420eb328b8544fc48c33",
+  "preserved_historical_decisions": {
+    "seed453": "close_fresh_policy_projection_branch",
+    "seed454": "archived_trajectory_matches_full_guard_rule"
+  },
+  "results_sha256": "9365838ff5386f9a696795846e25f2bcaff4ac5c21d9990ce06e3e3925f54c52",
+  "gradients_sha256": "d47fe9479158d14b2df2ff72f920c758f5f3007764955625c279af554e08c608",
+  "predictions_targets_sha256": "593b26396b09e322e744b152bc5b2546351c346ca6faf89fd0d0261538dc9483",
+  "verified": [
+    "portable production-loader input reconstruction and per-shard declared target modes",
+    "ordered guard and fresh strict-unseen cohorts, provenance, split membership, and train/evaluation exclusion",
+    "17 linked float32 parameter states per arm, initializer/final checkpoints, 22-tensor/73159-parameter layout",
+    "all 96 predictions, objectives, full gradients, displacements, D/S/R decompositions and parameter-group slopes",
+    "seed453 guard gradients and accepted B slopes; seed452 C unseen totals; seed453 endpoint CE",
+    "step/block totals, telescoping, D=S+R, guard slope limits, independently recomputed cosines, and classification"
+  ],
+  "limitations": [
+    "Retrospective descriptive attribution; it does not establish causality.",
+    "The finite-step remainder includes nonlinear and numerical effects; it is not pure curvature.",
+    "No training treatment or strength evaluation is authorized."
+  ]
+}

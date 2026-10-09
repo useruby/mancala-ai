@@ -1,0 +1,22 @@
+{
+  "files_sha256": {
+    "docs/data/seed455-fresh-projection-attribution/freeze-v2.json": "064721424a413a7a95a4a10bc6dda6b300785733652ae34f4543826b2f33cc90",
+    "docs/data/seed455-fresh-projection-attribution/freeze-v3.json": "8ce41bae2c0da9ba37e077ede635b46ae928284f6f710e14e04c6126ce4da5fc",
+    "docs/data/seed455-fresh-projection-attribution/freeze-v4.json": "e3459d32f9c0d405613ea58462324aa73b28a49dc0eeb171791dd2d5da98c029",
+    "docs/data/seed455-fresh-projection-attribution/freeze-v5.json": "45f2465148d8bf1d00cb8f2419285d13d635dfa7d929e2b912f180f0db8e3cae",
+    "docs/data/seed455-fresh-projection-attribution/freeze-v6.json": "3a475e581c310bfa34fa7f04b85667838da02a1faffca8b4cc9dde22057efac6",
+    "docs/data/seed455-fresh-projection-attribution/freeze-v7.json": "ab4651ca6a9aa12356356c17e0d2913fad7fb8168fc1420eb328b8544fc48c33",
+    "docs/data/seed455-fresh-projection-attribution/freeze.json": "0210f58027507747f7d68d4db4f816e9f01c7b5e700d3a7ebf92b4c2e6125444",
+    "docs/data/seed455-fresh-projection-attribution/gradients.npz": "d47fe9479158d14b2df2ff72f920c758f5f3007764955625c279af554e08c608",
+    "docs/data/seed455-fresh-projection-attribution/independent-verification-report.json": "0a7432e5b44bb86b10284fecc920d296806444620ce58677c893f2f9b46c834f",
+    "docs/data/seed455-fresh-projection-attribution/parameter-layout.json": "624a974cc2843b818540abdf87905f420965915cd81a795e41ce46349a6c0529",
+    "docs/data/seed455-fresh-projection-attribution/portability-report.json": "b19ab4544829ca3c9219a619f587cbffcf3acb45f87f3f871c673568be873371",
+    "docs/data/seed455-fresh-projection-attribution/predictions-targets.npz": "593b26396b09e322e744b152bc5b2546351c346ca6faf89fd0d0261538dc9483",
+    "docs/data/seed455-fresh-projection-attribution/results.json": "9365838ff5386f9a696795846e25f2bcaff4ac5c21d9990ce06e3e3925f54c52",
+    "docs/data/seed455-fresh-projection-attribution/results.md": "e8c7c539e0d9c6124e0b7484489b0b836e239accdc453f93eb07cb284cbdd64a",
+    "docs/data/seed455-fresh-projection-attribution/superseded-attempt-v1.json": "281ee7b23296b578cf198b6256e9708ec86f832f27607d01f5352170d9edc4a8",
+    "docs/data/seed455-fresh-projection-attribution/superseded-attempt-v2.json": "976d396012ec62cf76f028ae9c3e556f7fb68a830f61f250509b7debd12964ce",
+    "docs/data/seed455-fresh-projection-attribution/superseded-attempt-v3.json": "791e25dcfd79d12ac4e0d65e807ceededf6f372a597655d346180f109859efe9"
+  },
+  "schema": "seed455-receipt-v1"
+}

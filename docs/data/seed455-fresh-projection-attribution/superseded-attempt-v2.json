@@ -1,0 +1,14 @@
+{
+  "schema": "seed455-superseded-attempt-v2",
+  "status": "measurements_retained_but_verification_incomplete",
+  "registration": "freeze-v5.json",
+  "registration_sha256": "45f2465148d8bf1d00cb8f2419285d13d635dfa7d929e2b912f180f0db8e3cae",
+  "receipt_sha256": "dac193bddbc9123e37573345d0ce6e65218c180d5661c66ac81649b4ab7deaae",
+  "output_sha256": {
+    "results.json": "9365838ff5386f9a696795846e25f2bcaff4ac5c21d9990ce06e3e3925f54c52",
+    "gradients.npz": "d47fe9479158d14b2df2ff72f920c758f5f3007764955625c279af554e08c608",
+    "predictions-targets.npz": "593b26396b09e322e744b152bc5b2546351c346ca6faf89fd0d0261538dc9483"
+  },
+  "failure": "The first independent verifier run failed while checking gradient cosines because it iterated all 17 state gradients against a 16-step ledger. Measurements remain bound by the receipt, but the attempt is superseded by freeze-v6 and a corrected verifier.",
+  "frozen_inputs_unchanged": true
+}
