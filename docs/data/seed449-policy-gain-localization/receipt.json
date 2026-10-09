@@ -1,0 +1,22 @@
+{
+  "files_sha256": {
+    "identity-ledger.json": "b35c4e93494a564c08f45f00e26598d669bad890777a3a14b634a542ed84e754",
+    "ordered-row-ledger.jsonl": "c54d0066d5e53d5e4dafad4e9b67b0100ca725d7523335253196b72cc48544ae",
+    "registration.json": "64b9d824a4d52896b6caeb7993682f214851f129c20dbdc7a48413a70cde62f8",
+    "results.json": "79b3f96f5dafb033629a98c8b72eab8c575a6488a5419c5e12c0e31cc80b2556",
+    "results.md": "0a147133f830b122de360c6570aa46f2f832edf238f2d5c4e0bce88c0a555dea",
+    "source-snapshots/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "source-snapshots/seed427_validation_metrics.py": "cffab5549e90ac3b28d4e531e664cdd17bb2ce496568fd152993d8b76647f408",
+    "source-snapshots/seed428_source_attribution.py": "c297df2ddea9f61edb65f7d7ff2097cce86cb3cde80f283429654f3449fcc2b0",
+    "source-snapshots/seed435_adam_direction.py": "c153c859f430c1eb857e2176de9df3dd5d99590c3838324bd55eef7fb4df3d81",
+    "source-snapshots/seed449_arithmetic.py": "82ce1e7be94ab1370dd371d49c6a80d012f434a6b838ea427ded049c5489af65",
+    "source-snapshots/seed449_policy_gain_localization.py": "a5eab095d6c59d52032b869d74ad3b8b920d6ff3817618a0237f41ef81d0ac1b",
+    "source-snapshots/test_seed449_arithmetic.py": "bc6861640622730129b163d51481652e331018f506ba051424f8d56204e1de5d",
+    "source-snapshots/test_seed449_policy_gain_localization.py": "424acacf5973460080d41071053a9ac0a6fac2f803f91999ac1c4231e76f1f78",
+    "source-snapshots/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "source-snapshots/verify_seed448_seed447_publication.py": "186a0baa818eb991d679dcb15eb78f257febb6c67d08be664bcbe626c1fd4948",
+    "source-snapshots/verify_seed449_policy_gain_localization.py": "b9b9cc39a2c1fc68161886118e9e219a12577f3a3d37443d0029e4894666ecf6"
+  },
+  "registration_sha256": "64b9d824a4d52896b6caeb7993682f214851f129c20dbdc7a48413a70cde62f8",
+  "schema": "seed449-publication-receipt-v1"
+}
