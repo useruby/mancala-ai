@@ -1,0 +1,46 @@
+{
+  "conventions": {
+    "caps": {
+      "fresh_gradient_dot": 1e-07,
+      "kl": 0.0050000001,
+      "value_movement": 0.000100000001
+    },
+    "policy_kl": "KL(reference policy || trial policy), legal actions only; float32 logits promoted to float64; float64 log_softmax; row-uniform weighting; 512-row batching",
+    "selection": "largest feasible scale among all eight tested scales; no monotonicity assumption",
+    "trial_state": "scale 1 uses proposal directly; others float32(pre + scale * (proposal - pre))",
+    "value_movement": "float32 predictions, float64 subtraction and squared mean, uniform row weighting, 512-row batching"
+  },
+  "frozen_before_diagnostic_forward_passes": true,
+  "input_sha256": {
+    "docs/data/seed416-policy-target-softening/registration-v3.json": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+    "docs/data/seed416-policy-target-softening/training-freeze-v3/epoch-permutations.json.gz": "d868edebd9ae1876cbc5b9edca6fa0df9d3e6184b97246847f9012dfe2d293d1",
+    "docs/data/seed416-policy-target-softening/training-freeze-v3/source-row-split.json.gz": "f7b69ab8fd6c19128a29f9ae9a11a7ac42a5d26630368ff74e906f29ddb6be44",
+    "docs/data/seed426-canonical-overlap/seed427-validation-membership.jsonl.gz": "554f3bd016a0f920ef253538d741a91cb27c9882d2dba94cf7509030af8ca385",
+    "docs/data/seed426-canonical-overlap/sources/fresh.jsonl.gz": "5f5062416ae620e4e3491989f19c166d26840b3fead8074323f23eb01211746b",
+    "docs/data/seed426-canonical-overlap/sources/generic_bootstrap.jsonl.gz": "51132b09c453712b8f48ab748e5025b25338681f9f89dd65a1fe2598ca266330",
+    "docs/data/seed426-canonical-overlap/sources/opening_disagreement.jsonl.gz": "5d73b65f57cf3e4199608c5cfbd80fa9656d5f267b5a823b12c7940a80824bdc",
+    "docs/data/seed426-canonical-overlap/sources/random_teacher.jsonl.gz": "fa6f83e3fc6bb3c93f87e9b640b8d58213f526115e3fdf582c96d9b1b7b7d1d7",
+    "docs/data/seed426-canonical-overlap/sources/stability.jsonl.gz": "77de3df0a93f928f8e131566c1f18f83b7d0100874248e2d29a6cb37f6e45b36",
+    "docs/data/seed442-kl-capped-adam-screen/guard-cohort.json": "d25c03960d1220c58f5401d9536862ce647a02a5f8d9abcf6ad7174da0c53297",
+    "docs/data/seed453-fresh-policy-projection/B-final.npz": "2fd195b55a8bd3684b4626c7f153c6b65195f1bc4dc04c9b51425f7e3a3710da",
+    "docs/data/seed453-fresh-policy-projection/C-final.npz": "bcf3e76b12896cd4017aac5a8eda0b938088c9bee216b59d07cfde05c095f026",
+    "docs/data/seed453-fresh-policy-projection/evidence.json": "b87cfc46d4a9b3e338404fe91691c6565cd616016a28b94c5042bbe8ae163d6f",
+    "docs/data/seed453-fresh-policy-projection/fresh-guard.json": "fcd20eafbffc7f88ae1ee6b73b53c3cb14049393bff295116ea89ec807aab5d0",
+    "docs/data/seed453-fresh-policy-projection/registration.json": "9805cba7e7808217cbb381a11816ba26c2ca5c7f4c9e539a4dd9e2daeb3529fd",
+    "docs/data/seed453-fresh-policy-projection/step-tensors-B.npz": "3d65ca7e3c53ae89dd62306840a3d1d57e48ee89164c34e29d93ba507ae733d3",
+    "docs/data/seed453-fresh-policy-projection/step-tensors-C.npz": "484252a6e15d70d9be323f186bbf13817c370d5594c6c12d37aa950e0d51d912",
+    "docs/data/seed453-fresh-policy-projection/verifier-correction-receipt.json": "713a9cb612994f884a5a4507864c5c1b9f961633ad70830dd8d34145a0de6cf1",
+    "docs/data/seed453-fresh-policy-projection/verifier-correction.json": "72fa70efefaadbb2ba9aa5871613954a0eabbfa510b124709dd20cee36a1fd8f"
+  },
+  "schema": "seed454-audit-registration-v1",
+  "scope": "retrospective audit of archived seed453 evidence; no training rerun or corrected trajectory",
+  "seed442_guard_sha256": "d25c03960d1220c58f5401d9536862ce647a02a5f8d9abcf6ad7174da0c53297",
+  "seed453_evidence_sha256": "b87cfc46d4a9b3e338404fe91691c6565cd616016a28b94c5042bbe8ae163d6f",
+  "seed453_registration_sha256": "9805cba7e7808217cbb381a11816ba26c2ca5c7f4c9e539a4dd9e2daeb3529fd",
+  "source_sha256": {
+    "ml/alphazero_lite/seed454_analysis.py": "d109ac9c220da628c1c975c8b02e307efd19f89cf2df54d6e14c3e55b30cb9bc",
+    "ml/alphazero_lite/seed454_full_guard_compliance.py": "384ab4b36970b59c58bd2741ae161f501ef99ed6ea859ab838700634a5ed6597",
+    "ml/alphazero_lite/test_seed454_full_guard_compliance.py": "ae0281392733b988076bf29fbe41657b7b4a7c54f53e89f8a02462d14442d0a8",
+    "ml/alphazero_lite/verify_seed454_full_guard_compliance.py": "201f749752eaf6e15b3ec8c255c0cec420d387209200d1bb98906188f3cc6a26"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schema": "seed454-superseded-attempt-v4-receipt",
+  "status": "superseded-one-classification-tamper-fixture-was-ineffective",
+  "scope": "same retrospective audit of archived seed453; no training rerun or trajectory changes",
+  "artifact_sha256": {
+    "audit-registration.json": "45a82c9805b5fae851e2340f21e755c3768e260ddcdc6036487e8918377f810c",
+    "audit.json": "89982f34d79a6305cedb67805c261ffe79aef45ddc240f84205cc01c817d1a93",
+    "receipt.json": "91e1af7e9c7accae6f2d16008e2e217c0199368200687a51ae1f41cd5f14df7c"
+  },
+  "frozen_test_source_sha256": "28dbc69a9c7c5474f87e1b0a461f5e6f27d2047d892cb8cb38b7e4b3842ba95d",
+  "current_test_source_sha256_before_fixture_fix": "167a37e2b42d8e67c5d349b07586fe6c3e10c40fbe94d2f0e31ceb761c970bf2",
+  "recorded_test_failure": "The classification tamper fixture rewrote the report to its existing correct classification and therefore did not alter evidence; all other seven focused tests passed in v4.",
+  "superseded_by": "superseding-v5"
+}

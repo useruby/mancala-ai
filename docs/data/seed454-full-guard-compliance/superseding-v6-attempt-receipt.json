@@ -1,0 +1,12 @@
+{
+  "schema": "seed454-superseded-attempt-v6-receipt",
+  "status": "superseded-copied-cli-import-dependency-incomplete",
+  "scope": "same retrospective audit of archived seed453; no training rerun or trajectory changes",
+  "artifact_sha256": {
+    "audit-registration.json": "37d34e1cca4d9fd3e7cc746cfd76dad2ded58bc55949d404ac56f1e519e28912",
+    "audit.json": "89982f34d79a6305cedb67805c261ffe79aef45ddc240f84205cc01c817d1a93",
+    "receipt.json": "a834dd9f88e42c4dcd48dd836a47acdd3744bfb999321b827b4cf27180b2ab65"
+  },
+  "verification": "Eight focused tests passed; the copied real CLI failed during startup because seed429_policy_normalization imports build_opening_suite, which was absent from the copied dependency bundle.",
+  "superseded_by": "superseding-v7"
+}

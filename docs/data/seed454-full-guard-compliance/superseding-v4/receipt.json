@@ -1,0 +1,13 @@
+{
+  "files_sha256": {
+    "docs/data/seed454-full-guard-compliance/superseding-v4/analysis.md": "70c452e75ef41c6974619d58fd99c54db65c88aa94a45249055c1288917654a2",
+    "docs/data/seed454-full-guard-compliance/superseding-v4/audit-registration.json": "45a82c9805b5fae851e2340f21e755c3768e260ddcdc6036487e8918377f810c",
+    "docs/data/seed454-full-guard-compliance/superseding-v4/audit.json": "89982f34d79a6305cedb67805c261ffe79aef45ddc240f84205cc01c817d1a93",
+    "docs/data/seed454-full-guard-compliance/superseding-v4/source-snapshots/seed454_analysis.py": "f68ed54eed40826c90e0ea4d8eaff3f7ce323b0f0e604b5bac9193bc3b8f7e96",
+    "docs/data/seed454-full-guard-compliance/superseding-v4/source-snapshots/seed454_full_guard_compliance.py": "b05e7bb095d21dd1d09593562fdcd9d28ec1c184f0cd98fd2ef0e0cd66ef351d",
+    "docs/data/seed454-full-guard-compliance/superseding-v4/source-snapshots/test_seed454_full_guard_compliance.py": "28dbc69a9c7c5474f87e1b0a461f5e6f27d2047d892cb8cb38b7e4b3842ba95d",
+    "docs/data/seed454-full-guard-compliance/superseding-v4/source-snapshots/verify_seed454_full_guard_compliance.py": "379df66d4b957ca09c31c1e146ff240eab8f06637533a25531813e2c02c7d744",
+    "docs/data/seed454-full-guard-compliance/superseding-v4/supersession-receipt.json": "db8b06bcea8a4f9ba2d4d01334e60b5f34c8a851ec14e04f9094a0fdfc0841b0"
+  },
+  "schema": "seed454-superseding-receipt-v1"
+}

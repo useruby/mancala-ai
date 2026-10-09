@@ -1,0 +1,14 @@
+{
+  "schema": "seed454-superseded-attempt-v5-receipt",
+  "status": "superseded-copied-cli-dependency-inventory-incomplete",
+  "scope": "same retrospective audit of archived seed453; no training rerun or trajectory changes",
+  "artifact_sha256": {
+    "audit-registration.json": "8c47c8159d8d835e310a1031663ca50368c5d5f301a245b80c19ddb927bd6f41",
+    "audit.json": "89982f34d79a6305cedb67805c261ffe79aef45ddc240f84205cc01c817d1a93",
+    "receipt.json": "d88ba86e11fcb9ffdac7b2161d355ca6e3da15991f97bbb85314252c21cb6ea3"
+  },
+  "recorded_verification": "Independent in-checkout verifier passed; focused suite had 8 passed and the copied CLI failed.",
+  "failure": "The source-and-evidence copy omitted train.py's model support modules, so the copied real CLI did not start. The captured exception is preserved in the execution transcript; v6 adds and binds these code dependencies before source freeze.",
+  "v5_classification": "non-authoritative-for-portability",
+  "superseded_by": "superseding-v6"
+}

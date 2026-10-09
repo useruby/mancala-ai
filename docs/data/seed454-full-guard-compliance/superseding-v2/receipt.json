@@ -1,0 +1,13 @@
+{
+  "files_sha256": {
+    "docs/data/seed454-full-guard-compliance/superseding-v2/analysis.md": "70c452e75ef41c6974619d58fd99c54db65c88aa94a45249055c1288917654a2",
+    "docs/data/seed454-full-guard-compliance/superseding-v2/audit-registration.json": "c4e5aacff3674e97650854d532e4ab910159f79b52207acbfef9c4c49f730e67",
+    "docs/data/seed454-full-guard-compliance/superseding-v2/audit.json": "89982f34d79a6305cedb67805c261ffe79aef45ddc240f84205cc01c817d1a93",
+    "docs/data/seed454-full-guard-compliance/superseding-v2/source-snapshots/seed454_analysis.py": "f68ed54eed40826c90e0ea4d8eaff3f7ce323b0f0e604b5bac9193bc3b8f7e96",
+    "docs/data/seed454-full-guard-compliance/superseding-v2/source-snapshots/seed454_full_guard_compliance.py": "c1b8dcf975ec1c7a339bbbcc2998a8e07e654c9f01d1d21692998a33c5791045",
+    "docs/data/seed454-full-guard-compliance/superseding-v2/source-snapshots/test_seed454_full_guard_compliance.py": "5163ba217dc665482358926e5fa02da00868be6a87a472daaf4551412d29dae8",
+    "docs/data/seed454-full-guard-compliance/superseding-v2/source-snapshots/verify_seed454_full_guard_compliance.py": "fe2b9b45dca4c582c7b5ba96f42610981dcd81731db49c059e6d3c457d64b921",
+    "docs/data/seed454-full-guard-compliance/superseding-v2/supersession-receipt.json": "47d36660877d305dcbd53421d08af90d25f6c6370cc42ca180e661ee86a6ddd2"
+  },
+  "schema": "seed454-superseding-receipt-v1"
+}

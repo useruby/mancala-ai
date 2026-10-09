@@ -1,0 +1,14 @@
+{
+  "schema": "seed454-superseded-attempt-v2-receipt",
+  "status": "superseded-after-failed-verifier-path-tests",
+  "scope": "same retrospective audit of archived seed453; no trajectory changes",
+  "frozen_test_source_sha256": "5163ba217dc665482358926e5fa02da00868be6a87a472daaf4551412d29dae8",
+  "corrected_test_source_sha256": "d4df2f1a778bc835612719fcce5ef25b9bebf5fd68dc3072dbeb97ed5fb038a2",
+  "published_draft_sha256": {
+    "audit-registration.json": "c4e5aacff3674e97650854d532e4ab910159f79b52207acbfef9c4c49f730e67",
+    "audit.json": "89982f34d79a6305cedb67805c261ffe79aef45ddc240f84205cc01c817d1a93",
+    "receipt.json": "b9b44d1c0c5855df922980641870e2f75832c44e2488bc7cd9931c78e642ae5d"
+  },
+  "recorded_failure": "Focused tests revealed a decision-helper API mismatch and incomplete physical-copy fixture inventory; no skips were used. v2 classification remains non-authoritative.",
+  "recovery": "The source/test corrections are preserved in the superseding-v3 source freeze. v2 outputs remain append-only and unmodified."
+}

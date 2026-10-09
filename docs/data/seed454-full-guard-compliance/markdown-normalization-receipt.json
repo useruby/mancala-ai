@@ -1,0 +1,24 @@
+{
+  "schema": "seed454-markdown-whitespace-normalization-v1",
+  "reason": "Remove trailing Markdown hard-break spaces so the append-only audit artifacts pass repository diff whitespace checks. Text and audit meaning are unchanged; per-version publication manifests were rebound to the normalized Markdown bytes.",
+  "original_analysis_markdown_sha256": "e7f2ccf423c4f6e2bafbac00a400a927594d0ab09ca21eb806676289bd48fe72",
+  "normalized_analysis_markdown_sha256": "70c452e75ef41c6974619d58fd99c54db65c88aa94a45249055c1288917654a2",
+  "normalized_files": [
+    "analysis.md",
+    "superseding-v2/analysis.md",
+    "superseding-v3/analysis.md",
+    "superseding-v4/analysis.md",
+    "superseding-v5/analysis.md",
+    "superseding-v6/analysis.md",
+    "superseding-v7/analysis.md"
+  ],
+  "receipt_files_rebound": [
+    "superseding-v2/receipt.json",
+    "superseding-v3/receipt.json",
+    "superseding-v4/receipt.json",
+    "superseding-v5/receipt.json",
+    "superseding-v6/receipt.json",
+    "superseding-v7/receipt.json"
+  ],
+  "audit_registration_or_numeric_evidence_changed": false
+}
