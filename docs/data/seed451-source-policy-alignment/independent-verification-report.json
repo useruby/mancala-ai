@@ -1,0 +1,95 @@
+{
+  "chunk_size": 512,
+  "classification": "mixed_or_checkpoint_dependent_alignment",
+  "direct_joint_objective_reconciled": true,
+  "max_abs_vector_discrepancy": 0.0,
+  "reconstructed_cosines": {
+    "T_final": {
+      "G_PF": 0.6599360441398906,
+      "G_PH": 0.2525361894575257,
+      "G_T": 0.7583120906460623
+    },
+    "initializer": {
+      "G_PF": 0.24237881938259626,
+      "G_PH": -0.2475005222155044,
+      "G_T": -0.007171159939138528
+    }
+  },
+  "source_accounting": {
+    "fresh": {
+      "policy_coefficient_mass": 60015.0,
+      "replay_copy_weight": 1,
+      "training_exposures": 60015,
+      "unique_compact_rows": 60015,
+      "value_target_mode": "default"
+    },
+    "generic_bootstrap": {
+      "policy_coefficient_mass": 50352.0,
+      "replay_copy_weight": 4,
+      "training_exposures": 50352,
+      "unique_compact_rows": 12588,
+      "value_target_mode": "sharpened"
+    },
+    "opening_disagreement": {
+      "policy_coefficient_mass": 14240.0,
+      "replay_copy_weight": 8,
+      "training_exposures": 14240,
+      "unique_compact_rows": 1780,
+      "value_target_mode": "sharpened"
+    },
+    "random_teacher": {
+      "policy_coefficient_mass": 2675.0,
+      "replay_copy_weight": 1,
+      "training_exposures": 2675,
+      "unique_compact_rows": 2675,
+      "value_target_mode": "sharpened"
+    },
+    "stability": {
+      "policy_coefficient_mass": 7220.0,
+      "replay_copy_weight": 4,
+      "training_exposures": 7220,
+      "unique_compact_rows": 1805,
+      "value_target_mode": "sharpened"
+    }
+  },
+  "status": "valid",
+  "tolerance": {
+    "atol": 2e-05,
+    "rtol": 2e-05
+  },
+  "training": {
+    "exposures": 134502,
+    "fresh_mass": 60015.0,
+    "historical_mass": 74487.0,
+    "rho_F": 0.44620154347147256,
+    "rho_H": 0.5537984565285274,
+    "total_mass": 134502.0
+  },
+  "unseen": {
+    "U_F_exposures": 859,
+    "U_F_identities": 851,
+    "U_H_exposures": 1748,
+    "U_H_identities": 394,
+    "cross_source_shared_identities": 3
+  },
+  "vector_max_abs_discrepancies": {
+    "T_final__G_P": 0.0,
+    "T_final__G_PF": 0.0,
+    "T_final__G_PH": 0.0,
+    "T_final__G_T": 0.0,
+    "T_final__G_V": 0.0,
+    "T_final__U_F_equal_exact_input": 0.0,
+    "T_final__U_F_exposure": 0.0,
+    "T_final__U_H_equal_exact_input": 0.0,
+    "T_final__U_H_exposure": 0.0,
+    "initializer__G_P": 0.0,
+    "initializer__G_PF": 0.0,
+    "initializer__G_PH": 0.0,
+    "initializer__G_T": 0.0,
+    "initializer__G_V": 0.0,
+    "initializer__U_F_equal_exact_input": 0.0,
+    "initializer__U_F_exposure": 0.0,
+    "initializer__U_H_equal_exact_input": 0.0,
+    "initializer__U_H_exposure": 0.0
+  }
+}

@@ -1,0 +1,268 @@
+{
+  "analysis_design": "retrospective; seed447-450 outcomes are known",
+  "checkpoints": {
+    "T_final": {
+      "path": "docs/data/seed447-joint-output-cap/T-final.npz",
+      "sha256": "bcf3e76b12896cd4017aac5a8eda0b938088c9bee216b59d07cfde05c095f026"
+    },
+    "initializer": {
+      "path": "docs/data/seed429-canonical-policy-normalization/training-checkpoints/initializer.npz",
+      "sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+    }
+  },
+  "chunk_size": 512,
+  "classification": {
+    "historical_opposition": "cos(U_F_equal,G_PH)<=-0.10 and cos(U_F_equal,G_PF)>=0.10 at both checkpoints",
+    "joint_positive": "otherwise cos(U_F_equal,G_T)>=0.10 at both",
+    "otherwise": "mixed_or_checkpoint_dependent_alignment"
+  },
+  "historical_seed438_parameter_layout": [
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.0.0.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 0,
+      "stop": 9216
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.0.0.bias",
+      "shape": [
+        96
+      ],
+      "start": 9216,
+      "stop": 9312
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.0.1.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 9312,
+      "stop": 18528
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.0.1.bias",
+      "shape": [
+        96
+      ],
+      "start": 18528,
+      "stop": 18624
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.1.0.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 18624,
+      "stop": 27840
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.1.0.bias",
+      "shape": [
+        96
+      ],
+      "start": 27840,
+      "stop": 27936
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.1.1.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 27936,
+      "stop": 37152
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.1.1.bias",
+      "shape": [
+        96
+      ],
+      "start": 37152,
+      "stop": 37248
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.2.0.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 37248,
+      "stop": 46464
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.2.0.bias",
+      "shape": [
+        96
+      ],
+      "start": 46464,
+      "stop": 46560
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.2.1.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 46560,
+      "stop": 55776
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.2.1.bias",
+      "shape": [
+        96
+      ],
+      "start": 55776,
+      "stop": 55872
+    },
+    {
+      "group": "shared_trunk",
+      "name": "input_layer.weight",
+      "shape": [
+        96,
+        27
+      ],
+      "start": 55872,
+      "stop": 58464
+    },
+    {
+      "group": "shared_trunk",
+      "name": "input_layer.bias",
+      "shape": [
+        96
+      ],
+      "start": 58464,
+      "stop": 58560
+    },
+    {
+      "group": "policy_head",
+      "name": "policy_hidden_layer.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 58560,
+      "stop": 67776
+    },
+    {
+      "group": "policy_head",
+      "name": "policy_hidden_layer.bias",
+      "shape": [
+        96
+      ],
+      "start": 67776,
+      "stop": 67872
+    },
+    {
+      "group": "value_head",
+      "name": "value_hidden_layer.weight",
+      "shape": [
+        48,
+        96
+      ],
+      "start": 67872,
+      "stop": 72480
+    },
+    {
+      "group": "value_head",
+      "name": "value_hidden_layer.bias",
+      "shape": [
+        48
+      ],
+      "start": 72480,
+      "stop": 72528
+    },
+    {
+      "group": "policy_head",
+      "name": "policy_head.weight",
+      "shape": [
+        6,
+        96
+      ],
+      "start": 72528,
+      "stop": 73104
+    },
+    {
+      "group": "policy_head",
+      "name": "policy_head.bias",
+      "shape": [
+        6
+      ],
+      "start": 73104,
+      "stop": 73110
+    },
+    {
+      "group": "value_head",
+      "name": "value_head.weight",
+      "shape": [
+        1,
+        48
+      ],
+      "start": 73110,
+      "stop": 73158
+    },
+    {
+      "group": "value_head",
+      "name": "value_head.bias",
+      "shape": [
+        1
+      ],
+      "start": 73158,
+      "stop": 73159
+    }
+  ],
+  "inputs_sha256": {
+    "docs/data/seed416-policy-target-softening/registration-v3.json": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+    "docs/data/seed416-policy-target-softening/training-freeze-v3/source-row-split.json.gz": "f7b69ab8fd6c19128a29f9ae9a11a7ac42a5d26630368ff74e906f29ddb6be44",
+    "docs/data/seed426-canonical-overlap/seed427-validation-membership.jsonl.gz": "554f3bd016a0f920ef253538d741a91cb27c9882d2dba94cf7509030af8ca385",
+    "docs/data/seed426-canonical-overlap/sources/fresh.jsonl.gz": "5f5062416ae620e4e3491989f19c166d26840b3fead8074323f23eb01211746b",
+    "docs/data/seed426-canonical-overlap/sources/generic_bootstrap.jsonl.gz": "51132b09c453712b8f48ab748e5025b25338681f9f89dd65a1fe2598ca266330",
+    "docs/data/seed426-canonical-overlap/sources/opening_disagreement.jsonl.gz": "5d73b65f57cf3e4199608c5cfbd80fa9656d5f267b5a823b12c7940a80824bdc",
+    "docs/data/seed426-canonical-overlap/sources/random_teacher.jsonl.gz": "fa6f83e3fc6bb3c93f87e9b640b8d58213f526115e3fdf582c96d9b1b7b7d1d7",
+    "docs/data/seed426-canonical-overlap/sources/stability.jsonl.gz": "77de3df0a93f928f8e131566c1f18f83b7d0100874248e2d29a6cb37f6e45b36",
+    "docs/data/seed429-canonical-policy-normalization/training-checkpoints/initializer.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "docs/data/seed442-kl-capped-adam-screen/registration.json": "53797e303dc6b1bc5bcb61c413eb5acd355737e8a65f6608485045b960c80974",
+    "docs/data/seed447-joint-output-cap/T-final.npz": "bcf3e76b12896cd4017aac5a8eda0b938088c9bee216b59d07cfde05c095f026",
+    "docs/data/seed447-joint-output-cap/registration.json": "614bd7b158b6590d5d0114534abcdec3bc7edee977220bfcd5e38d58901021cb",
+    "docs/data/seed449-policy-gain-localization/registration.json": "64b9d824a4d52896b6caeb7993682f214851f129c20dbdc7a48413a70cde62f8"
+  },
+  "objective": "P_F and P_H normalized by respective policy coefficient mass; V mean Huber(delta=1); G_P=rho_F*G_PF+rho_H*G_PH; G_T=G_P+0.3*G_V",
+  "population": "strict unseen >32; U_F fresh compact rows; U_H historical compact rows; preserve duplicate exposures and targets",
+  "schema": "seed451-registration-v1",
+  "source_sha256": {
+    "ml/alphazero_lite/seed451_source_policy_alignment.py": "e4e86990340d53b9fc32266fe5aaa9c2421b251141b76e05490aefb8d32511d8",
+    "ml/alphazero_lite/test_seed451_source_policy_alignment.py": "67edb26776776e7da52adb2347b9523cba14f1363c21fcd4986863e1ae8d7bce",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/verify_seed434_census_source.py": "4b632366f7b1ad920b77c692c0b9993de5420b723deba71bc9d081522789ec51",
+    "ml/alphazero_lite/verify_seed451_source_policy_alignment.py": "15244e1ebdad1e1083e08d65406c5429e06189a7dd13b902e93cf0d4542dec2c"
+  },
+  "sources": [
+    "fresh",
+    "generic_bootstrap",
+    "random_teacher",
+    "opening_disagreement",
+    "stability"
+  ],
+  "status": "frozen_before_gradient_computation",
+  "tolerance": {
+    "absolute": 2e-05,
+    "relative": 2e-05
+  },
+  "value_coefficient_applied_once": true
+}
