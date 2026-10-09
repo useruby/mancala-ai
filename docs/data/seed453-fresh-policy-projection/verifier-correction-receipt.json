@@ -1,0 +1,16 @@
+{
+  "schema": "seed453-verifier-correction-receipt-v1",
+  "files_sha256": {
+    "ml/alphazero_lite/seed453_fresh_policy_projection.py": "18c2997f86d2e6b904d95f35b930605463e2e4ec0f67ae895d6e1409fa48f241",
+    "ml/alphazero_lite/verify_seed453_fresh_policy_projection.py": "f5408f0b34c5f38780c4e242e5429c0a2c1fc6e08e0c704f72ec74f6bdaabcca",
+    "ml/alphazero_lite/test_seed453_fresh_policy_projection.py": "91adf4680234b14d1a9b0d033e20fbd91787cb093d00d5fc87149c542a051d4e",
+    "docs/data/seed453-fresh-policy-projection/verifier-correction.json": "72fa70efefaadbb2ba9aa5871613954a0eabbfa510b124709dd20cee36a1fd8f",
+    "docs/data/seed453-fresh-policy-projection/step-tensors-C.npz": "484252a6e15d70d9be323f186bbf13817c370d5594c6c12d37aa950e0d51d912",
+    "docs/data/seed453-fresh-policy-projection/step-tensors-B.npz": "3d65ca7e3c53ae89dd62306840a3d1d57e48ee89164c34e29d93ba507ae733d3",
+    "docs/data/seed453-fresh-policy-projection/analysis.md": "9a9bb05b26203e59bcf1588ce7eca90f49ecbe67f3f0cabcdaeee9e962c0199b",
+    "docs/data/seed453-fresh-policy-projection/source-snapshots/seed453_fresh_policy_projection.py": "f771df6cc6ce57b05605c940c687b3a3567e435a446f1a73cb600e6cdf590161",
+    "docs/data/seed453-fresh-policy-projection/source-snapshots/verify_seed453_fresh_policy_projection.py": "d374ccd36be1d3eb0cc1f346a330b3196f7d0d1436dded260ff0a297c49893e3"
+  },
+  "protocol_changed": false,
+  "training_rerun": false
+}
