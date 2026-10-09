@@ -1,0 +1,11 @@
+{
+  "audit_sha256": "89982f34d79a6305cedb67805c261ffe79aef45ddc240f84205cc01c817d1a93",
+  "classification": "archived_trajectory_matches_full_guard_rule",
+  "constraints_or_classification_rules_changed": false,
+  "draft_attempt_receipt": "../draft-attempt-receipt.json",
+  "schema": "seed454-supersession-receipt-v1",
+  "scope": "same archived seed453 experiment; retrospective only",
+  "seed453_training_rerun": false,
+  "supersedes": "../audit-registration.json and ../audit.json (unverified draft attempt)",
+  "superseding_registration_sha256": "c4e5aacff3674e97650854d532e4ab910159f79b52207acbfef9c4c49f730e67"
+}

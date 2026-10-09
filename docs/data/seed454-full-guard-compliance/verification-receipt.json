@@ -1,0 +1,60 @@
+{
+  "schema": "seed454-final-verification-receipt-v1",
+  "scope": "retrospective audit of the unchanged archived seed453 experiment",
+  "superseding_version": "superseding-v7",
+  "authoritative_artifact_sha256": {
+    "superseding-v7/audit-registration.json": "712f1536f313b3f28be3e89ab1f6b64167397ad7d63eeab3c788e624429667d6",
+    "superseding-v7/audit.json": "89982f34d79a6305cedb67805c261ffe79aef45ddc240f84205cc01c817d1a93",
+    "superseding-v7/receipt.json": "5073de146e7f5ea1346824a4a8bf999bb7ee87c49ba4ce939b08c7399da5e72f",
+    "superseding-v7/supersession-receipt.json": "8ea5b65b31b1f55eec885080b152380a005cda6023ff4ecce930246fb12fea41",
+    "audit-context.md": "e5ddf5609e9889484cc8b7feb04add3e94b017d8eb9d858ed7158640522676fb",
+    "markdown-normalization-receipt.json": "10062394c430d3c6af21fd771fa93d58ed36b165218ffd3403d5d1fb3a14d261"
+  },
+  "classification": "archived_trajectory_matches_full_guard_rule",
+  "accepted_full_guard_violation_count": 0,
+  "selected_scale_mismatch_count": 0,
+  "trial_count": 256,
+  "guard_counts": {
+    "original_unique_training_inputs": 2048,
+    "fresh_subset_inputs": 1399,
+    "historical_inputs": 649
+  },
+  "preserved_seed453_classification": "close_fresh_policy_projection_branch",
+  "fixed_input_bindings": {
+    "seed453_registration_sha256": "9805cba7e7808217cbb381a11816ba26c2ca5c7f4c9e539a4dd9e2daeb3529fd",
+    "seed453_evidence_sha256": "b87cfc46d4a9b3e338404fe91691c6565cd616016a28b94c5042bbe8ae163d6f",
+    "seed442_original_guard_sha256": "d25c03960d1220c58f5401d9536862ce647a02a5f8d9abcf6ad7174da0c53297"
+  },
+  "verification": {
+    "canonical_seed453_verifier": "valid; 16 steps per arm; existing branch classification unchanged",
+    "independent_seed454_verifier": "valid; reconstructed all 256 trials and classification",
+    "focused_seed454_tests": "9 passed; 0 skipped",
+    "physical_copy_cli": "passed from unrelated working directory with historical absolute derivative paths denied",
+    "publication_read_only_check": "audit publication inventory, hashes, and modification times unchanged across copied CLI verification",
+    "tamper_coverage": [
+      "guard membership",
+      "archived trial tensor with rebound outer publication hashes",
+      "per-trial measurement with rebound publication receipt",
+      "selected scale with rebound publication receipt",
+      "classification with rebound publication receipt",
+      "nonmonotone feasibility",
+      "accepted compliance with selection mismatch"
+    ],
+    "canonical_regressions": "33 passed across seed442, seed447, and seed453 tests",
+    "ruff_lint": "passed",
+    "ruff_format_check": "passed",
+    "script/ai/run_python_quality.sh": "passed"
+  },
+  "prior_attempts": [
+    "draft-attempt-receipt.json",
+    "superseding-v2/attempt-receipt.json",
+    "superseding-v3-attempt-receipt.json",
+    "superseding-v4-attempt-receipt.json",
+    "superseding-v5-attempt-receipt.json",
+    "superseding-v6-attempt-receipt.json"
+  ],
+  "post_freeze_source_bindings": "The superseding-v7 verifier rechecked all frozen live source hashes against their immutable snapshots after audit execution and again after copied-checkout verification.",
+  "no_training_rerun": true,
+  "no_corrected_trajectory_inference": true,
+  "no_promotion_authorization": true
+}

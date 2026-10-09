@@ -1,0 +1,21 @@
+{
+  "schema": "seed454-superseded-attempt-v3-receipt",
+  "status": "superseded-portability-fixture-incomplete",
+  "scope": "same retrospective audit of archived seed453; no training rerun or corrected trajectory",
+  "v3_artifact_sha256": {
+    "audit-registration.json": "a189cfab331cd7d09a9d30f68182a1cf03aaeb2cf716fef2f0057da9ada3a609",
+    "audit.json": "89982f34d79a6305cedb67805c261ffe79aef45ddc240f84205cc01c817d1a93",
+    "receipt.json": "0200592444ffc4da59599288634ade32c17a6373926d573fe1af171388c9e304"
+  },
+  "source_binding": {
+    "registered_publisher_sha256": "b40d55faea86012aab8fe7288ff9f6559073c1ff7b49820820d4e6f087f35ab1",
+    "current_publisher_sha256": "recorded-by-v4-freeze",
+    "unbound_portability_dependencies": [
+      "docs/data/seed426-canonical-overlap/seed427-evaluation-verification-receipt.json",
+      "docs/data/seed426-canonical-overlap/seed427-supplemental-verification-receipt.json"
+    ]
+  },
+  "test_failure": "Physical-copy verifier tests found the seed435 loader's two evaluation receipt dependencies missing from the frozen/copy inventory. The copied checkout therefore failed before semantic audit verification.",
+  "classification": "non-authoritative",
+  "superseded_by": "superseding-v4"
+}

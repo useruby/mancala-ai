@@ -1,0 +1,32 @@
+{
+  "schema": "seed454-draft-attempt-receipt-v1",
+  "status": "superseded-unverified",
+  "scope": "retrospective audit of the same archived seed453 experiment",
+  "source_binding_failure": {
+    "cause": "The end-to-end test source changed after audit-registration.json froze its hash. The earlier claim that all draft source files were reformatted is not supported by the available hash comparison.",
+    "original_frozen_source_sha256": {
+      "ml/alphazero_lite/seed454_analysis.py": "d109ac9c220da628c1c975c8b02e307efd19f89cf2df54d6e14c3e55b30cb9bc",
+      "ml/alphazero_lite/seed454_full_guard_compliance.py": "384ab4b36970b59c58bd2741ae161f501ef99ed6ea859ab838700634a5ed6597",
+      "ml/alphazero_lite/test_seed454_full_guard_compliance.py": "ae0281392733b988076bf29fbe41657b7b4a7c54f53e89f8a02462d14442d0a8",
+      "ml/alphazero_lite/verify_seed454_full_guard_compliance.py": "201f749752eaf6e15b3ec8c255c0cec420d387209200d1bb98906188f3cc6a26"
+    },
+    "currently_available_source_sha256": {
+      "ml/alphazero_lite/seed454_analysis.py": "d109ac9c220da628c1c975c8b02e307efd19f89cf2df54d6e14c3e55b30cb9bc",
+      "ml/alphazero_lite/seed454_full_guard_compliance.py": "384ab4b36970b59c58bd2741ae161f501ef99ed6ea859ab838700634a5ed6597",
+      "ml/alphazero_lite/test_seed454_full_guard_compliance.py": "065e94619e0746783db14ecc79a9a2731cbd71bcd103339e7a2fc7728c67cd22",
+      "ml/alphazero_lite/verify_seed454_full_guard_compliance.py": "201f749752eaf6e15b3ec8c255c0cec420d387209200d1bb98906188f3cc6a26"
+    },
+    "recoverability": "The original frozen test source bytes are not available in committed files or draft source snapshots. Its frozen digest is preserved here; available analysis, publisher, and verifier bytes match their frozen digests."
+  },
+  "draft_publication_sha256": {
+    "docs/data/seed454-full-guard-compliance/audit-registration.json": "b186331346e89bb67eb7fb46aaf3f87b814bbeb96b3bf7c49921a2145971d856",
+    "docs/data/seed454-full-guard-compliance/audit.json": "f21b90b6928aca08da4c43a540b7cfea78c2c8cfd13e1c22d736bbf74ab6912b",
+    "docs/data/seed454-full-guard-compliance/analysis.md": "e7f2ccf423c4f6e2bafbac00a400a927594d0ab09ca21eb806676289bd48fe72"
+  },
+  "limitations": [
+    "The draft verifier checks archived trial tensor interpolation and report predicates but does not independently recompute policy/value measurements.",
+    "Three draft end-to-end tamper tests skipped because they had no root fixture.",
+    "The draft classification is explicitly non-authoritative."
+  ],
+  "seed453_historical_artifacts_modified": false
+}
