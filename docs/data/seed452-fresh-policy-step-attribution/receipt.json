@@ -1,0 +1,15 @@
+{
+  "files_sha256": {
+    "blocks.json": "5ec048e6d05f3c1a88638230290c5940b635ee4b654e83418138c9bf01c54234",
+    "gradients.npz": "b7a7ba79e73621455d4fa78b84d9f46bba23354424c56d704587d642ef33f637",
+    "ordered-predictions-targets.npz": "edbd00a55763a0c0550c02feba07d886776bc90565ac860a0f223bda64cf168d",
+    "parameter-layout.json": "624a974cc2843b818540abdf87905f420965915cd81a795e41ce46349a6c0529",
+    "protocol.json": "e9cdf7bc0ff4a2863ccbee1906a0ac5a016b4499d7ee624ceb1f3f0b1e7f4952",
+    "results.json": "d9899f5dcff8931b33ea5eae4605507792a398e38a5584bbcf263c92ade204e4",
+    "results.md": "15a40e860de0006731b02fc64e06e36dcb8376be59dc906f2cd9b10ca5b7a957",
+    "step-ledger.json": "b1f7d31fac0a6694330579d00826f7ed79eb4fa387c57fb62000e5461eced4b8",
+    "verifier-amendment.json": "5f0fe8a4ccc2c2eedb6a5fc8fa9a4c3a2392f8434e21cfb29d11104f9cca42f7",
+    "verification-report.json": "a3a8239fd64d09bfcb1ecb6c7877125638bad9e66563cf191c6a2578a28c1169"
+  },
+  "schema": "seed452-receipt-v1"
+}

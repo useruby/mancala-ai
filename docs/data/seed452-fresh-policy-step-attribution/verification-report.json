@@ -1,0 +1,23 @@
+{
+  "classification": "recorded_direction_harms_fresh_policy",
+  "rows": 64,
+  "schema": "seed452-independent-verification-report-v1",
+  "seed449_endpoint_discrepancies": {
+    "fresh/equal_exact_input/T_final": -7.354268305448386e-10,
+    "fresh/equal_exact_input/initializer": 1.5759060723041785e-10,
+    "fresh/exposure_weighted/T_final": -7.285783087951359e-10,
+    "fresh/exposure_weighted/initializer": 1.5612355852567816e-10,
+    "historical/equal_exact_input/T_final": 3.403819448521972e-10,
+    "historical/equal_exact_input/initializer": -1.3615251148735297e-09,
+    "historical/exposure_weighted/T_final": 3.409672544307796e-11,
+    "historical/exposure_weighted/initializer": -1.363949841959311e-09
+  },
+  "seed451_fresh_gradient_discrepancies": {
+    "T_final/equal_exact_input": {"l2": 0.0, "max_abs": 0.0},
+    "T_final/exposure": {"l2": 0.0, "max_abs": 0.0},
+    "initializer/equal_exact_input": {"l2": 0.0, "max_abs": 0.0},
+    "initializer/exposure": {"l2": 0.0, "max_abs": 0.0}
+  },
+  "states": 17,
+  "status": "valid"
+}

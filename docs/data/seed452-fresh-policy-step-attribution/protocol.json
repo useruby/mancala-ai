@@ -1,0 +1,273 @@
+{
+  "chunks": {
+    "forward": 512,
+    "gradient": 512
+  },
+  "classification": "D>0 and S>=.75D recorded_direction_harms_fresh_policy; else D>0 and R>=.75D fresh_policy_finite_step_residual_dominant; else mixed_or_no_fresh_policy_regression, separately per weighting",
+  "execution_sha256": {
+    "ml/alphazero_lite/seed452_arithmetic.py": "d3d1a583ec0c01415988124e7e7fad4f1cf5712c064b2f4da9b6c1a91408ee96",
+    "ml/alphazero_lite/seed452_fresh_policy_step_attribution.py": "e13ee38bccae81db6ce52adc8be15c66bf3b1f71061d0c35c10994393e23340e",
+    "ml/alphazero_lite/test_seed452_arithmetic.py": "57261ec245a8b844a0a602b6837223f3685b522b7b95d3362554381e0a66ce2b",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/verify_seed450_seed449_correction.py": "bde7b817d110335a0c889d63ed72b262312fda7012fd1dff6d76289890790f3c",
+    "ml/alphazero_lite/verify_seed452_fresh_policy_step_attribution.py": "397548b10b50af9122d665f4a9666df3418e5771993cf2d454bb387f17bf17ee"
+  },
+  "grouping": "shared trunk, policy head, value head; residual is ungrouped",
+  "input_sha256": {
+    "docs/data/seed416-policy-target-softening/registration-v3.json": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+    "docs/data/seed426-canonical-overlap/seed427-validation-membership.jsonl.gz": "554f3bd016a0f920ef253538d741a91cb27c9882d2dba94cf7509030af8ca385",
+    "docs/data/seed426-canonical-overlap/sources/fresh.jsonl.gz": "5f5062416ae620e4e3491989f19c166d26840b3fead8074323f23eb01211746b",
+    "docs/data/seed426-canonical-overlap/sources/generic_bootstrap.jsonl.gz": "51132b09c453712b8f48ab748e5025b25338681f9f89dd65a1fe2598ca266330",
+    "docs/data/seed426-canonical-overlap/sources/opening_disagreement.jsonl.gz": "5d73b65f57cf3e4199608c5cfbd80fa9656d5f267b5a823b12c7940a80824bdc",
+    "docs/data/seed426-canonical-overlap/sources/random_teacher.jsonl.gz": "fa6f83e3fc6bb3c93f87e9b640b8d58213f526115e3fdf582c96d9b1b7b7d1d7",
+    "docs/data/seed426-canonical-overlap/sources/stability.jsonl.gz": "77de3df0a93f928f8e131566c1f18f83b7d0100874248e2d29a6cb37f6e45b36",
+    "docs/data/seed429-canonical-policy-normalization/training-checkpoints/initializer.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "docs/data/seed447-joint-output-cap/T-final.npz": "bcf3e76b12896cd4017aac5a8eda0b938088c9bee216b59d07cfde05c095f026",
+    "docs/data/seed447-joint-output-cap/receipt.json": "1fb596408ff8564871508813aaa1f5f1434e6dfdf921a7ed0ae9b46266c39122",
+    "docs/data/seed447-joint-output-cap/registration.json": "614bd7b158b6590d5d0114534abcdec3bc7edee977220bfcd5e38d58901021cb",
+    "docs/data/seed447-joint-output-cap/step-tensors.npz": "50ab7c4a3fdeb363ad66b0183790963360287252a272e3f34bde3d11c07632e9",
+    "docs/data/seed449-policy-gain-localization/ordered-row-ledger.jsonl": "c54d0066d5e53d5e4dafad4e9b67b0100ca725d7523335253196b72cc48544ae",
+    "docs/data/seed451-source-policy-alignment/gradient-vectors.npz": "0938970fdbaa70b61a9f9c58826278b463abb97e3c8b76c8337f3f998f301898",
+    "docs/data/seed451-source-policy-alignment/receipt.json": "29eba87beab7a6020b668de737561f73d6363ab0ed441ca7a79ac8482ca30690"
+  },
+  "interpretation": "signed descriptive retrospective attribution; residual contains nonlinear and numerical effects and is not causal mechanism; no follow-on experiment or promotion authorized",
+  "objective": "production legal-action policy cross entropy",
+  "parameter_layout": [
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.0.0.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 0,
+      "stop": 9216
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.0.0.bias",
+      "shape": [
+        96
+      ],
+      "start": 9216,
+      "stop": 9312
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.0.1.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 9312,
+      "stop": 18528
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.0.1.bias",
+      "shape": [
+        96
+      ],
+      "start": 18528,
+      "stop": 18624
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.1.0.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 18624,
+      "stop": 27840
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.1.0.bias",
+      "shape": [
+        96
+      ],
+      "start": 27840,
+      "stop": 27936
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.1.1.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 27936,
+      "stop": 37152
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.1.1.bias",
+      "shape": [
+        96
+      ],
+      "start": 37152,
+      "stop": 37248
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.2.0.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 37248,
+      "stop": 46464
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.2.0.bias",
+      "shape": [
+        96
+      ],
+      "start": 46464,
+      "stop": 46560
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.2.1.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 46560,
+      "stop": 55776
+    },
+    {
+      "group": "shared_trunk",
+      "name": "residual_layers.2.1.bias",
+      "shape": [
+        96
+      ],
+      "start": 55776,
+      "stop": 55872
+    },
+    {
+      "group": "shared_trunk",
+      "name": "input_layer.weight",
+      "shape": [
+        96,
+        27
+      ],
+      "start": 55872,
+      "stop": 58464
+    },
+    {
+      "group": "shared_trunk",
+      "name": "input_layer.bias",
+      "shape": [
+        96
+      ],
+      "start": 58464,
+      "stop": 58560
+    },
+    {
+      "group": "policy_head",
+      "name": "policy_hidden_layer.weight",
+      "shape": [
+        96,
+        96
+      ],
+      "start": 58560,
+      "stop": 67776
+    },
+    {
+      "group": "policy_head",
+      "name": "policy_hidden_layer.bias",
+      "shape": [
+        96
+      ],
+      "start": 67776,
+      "stop": 67872
+    },
+    {
+      "group": "value_head",
+      "name": "value_hidden_layer.weight",
+      "shape": [
+        48,
+        96
+      ],
+      "start": 67872,
+      "stop": 72480
+    },
+    {
+      "group": "value_head",
+      "name": "value_hidden_layer.bias",
+      "shape": [
+        48
+      ],
+      "start": 72480,
+      "stop": 72528
+    },
+    {
+      "group": "policy_head",
+      "name": "policy_head.weight",
+      "shape": [
+        6,
+        96
+      ],
+      "start": 72528,
+      "stop": 73104
+    },
+    {
+      "group": "policy_head",
+      "name": "policy_head.bias",
+      "shape": [
+        6
+      ],
+      "start": 73104,
+      "stop": 73110
+    },
+    {
+      "group": "value_head",
+      "name": "value_head.weight",
+      "shape": [
+        1,
+        48
+      ],
+      "start": 73110,
+      "stop": 73158
+    },
+    {
+      "group": "value_head",
+      "name": "value_head.bias",
+      "shape": [
+        1
+      ],
+      "start": 73158,
+      "stop": 73159
+    }
+  ],
+  "population": {
+    "fresh": {
+      "exposures": 859,
+      "identities": 851
+    },
+    "historical": {
+      "exposures": 1748,
+      "identities": 394
+    },
+    "shared_identities": 3
+  },
+  "schema": "seed452-frozen-protocol-v1",
+  "source_snapshots_sha256": {
+    "fresh": "5f5062416ae620e4e3491989f19c166d26840b3fead8074323f23eb01211746b",
+    "generic_bootstrap": "51132b09c453712b8f48ab748e5025b25338681f9f89dd65a1fe2598ca266330",
+    "opening_disagreement": "5d73b65f57cf3e4199608c5cfbd80fa9656d5f267b5a823b12c7940a80824bdc",
+    "random_teacher": "fa6f83e3fc6bb3c93f87e9b640b8d58213f526115e3fdf582c96d9b1b7b7d1d7",
+    "stability": "77de3df0a93f928f8e131566c1f18f83b7d0100874248e2d29a6cb37f6e45b36"
+  },
+  "status": "frozen_before_diagnostic_gradients",
+  "temporal_scope": "retrospective; seed447 endpoint outcomes are already known",
+  "tolerances": {
+    "absolute": 2e-06,
+    "relative": 2e-06
+  },
+  "trajectory": "17 states from registered initializer and 16 archived T pre/post connections; final equals registered T-final",
+  "weights": "exposure uniform; equal exact identity mass while retaining all exposures and row targets"
+}

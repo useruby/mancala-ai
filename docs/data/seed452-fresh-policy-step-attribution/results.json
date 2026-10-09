@@ -1,0 +1,1036 @@
+{
+  "classification": {
+    "by_weighting": {
+      "equal_exact_input": "recorded_direction_harms_fresh_policy",
+      "exposure_weighted": "recorded_direction_harms_fresh_policy"
+    },
+    "overall": "recorded_direction_harms_fresh_policy"
+  },
+  "cohorts": {
+    "fresh": {
+      "equal_exact_input": {
+        "endpoint_change": 0.016656928701210383,
+        "ledger": [
+          {
+            "cohort": "fresh",
+            "d": -0.0005896430458220969,
+            "group_s": {
+              "policy_head": 6.7369002913080745e-06,
+              "shared_trunk": -0.0008191410717941344,
+              "value_head": 0.0
+            },
+            "post": 1.222466824438366,
+            "pre": 1.2230564674841882,
+            "r": 0.00022276112568072942,
+            "s": -0.0008124041715028263,
+            "step": 1,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.00017417172357436783,
+            "group_s": {
+              "policy_head": 1.4405489610656517e-05,
+              "shared_trunk": -0.000532523948838745,
+              "value_head": 0.0
+            },
+            "post": 1.2226409961619404,
+            "pre": 1.222466824438366,
+            "r": 0.0006922901828024563,
+            "s": -0.0005181184592280884,
+            "step": 2,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0020400458546276923,
+            "group_s": {
+              "policy_head": 8.810541871312518e-05,
+              "shared_trunk": 0.0010971391752962164,
+              "value_head": 0.0
+            },
+            "post": 1.2246810420165681,
+            "pre": 1.2226409961619404,
+            "r": 0.0008548012606183506,
+            "s": 0.0011852445940093417,
+            "step": 3,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0011289021313261038,
+            "group_s": {
+              "policy_head": 4.4386066269511964e-05,
+              "shared_trunk": 0.0007163122830562852,
+              "value_head": 0.0
+            },
+            "post": 1.2258099441478942,
+            "pre": 1.2246810420165681,
+            "r": 0.00036820378200030663,
+            "s": 0.0007606983493257972,
+            "step": 4,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0015357226509815636,
+            "group_s": {
+              "policy_head": 0.00012759747808913294,
+              "shared_trunk": 0.0011589587744412955,
+              "value_head": 0.0
+            },
+            "post": 1.2273456667988758,
+            "pre": 1.2258099441478942,
+            "r": 0.00024916639845113503,
+            "s": 0.0012865562525304285,
+            "step": 5,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0015636345351905945,
+            "group_s": {
+              "policy_head": 0.00013938309653143525,
+              "shared_trunk": 0.0012632724291751383,
+              "value_head": 0.0
+            },
+            "post": 1.2289093013340664,
+            "pre": 1.2273456667988758,
+            "r": 0.0001609790094840209,
+            "s": 0.0014026555257065736,
+            "step": 6,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0013035871394933007,
+            "group_s": {
+              "policy_head": 0.00015012852637306454,
+              "shared_trunk": 0.0010225906627638359,
+              "value_head": 0.0
+            },
+            "post": 1.2302128884735597,
+            "pre": 1.2289093013340664,
+            "r": 0.00013086795035640057,
+            "s": 0.0011727191891369002,
+            "step": 7,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0008317563687172402,
+            "group_s": {
+              "policy_head": 0.00010212870351349865,
+              "shared_trunk": 0.0006503985339053512,
+              "value_head": 0.0
+            },
+            "post": 1.231044644842277,
+            "pre": 1.2302128884735597,
+            "r": 7.922913129839023e-05,
+            "s": 0.00075252723741885,
+            "step": 8,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0014945639540320244,
+            "group_s": {
+              "policy_head": 0.0001614734867129177,
+              "shared_trunk": 0.0012685517756740744,
+              "value_head": 0.0
+            },
+            "post": 1.232539208796309,
+            "pre": 1.231044644842277,
+            "r": 6.453869164503253e-05,
+            "s": 0.0014300252623869918,
+            "step": 9,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0008036384860230505,
+            "group_s": {
+              "policy_head": 8.702409203502481e-05,
+              "shared_trunk": 0.0006400897074542393,
+              "value_head": 0.0
+            },
+            "post": 1.233342847282332,
+            "pre": 1.232539208796309,
+            "r": 7.652468653378632e-05,
+            "s": 0.0007271137994892642,
+            "step": 10,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0012833927872948347,
+            "group_s": {
+              "policy_head": 9.451127629426285e-05,
+              "shared_trunk": 0.0011343166509021538,
+              "value_head": 0.0
+            },
+            "post": 1.2346262400696268,
+            "pre": 1.233342847282332,
+            "r": 5.4564860098417836e-05,
+            "s": 0.001228827927196417,
+            "step": 11,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.000883126327139605,
+            "group_s": {
+              "policy_head": 7.545155274196143e-05,
+              "shared_trunk": 0.000732908283605449,
+              "value_head": 0.0
+            },
+            "post": 1.2355093663967665,
+            "pre": 1.2346262400696268,
+            "r": 7.47664907921943e-05,
+            "s": 0.0008083598363474107,
+            "step": 12,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0018987213638990141,
+            "group_s": {
+              "policy_head": 0.00017217994062603974,
+              "shared_trunk": 0.0015161045327777845,
+              "value_head": 0.0
+            },
+            "post": 1.2374080877606655,
+            "pre": 1.2355093663967665,
+            "r": 0.00021043689049519022,
+            "s": 0.001688284473403824,
+            "step": 13,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.002590740723349416,
+            "group_s": {
+              "policy_head": 0.00021540380236249098,
+              "shared_trunk": 0.0021307042223913633,
+              "value_head": 0.0
+            },
+            "post": 1.2399988284840149,
+            "pre": 1.2374080877606655,
+            "r": 0.00024463269859556144,
+            "s": 0.0023461080247538547,
+            "step": 14,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0008355005481197608,
+            "group_s": {
+              "policy_head": 5.172743192016931e-05,
+              "shared_trunk": 0.0006228642119785363,
+              "value_head": 0.0
+            },
+            "post": 1.2408343290321346,
+            "pre": 1.2399988284840149,
+            "r": 0.00016090890422105532,
+            "s": 0.0006745916438987055,
+            "step": 15,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "fresh",
+            "d": -0.001120932846736089,
+            "group_s": {
+              "policy_head": -7.94885832367088e-05,
+              "shared_trunk": -0.0012435018452422101,
+              "value_head": 0.0
+            },
+            "post": 1.2397133961853986,
+            "pre": 1.2408343290321346,
+            "r": 0.00020205758174282953,
+            "s": -0.0013229904284789186,
+            "step": 16,
+            "weighting": "equal_exact_input"
+          }
+        ],
+        "totals": {
+          "D": 0.016656928701210383,
+          "R": 0.003846729644815857,
+          "S": 0.012810199056394526
+        }
+      },
+      "exposure_weighted": {
+        "endpoint_change": 0.015751975379251215,
+        "ledger": [
+          {
+            "cohort": "fresh",
+            "d": -0.0006534763209615768,
+            "group_s": {
+              "policy_head": 9.223223941663668e-07,
+              "shared_trunk": -0.0008819045319584169,
+              "value_head": 0.0
+            },
+            "post": 1.2204486258605514,
+            "pre": 1.221102102181513,
+            "r": 0.00022750588860267356,
+            "s": -0.0008809822095642504,
+            "step": 1,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "fresh",
+            "d": 5.1163110938112766e-05,
+            "group_s": {
+              "policy_head": 4.983872824749999e-06,
+              "shared_trunk": -0.0006549948625551553,
+              "value_head": 0.0
+            },
+            "post": 1.2204997889714895,
+            "pre": 1.2204486258605514,
+            "r": 0.0007011741006685182,
+            "s": -0.0006500109897304054,
+            "step": 2,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0019077794481074939,
+            "group_s": {
+              "policy_head": 7.879737795060611e-05,
+              "shared_trunk": 0.0009778737544596725,
+              "value_head": 0.0
+            },
+            "post": 1.222407568419597,
+            "pre": 1.2204997889714895,
+            "r": 0.0008511083156972153,
+            "s": 0.0010566711324102786,
+            "step": 3,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0010030002477421363,
+            "group_s": {
+              "policy_head": 4.040925198880847e-05,
+              "shared_trunk": 0.0005932525312325119,
+              "value_head": 0.0
+            },
+            "post": 1.223410568667339,
+            "pre": 1.222407568419597,
+            "r": 0.000369338464520816,
+            "s": 0.0006336617832213203,
+            "step": 4,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0014384231542057258,
+            "group_s": {
+              "policy_head": 0.0001230637067608118,
+              "shared_trunk": 0.0010631390800734922,
+              "value_head": 0.0
+            },
+            "post": 1.2248489918215448,
+            "pre": 1.223410568667339,
+            "r": 0.0002522203673714222,
+            "s": 0.0011862027868343036,
+            "step": 5,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0014833633346662545,
+            "group_s": {
+              "policy_head": 0.00013477885759535368,
+              "shared_trunk": 0.001186055399033395,
+              "value_head": 0.0
+            },
+            "post": 1.226332355156211,
+            "pre": 1.2248489918215448,
+            "r": 0.00016252907803750573,
+            "s": 0.0013208342566287487,
+            "step": 6,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0012567140014541067,
+            "group_s": {
+              "policy_head": 0.00014721852527096462,
+              "shared_trunk": 0.0009810959690236894,
+              "value_head": 0.0
+            },
+            "post": 1.2275890691576652,
+            "pre": 1.226332355156211,
+            "r": 0.00012839950715945285,
+            "s": 0.0011283144942946539,
+            "step": 7,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.000799856334057214,
+            "group_s": {
+              "policy_head": 0.00010061564620143768,
+              "shared_trunk": 0.000621931843002932,
+              "value_head": 0.0
+            },
+            "post": 1.2283889254917224,
+            "pre": 1.2275890691576652,
+            "r": 7.730884485284426e-05,
+            "s": 0.0007225474892043698,
+            "step": 8,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0014561681560434359,
+            "group_s": {
+              "policy_head": 0.00015823511607311188,
+              "shared_trunk": 0.0012376576433824054,
+              "value_head": 0.0
+            },
+            "post": 1.2298450936477658,
+            "pre": 1.2283889254917224,
+            "r": 6.02753965879188e-05,
+            "s": 0.001395892759455517,
+            "step": 9,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0007722060888903926,
+            "group_s": {
+              "policy_head": 8.42200375536663e-05,
+              "shared_trunk": 0.0006115953444625604,
+              "value_head": 0.0
+            },
+            "post": 1.2306172997366562,
+            "pre": 1.2298450936477658,
+            "r": 7.639070687416583e-05,
+            "s": 0.0006958153820162267,
+            "step": 10,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0012539157533324463,
+            "group_s": {
+              "policy_head": 9.199467016422603e-05,
+              "shared_trunk": 0.001106927702811122,
+              "value_head": 0.0
+            },
+            "post": 1.2318712154899887,
+            "pre": 1.2306172997366562,
+            "r": 5.499338035709861e-05,
+            "s": 0.0011989223729753477,
+            "step": 11,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0008684225614605801,
+            "group_s": {
+              "policy_head": 7.378526135951653e-05,
+              "shared_trunk": 0.000718732179923924,
+              "value_head": 0.0
+            },
+            "post": 1.2327396380514493,
+            "pre": 1.2318712154899887,
+            "r": 7.590512017713953e-05,
+            "s": 0.0007925174412834405,
+            "step": 12,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0018683629407525437,
+            "group_s": {
+              "policy_head": 0.00016655855432358348,
+              "shared_trunk": 0.0014884349567909246,
+              "value_head": 0.0
+            },
+            "post": 1.2346080009922018,
+            "pre": 1.2327396380514493,
+            "r": 0.00021336942963803645,
+            "s": 0.0016549935111145073,
+            "step": 13,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0025643538661968,
+            "group_s": {
+              "policy_head": 0.00021138284562275913,
+              "shared_trunk": 0.0021069530833848302,
+              "value_head": 0.0
+            },
+            "post": 1.2371723548583986,
+            "pre": 1.2346080009922018,
+            "r": 0.0002460179371892102,
+            "s": 0.00231833592900759,
+            "step": 14,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "fresh",
+            "d": 0.0008086838712861866,
+            "group_s": {
+              "policy_head": 5.102118064216039e-05,
+              "shared_trunk": 0.0005961607007563925,
+              "value_head": 0.0
+            },
+            "post": 1.2379810387296848,
+            "pre": 1.2371723548583986,
+            "r": 0.00016150198988763343,
+            "s": 0.0006471818813985531,
+            "step": 15,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "fresh",
+            "d": -0.0011269611689206371,
+            "group_s": {
+              "policy_head": -7.75797480902806e-05,
+              "shared_trunk": -0.0012526069784710425,
+              "value_head": 0.0
+            },
+            "post": 1.2368540775607642,
+            "pre": 1.2379810387296848,
+            "r": 0.00020322555764068603,
+            "s": -0.0013301867265613232,
+            "step": 16,
+            "weighting": "exposure_weighted"
+          }
+        ],
+        "totals": {
+          "D": 0.015751975379251215,
+          "R": 0.003861264085262337,
+          "S": 0.011890711293988878
+        }
+      }
+    },
+    "historical": {
+      "equal_exact_input": {
+        "endpoint_change": -0.03972097978629363,
+        "ledger": [
+          {
+            "cohort": "historical",
+            "d": -0.004536857291923546,
+            "group_s": {
+              "policy_head": -0.0003711155346422726,
+              "shared_trunk": -0.0044323465159451314,
+              "value_head": 0.0
+            },
+            "post": 1.1377611958158602,
+            "pre": 1.1422980531077838,
+            "r": 0.00026660475866385844,
+            "s": -0.004803462050587405,
+            "step": 1,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.007133837870846982,
+            "group_s": {
+              "policy_head": -0.0005260549483114799,
+              "shared_trunk": -0.007584020503532967,
+              "value_head": 0.0
+            },
+            "post": 1.1306273579450132,
+            "pre": 1.1377611958158602,
+            "r": 0.0009762375809974633,
+            "s": -0.008110075451844445,
+            "step": 2,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.005751076940362143,
+            "group_s": {
+              "policy_head": -0.0004429367150246068,
+              "shared_trunk": -0.006366183502694208,
+              "value_head": 0.0
+            },
+            "post": 1.124876281004651,
+            "pre": 1.1306273579450132,
+            "r": 0.0010580432773566713,
+            "s": -0.0068091202177188144,
+            "step": 3,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.002113550389658325,
+            "group_s": {
+              "policy_head": -0.00013753650888973136,
+              "shared_trunk": -0.002429847989695096,
+              "value_head": 0.0
+            },
+            "post": 1.1227627306149928,
+            "pre": 1.124876281004651,
+            "r": 0.00045383410892650125,
+            "s": -0.0025673844985848264,
+            "step": 4,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.0024487600396283504,
+            "group_s": {
+              "policy_head": -0.00017985236408957412,
+              "shared_trunk": -0.0024901070516009146,
+              "value_head": 0.0
+            },
+            "post": 1.1203139705753644,
+            "pre": 1.1227627306149928,
+            "r": 0.0002211993760621385,
+            "s": -0.002669959415690489,
+            "step": 5,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.002325662695795039,
+            "group_s": {
+              "policy_head": -0.00014316815474999732,
+              "shared_trunk": -0.0023074264277472612,
+              "value_head": 0.0
+            },
+            "post": 1.1179883078795694,
+            "pre": 1.1203139705753644,
+            "r": 0.0001249318867022199,
+            "s": -0.0024505945824972587,
+            "step": 6,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.0019385231435835593,
+            "group_s": {
+              "policy_head": -0.00012013027873452135,
+              "shared_trunk": -0.0019965151412079233,
+              "value_head": 0.0
+            },
+            "post": 1.1160497847359858,
+            "pre": 1.1179883078795694,
+            "r": 0.00017812227635888517,
+            "s": -0.0021166454199424444,
+            "step": 7,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.0014052262400510163,
+            "group_s": {
+              "policy_head": -6.0890122062414045e-05,
+              "shared_trunk": -0.0014315658884881109,
+              "value_head": 0.0
+            },
+            "post": 1.1146445584959348,
+            "pre": 1.1160497847359858,
+            "r": 8.722977049950911e-05,
+            "s": -0.0014924560105505254,
+            "step": 8,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.0018986063668986475,
+            "group_s": {
+              "policy_head": -0.0001186181126395095,
+              "shared_trunk": -0.0018673695838716598,
+              "value_head": 0.0
+            },
+            "post": 1.1127459521290362,
+            "pre": 1.1146445584959348,
+            "r": 8.738132961252226e-05,
+            "s": -0.0019859876965111697,
+            "step": 9,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.0014733190643527738,
+            "group_s": {
+              "policy_head": -4.5079296771057876e-05,
+              "shared_trunk": -0.0015297087952389286,
+              "value_head": 0.0
+            },
+            "post": 1.1112726330646834,
+            "pre": 1.1127459521290362,
+            "r": 0.00010146902765721232,
+            "s": -0.0015747880920099861,
+            "step": 10,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.0017463635714718428,
+            "group_s": {
+              "policy_head": -6.403470777646835e-05,
+              "shared_trunk": -0.0017292655721516227,
+              "value_head": 0.0
+            },
+            "post": 1.1095262694932115,
+            "pre": 1.1112726330646834,
+            "r": 4.69367084562479e-05,
+            "s": -0.0017933002799280907,
+            "step": 11,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.0014824178298327162,
+            "group_s": {
+              "policy_head": -5.376783069179032e-05,
+              "shared_trunk": -0.0015532470376795353,
+              "value_head": 0.0
+            },
+            "post": 1.1080438516633788,
+            "pre": 1.1095262694932115,
+            "r": 0.00012459703853860888,
+            "s": -0.001607014868371325,
+            "step": 12,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.002060278496104573,
+            "group_s": {
+              "policy_head": -0.00010806072621150858,
+              "shared_trunk": -0.0022745543003252367,
+              "value_head": 0.0
+            },
+            "post": 1.1059835731672742,
+            "pre": 1.1080438516633788,
+            "r": 0.00032233653043217247,
+            "s": -0.0023826150265367453,
+            "step": 13,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.0019435803335028368,
+            "group_s": {
+              "policy_head": -0.00012892661432626896,
+              "shared_trunk": -0.0020988918797600286,
+              "value_head": 0.0
+            },
+            "post": 1.1040399928337714,
+            "pre": 1.1059835731672742,
+            "r": 0.0002842381605834615,
+            "s": -0.0022278184940862982,
+            "step": 14,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.001444963126895349,
+            "group_s": {
+              "policy_head": -0.00010049247119524291,
+              "shared_trunk": -0.0015735300968189444,
+              "value_head": 0.0
+            },
+            "post": 1.102595029706876,
+            "pre": 1.1040399928337714,
+            "r": 0.0002290594411188385,
+            "s": -0.0016740225680141874,
+            "step": 15,
+            "weighting": "equal_exact_input"
+          },
+          {
+            "cohort": "historical",
+            "d": -1.795638538593103e-05,
+            "group_s": {
+              "policy_head": -6.638490205078977e-07,
+              "shared_trunk": -0.00030023719463639974,
+              "value_head": 0.0
+            },
+            "post": 1.1025770733214901,
+            "pre": 1.102595029706876,
+            "r": 0.0002829446582709765,
+            "s": -0.00030090104365690753,
+            "step": 16,
+            "weighting": "equal_exact_input"
+          }
+        ],
+        "totals": {
+          "D": -0.03972097978629363,
+          "R": 0.004845165930237288,
+          "S": -0.04456614571653092
+        }
+      },
+      "exposure_weighted": {
+        "endpoint_change": -0.042646428546708526,
+        "ledger": [
+          {
+            "cohort": "historical",
+            "d": -0.004770866454551381,
+            "group_s": {
+              "policy_head": -0.00039846960785870574,
+              "shared_trunk": -0.004637747255004554,
+              "value_head": 0.0
+            },
+            "post": 1.1411593438933862,
+            "pre": 1.1459302103479376,
+            "r": 0.0002653504083118775,
+            "s": -0.005036216862863259,
+            "step": 1,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.007318632968102312,
+            "group_s": {
+              "policy_head": -0.0005482639097844622,
+              "shared_trunk": -0.007753880199890748,
+              "value_head": 0.0
+            },
+            "post": 1.133840710925284,
+            "pre": 1.1411593438933862,
+            "r": 0.0009835111415728987,
+            "s": -0.00830214410967521,
+            "step": 2,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.006076739471218229,
+            "group_s": {
+              "policy_head": -0.00048036592453445676,
+              "shared_trunk": -0.006668551852154175,
+              "value_head": 0.0
+            },
+            "post": 1.1277639714540657,
+            "pre": 1.133840710925284,
+            "r": 0.0010721783054704016,
+            "s": -0.00714891777668863,
+            "step": 3,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.002445397458467724,
+            "group_s": {
+              "policy_head": -0.00017826205556445703,
+              "shared_trunk": -0.002720638547905738,
+              "value_head": 0.0
+            },
+            "post": 1.125318573995598,
+            "pre": 1.1277639714540657,
+            "r": 0.00045350314500247147,
+            "s": -0.0028989006034701955,
+            "step": 4,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.0027898392699725605,
+            "group_s": {
+              "policy_head": -0.00020794744940916366,
+              "shared_trunk": -0.0028103276941648463,
+              "value_head": 0.0
+            },
+            "post": 1.1225287347256254,
+            "pre": 1.125318573995598,
+            "r": 0.00022843587360144892,
+            "s": -0.0030182751435740094,
+            "step": 5,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.002717134812356914,
+            "group_s": {
+              "policy_head": -0.0001716996083276168,
+              "shared_trunk": -0.0026738853488249637,
+              "value_head": 0.0
+            },
+            "post": 1.1198115999132685,
+            "pre": 1.1225287347256254,
+            "r": 0.00012845014479566678,
+            "s": -0.0028455849571525807,
+            "step": 6,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.002224476090515015,
+            "group_s": {
+              "policy_head": -0.00013635830618810918,
+              "shared_trunk": -0.002273621505235714,
+              "value_head": 0.0
+            },
+            "post": 1.1175871238227535,
+            "pre": 1.1198115999132685,
+            "r": 0.00018550372090880797,
+            "s": -0.002409979811423823,
+            "step": 7,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.0016178857850537298,
+            "group_s": {
+              "policy_head": -6.654654252943363e-05,
+              "shared_trunk": -0.0016401515598284447,
+              "value_head": 0.0
+            },
+            "post": 1.1159692380376998,
+            "pre": 1.1175871238227535,
+            "r": 8.881231730414863e-05,
+            "s": -0.0017066981023578784,
+            "step": 8,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.0021004925974275057,
+            "group_s": {
+              "policy_head": -0.00012271832703899193,
+              "shared_trunk": -0.00206655047025727,
+              "value_head": 0.0
+            },
+            "post": 1.1138687454402723,
+            "pre": 1.1159692380376998,
+            "r": 8.87761998687557e-05,
+            "s": -0.0021892687972962614,
+            "step": 9,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.0016797460590061153,
+            "group_s": {
+              "policy_head": -5.585077672803796e-05,
+              "shared_trunk": -0.001733143216338755,
+              "value_head": 0.0
+            },
+            "post": 1.1121889993812661,
+            "pre": 1.1138687454402723,
+            "r": 0.00010924793406067823,
+            "s": -0.0017889939930667935,
+            "step": 10,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.0018613611878635083,
+            "group_s": {
+              "policy_head": -7.060504714748633e-05,
+              "shared_trunk": -0.00184273667664598,
+              "value_head": 0.0
+            },
+            "post": 1.1103276381934026,
+            "pre": 1.1121889993812661,
+            "r": 5.1980535929958046e-05,
+            "s": -0.0019133417237934664,
+            "step": 11,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.001588539386624177,
+            "group_s": {
+              "policy_head": -5.6906613379825935e-05,
+              "shared_trunk": -0.0016585863509536506,
+              "value_head": 0.0
+            },
+            "post": 1.1087390988067785,
+            "pre": 1.1103276381934026,
+            "r": 0.00012695357770929985,
+            "s": -0.0017154929643334769,
+            "step": 12,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.0022789428129930123,
+            "group_s": {
+              "policy_head": -0.00012865727715280376,
+              "shared_trunk": -0.002472640129442369,
+              "value_head": 0.0
+            },
+            "post": 1.1064601559937854,
+            "pre": 1.1087390988067785,
+            "r": 0.00032235459360216,
+            "s": -0.0026012974065951723,
+            "step": 13,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.0020074320432794668,
+            "group_s": {
+              "policy_head": -0.0001384153285085538,
+              "shared_trunk": -0.002165766092053549,
+              "value_head": 0.0
+            },
+            "post": 1.104452723950506,
+            "pre": 1.1064601559937854,
+            "r": 0.0002967493772826359,
+            "s": -0.0023041814205621027,
+            "step": 14,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "historical",
+            "d": -0.0013531425230426386,
+            "group_s": {
+              "policy_head": -0.00010014459651832945,
+              "shared_trunk": -0.0014868467607326399,
+              "value_head": 0.0
+            },
+            "post": 1.1030995814274633,
+            "pre": 1.104452723950506,
+            "r": 0.0002338488342083307,
+            "s": -0.0015869913572509693,
+            "step": 15,
+            "weighting": "exposure_weighted"
+          },
+          {
+            "cohort": "historical",
+            "d": 0.00018420037376576381,
+            "group_s": {
+              "policy_head": 1.0725727213025475e-05,
+              "shared_trunk": -0.00011513766974776119,
+              "value_head": 0.0
+            },
+            "post": 1.103283781801229,
+            "pre": 1.1030995814274633,
+            "r": 0.00028861231630049957,
+            "s": -0.00010441194253473574,
+            "step": 16,
+            "weighting": "exposure_weighted"
+          }
+        ],
+        "totals": {
+          "D": -0.042646428546708526,
+          "R": 0.004924268425930039,
+          "S": -0.04757069697263856
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Seed447 endpoint outcomes were known before this retrospective diagnostic.",
+    "Residual includes nonlinear and numerical effects and is not a causal mechanism or pure curvature.",
+    "No replay-weight change, optimizer change, training, strength evaluation, export, or promotion is authorized."
+  ],
+  "path_states": 17,
+  "population": {
+    "fresh": {
+      "exposures": 859,
+      "identities": 851
+    },
+    "historical": {
+      "exposures": 1748,
+      "identities": 394
+    },
+    "shared_identities": 3
+  },
+  "row_count": 64,
+  "schema": "seed452-results-v1",
+  "status": "retrospective_frozen_trajectory_attribution",
+  "step_count": 16
+}
