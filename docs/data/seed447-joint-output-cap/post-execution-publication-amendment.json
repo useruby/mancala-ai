@@ -1,0 +1,10 @@
+{
+  "schema": "seed447-post-execution-publication-amendment-v1",
+  "reason": "Add human-readable analysis and separately bind the post-execution verifier amendment without changing any frozen experiment file.",
+  "frozen_registration_sha256": "614bd7b158b6590d5d0114534abcdec3bc7edee977220bfcd5e38d58901021cb",
+  "frozen_receipt_sha256": "1fb596408ff8564871508813aaa1f5f1434e6dfdf921a7ed0ae9b46266c39122",
+  "supplemental_files_sha256": {
+    "analysis.md": "5f306e4cfbf9cb8d9c9c42af554cc4f4d5279cfea65834817a2f453800f92435",
+    "verifier-amendment-receipt.json": "89680f07172cb82e9ed5dc17987c79a431f94bf87bcb3c276bc0eb018ecbb4b9"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "amendment_source": "ml/alphazero_lite/verify_seed447_joint_output_cap_amendment.py",
+  "amendment_source_sha256": "ff12627b1778404bbd120e4727224b71c86074b0bd0c273e242ea39228c24433",
+  "frozen_receipt_sha256": "1fb596408ff8564871508813aaa1f5f1434e6dfdf921a7ed0ae9b46266c39122",
+  "frozen_verifier_sha256": "31ea1483a148c881af6e115ee6ef5e791398d7a75991a2f4c0c2d316faee00cb",
+  "reason": "frozen verifier passed NumPy arrays to Torch-only seed442 trial setter",
+  "result": {
+    "classification": "close_joint_output_cap_branch",
+    "population": {
+      "exposures": 2607,
+      "unique_inputs": 1242
+    },
+    "status": "valid",
+    "steps_per_arm": 16,
+    "verifier_amendment": "numpy_trial_setter_dispatch_v1"
+  },
+  "schema": "seed447-verifier-amendment-receipt-v1"
+}

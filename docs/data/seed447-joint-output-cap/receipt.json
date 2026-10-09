@@ -1,0 +1,20 @@
+{
+  "evidence_files_sha256": {
+    "docs/data/seed447-joint-output-cap/C-final.npz": "4302216db4e359d3045ca00a01ab81f04b9ea85195432ca8cd6aaabd50cad2db",
+    "docs/data/seed447-joint-output-cap/C-predictions.npz": "f141af7549aff71ed79fa469dda456a2f9fb3703c9d6c4cc3381d138ab3d6ffd",
+    "docs/data/seed447-joint-output-cap/T-final.npz": "bcf3e76b12896cd4017aac5a8eda0b938088c9bee216b59d07cfde05c095f026",
+    "docs/data/seed447-joint-output-cap/T-predictions.npz": "f0ca106216fd061f89f4c7d5e2e9fa2cbd249dbb894b55e26f643b3077fe3f22",
+    "docs/data/seed447-joint-output-cap/evidence.json": "235b1b25ebc8af1296e9c2079b32e7bf266d524a986445c123c01107d3993c38",
+    "docs/data/seed447-joint-output-cap/initializer-predictions.npz": "654e6b97553684c2ad9436025245813b6daf5ce4591d1c566f1eb8b5b1148969",
+    "docs/data/seed447-joint-output-cap/ordered-targets.npz": "ea801c7a7a7adc28cc7eb5c2b22a5e5a268e91052250924e907b4df0a8b734c7",
+    "docs/data/seed447-joint-output-cap/registration.json": "614bd7b158b6590d5d0114534abcdec3bc7edee977220bfcd5e38d58901021cb",
+    "docs/data/seed447-joint-output-cap/source-snapshots/seed447_analysis.py": "36d5e7c5ff72a873dd7e36d7b4e35829c230bf77689cf51cb5692c412bed4ebf",
+    "docs/data/seed447-joint-output-cap/source-snapshots/seed447_joint_output_cap.py": "d5714115025be65062d36b9f6898a157f49ff4a3ecc29700ff0c9316b34bd16a",
+    "docs/data/seed447-joint-output-cap/source-snapshots/test_seed447_joint_output_cap.py": "4d4c03c213fb40d5aabdb8ce29938db2723568c0209fd4232a61eadc695865fd",
+    "docs/data/seed447-joint-output-cap/source-snapshots/verify_seed447_joint_output_cap.py": "31ea1483a148c881af6e115ee6ef5e791398d7a75991a2f4c0c2d316faee00cb",
+    "docs/data/seed447-joint-output-cap/step-tensors.npz": "50ab7c4a3fdeb363ad66b0183790963360287252a272e3f34bde3d11c07632e9"
+  },
+  "interpretation": "prospective short retrospective-population screen; not evidence of playing strength",
+  "registration_sha256": "614bd7b158b6590d5d0114534abcdec3bc7edee977220bfcd5e38d58901021cb",
+  "schema": "seed447-publication-receipt-v1"
+}
