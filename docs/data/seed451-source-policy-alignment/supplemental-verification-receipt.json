@@ -1,0 +1,52 @@
+{
+  "canonical_command": ".venv-azlite/bin/python -m ml.alphazero_lite.verify_seed451_gradient_reconstruction --root CHECKOUT_ROOT",
+  "classification": "mixed_or_checkpoint_dependent_alignment",
+  "dependency_files_sha256": {
+    "ml/alphazero_lite/requirements.txt": "adeaa2efa276ab8f3fa3a74c90f3f533fd9ed53c5af1a7960d35335464fe1a84",
+    "requirements-dev.txt": "870c9cfb355177fad0bc803ad47006a9bc6da50ca2c04d1bc39c7d15405ed113"
+  },
+  "immutable_seed451_publication_receipt_sha256": "29eba87beab7a6020b668de737561f73d6363ab0ed441ca7a79ac8482ca30690",
+  "immutable_seed451_registration_sha256": "324795e1cde0d236051464704ca98dea7113505b8cd0cdaced94020951ded3ae",
+  "independent_report_sha256": "b2c81acd141833a509bbe496f8f9b695e029e79517f4914e45291fc4920637c1",
+  "input_and_historical_evidence_sha256": {
+    "docs/data/seed416-policy-target-softening/registration-v3.json": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+    "docs/data/seed416-policy-target-softening/training-freeze-v3/source-row-split.json.gz": "f7b69ab8fd6c19128a29f9ae9a11a7ac42a5d26630368ff74e906f29ddb6be44",
+    "docs/data/seed426-canonical-overlap/seed427-validation-membership.jsonl.gz": "554f3bd016a0f920ef253538d741a91cb27c9882d2dba94cf7509030af8ca385",
+    "docs/data/seed426-canonical-overlap/sources/fresh.jsonl.gz": "5f5062416ae620e4e3491989f19c166d26840b3fead8074323f23eb01211746b",
+    "docs/data/seed426-canonical-overlap/sources/generic_bootstrap.jsonl.gz": "51132b09c453712b8f48ab748e5025b25338681f9f89dd65a1fe2598ca266330",
+    "docs/data/seed426-canonical-overlap/sources/opening_disagreement.jsonl.gz": "5d73b65f57cf3e4199608c5cfbd80fa9656d5f267b5a823b12c7940a80824bdc",
+    "docs/data/seed426-canonical-overlap/sources/random_teacher.jsonl.gz": "fa6f83e3fc6bb3c93f87e9b640b8d58213f526115e3fdf582c96d9b1b7b7d1d7",
+    "docs/data/seed426-canonical-overlap/sources/stability.jsonl.gz": "77de3df0a93f928f8e131566c1f18f83b7d0100874248e2d29a6cb37f6e45b36",
+    "docs/data/seed429-canonical-policy-normalization/training-checkpoints/initializer.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "docs/data/seed442-kl-capped-adam-screen/registration.json": "53797e303dc6b1bc5bcb61c413eb5acd355737e8a65f6608485045b960c80974",
+    "docs/data/seed447-joint-output-cap/T-final.npz": "bcf3e76b12896cd4017aac5a8eda0b938088c9bee216b59d07cfde05c095f026",
+    "docs/data/seed447-joint-output-cap/registration.json": "614bd7b158b6590d5d0114534abcdec3bc7edee977220bfcd5e38d58901021cb",
+    "docs/data/seed449-policy-gain-localization/registration.json": "64b9d824a4d52896b6caeb7993682f214851f129c20dbdc7a48413a70cde62f8",
+    "docs/data/seed451-source-policy-alignment/gradient-vectors.npz": "0938970fdbaa70b61a9f9c58826278b463abb97e3c8b76c8337f3f998f301898",
+    "docs/data/seed451-source-policy-alignment/receipt.json": "29eba87beab7a6020b668de737561f73d6363ab0ed441ca7a79ac8482ca30690",
+    "docs/data/seed451-source-policy-alignment/registration.json": "324795e1cde0d236051464704ca98dea7113505b8cd0cdaced94020951ded3ae",
+    "docs/data/seed451-source-policy-alignment/results.json": "5fae410bdd92037518e4f1fadfdb14759ca246fb3c002553b9c932cf18a18bf8",
+    "docs/data/seed451-source-policy-alignment/results.md": "d0d407d718043d59252dd74a88c680dd87a2c41fd1b26be3da006145d816edc1"
+  },
+  "observation_order": "original registration and gradient publication predate this supplemental verifier; no publisher rerun occurred",
+  "runtime_dependencies": {
+    "numpy": "2.5.2",
+    "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+    "torch": "2.13.0+cu130"
+  },
+  "schema": "seed451-post-execution-verification-receipt-v1",
+  "status": "independent_gradient_reconstruction_completed_post_execution",
+  "verification_instructions_sha256": "a655abe9678015ffb508f9ca290d1b2520a065fa8e22e284c5adf5aeddc20be7",
+  "verification_sources_sha256": {
+    "ml/alphazero_lite/publish_seed451_verification_receipt.py": "be4fb888117d5ff0e025f05cf23ab6c535669b812ac45ca571281990d9ad7154",
+    "ml/alphazero_lite/seed416_policy_target_softening.py": "f9c4b0ba7081a4e632d3c624f0199a7629072aafe9cf82aad264bd9ae9ad93ca",
+    "ml/alphazero_lite/seed451_source_policy_alignment.py": "e4e86990340d53b9fc32266fe5aaa9c2421b251141b76e05490aefb8d32511d8",
+    "ml/alphazero_lite/test_seed451_gradient_reconstruction.py": "70ce3c7b5a300de938f34a1b05bbb4cb3b15dcbeb2f8df432be730786b1b2703",
+    "ml/alphazero_lite/test_seed451_source_policy_alignment.py": "67edb26776776e7da52adb2347b9523cba14f1363c21fcd4986863e1ae8d7bce",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/verify_seed434_census_source.py": "4b632366f7b1ad920b77c692c0b9993de5420b723deba71bc9d081522789ec51",
+    "ml/alphazero_lite/verify_seed450_seed449_correction.py": "bde7b817d110335a0c889d63ed72b262312fda7012fd1dff6d76289890790f3c",
+    "ml/alphazero_lite/verify_seed451_gradient_reconstruction.py": "d60f8b79e24da0740a6d523256816cbba8ff3f312c701d17f3de0ba6b8c5543c",
+    "ml/alphazero_lite/verify_seed451_source_policy_alignment.py": "15244e1ebdad1e1083e08d65406c5429e06189a7dd13b902e93cf0d4542dec2c"
+  }
+}

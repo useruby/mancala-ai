@@ -1,0 +1,9 @@
+{
+  "files_sha256": {
+    "gradient-vectors.npz": "0938970fdbaa70b61a9f9c58826278b463abb97e3c8b76c8337f3f998f301898",
+    "registration.json": "324795e1cde0d236051464704ca98dea7113505b8cd0cdaced94020951ded3ae",
+    "results.json": "5fae410bdd92037518e4f1fadfdb14759ca246fb3c002553b9c932cf18a18bf8",
+    "results.md": "d0d407d718043d59252dd74a88c680dd87a2c41fd1b26be3da006145d816edc1"
+  },
+  "schema": "seed451-publication-receipt-v1"
+}
