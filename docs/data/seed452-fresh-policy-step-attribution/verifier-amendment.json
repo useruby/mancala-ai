@@ -1,0 +1,7 @@
+{
+  "arithmetic_protocol_changed": false,
+  "corrected_verifier_sha256": "0c9c2add0a832b3db557df3e585f511eccd6862be73898823384fbe6a226b925",
+  "original_verifier_sha256": "397548b10b50af9122d665f4a9666df3418e5771993cf2d454bb387f17bf17ee",
+  "protocol_sha256": "e9cdf7bc0ff4a2863ccbee1906a0ac5a016b4499d7ee624ceb1f3f0b1e7f4952",
+  "schema": "seed452-verifier-amendment-v1"
+}
