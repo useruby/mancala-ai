@@ -1,0 +1,25 @@
+{
+  "schema": "seed448-post-execution-correction-receipt-v1",
+  "status": "verified",
+  "classification": "close_joint_output_cap_branch",
+  "entry_point": "python -m ml.alphazero_lite.verify_seed448_seed447_publication --root .",
+  "sources_and_tests_sha256": {
+    "ml/alphazero_lite/verify_seed448_seed447_publication.py": "186a0baa818eb991d679dcb15eb78f257febb6c67d08be664bcbe626c1fd4948",
+    "ml/alphazero_lite/test_seed448_seed447_publication.py": "0a74b73231b0d6c1d9668043af16dd0bc4eeaaa1ef893d5973bfa7fd3a88dfc8"
+  },
+  "report_sha256": "aaa10c5fdf408e5bb30ad5938693554f8a8d30ccb88137246ca8d9c8a22551c2",
+  "historical_inputs_sha256": {
+    "docs/data/seed447-joint-output-cap/registration.json": "614bd7b158b6590d5d0114534abcdec3bc7edee977220bfcd5e38d58901021cb",
+    "docs/data/seed447-joint-output-cap/receipt.json": "1fb596408ff8564871508813aaa1f5f1434e6dfdf921a7ed0ae9b46266c39122",
+    "docs/data/seed447-joint-output-cap/verifier-amendment-receipt.json": "89680f07172cb82e9ed5dc17987c79a431f94bf87bcb3c276bc0eb018ecbb4b9",
+    "docs/data/seed447-joint-output-cap/post-execution-publication-amendment.json": "89b0105c4724fdc84f802f2dd1194dfebaf378b2a7a4e3e19f39d77556f85f2a",
+    "docs/data/seed447-joint-output-cap/evidence.json": "235b1b25ebc8af1296e9c2079b32e7bf266d524a986445c123c01107d3993c38",
+    "docs/data/seed442-kl-capped-adam-screen/evidence.json": "4e98c8559433b234512c8b6d907f3aed2c1a591deb21e7b4b587194ba4aca9e7"
+  },
+  "verification": {
+    "focused_tests": "15 passed",
+    "python_quality": "passed",
+    "physical_copy_cli": "valid; 17 publication files retained identical path inventory, SHA256, size, and mtime_ns; zero symlinks; unrelated working directory"
+  },
+  "generation": "Created after source finalization and verification; separate from the verification CLI."
+}
