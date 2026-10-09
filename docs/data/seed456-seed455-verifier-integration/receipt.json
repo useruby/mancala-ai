@@ -1,0 +1,13 @@
+{
+  "artifacts_sha256": {
+    "docs/data/seed456-seed455-verifier-integration/report.md": "7eeb2c1a4cc453c97e665322f539c0feb8997873d8b9dbe025b834ed024c0d75",
+    "ml/alphazero_lite/test_seed455_verifier_integration.py": "cdc98b7a59f0ea6829226ef0eafcf5ca64c52b504c8f4ffaa9d4e88689f05a4a",
+    "ml/alphazero_lite/verify_seed455_fresh_projection_attribution.py": "000b5b71ee56bf3370c3bad49e0c488b0de863148f5d4c61d84d319ac1ab6791",
+    "docs/data/seed455-fresh-projection-attribution/freeze-v7.json": "ab4651ca6a9aa12356356c17e0d2913fad7fb8168fc1420eb328b8544fc48c33",
+    "docs/data/seed455-fresh-projection-attribution/results.json": "9365838ff5386f9a696795846e25f2bcaff4ac5c21d9990ce06e3e3925f54c52",
+    "docs/data/seed455-fresh-projection-attribution/receipt.json": "296f772fc8a5e6e4de7d24501da567691023dc13c8c8cb7572ff942dba9f2566"
+  },
+  "schema": "seed456-verification-receipt-v1",
+  "temporal_scope": "post-publication verification only",
+  "verdict": "valid; all nine semantic mutation categories rejected"
+}
