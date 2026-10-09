@@ -1,0 +1,61 @@
+{
+  "chunk_rows": 512,
+  "cohorts": {
+    "fresh_unseen_exact_identities": 851,
+    "fresh_unseen_exposures": 859,
+    "training_guard": 1399
+  },
+  "freeze_timing": "after seed453 execution and before seed455 diagnostic execution",
+  "inputs": {
+    "docs/data/seed416-policy-target-softening/registration-v3.json": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+    "docs/data/seed416-policy-target-softening/training-freeze-v3/epoch-permutations.json.gz": "d868edebd9ae1876cbc5b9edca6fa0df9d3e6184b97246847f9012dfe2d293d1",
+    "docs/data/seed416-policy-target-softening/training-freeze-v3/source-row-split.json.gz": "f7b69ab8fd6c19128a29f9ae9a11a7ac42a5d26630368ff74e906f29ddb6be44",
+    "docs/data/seed426-canonical-overlap/seed427-evaluation-verification-receipt.json": "fbcaff1e183b2247673dd7f301c410e11524d13bbe47e067079ee8947aa60ee1",
+    "docs/data/seed426-canonical-overlap/seed427-supplemental-verification-receipt.json": "1dd0f8e2442a32654b29c8969c1300cbbfecb83f84809d2a478290e0bda9209e",
+    "docs/data/seed426-canonical-overlap/seed427-validation-membership.jsonl.gz": "554f3bd016a0f920ef253538d741a91cb27c9882d2dba94cf7509030af8ca385",
+    "docs/data/seed426-canonical-overlap/sources/fresh.jsonl.gz": "5f5062416ae620e4e3491989f19c166d26840b3fead8074323f23eb01211746b",
+    "docs/data/seed426-canonical-overlap/sources/generic_bootstrap.jsonl.gz": "51132b09c453712b8f48ab748e5025b25338681f9f89dd65a1fe2598ca266330",
+    "docs/data/seed426-canonical-overlap/sources/opening_disagreement.jsonl.gz": "5d73b65f57cf3e4199608c5cfbd80fa9656d5f267b5a823b12c7940a80824bdc",
+    "docs/data/seed426-canonical-overlap/sources/random_teacher.jsonl.gz": "fa6f83e3fc6bb3c93f87e9b640b8d58213f526115e3fdf582c96d9b1b7b7d1d7",
+    "docs/data/seed426-canonical-overlap/sources/stability.jsonl.gz": "77de3df0a93f928f8e131566c1f18f83b7d0100874248e2d29a6cb37f6e45b36",
+    "docs/data/seed429-canonical-policy-normalization/training-checkpoints/initializer.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "docs/data/seed452-fresh-policy-step-attribution/gradients.npz": "b7a7ba79e73621455d4fa78b84d9f46bba23354424c56d704587d642ef33f637",
+    "docs/data/seed452-fresh-policy-step-attribution/ordered-predictions-targets.npz": "edbd00a55763a0c0550c02feba07d886776bc90565ac860a0f223bda64cf168d",
+    "docs/data/seed452-fresh-policy-step-attribution/parameter-layout.json": "624a974cc2843b818540abdf87905f420965915cd81a795e41ce46349a6c0529",
+    "docs/data/seed452-fresh-policy-step-attribution/receipt.json": "e9cd5c6cbb689b3069022486f0620788b57ca96aef5edea20f3edf85d8b58324",
+    "docs/data/seed452-fresh-policy-step-attribution/results.json": "d9899f5dcff8931b33ea5eae4605507792a398e38a5584bbcf263c92ade204e4",
+    "docs/data/seed453-fresh-policy-projection/B-final.npz": "2fd195b55a8bd3684b4626c7f153c6b65195f1bc4dc04c9b51425f7e3a3710da",
+    "docs/data/seed453-fresh-policy-projection/B-predictions.npz": "6834070be46363a3126df492947dda33c7cf09a224d78b345c3510ba00fe58dd",
+    "docs/data/seed453-fresh-policy-projection/C-final.npz": "bcf3e76b12896cd4017aac5a8eda0b938088c9bee216b59d07cfde05c095f026",
+    "docs/data/seed453-fresh-policy-projection/C-predictions.npz": "f0ca106216fd061f89f4c7d5e2e9fa2cbd249dbb894b55e26f643b3077fe3f22",
+    "docs/data/seed453-fresh-policy-projection/evidence.json": "b87cfc46d4a9b3e338404fe91691c6565cd616016a28b94c5042bbe8ae163d6f",
+    "docs/data/seed453-fresh-policy-projection/fresh-guard.json": "fcd20eafbffc7f88ae1ee6b73b53c3cb14049393bff295116ea89ec807aab5d0",
+    "docs/data/seed453-fresh-policy-projection/initializer-predictions.npz": "654e6b97553684c2ad9436025245813b6daf5ce4591d1c566f1eb8b5b1148969",
+    "docs/data/seed453-fresh-policy-projection/receipt.json": "909cad9e8ddb2e8505b6c0ba2eb39b409c9b42337523b6efd84e6777fa3d21b7",
+    "docs/data/seed453-fresh-policy-projection/registration.json": "9805cba7e7808217cbb381a11816ba26c2ca5c7f4c9e539a4dd9e2daeb3529fd",
+    "docs/data/seed453-fresh-policy-projection/step-tensors-B.npz": "3d65ca7e3c53ae89dd62306840a3d1d57e48ee89164c34e29d93ba507ae733d3",
+    "docs/data/seed453-fresh-policy-projection/step-tensors-C.npz": "484252a6e15d70d9be323f186bbf13817c370d5594c6c12d37aa950e0d51d912",
+    "docs/data/seed453-fresh-policy-projection/verifier-correction-receipt.json": "713a9cb612994f884a5a4507864c5c1b9f961633ad70830dd8d34145a0de6cf1",
+    "docs/data/seed453-fresh-policy-projection/verifier-correction.json": "72fa70efefaadbb2ba9aa5871613954a0eabbfa510b124709dd20cee36a1fd8f",
+    "docs/data/seed454-full-guard-compliance/superseding-v7/audit-registration.json": "712f1536f313b3f28be3e89ab1f6b64167397ad7d63eeab3c788e624429667d6",
+    "docs/data/seed454-full-guard-compliance/superseding-v7/audit.json": "89982f34d79a6305cedb67805c261ffe79aef45ddc240f84205cc01c817d1a93"
+  },
+  "schema": "seed455-freeze-v1",
+  "sources": {
+    "ml/alphazero_lite/seed452_fresh_policy_step_attribution.py": "e13ee38bccae81db6ce52adc8be15c66bf3b1f71061d0c35c10994393e23340e",
+    "ml/alphazero_lite/seed455_analysis.py": "b9fe913d61f72dbba84b2d47f4dbc3d0bc4f777b0e51266b1d60579fc9024292",
+    "ml/alphazero_lite/seed455_fresh_projection_attribution.py": "c09d9bca8209cdf2e14c7743c713f2f6cc336f53ee0f40c98befe0894fa61e33",
+    "ml/alphazero_lite/test_seed455_fresh_projection_attribution.py": "2c1c88f961aaabb70281a7141a59d008575946348cdbdfe388428eea84a0b1dd",
+    "ml/alphazero_lite/test_seed455_physical_copy.py": "c1ef0a8598cffa880c8ddfdbe192b40e6cdeae7adb1902fd38467b897e3531f3",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/verify_seed455_fresh_projection_attribution.py": "f49313b7fd527e225ba0be87b9821130d266dff183a72828ed8cbe60be593699"
+  },
+  "supersedes": [
+    "freeze.json",
+    "freeze-v2.json",
+    "freeze-v3.json",
+    "freeze-v4.json"
+  ],
+  "temporal_scope": "retrospective diagnostic; seed453 execution is complete",
+  "trajectory": "only archived C and B trajectories; 17 states and 16 accepted displacements"
+}

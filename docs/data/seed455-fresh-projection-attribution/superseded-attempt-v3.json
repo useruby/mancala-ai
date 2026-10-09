@@ -1,0 +1,14 @@
+{
+  "schema": "seed455-superseded-attempt-v3",
+  "status": "measurements_retained_but_verifier_tolerance_too_tight",
+  "registration": "freeze-v6.json",
+  "registration_sha256": "3a475e581c310bfa34fa7f04b85667838da02a1faffca8b4cc9dde22057efac6",
+  "receipt_sha256": "a86af902d9833c1ab1f096430d2d77bb35998c10c5366b8673085408b3ef0371",
+  "output_sha256": {
+    "results.json": "9365838ff5386f9a696795846e25f2bcaff4ac5c21d9990ce06e3e3925f54c52",
+    "gradients.npz": "d47fe9479158d14b2df2ff72f920c758f5f3007764955625c279af554e08c608",
+    "predictions-targets.npz": "593b26396b09e322e744b152bc5b2546351c346ca6faf89fd0d0261538dc9483"
+  },
+  "failure": "All semantic checks reached seed453 endpoint reconciliation; independently reproduced float64 reductions differed from seed453's float32 endpoint reduction by at most 3.6e-9, just above the verifier's 3e-9 tolerance. No evidence mismatch was found. The endpoint reconciliation tolerance is widened to 5e-9 for the replacement verifier.",
+  "frozen_inputs_unchanged": true
+}

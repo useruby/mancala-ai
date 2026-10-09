@@ -1,0 +1,1821 @@
+{
+  "blocks": {
+    "B": {
+      "fresh_unseen_equal_input": {
+        "all_16": {
+          "D": 0.010151545454766486,
+          "R": 0.0034550855016296767,
+          "S": 0.006696459953136809
+        },
+        "steps_1_3": {
+          "D": 0.0016245745323799632,
+          "R": 0.0017698525691015362,
+          "S": -0.00014527803672157303
+        },
+        "steps_4_16": {
+          "D": 0.008526970922386523,
+          "R": 0.0016852329325281407,
+          "S": 0.006841737989858382
+        }
+      },
+      "fresh_unseen_exposures": {
+        "all_16": {
+          "D": 0.009252213288589273,
+          "R": 0.0034627131209362407,
+          "S": 0.0057895001676530325
+        },
+        "steps_1_3": {
+          "D": 0.0013054662380842519,
+          "R": 0.001779788304968629,
+          "S": -0.00047432206688437716
+        },
+        "steps_4_16": {
+          "D": 0.00794674705050502,
+          "R": 0.0016829248159676115,
+          "S": 0.006263822234537409
+        }
+      },
+      "training_guard": {
+        "all_16": {
+          "D": 0.00036520850688281925,
+          "R": 0.003778831345637764,
+          "S": -0.0034136228387549447
+        },
+        "steps_1_3": {
+          "D": -0.0016850551258800195,
+          "R": 0.0017285503328041663,
+          "S": -0.003413605458684186
+        },
+        "steps_4_16": {
+          "D": 0.0020502636327628387,
+          "R": 0.0020502810128335976,
+          "S": -1.738007075884999e-08
+        }
+      }
+    },
+    "C": {
+      "fresh_unseen_equal_input": {
+        "all_16": {
+          "D": 0.01665692870120994,
+          "R": 0.003846729644815413,
+          "S": 0.012810199056394526
+        },
+        "steps_1_3": {
+          "D": 0.0016245745323799632,
+          "R": 0.0017698525691015362,
+          "S": -0.00014527803672157303
+        },
+        "steps_4_16": {
+          "D": 0.015032354168829976,
+          "R": 0.0020768770757138766,
+          "S": 0.012955477093116098
+        }
+      },
+      "fresh_unseen_exposures": {
+        "all_16": {
+          "D": 0.015751975379251215,
+          "R": 0.003861264085262337,
+          "S": 0.011890711293988878
+        },
+        "steps_1_3": {
+          "D": 0.0013054662380842519,
+          "R": 0.001779788304968629,
+          "S": -0.00047432206688437716
+        },
+        "steps_4_16": {
+          "D": 0.014446509141166963,
+          "R": 0.002081475780293708,
+          "S": 0.012365033360873256
+        }
+      },
+      "training_guard": {
+        "all_16": {
+          "D": 0.010085404269381426,
+          "R": 0.004172712085258409,
+          "S": 0.005912692184123017
+        },
+        "steps_1_3": {
+          "D": -0.0016850551258800195,
+          "R": 0.0017285503328041663,
+          "S": -0.003413605458684186
+        },
+        "steps_4_16": {
+          "D": 0.011770459395261446,
+          "R": 0.0024441617524542424,
+          "S": 0.009326297642807202
+        }
+      }
+    }
+  },
+  "classification": "fresh_unseen_direction_dominant",
+  "cohorts": {
+    "B": {
+      "fresh_unseen_equal_input": {
+        "endpoint_change": 0.010151545454766486,
+        "ledger": [
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_equal_input",
+            "d": -0.0005896430458218749,
+            "group_s": {
+              "policy_head": 6.7369002913080745e-06,
+              "shared_trunk": -0.0008191410717941344,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.6629682780901126,
+            "post_ce": 1.2224668244383665,
+            "pre_ce": 1.2230564674841884,
+            "r": 0.00022276112568095146,
+            "s": -0.0008124041715028263,
+            "step": 1
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0001741717235737017,
+            "group_s": {
+              "policy_head": 1.4405489610656517e-05,
+              "shared_trunk": -0.000532523948838745,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.6557677564125587,
+            "post_ce": 1.2226409961619402,
+            "pre_ce": 1.2224668244383665,
+            "r": 0.0006922901828017901,
+            "s": -0.0005181184592280884,
+            "step": 2
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0020400458546281364,
+            "group_s": {
+              "policy_head": 8.810541871312518e-05,
+              "shared_trunk": 0.0010971391752962164,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.6475625975939057,
+            "post_ce": 1.2246810420165684,
+            "pre_ce": 1.2226409961619402,
+            "r": 0.0008548012606187946,
+            "s": 0.0011852445940093417,
+            "step": 3
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0010136690310316165,
+            "group_s": {
+              "policy_head": 4.297610918683479e-05,
+              "shared_trunk": 0.0006061349548295929,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.6922515466805619,
+            "post_ce": 1.2256947110476,
+            "pre_ce": 1.2246810420165684,
+            "r": 0.0003645579670151888,
+            "s": 0.0006491110640164278,
+            "step": 4
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0008549148306584708,
+            "group_s": {
+              "policy_head": 0.00011893989812765494,
+              "shared_trunk": 0.0005091241843235765,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7134444309608475,
+            "post_ce": 1.2265496258782584,
+            "pre_ce": 1.2256947110476,
+            "r": 0.00022685074820723934,
+            "s": 0.0006280640824512315,
+            "step": 5
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0005485817579904406,
+            "group_s": {
+              "policy_head": 0.000129291651198238,
+              "shared_trunk": 0.0002956310462405475,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7257257028898779,
+            "post_ce": 1.2270982076362489,
+            "pre_ce": 1.2265496258782584,
+            "r": 0.00012365906055165508,
+            "s": 0.00042492269743878554,
+            "step": 6
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.00046676276503454517,
+            "group_s": {
+              "policy_head": 0.00014345059127921742,
+              "shared_trunk": 0.00020880416380283936,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.730370286323305,
+            "post_ce": 1.2275649704012834,
+            "pre_ce": 1.2270982076362489,
+            "r": 0.00011450800995248841,
+            "s": 0.00035225475508205675,
+            "step": 7
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.00044733126123541744,
+            "group_s": {
+              "policy_head": 0.00010967597747890066,
+              "shared_trunk": 0.0002825683685529805,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7311658571061189,
+            "post_ce": 1.2280123016625188,
+            "pre_ce": 1.2275649704012834,
+            "r": 5.508691520353647e-05,
+            "s": 0.00039224434603188097,
+            "step": 8
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.00074058303611646,
+            "group_s": {
+              "policy_head": 0.00016110422841498869,
+              "shared_trunk": 0.0005142962788172315,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7371994490486926,
+            "post_ce": 1.2287528846986353,
+            "pre_ce": 1.2280123016625188,
+            "r": 6.51825288842399e-05,
+            "s": 0.0006754005072322201,
+            "step": 9
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.00039003510575352784,
+            "group_s": {
+              "policy_head": 0.00010360024213225958,
+              "shared_trunk": 0.00027248327785354856,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7516364206252301,
+            "post_ce": 1.2291429198043888,
+            "pre_ce": 1.2287528846986353,
+            "r": 1.3951585767719543e-05,
+            "s": 0.0003760835199858083,
+            "step": 10
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0006289504135750246,
+            "group_s": {
+              "policy_head": 0.00011029927294916512,
+              "shared_trunk": 0.0004713477483206249,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7553984833094018,
+            "post_ce": 1.2297718702179639,
+            "pre_ce": 1.2291429198043888,
+            "r": 4.7303392305234363e-05,
+            "s": 0.0005816470212697902,
+            "step": 11
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0003543463913169287,
+            "group_s": {
+              "policy_head": 0.00010601397240400157,
+              "shared_trunk": 0.00020304956997758153,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.760856765030279,
+            "post_ce": 1.2301262166092808,
+            "pre_ce": 1.2297718702179639,
+            "r": 4.528284893534558e-05,
+            "s": 0.0003090635423815831,
+            "step": 12
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0006812577093182615,
+            "group_s": {
+              "policy_head": 0.00024194871311409893,
+              "shared_trunk": 0.000276485037434156,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.767666551062734,
+            "post_ce": 1.230807474318599,
+            "pre_ce": 1.2301262166092808,
+            "r": 0.00016282395877000673,
+            "s": 0.0005184337505482547,
+            "step": 13
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0012092740438027771,
+            "group_s": {
+              "policy_head": 0.0002994198839199493,
+              "shared_trunk": 0.0007563811964411467,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7820179808912179,
+            "post_ce": 1.2320167483624018,
+            "pre_ce": 1.230807474318599,
+            "r": 0.0001534729634416808,
+            "s": 0.0010558010803610963,
+            "step": 14
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0007177738803323397,
+            "group_s": {
+              "policy_head": 0.00018004465147737652,
+              "shared_trunk": 0.0004130362796042436,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7901712577581547,
+            "post_ce": 1.2327345222427342,
+            "pre_ce": 1.2320167483624018,
+            "r": 0.00012469294925071973,
+            "s": 0.00059308093108162,
+            "step": 15
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.00047349069622071305,
+            "group_s": {
+              "policy_head": 9.610043055526117e-05,
+              "shared_trunk": 0.00018953026142236619,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.8052779404758852,
+            "post_ce": 1.2332080129389549,
+            "pre_ce": 1.2327345222427342,
+            "r": 0.00018786000424308584,
+            "s": 0.0002856306919776272,
+            "step": 16
+          }
+        ],
+        "totals": {
+          "D": 0.010151545454766486,
+          "R": 0.003455085501629677,
+          "S": 0.006696459953136809
+        }
+      },
+      "fresh_unseen_exposures": {
+        "endpoint_change": 0.009252213288589273,
+        "ledger": [
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_exposures",
+            "d": -0.0006534763209617989,
+            "group_s": {
+              "policy_head": 9.223223941663668e-07,
+              "shared_trunk": -0.0008819045319584169,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.6678007674449304,
+            "post_ce": 1.220448625860551,
+            "pre_ce": 1.2211021021815127,
+            "r": 0.00022750588860245152,
+            "s": -0.0008809822095642504,
+            "step": 1
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_exposures",
+            "d": 5.11631109387789e-05,
+            "group_s": {
+              "policy_head": 4.983872824749999e-06,
+              "shared_trunk": -0.0006549948625551553,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.6570725475095249,
+            "post_ce": 1.2204997889714897,
+            "pre_ce": 1.220448625860551,
+            "r": 0.0007011741006691843,
+            "s": -0.0006500109897304054,
+            "step": 2
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0019077794481072718,
+            "group_s": {
+              "policy_head": 7.879737795060611e-05,
+              "shared_trunk": 0.0009778737544596725,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.6443216290541811,
+            "post_ce": 1.222407568419597,
+            "pre_ce": 1.2204997889714897,
+            "r": 0.0008511083156969932,
+            "s": 0.0010566711324102786,
+            "step": 3
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0008891360125176107,
+            "group_s": {
+              "policy_head": 3.905021376070731e-05,
+              "shared_trunk": 0.0004848219994597972,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.6853815164967069,
+            "post_ce": 1.2232967044321146,
+            "pre_ce": 1.222407568419597,
+            "r": 0.0003652637992971058,
+            "s": 0.0005238722132205048,
+            "step": 4
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0007689256607033013,
+            "group_s": {
+              "policy_head": 0.00011469018605707566,
+              "shared_trunk": 0.00042410883049461814,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7056297915402364,
+            "post_ce": 1.2240656300928179,
+            "pre_ce": 1.2232967044321146,
+            "r": 0.00023012664415160758,
+            "s": 0.0005387990165516937,
+            "step": 5
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0004861818602672763,
+            "group_s": {
+              "policy_head": 0.00012495404382445127,
+              "shared_trunk": 0.00023504503013540198,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7177255259964579,
+            "post_ce": 1.2245518119530852,
+            "pre_ce": 1.2240656300928179,
+            "r": 0.00012618278630742316,
+            "s": 0.0003599990739598531,
+            "step": 6
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0004356634283781968,
+            "group_s": {
+              "policy_head": 0.0001405693917914408,
+              "shared_trunk": 0.00018297294816412197,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7222443708875576,
+            "post_ce": 1.2249874753814634,
+            "pre_ce": 1.2245518119530852,
+            "r": 0.00011212108842263409,
+            "s": 0.00032354233995556274,
+            "step": 7
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.00041955806167526255,
+            "group_s": {
+              "policy_head": 0.00010778540380581355,
+              "shared_trunk": 0.0002589980179809792,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7237178138133434,
+            "post_ce": 1.2254070334431386,
+            "pre_ce": 1.2249874753814634,
+            "r": 5.27746398884698e-05,
+            "s": 0.00036678342178679275,
+            "step": 8
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.000714550091862165,
+            "group_s": {
+              "policy_head": 0.0001575892992519956,
+              "shared_trunk": 0.0004921709148110498,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7300250640347006,
+            "post_ce": 1.2261215835350008,
+            "pre_ce": 1.2254070334431386,
+            "r": 6.478987779911973e-05,
+            "s": 0.0006497602140630453,
+            "step": 9
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.00036219575543205984,
+            "group_s": {
+              "policy_head": 0.00010022519836810846,
+              "shared_trunk": 0.0002472207349607392,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7451540556688758,
+            "post_ce": 1.2264837792904328,
+            "pre_ce": 1.2261215835350008,
+            "r": 1.474982210321221e-05,
+            "s": 0.00034744593332884763,
+            "step": 10
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0006023404232904372,
+            "group_s": {
+              "policy_head": 0.00010696892908955172,
+              "shared_trunk": 0.0004479016410377496,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7484459091744255,
+            "post_ce": 1.2270861197137233,
+            "pre_ce": 1.2264837792904328,
+            "r": 4.746985316313602e-05,
+            "s": 0.0005548705701273012,
+            "step": 11
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.00033977041422161847,
+            "group_s": {
+              "policy_head": 0.00010339534295039861,
+              "shared_trunk": 0.00019133730977100233,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.754184949662667,
+            "post_ce": 1.227425890127945,
+            "pre_ce": 1.2270861197137233,
+            "r": 4.503776150021748e-05,
+            "s": 0.000294732652721401,
+            "step": 12
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0006482262853899634,
+            "group_s": {
+              "policy_head": 0.00023389138987149545,
+              "shared_trunk": 0.0002498898515008476,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7615916268433959,
+            "post_ce": 1.2280741164133349,
+            "pre_ce": 1.227425890127945,
+            "r": 0.00016444504401762043,
+            "s": 0.000483781241372343,
+            "step": 13
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0011725627510386083,
+            "group_s": {
+              "policy_head": 0.000292449617886693,
+              "shared_trunk": 0.0007246314198040449,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7769957434876383,
+            "post_ce": 1.2292466791643735,
+            "pre_ce": 1.2280741164133349,
+            "r": 0.00015548171334787064,
+            "s": 0.0010170810376907377,
+            "step": 14
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0006755346755420444,
+            "group_s": {
+              "policy_head": 0.00017599925439949106,
+              "shared_trunk": 0.0003757683371671871,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.785566091688052,
+            "post_ce": 1.2299222138399155,
+            "pre_ce": 1.2292466791643735,
+            "r": 0.00012376708397536615,
+            "s": 0.0005517675915666782,
+            "step": 15
+          },
+          {
+            "arm": "B",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0004321016301864766,
+            "group_s": {
+              "policy_head": 9.414579175141004e-05,
+              "shared_trunk": 0.0001572411364412381,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.8010349431395758,
+            "post_ce": 1.230354315470102,
+            "pre_ce": 1.2299222138399155,
+            "r": 0.00018071470199382841,
+            "s": 0.0002513869281926482,
+            "step": 16
+          }
+        ],
+        "totals": {
+          "D": 0.009252213288589273,
+          "R": 0.0034627131209362407,
+          "S": 0.0057895001676530325
+        }
+      },
+      "training_guard": {
+        "endpoint_change": 0.00036520850688281925,
+        "ledger": [
+          {
+            "arm": "B",
+            "cohort": "training_guard",
+            "d": -0.0009685258738549862,
+            "group_s": {
+              "policy_head": -2.2528186338569807e-05,
+              "shared_trunk": -0.0011573962662330666,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.6629682780901126,
+              "fresh_unseen_exposures": 0.6678007674449304
+            },
+            "post_ce": 1.1749875280237876,
+            "pre_ce": 1.1759560538976426,
+            "r": 0.00021139857871665013,
+            "s": -0.0011799244525716364,
+            "step": 1
+          },
+          {
+            "arm": "B",
+            "cohort": "training_guard",
+            "d": -0.0011711411126187343,
+            "group_s": {
+              "policy_head": -9.232440412171494e-05,
+              "shared_trunk": -0.0017141801979933657,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.6557677564125587,
+              "fresh_unseen_exposures": 0.6570725475095249
+            },
+            "post_ce": 1.1738163869111689,
+            "pre_ce": 1.1749875280237876,
+            "r": 0.0006353634894963466,
+            "s": -0.001806504602115081,
+            "step": 2
+          },
+          {
+            "arm": "B",
+            "cohort": "training_guard",
+            "d": 0.00045461186059370107,
+            "group_s": {
+              "policy_head": -3.723857428789812e-06,
+              "shared_trunk": -0.0004234525465686788,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.6475625975939057,
+              "fresh_unseen_exposures": 0.6443216290541811
+            },
+            "post_ce": 1.1742709987717626,
+            "pre_ce": 1.1738163869111689,
+            "r": 0.0008817882645911696,
+            "s": -0.00042717640399746854,
+            "step": 3
+          },
+          {
+            "arm": "B",
+            "cohort": "training_guard",
+            "d": 0.0004399186752472861,
+            "group_s": {
+              "policy_head": 2.0072159618192484e-06,
+              "shared_trunk": -2.0108330457962336e-06,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.6922515466805619,
+              "fresh_unseen_exposures": 0.6853815164967069
+            },
+            "post_ce": 1.1747109174470098,
+            "pre_ce": 1.1742709987717626,
+            "r": 0.0004399222923312632,
+            "s": -3.617083977080121e-09,
+            "step": 4
+          },
+          {
+            "arm": "B",
+            "cohort": "training_guard",
+            "d": 0.00024779624784376786,
+            "group_s": {
+              "policy_head": 5.455636565705043e-05,
+              "shared_trunk": -5.455992102486226e-05,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.7134444309608475,
+              "fresh_unseen_exposures": 0.7056297915402364
+            },
+            "post_ce": 1.1749587136948536,
+            "pre_ce": 1.1747109174470098,
+            "r": 0.00024779980321157965,
+            "s": -3.5553678117631726e-09,
+            "step": 5
+          },
+          {
+            "arm": "B",
+            "cohort": "training_guard",
+            "d": 0.00014062935993686132,
+            "group_s": {
+              "policy_head": 7.751506492158474e-05,
+              "shared_trunk": -7.751690749091219e-05,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.7257257028898779,
+              "fresh_unseen_exposures": 0.7177255259964579
+            },
+            "post_ce": 1.1750993430547905,
+            "pre_ce": 1.1749587136948536,
+            "r": 0.0001406312025061888,
+            "s": -1.8425693274615315e-09,
+            "step": 6
+          },
+          {
+            "arm": "B",
+            "cohort": "training_guard",
+            "d": 0.00014541869726114598,
+            "group_s": {
+              "policy_head": 7.388575808607424e-05,
+              "shared_trunk": -7.388258860348192e-05,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.730370286323305,
+              "fresh_unseen_exposures": 0.7222443708875576
+            },
+            "post_ce": 1.1752447617520516,
+            "pre_ce": 1.1750993430547905,
+            "r": 0.00014541552777855364,
+            "s": 3.169482592348214e-09,
+            "step": 7
+          },
+          {
+            "arm": "B",
+            "cohort": "training_guard",
+            "d": 8.582906015974778e-05,
+            "group_s": {
+              "policy_head": 3.2727277137603976e-05,
+              "shared_trunk": -3.272399263952287e-05,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.7311658571061189,
+              "fresh_unseen_exposures": 0.7237178138133434
+            },
+            "post_ce": 1.1753305908122114,
+            "pre_ce": 1.1752447617520516,
+            "r": 8.582577566166661e-05,
+            "s": 3.2844980811804034e-09,
+            "step": 8
+          },
+          {
+            "arm": "B",
+            "cohort": "training_guard",
+            "d": 5.5882485957781114e-05,
+            "group_s": {
+              "policy_head": 8.011815132935224e-05,
+              "shared_trunk": -8.012022470558724e-05,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.7371994490486926,
+              "fresh_unseen_exposures": 0.7300250640347006
+            },
+            "post_ce": 1.1753864732981691,
+            "pre_ce": 1.1753305908122114,
+            "r": 5.5884559334016e-05,
+            "s": -2.0733762348902125e-09,
+            "step": 9
+          },
+          {
+            "arm": "B",
+            "cohort": "training_guard",
+            "d": 8.325747815418616e-05,
+            "group_s": {
+              "policy_head": 6.476885890508024e-05,
+              "shared_trunk": -6.476927242416873e-05,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.7516364206252301,
+              "fresh_unseen_exposures": 0.7451540556688758
+            },
+            "post_ce": 1.1754697307763233,
+            "pre_ce": 1.1753864732981691,
+            "r": 8.325789167327461e-05,
+            "s": -4.135190884510401e-10,
+            "step": 10
+          },
+          {
+            "arm": "B",
+            "cohort": "training_guard",
+            "d": 6.993474163130564e-05,
+            "group_s": {
+              "policy_head": 6.929305262958555e-05,
+              "shared_trunk": -6.929334491739592e-05,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.7553984833094018,
+              "fresh_unseen_exposures": 0.7484459091744255
+            },
+            "post_ce": 1.1755396655179546,
+            "pre_ce": 1.1754697307763233,
+            "r": 6.993503391911609e-05,
+            "s": -2.922878104558369e-10,
+            "step": 11
+          },
+          {
+            "arm": "B",
+            "cohort": "training_guard",
+            "d": 6.287654141501342e-05,
+            "group_s": {
+              "policy_head": 7.120005588660826e-05,
+              "shared_trunk": -7.120032552292355e-05,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.760856765030279,
+              "fresh_unseen_exposures": 0.754184949662667
+            },
+            "post_ce": 1.1756025420593696,
+            "pre_ce": 1.1755396655179546,
+            "r": 6.287681105132873e-05,
+            "s": -2.696363153031358e-10,
+            "step": 12
+          },
+          {
+            "arm": "B",
+            "cohort": "training_guard",
+            "d": 0.00021594773187150196,
+            "group_s": {
+              "policy_head": 0.00023062072731479618,
+              "shared_trunk": -0.00023061900734851746,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.767666551062734,
+              "fresh_unseen_exposures": 0.7615916268433959
+            },
+            "post_ce": 1.1758184897912412,
+            "pre_ce": 1.1756025420593696,
+            "r": 0.0002159460119052235,
+            "s": 1.7199662784647555e-09,
+            "step": 13
+          },
+          {
+            "arm": "B",
+            "cohort": "training_guard",
+            "d": 0.00017316683226797913,
+            "group_s": {
+              "policy_head": 0.00024791222343707893,
+              "shared_trunk": -0.0002479164006264293,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.7820179808912179,
+              "fresh_unseen_exposures": 0.7769957434876383
+            },
+            "post_ce": 1.1759916566235091,
+            "pre_ce": 1.1758184897912412,
+            "r": 0.00017317100945732946,
+            "s": -4.177189350325252e-09,
+            "step": 14
+          },
+          {
+            "arm": "B",
+            "cohort": "training_guard",
+            "d": 0.00017699761831502236,
+            "group_s": {
+              "policy_head": 0.00016893682278236395,
+              "shared_trunk": -0.00016893191251528077,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.7901712577581547,
+              "fresh_unseen_exposures": 0.785566091688052
+            },
+            "post_ce": 1.1761686542418242,
+            "pre_ce": 1.1759916566235091,
+            "r": 0.00017699270804793918,
+            "s": 4.9102670831877655e-09,
+            "step": 15
+          },
+          {
+            "arm": "B",
+            "cohort": "training_guard",
+            "d": 0.0001526081627012399,
+            "group_s": {
+              "policy_head": 8.273774384980503e-05,
+              "shared_trunk": -8.275196710468344e-05,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.8052779404758852,
+              "fresh_unseen_exposures": 0.8010349431395758
+            },
+            "post_ce": 1.1763212624045254,
+            "pre_ce": 1.1761686542418242,
+            "r": 0.00015262238595611818,
+            "s": -1.4223254878300827e-08,
+            "step": 16
+          }
+        ],
+        "totals": {
+          "D": 0.00036520850688281925,
+          "R": 0.003778831345637764,
+          "S": -0.003413622838754945
+        }
+      }
+    },
+    "C": {
+      "fresh_unseen_equal_input": {
+        "endpoint_change": 0.01665692870120994,
+        "ledger": [
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_equal_input",
+            "d": -0.0005896430458218749,
+            "group_s": {
+              "policy_head": 6.7369002913080745e-06,
+              "shared_trunk": -0.0008191410717941344,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.6629682780901126,
+            "post_ce": 1.2224668244383665,
+            "pre_ce": 1.2230564674841884,
+            "r": 0.00022276112568095146,
+            "s": -0.0008124041715028263,
+            "step": 1
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0001741717235737017,
+            "group_s": {
+              "policy_head": 1.4405489610656517e-05,
+              "shared_trunk": -0.000532523948838745,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.6557677564125587,
+            "post_ce": 1.2226409961619402,
+            "pre_ce": 1.2224668244383665,
+            "r": 0.0006922901828017901,
+            "s": -0.0005181184592280884,
+            "step": 2
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0020400458546281364,
+            "group_s": {
+              "policy_head": 8.810541871312518e-05,
+              "shared_trunk": 0.0010971391752962164,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.6475625975939057,
+            "post_ce": 1.2246810420165684,
+            "pre_ce": 1.2226409961619402,
+            "r": 0.0008548012606187946,
+            "s": 0.0011852445940093417,
+            "step": 3
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0011289021313258818,
+            "group_s": {
+              "policy_head": 4.4386066269511964e-05,
+              "shared_trunk": 0.0007163122830562852,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.6922515466805619,
+            "post_ce": 1.2258099441478942,
+            "pre_ce": 1.2246810420165684,
+            "r": 0.0003682037820000846,
+            "s": 0.0007606983493257972,
+            "step": 4
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0015357226509815636,
+            "group_s": {
+              "policy_head": 0.00012759747808913294,
+              "shared_trunk": 0.0011589587744412955,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7193312664818531,
+            "post_ce": 1.2273456667988758,
+            "pre_ce": 1.2258099441478942,
+            "r": 0.00024916639845113503,
+            "s": 0.0012865562525304285,
+            "step": 5
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0015636345351905945,
+            "group_s": {
+              "policy_head": 0.00013938309653143525,
+              "shared_trunk": 0.0012632724291751383,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7415089829657363,
+            "post_ce": 1.2289093013340664,
+            "pre_ce": 1.2273456667988758,
+            "r": 0.0001609790094840209,
+            "s": 0.0014026555257065736,
+            "step": 6
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0013035871394933007,
+            "group_s": {
+              "policy_head": 0.00015012852637306454,
+              "shared_trunk": 0.0010225906627638359,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7610253385182575,
+            "post_ce": 1.2302128884735597,
+            "pre_ce": 1.2289093013340664,
+            "r": 0.00013086795035640057,
+            "s": 0.0011727191891369002,
+            "step": 7
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0008317563687172402,
+            "group_s": {
+              "policy_head": 0.00010212870351349865,
+              "shared_trunk": 0.0006503985339053512,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7797026916097046,
+            "post_ce": 1.231044644842277,
+            "pre_ce": 1.2302128884735597,
+            "r": 7.922913129839023e-05,
+            "s": 0.00075252723741885,
+            "step": 8
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0014945639540320244,
+            "group_s": {
+              "policy_head": 0.0001614734867129177,
+              "shared_trunk": 0.0012685517756740744,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7776329094345075,
+            "post_ce": 1.232539208796309,
+            "pre_ce": 1.231044644842277,
+            "r": 6.453869164503253e-05,
+            "s": 0.0014300252623869918,
+            "step": 9
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0008036384860226065,
+            "group_s": {
+              "policy_head": 8.702409203502481e-05,
+              "shared_trunk": 0.0006400897074542393,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7875446917565833,
+            "post_ce": 1.2333428472823316,
+            "pre_ce": 1.232539208796309,
+            "r": 7.652468653334223e-05,
+            "s": 0.0007271137994892642,
+            "step": 10
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0012833927872952788,
+            "group_s": {
+              "policy_head": 9.451127629426285e-05,
+              "shared_trunk": 0.0011343166509021538,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7975179786669694,
+            "post_ce": 1.2346262400696268,
+            "pre_ce": 1.2333428472823316,
+            "r": 5.4564860098861925e-05,
+            "s": 0.001228827927196417,
+            "step": 11
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.000883126327139605,
+            "group_s": {
+              "policy_head": 7.545155274196143e-05,
+              "shared_trunk": 0.000732908283605449,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.8097229353709416,
+            "post_ce": 1.2355093663967665,
+            "pre_ce": 1.2346262400696268,
+            "r": 7.47664907921943e-05,
+            "s": 0.0008083598363474107,
+            "step": 12
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0018987213638990141,
+            "group_s": {
+              "policy_head": 0.00017217994062603974,
+              "shared_trunk": 0.0015161045327777845,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.8183456488537356,
+            "post_ce": 1.2374080877606655,
+            "pre_ce": 1.2355093663967665,
+            "r": 0.00021043689049519022,
+            "s": 0.001688284473403824,
+            "step": 13
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.002590740723349416,
+            "group_s": {
+              "policy_head": 0.00021540380236249098,
+              "shared_trunk": 0.0021307042223913633,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.8330784371379528,
+            "post_ce": 1.2399988284840149,
+            "pre_ce": 1.2374080877606655,
+            "r": 0.00024463269859556144,
+            "s": 0.0023461080247538547,
+            "step": 14
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_equal_input",
+            "d": 0.0008355005481195388,
+            "group_s": {
+              "policy_head": 5.172743192016931e-05,
+              "shared_trunk": 0.0006228642119785363,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.8541090288871102,
+            "post_ce": 1.2408343290321344,
+            "pre_ce": 1.2399988284840149,
+            "r": 0.00016090890422083327,
+            "s": 0.0006745916438987055,
+            "step": 15
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_equal_input",
+            "d": -0.001120932846736089,
+            "group_s": {
+              "policy_head": -7.94885832367088e-05,
+              "shared_trunk": -0.0012435018452422101,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.8543759936881595,
+            "post_ce": 1.2397133961853983,
+            "pre_ce": 1.2408343290321344,
+            "r": 0.00020205758174282953,
+            "s": -0.0013229904284789186,
+            "step": 16
+          }
+        ],
+        "totals": {
+          "D": 0.01665692870120994,
+          "R": 0.003846729644815413,
+          "S": 0.012810199056394526
+        }
+      },
+      "fresh_unseen_exposures": {
+        "endpoint_change": 0.015751975379251215,
+        "ledger": [
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_exposures",
+            "d": -0.0006534763209617989,
+            "group_s": {
+              "policy_head": 9.223223941663668e-07,
+              "shared_trunk": -0.0008819045319584169,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.6678007674449304,
+            "post_ce": 1.220448625860551,
+            "pre_ce": 1.2211021021815127,
+            "r": 0.00022750588860245152,
+            "s": -0.0008809822095642504,
+            "step": 1
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_exposures",
+            "d": 5.11631109387789e-05,
+            "group_s": {
+              "policy_head": 4.983872824749999e-06,
+              "shared_trunk": -0.0006549948625551553,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.6570725475095249,
+            "post_ce": 1.2204997889714897,
+            "pre_ce": 1.220448625860551,
+            "r": 0.0007011741006691843,
+            "s": -0.0006500109897304054,
+            "step": 2
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0019077794481072718,
+            "group_s": {
+              "policy_head": 7.879737795060611e-05,
+              "shared_trunk": 0.0009778737544596725,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.6443216290541811,
+            "post_ce": 1.222407568419597,
+            "pre_ce": 1.2204997889714897,
+            "r": 0.0008511083156969932,
+            "s": 0.0010566711324102786,
+            "step": 3
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0010030002477423583,
+            "group_s": {
+              "policy_head": 4.040925198880847e-05,
+              "shared_trunk": 0.0005932525312325119,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.6853815164967069,
+            "post_ce": 1.2234105686673393,
+            "pre_ce": 1.222407568419597,
+            "r": 0.00036933846452103804,
+            "s": 0.0006336617832213203,
+            "step": 4
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0014384231542048376,
+            "group_s": {
+              "policy_head": 0.0001230637067608118,
+              "shared_trunk": 0.0010631390800734922,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7118669537456718,
+            "post_ce": 1.2248489918215442,
+            "pre_ce": 1.2234105686673393,
+            "r": 0.000252220367370534,
+            "s": 0.0011862027868343036,
+            "step": 5
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0014833633346669206,
+            "group_s": {
+              "policy_head": 0.00013477885759535368,
+              "shared_trunk": 0.001186055399033395,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7339231276198722,
+            "post_ce": 1.226332355156211,
+            "pre_ce": 1.2248489918215442,
+            "r": 0.00016252907803817186,
+            "s": 0.0013208342566287487,
+            "step": 6
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0012567140014541067,
+            "group_s": {
+              "policy_head": 0.00014721852527096462,
+              "shared_trunk": 0.0009810959690236894,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7542680824208254,
+            "post_ce": 1.2275890691576652,
+            "pre_ce": 1.226332355156211,
+            "r": 0.00012839950715945285,
+            "s": 0.0011283144942946539,
+            "step": 7
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.000799856334057214,
+            "group_s": {
+              "policy_head": 0.00010061564620143768,
+              "shared_trunk": 0.000621931843002932,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7737103913126852,
+            "post_ce": 1.2283889254917224,
+            "pre_ce": 1.2275890691576652,
+            "r": 7.730884485284426e-05,
+            "s": 0.0007225474892043698,
+            "step": 8
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.001456168156043658,
+            "group_s": {
+              "policy_head": 0.00015823511607311188,
+              "shared_trunk": 0.0012376576433824054,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7715741813103921,
+            "post_ce": 1.229845093647766,
+            "pre_ce": 1.2283889254917224,
+            "r": 6.027539658814084e-05,
+            "s": 0.001395892759455517,
+            "step": 9
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0007722060888903926,
+            "group_s": {
+              "policy_head": 8.42200375536663e-05,
+              "shared_trunk": 0.0006115953444625604,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.781365118763345,
+            "post_ce": 1.2306172997366565,
+            "pre_ce": 1.229845093647766,
+            "r": 7.639070687416583e-05,
+            "s": 0.0006958153820162267,
+            "step": 10
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0012539157533317802,
+            "group_s": {
+              "policy_head": 9.199467016422603e-05,
+              "shared_trunk": 0.001106927702811122,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.7917206222070309,
+            "post_ce": 1.2318712154899882,
+            "pre_ce": 1.2306172997366565,
+            "r": 5.4993380356432474e-05,
+            "s": 0.0011989223729753477,
+            "step": 11
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0008684225614612462,
+            "group_s": {
+              "policy_head": 7.378526135951653e-05,
+              "shared_trunk": 0.000718732179923924,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.8044746168543092,
+            "post_ce": 1.2327396380514495,
+            "pre_ce": 1.2318712154899882,
+            "r": 7.590512017780567e-05,
+            "s": 0.0007925174412834405,
+            "step": 12
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0018683629407520996,
+            "group_s": {
+              "policy_head": 0.00016655855432358348,
+              "shared_trunk": 0.0014884349567909246,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.8136999731404946,
+            "post_ce": 1.2346080009922016,
+            "pre_ce": 1.2327396380514495,
+            "r": 0.00021336942963759236,
+            "s": 0.0016549935111145073,
+            "step": 13
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0025643538661968,
+            "group_s": {
+              "policy_head": 0.00021138284562275913,
+              "shared_trunk": 0.0021069530833848302,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.8292187065494195,
+            "post_ce": 1.2371723548583984,
+            "pre_ce": 1.2346080009922016,
+            "r": 0.0002460179371892102,
+            "s": 0.00231833592900759,
+            "step": 14
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_exposures",
+            "d": 0.0008086838712861866,
+            "group_s": {
+              "policy_head": 5.102118064216039e-05,
+              "shared_trunk": 0.0005961607007563925,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.8508086780247436,
+            "post_ce": 1.2379810387296846,
+            "pre_ce": 1.2371723548583984,
+            "r": 0.00016150198988763343,
+            "s": 0.0006471818813985531,
+            "step": 15
+          },
+          {
+            "arm": "C",
+            "cohort": "fresh_unseen_exposures",
+            "d": -0.0011269611689206371,
+            "group_s": {
+              "policy_head": -7.75797480902806e-05,
+              "shared_trunk": -0.0012526069784710425,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosine": 0.8516488228890942,
+            "post_ce": 1.236854077560764,
+            "pre_ce": 1.2379810387296846,
+            "r": 0.00020322555764068603,
+            "s": -0.0013301867265613232,
+            "step": 16
+          }
+        ],
+        "totals": {
+          "D": 0.015751975379251215,
+          "R": 0.003861264085262337,
+          "S": 0.011890711293988877
+        }
+      },
+      "training_guard": {
+        "endpoint_change": 0.010085404269381426,
+        "ledger": [
+          {
+            "arm": "C",
+            "cohort": "training_guard",
+            "d": -0.0009685258738549862,
+            "group_s": {
+              "policy_head": -2.2528186338569807e-05,
+              "shared_trunk": -0.0011573962662330666,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.6629682780901126,
+              "fresh_unseen_exposures": 0.6678007674449304
+            },
+            "post_ce": 1.1749875280237876,
+            "pre_ce": 1.1759560538976426,
+            "r": 0.00021139857871665013,
+            "s": -0.0011799244525716364,
+            "step": 1
+          },
+          {
+            "arm": "C",
+            "cohort": "training_guard",
+            "d": -0.0011711411126187343,
+            "group_s": {
+              "policy_head": -9.232440412171494e-05,
+              "shared_trunk": -0.0017141801979933657,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.6557677564125587,
+              "fresh_unseen_exposures": 0.6570725475095249
+            },
+            "post_ce": 1.1738163869111689,
+            "pre_ce": 1.1749875280237876,
+            "r": 0.0006353634894963466,
+            "s": -0.001806504602115081,
+            "step": 2
+          },
+          {
+            "arm": "C",
+            "cohort": "training_guard",
+            "d": 0.00045461186059370107,
+            "group_s": {
+              "policy_head": -3.723857428789812e-06,
+              "shared_trunk": -0.0004234525465686788,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.6475625975939057,
+              "fresh_unseen_exposures": 0.6443216290541811
+            },
+            "post_ce": 1.1742709987717626,
+            "pre_ce": 1.1738163869111689,
+            "r": 0.0008817882645911696,
+            "s": -0.00042717640399746854,
+            "step": 3
+          },
+          {
+            "arm": "C",
+            "cohort": "training_guard",
+            "d": 0.0005843715583793152,
+            "group_s": {
+              "policy_head": 3.7374445446234177e-06,
+              "shared_trunk": 0.00013732873565984363,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.6922515466805619,
+              "fresh_unseen_exposures": 0.6853815164967069
+            },
+            "post_ce": 1.1748553703301419,
+            "pre_ce": 1.1742709987717626,
+            "r": 0.00044330537817484817,
+            "s": 0.000141066180204467,
+            "step": 4
+          },
+          {
+            "arm": "C",
+            "cohort": "training_guard",
+            "d": 0.0010906748681343004,
+            "group_s": {
+              "policy_head": 6.453111124824461e-05,
+              "shared_trunk": 0.0007312931339921141,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.7193312664818531,
+              "fresh_unseen_exposures": 0.7118669537456718
+            },
+            "post_ce": 1.1759460451982762,
+            "pre_ce": 1.1748553703301419,
+            "r": 0.00029485062289394154,
+            "s": 0.0007958242452403588,
+            "step": 5
+          },
+          {
+            "arm": "C",
+            "cohort": "training_guard",
+            "d": 0.0014167159777125349,
+            "group_s": {
+              "policy_head": 9.014212371169622e-05,
+              "shared_trunk": 0.0011611244507385716,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.7415089829657363,
+              "fresh_unseen_exposures": 0.7339231276198722
+            },
+            "post_ce": 1.1773627611759887,
+            "pre_ce": 1.1759460451982762,
+            "r": 0.00016544940326226692,
+            "s": 0.001251266574450268,
+            "step": 6
+          },
+          {
+            "arm": "C",
+            "cohort": "training_guard",
+            "d": 0.001249223143351852,
+            "group_s": {
+              "policy_head": 8.220907056634928e-05,
+              "shared_trunk": 0.001008097041506561,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.7610253385182575,
+              "fresh_unseen_exposures": 0.7542680824208254
+            },
+            "post_ce": 1.1786119843193406,
+            "pre_ce": 1.1773627611759887,
+            "r": 0.00015891703127894142,
+            "s": 0.0010903061120729105,
+            "step": 7
+          },
+          {
+            "arm": "C",
+            "cohort": "training_guard",
+            "d": 0.0006875222425024585,
+            "group_s": {
+              "policy_head": 2.821385271847753e-05,
+              "shared_trunk": 0.0005639016203800056,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.7797026916097046,
+              "fresh_unseen_exposures": 0.7737103913126852
+            },
+            "post_ce": 1.179299506561843,
+            "pre_ce": 1.1786119843193406,
+            "r": 9.540676940397535e-05,
+            "s": 0.0005921154730984832,
+            "step": 8
+          },
+          {
+            "arm": "C",
+            "cohort": "training_guard",
+            "d": 0.0012057785083237071,
+            "group_s": {
+              "policy_head": 8.212863310503995e-05,
+              "shared_trunk": 0.0010293446682481727,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.7776329094345075,
+              "fresh_unseen_exposures": 0.7715741813103921
+            },
+            "post_ce": 1.1805052850701667,
+            "pre_ce": 1.179299506561843,
+            "r": 9.43052069704946e-05,
+            "s": 0.0011114733013532125,
+            "step": 9
+          },
+          {
+            "arm": "C",
+            "cohort": "training_guard",
+            "d": 0.0007087878318372542,
+            "group_s": {
+              "policy_head": 4.8320656845628166e-05,
+              "shared_trunk": 0.0005721022958552282,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.7875446917565833,
+              "fresh_unseen_exposures": 0.781365118763345
+            },
+            "post_ce": 1.181214072902004,
+            "pre_ce": 1.1805052850701667,
+            "r": 8.836487913639808e-05,
+            "s": 0.0006204229527008562,
+            "step": 10
+          },
+          {
+            "arm": "C",
+            "cohort": "training_guard",
+            "d": 0.0009768312228433107,
+            "group_s": {
+              "policy_head": 5.121961225512488e-05,
+              "shared_trunk": 0.0008274711103784491,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.7975179786669694,
+              "fresh_unseen_exposures": 0.7917206222070309
+            },
+            "post_ce": 1.1821909041248473,
+            "pre_ce": 1.181214072902004,
+            "r": 9.814050020973673e-05,
+            "s": 0.000878690722633574,
+            "step": 11
+          },
+          {
+            "arm": "C",
+            "cohort": "training_guard",
+            "d": 0.0007840739623021786,
+            "group_s": {
+              "policy_head": 3.9283051658284065e-05,
+              "shared_trunk": 0.0006726501052757709,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.8097229353709416,
+              "fresh_unseen_exposures": 0.8044746168543092
+            },
+            "post_ce": 1.1829749780871495,
+            "pre_ce": 1.1821909041248473,
+            "r": 7.21408053681238e-05,
+            "s": 0.0007119331569340548,
+            "step": 12
+          },
+          {
+            "arm": "C",
+            "cohort": "training_guard",
+            "d": 0.001962455906894922,
+            "group_s": {
+              "policy_head": 0.0001585329414137109,
+              "shared_trunk": 0.0015379711093156919,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.8183456488537356,
+              "fresh_unseen_exposures": 0.8136999731404946
+            },
+            "post_ce": 1.1849374339940444,
+            "pre_ce": 1.1829749780871495,
+            "r": 0.0002659518561655193,
+            "s": 0.0016965040507294028,
+            "step": 13
+          },
+          {
+            "arm": "C",
+            "cohort": "training_guard",
+            "d": 0.0020421331813607058,
+            "group_s": {
+              "policy_head": 0.00015826736293145948,
+              "shared_trunk": 0.0016276308461228295,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.8330784371379528,
+              "fresh_unseen_exposures": 0.8292187065494195
+            },
+            "post_ce": 1.186979567175405,
+            "pre_ce": 1.1849374339940444,
+            "r": 0.00025623497230641674,
+            "s": 0.001785898209054289,
+            "step": 14
+          },
+          {
+            "arm": "C",
+            "cohort": "training_guard",
+            "d": 0.0005641677633216879,
+            "group_s": {
+              "policy_head": 3.1532601139614414e-05,
+              "shared_trunk": 0.00033929912847081254,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.8541090288871102,
+              "fresh_unseen_exposures": 0.8508086780247436
+            },
+            "post_ce": 1.1875437349387268,
+            "pre_ce": 1.186979567175405,
+            "r": 0.000193336033711261,
+            "s": 0.00037083172961042694,
+            "step": 15
+          },
+          {
+            "arm": "C",
+            "cohort": "training_guard",
+            "d": -0.0015022767717027818,
+            "group_s": {
+              "policy_head": -0.0001075808665721821,
+              "shared_trunk": -0.0016124541987029186,
+              "value_head": 0.0
+            },
+            "guard_unseen_gradient_cosines": {
+              "fresh_unseen_equal_input": 0.8543759936881595,
+              "fresh_unseen_exposures": 0.8516488228890942
+            },
+            "post_ce": 1.186041458167024,
+            "pre_ce": 1.1875437349387268,
+            "r": 0.00021775829357231899,
+            "s": -0.0017200350652751008,
+            "step": 16
+          }
+        ],
+        "totals": {
+          "D": 0.010085404269381426,
+          "R": 0.004172712085258409,
+          "S": 0.005912692184123017
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Retrospective descriptive attribution; does not establish causality.",
+    "R contains finite-step nonlinear and numerical effects and is not pure curvature.",
+    "A protected first-order training-guard slope does not guarantee nonincreasing finite-step training loss or transfer to unseen inputs.",
+    "No training, strength evaluation, alternative trajectory, export, or promotion is authorized."
+  ],
+  "parameter_count": 73159,
+  "path_states": 17,
+  "row_count": 96,
+  "schema": "seed455-results-v1",
+  "status": "retrospective_frozen_trajectory_attribution",
+  "step_count": 16
+}
