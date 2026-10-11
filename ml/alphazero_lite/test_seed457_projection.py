@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from ml.alphazero_lite.seed457_projection import project
+from ml.alphazero_lite.seed457_projection import project, projected_proposal
 
 
 def test_inactive_projection_and_zero_normal() -> None:
@@ -34,3 +34,16 @@ def test_joint_solution_is_nearest_not_sequential() -> None:
 def test_invalid_constraint_fails_closed() -> None:
     with pytest.raises(ValueError, match="nonfinite_constraint"):
         project([np.array([1.0])], [[np.array([np.nan])]])
+
+
+def test_zero_normals_preserve_float64_until_state_writeback() -> None:
+    pre = [np.array([1.0], dtype=np.float32)]
+    raw = [np.array([np.nextafter(np.float32(1.0), np.float32(2.0))])]
+    result, _ = projected_proposal(pre, raw, [[np.zeros(1, dtype=np.float32)]])
+    expected = np.asarray(
+        pre[0].astype(np.float64)
+        + raw[0].astype(np.float64)
+        - pre[0].astype(np.float64),
+        dtype=np.float32,
+    )
+    np.testing.assert_array_equal(result[0], expected)
