@@ -45,6 +45,19 @@ def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def seed442_positions(registration: dict[str, Any]) -> list[int]:
+    """Validate the exact frozen ordered sixteen-minibatch position vector."""
+    positions = registration.get("first_16_minibatch_positions")
+    if (
+        not isinstance(positions, list)
+        or len(positions) != 16 * 512
+        or any(type(value) is not int or value < 0 for value in positions)
+        or len(set(positions)) != 16 * 512
+    ):
+        raise ValueError("seed442_minibatch_vector_invalid")
+    return positions
+
+
 def shard_guard(guard: list[dict[str, Any]]) -> list[list[dict[str, Any]]]:
     """Deterministically stratify guard identities, preserving within-shard order."""
     if len(guard) != 1399:
@@ -149,6 +162,10 @@ def readiness(root: Path) -> dict[str, Any]:
         for relative, digest in bindings.items():
             if not (root / relative).is_file() or sha(root / relative) != digest:
                 raise ValueError(f"frozen_binding_mismatch:{relative}")
+    if not set(REQUIRED_INPUTS).issubset(registration.get("input_sha256", {})):
+        raise ValueError("required_input_binding_inventory_incomplete")
+    if not set(REQUIRED_SOURCES).issubset(registration.get("source_sha256", {})):
+        raise ValueError("required_binding_inventory_incomplete")
     guard = json.loads((root / OUT / "fresh-guard.json").read_text())
     if guard != registration.get("fresh_guard"):
         raise ValueError("fresh_guard_registration_mismatch")
@@ -164,6 +181,16 @@ def readiness(root: Path) -> dict[str, Any]:
 
 REQUIRED_INPUTS = (
     "docs/data/seed429-canonical-policy-normalization/training-checkpoints/initializer.npz",
+    "docs/data/seed416-policy-target-softening/registration-v3.json",
+    "docs/data/seed416-policy-target-softening/training-freeze-v3/epoch-permutations.json.gz",
+    "docs/data/seed416-policy-target-softening/training-freeze-v3/source-row-split.json.gz",
+    "docs/data/seed426-canonical-overlap/seed427-validation-membership.jsonl.gz",
+    "docs/data/seed426-canonical-overlap/sources/fresh.jsonl.gz",
+    "docs/data/seed426-canonical-overlap/sources/generic_bootstrap.jsonl.gz",
+    "docs/data/seed426-canonical-overlap/sources/opening_disagreement.jsonl.gz",
+    "docs/data/seed426-canonical-overlap/sources/random_teacher.jsonl.gz",
+    "docs/data/seed426-canonical-overlap/sources/stability.jsonl.gz",
+    "docs/data/seed435-adam-direction-screen/A-final.npz",
     "docs/data/seed442-kl-capped-adam-screen/registration.json",
     "docs/data/seed442-kl-capped-adam-screen/guard-cohort.json",
     "docs/data/seed442-kl-capped-adam-screen/evidence.json",
@@ -176,6 +203,26 @@ REQUIRED_INPUTS = (
     "docs/data/seed454-full-guard-compliance/superseding-v7/audit.json",
     "docs/data/seed455-fresh-projection-attribution/results.json",
     "docs/data/seed456-seed455-verifier-integration/receipt.json",
+    "docs/data/seed442-kl-capped-adam-screen/receipt.json",
+    "docs/data/seed442-kl-capped-adam-screen/A-final.npz",
+    "docs/data/seed442-kl-capped-adam-screen/A-predictions.npz",
+    "docs/data/seed442-kl-capped-adam-screen/step-tensors.npz",
+    "docs/data/seed453-fresh-policy-projection/step-tensors-B.npz",
+)
+
+REQUIRED_SOURCES = (
+    "ml/alphazero_lite/seed457_projection.py",
+    "ml/alphazero_lite/seed457_fresh_subgroup_projection.py",
+    "ml/alphazero_lite/verify_seed457_fresh_subgroup_projection.py",
+    "ml/alphazero_lite/seed453_fresh_policy_projection.py",
+    "ml/alphazero_lite/verify_seed453_fresh_policy_projection.py",
+    "ml/alphazero_lite/seed442_kl_capped_adam.py",
+    "ml/alphazero_lite/seed435_adam_direction.py",
+    "ml/alphazero_lite/seed447_joint_output_cap.py",
+    "ml/alphazero_lite/seed429_policy_normalization.py",
+    "ml/alphazero_lite/verify_seed434_census_source.py",
+    "ml/alphazero_lite/verify_seed450_seed449_correction.py",
+    "ml/alphazero_lite/train.py",
 )
 
 
@@ -185,18 +232,17 @@ def prepare(root: Path) -> dict[str, Any]:
     if any(not (root / item).is_file() for item in REQUIRED_INPUTS):
         missing = [item for item in REQUIRED_INPUTS if not (root / item).is_file()]
         raise ValueError(f"missing_required_inputs:{missing}")
-    arrays = seed453.portable_inputs(root)
     seed442.configure_root(root)
     seed447.seed442.configure_root(root)
+    arrays = seed453.portable_inputs(root)
     fresh = seed453.fresh_guard(root, arrays)
     full = seed442.guard_cohort(root, arrays)
     shards = validate_cohorts(root, arrays, fresh, full)
-    sources = (
-        "ml/alphazero_lite/seed457_projection.py",
-        "ml/alphazero_lite/seed457_fresh_subgroup_projection.py",
-        "ml/alphazero_lite/verify_seed457_fresh_subgroup_projection.py",
-        "ml/alphazero_lite/test_seed457_projection.py",
+    sources = REQUIRED_SOURCES
+    seed442_registration = json.loads(
+        (root / "docs/data/seed442-kl-capped-adam-screen/registration.json").read_text()
     )
+    batches = seed442_positions(seed442_registration)
     return {
         "schema": "seed457-registration-v1",
         "status": "draft_not_frozen",
@@ -206,6 +252,7 @@ def prepare(root: Path) -> dict[str, Any]:
         "full_guard_count": len(full),
         "fresh_guard": fresh,
         "shards": shards,
+        "seed442_first_16_positions": batches,
         "steps": 16,
         "scales": list(seed453.SCALES),
         "protocol": {
@@ -669,13 +716,29 @@ def subgroup_activation(
                 if row["scale"] == record["selected_scale"]
             )
         ]["gradient_dots"]
+        displacement = record["projection"].get("projected_displacement", [])
+        if not any(
+            np.any(np.asarray(part, dtype=np.float64) != 0) for part in displacement
+        ):
+            continue
         if (
             counter is not None
+            and record.get("proposal_norm", 0) > 0
             and any(dot > 1e-7 for dot in dots)
             and all(dot <= 1e-7 for dot in accepted_dots)
         ):
-            activated_steps.append(record["step"])
-    return {"activated": bool(activated_steps), "steps": activated_steps}
+            activated_steps.append(
+                {
+                    "step": record["step"],
+                    "counterfactual_dots": dots,
+                    "accepted_dots": accepted_dots,
+                }
+            )
+    return {
+        "schema": "seed457-activation-v1",
+        "activated": bool(activated_steps),
+        "steps": activated_steps,
+    }
 
 
 def _jsonable(value: Any) -> Any:
@@ -753,6 +816,10 @@ def build_synthetic_publication(
             - metrics["C"]["fresh"][weight][metric]
             for metric in ("policy_ce", "value_mse")
         }
+    effects["full_training_objective"] = {
+        "T_minus_C": metrics["T"]["full_training_objective"]
+        - metrics["C"]["full_training_objective"]
+    }
     activation = subgroup_activation(arm_steps["T"])
     gates = decision_gates(
         metrics, initializer_training_objective, activation, arm_steps["T"]
@@ -850,9 +917,9 @@ def run(root: Path) -> dict[str, Any]:
     if status["status"] != "ready":
         raise ValueError("registration_not_frozen_ready")
     registration = json.loads((root / OUT / "registration.json").read_text())
-    arrays = seed453.portable_inputs(root)
     seed442.configure_root(root)
     seed447.seed442.configure_root(root)
+    arrays = seed453.portable_inputs(root)
     x, _policy, _value, replay, _coeff, train_positions, *_ = arrays
     full_guard = json.loads(
         (root / "docs/data/seed442-kl-capped-adam-screen/guard-cohort.json").read_text()
@@ -939,6 +1006,10 @@ def run(root: Path) -> dict[str, Any]:
             - metrics["C"]["fresh"][weighting][metric]
             for metric in ("policy_ce", "value_mse")
         }
+    effects["full_training_objective"] = {
+        "T_minus_C": metrics["T"]["full_training_objective"]
+        - metrics["C"]["full_training_objective"]
+    }
     activation = subgroup_activation(results["T"])
     gates = decision_gates(
         metrics,

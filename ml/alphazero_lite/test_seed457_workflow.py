@@ -3,17 +3,39 @@
 from __future__ import annotations
 
 import copy
+import json
 from typing import Any
+from pathlib import Path
 
 import numpy as np
 import pytest
 
-from ml.alphazero_lite.seed457_fresh_subgroup_projection import shard_guard
+from ml.alphazero_lite.seed457_fresh_subgroup_projection import (
+    seed442_positions,
+    shard_guard,
+)
 from ml.alphazero_lite.verify_seed457_fresh_subgroup_projection import (
     partition,
     verify_evidence_structure,
     verify_kkt,
 )
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def test_preparation_binds_exact_seed442_position_order() -> None:
+    registration = json.loads(
+        (ROOT / "docs/data/seed442-kl-capped-adam-screen/registration.json").read_text()
+    )
+    positions = seed442_positions(registration)
+    assert len(positions) == 8192
+    assert len(set(positions)) == 8192
+    assert len(positions) == 16 * 512
+    assert positions == registration["first_16_minibatch_positions"]
+    corrupted = dict(registration)
+    corrupted["first_16_minibatch_positions"] = positions[:-1]
+    with pytest.raises(ValueError, match="seed442_minibatch_vector_invalid"):
+        seed442_positions(corrupted)
 
 
 def synthetic_guard() -> list[dict[str, object]]:

@@ -621,7 +621,6 @@ def reconstruct_endpoint_evidence(
                 .double()
                 .numpy()
             )
-        mse = np.square(values_all.astype(np.float64) - value[:, 0].astype(np.float64))
         # Production full-training objective: expanded replay rows, weighted policy
         # mean and unweighted mean Huber value loss.
         expanded = replay[train_positions]
@@ -645,6 +644,17 @@ def reconstruct_endpoint_evidence(
         ) -> dict[str, dict[str, float]]:
             ids = np.asarray([int(row["compact_row"]) for row in rows], dtype=np.int64)
             identities = [row["input_identity"] for row in rows]
+            cohort_logits = []
+            cohort_values = []
+            model.eval()
+            with torch.inference_mode():
+                for begin in range(0, len(ids), 512):
+                    part = ids[begin : begin + 512]
+                    logits, predicted = model(torch.from_numpy(x[part]))
+                    cohort_logits.append(logits.cpu().numpy().copy())
+                    cohort_values.append(predicted.reshape(-1).cpu().numpy().copy())
+            ordered_logits = np.concatenate(cohort_logits, axis=0)
+            ordered_values = np.concatenate(cohort_values, axis=0)
             groups: dict[str, list[int]] = {}
             for index, identity in enumerate(identities):
                 groups.setdefault(identity, []).append(index)
@@ -654,15 +664,30 @@ def reconstruct_endpoint_evidence(
                 f"{label}_targets": policy[ids].copy(),
                 f"{label}_value_targets": value[ids].copy(),
                 f"{label}_inputs": x[ids].copy(),
-                f"{label}_logits": logits_all[ids].copy(),
-                f"{label}_value_predictions": values_all[ids].copy(),
+                f"{label}_logits": ordered_logits,
+                f"{label}_value_predictions": ordered_values,
             }
             for key, expected in archive_fields.items():
                 _require_array(
                     prediction_archive[key], expected, f"endpoint_prediction:{key}"
                 )
-            exposures_ce = losses[ids]
-            exposures_mse = mse[ids]
+            legal_rows = train.legal_mask_matrix_for_encoded_states(x[ids])
+            exposures_ce = np.empty(len(ids), dtype=np.float64)
+            for begin in range(0, len(ids), 512):
+                stop = min(begin + 512, len(ids))
+                exposures_ce[begin:stop] = (
+                    train.compute_policy_cross_entropy(
+                        torch.from_numpy(ordered_logits[begin:stop]).masked_fill(
+                            torch.from_numpy(legal_rows[begin:stop]) <= 0, -1e9
+                        ),
+                        torch.from_numpy(policy[ids[begin:stop]]),
+                    )
+                    .double()
+                    .numpy()
+                )
+            exposures_mse = np.square(
+                ordered_values.astype(np.float64) - value[ids, 0].astype(np.float64)
+            )
             return {
                 "exposure_weighted": {
                     "policy_ce": float(np.mean(exposures_ce)),
@@ -720,6 +745,10 @@ def reconstruct_endpoint_evidence(
             - recomputed["C"]["fresh"][weighting][metric]
             for metric in ("policy_ce", "value_mse")
         }
+    effects["full_training_objective"] = {
+        "T_minus_C": recomputed["T"]["full_training_objective"]
+        - recomputed["C"]["full_training_objective"]
+    }
     return {"metrics": recomputed, "effects_T_minus_C": effects}
 
 
@@ -769,8 +798,14 @@ def reconstruct_activation(
             )
             for gradient in subgroups
         ]
-        if any(value > DOT_LIMIT for value in subgroup_counter_dots) and all(
-            value <= DOT_LIMIT for value in subgroup_accepted_dots
+        nonzero_displacement = any(
+            np.any(a.astype(np.float64) != b.astype(np.float64))
+            for a, b in zip(pre, facts["post_parameters"], strict=True)
+        )
+        if (
+            nonzero_displacement
+            and any(value > DOT_LIMIT for value in subgroup_counter_dots)
+            and all(value <= DOT_LIMIT for value in subgroup_accepted_dots)
         ):
             active.append(
                 {
@@ -779,7 +814,11 @@ def reconstruct_activation(
                     "accepted_dots": subgroup_accepted_dots,
                 }
             )
-    return {"activated": bool(active), "steps": active}
+    return {
+        "schema": "seed457-activation-v1",
+        "activated": bool(active),
+        "steps": active,
+    }
 
 
 def recalculate_gates_and_classification(
@@ -1012,6 +1051,15 @@ def verify(root: Path) -> dict[str, Any]:
                 or hashlib.sha256(path.read_bytes()).hexdigest() != digest
             ):
                 raise ValueError(f"frozen_binding_mismatch:{relative}")
+    from ml.alphazero_lite.seed457_fresh_subgroup_projection import (
+        REQUIRED_INPUTS,
+        REQUIRED_SOURCES,
+    )
+
+    if not set(REQUIRED_INPUTS).issubset(registration.get("input_sha256", {})):
+        raise ValueError("required_input_binding_inventory_incomplete")
+    if not set(REQUIRED_SOURCES).issubset(registration.get("source_sha256", {})):
+        raise ValueError("required_source_binding_inventory_incomplete")
     evidence_path = out / "evidence.json"
     if not evidence_path.is_file():
         raise ValueError("real_evidence_missing")
@@ -1064,13 +1112,30 @@ def verify(root: Path) -> dict[str, Any]:
             if sources[int(row["compact_row"])].get("source") != "fresh":
                 raise ValueError("fresh_guard_provenance_invalid")
     batches = np.asarray(registration["seed442_first_16_positions"], dtype=np.int64)
-    if batches.shape != (8192,) or len(set(map(int, batches))) != 8192:
+    if (
+        batches.shape != (8192,)
+        or len(set(map(int, batches))) != 8192
+        or batches.reshape(16, 512).shape != (16, 512)
+    ):
         raise ValueError("frozen_minibatches_invalid")
     seed442_registration = json.loads(
         (root / "docs/data/seed442-kl-capped-adam-screen/registration.json").read_text()
     )
     if batches.tolist() != seed442_registration["first_16_minibatch_positions"]:
         raise ValueError("seed442_minibatch_protocol_mismatch")
+    seed442_receipt = json.loads(
+        (root / "docs/data/seed442-kl-capped-adam-screen/receipt.json").read_text()
+    )
+    seed442_evidence_path = (
+        root / "docs/data/seed442-kl-capped-adam-screen/evidence.json"
+    )
+    if (
+        seed442_receipt.get("evidence_files_sha256", {}).get(
+            "docs/data/seed442-kl-capped-adam-screen/evidence.json"
+        )
+        != hashlib.sha256(seed442_evidence_path.read_bytes()).hexdigest()
+    ):
+        raise ValueError("seed442_historical_evidence_receipt_mismatch")
     fixed_protocol = {
         "steps": 16,
         "batch_size": 512,
