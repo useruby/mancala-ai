@@ -52,6 +52,7 @@ def test_production_finalization_validates_effects_and_historical_comparator() -
         },
     }
     activation = {"activated": True}
+    verified_steps = [{"raw_proposal_norm": 1.0, "rejected": False}]
     evidence = {
         "effects_T_minus_C": effects,
         "metrics": {"seed442_A": historical},
@@ -63,6 +64,7 @@ def test_production_finalization_validates_effects_and_historical_comparator() -
         evidence=evidence,
         activation=activation,
         historical_metrics=historical,
+        verified_steps=verified_steps,
     )
     assert classification == "advance_to_separately_preregistered_strength_experiment"
     assert gates["pooled_ce_vs_seed442_A_exposure_weighted"]
@@ -75,6 +77,7 @@ def test_production_finalization_validates_effects_and_historical_comparator() -
             evidence=evidence,
             activation=activation,
             historical_metrics=historical,
+            verified_steps=verified_steps,
         )
 
     evidence["effects_T_minus_C"] = effects
@@ -85,6 +88,7 @@ def test_production_finalization_validates_effects_and_historical_comparator() -
             evidence=evidence,
             activation=activation,
             historical_metrics=tampered_comparator,
+            verified_steps=verified_steps,
         )
 
 
@@ -97,7 +101,7 @@ def make_full_fixture():
     policy = np.zeros((count, train.POLICY_SIZE), dtype=np.float32)
     policy[:, 0] = 1
     values = np.linspace(-0.4, 0.4, count, dtype=np.float32)[:, None]
-    replay = np.arange(count, dtype=np.int64)
+    replay = np.tile(np.arange(count // 2, dtype=np.int64), 2)
     coefficient = np.ones(count, dtype=np.float32)
     positions = np.arange(count, dtype=np.int64)
     arrays = (
@@ -110,16 +114,21 @@ def make_full_fixture():
         positions,
         [{} for _ in range(count)],
     )
-    membership = [
-        {
-            "subset": "unseen",
-            "active_stones": 40,
-            "source": "fresh",
-            "compact_row": i,
-            "input_identity": f"id-{i // 2}",
-        }
-        for i in range(4)
-    ]
+    membership = []
+    for i in range(1027):
+        x[i, 0] = (i % 24 + 1) / 48
+        if i % 2:
+            policy[i, 0] = 0.5
+            policy[i, 1] = 0.5
+        membership.append(
+            {
+                "subset": "unseen",
+                "active_stones": 40,
+                "source": "fresh",
+                "compact_row": i,
+                "input_identity": f"id-{i // 2}",
+            }
+        )
     base = train.PolicyValueNet((96, 3), "residual_v3", 27)
     initial = [p.detach().numpy().copy() for p in base.parameters()]
     models = {"initializer": base}
@@ -278,6 +287,58 @@ def test_complete_synthetic_publication_verifies() -> None:
         ).hexdigest()
         receipt_path.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n")
         with pytest.raises(ValueError, match="endpoint_prediction:T_fresh_logits"):
+            verify_synthetic_publication(
+                root=ROOT,
+                output_dir=out,
+                arrays=arrays,
+                membership=members,
+                initializer=initial,
+                model=train.PolicyValueNet((96, 3), "residual_v3", 27),
+                batches=batches,
+                full_guard_rows=full_rows,
+                fresh_guard_rows=np.arange(8),
+                subgroup_rows=[np.asarray([i]) for i in range(8)],
+                reference_records=records["C"],
+                reference_archive=reference,
+            )
+    finally:
+        shutil.rmtree(out, ignore_errors=True)
+
+
+def test_receipt_rebound_zero_norm_rejected_nonzero_proposal_fails() -> None:
+    (
+        out,
+        arrays,
+        members,
+        initial,
+        batches,
+        full_rows,
+        shards,
+        records,
+        archives,
+        _objectives,
+    ) = publication_fixture()
+    try:
+        evidence_path = out / "evidence.json"
+        evidence = json.loads(evidence_path.read_text())
+        step = evidence["arms"]["C"]["steps"][0]
+        assert step["proposal_norm"] > 0
+        step["proposal_norm"] = 0.0
+        step["rejected"] = True
+        step["selected_scale"] = None
+        evidence_path.write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n")
+        receipt_path = out / "receipt.json"
+        receipt = json.loads(receipt_path.read_text())
+        receipt["files_sha256"][evidence_path.name] = hashlib.sha256(
+            evidence_path.read_bytes()
+        ).hexdigest()
+        receipt_path.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n")
+        reference = {
+            f"B_{s:02d}_{i:02d}_post": archives["C"][f"C_{s:02d}_{i:02d}_post"]
+            for s in range(16)
+            for i in range(22)
+        }
+        with pytest.raises(ValueError, match="raw_proposal_norm_metadata_mismatch"):
             verify_synthetic_publication(
                 root=ROOT,
                 output_dir=out,

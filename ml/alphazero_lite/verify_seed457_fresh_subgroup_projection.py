@@ -311,6 +311,24 @@ def reconstruct_engine_step(
         )
     pre_np = pre
     raw_np = raw
+    raw_proposal_norm = float(
+        np.sqrt(
+            _dot(
+                [
+                    b.astype(np.float64) - a.astype(np.float64)
+                    for a, b in zip(pre_np, raw_np, strict=True)
+                ],
+                [
+                    b.astype(np.float64) - a.astype(np.float64)
+                    for a, b in zip(pre_np, raw_np, strict=True)
+                ],
+            )
+        )
+    )
+    if not np.isclose(
+        raw_proposal_norm, record.get("proposal_norm", np.nan), atol=2e-12, rtol=0
+    ):
+        raise ValueError("raw_proposal_norm_metadata_mismatch")
     projection_evidence = record["projection"]
     d = [
         b.astype(np.float64) - a.astype(np.float64)
@@ -451,6 +469,21 @@ def reconstruct_engine_step(
         "optimizer_step": step + 1,
         "pre_parameters": [value.copy() for value in pre_np],
         "raw_proposal": [value.copy() for value in raw_np],
+        "raw_proposal_norm": raw_proposal_norm,
+        "accepted_displacement_norm": float(
+            np.sqrt(
+                _dot(
+                    [
+                        b.astype(np.float64) - a.astype(np.float64)
+                        for a, b in zip(pre_np, post, strict=True)
+                    ],
+                    [
+                        b.astype(np.float64) - a.astype(np.float64)
+                        for a, b in zip(pre_np, post, strict=True)
+                    ],
+                )
+            )
+        ),
         "projected_proposal": [value.copy() for value in projected],
         "aggregate_gradient": [value.copy() for value in aggregate_gradient],
         "subgroup_gradients": [
@@ -527,8 +560,13 @@ def reconstruct_trajectory(
         "selected_scales": [record["selected_scale"] for record in records],
         "rejected_count": sum(bool(record["rejected"]) for record in records),
         "accepted_nonzero_count": sum(
-            not record["rejected"] and record["proposal_norm"] > 0 for record in records
+            not record["rejected"] and facts["accepted_displacement_norm"] > 0
+            for record, facts in zip(records, verified_steps, strict=True)
         ),
+        "raw_nonzero_count": sum(
+            facts["raw_proposal_norm"] > 0 for facts in verified_steps
+        ),
+        "rejected_count_verified": sum(facts["rejected"] for facts in verified_steps),
         "final_parameters": [value.copy() for value in parameter_state],
         "final_moments": [(a.copy(), b.copy()) for a, b in moments],
         "optimizer_step": 16,
@@ -826,6 +864,7 @@ def recalculate_gates_and_classification(
     activation: dict[str, Any],
     t_steps: list[dict[str, Any]],
     initializer_objective: float,
+    verified_steps: list[dict[str, Any]] | None = None,
 ) -> tuple[dict[str, bool], str]:
     """Independently apply fixed seed457 gates and inactive/failure/success precedence."""
     gates: dict[str, bool] = {}
@@ -850,7 +889,8 @@ def recalculate_gates_and_classification(
         metrics["T"]["full_training_objective"] < initializer_objective
     )
     gates["no_nonzero_rejection"] = not any(
-        item["proposal_norm"] > 0 and item["rejected"] for item in t_steps
+        facts["raw_proposal_norm"] > 0 and facts["rejected"]
+        for facts in (verified_steps or [])
     )
     gates["additional_subgroup_protection"] = bool(activation["activated"])
     if not activation["activated"]:
@@ -868,6 +908,7 @@ def finalize_reconstruction(
     evidence: dict[str, Any],
     activation: dict[str, Any],
     historical_metrics: dict[str, Any],
+    verified_steps: list[dict[str, Any]] | None = None,
 ) -> tuple[dict[str, bool], str]:
     """Validate reconstructed effects and apply fixed gates with receipt-bound A."""
     _require_numeric_tree(
@@ -886,6 +927,7 @@ def finalize_reconstruction(
         activation,
         evidence["arms"]["T"]["steps"],
         endpoint["metrics"]["initializer"]["full_training_objective"],
+        verified_steps,
     )
 
 
@@ -996,6 +1038,7 @@ def verify_synthetic_publication(
             evidence=evidence,
             activation=activation,
             historical_metrics=evidence["metrics"]["seed442_A"],
+            verified_steps=trajectories["T"]["verified_steps"],
         )
         if gates != evidence.get("gates"):
             raise ValueError("decision_gates_semantic_mismatch")
@@ -1106,6 +1149,8 @@ def verify(root: Path) -> dict[str, Any]:
     if (
         registration.get("shards") != shards
         or registration.get("fresh_guard") != fresh_guard
+        or registration.get("full_guard")
+        != json.loads((out / "full-guard.json").read_text())
     ):
         raise ValueError("frozen_partition_or_guard_mismatch")
     x, _policy, _value, replay, _coeff, train_positions, _validation, sources = arrays
@@ -1160,18 +1205,42 @@ def verify(root: Path) -> dict[str, Any]:
     historical_metrics = json.loads(seed442_evidence_path.read_text())["metrics"]["A"]
     if evidence.get("metrics", {}).get("seed442_A") != historical_metrics:
         raise ValueError("seed442_comparator_historical_mismatch")
+    if registration.get("historical_comparator") != historical_metrics:
+        raise ValueError("historical_comparator_registration_mismatch")
     fixed_protocol = {
         "steps": 16,
         "batch_size": 512,
+        "arms": {
+            "C": "seed453-B aggregate gradient projection",
+            "T": "nearest joint eight-subgroup projection",
+        },
         "kl_cap": 0.005,
         "kl_tolerance": 1e-10,
         "value_cap": 0.0001,
         "value_tolerance": 1e-12,
         "dot_allowance": 1e-7,
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "betas": [0.9, 0.999],
+        "epsilon": 1e-8,
+        "weight_decay": 0.0,
+        "initial_moments": "zero",
+        "gradient_clip_norm": 1.0,
+        "projection_arithmetic": "float64",
+        "parameter_writeback": "float32",
+        "rejection": "restore_parameters_retain_advanced_adam_state",
     }
     for key, expected in fixed_protocol.items():
         if registration.get("protocol", {}).get(key) != expected:
             raise ValueError(f"production_protocol_mismatch:{key}")
+    if registration.get("model") != {
+        "architecture": "residual_v3",
+        "shape": [96, 3],
+        "input_size": 27,
+    }:
+        raise ValueError("production_model_mismatch")
+    if registration.get("steps") != 16 or registration.get("scales") != list(SCALES):
+        raise ValueError("production_trajectory_shape_mismatch")
     guard_rows = np.asarray(
         [int(row["compact_row"]) for row in full_guard], dtype=np.int64
     )
@@ -1255,6 +1324,7 @@ def verify(root: Path) -> dict[str, Any]:
             evidence=evidence,
             activation=activation,
             historical_metrics=historical_metrics,
+            verified_steps=trajectories["T"]["verified_steps"],
         )
         if gates != evidence.get("gates") or classification != evidence.get(
             "decision", {}

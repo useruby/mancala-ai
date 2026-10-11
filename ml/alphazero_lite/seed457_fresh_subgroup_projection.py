@@ -10,6 +10,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import platform
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -169,9 +172,68 @@ def readiness(root: Path) -> dict[str, Any]:
     guard = json.loads((root / OUT / "fresh-guard.json").read_text())
     if guard != registration.get("fresh_guard"):
         raise ValueError("fresh_guard_registration_mismatch")
+    full_guard = json.loads((root / OUT / "full-guard.json").read_text())
+    if (
+        len(full_guard) != 2048
+        or full_guard != registration.get("full_guard")
+        or registration.get("full_guard_count") != 2048
+    ):
+        raise ValueError("full_guard_registration_mismatch")
     shards = shard_guard(guard)
     if registration.get("shards") != shards:
         raise ValueError("shard_partition_mismatch")
+    if registration.get("seed442_first_16_positions") != seed442_positions(
+        json.loads((root / REQUIRED_INPUTS[11]).read_text())
+    ):
+        raise ValueError("seed442_minibatch_protocol_mismatch")
+    protocol = registration.get("protocol", {})
+    expected_protocol = {
+        "steps": 16,
+        "batch_size": 512,
+        "arms": {
+            "C": "seed453-B aggregate gradient projection",
+            "T": "nearest joint eight-subgroup projection",
+        },
+        "kl_cap": 0.005,
+        "kl_tolerance": 1e-10,
+        "value_cap": 0.0001,
+        "value_tolerance": 1e-12,
+        "dot_allowance": 1e-7,
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "betas": [0.9, 0.999],
+        "epsilon": 1e-8,
+        "weight_decay": 0.0,
+        "initial_moments": "zero",
+        "gradient_clip_norm": 1.0,
+        "projection_arithmetic": "float64",
+        "parameter_writeback": "float32",
+        "rejection": "restore_parameters_retain_advanced_adam_state",
+    }
+    if protocol != expected_protocol:
+        raise ValueError("registered_protocol_mismatch")
+    if registration.get("steps") != 16 or registration.get("scales") != list(
+        seed453.SCALES
+    ):
+        raise ValueError("registered_trajectory_shape_mismatch")
+    if registration.get("model") != {
+        "architecture": "residual_v3",
+        "shape": [96, 3],
+        "input_size": 27,
+    }:
+        raise ValueError("registered_model_mismatch")
+    historical_receipt = json.loads(
+        (root / "docs/data/seed442-kl-capped-adam-screen/receipt.json").read_text()
+    )
+    historical_evidence = root / "docs/data/seed442-kl-capped-adam-screen/evidence.json"
+    if historical_receipt.get("evidence_files_sha256", {}).get(
+        "docs/data/seed442-kl-capped-adam-screen/evidence.json"
+    ) != sha(historical_evidence):
+        raise ValueError("historical_comparator_receipt_mismatch")
+    if json.loads(historical_evidence.read_text())["metrics"]["A"] != registration.get(
+        "historical_comparator"
+    ):
+        raise ValueError("historical_comparator_registration_mismatch")
     return {
         "status": "ready",
         "fresh_guard_rows": len(guard),
@@ -234,7 +296,7 @@ REQUIRED_SOURCES = (
 
 
 def prepare(root: Path) -> dict[str, Any]:
-    """Construct a prospective draft in memory; never writes a registration."""
+    """Create and prospectively freeze the complete registration, once only."""
     root = root.resolve()
     if any(not (root / item).is_file() for item in REQUIRED_INPUTS):
         missing = [item for item in REQUIRED_INPUTS if not (root / item).is_file()]
@@ -250,13 +312,36 @@ def prepare(root: Path) -> dict[str, Any]:
         (root / "docs/data/seed442-kl-capped-adam-screen/registration.json").read_text()
     )
     batches = seed442_positions(seed442_registration)
-    return {
+    historical_evidence_path = (
+        root / "docs/data/seed442-kl-capped-adam-screen/evidence.json"
+    )
+    historical_receipt = json.loads(
+        (root / "docs/data/seed442-kl-capped-adam-screen/receipt.json").read_text()
+    )
+    if historical_receipt.get("evidence_files_sha256", {}).get(
+        "docs/data/seed442-kl-capped-adam-screen/evidence.json"
+    ) != sha(historical_evidence_path):
+        raise ValueError("historical_comparator_receipt_mismatch")
+    out = root / OUT
+    out.mkdir(parents=True, exist_ok=True)
+    registration_path = out / "registration.json"
+    if registration_path.exists():
+        raise ValueError("registration_already_exists")
+    full_guard_path = out / "full-guard.json"
+    fresh_guard_path = out / "fresh-guard.json"
+    full_guard_path.write_text(json.dumps(full, indent=2, sort_keys=True) + "\n")
+    fresh_guard_path.write_text(json.dumps(fresh, indent=2, sort_keys=True) + "\n")
+    registration = {
         "schema": "seed457-registration-v1",
-        "status": "draft_not_frozen",
+        "status": "frozen_before_either_arm",
         "source_sha256": {rel: sha(root / rel) for rel in sources},
         "input_sha256": {rel: sha(root / rel) for rel in REQUIRED_INPUTS},
         "initializer_sha256": INIT_SHA256,
+        "historical_comparator": json.loads(historical_evidence_path.read_text())[
+            "metrics"
+        ]["A"],
         "full_guard_count": len(full),
+        "full_guard": full,
         "fresh_guard": fresh,
         "shards": shards,
         "seed442_first_16_positions": batches,
@@ -274,6 +359,23 @@ def prepare(root: Path) -> dict[str, Any]:
             "value_cap": 0.0001,
             "value_tolerance": 1e-12,
             "dot_allowance": 1e-7,
+            "optimizer": "Adam",
+            "learning_rate": 0.001,
+            "betas": [0.9, 0.999],
+            "epsilon": 1e-8,
+            "weight_decay": 0.0,
+            "initial_moments": "zero",
+            "gradient_clip_norm": 1.0,
+            "projection_arithmetic": "float64",
+            "parameter_writeback": "float32",
+            "rejection": "restore_parameters_retain_advanced_adam_state",
+        },
+        "model": {"architecture": "residual_v3", "shape": [96, 3], "input_size": 27},
+        "environment": {
+            "python": platform.python_version(),
+            "numpy": np.__version__,
+            "torch": torch.__version__,
+            "platform": platform.platform(),
         },
         "decision_labels": [
             "subgroup_projection_inactive_no_followup",
@@ -281,6 +383,28 @@ def prepare(root: Path) -> dict[str, Any]:
             "advance_to_separately_preregistered_strength_experiment",
         ],
     }
+    snapshot_dir = out / "source-snapshots"
+    snapshot_dir.mkdir(exist_ok=True)
+    for relative in sources:
+        target = snapshot_dir / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(root / relative, target)
+    # Ensure the snapshot and inputs remain identical through the freeze boundary.
+    for relative, digest in registration["source_sha256"].items():
+        if sha(root / relative) != digest or sha(snapshot_dir / relative) != digest:
+            raise ValueError(f"source_changed_during_registration:{relative}")
+    for relative, digest in registration["input_sha256"].items():
+        if sha(root / relative) != digest:
+            raise ValueError(f"input_changed_during_registration:{relative}")
+    if json.loads(full_guard_path.read_text()) != registration["full_guard"]:
+        raise ValueError("full_guard_publication_mismatch")
+    if json.loads(fresh_guard_path.read_text()) != registration["fresh_guard"]:
+        raise ValueError("fresh_guard_publication_mismatch")
+    with registration_path.open("x") as stream:
+        stream.write(json.dumps(registration, indent=2, sort_keys=True) + "\n")
+        stream.flush()
+        os.fsync(stream.fileno())
+    return registration
 
 
 def shard_gradients(
@@ -924,6 +1048,21 @@ def run(root: Path) -> dict[str, Any]:
     status = readiness(root)
     if status["status"] != "ready":
         raise ValueError("registration_not_frozen_ready")
+    out = root / OUT
+    existing_run_files = [
+        name
+        for name in (
+            "evidence.json",
+            "receipt.json",
+            "results.md",
+            "step-tensors-C.npz",
+            "step-tensors-T.npz",
+            "endpoint-predictions.npz",
+        )
+        if (out / name).exists()
+    ]
+    if existing_run_files:
+        raise ValueError(f"execution_publication_already_exists:{existing_run_files}")
     registration = json.loads((root / OUT / "registration.json").read_text())
     seed442.configure_root(root)
     seed447.seed442.configure_root(root)
@@ -1019,11 +1158,43 @@ def run(root: Path) -> dict[str, Any]:
         - metrics["C"]["full_training_objective"]
     }
     activation = subgroup_activation(results["T"])
+    verified_gate_steps = []
+    for index, record in enumerate(results["T"]):
+        raw = [
+            tensor_archives["T"][f"T_{index:02d}_{parameter:02d}_raw_proposal"]
+            for parameter in range(22)
+        ]
+        pre = [
+            tensor_archives["T"][f"T_{index:02d}_{parameter:02d}_pre"]
+            for parameter in range(22)
+        ]
+        post = [
+            tensor_archives["T"][f"T_{index:02d}_{parameter:02d}_post"]
+            for parameter in range(22)
+        ]
+        raw_delta = [
+            b.astype(np.float64) - a.astype(np.float64)
+            for a, b in zip(pre, raw, strict=True)
+        ]
+        accepted_delta = [
+            b.astype(np.float64) - a.astype(np.float64)
+            for a, b in zip(pre, post, strict=True)
+        ]
+        verified_gate_steps.append(
+            {
+                **record,
+                "proposal_norm": float(
+                    np.sqrt(sum(np.sum(v * v, dtype=np.float64) for v in raw_delta))
+                ),
+                "rejected": record["selected_scale"] is None,
+                "accepted_update_nonzero": any(np.any(v != 0) for v in accepted_delta),
+            }
+        )
     gates = decision_gates(
         metrics,
         metrics["initializer"]["full_training_objective"],
         activation,
-        results["T"],
+        verified_gate_steps,
     )
     evidence = {
         "schema": "seed457-evidence-v1",
@@ -1036,7 +1207,7 @@ def run(root: Path) -> dict[str, Any]:
         "gates": gates,
         "decision": {
             "verified": bool(control["matches"]),
-            "classification": decide(metrics, results["T"], activation)
+            "classification": decide(metrics, verified_gate_steps, activation)
             if control["matches"]
             else None,
         },
@@ -1071,6 +1242,8 @@ def run(root: Path) -> dict[str, Any]:
         "steps_per_arm": 16,
         "decision": evidence["decision"],
         "control_reproduction": control,
+        "gates": gates,
+        "activation": activation,
     }
 
 

@@ -1,0 +1,16 @@
+{
+  "schema": "seed457-verification-attempt-v1",
+  "status": "invalid_unverified_attempt",
+  "verifier": "ml.alphazero_lite.verify_seed457_fresh_subgroup_projection",
+  "failure": {
+    "arm": "C",
+    "step": 6,
+    "scale": 1.0,
+    "error": "trial_measurement_mismatch:batch_kl:1.0"
+  },
+  "decision_reported": false,
+  "preserved_execution": {
+    "steps_per_arm": 16,
+    "control_reproduction": "runner_match_reported; independent trajectory verification failed"
+  }
+}

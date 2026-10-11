@@ -13,11 +13,13 @@ validated before readiness. Publication and reconstruction include all pooled,
 fresh, and full-training-objective T−C effects; activation evidence is versioned
 and requires a nonzero accepted displacement.
 
-No real seed457 registration was created, no C or T arm was executed, and no
-experiment decision exists.
+The real registration and complete execution attempt are now published under
+`docs/data/seed457-fresh-subgroup-projection/`. Both arms completed the registered
+sixteen proposals and C reproduced seed453 B exactly, but independent semantic
+verification failed at C step 6 (`trial_measurement_mismatch:batch_kl:1.0`). The
+attempt is marked invalid and no experiment decision is reported; see
+`verification-status.json` and `results.md` in that publication.
 
-The later operational sequence is: freeze finalized source and input identities
-prospectively; execute the fixed sixteen proposals for C and T; independently
-verify exact C reproduction and the complete real publication; then assess the
-already-fixed decision gates. No games, export, or promotion are authorized by
-this preparation.
+The registration, guards, ordered positions, source snapshots, input inventory,
+and environment identities were frozen before execution. No games, runtime
+export, or promotion were performed.
