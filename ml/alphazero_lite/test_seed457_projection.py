@@ -38,7 +38,7 @@ def test_invalid_constraint_fails_closed() -> None:
 
 def test_zero_normals_preserve_float64_until_state_writeback() -> None:
     pre = [np.array([1.0], dtype=np.float32)]
-    raw = [np.array([np.nextafter(np.float32(1.0), np.float32(2.0))])]
+    raw = [np.array([1.0 + 1e-8], dtype=np.float64)]
     result, _ = projected_proposal(pre, raw, [[np.zeros(1, dtype=np.float32)]])
     expected = np.asarray(
         pre[0].astype(np.float64)
