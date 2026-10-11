@@ -223,6 +223,13 @@ REQUIRED_SOURCES = (
     "ml/alphazero_lite/verify_seed434_census_source.py",
     "ml/alphazero_lite/verify_seed450_seed449_correction.py",
     "ml/alphazero_lite/train.py",
+    "ml/alphazero_lite/input_encodings.py",
+    "ml/alphazero_lite/kalah_rules.py",
+    "ml/alphazero_lite/checkpoint_phase_selection.py",
+    "ml/alphazero_lite/exact_root_policy_targets.py",
+    "ml/alphazero_lite/build_opening_suite.py",
+    "ml/alphazero_lite/seed432_policy_target_census.py",
+    "ml/alphazero_lite/seed433_census_correction.py",
 )
 
 
@@ -559,6 +566,10 @@ def _run_arm_engine(
                 "objective": float(objective.detach()),
                 "selected_scale": selected,
                 "rejected": selected is None,
+                "accepted_update_nonzero": any(
+                    np.any(before != after)
+                    for before, after in zip(pre_np, post, strict=True)
+                ),
                 "trials": trials,
                 "projection": projection,
                 "proposal_norm": float(
@@ -716,10 +727,7 @@ def subgroup_activation(
                 if row["scale"] == record["selected_scale"]
             )
         ]["gradient_dots"]
-        displacement = record["projection"].get("projected_displacement", [])
-        if not any(
-            np.any(np.asarray(part, dtype=np.float64) != 0) for part in displacement
-        ):
+        if not record.get("accepted_update_nonzero", False):
             continue
         if (
             counter is not None

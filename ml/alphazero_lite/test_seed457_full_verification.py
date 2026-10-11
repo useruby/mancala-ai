@@ -18,10 +18,74 @@ from ml.alphazero_lite import seed457_fresh_subgroup_projection as runner
 from ml.alphazero_lite import train
 from ml.alphazero_lite.verify_seed457_fresh_subgroup_projection import (
     compare_c_reference,
+    finalize_reconstruction,
     verify_synthetic_publication,
 )
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def test_production_finalization_validates_effects_and_historical_comparator() -> None:
+    effects = {"pooled": {"policy_ce": {"exposure_weighted": 0.0}}}
+    historical = {
+        weighting: {"policy_ce": 1.0}
+        for weighting in ("exposure_weighted", "equal_input")
+    }
+    metrics = {
+        "T": {
+            "exposure_weighted": {"policy_ce": 0.5, "value_mse": 0.0},
+            "equal_input": {"policy_ce": 0.5, "value_mse": 0.0},
+            "fresh": {
+                weighting: {"policy_ce": 0.0}
+                for weighting in ("exposure_weighted", "equal_input")
+            },
+            "full_training_objective": 0.5,
+        },
+        "initializer": {
+            "exposure_weighted": {"policy_ce": 1.0, "value_mse": 0.0},
+            "equal_input": {"policy_ce": 1.0, "value_mse": 0.0},
+            "fresh": {
+                weighting: {"policy_ce": 0.0}
+                for weighting in ("exposure_weighted", "equal_input")
+            },
+            "full_training_objective": 1.0,
+        },
+    }
+    activation = {"activated": True}
+    evidence = {
+        "effects_T_minus_C": effects,
+        "metrics": {"seed442_A": historical},
+        "arms": {"T": {"steps": []}},
+    }
+    endpoint = {"effects_T_minus_C": effects, "metrics": metrics}
+    gates, classification = finalize_reconstruction(
+        endpoint=endpoint,
+        evidence=evidence,
+        activation=activation,
+        historical_metrics=historical,
+    )
+    assert classification == "advance_to_separately_preregistered_strength_experiment"
+    assert gates["pooled_ce_vs_seed442_A_exposure_weighted"]
+
+    tampered_effects = {"pooled": {"policy_ce": {"exposure_weighted": 1.0}}}
+    evidence["effects_T_minus_C"] = tampered_effects
+    with pytest.raises(ValueError, match="effects_T_minus_C"):
+        finalize_reconstruction(
+            endpoint=endpoint,
+            evidence=evidence,
+            activation=activation,
+            historical_metrics=historical,
+        )
+
+    evidence["effects_T_minus_C"] = effects
+    tampered_comparator = {**historical, "exposure_weighted": {"policy_ce": 9.0}}
+    with pytest.raises(ValueError, match="seed442_A_comparator"):
+        finalize_reconstruction(
+            endpoint=endpoint,
+            evidence=evidence,
+            activation=activation,
+            historical_metrics=tampered_comparator,
+        )
 
 
 def make_full_fixture():

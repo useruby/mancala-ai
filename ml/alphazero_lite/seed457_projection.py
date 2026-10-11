@@ -49,7 +49,7 @@ def project(
             active_source.append(index)
 
     if not normalized:
-        return [item.astype(np.float32) for item in d], {
+        return [item.copy() for item in d], {
             "source_indices": [],
             "dual": [],
             "slacks": [],

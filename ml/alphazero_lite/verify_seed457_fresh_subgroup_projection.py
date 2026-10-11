@@ -862,6 +862,33 @@ def recalculate_gates_and_classification(
     return gates, classification
 
 
+def finalize_reconstruction(
+    *,
+    endpoint: dict[str, Any],
+    evidence: dict[str, Any],
+    activation: dict[str, Any],
+    historical_metrics: dict[str, Any],
+) -> tuple[dict[str, bool], str]:
+    """Validate reconstructed effects and apply fixed gates with receipt-bound A."""
+    _require_numeric_tree(
+        endpoint["effects_T_minus_C"],
+        evidence.get("effects_T_minus_C"),
+        "effects_T_minus_C",
+    )
+    _require_numeric_tree(
+        historical_metrics,
+        evidence.get("metrics", {}).get("seed442_A"),
+        "seed442_A_comparator",
+    )
+    metrics = {**endpoint["metrics"], "seed442_A": historical_metrics}
+    return recalculate_gates_and_classification(
+        metrics,
+        activation,
+        evidence["arms"]["T"]["steps"],
+        endpoint["metrics"]["initializer"]["full_training_objective"],
+    )
+
+
 def verify_synthetic_publication(
     *,
     root: Path,
@@ -949,8 +976,6 @@ def verify_synthetic_publication(
             prediction_archive=prediction_archive,
             recorded_metrics=evidence["metrics"],
         )
-        if endpoint["effects_T_minus_C"] != evidence.get("effects_T_minus_C"):
-            raise ValueError("endpoint_effects_semantic_mismatch")
         _require_numeric_tree(
             endpoint["metrics"],
             {key: evidence["metrics"][key] for key in endpoint["metrics"]},
@@ -966,15 +991,11 @@ def verify_synthetic_publication(
         )
         if activation != evidence.get("activation"):
             raise ValueError("activation_semantic_mismatch")
-        gate_metrics = {
-            **endpoint["metrics"],
-            "seed442_A": evidence["metrics"]["seed442_A"],
-        }
-        gates, classification = recalculate_gates_and_classification(
-            gate_metrics,
-            activation,
-            evidence["arms"]["T"]["steps"],
-            endpoint["metrics"]["initializer"]["full_training_objective"],
+        gates, classification = finalize_reconstruction(
+            endpoint=endpoint,
+            evidence=evidence,
+            activation=activation,
+            historical_metrics=evidence["metrics"]["seed442_A"],
         )
         if gates != evidence.get("gates"):
             raise ValueError("decision_gates_semantic_mismatch")
@@ -1073,8 +1094,8 @@ def verify(root: Path) -> dict[str, Any]:
     from ml.alphazero_lite import seed435_adam_direction as seed435
     from ml.alphazero_lite import verify_seed453_fresh_policy_projection as verify453
 
-    arrays = verify453._portable_inputs(root)
     seed442.configure_root(root)
+    arrays = verify453._portable_inputs(root)
     full_guard = json.loads(
         (root / "docs/data/seed442-kl-capped-adam-screen/guard-cohort.json").read_text()
     )
@@ -1136,6 +1157,9 @@ def verify(root: Path) -> dict[str, Any]:
         != hashlib.sha256(seed442_evidence_path.read_bytes()).hexdigest()
     ):
         raise ValueError("seed442_historical_evidence_receipt_mismatch")
+    historical_metrics = json.loads(seed442_evidence_path.read_text())["metrics"]["A"]
+    if evidence.get("metrics", {}).get("seed442_A") != historical_metrics:
+        raise ValueError("seed442_comparator_historical_mismatch")
     fixed_protocol = {
         "steps": 16,
         "batch_size": 512,
@@ -1226,11 +1250,11 @@ def verify(root: Path) -> dict[str, Any]:
         )
         if activation != evidence.get("activation"):
             raise ValueError("activation_semantic_mismatch")
-        gates, classification = recalculate_gates_and_classification(
-            endpoint["metrics"],
-            activation,
-            evidence["arms"]["T"]["steps"],
-            endpoint["metrics"]["initializer"]["full_training_objective"],
+        gates, classification = finalize_reconstruction(
+            endpoint=endpoint,
+            evidence=evidence,
+            activation=activation,
+            historical_metrics=historical_metrics,
         )
         if gates != evidence.get("gates") or classification != evidence.get(
             "decision", {}
