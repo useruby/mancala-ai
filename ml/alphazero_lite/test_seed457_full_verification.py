@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
+import subprocess
 import uuid
 from pathlib import Path
 
@@ -228,3 +230,107 @@ def test_complete_synthetic_publication_verifies() -> None:
             )
     finally:
         shutil.rmtree(out, ignore_errors=True)
+
+
+def test_synthetic_verifier_runs_from_physical_copy_and_unrelated_cwd() -> None:
+    out, arrays, members, initial, batches, full_rows, shards, records, archives, _ = (
+        publication_fixture()
+    )
+    token = uuid.uuid4().hex
+    copied = ROOT / ".tmp" / f"seed457-physical-copy-{token}"
+    cwd = ROOT / ".tmp" / f"seed457-unrelated-cwd-{token}"
+    fixture_npz = ROOT / ".tmp" / f"seed457-fixture-inputs-{token}.npz"
+    try:
+        shutil.copytree(ROOT / "ml", copied / "ml")
+        copied_out = copied / ".tmp/seed457-publication"
+        shutil.copytree(out, copied_out)
+        cwd.mkdir(parents=True)
+        data = {
+            "x": arrays[0],
+            "policy": arrays[1],
+            "value": arrays[2],
+            "replay": arrays[3],
+            "coeff": arrays[4],
+            "train_positions": arrays[5],
+            "validation_positions": arrays[6],
+            "batches": batches,
+            "full_rows": full_rows,
+            "fresh_rows": np.arange(8),
+            "initializer_0": initial[0],
+        }
+        for index, state in enumerate(initial):
+            data[f"initializer_{index}"] = state
+        for index, shard in enumerate(shards):
+            data[f"shard_{index}"] = np.asarray(
+                [row["compact_row"] for row in shard], dtype=np.int64
+            )
+        np.savez_compressed(fixture_npz, **data)
+        (copied / ".tmp/membership.json").write_text(json.dumps(members))
+        inventory = {
+            path.relative_to(copied).as_posix(): (
+                hashlib.sha256(path.read_bytes()).hexdigest(),
+                path.stat().st_mtime_ns,
+            )
+            for path in copied.rglob("*")
+            if path.is_file()
+        }
+        script = r"""
+import hashlib, json, pathlib, sys
+import numpy as np
+root, fixture, original = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2]), pathlib.Path(sys.argv[3])
+sys.path.insert(0, str(root))
+from ml.alphazero_lite import train
+from ml.alphazero_lite.verify_seed457_fresh_subgroup_projection import verify_synthetic_publication
+old_open = pathlib.Path.open
+def blocked(self, *args, **kwargs):
+    p = self.resolve()
+    if str(p).startswith(str(original / "docs/data")):
+        raise RuntimeError("original_historical_evidence_access_blocked")
+    return old_open(self, *args, **kwargs)
+pathlib.Path.open = blocked
+with np.load(fixture, allow_pickle=False) as a:
+    arrays = (a["x"], a["policy"], a["value"], a["replay"], a["coeff"], a["train_positions"], a["validation_positions"], [{} for _ in range(len(a["x"]))])
+    init = [a[f"initializer_{i}"].copy() for i in range(22)]
+    batches, full, fresh = a["batches"], a["full_rows"], a["fresh_rows"]
+    shards = [a[f"shard_{i}"].copy() for i in range(8)]
+members = json.loads((root / ".tmp/membership.json").read_text())
+out = root / ".tmp/seed457-publication"
+evidence = json.loads((out / "evidence.json").read_text())
+with np.load(out / "step-tensors-C.npz", allow_pickle=False) as archive:
+    ref = {f"B_{s:02d}_{i:02d}_post": archive[f"C_{s:02d}_{i:02d}_post"].copy() for s in range(16) for i in range(22)}
+result = verify_synthetic_publication(root=root, output_dir=out, arrays=arrays, membership=members, initializer=init, model=train.PolicyValueNet((96,3), "residual_v3", 27), batches=batches, full_guard_rows=full, fresh_guard_rows=fresh, subgroup_rows=shards, reference_records=evidence["arms"]["C"]["steps"], reference_archive=ref)
+print(json.dumps(result, sort_keys=True))
+"""
+        env = dict(os.environ)
+        env["PYTHONPATH"] = str(copied)
+        env["PYTHONDONTWRITEBYTECODE"] = "1"
+        completed = subprocess.run(
+            [
+                str(ROOT / ".venv-azlite/bin/python"),
+                "-c",
+                script,
+                str(copied),
+                str(fixture_npz),
+                str(ROOT),
+            ],
+            cwd=cwd,
+            env=env,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        assert '"status": "valid_synthetic_fixture"' in completed.stdout
+        after = {
+            path.relative_to(copied).as_posix(): (
+                hashlib.sha256(path.read_bytes()).hexdigest(),
+                path.stat().st_mtime_ns,
+            )
+            for path in copied.rglob("*")
+            if path.is_file()
+        }
+        assert after == inventory
+    finally:
+        shutil.rmtree(out, ignore_errors=True)
+        shutil.rmtree(copied, ignore_errors=True)
+        shutil.rmtree(cwd, ignore_errors=True)
+        fixture_npz.unlink(missing_ok=True)
