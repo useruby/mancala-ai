@@ -1,0 +1,15 @@
+{
+  "classification": "no_experiment_decision_protocol_estimands_incomplete",
+  "correction_files_sha256": {
+    "correction-report.json": "0f550e93c826d274eff64876ba5d115885d014bbb7ddda369bb964d00f82f0a2"
+  },
+  "correction_sources_sha256": {
+    "ml/alphazero_lite/publish_seed462_correction.py": "ff50df6f80d987cb692c0a2a43188fd5a7b64f35deacafb47169a2339ef1e352",
+    "ml/alphazero_lite/test_seed462_correction.py": "375cb21474469dc227f4d8f0805df309320bd333fee48ecb74f1b9956fcc64f6",
+    "ml/alphazero_lite/verify_seed462_correction.py": "b44c7f9035bb0484402a3adf4e435bc524b2e8be5d35faa647ca7c38127dcee0"
+  },
+  "original_recovery_receipt_sha256": "4090e7c36d3f922d73c5c4b33f22cc3c34f3036591237f7598d310279d135e2d",
+  "original_registration_sha256": "6d5f7e7fde229ee51de74c58a179bf0fcd4c0293c44810b89558d204c9f84f3e",
+  "schema": "seed462-correction-receipt-v1",
+  "timing": "post_execution"
+}
