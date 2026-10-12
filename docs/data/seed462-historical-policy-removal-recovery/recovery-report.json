@@ -1,0 +1,135 @@
+{
+  "original_attempt_archives": {
+    "C-steps.npz": "30a59f6c969b4ab814237b311a3a9f7cc982edced3cab4cf4d184b43c5b6c7e7",
+    "C-trajectory.json": "a9fbdaea24a0821a35d2be4ff9111d612b931c9c1d597e3fe9cc707ad89d7b7b",
+    "C-verified.json": "b47b8120d01fe65f9c8c851f0a47df481c56733a63b22e831870016cabda45ed",
+    "F-steps.npz": "386b811cbea52c1dcb3507449d354548f610c0c0c9cd4d65fa6fe695b2c21d29",
+    "F-trajectory.json": "7aa336454079a3b6a8fdcbe537bb5098e82863814d976a768a9bc90c84f193ef",
+    "census.json": "11336900455e5bec4b6a354ee585f0b40a71f30b48a2a3f678b0bcf673f167f3"
+  },
+  "original_attempt_status": "invalid_unverified_attempt_preserved",
+  "original_publication_unchanged": {
+    "docs/data/seed462-historical-policy-removal/C-steps.npz": {
+      "mtime_unchanged": true,
+      "sha256_unchanged": true
+    },
+    "docs/data/seed462-historical-policy-removal/C-trajectory.json": {
+      "mtime_unchanged": true,
+      "sha256_unchanged": true
+    },
+    "docs/data/seed462-historical-policy-removal/C-verified.json": {
+      "mtime_unchanged": true,
+      "sha256_unchanged": true
+    },
+    "docs/data/seed462-historical-policy-removal/F-steps.npz": {
+      "mtime_unchanged": true,
+      "sha256_unchanged": true
+    },
+    "docs/data/seed462-historical-policy-removal/F-trajectory.json": {
+      "mtime_unchanged": true,
+      "sha256_unchanged": true
+    },
+    "docs/data/seed462-historical-policy-removal/census.json": {
+      "mtime_unchanged": true,
+      "sha256_unchanged": true
+    },
+    "docs/data/seed462-historical-policy-removal/registration.json": {
+      "mtime_unchanged": true,
+      "sha256_unchanged": true
+    },
+    "docs/data/seed462-historical-policy-removal/source-snapshots/ml/alphazero_lite/seed429_policy_normalization.py": {
+      "mtime_unchanged": true,
+      "sha256_unchanged": true
+    },
+    "docs/data/seed462-historical-policy-removal/source-snapshots/ml/alphazero_lite/seed435_adam_direction.py": {
+      "mtime_unchanged": true,
+      "sha256_unchanged": true
+    },
+    "docs/data/seed462-historical-policy-removal/source-snapshots/ml/alphazero_lite/seed462_historical_policy_removal.py": {
+      "mtime_unchanged": true,
+      "sha256_unchanged": true
+    },
+    "docs/data/seed462-historical-policy-removal/source-snapshots/ml/alphazero_lite/test_seed462_historical_policy_removal.py": {
+      "mtime_unchanged": true,
+      "sha256_unchanged": true
+    },
+    "docs/data/seed462-historical-policy-removal/source-snapshots/ml/alphazero_lite/train.py": {
+      "mtime_unchanged": true,
+      "sha256_unchanged": true
+    },
+    "docs/data/seed462-historical-policy-removal/source-snapshots/ml/alphazero_lite/verify_seed434_census_source.py": {
+      "mtime_unchanged": true,
+      "sha256_unchanged": true
+    },
+    "docs/data/seed462-historical-policy-removal/source-snapshots/ml/alphazero_lite/verify_seed462_historical_policy_removal.py": {
+      "mtime_unchanged": true,
+      "sha256_unchanged": true
+    }
+  },
+  "prospective_protocol_assessment": {
+    "cohort_estimands": "not fully prospectively specified: pooled/fresh >32 membership filters and exposure/equal-input weighting definitions are not enumerated in registration",
+    "decision": "numeric gate arithmetic is reported retrospectively, but no valid advance/close classification is made because the gate estimands were not fully preregistered",
+    "minibatches_and_inputs": "hash-bound and reconstructed from registered frozen permutation/split/source snapshots",
+    "objective_and_mask": "bound by registration formulas and registered runner snapshot; fresh is reconstructed provenance.source == fresh"
+  },
+  "recovery_status": {
+    "all_numeric_gates": {
+      "fresh_mse_equal_input": false,
+      "fresh_mse_exposure_weighted": false,
+      "fresh_training_objective_decreases": true,
+      "fresh_vs_C_equal_input": true,
+      "fresh_vs_C_exposure_weighted": true,
+      "fresh_vs_initializer_equal_input": false,
+      "fresh_vs_initializer_exposure_weighted": false,
+      "pooled_ce_equal_input": false,
+      "pooled_ce_exposure_weighted": false,
+      "pooled_mse_equal_input": false,
+      "pooled_mse_exposure_weighted": false
+    },
+    "control": "exact",
+    "decision_status": "unsupported_due_to_unregistered_estimands",
+    "endpoint_timing": "post_execution_reconstruction",
+    "trajectory": "valid"
+  },
+  "registered_inputs": {
+    "docs/data/seed416-policy-target-softening/registration-v3.json": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+    "docs/data/seed416-policy-target-softening/training-freeze-v3/epoch-permutations.json.gz": "d868edebd9ae1876cbc5b9edca6fa0df9d3e6184b97246847f9012dfe2d293d1",
+    "docs/data/seed416-policy-target-softening/training-freeze-v3/source-row-split.json.gz": "f7b69ab8fd6c19128a29f9ae9a11a7ac42a5d26630368ff74e906f29ddb6be44",
+    "docs/data/seed426-canonical-overlap/seed427-validation-membership.jsonl.gz": "554f3bd016a0f920ef253538d741a91cb27c9882d2dba94cf7509030af8ca385",
+    "docs/data/seed426-canonical-overlap/sources/fresh.jsonl.gz": "5f5062416ae620e4e3491989f19c166d26840b3fead8074323f23eb01211746b",
+    "docs/data/seed426-canonical-overlap/sources/generic_bootstrap.jsonl.gz": "51132b09c453712b8f48ab748e5025b25338681f9f89dd65a1fe2598ca266330",
+    "docs/data/seed426-canonical-overlap/sources/opening_disagreement.jsonl.gz": "5d73b65f57cf3e4199608c5cfbd80fa9656d5f267b5a823b12c7940a80824bdc",
+    "docs/data/seed426-canonical-overlap/sources/random_teacher.jsonl.gz": "fa6f83e3fc6bb3c93f87e9b640b8d58213f526115e3fdf582c96d9b1b7b7d1d7",
+    "docs/data/seed426-canonical-overlap/sources/stability.jsonl.gz": "77de3df0a93f928f8e131566c1f18f83b7d0100874248e2d29a6cb37f6e45b36",
+    "docs/data/seed429-canonical-policy-normalization/training-checkpoints/initializer.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "docs/data/seed442-kl-capped-adam-screen/A-final.npz": "33cdf971bfbdf00eb9a94890218022afa23ead423c91aa9b79fd6b851371eb93",
+    "docs/data/seed442-kl-capped-adam-screen/evidence.json": "4e98c8559433b234512c8b6d907f3aed2c1a591deb21e7b4b587194ba4aca9e7",
+    "docs/data/seed442-kl-capped-adam-screen/receipt.json": "27b01dfad71636ea16ec4ef196dd9a0aa59ffe05351a0e2a5ea5ac08428e57c0",
+    "docs/data/seed442-kl-capped-adam-screen/registration.json": "53797e303dc6b1bc5bcb61c413eb5acd355737e8a65f6608485045b960c80974",
+    "docs/data/seed442-kl-capped-adam-screen/step-tensors.npz": "e50e915f5f4e2d75ae315750413e605da9008090197950d58b0593fe62d28562"
+  },
+  "registered_sources": {
+    "ml/alphazero_lite/seed429_policy_normalization.py": "b2743afc7bc4acdadff9e25fc456f8dc3757dfd0c98c9bc214aee805d70011d6",
+    "ml/alphazero_lite/seed435_adam_direction.py": "c153c859f430c1eb857e2176de9df3dd5d99590c3838324bd55eef7fb4df3d81",
+    "ml/alphazero_lite/seed462_historical_policy_removal.py": "3f132c122c7c06912a4dfaecfd0039cd40a9a6c944a2ca563c1d6f79e464b8fc",
+    "ml/alphazero_lite/test_seed462_historical_policy_removal.py": "0302251d3676f853a40f474f4320d25978dab8018ee597774f136f288fa824d9",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/verify_seed434_census_source.py": "4b632366f7b1ad920b77c692c0b9993de5420b723deba71bc9d081522789ec51",
+    "ml/alphazero_lite/verify_seed462_historical_policy_removal.py": "91354eed2c4395751b4720c0f49f07e55b79ba371c4f0d4280f6b36ac10d4995"
+  },
+  "registration_sha256": "6d5f7e7fde229ee51de74c58a179bf0fcd4c0293c44810b89558d204c9f84f3e",
+  "schema": "seed462-retrospective-recovery-report-v1",
+  "source_restoration": {
+    "description": "Post-execution endpoint-publisher/evaluation additions were appended to the runner after the registered C/F execution; the registered source snapshot is restored byte-for-byte for identity checks.",
+    "edited_copy_sha256": "886dd20fb74841378e8b19164bdd057f613c4551b56a2e5b7ab32ab90f0c678d",
+    "edited_sha256": "886dd20fb74841378e8b19164bdd057f613c4551b56a2e5b7ab32ab90f0c678d",
+    "observed_failure": "source_hash_mismatch for registered runner SHA256; all registered input hashes matched at restoration time.",
+    "registered_sha256": "3f132c122c7c06912a4dfaecfd0039cd40a9a6c944a2ca563c1d6f79e464b8fc",
+    "restored_sha256": "3f132c122c7c06912a4dfaecfd0039cd40a9a6c944a2ca563c1d6f79e464b8fc",
+    "restored_source": "ml/alphazero_lite/seed462_historical_policy_removal.py",
+    "saved_copy": "post-execution-edited-runner.py",
+    "schema": "seed462-execution-source-restoration-v1",
+    "timing": "post_execution_pre_recovery"
+  },
+  "timing": "post_execution_reconstruction_and_publication"
+}

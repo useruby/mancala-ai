@@ -1,0 +1,30 @@
+{
+  "classification": "no_experiment_decision_protocol_estimands_incomplete",
+  "original_attempt_preservation": "validated_sha256_and_mtime",
+  "original_attempt_sha256": {
+    "C-steps.npz": "30a59f6c969b4ab814237b311a3a9f7cc982edced3cab4cf4d184b43c5b6c7e7",
+    "C-trajectory.json": "a9fbdaea24a0821a35d2be4ff9111d612b931c9c1d597e3fe9cc707ad89d7b7b",
+    "F-steps.npz": "386b811cbea52c1dcb3507449d354548f610c0c0c9cd4d65fa6fe695b2c21d29",
+    "F-trajectory.json": "7aa336454079a3b6a8fdcbe537bb5098e82863814d976a768a9bc90c84f193ef",
+    "census.json": "11336900455e5bec4b6a354ee585f0b40a71f30b48a2a3f678b0bcf673f167f3"
+  },
+  "recovery_files_sha256": {
+    "C-occurrence-predictions.npz": "d387a76c3dbaea19ec87b806118d1a5dc8592095388ccb1ed42d7f19aca139d5",
+    "F-occurrence-predictions.npz": "9e5b0a9b2e610ba512437a2a1c045ab8b968bb86e1ee4f98c3cd7956e55a4d39",
+    "endpoint-metrics.json": "39747020318612c76617b7c2cf2ebce843edefed902cd73e2976923cc1d1ab32",
+    "initializer-occurrence-predictions.npz": "073bc90a83e4f491f352be63a19c7f9087d3b1cdd75b3aa17c75571a1c27d38b",
+    "post-execution-edited-runner.py": "886dd20fb74841378e8b19164bdd057f613c4551b56a2e5b7ab32ab90f0c678d",
+    "recovery-report.json": "ceaf064611ff0d719a20512b95befd1b10773c6c2dc4be2d573c42ff04a7d1dc",
+    "results.md": "d1e6d411720980544c25cdbe371001374edb9cdc0bfdcd37aa12c8ceb005789f",
+    "source-restoration-report.json": "269c23d8f4ed249ed7d8882a384cfdc1555c6648d043869d401784099ce0a0a0",
+    "trajectory-reconstruction.json": "6f351239e71c1b9e086d6ca16284bef0f0880c86344d7669d7bb00b156fd20b7"
+  },
+  "recovery_sources_sha256": {
+    "ml/alphazero_lite/publish_seed462_recovery.py": "62e50dd060164769327a0cbe43728a185b7980f16ef0e7b0134c9b411e10d6ff",
+    "ml/alphazero_lite/test_seed462_recovery.py": "6fb5e7db88cc3aaf6e62f6d4cf5cae44a8d847135662a2470f725106ff4b91e6",
+    "ml/alphazero_lite/verify_seed462_recovery.py": "8f71b3b733ade930cd4740c9adb4e494033ac325f91b9b89dfdd70e0bf382779"
+  },
+  "registration_sha256": "6d5f7e7fde229ee51de74c58a179bf0fcd4c0293c44810b89558d204c9f84f3e",
+  "schema": "seed462-recovery-receipt-v1",
+  "timing": "post_execution"
+}

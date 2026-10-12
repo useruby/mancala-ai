@@ -1,0 +1,12 @@
+{
+  "description": "Post-execution endpoint-publisher/evaluation additions were appended to the runner after the registered C/F execution; the registered source snapshot is restored byte-for-byte for identity checks.",
+  "edited_copy_sha256": "886dd20fb74841378e8b19164bdd057f613c4551b56a2e5b7ab32ab90f0c678d",
+  "edited_sha256": "886dd20fb74841378e8b19164bdd057f613c4551b56a2e5b7ab32ab90f0c678d",
+  "observed_failure": "source_hash_mismatch for registered runner SHA256; all registered input hashes matched at restoration time.",
+  "registered_sha256": "3f132c122c7c06912a4dfaecfd0039cd40a9a6c944a2ca563c1d6f79e464b8fc",
+  "restored_sha256": "3f132c122c7c06912a4dfaecfd0039cd40a9a6c944a2ca563c1d6f79e464b8fc",
+  "restored_source": "ml/alphazero_lite/seed462_historical_policy_removal.py",
+  "saved_copy": "post-execution-edited-runner.py",
+  "schema": "seed462-execution-source-restoration-v1",
+  "timing": "post_execution_pre_recovery"
+}
