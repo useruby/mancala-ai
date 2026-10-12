@@ -346,17 +346,26 @@ def verify(bundle: Path, root: Path) -> None:
         with np.load(bundle / filename, allow_pickle=False) as archive:
             arrays = {name: archive[name] for name in archive.files}
         records = manifest["arrays"][key]
+        independently_expected = expected if key == "training" else expected_evaluation
         for name, array in arrays.items():
             if digest(array.tobytes(order="C")) != records[name]["sha256"]:
                 raise ValueError(f"routine_array_hash:{key}:{name}")
-            if key == "training":
-                if name not in expected or not np.array_equal(array, expected[name]):
-                    raise ValueError(f"independent_reconstruction_mismatch:{name}")
-            elif name not in expected_evaluation or not np.array_equal(
-                array, expected_evaluation[name]
+            if (
+                name not in independently_expected
+                or array.dtype != independently_expected[name].dtype
+                or array.shape != independently_expected[name].shape
+                or not np.array_equal(array, independently_expected[name])
             ):
-                raise ValueError(f"independent_evaluation_mismatch:{name}")
-        if arrays.keys() != records.keys():
+                failure = (
+                    "independent_reconstruction_mismatch"
+                    if key == "training"
+                    else "independent_evaluation_mismatch"
+                )
+                raise ValueError(f"{failure}:{name}")
+        if (
+            arrays.keys() != records.keys()
+            or arrays.keys() != independently_expected.keys()
+        ):
             raise ValueError(f"array_inventory_mismatch:{key}")
         if list(arrays) != manifest["array_order"][key]:
             raise ValueError(f"array_order_mismatch:{key}")
@@ -383,6 +392,11 @@ def verify(bundle: Path, root: Path) -> None:
         source == "fresh" for source in (row["source"] for row in selected)
     ):
         raise ValueError("fresh_evaluation_count_reconciliation")
+    fresh_identities = {
+        str(row["input_identity"]) for row in selected if row["source"] == "fresh"
+    }
+    if count["evaluation_fresh_identities"] != len(fresh_identities):
+        raise ValueError("fresh_evaluation_identity_reconciliation")
     masses = manifest["policy_masses"]
     compact_train = expanded[train]
     source_train = expected["source_ids"][compact_train]

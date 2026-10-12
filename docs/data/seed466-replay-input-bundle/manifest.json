@@ -294,7 +294,7 @@
     "ml/alphazero_lite/seed466_replay_bundle.py": "c3445d3d743edd418c8f5bec6dcc17e6f47ab0295156305aebd625cb71b945d5",
     "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
     "ml/alphazero_lite/verify_seed434_census_source.py": "4b632366f7b1ad920b77c692c0b9993de5420b723deba71bc9d081522789ec51",
-    "ml/alphazero_lite/verify_seed466_replay_bundle.py": "e904e342d63431a5f02de8d56bc6e724bdd7567e63898bca2d1594d2e584ff22"
+    "ml/alphazero_lite/verify_seed466_replay_bundle.py": "eb7e6e67ada1c9b7e0d91ccd0867b5864ad07e697f43dda122d0cd1776870caf"
   },
   "source_inputs": {
     "derivatives/A/fresh.jsonl.gz": {

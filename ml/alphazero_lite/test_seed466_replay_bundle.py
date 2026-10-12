@@ -191,6 +191,13 @@ def test_verifier_rejects_rebound_incorrect_counts_and_masses() -> None:
     with pytest.raises(ValueError, match="training_count_reconciliation"):
         verify(count_copy, ROOT)
 
+    identity_copy = _copy_bundle("incorrect-evaluation-identity-count")
+    identity_manifest = json.loads((identity_copy / "manifest.json").read_text())
+    identity_manifest["counts"]["evaluation_fresh_identities"] += 1
+    (identity_copy / "manifest.json").write_text(json.dumps(identity_manifest))
+    with pytest.raises(ValueError, match="fresh_evaluation_identity_reconciliation"):
+        verify(identity_copy, ROOT)
+
     mass_copy = _copy_bundle("incorrect-mass")
     mass_manifest = json.loads((mass_copy / "manifest.json").read_text())
     mass_manifest["policy_masses"]["training_fresh"] += 1.0
