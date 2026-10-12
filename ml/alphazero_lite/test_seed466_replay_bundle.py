@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -15,10 +18,12 @@ from ml.alphazero_lite.seed466_replay_bundle import (
     ROOT,
     read_bundle,
 )
+from ml.alphazero_lite.seed466_runtime_bundle import read_authenticated_bundle
 from ml.alphazero_lite.verify_seed466_replay_bundle import verify
 
 BUNDLE = ROOT / "docs/data/seed466-replay-input-bundle"
 SCRATCH = ROOT / ".tmp/seed466-tests"
+MANIFEST_SHA256 = "db80f3bdfcc0a126032c1f5a16e78cda74b160d4fa2d80330cec8bed18085b34"
 
 
 def _hash(data: bytes) -> str:
@@ -58,6 +63,10 @@ def test_reader_and_verifier_reconcile_frozen_bundle_read_only() -> None:
         if path.is_file()
     }
     loaded = read_bundle(BUNDLE)
+    authenticated = read_authenticated_bundle(BUNDLE, MANIFEST_SHA256)
+    assert (
+        authenticated["training"]["inputs"].shape == loaded["training"]["inputs"].shape
+    )
     verify(BUNDLE, ROOT)
     training = loaded["training"]
     evaluation = loaded["evaluation"]
@@ -81,6 +90,108 @@ def test_reader_and_verifier_reconcile_frozen_bundle_read_only() -> None:
     for path, (content, mtime) in before.items():
         assert path.read_bytes() == content
         assert path.stat().st_mtime_ns == mtime
+
+
+def test_authenticated_reader_rejects_wrong_digest_before_loading_arrays(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    before = {
+        path: (path.read_bytes(), path.stat().st_mtime_ns)
+        for path in BUNDLE.iterdir()
+        if path.is_file()
+    }
+
+    def fail_load(*args: object, **kwargs: object) -> None:
+        raise AssertionError("arrays were loaded before manifest authentication")
+
+    monkeypatch.setattr(np, "load", fail_load)
+    with pytest.raises(ValueError, match="manifest_sha256_mismatch"):
+        read_authenticated_bundle(BUNDLE, "0" * 64)
+    for path, (content, mtime) in before.items():
+        assert path.read_bytes() == content
+        assert path.stat().st_mtime_ns == mtime
+
+
+def test_authenticated_reader_rejects_rebound_data_and_same_label_manifest() -> None:
+    changed = _copy_bundle("authenticated-rebound-data")
+    with np.load(changed / "training.npz", allow_pickle=False) as archive:
+        arrays = {key: archive[key] for key in archive.files}
+    arrays["policy_targets"][0, 0] += np.float32(0.125)
+    np.savez(changed / "training.npz", **arrays)
+    manifest = json.loads((changed / "manifest.json").read_text())
+    _refresh_npz_records(changed, manifest, "training")
+    assert manifest["identity"] == EXPECTED_MANIFEST_ID
+    with pytest.raises(ValueError, match="manifest_sha256_mismatch"):
+        read_authenticated_bundle(changed, MANIFEST_SHA256)
+
+    manufactured = _copy_bundle("authenticated-manufactured-manifest")
+    manufactured_manifest = json.loads((manufactured / "manifest.json").read_text())
+    manufactured_manifest["identity"] = EXPECTED_MANIFEST_ID
+    manufactured_manifest["files"]["training.npz"] = "0" * 64
+    (manufactured / "manifest.json").write_text(json.dumps(manufactured_manifest))
+    with pytest.raises(ValueError, match="manifest_sha256_mismatch"):
+        read_authenticated_bundle(manufactured, MANIFEST_SHA256)
+
+
+def test_authenticated_reader_rejects_malformed_schema_and_missing_member() -> None:
+    malformed = _copy_bundle("authenticated-malformed-schema")
+    manifest = json.loads((malformed / "manifest.json").read_text())
+    manifest["arrays"]["training"]["inputs"]["shape"] = [1]
+    raw = json.dumps(manifest, indent=2, sort_keys=True) + "\n"
+    (malformed / "manifest.json").write_text(raw)
+    with pytest.raises(ValueError, match="array_schema_mismatch:training:inputs"):
+        read_authenticated_bundle(malformed, _hash(raw.encode()))
+
+    missing = _copy_bundle("authenticated-missing-member")
+    (missing / "evaluation.npz").unlink()
+    with pytest.raises(FileNotFoundError):
+        read_authenticated_bundle(missing, MANIFEST_SHA256)
+
+
+def test_runtime_reader_works_from_physical_copy_without_checkout() -> None:
+    isolated = SCRATCH / "isolated"
+    package = isolated / "ml/alphazero_lite"
+    package.mkdir(parents=True, exist_ok=True)
+    shutil.copy(BUNDLE / "manifest.json", package / "manifest.json")
+    shutil.copy(BUNDLE / "training.npz", package / "training.npz")
+    shutil.copy(BUNDLE / "evaluation.npz", package / "evaluation.npz")
+    shutil.copy(
+        ROOT / "ml/alphazero_lite/seed466_replay_bundle.py",
+        package / "seed466_replay_bundle.py",
+    )
+    shutil.copy(
+        ROOT / "ml/alphazero_lite/seed466_runtime_bundle.py",
+        package / "seed466_runtime_bundle.py",
+    )
+    unrelated = SCRATCH / "unrelated-working-directory"
+    unrelated.mkdir(parents=True, exist_ok=True)
+    environment = os.environ.copy()
+    environment["PYTHONPATH"] = str(isolated)
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "from pathlib import Path; from ml.alphazero_lite.seed466_runtime_bundle import read_authenticated_bundle; "
+            f"print(len(read_authenticated_bundle(Path({str(package)!r}), {MANIFEST_SHA256!r})['training']['inputs']))",
+        ],
+        cwd=unrelated,
+        env=environment,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert result.stdout.strip() == "87625"
+
+
+def test_runtime_cli_requires_explicit_expected_manifest_digest() -> None:
+    result = subprocess.run(
+        [sys.executable, "-m", "ml.alphazero_lite.seed466_runtime_bundle"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 2
+    assert "--expected-manifest-sha256" in result.stderr
 
 
 def test_reader_rejects_missing_member_and_wrong_manifest_identity() -> None:

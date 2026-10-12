@@ -8,7 +8,9 @@ This is a portable, read-only input publication for future experiments. It is no
 - `evaluation.npz`: all 2,607 strict-unseen (`subset == unseen`, `active_stones > 32`) membership occurrences in source membership order. Each occurrence retains its own policy/value targets from the matching canonical source/raw line, input identity, compact row, and source/raw-line provenance. Identity groups do not collapse repeated occurrences or their possibly differing targets.
 - `manifest.json`: input and decompressed input identities, array order/dtypes/shapes/hashes, source/helper closure, environment, recipe, counts, and policy masses.
 
-All arrays are in NumPy NPZ files and load with `allow_pickle=False`. `ml.alphazero_lite.seed466_replay_bundle.read_bundle` needs only Python and NumPy plus the published bundle. It checks the fixed manifest identity, file hashes, exact array inventory, dtype, shape, and ordered C-byte hashes before returning arrays. It does not need the original checkout or source packet.
+All arrays are in NumPy NPZ files and load with `allow_pickle=False`. Runtime consumption of an authenticated published bundle uses `ml.alphazero_lite.seed466_runtime_bundle.read_authenticated_bundle`: the caller supplies `expected_manifest_sha256` from trusted registration or configuration. The wrapper hashes the exact manifest bytes and rejects a mismatch before parsing the manifest or opening any arrays, then delegates the existing inventory, dtype, shape, and array-hash checks to the unchanged reader. The published manifest SHA256 is `db80f3bdfcc0a126032c1f5a16e78cda74b160d4fa2d80330cec8bed18085b34`. The expected digest must not be sourced from the supplied manifest. Runtime consumption needs only Python, NumPy, the bundle, and the declared reader modules; it does not need the original checkout or source packet.
+
+The historical `read_bundle()` is retained as the schema/array-checking implementation and is not the authenticated runtime entry point. Any future experiment registration must bind the runtime wrapper, its dependencies, and this manifest digest.
 
 ## Reproduction contract
 
@@ -30,13 +32,13 @@ From a checkout containing the verified seed464 packet, build once (publication 
 python -m ml.alphazero_lite.seed466_replay_bundle build
 ```
 
-Check runtime consumption using only the bundle:
+Check runtime consumption using the digest bound in trusted registration or configuration:
 
 ```bash
-python -m ml.alphazero_lite.seed466_replay_bundle read --bundle docs/data/seed466-replay-input-bundle
+python -m ml.alphazero_lite.seed466_runtime_bundle --bundle docs/data/seed466-replay-input-bundle --expected-manifest-sha256 db80f3bdfcc0a126032c1f5a16e78cda74b160d4fa2d80330cec8bed18085b34
 ```
 
-The independent verifier reconstructs expected arrays from the pinned packet inputs and recipe, and therefore additionally requires that packet and declared project-source closure:
+Independent reconstruction from the pinned source recipe is a different operation: the verifier derives expected arrays from packet inputs and the recipe rather than authenticating for runtime use. It therefore requires that packet and declared project-source closure:
 
 ```bash
 python -m ml.alphazero_lite.verify_seed466_replay_bundle --bundle docs/data/seed466-replay-input-bundle
