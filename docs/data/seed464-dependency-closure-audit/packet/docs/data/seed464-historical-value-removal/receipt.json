@@ -1,0 +1,38 @@
+{
+  "decision": {
+    "gates": {
+      "exact_control": true,
+      "fresh_mse_equal_input": true,
+      "fresh_mse_exposure": true,
+      "fresh_vs_C_equal_input": false,
+      "fresh_vs_C_exposure": false,
+      "fresh_vs_initializer_equal_input": false,
+      "fresh_vs_initializer_exposure": false,
+      "pooled_ce_equal_input": false,
+      "pooled_ce_exposure": false,
+      "pooled_mse_equal_input": false,
+      "pooled_mse_exposure": false,
+      "training_objective_decreases": true
+    },
+    "status": "close_configuration"
+  },
+  "publication_sha256": {
+    "C-checkpoint.pt": "af97c63f61c555ab6c89090ac68cb7b1b7f226d3a13a1575d9aae07544561c7e",
+    "C-fresh-occurrences.npz": "9b8def6bf3e1bb7cd278305b39fde20ab92b24b8ea7aaeef4ca674cd0e2c97a1",
+    "C-pooled-occurrences.npz": "d1f106bf05dec9fcb9762d579f22e1a8edb826f6602bef12d2818904edfe1322",
+    "C-steps.npz": "386b811cbea52c1dcb3507449d354548f610c0c0c9cd4d65fa6fe695b2c21d29",
+    "C-trajectory.json": "1afde925091cb91543f3057167490338cb1c8629e5c82508a9e1399c33e4ecd1",
+    "C-verified.json": "666dbbf8290bb4a1094c69f207a0fe96aa16ae782291b9b17aa0e08efd606cc6",
+    "T-checkpoint.pt": "b391188e36c56a8730e816ebdaa22440ead458aac5848fc74fc6313018569215",
+    "T-fresh-occurrences.npz": "ce56299522a4717f1d86529cf396e092ebbbe4ea144ab9a117ac270c3496b8a9",
+    "T-pooled-occurrences.npz": "b7558579407e341fde1b7fd54f3aa8e3cd84d8aec604bb9f5549bf0924dcd47b",
+    "T-steps.npz": "7a2152d5d6d54cdc4cecc30c4d30d97e2102723e19363e6cd0fac3ea868b1367",
+    "T-trajectory.json": "5321d30bda736cad0188b0ebd8fbdb1d4e223421a2676558190f4231971fd0ce",
+    "endpoint-evidence.json": "1804d198edab46c3c7b276b9b0b38244ebd5447f25c7348e7bc19d7e15f960e8",
+    "initializer-fresh-occurrences.npz": "bebcab4143ec3d00756197f1b8e736a49738da81eb603bde06547f84e18493d8",
+    "initializer-pooled-occurrences.npz": "963cefcd14f274517d7d1f189562e61b07cd2107b4280691b722553832a9abec",
+    "registration.json": "0917d52281ba09d7384b8c85ecf3777ea8ab177c0b150b1c7bc8d1bbbcef8dfa"
+  },
+  "registration_sha256": "0917d52281ba09d7384b8c85ecf3777ea8ab177c0b150b1c7bc8d1bbbcef8dfa",
+  "schema": "seed464-receipt-v1"
+}
