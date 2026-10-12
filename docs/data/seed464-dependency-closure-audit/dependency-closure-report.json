@@ -1,0 +1,510 @@
+{
+  "blocking_findings": {
+    "consumed_derivative_hashes_not_enforced": [
+      ".tmp/seed416-policy-target-softening/derivatives/A/fresh.jsonl",
+      ".tmp/seed416-policy-target-softening/derivatives/A/generic_bootstrap.jsonl",
+      ".tmp/seed416-policy-target-softening/derivatives/A/random_teacher.jsonl",
+      ".tmp/seed416-policy-target-softening/derivatives/A/opening_disagreement.jsonl",
+      ".tmp/seed416-policy-target-softening/derivatives/A/stability.jsonl"
+    ],
+    "imported_helper_sources_without_any_prospective_hash": [
+      "ml/alphazero_lite/seed432_policy_target_census.py",
+      "ml/alphazero_lite/seed433_census_correction.py",
+      "ml/alphazero_lite/exact_root_policy_targets.py"
+    ],
+    "relocated_bundle_requires_unregistered_seed416_registration_and_two_receipts": true
+  },
+  "classification": "invalid_attempt_dependency_closure_incomplete",
+  "consumed_derivatives": [
+    {
+      "actual_matches_direct_input": null,
+      "actual_matches_expected": true,
+      "actual_sha256": "5c089a5c8f2ba1fc04529631eb15d5a8ef9b49eb273fefbc0444ca3fd85a7049",
+      "direct_frozen_input_sha256": null,
+      "enforcement_location": null,
+      "frozen_expected_input_sha256": "5c089a5c8f2ba1fc04529631eb15d5a8ef9b49eb273fefbc0444ca3fd85a7049",
+      "notes": "seed435._inputs passes this absolute derivative path to train.load_jsonl_replay but never compares its bytes to derivative_sha256. The seed464 freeze binds the five canonical source JSONL.gz files instead, not these consumed derivative bytes.",
+      "path": ".tmp/seed416-policy-target-softening/derivatives/A/fresh.jsonl",
+      "registered_source_path": "ml/alphazero_lite/seed435_adam_direction.py",
+      "registered_source_sha256": "c153c859f430c1eb857e2176de9df3dd5d99590c3838324bd55eef7fb4df3d81",
+      "role": "replay derivative:fresh"
+    },
+    {
+      "actual_matches_direct_input": null,
+      "actual_matches_expected": true,
+      "actual_sha256": "6996657767cd75801967a67bdc0574012467743d31bccb1fff8f039dbe7f3da7",
+      "direct_frozen_input_sha256": null,
+      "enforcement_location": null,
+      "frozen_expected_input_sha256": "6996657767cd75801967a67bdc0574012467743d31bccb1fff8f039dbe7f3da7",
+      "notes": "seed435._inputs passes this absolute derivative path to train.load_jsonl_replay but never compares its bytes to derivative_sha256. The seed464 freeze binds the five canonical source JSONL.gz files instead, not these consumed derivative bytes.",
+      "path": ".tmp/seed416-policy-target-softening/derivatives/A/generic_bootstrap.jsonl",
+      "registered_source_path": "ml/alphazero_lite/seed435_adam_direction.py",
+      "registered_source_sha256": "c153c859f430c1eb857e2176de9df3dd5d99590c3838324bd55eef7fb4df3d81",
+      "role": "replay derivative:generic_bootstrap"
+    },
+    {
+      "actual_matches_direct_input": null,
+      "actual_matches_expected": true,
+      "actual_sha256": "1172e2ad6da263990de3546cfc7f04338440f82a02aedd49b92a58e68faeea7d",
+      "direct_frozen_input_sha256": null,
+      "enforcement_location": null,
+      "frozen_expected_input_sha256": "1172e2ad6da263990de3546cfc7f04338440f82a02aedd49b92a58e68faeea7d",
+      "notes": "seed435._inputs passes this absolute derivative path to train.load_jsonl_replay but never compares its bytes to derivative_sha256. The seed464 freeze binds the five canonical source JSONL.gz files instead, not these consumed derivative bytes.",
+      "path": ".tmp/seed416-policy-target-softening/derivatives/A/random_teacher.jsonl",
+      "registered_source_path": "ml/alphazero_lite/seed435_adam_direction.py",
+      "registered_source_sha256": "c153c859f430c1eb857e2176de9df3dd5d99590c3838324bd55eef7fb4df3d81",
+      "role": "replay derivative:random_teacher"
+    },
+    {
+      "actual_matches_direct_input": null,
+      "actual_matches_expected": true,
+      "actual_sha256": "0218563175aeb94315c7086510557c7490152af8a69c6f5fe9e7a04217f10055",
+      "direct_frozen_input_sha256": null,
+      "enforcement_location": null,
+      "frozen_expected_input_sha256": "0218563175aeb94315c7086510557c7490152af8a69c6f5fe9e7a04217f10055",
+      "notes": "seed435._inputs passes this absolute derivative path to train.load_jsonl_replay but never compares its bytes to derivative_sha256. The seed464 freeze binds the five canonical source JSONL.gz files instead, not these consumed derivative bytes.",
+      "path": ".tmp/seed416-policy-target-softening/derivatives/A/opening_disagreement.jsonl",
+      "registered_source_path": "ml/alphazero_lite/seed435_adam_direction.py",
+      "registered_source_sha256": "c153c859f430c1eb857e2176de9df3dd5d99590c3838324bd55eef7fb4df3d81",
+      "role": "replay derivative:opening_disagreement"
+    },
+    {
+      "actual_matches_direct_input": null,
+      "actual_matches_expected": true,
+      "actual_sha256": "81ae668eb6a9a5b34f073ca544df15d8e6d2f86659c2df3f203791d99c7a93c6",
+      "direct_frozen_input_sha256": null,
+      "enforcement_location": null,
+      "frozen_expected_input_sha256": "81ae668eb6a9a5b34f073ca544df15d8e6d2f86659c2df3f203791d99c7a93c6",
+      "notes": "seed435._inputs passes this absolute derivative path to train.load_jsonl_replay but never compares its bytes to derivative_sha256. The seed464 freeze binds the five canonical source JSONL.gz files instead, not these consumed derivative bytes.",
+      "path": ".tmp/seed416-policy-target-softening/derivatives/A/stability.jsonl",
+      "registered_source_path": "ml/alphazero_lite/seed435_adam_direction.py",
+      "registered_source_sha256": "c153c859f430c1eb857e2176de9df3dd5d99590c3838324bd55eef7fb4df3d81",
+      "role": "replay derivative:stability"
+    }
+  ],
+  "descriptive_results": {
+    "arms": {
+      "C": {
+        "fresh": {
+          "equal_input": {
+            "policy_ce": 1.24463951587677,
+            "value_mse": 0.7304377555847168
+          },
+          "exposure": {
+            "policy_ce": 1.2439298629760742,
+            "value_mse": 0.7251620292663574
+          },
+          "occurrence_count": 859,
+          "unique_identities": 851
+        },
+        "pooled": {
+          "equal_input": {
+            "policy_ce": 1.2397260665893555,
+            "value_mse": 0.6266827583312988
+          },
+          "exposure": {
+            "policy_ce": 1.2343672513961792,
+            "value_mse": 0.48848193883895874
+          },
+          "occurrence_count": 2607,
+          "unique_identities": 1242
+        },
+        "training_objective": {
+          "policy_denominator": 60015.0,
+          "policy_numerator": 56411.449911238626,
+          "total": 1.003192162028282,
+          "value_denominator": 134502,
+          "value_numerator": 28351.371320998584
+        }
+      },
+      "T": {
+        "fresh": {
+          "equal_input": {
+            "policy_ce": 1.2438956499099731,
+            "value_mse": 0.7095920443534851
+          },
+          "exposure": {
+            "policy_ce": 1.2430698871612549,
+            "value_mse": 0.7037367820739746
+          },
+          "occurrence_count": 859,
+          "unique_identities": 851
+        },
+        "pooled": {
+          "equal_input": {
+            "policy_ce": 1.2393710613250732,
+            "value_mse": 0.6213906407356262
+          },
+          "exposure": {
+            "policy_ce": 1.2344416379928589,
+            "value_mse": 0.503898024559021
+          },
+          "occurrence_count": 2607,
+          "unique_identities": 1242
+        },
+        "training_objective": {
+          "policy_denominator": 60015.0,
+          "policy_numerator": 56468.628125594,
+          "total": 0.9701944542289608,
+          "value_denominator": 134502,
+          "value_numerator": 13130.031116155304
+        }
+      },
+      "initializer": {
+        "fresh": {
+          "equal_input": {
+            "policy_ce": 1.223056435585022,
+            "value_mse": 0.7242156863212585
+          },
+          "exposure": {
+            "policy_ce": 1.2211021184921265,
+            "value_mse": 0.7197046875953674
+          },
+          "occurrence_count": 859,
+          "unique_identities": 851
+        },
+        "pooled": {
+          "equal_input": {
+            "policy_ce": 1.1981604099273682,
+            "value_mse": 0.6169980764389038
+          },
+          "exposure": {
+            "policy_ce": 1.170699119567871,
+            "value_mse": 0.4764106571674347
+          },
+          "occurrence_count": 2607,
+          "unique_identities": 1242
+        },
+        "training_objective": {
+          "policy_denominator": 60015.0,
+          "policy_numerator": 59389.6851071585,
+          "total": 1.052280466113173,
+          "value_denominator": 134502,
+          "value_numerator": 28110.817646422067
+        }
+      }
+    },
+    "effects_T_minus_C": {
+      "fresh": {
+        "equal_input": {
+          "policy_ce": -0.000743865966796875,
+          "value_mse": -0.02084571123123169
+        },
+        "exposure": {
+          "policy_ce": -0.0008599758148193359,
+          "value_mse": -0.021425247192382812
+        }
+      },
+      "pooled": {
+        "equal_input": {
+          "policy_ce": -0.00035500526428222656,
+          "value_mse": -0.005292117595672607
+        },
+        "exposure": {
+          "policy_ce": 7.43865966796875e-05,
+          "value_mse": 0.015416085720062256
+        }
+      }
+    },
+    "gates_as_recorded_descriptively": {
+      "exact_control": true,
+      "fresh_mse_equal_input": true,
+      "fresh_mse_exposure": true,
+      "fresh_vs_C_equal_input": false,
+      "fresh_vs_C_exposure": false,
+      "fresh_vs_initializer_equal_input": false,
+      "fresh_vs_initializer_exposure": false,
+      "pooled_ce_equal_input": false,
+      "pooled_ce_exposure": false,
+      "pooled_mse_equal_input": false,
+      "pooled_mse_exposure": false,
+      "training_objective_decreases": true
+    }
+  },
+  "imported_helper_sources": [
+    {
+      "actual_matches_expected": true,
+      "actual_sha256": "4b632366f7b1ad920b77c692c0b9993de5420b723deba71bc9d081522789ec51",
+      "notes": "Imported during seed435._inputs source reconstruction. seed464 does not verify the current imported module file against this nested commitment before execution.",
+      "path": "ml/alphazero_lite/verify_seed434_census_source.py",
+      "runtime_enforcement": null,
+      "seed464_registered_source_sha256": null,
+      "transitive_commitment": "seed462 registration.json, itself directly input-hash-bound by seed464",
+      "transitive_expected_sha256": "4b632366f7b1ad920b77c692c0b9993de5420b723deba71bc9d081522789ec51"
+    },
+    {
+      "actual_matches_expected": true,
+      "actual_sha256": "b2743afc7bc4acdadff9e25fc456f8dc3757dfd0c98c9bc214aee805d70011d6",
+      "notes": "Imported during seed435._inputs source reconstruction. seed464 does not verify the current imported module file against this nested commitment before execution.",
+      "path": "ml/alphazero_lite/seed429_policy_normalization.py",
+      "runtime_enforcement": null,
+      "seed464_registered_source_sha256": null,
+      "transitive_commitment": "seed462 registration.json, itself directly input-hash-bound by seed464",
+      "transitive_expected_sha256": "b2743afc7bc4acdadff9e25fc456f8dc3757dfd0c98c9bc214aee805d70011d6"
+    },
+    {
+      "actual_matches_expected": null,
+      "actual_sha256": "7b8dc48bdc1cf53d8dcfc53446e37edb2f84fdd583009d0693cc43a8e97204eb",
+      "notes": "Imported by the census reconstruction path and has no SHA commitment in seed464, seed462, or seed416 registration source inventories.",
+      "path": "ml/alphazero_lite/seed432_policy_target_census.py",
+      "runtime_enforcement": null,
+      "seed464_registered_source_sha256": null,
+      "transitive_commitment": null,
+      "transitive_expected_sha256": null
+    },
+    {
+      "actual_matches_expected": null,
+      "actual_sha256": "3b4b7cf7387ade4fc5598f1360059a2b19418bbecd46e7020a1f5808746567eb",
+      "notes": "Imported by the census reconstruction path and has no SHA commitment in seed464, seed462, or seed416 registration source inventories.",
+      "path": "ml/alphazero_lite/seed433_census_correction.py",
+      "runtime_enforcement": null,
+      "seed464_registered_source_sha256": null,
+      "transitive_commitment": null,
+      "transitive_expected_sha256": null
+    },
+    {
+      "actual_matches_expected": null,
+      "actual_sha256": "2aca4c1e2e9e9e199fb1d951b143c506785c23121531e26628a59c9afaf79898",
+      "notes": "Imported by the census reconstruction path and has no SHA commitment in seed464, seed462, or seed416 registration source inventories.",
+      "path": "ml/alphazero_lite/exact_root_policy_targets.py",
+      "runtime_enforcement": null,
+      "seed464_registered_source_sha256": null,
+      "transitive_commitment": null,
+      "transitive_expected_sha256": null
+    },
+    {
+      "actual_matches_expected": true,
+      "actual_sha256": "5c15d541574905ff9d7c75bc8daf8813311e22f22f220563e18cb9b85fb8bd87",
+      "notes": "Imported during seed435._inputs source reconstruction. seed464 does not verify the current imported module file against this nested commitment before execution.",
+      "path": "ml/alphazero_lite/build_opening_suite.py",
+      "runtime_enforcement": null,
+      "seed464_registered_source_sha256": null,
+      "transitive_commitment": "seed416 registration-v3 source_hashes, whose file SHA is enforced by registered seed435 source",
+      "transitive_expected_sha256": "5c15d541574905ff9d7c75bc8daf8813311e22f22f220563e18cb9b85fb8bd87"
+    },
+    {
+      "actual_matches_expected": true,
+      "actual_sha256": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+      "notes": "Imported during seed435._inputs source reconstruction. seed464 does not verify the current imported module file against this nested commitment before execution.",
+      "path": "ml/alphazero_lite/kalah_rules.py",
+      "runtime_enforcement": null,
+      "seed464_registered_source_sha256": null,
+      "transitive_commitment": "seed416 registration-v3 source_hashes, whose file SHA is enforced by registered seed435 source",
+      "transitive_expected_sha256": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036"
+    }
+  ],
+  "original_attempt": {
+    "loader_source_sha256": "c153c859f430c1eb857e2176de9df3dd5d99590c3838324bd55eef7fb4df3d81",
+    "publication_receipt_sha256": "0f37fd96b593e1a5b2fbab7c1f0c7ed5c5c4486ce788afd898953b34f7afd92d",
+    "recorded_decision": "close_configuration",
+    "recorded_decision_interpretation": "descriptive only; not a registered decision",
+    "registration_sha256": "0917d52281ba09d7384b8c85ecf3777ea8ab177c0b150b1c7bc8d1bbbcef8dfa"
+  },
+  "registered_decision": null,
+  "remaining_direct_input_bindings": [
+    {
+      "actual_matches_direct_input": true,
+      "actual_matches_expected": true,
+      "actual_sha256": "d868edebd9ae1876cbc5b9edca6fa0df9d3e6184b97246847f9012dfe2d293d1",
+      "direct_frozen_input_sha256": "d868edebd9ae1876cbc5b9edca6fa0df9d3e6184b97246847f9012dfe2d293d1",
+      "enforcement_location": "seed464 runner execute-time input_sha256 check",
+      "frozen_expected_input_sha256": "d868edebd9ae1876cbc5b9edca6fa0df9d3e6184b97246847f9012dfe2d293d1",
+      "notes": "Directly covered by the frozen registration.",
+      "path": "docs/data/seed416-policy-target-softening/training-freeze-v3/epoch-permutations.json.gz",
+      "registered_source_path": null,
+      "registered_source_sha256": null,
+      "role": "directly registered seed464 input"
+    },
+    {
+      "actual_matches_direct_input": true,
+      "actual_matches_expected": true,
+      "actual_sha256": "f7b69ab8fd6c19128a29f9ae9a11a7ac42a5d26630368ff74e906f29ddb6be44",
+      "direct_frozen_input_sha256": "f7b69ab8fd6c19128a29f9ae9a11a7ac42a5d26630368ff74e906f29ddb6be44",
+      "enforcement_location": "seed464 runner execute-time input_sha256 check",
+      "frozen_expected_input_sha256": "f7b69ab8fd6c19128a29f9ae9a11a7ac42a5d26630368ff74e906f29ddb6be44",
+      "notes": "Directly covered by the frozen registration.",
+      "path": "docs/data/seed416-policy-target-softening/training-freeze-v3/source-row-split.json.gz",
+      "registered_source_path": null,
+      "registered_source_sha256": null,
+      "role": "directly registered seed464 input"
+    },
+    {
+      "actual_matches_direct_input": true,
+      "actual_matches_expected": true,
+      "actual_sha256": "554f3bd016a0f920ef253538d741a91cb27c9882d2dba94cf7509030af8ca385",
+      "direct_frozen_input_sha256": "554f3bd016a0f920ef253538d741a91cb27c9882d2dba94cf7509030af8ca385",
+      "enforcement_location": "seed464 runner execute-time input_sha256 check",
+      "frozen_expected_input_sha256": "554f3bd016a0f920ef253538d741a91cb27c9882d2dba94cf7509030af8ca385",
+      "notes": "Directly covered by the frozen registration.",
+      "path": "docs/data/seed426-canonical-overlap/seed427-validation-membership.jsonl.gz",
+      "registered_source_path": null,
+      "registered_source_sha256": null,
+      "role": "directly registered seed464 input"
+    },
+    {
+      "actual_matches_direct_input": true,
+      "actual_matches_expected": true,
+      "actual_sha256": "5f5062416ae620e4e3491989f19c166d26840b3fead8074323f23eb01211746b",
+      "direct_frozen_input_sha256": "5f5062416ae620e4e3491989f19c166d26840b3fead8074323f23eb01211746b",
+      "enforcement_location": "seed464 runner execute-time input_sha256 check",
+      "frozen_expected_input_sha256": "5f5062416ae620e4e3491989f19c166d26840b3fead8074323f23eb01211746b",
+      "notes": "Directly covered by the frozen registration.",
+      "path": "docs/data/seed426-canonical-overlap/sources/fresh.jsonl.gz",
+      "registered_source_path": null,
+      "registered_source_sha256": null,
+      "role": "directly registered seed464 input"
+    },
+    {
+      "actual_matches_direct_input": true,
+      "actual_matches_expected": true,
+      "actual_sha256": "51132b09c453712b8f48ab748e5025b25338681f9f89dd65a1fe2598ca266330",
+      "direct_frozen_input_sha256": "51132b09c453712b8f48ab748e5025b25338681f9f89dd65a1fe2598ca266330",
+      "enforcement_location": "seed464 runner execute-time input_sha256 check",
+      "frozen_expected_input_sha256": "51132b09c453712b8f48ab748e5025b25338681f9f89dd65a1fe2598ca266330",
+      "notes": "Directly covered by the frozen registration.",
+      "path": "docs/data/seed426-canonical-overlap/sources/generic_bootstrap.jsonl.gz",
+      "registered_source_path": null,
+      "registered_source_sha256": null,
+      "role": "directly registered seed464 input"
+    },
+    {
+      "actual_matches_direct_input": true,
+      "actual_matches_expected": true,
+      "actual_sha256": "5d73b65f57cf3e4199608c5cfbd80fa9656d5f267b5a823b12c7940a80824bdc",
+      "direct_frozen_input_sha256": "5d73b65f57cf3e4199608c5cfbd80fa9656d5f267b5a823b12c7940a80824bdc",
+      "enforcement_location": "seed464 runner execute-time input_sha256 check",
+      "frozen_expected_input_sha256": "5d73b65f57cf3e4199608c5cfbd80fa9656d5f267b5a823b12c7940a80824bdc",
+      "notes": "Directly covered by the frozen registration.",
+      "path": "docs/data/seed426-canonical-overlap/sources/opening_disagreement.jsonl.gz",
+      "registered_source_path": null,
+      "registered_source_sha256": null,
+      "role": "directly registered seed464 input"
+    },
+    {
+      "actual_matches_direct_input": true,
+      "actual_matches_expected": true,
+      "actual_sha256": "fa6f83e3fc6bb3c93f87e9b640b8d58213f526115e3fdf582c96d9b1b7b7d1d7",
+      "direct_frozen_input_sha256": "fa6f83e3fc6bb3c93f87e9b640b8d58213f526115e3fdf582c96d9b1b7b7d1d7",
+      "enforcement_location": "seed464 runner execute-time input_sha256 check",
+      "frozen_expected_input_sha256": "fa6f83e3fc6bb3c93f87e9b640b8d58213f526115e3fdf582c96d9b1b7b7d1d7",
+      "notes": "Directly covered by the frozen registration.",
+      "path": "docs/data/seed426-canonical-overlap/sources/random_teacher.jsonl.gz",
+      "registered_source_path": null,
+      "registered_source_sha256": null,
+      "role": "directly registered seed464 input"
+    },
+    {
+      "actual_matches_direct_input": true,
+      "actual_matches_expected": true,
+      "actual_sha256": "77de3df0a93f928f8e131566c1f18f83b7d0100874248e2d29a6cb37f6e45b36",
+      "direct_frozen_input_sha256": "77de3df0a93f928f8e131566c1f18f83b7d0100874248e2d29a6cb37f6e45b36",
+      "enforcement_location": "seed464 runner execute-time input_sha256 check",
+      "frozen_expected_input_sha256": "77de3df0a93f928f8e131566c1f18f83b7d0100874248e2d29a6cb37f6e45b36",
+      "notes": "Directly covered by the frozen registration.",
+      "path": "docs/data/seed426-canonical-overlap/sources/stability.jsonl.gz",
+      "registered_source_path": null,
+      "registered_source_sha256": null,
+      "role": "directly registered seed464 input"
+    },
+    {
+      "actual_matches_direct_input": true,
+      "actual_matches_expected": true,
+      "actual_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "direct_frozen_input_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "enforcement_location": "seed464 runner execute-time input_sha256 check",
+      "frozen_expected_input_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "notes": "Directly covered by the frozen registration.",
+      "path": "docs/data/seed429-canonical-policy-normalization/training-checkpoints/initializer.npz",
+      "registered_source_path": null,
+      "registered_source_sha256": null,
+      "role": "directly registered seed464 input"
+    },
+    {
+      "actual_matches_direct_input": true,
+      "actual_matches_expected": true,
+      "actual_sha256": "386b811cbea52c1dcb3507449d354548f610c0c0c9cd4d65fa6fe695b2c21d29",
+      "direct_frozen_input_sha256": "386b811cbea52c1dcb3507449d354548f610c0c0c9cd4d65fa6fe695b2c21d29",
+      "enforcement_location": "seed464 runner execute-time input_sha256 check",
+      "frozen_expected_input_sha256": "386b811cbea52c1dcb3507449d354548f610c0c0c9cd4d65fa6fe695b2c21d29",
+      "notes": "Directly covered by the frozen registration.",
+      "path": "docs/data/seed462-historical-policy-removal/F-steps.npz",
+      "registered_source_path": null,
+      "registered_source_sha256": null,
+      "role": "directly registered seed464 input"
+    },
+    {
+      "actual_matches_direct_input": true,
+      "actual_matches_expected": true,
+      "actual_sha256": "7aa336454079a3b6a8fdcbe537bb5098e82863814d976a768a9bc90c84f193ef",
+      "direct_frozen_input_sha256": "7aa336454079a3b6a8fdcbe537bb5098e82863814d976a768a9bc90c84f193ef",
+      "enforcement_location": "seed464 runner execute-time input_sha256 check",
+      "frozen_expected_input_sha256": "7aa336454079a3b6a8fdcbe537bb5098e82863814d976a768a9bc90c84f193ef",
+      "notes": "Directly covered by the frozen registration.",
+      "path": "docs/data/seed462-historical-policy-removal/F-trajectory.json",
+      "registered_source_path": null,
+      "registered_source_sha256": null,
+      "role": "directly registered seed464 input"
+    },
+    {
+      "actual_matches_direct_input": true,
+      "actual_matches_expected": true,
+      "actual_sha256": "6d5f7e7fde229ee51de74c58a179bf0fcd4c0293c44810b89558d204c9f84f3e",
+      "direct_frozen_input_sha256": "6d5f7e7fde229ee51de74c58a179bf0fcd4c0293c44810b89558d204c9f84f3e",
+      "enforcement_location": "seed464 runner execute-time input_sha256 check",
+      "frozen_expected_input_sha256": "6d5f7e7fde229ee51de74c58a179bf0fcd4c0293c44810b89558d204c9f84f3e",
+      "notes": "Directly covered by the frozen registration.",
+      "path": "docs/data/seed462-historical-policy-removal/registration.json",
+      "registered_source_path": null,
+      "registered_source_sha256": null,
+      "role": "directly registered seed464 input"
+    }
+  ],
+  "required_for_separately_authorized_run": [
+    "Bind every derivative JSONL byte hash actually consumed, or reconstruct derivatives into the registered bundle and verify exact bytes before loading.",
+    "Freeze and hash the complete recursive executable source closure, including verify_seed434_census_source.py and its imported policy/census helpers; check those hashes at runtime.",
+    "Include seed416 registration-v3.json and both seed427 receipts in the explicit input inventory and physically relocated bundle, even though seed435 currently transitively commits and verifies their identities.",
+    "Re-run the complete registration-to-publication workflow tests before creating a new immutable registration; do not alter this attempt's freeze or regenerate its outputs."
+  ],
+  "schema": "seed464-dependency-closure-audit-v1",
+  "specified_dependencies": [
+    {
+      "actual_matches_direct_input": null,
+      "actual_matches_expected": true,
+      "actual_sha256": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+      "direct_frozen_input_sha256": null,
+      "enforcement_location": "seed435_adam_direction.py:98-103",
+      "frozen_expected_input_sha256": "4839ed63d6a48945ea11ea4995570f11118adbd65c027f49c3c5f04066bbd066",
+      "notes": "Not directly listed in seed464 input_sha256. The registered seed435 source contains the immutable expected digest and rejects mismatch.",
+      "path": "docs/data/seed416-policy-target-softening/registration-v3.json",
+      "registered_source_path": "ml/alphazero_lite/seed435_adam_direction.py",
+      "registered_source_sha256": "c153c859f430c1eb857e2176de9df3dd5d99590c3838324bd55eef7fb4df3d81",
+      "role": "input read by seed435._inputs"
+    },
+    {
+      "actual_matches_direct_input": null,
+      "actual_matches_expected": true,
+      "actual_sha256": "fbcaff1e183b2247673dd7f301c410e11524d13bbe47e067079ee8947aa60ee1",
+      "direct_frozen_input_sha256": null,
+      "enforcement_location": "seed435_adam_direction.py:33-40,109-111",
+      "frozen_expected_input_sha256": "fbcaff1e183b2247673dd7f301c410e11524d13bbe47e067079ee8947aa60ee1",
+      "notes": "Not directly listed in seed464 input_sha256. Expected digest is in the registered seed435 loader and is checked during _inputs.",
+      "path": "docs/data/seed426-canonical-overlap/seed427-evaluation-verification-receipt.json",
+      "registered_source_path": "ml/alphazero_lite/seed435_adam_direction.py",
+      "registered_source_sha256": "c153c859f430c1eb857e2176de9df3dd5d99590c3838324bd55eef7fb4df3d81",
+      "role": "evaluation receipt"
+    },
+    {
+      "actual_matches_direct_input": null,
+      "actual_matches_expected": true,
+      "actual_sha256": "1dd0f8e2442a32654b29c8969c1300cbbfecb83f84809d2a478290e0bda9209e",
+      "direct_frozen_input_sha256": null,
+      "enforcement_location": "seed435_adam_direction.py:41-45,109-111",
+      "frozen_expected_input_sha256": "1dd0f8e2442a32654b29c8969c1300cbbfecb83f84809d2a478290e0bda9209e",
+      "notes": "Not directly listed in seed464 input_sha256. Expected digest is in the registered seed435 loader and is checked during _inputs.",
+      "path": "docs/data/seed426-canonical-overlap/seed427-supplemental-verification-receipt.json",
+      "registered_source_path": "ml/alphazero_lite/seed435_adam_direction.py",
+      "registered_source_sha256": "c153c859f430c1eb857e2176de9df3dd5d99590c3838324bd55eef7fb4df3d81",
+      "role": "supplemental receipt"
+    }
+  ]
+}
