@@ -1,0 +1,11 @@
+{
+  "audit_source_path": "ml/alphazero_lite/audit_seed464_dependency_closure.py",
+  "audit_source_sha256": "919390bfcf91b5cad61308fdeebda31360b3ed01c944bcb0defbed728e7d9245",
+  "classification": "invalid_attempt_dependency_closure_incomplete",
+  "original_receipt_sha256": "0f37fd96b593e1a5b2fbab7c1f0c7ed5c5c4486ce788afd898953b34f7afd92d",
+  "original_registration_sha256": "0917d52281ba09d7384b8c85ecf3777ea8ab177c0b150b1c7bc8d1bbbcef8dfa",
+  "registered_decision": null,
+  "report_markdown_sha256": "90c2f2c179f7f57688e6d32c5d42f79ebdead66f62f6821761d13dd82330d4c9",
+  "report_sha256": "2a22f422cdb418ff08e19462f2d7a97a1626e90f45e172f7409aa635061e88a9",
+  "schema": "seed464-dependency-closure-receipt-v1"
+}

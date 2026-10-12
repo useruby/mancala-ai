@@ -1,0 +1,153 @@
+{
+  "arms": {
+    "C": {
+      "fresh": {
+        "equal_input": {
+          "policy_ce": 1.24463951587677,
+          "value_mse": 0.7304377555847168
+        },
+        "exposure": {
+          "policy_ce": 1.2439298629760742,
+          "value_mse": 0.7251620292663574
+        },
+        "occurrence_count": 859,
+        "unique_identities": 851
+      },
+      "pooled": {
+        "equal_input": {
+          "policy_ce": 1.2397260665893555,
+          "value_mse": 0.6266827583312988
+        },
+        "exposure": {
+          "policy_ce": 1.2343672513961792,
+          "value_mse": 0.48848193883895874
+        },
+        "occurrence_count": 2607,
+        "unique_identities": 1242
+      },
+      "training_objective": {
+        "policy_denominator": 60015.0,
+        "policy_numerator": 56411.449911238626,
+        "total": 1.003192162028282,
+        "value_denominator": 134502,
+        "value_numerator": 28351.371320998584
+      }
+    },
+    "T": {
+      "fresh": {
+        "equal_input": {
+          "policy_ce": 1.2438956499099731,
+          "value_mse": 0.7095920443534851
+        },
+        "exposure": {
+          "policy_ce": 1.2430698871612549,
+          "value_mse": 0.7037367820739746
+        },
+        "occurrence_count": 859,
+        "unique_identities": 851
+      },
+      "pooled": {
+        "equal_input": {
+          "policy_ce": 1.2393710613250732,
+          "value_mse": 0.6213906407356262
+        },
+        "exposure": {
+          "policy_ce": 1.2344416379928589,
+          "value_mse": 0.503898024559021
+        },
+        "occurrence_count": 2607,
+        "unique_identities": 1242
+      },
+      "training_objective": {
+        "policy_denominator": 60015.0,
+        "policy_numerator": 56468.628125594,
+        "total": 0.9701944542289608,
+        "value_denominator": 134502,
+        "value_numerator": 13130.031116155304
+      }
+    },
+    "initializer": {
+      "fresh": {
+        "equal_input": {
+          "policy_ce": 1.223056435585022,
+          "value_mse": 0.7242156863212585
+        },
+        "exposure": {
+          "policy_ce": 1.2211021184921265,
+          "value_mse": 0.7197046875953674
+        },
+        "occurrence_count": 859,
+        "unique_identities": 851
+      },
+      "pooled": {
+        "equal_input": {
+          "policy_ce": 1.1981604099273682,
+          "value_mse": 0.6169980764389038
+        },
+        "exposure": {
+          "policy_ce": 1.170699119567871,
+          "value_mse": 0.4764106571674347
+        },
+        "occurrence_count": 2607,
+        "unique_identities": 1242
+      },
+      "training_objective": {
+        "policy_denominator": 60015.0,
+        "policy_numerator": 59389.6851071585,
+        "total": 1.052280466113173,
+        "value_denominator": 134502,
+        "value_numerator": 28110.817646422067
+      }
+    }
+  },
+  "cohorts": {
+    "fresh": {
+      "count": 859,
+      "ordered_manifest_sha256": "3ede3f9045e9ead1419d212d3bea7f364725492ce45000b65f018dcd7a10ce1e",
+      "unique_identities": 851
+    },
+    "pooled": {
+      "count": 2607,
+      "ordered_manifest_sha256": "7170ff5f2e7ed5197f951a134a7b208d6ca188d720cece341fd1adf857025d44",
+      "unique_identities": 1242
+    }
+  },
+  "decision": "close_configuration",
+  "effects_T_minus_C": {
+    "fresh": {
+      "equal_input": {
+        "policy_ce": -0.000743865966796875,
+        "value_mse": -0.02084571123123169
+      },
+      "exposure": {
+        "policy_ce": -0.0008599758148193359,
+        "value_mse": -0.021425247192382812
+      }
+    },
+    "pooled": {
+      "equal_input": {
+        "policy_ce": -0.00035500526428222656,
+        "value_mse": -0.005292117595672607
+      },
+      "exposure": {
+        "policy_ce": 7.43865966796875e-05,
+        "value_mse": 0.015416085720062256
+      }
+    }
+  },
+  "gates": {
+    "exact_control": true,
+    "fresh_mse_equal_input": true,
+    "fresh_mse_exposure": true,
+    "fresh_vs_C_equal_input": false,
+    "fresh_vs_C_exposure": false,
+    "fresh_vs_initializer_equal_input": false,
+    "fresh_vs_initializer_exposure": false,
+    "pooled_ce_equal_input": false,
+    "pooled_ce_exposure": false,
+    "pooled_mse_equal_input": false,
+    "pooled_mse_exposure": false,
+    "training_objective_decreases": true
+  },
+  "schema": "seed464-endpoint-evidence-v1"
+}
