@@ -1,0 +1,8 @@
+{
+  "C_steps_sha256": "796975f2766e157a5aa093fe8294dad2b0b8bce82dd72f6c7c2b70022d1468cd",
+  "compared": "16 post-step states x all parameter tensors",
+  "first_mismatch": null,
+  "passed": true,
+  "schema": "seed473-control-validity-gate-v1",
+  "seed471_T_steps_sha256": "f17b8b79fefa9fd7e9cb087883c942846c3b901b0b811507b061e1b2e13cd98c"
+}
