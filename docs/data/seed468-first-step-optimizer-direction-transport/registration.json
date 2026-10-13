@@ -1,0 +1,86 @@
+{
+  "identity": "seed468-first-step-optimizer-direction-transport-v1",
+  "status": "finalized_immutable_freeze_before_gradient_computation",
+  "inputs": {
+    "seed466_manifest_sha256": "db80f3bdfcc0a126032c1f5a16e78cda74b160d4fa2d80330cec8bed18085b34",
+    "seed466_training_sha256": "2e3b503b4e5d64c40d2bca0b44560bfd9f380c2f57606ad8c2db949a1a9c93ae",
+    "seed466_evaluation_sha256": "72950845b76cb0cb842d9ba8065591978469e74c9ac51cd1c0f76c120158b364",
+    "initializer_path": "docs/data/seed429-canonical-policy-normalization/training-checkpoints/initializer.npz",
+    "initializer_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "architecture": "residual_v3",
+    "hidden_sizes": [96, 3],
+    "input_size": 27,
+    "authenticated_reader": "ml/alphazero_lite/seed466_runtime_bundle.py",
+    "reader_manifest_sha256": "728b13f743126a677712f2f838d15f5c9f251206b792a617aa099d3a6ff49fe8",
+    "model_source": "ml/alphazero_lite/train.py",
+    "model_source_sha256": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "diagnostic_source": "ml/alphazero_lite/seed468_transport.py",
+    "diagnostic_source_sha256": "044e5f3c77ca3f3b2702f599060fb52d21322fe95a9d0b8361d85e80e235b0e3",
+    "verifier_source": "ml/alphazero_lite/verify_seed468_transport.py",
+    "verifier_source_sha256": "2d41c0fd98b5120ee4d95ce0bbe596f6e3121baab7a4a0325e5633f9c406a324",
+    "tests_source": "ml/alphazero_lite/test_seed468_transport.py",
+    "tests_source_sha256": "5a5c71a46cc2822f5ea983c8f19e52ff1b857c724ec23eccd1ef268887c49135",
+    "bundle_reader_sha256": "c3445d3d743edd418c8f5bec6dcc17e6f47ab0295156305aebd625cb71b945d5",
+    "independent_bundle_reconstruction_sha256": "eb7e6e67ada1c9b7e0d91ccd0867b5864ad07e697f43dda122d0cd1776870caf"
+  },
+  "frozen_bundle": {
+    "training_npz_sha256": "2e3b503b4e5d64c40d2bca0b44560bfd9f380c2f57606ad8c2db949a1a9c93ae",
+    "evaluation_npz_sha256": "72950845b76cb0cb842d9ba8065591978469e74c9ac51cd1c0f76c120158b364",
+    "first16_minibatch_positions_sha256": "1bc58251462815f17ee261d75d60e087b3c617381471441ef9448d4dda7a3a95",
+    "evaluation_manifest_path": "docs/data/seed468-first-step-optimizer-direction-transport/evaluation-manifest.json",
+    "evaluation_manifest_sha256": "e2b60006d20c0f5bab1b6c0d3b5713165269a34496f4b78420b212f3a30cb160",
+    "evaluation_definition": "evaluation is the authenticated membership subset=unseen and active_stones>32; fresh source_ids==0 in stored order; all 859 occurrences, 851 identities, own occurrence targets and legal masks",
+    "equal_input_weight": "1/(851*k_i) for each occurrence of exact input identity i",
+    "exposure_weight": "1/859 per occurrence"
+  },
+  "project_source_closure_sha256": {
+    "ml/alphazero_lite/build_opening_suite.py": "5c15d541574905ff9d7c75bc8daf8813311e22f22f220563e18cb9b85fb8bd87",
+    "ml/alphazero_lite/exact_root_policy_targets.py": "2aca4c1e2e9e9e199fb1d951b143c506785c23121531e26628a59c9afaf79898",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/seed429_policy_normalization.py": "b2743afc7bc4acdadff9e25fc456f8dc3757dfd0c98c9bc214aee805d70011d6",
+    "ml/alphazero_lite/seed432_policy_target_census.py": "7b8dc48bdc1cf53d8dcfc53446e37edb2f84fdd583009d0693cc43a8e97204eb",
+    "ml/alphazero_lite/seed433_census_correction.py": "3b4b7cf7387ade4fc5598f1360059a2b19418bbecd46e7020a1f5808746567eb",
+    "ml/alphazero_lite/verify_seed434_census_source.py": "4b632366f7b1ad920b77c692c0b9993de5420b723deba71bc9d081522789ec51"
+  },
+  "protocol": {
+    "minibatches": 16,
+    "positions_per_minibatch": 512,
+    "positions_source": "training.first16_minibatch_positions, in stored order",
+    "each_calculation_reloads_identical_initializer": true,
+    "objectives": {
+      "P": "sum(c_i*fresh_i*legal_CE_i)/sum(c_i*fresh_i)",
+      "J": "P + 0.3*sum(fresh_i*Huber_i)/512"
+    },
+    "unused_parameter_gradients": "explicit zeros",
+    "adam": {
+      "moments": "zero for every independent proposal",
+      "lr": 0.001,
+      "betas": [0.9, 0.999],
+      "eps": 1e-8,
+      "global_gradient_clip_norm": 1.0
+    },
+    "plain_direction": "negative full gradient scaled to corresponding Adam displacement norm",
+    "proposal_arithmetic": "float32",
+    "realized_displacement_and_comparison_arithmetic": "float64",
+    "evaluation": {
+      "cohort": "fresh strict-unseen >32",
+      "occurrences": 859,
+      "identities": 851,
+      "preserve_occurrence_specific_targets": true,
+      "weightings": ["exposure_weighted", "equal_input"]
+    },
+    "classification": {
+      "descent_cosine_at_most": -1e-6,
+      "ascent_cosine_at_least": 1e-6,
+      "consistent_batches": 12,
+      "precedence": [
+        "P negative-gradient consistent ascent -> minibatch_policy_transport_failure",
+        "P negative-gradient consistent descent and J negative-gradient consistent ascent -> fresh_value_transport_failure",
+        "any negative-gradient consistent descent with corresponding Adam consistent ascent -> adam_direction_transport_failure",
+        "all four directions consistently descend -> first_order_descent_consistent",
+        "otherwise -> mixed_or_inconclusive_transport"
+      ]
+    },
+    "prohibitions": ["no carried parameters or moments", "no trajectory training", "no searches or games", "no export or promotion"]
+  }
+}

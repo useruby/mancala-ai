@@ -1,0 +1,7 @@
+{
+  "diagnostic_sha256": "e0f2e2d74557abb3d2ac619c5383d880ac6b219f9d6d69136680b598b6ded95a",
+  "evaluation_manifest_sha256": "e2b60006d20c0f5bab1b6c0d3b5713165269a34496f4b78420b212f3a30cb160",
+  "registration_sha256": "4c8c5d06dd302ddfed79c66ca4f87e7253ce0ee4a747c915c89ad5ad4417cc8a",
+  "results_sha256": "0bbe2e8a2a380e68ffec974463c11aa3dd65f6a2bdb4e44c63e90295a8c81478",
+  "vectors_sha256": "1ace5c77d34cf968da9141e261a01563c5c3d169a62ce3b3e804564f282d6984"
+}
