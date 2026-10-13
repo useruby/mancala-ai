@@ -1,0 +1,25 @@
+{
+  "comparison_tolerances": {
+    "atol": 2e-08,
+    "explanation": "Float32 PyTorch gradient reconstruction may differ by reduction-order rounding; tolerances apply only to independently reconstructed numeric vectors and float comparison fields. Keys, identities, shapes, dtypes, finite status, counts, classifications, and receipt hashes are exact.",
+    "rtol": 2e-06
+  },
+  "correction_sources_sha256": {
+    "ml/alphazero_lite/seed469_correction.py": "b01a3e6ca13dbfb2d248ae88ba299aee6afd666b319abdd43c477d2d879eafa5",
+    "ml/alphazero_lite/test_seed469_correction.py": "374cb4795c469c062caf48ebd63f7cff0cfa7e1c35744270368a92ceef697681",
+    "ml/alphazero_lite/verify_seed469_correction.py": "7a0b4a9614655be11f57b1e9c006d00d47b90866b2c937740307c16d7402bb2d"
+  },
+  "historical_classification": "first_order_descent_consistent",
+  "initializer_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+  "input_bundle_manifest_sha256": "db80f3bdfcc0a126032c1f5a16e78cda74b160d4fa2d80330cec8bed18085b34",
+  "input_sha256": {
+    "initializer": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "seed466_evaluation": "72950845b76cb0cb842d9ba8065591978469e74c9ac51cd1c0f76c120158b364",
+    "seed466_manifest": "db80f3bdfcc0a126032c1f5a16e78cda74b160d4fa2d80330cec8bed18085b34",
+    "seed466_training": "2e3b503b4e5d64c40d2bca0b44560bfd9f380c2f57606ad8c2db949a1a9c93ae"
+  },
+  "protocol": "float32 proposal; theta_prime=float32(theta+u); realized=float64(theta_prime)-float64(theta); geometry on realized displacement",
+  "schema": "seed469-optimizer-direction-correction-registration-v1",
+  "seed468_receipt_sha256": "2f1e8f48a894df97e383824827b9ec05adcc6d1fa37ec0106dcd88b8b6c59ddf",
+  "seed468_registration_sha256": "4c8c5d06dd302ddfed79c66ca4f87e7253ce0ee4a747c915c89ad5ad4417cc8a"
+}
