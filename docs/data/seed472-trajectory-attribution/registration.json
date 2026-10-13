@@ -1,0 +1,64 @@
+{
+  "arithmetic": "float32 model forward/autograd; per-occurrence CE float64; realized displacement float64(post)-float64(pre); weighted reductions and dot products float64 in occurrence order; counterfactual scale and float32 writeback materialized",
+  "authorization": "no new training trajectory; read-only reconstruction of archived seed471 T",
+  "classifications": {
+    "direction_dominant": "Delta>1e-6 and A>0 and A>=|R|",
+    "otherwise": "mixed_or_inconclusive",
+    "remainder_dominant": "Delta>1e-6 and R>0 and R>|A|",
+    "shared": "only if both weightings agree; otherwise weighting_dependent"
+  },
+  "cohort": {
+    "identities": 851,
+    "occurrences": 859,
+    "ordered_identities_sha256": "1309d9853744a9d6159d84023cc198bd2b1af6fee9539dbf349a7f83ea309cc0",
+    "selection": "authenticated evaluation source_ids==0"
+  },
+  "counterfactuals": "at each archived pre-state, zero-moment first-step Adam from reconstructed clipped J gradient and negative J gradient; independently norm-scaled to recorded carried-Adam realized displacement; float32 writeback; never carried forward",
+  "dependencies": {
+    "numpy": "2.5.2",
+    "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+    "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+    "torch": "2.13.0+cu130"
+  },
+  "forward_schedule": "eval mode, contiguous occurrence order, chunks of 128, final chunk 91; same schedule at every pre/post state",
+  "inputs_sha256": {
+    "evaluation": "72950845b76cb0cb842d9ba8065591978469e74c9ac51cd1c0f76c120158b364",
+    "initializer": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "manifest": "db80f3bdfcc0a126032c1f5a16e78cda74b160d4fa2d80330cec8bed18085b34",
+    "seed471_T_steps": "f17b8b79fefa9fd7e9cb087883c942846c3b901b0b811507b061e1b2e13cd98c",
+    "seed471_T_trajectory": "02e870dfa58215ede788eb1eed49be000afb24e7ef56a4dad3488f00c3c0271c",
+    "seed471_endpoint": "204288bffc7f80618eae130039c83ccd6f10fc6c4c414253fae8efa45d7c6e73",
+    "seed471_receipt": "ab7d00af4089267cfe9b0c27dd7ca40df3a36d0cd8d93e37076c1dadb2927d9c",
+    "seed471_registration": "76ea5bb0d432a354bd0217697bce75d27bfb996ec77a161a5a3881670fe6f028",
+    "training": "2e3b503b4e5d64c40d2bca0b44560bfd9f380c2f57606ad8c2db949a1a9c93ae"
+  },
+  "interpretation": "retrospective local attribution; descriptive, not proof of a causal mechanism",
+  "schema": "seed472-trajectory-attribution-registration-v1",
+  "seed471_original_endpoint": "retained unchanged; schedule-specific difference reported separately",
+  "source_closure_sha256": {
+    "ml/alphazero_lite/checkpoint_phase_selection.py": "2ab2713c7e6ad6c8f96876519e81cb39dfa7d96d93b11ae42fa4fa27b7033969",
+    "ml/alphazero_lite/exact_root_policy_targets.py": "2aca4c1e2e9e9e199fb1d951b143c506785c23121531e26628a59c9afaf79898",
+    "ml/alphazero_lite/input_encodings.py": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/publish_seed472_trajectory_attribution.py": "16580b1600e233c5d73f537ae6f99cbbfb4e3ed5b23f441cb5617e3530b958d0",
+    "ml/alphazero_lite/seed466_replay_bundle.py": "c3445d3d743edd418c8f5bec6dcc17e6f47ab0295156305aebd625cb71b945d5",
+    "ml/alphazero_lite/seed466_runtime_bundle.py": "728b13f743126a677712f2f838d15f5c9f251206b792a617aa099d3a6ff49fe8",
+    "ml/alphazero_lite/seed472_trajectory_attribution.py": "45586a6a5c028cae8f990a3553ea2c9853d712a00fbf0364db1eef6b737b1415",
+    "ml/alphazero_lite/test_seed472_trajectory_attribution.py": "bcc2173003d424be6b9fa0724f283bbec74bc19d558e60d06b77c08373cbd5b3",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/verify_seed466_replay_bundle.py": "eb7e6e67ada1c9b7e0d91ccd0867b5864ad07e697f43dda122d0cd1776870caf",
+    "ml/alphazero_lite/verify_seed472_trajectory_attribution.py": "8fea91bb9a8814fb2b4890b7555c0123257702696421371207f448fbb851ac5d"
+  },
+  "status": "frozen_before_execution",
+  "steps": 16,
+  "tolerances": {
+    "atol": 2e-08,
+    "classification_threshold": 1e-06,
+    "counterfactual_writeback_atol": 2e-07,
+    "rtol": 2e-06
+  },
+  "weightings": {
+    "equal_input": "1/(851*k_identity) per occurrence",
+    "exposure_weighted": "1/859 per occurrence"
+  }
+}
