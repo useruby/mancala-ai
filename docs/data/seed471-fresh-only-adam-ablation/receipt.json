@@ -1,0 +1,16 @@
+{
+  "C-fresh-predictions.npz": "57692cab5c05e82e2db16c2f5a8a57ba4514257d47e8d9a0fe7c0ed319ca71a9",
+  "C-pooled-predictions.npz": "4a229160fa3da095b89a98e44949c8c6a2dd86ec127baef43570f56c80ca2605",
+  "C-steps.npz": "02f894c4a9dd0d424a7a7b2bea92f0df9aef3cb8d57f3c2ed46a5cb12692a279",
+  "C-trajectory.json": "aefca47e28fa43bb42870256b3599d8ad5115e9f99511659f4aed86bd1fa48f0",
+  "T-fresh-predictions.npz": "a1db2b237068bf14a2bb9ffc6a614f7a7db4d233e16baa13548115684032ac58",
+  "T-pooled-predictions.npz": "b8511939baafe4d2d47d1564d2e9a8b458e32770a0760e81c86bc8c205cddda7",
+  "T-steps.npz": "f17b8b79fefa9fd7e9cb087883c942846c3b901b0b811507b061e1b2e13cd98c",
+  "T-trajectory.json": "02e870dfa58215ede788eb1eed49be000afb24e7ef56a4dad3488f00c3c0271c",
+  "endpoint-evidence.json": "204288bffc7f80618eae130039c83ccd6f10fc6c4c414253fae8efa45d7c6e73",
+  "initializer-fresh-predictions.npz": "46ac34aa02ed264438eea21f1c3595c57d360fe6c8db070756d0cf6f432fdd54",
+  "initializer-pooled-predictions.npz": "92661a4184dfd0416c3820069881093ecdb11d94e0403a7827968f9996b6e3be",
+  "registration.json": "76ea5bb0d432a354bd0217697bce75d27bfb996ec77a161a5a3881670fe6f028",
+  "results.md": "5aa6dea2e9cc33c3fbf9a61d00cc968e23fd637559e68ca731fea0688bbcdb5c",
+  "status": "post_execution_bound_receipt"
+}
