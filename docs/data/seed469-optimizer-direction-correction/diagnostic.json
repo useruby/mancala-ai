@@ -2223,5 +2223,9 @@
   ],
   "historical_seed468_classification": "first_order_descent_consistent",
   "interpretation": "Corrected diagnostic only; seed468 remains the historical publication.",
-  "schema": "seed469-optimizer-direction-correction-v1"
+  "schema": "seed469-optimizer-direction-correction-v1",
+  "writeback_summary": {
+    "maximum_absolute_norm_discrepancy": 1.2041961566788828e-08,
+    "proposal_realized_vector_differences": 64
+  }
 }

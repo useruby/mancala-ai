@@ -1,8 +1,13 @@
 {
+  "comparison_tolerances": {
+    "atol": 2e-08,
+    "explanation": "Float32 PyTorch gradient reconstruction may differ by reduction-order rounding; tolerances apply only to independently reconstructed numeric vectors and float comparison fields. Keys, identities, shapes, dtypes, finite status, counts, classifications, and receipt hashes are exact.",
+    "rtol": 2e-06
+  },
   "correction_sources_sha256": {
-    "ml/alphazero_lite/seed469_correction.py": "e1443d951ba7455029f1cf481058c72c84265905eb999fd3f6aa4b155c81b18b",
+    "ml/alphazero_lite/seed469_correction.py": "b01a3e6ca13dbfb2d248ae88ba299aee6afd666b319abdd43c477d2d879eafa5",
     "ml/alphazero_lite/test_seed469_correction.py": "374cb4795c469c062caf48ebd63f7cff0cfa7e1c35744270368a92ceef697681",
-    "ml/alphazero_lite/verify_seed469_correction.py": "8dae205a9981ceabcd06da56f416ae78de3f7040cea1f987e49bbbfeb9d8eb30"
+    "ml/alphazero_lite/verify_seed469_correction.py": "7a0b4a9614655be11f57b1e9c006d00d47b90866b2c937740307c16d7402bb2d"
   },
   "historical_classification": "first_order_descent_consistent",
   "initializer_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",

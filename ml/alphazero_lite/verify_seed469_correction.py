@@ -331,7 +331,28 @@ def verify(root: Path) -> None:
         raise ValueError("classification_counts_mismatch")
     if report.get("classification") != classify(expected_rows):
         raise ValueError("classification_mismatch")
+    expected_summary = {
+        "proposal_realized_vector_differences": sum(
+            not np.array_equal(
+                expected_vectors[f"batch{b:02d}_{o}_{d}_proposal"].astype(np.float64),
+                expected_vectors[f"batch{b:02d}_{o}_{d}_realized"],
+            )
+            for b in range(16)
+            for o in ("P", "J")
+            for d in ("adam", "negative_gradient")
+        ),
+        "maximum_absolute_norm_discrepancy": max(
+            abs(row["writeback_norm_discrepancy"]) for row in expected_rows
+        ),
+    }
+    if report.get("writeback_summary") != expected_summary:
+        raise ValueError("writeback_summary_mismatch")
     reg = json.loads((out / "registration.json").read_text())
+    if (
+        reg.get("comparison_tolerances", {}).get("rtol") != RTOL
+        or reg.get("comparison_tolerances", {}).get("atol") != ATOL
+    ):
+        raise ValueError("comparison_tolerances_mismatch")
     if reg["seed468_registration_sha256"] != digest(
         root / OLD / "registration.json"
     ) or reg["seed468_receipt_sha256"] != digest(root / OLD / "receipt.json"):

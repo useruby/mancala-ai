@@ -138,6 +138,20 @@ def main() -> None:
         "historical_seed468_classification": historical["classification"],
         "classification_changed": original.classify(comparisons)
         != historical["classification"],
+        "writeback_summary": {
+            "proposal_realized_vector_differences": sum(
+                not np.array_equal(
+                    vectors[f"batch{b:02d}_{o}_{d}_proposal"].astype(np.float64),
+                    vectors[f"batch{b:02d}_{o}_{d}_realized"],
+                )
+                for b in range(16)
+                for o in ("P", "J")
+                for d in ("adam", "negative_gradient")
+            ),
+            "maximum_absolute_norm_discrepancy": max(
+                abs(row["writeback_norm_discrepancy"]) for row in comparisons
+            ),
+        },
         "interpretation": "Corrected diagnostic only; seed468 remains the historical publication.",
     }
     (output / "diagnostic.json").write_text(
@@ -182,6 +196,11 @@ def main() -> None:
             ),
         },
         "historical_classification": historical["classification"],
+        "comparison_tolerances": {
+            "rtol": 2e-6,
+            "atol": 2e-8,
+            "explanation": "Float32 PyTorch gradient reconstruction may differ by reduction-order rounding; tolerances apply only to independently reconstructed numeric vectors and float comparison fields. Keys, identities, shapes, dtypes, finite status, counts, classifications, and receipt hashes are exact.",
+        },
         "protocol": "float32 proposal; theta_prime=float32(theta+u); realized=float64(theta_prime)-float64(theta); geometry on realized displacement",
     }
     (output / "registration.json").write_text(
@@ -197,6 +216,8 @@ def main() -> None:
         f"Classification changed: `{report['classification_changed']}`.",
         "",
         "Realized displacement is computed from float32 parameter writeback; comparison geometry uses float64 realized displacement. Each comparison records raw proposal norm, realized Adam norm, and post-writeback norm discrepancy.",
+        f"Across the 64 proposals, {report['writeback_summary']['proposal_realized_vector_differences']} proposal vectors differ from their realized writeback vectors; maximum absolute proposal-vs-realized norm discrepancy is {report['writeback_summary']['maximum_absolute_norm_discrepancy']:.9g}.",
+        "Numerical reconstruction tolerances are bound in registration.json: rtol=2e-6 and atol=2e-8 for floating-point comparisons only; structural and classification checks are exact.",
         "",
         "No training trajectory, searches, games, runtime export, promotion, or strength claim.",
     ]
