@@ -1,0 +1,196 @@
+{
+  "arms": {
+    "C": {
+      "fresh": {
+        "equal_input": {
+          "policy_ce": 1.2261015301007783,
+          "value_mse": 0.71715534646418
+        },
+        "exposure_weighted": {
+          "policy_ce": 1.2237008925488304,
+          "value_mse": 0.7125101343819402
+        },
+        "identities": 851,
+        "occurrences": 859
+      },
+      "pooled": {
+        "equal_input": {
+          "policy_ce": 1.1961357709785732,
+          "value_mse": 0.6137981828212975
+        },
+        "exposure_weighted": {
+          "policy_ce": 1.161332487121173,
+          "value_mse": 0.47727511406095313
+        },
+        "identities": 1242,
+        "occurrences": 2607
+      },
+      "training_J": {
+        "population_occurrences": 134502,
+        "total": 0.9861761514699569,
+        "value_denominator": 134502,
+        "value_numerator": 12690.287021736238
+      },
+      "training_policy_ce": {
+        "denominator": 60015.0,
+        "numerator": 57486.634033611044,
+        "population_occurrences": 134502,
+        "total": 0.9578710994519878
+      }
+    },
+    "P": {
+      "fresh": {
+        "equal_input": {
+          "policy_ce": 1.2261449108524063,
+          "value_mse": 0.7270233147393971
+        },
+        "exposure_weighted": {
+          "policy_ce": 1.2237834097021743,
+          "value_mse": 0.7227937059819782
+        },
+        "identities": 851,
+        "occurrences": 859
+      },
+      "pooled": {
+        "equal_input": {
+          "policy_ce": 1.1965225220895006,
+          "value_mse": 0.6189992086017668
+        },
+        "exposure_weighted": {
+          "policy_ce": 1.1621066446051338,
+          "value_mse": 0.477298008125636
+        },
+        "identities": 1242,
+        "occurrences": 2607
+      },
+      "training_J": {
+        "population_occurrences": 134502,
+        "total": 0.9874301064349817,
+        "value_denominator": 134502,
+        "value_numerator": 13219.69296099041
+      },
+      "training_policy_ce": {
+        "denominator": 60015.0,
+        "numerator": 57491.02361667156,
+        "population_occurrences": 134502,
+        "total": 0.957944240884305
+      }
+    },
+    "initializer": {
+      "fresh": {
+        "equal_input": {
+          "policy_ce": 1.2230564648664166,
+          "value_mse": 0.7242157069890865
+        },
+        "exposure_weighted": {
+          "policy_ce": 1.2211020999003692,
+          "value_mse": 0.7197047298735486
+        },
+        "identities": 851,
+        "occurrences": 859
+      },
+      "pooled": {
+        "equal_input": {
+          "policy_ce": 1.1981604514222797,
+          "value_mse": 0.6169980441913837
+        },
+        "exposure_weighted": {
+          "policy_ce": 1.1706991607818422,
+          "value_mse": 0.476410665850273
+        },
+        "identities": 1242,
+        "occurrences": 2607
+      },
+      "training_J": {
+        "population_occurrences": 134502,
+        "total": 1.0187651956900805,
+        "value_denominator": 134502,
+        "value_numerator": 13084.581303485564
+      },
+      "training_policy_ce": {
+        "denominator": 60015.0,
+        "numerator": 59389.68510735221,
+        "population_occurrences": 134502,
+        "total": 0.9895806899500493
+      }
+    }
+  },
+  "classification": "close_reset_adam_policy_only_branch",
+  "decision": "close_reset_adam_policy_only_branch",
+  "decision_scope": "exploratory reused cohort; passing authorizes only separately designed fresh confirmation",
+  "effects": {
+    "fresh": {
+      "equal_input": {
+        "C": {
+          "policy_ce": 0.0030450652343616547,
+          "value_mse": -0.00706036052490655
+        },
+        "P": {
+          "policy_ce": 0.003088445985989674,
+          "value_mse": 0.0028076077503105257
+        },
+        "P_minus_C": {
+          "policy_ce": 4.3380751628019354e-05,
+          "value_mse": 0.009867968275217076
+        }
+      },
+      "exposure_weighted": {
+        "C": {
+          "policy_ce": 0.00259879264846119,
+          "value_mse": -0.007194595491608391
+        },
+        "P": {
+          "policy_ce": 0.002681309801805032,
+          "value_mse": 0.0030889761084296197
+        },
+        "P_minus_C": {
+          "policy_ce": 8.25171533438418e-05,
+          "value_mse": 0.01028357160003801
+        }
+      }
+    },
+    "pooled": {
+      "equal_input": {
+        "C": {
+          "policy_ce": -0.002024680443706517,
+          "value_mse": -0.00319986137008621
+        },
+        "P": {
+          "policy_ce": -0.0016379293327790645,
+          "value_mse": 0.002001164410383116
+        },
+        "P_minus_C": {
+          "policy_ce": 0.0003867511109274524,
+          "value_mse": 0.005201025780469326
+        }
+      },
+      "exposure_weighted": {
+        "C": {
+          "policy_ce": -0.009366673660669234,
+          "value_mse": 0.0008644482106801576
+        },
+        "P": {
+          "policy_ce": -0.00859251617670842,
+          "value_mse": 0.0008873422753630233
+        },
+        "P_minus_C": {
+          "policy_ce": 0.0007741574839608134,
+          "value_mse": 2.28940646828657e-05
+        }
+      }
+    }
+  },
+  "gates": {
+    "exact_C_reproduction": true,
+    "fresh_ce_vs_C_equal_input": false,
+    "fresh_ce_vs_C_exposure_weighted": false,
+    "fresh_ce_vs_initializer_equal_input": false,
+    "fresh_ce_vs_initializer_exposure_weighted": false,
+    "pooled_ce_vs_initializer_equal_input": true,
+    "pooled_ce_vs_initializer_exposure_weighted": true,
+    "pooled_mse_vs_initializer_equal_input": true,
+    "pooled_mse_vs_initializer_exposure_weighted": true,
+    "training_policy_ce_decreases": true
+  },
+  "schema": "seed474-endpoint-evidence-v1"
+}

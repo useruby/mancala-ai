@@ -1,0 +1,8 @@
+{
+  "C_steps_sha256": "f0f48d1deecfe7b478545946b5eaef3d915a980d94bbdcdffdfb7295883e4cdd",
+  "compared": "all archived state tensors and all sixteen post-step parameter states",
+  "first_mismatch": null,
+  "passed": true,
+  "schema": "seed474-exact-C-gate-v1",
+  "seed473_R_steps_sha256": "f0f48d1deecfe7b478545946b5eaef3d915a980d94bbdcdffdfb7295883e4cdd"
+}
