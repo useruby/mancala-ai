@@ -1,0 +1,7 @@
+{
+  "original_receipt_sha256": "a58e63f874aebc8044e721adf75998a5a47039ae94c316f526662b3d741326c6",
+  "report_sha256": "d4fa2d9fd3bfe24bc7c299e7fdb3d541ba442ae2c14e523ad6888fa9e37a87e5",
+  "schema": "seed474-post-execution-supplement-receipt-v1",
+  "status": "post_execution_supplement_bound",
+  "supplement_source_sha256": "10c41b1ca2b1b86f4513ab709cbb9f102410c7ee23b0359e219bf67068e79745"
+}
