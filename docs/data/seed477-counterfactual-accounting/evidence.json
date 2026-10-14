@@ -1,0 +1,4235 @@
+{
+  "correction": {
+    "counterfactual_endpoint_evaluated": false,
+    "historical_measurements_changed": false,
+    "reason": "The prior supplement copied recorded-Adam endpoint loss changes into counterfactual records. Counterfactual endpoints were not evaluated, so those observed-change and remainder fields are removed.",
+    "status": "post_execution_semantic_correction"
+  },
+  "forward_schedule": {
+    "comparison_atol": 2e-08,
+    "comparison_rtol": 2e-06,
+    "predictions": "legal-action probabilities after float32 masked log-softmax; saved per occurrence and endpoint",
+    "sign_threshold": 1e-06,
+    "state_order": "step 1 pre, step 1 post, ..., step 16 pre, step 16 post; each state loaded independently from archived tensors",
+    "threads": 1,
+    "training": "contiguous preserved occurrence order, batches of 512, eval mode, float32 forward; float64 occurrence loss reductions",
+    "unseen": "preserved strict-unseen occurrence order, batches of 128, eval mode, float32 forward; float64 occurrence loss reductions"
+  },
+  "limitations": "retrospective schedule and arithmetic reconstruction; no causal attribution to optimizer or sampling and no independent confirmation",
+  "post_execution": true,
+  "record_coverage": {
+    "required_steps": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "steps": 16,
+    "training_occurrences": 60015,
+    "unseen_occurrences": 859
+  },
+  "schema": "seed477-counterfactual-accounting-correction-evidence-v1",
+  "steps": [
+    {
+      "directions": {
+        "equal_input": {
+          "category": "both_descent",
+          "full_negative": {
+            "cosine": -0.24237893179572556,
+            "dot": -0.006295427964639618,
+            "first_order_contribution": -0.006295427964639618,
+            "norm": 0.014811331108997856,
+            "sign": "descent"
+          },
+          "minibatch_negative": {
+            "cosine": -0.28190428214348096,
+            "dot": -0.007322037821695245,
+            "first_order_contribution": -0.007322037821695245,
+            "norm": 0.014811327809347363,
+            "sign": "descent"
+          },
+          "recorded_adam": {
+            "cosine": -0.12052875459737672,
+            "dot": -0.0031305521354150017,
+            "first_order_contribution": -0.0031305521354150017,
+            "norm": 0.014811327015224444,
+            "observed_loss_change": -0.0025326430613721307,
+            "remainder": 0.000597909074042871,
+            "sign": "descent"
+          }
+        },
+        "exposure": {
+          "category": "both_descent",
+          "full_negative": {
+            "cosine": -0.25996891918545784,
+            "dot": -0.0068265829107764225,
+            "first_order_contribution": -0.0068265829107764225,
+            "norm": 0.014811331108997856,
+            "sign": "descent"
+          },
+          "minibatch_negative": {
+            "cosine": -0.28627260290630707,
+            "dot": -0.007517295642795809,
+            "first_order_contribution": -0.007517295642795809,
+            "norm": 0.014811327809347363,
+            "sign": "descent"
+          },
+          "recorded_adam": {
+            "cosine": -0.12063435282620953,
+            "dot": -0.0031677640020183026,
+            "first_order_contribution": -0.0031677640020183026,
+            "norm": 0.014811327015224444,
+            "observed_loss_change": -0.0025701021279036507,
+            "remainder": 0.000597661874114652,
+            "sign": "descent"
+          }
+        }
+      },
+      "losses": {
+        "post": {
+          "training_policy_ce": 0.9844891071898407,
+          "unseen_equal_input_policy_ce": 1.2205238219713912,
+          "unseen_exposure_policy_ce": 1.2185319976250149
+        },
+        "pre": {
+          "training_policy_ce": 0.9895806899605396,
+          "unseen_equal_input_policy_ce": 1.2230564650327633,
+          "unseen_exposure_policy_ce": 1.2211020997529185
+        }
+      },
+      "optimizer_reconstruction": {
+        "clipped": true,
+        "parameter_checks": [
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 0,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 1,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 2,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 3,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 4,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 5,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 6,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 7,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 8,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 9,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 10,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 11,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 12,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 13,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 14,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 15,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 16,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 17,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 18,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 19,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 20,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 21,
+            "post": true,
+            "step": true
+          }
+        ],
+        "passed": true,
+        "preclip_norm": 2.557041645050049,
+        "state_reset": true,
+        "step_counter": 1
+      },
+      "step": 1,
+      "training_accounting": {
+        "first_order_contribution": -0.005555966968940169,
+        "observed_change": -0.005091582770698877,
+        "remainder": 0.0004643841982412923
+      }
+    },
+    {
+      "directions": {
+        "equal_input": {
+          "category": "both_descent",
+          "full_negative": {
+            "cosine": -0.11869039023986916,
+            "dot": -0.0028021761637740832,
+            "first_order_contribution": -0.0028021761637740832,
+            "norm": 0.014798828757427671,
+            "sign": "descent"
+          },
+          "minibatch_negative": {
+            "cosine": -0.11945605444263513,
+            "dot": -0.002820252485761303,
+            "first_order_contribution": -0.002820252485761303,
+            "norm": 0.014798826977180244,
+            "sign": "descent"
+          },
+          "recorded_adam": {
+            "cosine": -0.045052524752112,
+            "dot": -0.0010636506482575175,
+            "first_order_contribution": -0.0010636506482575175,
+            "norm": 0.014798828703782262,
+            "observed_loss_change": -0.0007572771038000248,
+            "remainder": 0.00030637354445749274,
+            "sign": "descent"
+          }
+        },
+        "exposure": {
+          "category": "both_descent",
+          "full_negative": {
+            "cosine": -0.13820066372764916,
+            "dot": -0.0032888964649916653,
+            "first_order_contribution": -0.0032888964649916653,
+            "norm": 0.014798828757427671,
+            "sign": "descent"
+          },
+          "minibatch_negative": {
+            "cosine": -0.12831690292878845,
+            "dot": -0.0030536825677276794,
+            "first_order_contribution": -0.0030536825677276794,
+            "norm": 0.014798826977180244,
+            "sign": "descent"
+          },
+          "recorded_adam": {
+            "cosine": -0.04755583934929686,
+            "dot": -0.0011317328523607775,
+            "first_order_contribution": -0.0011317328523607775,
+            "norm": 0.014798828703782262,
+            "observed_loss_change": -0.0008271942012731959,
+            "remainder": 0.00030453865108758167,
+            "sign": "descent"
+          }
+        }
+      },
+      "losses": {
+        "post": {
+          "training_policy_ce": 0.9813779606985501,
+          "unseen_equal_input_policy_ce": 1.2197665448675912,
+          "unseen_exposure_policy_ce": 1.2177048034237417
+        },
+        "pre": {
+          "training_policy_ce": 0.9844891071898407,
+          "unseen_equal_input_policy_ce": 1.2205238219713912,
+          "unseen_exposure_policy_ce": 1.2185319976250149
+        }
+      },
+      "optimizer_reconstruction": {
+        "clipped": true,
+        "parameter_checks": [
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 0,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 1,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 2,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 3,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 4,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 5,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 6,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 7,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 8,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 9,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 10,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 11,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 12,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 13,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 14,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 15,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 16,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 17,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 18,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 19,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 20,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 21,
+            "post": true,
+            "step": true
+          }
+        ],
+        "passed": true,
+        "preclip_norm": 2.3001739978790283,
+        "state_reset": true,
+        "step_counter": 1
+      },
+      "step": 2,
+      "training_accounting": {
+        "first_order_contribution": -0.0034238484385650464,
+        "observed_change": -0.0031111464912906284,
+        "remainder": 0.00031270194727441806
+      }
+    },
+    {
+      "directions": {
+        "equal_input": {
+          "category": "adam_coordinate_transport_failure",
+          "full_negative": {
+            "cosine": -0.06530029001782213,
+            "dot": -0.0014858272644295031,
+            "first_order_contribution": -0.0014858272644295031,
+            "norm": 0.014802805083759862,
+            "sign": "descent"
+          },
+          "minibatch_negative": {
+            "cosine": -0.016847616320094964,
+            "dot": -0.00038334652726040164,
+            "first_order_contribution": -0.00038334652726040164,
+            "norm": 0.014802800198336491,
+            "sign": "descent"
+          },
+          "recorded_adam": {
+            "cosine": 0.002378014646181656,
+            "dot": 5.410877021287127e-05,
+            "first_order_contribution": 5.410877021287127e-05,
+            "norm": 0.01480280253193642,
+            "observed_loss_change": 0.0005583716851917941,
+            "remainder": 0.0005042629149789228,
+            "sign": "ascent"
+          }
+        },
+        "exposure": {
+          "category": "both_descent",
+          "full_negative": {
+            "cosine": -0.08440522103104688,
+            "dot": -0.001930296638898612,
+            "first_order_contribution": -0.001930296638898612,
+            "norm": 0.014802805083759862,
+            "sign": "descent"
+          },
+          "minibatch_negative": {
+            "cosine": -0.028406029747155646,
+            "dot": -0.0006496286009226256,
+            "first_order_contribution": -0.0006496286009226256,
+            "norm": 0.014802800198336491,
+            "sign": "descent"
+          },
+          "recorded_adam": {
+            "cosine": -0.0015810648623434268,
+            "dot": -3.615799622662008e-05,
+            "first_order_contribution": -3.615799622662008e-05,
+            "norm": 0.01480280253193642,
+            "observed_loss_change": 0.00047063044726614045,
+            "remainder": 0.0005067884434927605,
+            "sign": "descent"
+          }
+        }
+      },
+      "losses": {
+        "post": {
+          "training_policy_ce": 0.9768668471242682,
+          "unseen_equal_input_policy_ce": 1.220324916552783,
+          "unseen_exposure_policy_ce": 1.2181754338710078
+        },
+        "pre": {
+          "training_policy_ce": 0.9813779606985501,
+          "unseen_equal_input_policy_ce": 1.2197665448675912,
+          "unseen_exposure_policy_ce": 1.2177048034237417
+        }
+      },
+      "optimizer_reconstruction": {
+        "clipped": true,
+        "parameter_checks": [
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 0,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 1,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 2,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 3,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 4,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 5,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 6,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 7,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 8,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 9,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 10,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 11,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 12,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 13,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 14,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 15,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 16,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 17,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 18,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 19,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 20,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 21,
+            "post": true,
+            "step": true
+          }
+        ],
+        "passed": true,
+        "preclip_norm": 2.366832971572876,
+        "state_reset": true,
+        "step_counter": 1
+      },
+      "step": 3,
+      "training_accounting": {
+        "first_order_contribution": -0.004994918713259037,
+        "observed_change": -0.004511113574281911,
+        "remainder": 0.00048380513897712616
+      }
+    },
+    {
+      "directions": {
+        "equal_input": {
+          "category": "mixed_or_ambiguous",
+          "full_negative": {
+            "cosine": 0.020069334952906526,
+            "dot": 0.00046201202484639863,
+            "first_order_contribution": 0.00046201202484639863,
+            "norm": 0.01481686848576107,
+            "sign": "ascent"
+          },
+          "minibatch_negative": {
+            "cosine": -0.47998634123326356,
+            "dot": -0.011049666642702011,
+            "first_order_contribution": -0.011049666642702011,
+            "norm": 0.014816868456265585,
+            "sign": "descent"
+          },
+          "recorded_adam": {
+            "cosine": -0.17662601720074195,
+            "dot": -0.004066071313397699,
+            "first_order_contribution": -0.004066071313397699,
+            "norm": 0.014816869081954604,
+            "observed_loss_change": -0.0033345362773440357,
+            "remainder": 0.0007315350360536637,
+            "sign": "descent"
+          }
+        },
+        "exposure": {
+          "category": "mixed_or_ambiguous",
+          "full_negative": {
+            "cosine": 0.004926139004226259,
+            "dot": 0.00011326947221745117,
+            "first_order_contribution": 0.00011326947221745117,
+            "norm": 0.01481686848576107,
+            "sign": "ascent"
+          },
+          "minibatch_negative": {
+            "cosine": -0.49124628108891477,
+            "dot": -0.01129550076220385,
+            "first_order_contribution": -0.01129550076220385,
+            "norm": 0.014816868456265585,
+            "sign": "descent"
+          },
+          "recorded_adam": {
+            "cosine": -0.1786990773582582,
+            "dot": -0.004108928102760191,
+            "first_order_contribution": -0.004108928102760191,
+            "norm": 0.014816869081954604,
+            "observed_loss_change": -0.0033923333274399337,
+            "remainder": 0.0007165947753202577,
+            "sign": "descent"
+          }
+        }
+      },
+      "losses": {
+        "post": {
+          "training_policy_ce": 0.9753994662047508,
+          "unseen_equal_input_policy_ce": 1.216990380275439,
+          "unseen_exposure_policy_ce": 1.2147831005435679
+        },
+        "pre": {
+          "training_policy_ce": 0.9768668471242682,
+          "unseen_equal_input_policy_ce": 1.220324916552783,
+          "unseen_exposure_policy_ce": 1.2181754338710078
+        }
+      },
+      "optimizer_reconstruction": {
+        "clipped": true,
+        "parameter_checks": [
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 0,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 1,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 2,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 3,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 4,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 5,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 6,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 7,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 8,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 9,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 10,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 11,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 12,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 13,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 14,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 15,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 16,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 17,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 18,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 19,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 20,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 21,
+            "post": true,
+            "step": true
+          }
+        ],
+        "passed": true,
+        "preclip_norm": 2.2778995037078857,
+        "state_reset": true,
+        "step_counter": 1
+      },
+      "step": 4,
+      "training_accounting": {
+        "first_order_contribution": -0.0019419425536827389,
+        "observed_change": -0.0014673809195173693,
+        "remainder": 0.0004745616341653696
+      }
+    },
+    {
+      "directions": {
+        "equal_input": {
+          "category": "mixed_or_ambiguous",
+          "full_negative": {
+            "cosine": 0.14427959620213712,
+            "dot": 0.0029160866752862015,
+            "first_order_contribution": 0.0029160866752862015,
+            "norm": 0.014808686320691109,
+            "sign": "ascent"
+          },
+          "minibatch_negative": {
+            "cosine": 0.1618510021836583,
+            "dot": 0.003271229357375889,
+            "first_order_contribution": 0.003271229357375889,
+            "norm": 0.014808689455718508,
+            "sign": "ascent"
+          },
+          "recorded_adam": {
+            "cosine": 0.06117624811011765,
+            "dot": 0.0012364554392208542,
+            "first_order_contribution": 0.0012364554392208542,
+            "norm": 0.014808690432602219,
+            "observed_loss_change": 0.0017465161319409894,
+            "remainder": 0.0005100606927201353,
+            "sign": "ascent"
+          }
+        },
+        "exposure": {
+          "category": "mixed_or_ambiguous",
+          "full_negative": {
+            "cosine": 0.12676190611915186,
+            "dot": 0.002569614465690395,
+            "first_order_contribution": 0.002569614465690395,
+            "norm": 0.014808686320691109,
+            "sign": "ascent"
+          },
+          "minibatch_negative": {
+            "cosine": 0.15872976819365475,
+            "dot": 0.003217641697896895,
+            "first_order_contribution": 0.003217641697896895,
+            "norm": 0.014808689455718508,
+            "sign": "ascent"
+          },
+          "recorded_adam": {
+            "cosine": 0.05981945955297471,
+            "dot": 0.0012126118641188639,
+            "first_order_contribution": 0.0012126118641188639,
+            "norm": 0.014808690432602219,
+            "observed_loss_change": 0.001713827239377519,
+            "remainder": 0.000501215375258655,
+            "sign": "ascent"
+          }
+        }
+      },
+      "losses": {
+        "post": {
+          "training_policy_ce": 0.9718960938810722,
+          "unseen_equal_input_policy_ce": 1.21873689640738,
+          "unseen_exposure_policy_ce": 1.2164969277829454
+        },
+        "pre": {
+          "training_policy_ce": 0.9753994662047508,
+          "unseen_equal_input_policy_ce": 1.216990380275439,
+          "unseen_exposure_policy_ce": 1.2147831005435679
+        }
+      },
+      "optimizer_reconstruction": {
+        "clipped": true,
+        "parameter_checks": [
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 0,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 1,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 2,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 3,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 4,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 5,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 6,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 7,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 8,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 9,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 10,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 11,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 12,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 13,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 14,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 15,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 16,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 17,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 18,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 19,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 20,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 21,
+            "post": true,
+            "step": true
+          }
+        ],
+        "passed": true,
+        "preclip_norm": 2.853656768798828,
+        "state_reset": true,
+        "step_counter": 1
+      },
+      "step": 5,
+      "training_accounting": {
+        "first_order_contribution": -0.004005789438374445,
+        "observed_change": -0.0035033723236785885,
+        "remainder": 0.0005024171146958568
+      }
+    },
+    {
+      "directions": {
+        "equal_input": {
+          "category": "adam_coordinate_transport_failure",
+          "full_negative": {
+            "cosine": 0.12982647882985254,
+            "dot": 0.00285207634584977,
+            "first_order_contribution": 0.00285207634584977,
+            "norm": 0.014837751421492767,
+            "sign": "ascent"
+          },
+          "minibatch_negative": {
+            "cosine": -0.050105703752895886,
+            "dot": -0.001100740566966562,
+            "first_order_contribution": -0.001100740566966562,
+            "norm": 0.01483774928766161,
+            "sign": "descent"
+          },
+          "recorded_adam": {
+            "cosine": 0.011143630913393246,
+            "dot": 0.00024480741117267034,
+            "first_order_contribution": 0.00024480741117267034,
+            "norm": 0.014837750510676678,
+            "observed_loss_change": 0.0005112083718517013,
+            "remainder": 0.000266400960679031,
+            "sign": "ascent"
+          }
+        },
+        "exposure": {
+          "category": "adam_coordinate_transport_failure",
+          "full_negative": {
+            "cosine": 0.11553007203769504,
+            "dot": 0.002533299698677594,
+            "first_order_contribution": 0.002533299698677594,
+            "norm": 0.014837751421492767,
+            "sign": "ascent"
+          },
+          "minibatch_negative": {
+            "cosine": -0.0483184634381758,
+            "dot": -0.0010595088283625053,
+            "first_order_contribution": -0.0010595088283625053,
+            "norm": 0.01483774928766161,
+            "sign": "descent"
+          },
+          "recorded_adam": {
+            "cosine": 0.010405360878436649,
+            "dot": 0.00022816480155288845,
+            "first_order_contribution": 0.00022816480155288845,
+            "norm": 0.014837750510676678,
+            "observed_loss_change": 0.0004944300129401391,
+            "remainder": 0.00026626521138725065,
+            "sign": "ascent"
+          }
+        }
+      },
+      "losses": {
+        "post": {
+          "training_policy_ce": 0.9692575908550766,
+          "unseen_equal_input_policy_ce": 1.2192481047792316,
+          "unseen_exposure_policy_ce": 1.2169913577958855
+        },
+        "pre": {
+          "training_policy_ce": 0.9718960938810722,
+          "unseen_equal_input_policy_ce": 1.21873689640738,
+          "unseen_exposure_policy_ce": 1.2164969277829454
+        }
+      },
+      "optimizer_reconstruction": {
+        "clipped": true,
+        "parameter_checks": [
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 0,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 1,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 2,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 3,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 4,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 5,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 6,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 7,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 8,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 9,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 10,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 11,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 12,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 13,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 14,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 15,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 16,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 17,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 18,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 19,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 20,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 21,
+            "post": true,
+            "step": true
+          }
+        ],
+        "passed": true,
+        "preclip_norm": 1.607330083847046,
+        "state_reset": true,
+        "step_counter": 1
+      },
+      "step": 6,
+      "training_accounting": {
+        "first_order_contribution": -0.002863132096635263,
+        "observed_change": -0.0026385030259956643,
+        "remainder": 0.00022462907063959883
+      }
+    },
+    {
+      "directions": {
+        "equal_input": {
+          "category": "mixed_or_ambiguous",
+          "full_negative": {
+            "cosine": 0.13128088777516753,
+            "dot": 0.0029662924048421556,
+            "first_order_contribution": 0.0029662924048421556,
+            "norm": 0.014815112904512024,
+            "sign": "ascent"
+          },
+          "minibatch_negative": {
+            "cosine": -0.1572616879249917,
+            "dot": -0.0035533288077294334,
+            "first_order_contribution": -0.0035533288077294334,
+            "norm": 0.014815113221189466,
+            "sign": "descent"
+          },
+          "recorded_adam": {
+            "cosine": -0.06411944671464037,
+            "dot": -0.0014487792691929976,
+            "first_order_contribution": -0.0014487792691929976,
+            "norm": 0.01481511297131319,
+            "observed_loss_change": -0.0012226151313401434,
+            "remainder": 0.00022616413785285418,
+            "sign": "descent"
+          }
+        },
+        "exposure": {
+          "category": "mixed_or_ambiguous",
+          "full_negative": {
+            "cosine": 0.11785068996314173,
+            "dot": 0.0026547917109649433,
+            "first_order_contribution": 0.0026547917109649433,
+            "norm": 0.014815112904512024,
+            "sign": "ascent"
+          },
+          "minibatch_negative": {
+            "cosine": -0.14502930260562552,
+            "dot": -0.003267037288918977,
+            "first_order_contribution": -0.003267037288918977,
+            "norm": 0.014815113221189466,
+            "sign": "descent"
+          },
+          "recorded_adam": {
+            "cosine": -0.05961863961734978,
+            "dot": -0.0013430135287142394,
+            "first_order_contribution": -0.0013430135287142394,
+            "norm": 0.01481511297131319,
+            "observed_loss_change": -0.0011168812879724932,
+            "remainder": 0.00022613224074174618,
+            "sign": "descent"
+          }
+        }
+      },
+      "losses": {
+        "post": {
+          "training_policy_ce": 0.968257206401624,
+          "unseen_equal_input_policy_ce": 1.2180254896478915,
+          "unseen_exposure_policy_ce": 1.215874476507913
+        },
+        "pre": {
+          "training_policy_ce": 0.9692575908550766,
+          "unseen_equal_input_policy_ce": 1.2192481047792316,
+          "unseen_exposure_policy_ce": 1.2169913577958855
+        }
+      },
+      "optimizer_reconstruction": {
+        "clipped": true,
+        "parameter_checks": [
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 0,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 1,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 2,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 3,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 4,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 5,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 6,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 7,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 8,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 9,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 10,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 11,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 12,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 13,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 14,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 15,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 16,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 17,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 18,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 19,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 20,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 21,
+            "post": true,
+            "step": true
+          }
+        ],
+        "passed": true,
+        "preclip_norm": 1.8742674589157104,
+        "state_reset": true,
+        "step_counter": 1
+      },
+      "step": 7,
+      "training_accounting": {
+        "first_order_contribution": -0.0011612993192905842,
+        "observed_change": -0.0010003844534525186,
+        "remainder": 0.0001609148658380656
+      }
+    },
+    {
+      "directions": {
+        "equal_input": {
+          "category": "mixed_or_ambiguous",
+          "full_negative": {
+            "cosine": 0.1530463027799273,
+            "dot": 0.00330674721817973,
+            "first_order_contribution": 0.00330674721817973,
+            "norm": 0.01481224904997171,
+            "sign": "ascent"
+          },
+          "minibatch_negative": {
+            "cosine": 0.15354536388455528,
+            "dot": 0.0033175302276431387,
+            "first_order_contribution": 0.0033175302276431387,
+            "norm": 0.014812249948848498,
+            "sign": "ascent"
+          },
+          "recorded_adam": {
+            "cosine": 0.07530924252731706,
+            "dot": 0.0016271457211013047,
+            "first_order_contribution": 0.0016271457211013047,
+            "norm": 0.01481224955366739,
+            "observed_loss_change": 0.0021777141458418914,
+            "remainder": 0.0005505684247405866,
+            "sign": "ascent"
+          }
+        },
+        "exposure": {
+          "category": "mixed_or_ambiguous",
+          "full_negative": {
+            "cosine": 0.13552008459991757,
+            "dot": 0.00292839528836858,
+            "first_order_contribution": 0.00292839528836858,
+            "norm": 0.01481224904997171,
+            "sign": "ascent"
+          },
+          "minibatch_negative": {
+            "cosine": 0.1456779312296813,
+            "dot": 0.0031478920233848945,
+            "first_order_contribution": 0.0031478920233848945,
+            "norm": 0.014812249948848498,
+            "sign": "ascent"
+          },
+          "recorded_adam": {
+            "cosine": 0.0733513474401275,
+            "dot": 0.0015850178088192737,
+            "first_order_contribution": 0.0015850178088192737,
+            "norm": 0.01481224955366739,
+            "observed_loss_change": 0.0021301928964008177,
+            "remainder": 0.000545175087581544,
+            "sign": "ascent"
+          }
+        }
+      },
+      "losses": {
+        "post": {
+          "training_policy_ce": 0.9662857677308496,
+          "unseen_equal_input_policy_ce": 1.2202032037937334,
+          "unseen_exposure_policy_ce": 1.2180046694043138
+        },
+        "pre": {
+          "training_policy_ce": 0.968257206401624,
+          "unseen_equal_input_policy_ce": 1.2180254896478915,
+          "unseen_exposure_policy_ce": 1.215874476507913
+        }
+      },
+      "optimizer_reconstruction": {
+        "clipped": true,
+        "parameter_checks": [
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 0,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 1,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 2,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 3,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 4,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 5,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 6,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 7,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 8,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 9,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 10,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 11,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 12,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 13,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 14,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 15,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 16,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 17,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 18,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 19,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 20,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 21,
+            "post": true,
+            "step": true
+          }
+        ],
+        "passed": true,
+        "preclip_norm": 1.755089521408081,
+        "state_reset": true,
+        "step_counter": 1
+      },
+      "step": 8,
+      "training_accounting": {
+        "first_order_contribution": -0.0022881672704769714,
+        "observed_change": -0.001971438670774428,
+        "remainder": 0.00031672859970254333
+      }
+    },
+    {
+      "directions": {
+        "equal_input": {
+          "category": "mixed_or_ambiguous",
+          "full_negative": {
+            "cosine": 0.08434911967739793,
+            "dot": 0.0020021067994490274,
+            "first_order_contribution": 0.0020021067994490274,
+            "norm": 0.014803015243466333,
+            "sign": "ascent"
+          },
+          "minibatch_negative": {
+            "cosine": 0.28006119153013687,
+            "dot": 0.006647518387942904,
+            "first_order_contribution": 0.006647518387942904,
+            "norm": 0.014803012820916004,
+            "sign": "ascent"
+          },
+          "recorded_adam": {
+            "cosine": 0.11563491401525013,
+            "dot": 0.0027447046776538113,
+            "first_order_contribution": 0.0027447046776538113,
+            "norm": 0.014803013691695278,
+            "observed_loss_change": 0.0030921785692767934,
+            "remainder": 0.0003474738916229821,
+            "sign": "ascent"
+          }
+        },
+        "exposure": {
+          "category": "mixed_or_ambiguous",
+          "full_negative": {
+            "cosine": 0.07414280702892444,
+            "dot": 0.0017508981344409888,
+            "first_order_contribution": 0.0017508981344409888,
+            "norm": 0.014803015243466333,
+            "sign": "ascent"
+          },
+          "minibatch_negative": {
+            "cosine": 0.2712913607570068,
+            "dot": 0.006406602052692458,
+            "first_order_contribution": 0.006406602052692458,
+            "norm": 0.014803012820916004,
+            "sign": "ascent"
+          },
+          "recorded_adam": {
+            "cosine": 0.1123393515841794,
+            "dot": 0.002652917368197159,
+            "first_order_contribution": 0.002652917368197159,
+            "norm": 0.014803013691695278,
+            "observed_loss_change": 0.0030128344355699888,
+            "remainder": 0.00035991706737282993,
+            "sign": "ascent"
+          }
+        }
+      },
+      "losses": {
+        "post": {
+          "training_policy_ce": 0.964509724616622,
+          "unseen_equal_input_policy_ce": 1.2232953823630102,
+          "unseen_exposure_policy_ce": 1.2210175038398838
+        },
+        "pre": {
+          "training_policy_ce": 0.9662857677308496,
+          "unseen_equal_input_policy_ce": 1.2202032037937334,
+          "unseen_exposure_policy_ce": 1.2180046694043138
+        }
+      },
+      "optimizer_reconstruction": {
+        "clipped": true,
+        "parameter_checks": [
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 0,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 1,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 2,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 3,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 4,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 5,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 6,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 7,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 8,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 9,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 10,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 11,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 12,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 13,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 14,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 15,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 16,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 17,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 18,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 19,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 20,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 21,
+            "post": true,
+            "step": true
+          }
+        ],
+        "passed": true,
+        "preclip_norm": 2.247091770172119,
+        "state_reset": true,
+        "step_counter": 1
+      },
+      "step": 9,
+      "training_accounting": {
+        "first_order_contribution": -0.0021157078769312924,
+        "observed_change": -0.0017760431142276323,
+        "remainder": 0.00033966476270366015
+      }
+    },
+    {
+      "directions": {
+        "equal_input": {
+          "category": "minibatch_transport_failure",
+          "full_negative": {
+            "cosine": -0.09177327202404961,
+            "dot": -0.0024013785795065612,
+            "first_order_contribution": -0.0024013785795065612,
+            "norm": 0.01484634901348173,
+            "sign": "descent"
+          },
+          "minibatch_negative": {
+            "cosine": 0.13322492058392016,
+            "dot": 0.0034860208426061466,
+            "first_order_contribution": 0.0034860208426061466,
+            "norm": 0.014846352193370353,
+            "sign": "ascent"
+          },
+          "recorded_adam": {
+            "cosine": 0.04510364691826506,
+            "dot": 0.0011802013842362735,
+            "first_order_contribution": 0.0011802013842362735,
+            "norm": 0.01484635053655608,
+            "observed_loss_change": 0.0014519462083955048,
+            "remainder": 0.0002717448241592313,
+            "sign": "ascent"
+          }
+        },
+        "exposure": {
+          "category": "minibatch_transport_failure",
+          "full_negative": {
+            "cosine": -0.09675573042393813,
+            "dot": -0.0025203954284056087,
+            "first_order_contribution": -0.0025203954284056087,
+            "norm": 0.01484634901348173,
+            "sign": "descent"
+          },
+          "minibatch_negative": {
+            "cosine": 0.13194093152884914,
+            "dot": 0.00343693743423934,
+            "first_order_contribution": 0.00343693743423934,
+            "norm": 0.014846352193370353,
+            "sign": "ascent"
+          },
+          "recorded_adam": {
+            "cosine": 0.045257386891800144,
+            "dot": 0.0011789123210157963,
+            "first_order_contribution": 0.0011789123210157963,
+            "norm": 0.01484635053655608,
+            "observed_loss_change": 0.001458032340748261,
+            "remainder": 0.0002791200197324647,
+            "sign": "ascent"
+          }
+        }
+      },
+      "losses": {
+        "post": {
+          "training_policy_ce": 0.96347821818077,
+          "unseen_equal_input_policy_ce": 1.2247473285714057,
+          "unseen_exposure_policy_ce": 1.222475536180632
+        },
+        "pre": {
+          "training_policy_ce": 0.964509724616622,
+          "unseen_equal_input_policy_ce": 1.2232953823630102,
+          "unseen_exposure_policy_ce": 1.2210175038398838
+        }
+      },
+      "optimizer_reconstruction": {
+        "clipped": true,
+        "parameter_checks": [
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 0,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 1,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 2,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 3,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 4,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 5,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 6,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 7,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 8,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 9,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 10,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 11,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 12,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 13,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 14,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 15,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 16,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 17,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 18,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 19,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 20,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 21,
+            "post": true,
+            "step": true
+          }
+        ],
+        "passed": true,
+        "preclip_norm": 1.7106291055679321,
+        "state_reset": true,
+        "step_counter": 1
+      },
+      "step": 10,
+      "training_accounting": {
+        "first_order_contribution": -0.0012227464594006972,
+        "observed_change": -0.0010315064358520365,
+        "remainder": 0.0001912400235486607
+      }
+    },
+    {
+      "directions": {
+        "equal_input": {
+          "category": "minibatch_transport_failure",
+          "full_negative": {
+            "cosine": -0.18896174628172585,
+            "dot": -0.005162287744556177,
+            "first_order_contribution": -0.005162287744556177,
+            "norm": 0.014815318587733906,
+            "sign": "descent"
+          },
+          "minibatch_negative": {
+            "cosine": 0.3123554615341723,
+            "dot": 0.008533306123851383,
+            "first_order_contribution": 0.008533306123851383,
+            "norm": 0.014815315424282445,
+            "sign": "ascent"
+          },
+          "recorded_adam": {
+            "cosine": 0.12054592291983034,
+            "dot": 0.003293220332759291,
+            "first_order_contribution": 0.003293220332759291,
+            "norm": 0.01481531678843445,
+            "observed_loss_change": 0.004120482974516726,
+            "remainder": 0.000827262641757435,
+            "sign": "ascent"
+          }
+        },
+        "exposure": {
+          "category": "minibatch_transport_failure",
+          "full_negative": {
+            "cosine": -0.19278076747151615,
+            "dot": -0.005244016620366896,
+            "first_order_contribution": -0.005244016620366896,
+            "norm": 0.014815318587733906,
+            "sign": "descent"
+          },
+          "minibatch_negative": {
+            "cosine": 0.30839790499860253,
+            "dot": 0.008389028715817475,
+            "first_order_contribution": 0.008389028715817475,
+            "norm": 0.014815315424282445,
+            "sign": "ascent"
+          },
+          "recorded_adam": {
+            "cosine": 0.11929132031934975,
+            "dot": 0.003244958502089925,
+            "first_order_contribution": 0.003244958502089925,
+            "norm": 0.01481531678843445,
+            "observed_loss_change": 0.004075566391277485,
+            "remainder": 0.0008306078891875605,
+            "sign": "ascent"
+          }
+        }
+      },
+      "losses": {
+        "post": {
+          "training_policy_ce": 0.9628854435033296,
+          "unseen_equal_input_policy_ce": 1.2288678115459224,
+          "unseen_exposure_policy_ce": 1.2265511025719096
+        },
+        "pre": {
+          "training_policy_ce": 0.96347821818077,
+          "unseen_equal_input_policy_ce": 1.2247473285714057,
+          "unseen_exposure_policy_ce": 1.222475536180632
+        }
+      },
+      "optimizer_reconstruction": {
+        "clipped": true,
+        "parameter_checks": [
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 0,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 1,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 2,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 3,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 4,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 5,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 6,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 7,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 8,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 9,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 10,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 11,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 12,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 13,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 14,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 15,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 16,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 17,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 18,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 19,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 20,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 21,
+            "post": true,
+            "step": true
+          }
+        ],
+        "passed": true,
+        "preclip_norm": 2.9558067321777344,
+        "state_reset": true,
+        "step_counter": 1
+      },
+      "step": 11,
+      "training_accounting": {
+        "first_order_contribution": -0.0013274240560392915,
+        "observed_change": -0.0005927746774403442,
+        "remainder": 0.0007346493785989473
+      }
+    },
+    {
+      "directions": {
+        "equal_input": {
+          "category": "both_descent",
+          "full_negative": {
+            "cosine": -0.5236080883253783,
+            "dot": -0.01655063692389624,
+            "first_order_contribution": -0.01655063692389624,
+            "norm": 0.014809717915776049,
+            "sign": "descent"
+          },
+          "minibatch_negative": {
+            "cosine": -0.13221395770360111,
+            "dot": -0.004179128856795646,
+            "first_order_contribution": -0.004179128856795646,
+            "norm": 0.014809721038142683,
+            "sign": "descent"
+          },
+          "recorded_adam": {
+            "cosine": -0.059760371217480054,
+            "dot": -0.0018889555071496503,
+            "first_order_contribution": -0.0018889555071496503,
+            "norm": 0.01480972054468419,
+            "observed_loss_change": -0.0015486669622706284,
+            "remainder": 0.0003402885448790219,
+            "sign": "descent"
+          }
+        },
+        "exposure": {
+          "category": "both_descent",
+          "full_negative": {
+            "cosine": -0.5247720251943976,
+            "dot": -0.016498520387485498,
+            "first_order_contribution": -0.016498520387485498,
+            "norm": 0.014809717915776049,
+            "sign": "descent"
+          },
+          "minibatch_negative": {
+            "cosine": -0.12871784835964792,
+            "dot": -0.0040468134564586545,
+            "first_order_contribution": -0.0040468134564586545,
+            "norm": 0.014809721038142683,
+            "sign": "descent"
+          },
+          "recorded_adam": {
+            "cosine": -0.059190728219875643,
+            "dot": -0.0018609216245384912,
+            "first_order_contribution": -0.0018609216245384912,
+            "norm": 0.01480972054468419,
+            "observed_loss_change": -0.0015236741025115297,
+            "remainder": 0.0003372475220269615,
+            "sign": "descent"
+          }
+        }
+      },
+      "losses": {
+        "post": {
+          "training_policy_ce": 0.9616261893374507,
+          "unseen_equal_input_policy_ce": 1.2273191445836518,
+          "unseen_exposure_policy_ce": 1.225027428469398
+        },
+        "pre": {
+          "training_policy_ce": 0.9628854435033296,
+          "unseen_equal_input_policy_ce": 1.2288678115459224,
+          "unseen_exposure_policy_ce": 1.2265511025719096
+        }
+      },
+      "optimizer_reconstruction": {
+        "clipped": true,
+        "parameter_checks": [
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 0,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 1,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 2,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 3,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 4,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 5,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 6,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 7,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 8,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 9,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 10,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 11,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 12,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 13,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 14,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 15,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 16,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 17,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 18,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 19,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 20,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 21,
+            "post": true,
+            "step": true
+          }
+        ],
+        "passed": true,
+        "preclip_norm": 1.9742121696472168,
+        "state_reset": true,
+        "step_counter": 1
+      },
+      "step": 12,
+      "training_accounting": {
+        "first_order_contribution": -0.0015268138249152938,
+        "observed_change": -0.0012592541658789091,
+        "remainder": 0.0002675596590363846
+      }
+    },
+    {
+      "directions": {
+        "equal_input": {
+          "category": "minibatch_transport_failure",
+          "full_negative": {
+            "cosine": -0.4278597852325469,
+            "dot": -0.012810440290627275,
+            "first_order_contribution": -0.012810440290627275,
+            "norm": 0.014819044852061073,
+            "sign": "descent"
+          },
+          "minibatch_negative": {
+            "cosine": 0.10579161322371791,
+            "dot": 0.003167480396891278,
+            "first_order_contribution": 0.003167480396891278,
+            "norm": 0.014819048546777118,
+            "sign": "ascent"
+          },
+          "recorded_adam": {
+            "cosine": 0.05387372382871667,
+            "dot": 0.001613019529802887,
+            "first_order_contribution": 0.001613019529802887,
+            "norm": 0.014819046296200799,
+            "observed_loss_change": 0.0020825740619709876,
+            "remainder": 0.00046955453216810067,
+            "sign": "ascent"
+          }
+        },
+        "exposure": {
+          "category": "minibatch_transport_failure",
+          "full_negative": {
+            "cosine": -0.42794440848042486,
+            "dot": -0.012731649713217002,
+            "first_order_contribution": -0.012731649713217002,
+            "norm": 0.014819044852061073,
+            "sign": "descent"
+          },
+          "minibatch_negative": {
+            "cosine": 0.10057636745206824,
+            "dot": 0.002992219021232707,
+            "first_order_contribution": 0.002992219021232707,
+            "norm": 0.014819048546777118,
+            "sign": "ascent"
+          },
+          "recorded_adam": {
+            "cosine": 0.0520131717565789,
+            "dot": 0.0015474289059257877,
+            "first_order_contribution": 0.0015474289059257877,
+            "norm": 0.014819046296200799,
+            "observed_loss_change": 0.0020187345308462223,
+            "remainder": 0.0004713056249204346,
+            "sign": "ascent"
+          }
+        }
+      },
+      "losses": {
+        "post": {
+          "training_policy_ce": 0.9618257941960907,
+          "unseen_equal_input_policy_ce": 1.2294017186456228,
+          "unseen_exposure_policy_ce": 1.2270461630002443
+        },
+        "pre": {
+          "training_policy_ce": 0.9616261893374507,
+          "unseen_equal_input_policy_ce": 1.2273191445836518,
+          "unseen_exposure_policy_ce": 1.225027428469398
+        }
+      },
+      "optimizer_reconstruction": {
+        "clipped": true,
+        "parameter_checks": [
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 0,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 1,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 2,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 3,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 4,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 5,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 6,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 7,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 8,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 9,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 10,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 11,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 12,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 13,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 14,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 15,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 16,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 17,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 18,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 19,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 20,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 21,
+            "post": true,
+            "step": true
+          }
+        ],
+        "passed": true,
+        "preclip_norm": 1.8821078538894653,
+        "state_reset": true,
+        "step_counter": 1
+      },
+      "step": 13,
+      "training_accounting": {
+        "first_order_contribution": -0.0001680515670710139,
+        "observed_change": 0.00019960485864001232,
+        "remainder": 0.0003676564257110262
+      }
+    },
+    {
+      "directions": {
+        "equal_input": {
+          "category": "both_descent",
+          "full_negative": {
+            "cosine": -0.571561399553451,
+            "dot": -0.018602350603237748,
+            "first_order_contribution": -0.018602350603237748,
+            "norm": 0.014795784861854892,
+            "sign": "descent"
+          },
+          "minibatch_negative": {
+            "cosine": -0.144610642753956,
+            "dot": -0.004706579356177572,
+            "first_order_contribution": -0.004706579356177572,
+            "norm": 0.014795791497482157,
+            "sign": "descent"
+          },
+          "recorded_adam": {
+            "cosine": -0.03572863255533412,
+            "dot": -0.0011628437705206705,
+            "first_order_contribution": -0.0011628437705206705,
+            "norm": 0.014795786277065947,
+            "observed_loss_change": -0.0007901115016850646,
+            "remainder": 0.00037273226883560587,
+            "sign": "descent"
+          }
+        },
+        "exposure": {
+          "category": "both_descent",
+          "full_negative": {
+            "cosine": -0.5712141784421705,
+            "dot": -0.01848671292298409,
+            "first_order_contribution": -0.01848671292298409,
+            "norm": 0.014795784861854892,
+            "sign": "descent"
+          },
+          "minibatch_negative": {
+            "cosine": -0.13974487806156008,
+            "dot": -0.004522689910889802,
+            "first_order_contribution": -0.004522689910889802,
+            "norm": 0.014795791497482157,
+            "sign": "descent"
+          },
+          "recorded_adam": {
+            "cosine": -0.03497575062091704,
+            "dot": -0.0011319514592651138,
+            "first_order_contribution": -0.0011319514592651138,
+            "norm": 0.014795786277065947,
+            "observed_loss_change": -0.0007555897632767206,
+            "remainder": 0.0003763616959883932,
+            "sign": "descent"
+          }
+        }
+      },
+      "losses": {
+        "post": {
+          "training_policy_ce": 0.9604053197846644,
+          "unseen_equal_input_policy_ce": 1.2286116071439377,
+          "unseen_exposure_policy_ce": 1.2262905732369676
+        },
+        "pre": {
+          "training_policy_ce": 0.9618257941960907,
+          "unseen_equal_input_policy_ce": 1.2294017186456228,
+          "unseen_exposure_policy_ce": 1.2270461630002443
+        }
+      },
+      "optimizer_reconstruction": {
+        "clipped": true,
+        "parameter_checks": [
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 0,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 1,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 2,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 3,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 4,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 5,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 6,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 7,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 8,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 9,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 10,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 11,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 12,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 13,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 14,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 15,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 16,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 17,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 18,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 19,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 20,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 21,
+            "post": true,
+            "step": true
+          }
+        ],
+        "passed": true,
+        "preclip_norm": 1.9467713832855225,
+        "state_reset": true,
+        "step_counter": 1
+      },
+      "step": 14,
+      "training_accounting": {
+        "first_order_contribution": -0.0016956311017828835,
+        "observed_change": -0.0014204744114263423,
+        "remainder": 0.00027515669035654117
+      }
+    },
+    {
+      "directions": {
+        "equal_input": {
+          "category": "both_descent",
+          "full_negative": {
+            "cosine": -0.5821793795278102,
+            "dot": -0.018696561998412,
+            "first_order_contribution": -0.018696561998412,
+            "norm": 0.014826826075163866,
+            "sign": "descent"
+          },
+          "minibatch_negative": {
+            "cosine": -0.2544306520530478,
+            "dot": -0.008170984221347493,
+            "first_order_contribution": -0.008170984221347493,
+            "norm": 0.014826826273737048,
+            "sign": "descent"
+          },
+          "recorded_adam": {
+            "cosine": -0.10587447109659419,
+            "dot": -0.0034001350876035354,
+            "first_order_contribution": -0.0034001350876035354,
+            "norm": 0.01482682549620807,
+            "observed_loss_change": -0.0028981362960871504,
+            "remainder": 0.000501998791516385,
+            "sign": "descent"
+          }
+        },
+        "exposure": {
+          "category": "both_descent",
+          "full_negative": {
+            "cosine": -0.5823244653532644,
+            "dot": -0.01859348829868498,
+            "first_order_contribution": -0.01859348829868498,
+            "norm": 0.014826826075163866,
+            "sign": "descent"
+          },
+          "minibatch_negative": {
+            "cosine": -0.26009280193263107,
+            "dot": -0.008304704373258606,
+            "first_order_contribution": -0.008304704373258606,
+            "norm": 0.014826826273737048,
+            "sign": "descent"
+          },
+          "recorded_adam": {
+            "cosine": -0.10676568852521026,
+            "dot": -0.003409004122082594,
+            "first_order_contribution": -0.003409004122082594,
+            "norm": 0.01482682549620807,
+            "observed_loss_change": -0.002915191428347841,
+            "remainder": 0.000493812693734753,
+            "sign": "descent"
+          }
+        }
+      },
+      "losses": {
+        "post": {
+          "training_policy_ce": 0.959214426061252,
+          "unseen_equal_input_policy_ce": 1.2257134708478505,
+          "unseen_exposure_policy_ce": 1.2233753818086197
+        },
+        "pre": {
+          "training_policy_ce": 0.9604053197846644,
+          "unseen_equal_input_policy_ce": 1.2286116071439377,
+          "unseen_exposure_policy_ce": 1.2262905732369676
+        }
+      },
+      "optimizer_reconstruction": {
+        "clipped": true,
+        "parameter_checks": [
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 0,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 1,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 2,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 3,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 4,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 5,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 6,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 7,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 8,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 9,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 10,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 11,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 12,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 13,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 14,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 15,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 16,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 17,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 18,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 19,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 20,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 21,
+            "post": true,
+            "step": true
+          }
+        ],
+        "passed": true,
+        "preclip_norm": 2.144458293914795,
+        "state_reset": true,
+        "step_counter": 1
+      },
+      "step": 15,
+      "training_accounting": {
+        "first_order_contribution": -0.0014814907822468817,
+        "observed_change": -0.0011908937234124117,
+        "remainder": 0.0002905970588344699
+      }
+    },
+    {
+      "directions": {
+        "equal_input": {
+          "category": "minibatch_transport_failure",
+          "full_negative": {
+            "cosine": -0.49892823029068234,
+            "dot": -0.014909214456234601,
+            "first_order_contribution": -0.014909214456234601,
+            "norm": 0.014790732593678364,
+            "sign": "descent"
+          },
+          "minibatch_negative": {
+            "cosine": 0.06770837521682964,
+            "dot": 0.002023294668358548,
+            "first_order_contribution": 0.002023294668358548,
+            "norm": 0.014790734669110166,
+            "sign": "ascent"
+          },
+          "recorded_adam": {
+            "cosine": 0.007468524987606225,
+            "dot": 0.0002231780361374904,
+            "first_order_contribution": 0.0002231780361374904,
+            "norm": 0.01479073018914944,
+            "observed_loss_change": 0.00043143856872118747,
+            "remainder": 0.00020826053258369708,
+            "sign": "ascent"
+          }
+        },
+        "exposure": {
+          "category": "minibatch_transport_failure",
+          "full_negative": {
+            "cosine": -0.4987031287653186,
+            "dot": -0.014825668369478174,
+            "first_order_contribution": -0.014825668369478174,
+            "norm": 0.014790732593678364,
+            "sign": "descent"
+          },
+          "minibatch_negative": {
+            "cosine": 0.06724304859319995,
+            "dot": 0.001999031529943785,
+            "first_order_contribution": 0.001999031529943785,
+            "norm": 0.014790734669110166,
+            "sign": "ascent"
+          },
+          "recorded_adam": {
+            "cosine": 0.0067854397294634505,
+            "dot": 0.00020172053675468883,
+            "first_order_contribution": 0.00020172053675468883,
+            "norm": 0.01479073018914944,
+            "observed_loss_change": 0.00040802633231518115,
+            "remainder": 0.00020630579556049232,
+            "sign": "ascent"
+          }
+        }
+      },
+      "losses": {
+        "post": {
+          "training_policy_ce": 0.9579442408670488,
+          "unseen_equal_input_policy_ce": 1.2261449094165717,
+          "unseen_exposure_policy_ce": 1.223783408140935
+        },
+        "pre": {
+          "training_policy_ce": 0.959214426061252,
+          "unseen_equal_input_policy_ce": 1.2257134708478505,
+          "unseen_exposure_policy_ce": 1.2233753818086197
+        }
+      },
+      "optimizer_reconstruction": {
+        "clipped": true,
+        "parameter_checks": [
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 0,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 1,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 2,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 3,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 4,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 5,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 6,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 7,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 8,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 9,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 10,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 11,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 12,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 13,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 14,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 15,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 16,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 17,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 18,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 19,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 20,
+            "post": true,
+            "step": true
+          },
+          {
+            "exp_avg": true,
+            "exp_avg_sq": true,
+            "gradient": true,
+            "parameter": 21,
+            "post": true,
+            "step": true
+          }
+        ],
+        "passed": true,
+        "preclip_norm": 1.8402271270751953,
+        "state_reset": true,
+        "step_counter": 1
+      },
+      "step": 16,
+      "training_accounting": {
+        "first_order_contribution": -0.0014443787996457852,
+        "observed_change": -0.0012701851942031883,
+        "remainder": 0.00017419360544259689
+      }
+    }
+  ],
+  "totals": {
+    "equal_input": {
+      "category_counts": {
+        "adam_coordinate_transport_failure": 2,
+        "both_descent": 5,
+        "minibatch_transport_failure": 4,
+        "mixed_or_ambiguous": 5
+      },
+      "endpoint_change": 0.0030884443838083975,
+      "endpoint_reconciliation_residual": 0.0,
+      "first_order_total": -0.003944146429239619,
+      "observed_change_total": 0.0030884443838083975,
+      "remainder_total": 0.007032590813048016,
+      "signed_direction_contribution_totals": {
+        "full_negative": -0.08521098052086053,
+        "minibatch_negative": -0.01283968528176638,
+        "recorded_adam": -0.003944146429239619
+      }
+    },
+    "exposure": {
+      "category_counts": {
+        "adam_coordinate_transport_failure": 1,
+        "both_descent": 6,
+        "minibatch_transport_failure": 4,
+        "mixed_or_ambiguous": 5
+      },
+      "endpoint_change": 0.00268130838801639,
+      "endpoint_reconciliation_residual": 0.0,
+      "first_order_total": -0.0043377415794919475,
+      "observed_change_total": 0.00268130838801639,
+      "remainder_total": 0.007019049967508338,
+      "signed_direction_contribution_totals": {
+        "full_negative": -0.088395958984929,
+        "minibatch_negative": -0.014127508956330954,
+        "recorded_adam": -0.0043377415794919475
+      }
+    }
+  },
+  "training_totals": {
+    "endpoint_change": -0.03163644909349084,
+    "endpoint_reconciliation_residual": 0.0,
+    "first_order_total": -0.037217309267257394,
+    "observed_change_total": -0.03163644909349084,
+    "remainder_total": 0.005580860173766557
+  }
+}
