@@ -1,0 +1,78 @@
+{
+  "authenticated_manifest_sha256": "db80f3bdfcc0a126032c1f5a16e78cda74b160d4fa2d80330cec8bed18085b34",
+  "authorization": "frozen-checkpoint diagnostic only; no training, optimizer sweep, searches, games, runtime export, or promotion",
+  "checkpoints": {
+    "initializer": "authenticated original initializer",
+    "seed474_P": "independently verified P-steps.npz endpoint parameter arrays at step 15 post; reconstruct from initializer"
+  },
+  "classification": {
+    "bucket_interpretation": "descriptive signed first-order contributions only; do not infer causality or authorize reweighting",
+    "full_population_descent": "cosine <= -1e-6",
+    "full_population_opposition": "cosine(G_unseen, -g_full) >= 1e-6",
+    "otherwise": "ambiguous_or_zero"
+  },
+  "dependencies": {
+    "numpy": "2.5.2",
+    "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+    "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+    "torch": "2.13.0+cu130"
+  },
+  "inputs_sha256": {
+    "evaluation": "72950845b76cb0cb842d9ba8065591978469e74c9ac51cd1c0f76c120158b364",
+    "initializer": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "manifest": "db80f3bdfcc0a126032c1f5a16e78cda74b160d4fa2d80330cec8bed18085b34",
+    "seed474_P_steps": "2e67188fff749cff6e6213f336128c846aaa8b2ddcca8e7386ab888fa6f69294",
+    "seed474_P_trajectory": "c2869f685c5a755bd9fca5a9ac0e1d85a7646e33b430d4d10c5cd975564f0e04",
+    "seed474_endpoint": "959130ffbe4abf155fb531ba0d06b4fa92531cca339a4e8dc6a0723e1ae6fe72",
+    "seed474_receipt": "a58e63f874aebc8044e721adf75998a5a47039ae94c316f526662b3d741326c6",
+    "seed474_registration": "5149be7d592f7fa5c12e161c01b4759b959eceb07036471c5fdaaf405a7beff4",
+    "training": "2e3b503b4e5d64c40d2bca0b44560bfd9f380c2f57606ad8c2db949a1a9c93ae"
+  },
+  "interpretation": "retrospective and exploratory; descriptive gradient attribution, no causal inference or strength claim",
+  "numerical_protocol": {
+    "accumulation": "contiguous occurrence order, chunks of 512 training and 128 unseen; gradients accumulated in chunk order",
+    "atol": 2e-08,
+    "autograd": "float32",
+    "buffers": "must remain bitwise unchanged",
+    "classification_threshold": 1e-06,
+    "forward": "float32 eval-mode model",
+    "geometry": "float64 flattened gradients, dot products, norms, and cosines",
+    "loss_numerators": "float64 reduction in occurrence order",
+    "rtol": 2e-06,
+    "threads": 1
+  },
+  "objective": "fresh training policy CE sum(c_i*CE_i)/sum(c_i), identical total fresh policy mass denominator for full and each active-stone bucket; no per-bucket normalization",
+  "populations": {
+    "bucket_edges": [
+      16,
+      32
+    ],
+    "stone_count": "sum decoded integer pits from invertible kalah_v3 input prefix; verify equals authenticated canonical pit count",
+    "strict_unseen_selection": "evaluation source_ids == 0; occurrence order and own target preserved",
+    "training_occurrences": 60015,
+    "training_selection": "expanded_replay_indices[train_positions], then fresh_source_mask; stored occurrence order and multiplicity preserved",
+    "unseen_exact_inputs": 851,
+    "unseen_occurrences": 859
+  },
+  "schema": "seed475-policy-population-attribution-registration-v1",
+  "source_closure_sha256": {
+    "ml/alphazero_lite/checkpoint_phase_selection.py": "2ab2713c7e6ad6c8f96876519e81cb39dfa7d96d93b11ae42fa4fa27b7033969",
+    "ml/alphazero_lite/input_encodings.py": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/publish_seed475_policy_population_attribution.py": "c2615110234613bea7d414bb49db2405cfda78cb72a1df371f960cbcd4fc5e81",
+    "ml/alphazero_lite/seed466_replay_bundle.py": "c3445d3d743edd418c8f5bec6dcc17e6f47ab0295156305aebd625cb71b945d5",
+    "ml/alphazero_lite/seed466_runtime_bundle.py": "728b13f743126a677712f2f838d15f5c9f251206b792a617aa099d3a6ff49fe8",
+    "ml/alphazero_lite/seed474_verification_supplement.py": "10c41b1ca2b1b86f4513ab709cbb9f102410c7ee23b0359e219bf67068e79745",
+    "ml/alphazero_lite/seed475_policy_population_attribution.py": "1547e9ac408426dfd967b7154a38acec8c43ab2fced777306297de7d87e84581",
+    "ml/alphazero_lite/test_seed475_policy_population_attribution.py": "2c35da0bc849c3c6da67b678da240a453e471484b378e84cda23830e0c3e9e1a",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/verify_seed466_replay_bundle.py": "eb7e6e67ada1c9b7e0d91ccd0867b5864ad07e697f43dda122d0cd1776870caf",
+    "ml/alphazero_lite/verify_seed474_fresh_value_removal.py": "64ac47c516b10563528fba9a945d7fd6f91fe45831608b1635dbeea58884423c",
+    "ml/alphazero_lite/verify_seed475_policy_population_attribution.py": "5cda9a566470c4ee0240e0a909f61c860cc0831609d3bac48eb519d2b02e355f"
+  },
+  "status": "frozen_before_gradient_calculation",
+  "unseen_weighting": {
+    "equal_input": "1/(851*k_identity) each occurrence",
+    "exposure": "1/859 each occurrence"
+  }
+}
