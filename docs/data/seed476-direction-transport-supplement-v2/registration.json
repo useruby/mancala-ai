@@ -1,0 +1,87 @@
+{
+  "accounting": "for each step and weighting, observed=post loss-pre loss; first_order=pre-state loss gradient dot float64 recorded displacement; remainder=observed-first_order; totals sum signed values over 16 steps and reconcile against endpoint loss difference",
+  "authenticated_manifest_sha256": "db80f3bdfcc0a126032c1f5a16e78cda74b160d4fa2d80330cec8bed18085b34",
+  "counterfactuals": "norm-match only within each local archived pre-state; float32 writeback then float64 realized displacement; never carry counterfactual state forward",
+  "dependencies": {
+    "numpy": "2.5.2",
+    "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+    "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+    "torch": "2.13.0+cu130"
+  },
+  "forward_schedule": {
+    "comparison_atol": 2e-08,
+    "comparison_rtol": 2e-06,
+    "predictions": "legal-action probabilities after float32 masked log-softmax; saved per occurrence and endpoint",
+    "sign_threshold": 1e-06,
+    "state_order": "step 1 pre, step 1 post, ..., step 16 pre, step 16 post; each state loaded independently from archived tensors",
+    "threads": 1,
+    "training": "contiguous preserved occurrence order, batches of 512, eval mode, float32 forward; float64 occurrence loss reductions",
+    "unseen": "preserved strict-unseen occurrence order, batches of 128, eval mode, float32 forward; float64 occurrence loss reductions"
+  },
+  "forward_schedule_difference": "Original seed476 gradient calculation used 512-occurrence training chunks and 128-occurrence unseen chunks. Supplemental prediction/loss schedule uses those same chunk sizes; evaluation runs on all 32 archived endpoints in explicit pre/post order. No historical evidence or metric is rewritten.",
+  "inputs_sha256": {
+    "evaluation": "72950845b76cb0cb842d9ba8065591978469e74c9ac51cd1c0f76c120158b364",
+    "initializer": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "manifest": "db80f3bdfcc0a126032c1f5a16e78cda74b160d4fa2d80330cec8bed18085b34",
+    "prior_supplement_accounting": "128bac54a586472031876a785a82a2f4f64432a7b6e43ba031e3b8511f109e51",
+    "prior_supplement_evidence": "8f451175a78b9d72c46128b44baee105e2324b29fdd00e3d1278e5a074e4fcba",
+    "prior_supplement_receipt": "64a99fb2935e6c10414ed474dbe018113502d0fb2cdcf3197366cacf55f52b3a",
+    "prior_supplement_registration": "251d62823ac1cd2f55e5f8df35bce70696c20223d58148a3cd38138a41181bf2",
+    "seed474_P_steps": "2e67188fff749cff6e6213f336128c846aaa8b2ddcca8e7386ab888fa6f69294",
+    "seed474_P_trajectory": "c2869f685c5a755bd9fca5a9ac0e1d85a7646e33b430d4d10c5cd975564f0e04",
+    "seed474_endpoint": "959130ffbe4abf155fb531ba0d06b4fa92531cca339a4e8dc6a0723e1ae6fe72",
+    "seed474_receipt": "a58e63f874aebc8044e721adf75998a5a47039ae94c316f526662b3d741326c6",
+    "seed474_registration": "5149be7d592f7fa5c12e161c01b4759b959eceb07036471c5fdaaf405a7beff4",
+    "seed476_evidence": "7ab7714d9bed39b5d8fde024f3a86ee4e267eb6b31ca331e950aac766cdafd23",
+    "seed476_receipt": "2b8a0ff7354dfbd6895ff8d4e3055d28df1735cfaab97c56532ef24e7a521772",
+    "seed476_registration": "321cc9f95468bba54e0ae8ea02a72bbf4d1fb4a65dca2147033ddf2f7561d86f",
+    "seed476_vectors": "adfa782f8ac2b6e85817497d30e04ffd870509d659b9040a92a4352b28c4fe35",
+    "training": "2e3b503b4e5d64c40d2bca0b44560bfd9f380c2f57606ad8c2db949a1a9c93ae"
+  },
+  "interpretation": "exploratory descriptive attribution only; no causal or strength claim",
+  "limitation": "retrospective schedule and arithmetic reconstruction; no causal attribution to optimizer or sampling and no independent confirmation",
+  "optimizer_reconstruction": "each minibatch gradient recomputed from authenticated occurrence indices, own policy targets, legal masks, coefficients, and fresh mask; clip global norm 1; explicit zero grad for unused parameters; clear Adam state; one step at lr 0.0000625, betas (0.9,0.999), eps 1e-8, no weight decay; compare clipped gradients, exp_avg, exp_avg_sq, step counter, float32 post-state to P-steps archive",
+  "original_attempt_deliverables_absent_at_execution": [
+    "independent reset-Adam reconstruction including clipping, zero moments, step-one bias correction, float32 writeback, and post-state comparison",
+    "pre/post occurrence predictions and policy losses under a declared forward schedule",
+    "exposure/equal-input observed changes, first-order contributions, remainders, signed totals, endpoint reconciliation",
+    "optimizer-update, loss-accounting, and full receipt-rebound corruption verification"
+  ],
+  "original_seed476_evidence_sha256": "7ab7714d9bed39b5d8fde024f3a86ee4e267eb6b31ca331e950aac766cdafd23",
+  "original_seed476_receipt_sha256": "2b8a0ff7354dfbd6895ff8d4e3055d28df1735cfaab97c56532ef24e7a521772",
+  "original_seed476_registration_sha256": "321cc9f95468bba54e0ae8ea02a72bbf4d1fb4a65dca2147033ddf2f7561d86f",
+  "original_seed476_vectors_sha256": "adfa782f8ac2b6e85817497d30e04ffd870509d659b9040a92a4352b28c4fe35",
+  "population": {
+    "minibatch_positions_sha256": "1bc58251462815f17ee261d75d60e087b3c617381471441ef9448d4dda7a3a95",
+    "strict_unseen_exact_inputs": 851,
+    "strict_unseen_occurrences": 859,
+    "training_denominator": 60015.0,
+    "training_occurrences": 60015,
+    "training_rows_sha256": "1dfd58cde1c787dd0d3108b2c8edc6c0f66182346dc744387c6f6e6344a52c8c",
+    "unseen_occurrence_indices_sha256": "69a51b855877ba8ed65f97bab4c569d89f640fd907afd1e9335cd277314ba0d9"
+  },
+  "prior_supplement_attempt": "The first post-execution supplement attempt was retained unchanged. Its independent verifier found an NPZ key-inventory naming mismatch before semantic comparisons; it is bound by the prior_supplement_* input hashes and superseded by this explicitly versioned v2 supplement.",
+  "schema": "seed476-direction-transport-supplement-registration-v1",
+  "source_closure_sha256": {
+    "ml/alphazero_lite/checkpoint_phase_selection.py": "2ab2713c7e6ad6c8f96876519e81cb39dfa7d96d93b11ae42fa4fa27b7033969",
+    "ml/alphazero_lite/input_encodings.py": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/publish_seed476_direction_transport.py": "60d174bf9e2a1430d7056b44247c94c10df7f5a22e4d39586e3bd94822561426",
+    "ml/alphazero_lite/publish_seed476_transport_supplement.py": "91c1fd9b3ddbfb78a6762aa5eff167874fe7cbba8c84f4cb08909b706db61f15",
+    "ml/alphazero_lite/seed466_replay_bundle.py": "c3445d3d743edd418c8f5bec6dcc17e6f47ab0295156305aebd625cb71b945d5",
+    "ml/alphazero_lite/seed466_runtime_bundle.py": "728b13f743126a677712f2f838d15f5c9f251206b792a617aa099d3a6ff49fe8",
+    "ml/alphazero_lite/seed476_direction_transport.py": "08cb1c78cad6ceaa4dde0cfa02e20f23e1ef4895884b5fa8989be05148f3ce08",
+    "ml/alphazero_lite/test_seed476_direction_transport.py": "6086139398ec294ac0fcdf84db87eb032eaa3f2f7cda7d4af68ec18307adc39a",
+    "ml/alphazero_lite/test_seed476_transport_supplement.py": "1115ca7f543a1eb0e5543485171606385b5764ba85a5a37d773b9a2bfed119db",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/verify_seed466_replay_bundle.py": "eb7e6e67ada1c9b7e0d91ccd0867b5864ad07e697f43dda122d0cd1776870caf",
+    "ml/alphazero_lite/verify_seed476_direction_transport.py": "b6760ab82feea6240cc18eea0ad98674ace4738d3fc5f6ce87ffa1b1cefb90b6",
+    "ml/alphazero_lite/verify_seed476_transport_supplement.py": "8d3cd24870022a90bd5d41c2ca4635c978edf118f42b42ed55843af84fdf4a7f"
+  },
+  "status": "post_execution_supplement_frozen_before_reconstruction",
+  "timing": "post-execution retrospective verification supplement; original seed476 freeze/publication preserved and not rerun",
+  "weights": {
+    "equal_input": "1/(851*k_identity) per occurrence; identity groups derive from authenticated input_identity",
+    "exposure": "1/859 for each occurrence"
+  }
+}
