@@ -3165,6 +3165,8 @@ def run_self_play_worker(
                     start_state_pool=loaded_start_state_pool,
                 )
                 game = KalahGame.from_state(start_state)
+            recorded_start_state = game.to_state()
+            recorded_moves: list[int] = []
             positions: list[
                 tuple[
                     list[float],
@@ -3579,6 +3581,7 @@ def run_self_play_worker(
                 )
 
                 move = sample_move(gameplay_policy, legal_moves=legal_moves, rng=rng)
+                recorded_moves.append(int(move))
                 if teacher_source in {
                     "classic_mcts",
                     "opening_cache",
@@ -3703,6 +3706,11 @@ def run_self_play_worker(
                     row["game_completed"] = game_completed
                     row["game_length"] = int(game_length)
                     row["trajectory_hash"] = trajectory_hash
+                    row["game_seed"] = int(game_seed)
+                    row["game_start_state"] = (
+                        recorded_start_state if move_index == 0 else None
+                    )
+                    row["game_moves"] = recorded_moves if move_index == 0 else None
                 handle.write(json.dumps(row) + "\n")
                 rows_written += 1
 
