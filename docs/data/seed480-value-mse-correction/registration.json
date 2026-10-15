@@ -1,0 +1,46 @@
+{
+  "dependencies": {
+    "numpy": "2.5.2",
+    "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+    "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+    "torch": "2.13.0+cu130"
+  },
+  "forward_schedule": "initializer, then verified M and F step-16 post-parameter states; fixed batch size 512, model residual_v3 (96,3), value output as returned by PolicyValueNet.forward",
+  "gate_definition": "F pooled value-head squared error versus occurrence-specific authenticated evaluation value targets, regression from initializer <= 0.01 under both exposure and equal_input weighting; all seed479 gates except the incorrectly labelled pooled policy-vector MSE gate retained.",
+  "inputs_sha256": {
+    "initializer": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "seed466_evaluation": "72950845b76cb0cb842d9ba8065591978469e74c9ac51cd1c0f76c120158b364",
+    "seed466_manifest": "db80f3bdfcc0a126032c1f5a16e78cda74b160d4fa2d80330cec8bed18085b34",
+    "seed466_training": "2e3b503b4e5d64c40d2bca0b44560bfd9f380c2f57606ad8c2db949a1a9c93ae"
+  },
+  "interpretation": "Corrects the requested value-head MSE estimand after seed479 execution; seed479 registration and evidence remain immutable.",
+  "receipt_parent": {
+    "evidence.json": "9056f7654b1dca824eccc783c04b7ad1a68140667e28068f665d304eea9ce2fe",
+    "registration.json": "4e2a03af089593f1ae32abc26f8a407bb5d980be7100776c091224a7ae0b2fb4",
+    "results.md": "200f6799850f7dab1bb007b13751a6e1a3a788c695050429bd068b4f97de9212",
+    "status": "seed479_population_ablation_bound",
+    "trajectory-evidence.npz": "2b78bb032d4bd2c384661bd63391abcd8eb66544a1dee8201aabadaff693aa32"
+  },
+  "schema": "seed480-value-mse-correction-registration-v1",
+  "seed479_evidence_sha256": "9056f7654b1dca824eccc783c04b7ad1a68140667e28068f665d304eea9ce2fe",
+  "seed479_receipt_sha256": "f7c5edd6e6bedd496b145721edcd77196ccdb32e127340c81b1546a6db816314",
+  "seed479_registration_sha256": "4e2a03af089593f1ae32abc26f8a407bb5d980be7100776c091224a7ae0b2fb4",
+  "seed479_trajectory_sha256": "2b78bb032d4bd2c384661bd63391abcd8eb66544a1dee8201aabadaff693aa32",
+  "sources_sha256": {
+    "ml/alphazero_lite/checkpoint_phase_selection.py": "2ab2713c7e6ad6c8f96876519e81cb39dfa7d96d93b11ae42fa4fa27b7033969",
+    "ml/alphazero_lite/publish_seed480_value_mse_correction.py": "1a490c52677da1aa6fed32ffadb8898a938275ea486dbd531ddb3993eb345349",
+    "ml/alphazero_lite/seed466_replay_bundle.py": "c3445d3d743edd418c8f5bec6dcc17e6f47ab0295156305aebd625cb71b945d5",
+    "ml/alphazero_lite/seed466_runtime_bundle.py": "728b13f743126a677712f2f838d15f5c9f251206b792a617aa099d3a6ff49fe8",
+    "ml/alphazero_lite/seed479_population_ablation.py": "85b9b318d3d489cba4e35a1099b4090d25101f74aad32e28cda35a51b9c6bd54",
+    "ml/alphazero_lite/seed480_value_mse_correction.py": "7f02afa7d693d40c2dae32d38f802f214adbf9421661f78595b9dad931fc3771",
+    "ml/alphazero_lite/test_seed480_value_mse_correction.py": "b37f6d9c9b8550fb59633fdf138ad96447a0f94502613e7bc5675aeb10d96289",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/verify_seed479_population_ablation.py": "549836e268e14475e410888f6d8a21281abf0538a98f4571884c49627fb45d12",
+    "ml/alphazero_lite/verify_seed480_value_mse_correction.py": "e5e5f66986bee4d85623a10188a80db55866aa652e89196562efbd864ab69428"
+  },
+  "status": "post_execution_correction",
+  "weighting": {
+    "equal_input": "equal mass per exact input identity, divided equally among repeated occurrences",
+    "exposure": "equal mass per occurrence"
+  }
+}
