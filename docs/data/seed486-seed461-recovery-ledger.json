@@ -1,0 +1,2171 @@
+{
+  "basis_inventory": "docs/data/seed485-seed461-forensic-inventory.json",
+  "generation_authorized": false,
+  "required_artifact_request": [
+    "For each stream, provide the execution-time arena.py and rules source files or their SHA-256 hashes, with a run-bound source snapshot manifest or command/runtime receipt linking them to the receipt-bound game log.",
+    "Provide explicit state traces tied to the same game-log receipt if trajectory-free identity reconstruction is expected.",
+    "For fixed-E4 streams, provide the missing registration and opening-suite receipt/bytes.",
+    "Provide command logs and resume/chunk manifests tying run, suite index, seat initialization, and per-game ranges together."
+  ],
+  "schema": "seed486-seed461-recovery-ledger-v1",
+  "searched_locations": [
+    {
+      "location": ".tmp/seed461-cosine-lr-ablation",
+      "note": "Only receipt-linked run artifacts are associated per stream; no inference from neighboring artifacts.",
+      "status": "searched; present"
+    },
+    {
+      "location": ".tmp/seed461-lr-sensitivity",
+      "note": "Only receipt-linked run artifacts are associated per stream; no inference from neighboring artifacts.",
+      "status": "searched; present"
+    },
+    {
+      "location": ".tmp/seed461-order-confirmation",
+      "note": "Only receipt-linked run artifacts are associated per stream; no inference from neighboring artifacts.",
+      "status": "searched; present"
+    },
+    {
+      "location": ".tmp/seed461-order-exploratory",
+      "note": "Only receipt-linked run artifacts are associated per stream; no inference from neighboring artifacts.",
+      "status": "searched; present"
+    },
+    {
+      "location": ".tmp/seed461-e2-e4-average",
+      "note": "Only receipt-linked run artifacts are associated per stream; no inference from neighboring artifacts.",
+      "status": "searched; present"
+    },
+    {
+      "location": ".tmp/seed461-e3-e4",
+      "note": "Only receipt-linked run artifacts are associated per stream; no inference from neighboring artifacts.",
+      "status": "searched; present"
+    },
+    {
+      "location": ".tmp/seed461-cross-order-e4-average",
+      "note": "Only receipt-linked run artifacts are associated per stream; no inference from neighboring artifacts.",
+      "status": "searched; present"
+    },
+    {
+      "location": ".tmp/seed461-e1-e4-corrected-diagnostic",
+      "note": "Only receipt-linked run artifacts are associated per stream; no inference from neighboring artifacts.",
+      "status": "searched; present"
+    },
+    {
+      "location": "docs/data/*.json and docs/data/*seed461*",
+      "note": "Committed bindings, registrations, suites, source snapshot references, and manifests; see per-stream links.",
+      "status": "searched"
+    },
+    {
+      "location": "docs/data/seed483-recovered-seed461-arena-games.tar.gz (sha256 17703bba162596db668c8dff69fc91e6297669c9c0bf70ec2b75de2f06bd1d05)",
+      "note": "58 receipt-matched game logs; no explicit state trace fields found.",
+      "status": "searched"
+    },
+    {
+      "location": "reachable Git history: seed461 runner/arena source paths and PR #390 commit ec87dc4a77dcd9d31ae0e0dcba08c3bf4f20de0a",
+      "note": "Source implementations are comparisons; no execution receipt links a source revision to these runs.",
+      "status": "searched"
+    }
+  ],
+  "status": "bounded_recovery_incomplete",
+  "stream_count": 58,
+  "streams": [
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38611_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "6bcf879780dbc21a9502f92333607c9c8c0439766389d2baa2dbcdc6a375a4ea"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38611_A.json",
+          "role": "arena_report",
+          "sha256": "e7c4ddcf4a45a9b4fca4bb9756697fdc863630203b5540b112e270294b570f91"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "6bcf879780dbc21a9502f92333607c9c8c0439766389d2baa2dbcdc6a375a4ea",
+        "binding_path": "docs/data/seed461-cosine-lr-ablation-evaluation-binding.json",
+        "binding_sha256": "5db5202d8eb53576dfb21e23f6a9d034592ef4bd11b2deb5df6faade2fc11592",
+        "game_log_sha256": "6bcf879780dbc21a9502f92333607c9c8c0439766389d2baa2dbcdc6a375a4ea"
+      },
+      "registration_path": "docs/data/seed461-cosine-lr-ablation-registration.json",
+      "registration_sha256": "ab82a27bb74340c429f9149e0efb20bdbe0e99b9d53c2c20c9c5efc800eb9be1",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38611_A",
+      "suite_path": "docs/data/seed461-cosine-lr-ablation-openings.jsonl",
+      "suite_sha256": "41fd667245f6d68848737373074cb5f7494fecce1686a59be8af4a89959d7e2c",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38611_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "2dfa173466266e2bf0a6e505c35bad5d9e44bcae58fe459160ff0476d1f679be"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38611_B.json",
+          "role": "arena_report",
+          "sha256": "614126532d96f38e4a2e5673c637f00759b0c8efbf7223a087d05225b5b5a15d"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "2dfa173466266e2bf0a6e505c35bad5d9e44bcae58fe459160ff0476d1f679be",
+        "binding_path": "docs/data/seed461-cosine-lr-ablation-evaluation-binding.json",
+        "binding_sha256": "5db5202d8eb53576dfb21e23f6a9d034592ef4bd11b2deb5df6faade2fc11592",
+        "game_log_sha256": "2dfa173466266e2bf0a6e505c35bad5d9e44bcae58fe459160ff0476d1f679be"
+      },
+      "registration_path": "docs/data/seed461-cosine-lr-ablation-registration.json",
+      "registration_sha256": "ab82a27bb74340c429f9149e0efb20bdbe0e99b9d53c2c20c9c5efc800eb9be1",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38611_B",
+      "suite_path": "docs/data/seed461-cosine-lr-ablation-openings.jsonl",
+      "suite_sha256": "41fd667245f6d68848737373074cb5f7494fecce1686a59be8af4a89959d7e2c",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38612_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "b2afb9af982e4a7521195ad47e5710af3468346c65cf29734b45beda43bbad5e"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38612_A.json",
+          "role": "arena_report",
+          "sha256": "0786bd22002b2ff26c522d8dff6aa6f42277bc3bf61154a5db1bb58e189cfb96"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "b2afb9af982e4a7521195ad47e5710af3468346c65cf29734b45beda43bbad5e",
+        "binding_path": "docs/data/seed461-cosine-lr-ablation-evaluation-binding.json",
+        "binding_sha256": "5db5202d8eb53576dfb21e23f6a9d034592ef4bd11b2deb5df6faade2fc11592",
+        "game_log_sha256": "b2afb9af982e4a7521195ad47e5710af3468346c65cf29734b45beda43bbad5e"
+      },
+      "registration_path": "docs/data/seed461-cosine-lr-ablation-registration.json",
+      "registration_sha256": "ab82a27bb74340c429f9149e0efb20bdbe0e99b9d53c2c20c9c5efc800eb9be1",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38612_A",
+      "suite_path": "docs/data/seed461-cosine-lr-ablation-openings.jsonl",
+      "suite_sha256": "41fd667245f6d68848737373074cb5f7494fecce1686a59be8af4a89959d7e2c",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38612_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "0c740c9be6f3be0a8a6ad6881db32cb63204f2f6e88eca3ce39874ee7ef21feb"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38612_B.json",
+          "role": "arena_report",
+          "sha256": "6b191ff9e2096eb3fd472ff64b204482f0d7ae3731b56b918b7080220e508cf1"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "0c740c9be6f3be0a8a6ad6881db32cb63204f2f6e88eca3ce39874ee7ef21feb",
+        "binding_path": "docs/data/seed461-cosine-lr-ablation-evaluation-binding.json",
+        "binding_sha256": "5db5202d8eb53576dfb21e23f6a9d034592ef4bd11b2deb5df6faade2fc11592",
+        "game_log_sha256": "0c740c9be6f3be0a8a6ad6881db32cb63204f2f6e88eca3ce39874ee7ef21feb"
+      },
+      "registration_path": "docs/data/seed461-cosine-lr-ablation-registration.json",
+      "registration_sha256": "ab82a27bb74340c429f9149e0efb20bdbe0e99b9d53c2c20c9c5efc800eb9be1",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38612_B",
+      "suite_path": "docs/data/seed461-cosine-lr-ablation-openings.jsonl",
+      "suite_sha256": "41fd667245f6d68848737373074cb5f7494fecce1686a59be8af4a89959d7e2c",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38613_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "0e3dc45334b2db054d7412dedeca3f5e91c32fcf0ad2a14ab01457752adcde71"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38613_A.json",
+          "role": "arena_report",
+          "sha256": "4eab604e76d924b115cc82ec0d7fd1220b09880d2f069036efc09e4b9581f334"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "0e3dc45334b2db054d7412dedeca3f5e91c32fcf0ad2a14ab01457752adcde71",
+        "binding_path": "docs/data/seed461-cosine-lr-ablation-evaluation-binding.json",
+        "binding_sha256": "5db5202d8eb53576dfb21e23f6a9d034592ef4bd11b2deb5df6faade2fc11592",
+        "game_log_sha256": "0e3dc45334b2db054d7412dedeca3f5e91c32fcf0ad2a14ab01457752adcde71"
+      },
+      "registration_path": "docs/data/seed461-cosine-lr-ablation-registration.json",
+      "registration_sha256": "ab82a27bb74340c429f9149e0efb20bdbe0e99b9d53c2c20c9c5efc800eb9be1",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38613_A",
+      "suite_path": "docs/data/seed461-cosine-lr-ablation-openings.jsonl",
+      "suite_sha256": "41fd667245f6d68848737373074cb5f7494fecce1686a59be8af4a89959d7e2c",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38613_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "2170aeb8faa6d02f27263314c7edaf57b1eeae4dee86d1775bfbae9a888fbf33"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38613_B.json",
+          "role": "arena_report",
+          "sha256": "5557b0d455269e6e6050067035cc0caf9ae266066ce3e74bcdc56d446c02fd9e"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "2170aeb8faa6d02f27263314c7edaf57b1eeae4dee86d1775bfbae9a888fbf33",
+        "binding_path": "docs/data/seed461-cosine-lr-ablation-evaluation-binding.json",
+        "binding_sha256": "5db5202d8eb53576dfb21e23f6a9d034592ef4bd11b2deb5df6faade2fc11592",
+        "game_log_sha256": "2170aeb8faa6d02f27263314c7edaf57b1eeae4dee86d1775bfbae9a888fbf33"
+      },
+      "registration_path": "docs/data/seed461-cosine-lr-ablation-registration.json",
+      "registration_sha256": "ab82a27bb74340c429f9149e0efb20bdbe0e99b9d53c2c20c9c5efc800eb9be1",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38613_B",
+      "suite_path": "docs/data/seed461-cosine-lr-ablation-openings.jsonl",
+      "suite_sha256": "41fd667245f6d68848737373074cb5f7494fecce1686a59be8af4a89959d7e2c",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38614_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "9a45d6264c47b9d3ec75e443bcd4f426ae2924fbeca4d52991fe2e397822e515"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38614_A.json",
+          "role": "arena_report",
+          "sha256": "a56a9c0f57e032775db4749af60f285a7e00fa02a06777a614ab3a3c5f3942f3"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "9a45d6264c47b9d3ec75e443bcd4f426ae2924fbeca4d52991fe2e397822e515",
+        "binding_path": "docs/data/seed461-cosine-lr-ablation-evaluation-binding.json",
+        "binding_sha256": "5db5202d8eb53576dfb21e23f6a9d034592ef4bd11b2deb5df6faade2fc11592",
+        "game_log_sha256": "9a45d6264c47b9d3ec75e443bcd4f426ae2924fbeca4d52991fe2e397822e515"
+      },
+      "registration_path": "docs/data/seed461-cosine-lr-ablation-registration.json",
+      "registration_sha256": "ab82a27bb74340c429f9149e0efb20bdbe0e99b9d53c2c20c9c5efc800eb9be1",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38614_A",
+      "suite_path": "docs/data/seed461-cosine-lr-ablation-openings.jsonl",
+      "suite_sha256": "41fd667245f6d68848737373074cb5f7494fecce1686a59be8af4a89959d7e2c",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38614_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "a36392f410c8c43368170dcba48e4243de40c3291aa7e07c6c93c6c20893bbdf"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38614_B.json",
+          "role": "arena_report",
+          "sha256": "6d3457aa0559879a1feef10ce5c0faab3eb594fbcfa1dbfd95ae3d90aa6c8be9"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "a36392f410c8c43368170dcba48e4243de40c3291aa7e07c6c93c6c20893bbdf",
+        "binding_path": "docs/data/seed461-cosine-lr-ablation-evaluation-binding.json",
+        "binding_sha256": "5db5202d8eb53576dfb21e23f6a9d034592ef4bd11b2deb5df6faade2fc11592",
+        "game_log_sha256": "a36392f410c8c43368170dcba48e4243de40c3291aa7e07c6c93c6c20893bbdf"
+      },
+      "registration_path": "docs/data/seed461-cosine-lr-ablation-registration.json",
+      "registration_sha256": "ab82a27bb74340c429f9149e0efb20bdbe0e99b9d53c2c20c9c5efc800eb9be1",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38614_B",
+      "suite_path": "docs/data/seed461-cosine-lr-ablation-openings.jsonl",
+      "suite_sha256": "41fd667245f6d68848737373074cb5f7494fecce1686a59be8af4a89959d7e2c",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38615_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "3008c9f141049e05743ce4570e387263976d89626cfccf44e85d5d6ad3d496cf"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38615_A.json",
+          "role": "arena_report",
+          "sha256": "b9caa2ee21d6687de6eb5bff113e3f7608b502bfab0dcb787258e9159415bd52"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "3008c9f141049e05743ce4570e387263976d89626cfccf44e85d5d6ad3d496cf",
+        "binding_path": "docs/data/seed461-cosine-lr-ablation-evaluation-binding.json",
+        "binding_sha256": "5db5202d8eb53576dfb21e23f6a9d034592ef4bd11b2deb5df6faade2fc11592",
+        "game_log_sha256": "3008c9f141049e05743ce4570e387263976d89626cfccf44e85d5d6ad3d496cf"
+      },
+      "registration_path": "docs/data/seed461-cosine-lr-ablation-registration.json",
+      "registration_sha256": "ab82a27bb74340c429f9149e0efb20bdbe0e99b9d53c2c20c9c5efc800eb9be1",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38615_A",
+      "suite_path": "docs/data/seed461-cosine-lr-ablation-openings.jsonl",
+      "suite_sha256": "41fd667245f6d68848737373074cb5f7494fecce1686a59be8af4a89959d7e2c",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38615_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "4889acaac73b04da7f3a4f46e4168037f26a24eec26850fc736f230c2e036b09"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cosine-lr-ablation/arena-e4/order_38615_B.json",
+          "role": "arena_report",
+          "sha256": "6f75e3a0f63547b430547218b8e7ab361784b293829afa2ce67fc088dcab0a8a"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "4889acaac73b04da7f3a4f46e4168037f26a24eec26850fc736f230c2e036b09",
+        "binding_path": "docs/data/seed461-cosine-lr-ablation-evaluation-binding.json",
+        "binding_sha256": "5db5202d8eb53576dfb21e23f6a9d034592ef4bd11b2deb5df6faade2fc11592",
+        "game_log_sha256": "4889acaac73b04da7f3a4f46e4168037f26a24eec26850fc736f230c2e036b09"
+      },
+      "registration_path": "docs/data/seed461-cosine-lr-ablation-registration.json",
+      "registration_sha256": "ab82a27bb74340c429f9149e0efb20bdbe0e99b9d53c2c20c9c5efc800eb9be1",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38615_B",
+      "suite_path": "docs/data/seed461-cosine-lr-ablation-openings.jsonl",
+      "suite_sha256": "41fd667245f6d68848737373074cb5f7494fecce1686a59be8af4a89959d7e2c",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cross-order-e4-average/arena/A1-games.jsonl",
+          "role": "game_log",
+          "sha256": "db4efc09e2c69a53b6c97367d5730650a9762bbf2e98b257e5a33833f70e3108"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cross-order-e4-average/arena/A1.json",
+          "role": "arena_report",
+          "sha256": "532df58dc5c35a083e2456ccbcefb411c9bfc58996dc660628ebac2d58c31c81"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "db4efc09e2c69a53b6c97367d5730650a9762bbf2e98b257e5a33833f70e3108",
+        "binding_path": "docs/data/seed461-cross-order-e4-average-evaluation-binding.json",
+        "binding_sha256": "a7e8be2ba38b93c92e676c57d84d8c80990eddbb60f6b864809c558c04db0c1b",
+        "game_log_sha256": "db4efc09e2c69a53b6c97367d5730650a9762bbf2e98b257e5a33833f70e3108"
+      },
+      "registration_path": "docs/data/seed461-cross-order-e4-average-registration.json",
+      "registration_sha256": "5c09af5fef62dec497571fe5d0b6956825e9f3d043f43efe0529c57f4efcadf1",
+      "resume_chunk_mapping": null,
+      "stream_key": "A1",
+      "suite_path": "docs/data/seed461-cross-order-e4-average-openings.jsonl",
+      "suite_sha256": "69f50cdc0d97ce7debe8043824e0c60cf285585c81e2a02455957a59ce4c992a",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cross-order-e4-average/arena/A2-games.jsonl",
+          "role": "game_log",
+          "sha256": "df4d13fc9923c038a810b9b89e94aff2a4908eb0058f7adfe06631fbfe9e74d2"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cross-order-e4-average/arena/A2.json",
+          "role": "arena_report",
+          "sha256": "3742198a6d268e31d6ac7fa98a8d6e7dcf0d5741dcff9d3fc7721d2f9f0769b7"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "df4d13fc9923c038a810b9b89e94aff2a4908eb0058f7adfe06631fbfe9e74d2",
+        "binding_path": "docs/data/seed461-cross-order-e4-average-evaluation-binding.json",
+        "binding_sha256": "a7e8be2ba38b93c92e676c57d84d8c80990eddbb60f6b864809c558c04db0c1b",
+        "game_log_sha256": "df4d13fc9923c038a810b9b89e94aff2a4908eb0058f7adfe06631fbfe9e74d2"
+      },
+      "registration_path": "docs/data/seed461-cross-order-e4-average-registration.json",
+      "registration_sha256": "5c09af5fef62dec497571fe5d0b6956825e9f3d043f43efe0529c57f4efcadf1",
+      "resume_chunk_mapping": null,
+      "stream_key": "A2",
+      "suite_path": "docs/data/seed461-cross-order-e4-average-openings.jsonl",
+      "suite_sha256": "69f50cdc0d97ce7debe8043824e0c60cf285585c81e2a02455957a59ce4c992a",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cross-order-e4-average/arena/A3-games.jsonl",
+          "role": "game_log",
+          "sha256": "eb0ef1087836eb9c1ecd5c1c79f7833a3ba2cc36d3e82a25415caa12dc4f91d9"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cross-order-e4-average/arena/A3.json",
+          "role": "arena_report",
+          "sha256": "56be558e1710ad15412f88311207718b2091c05f7c257af5c66707155c468168"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "eb0ef1087836eb9c1ecd5c1c79f7833a3ba2cc36d3e82a25415caa12dc4f91d9",
+        "binding_path": "docs/data/seed461-cross-order-e4-average-evaluation-binding.json",
+        "binding_sha256": "a7e8be2ba38b93c92e676c57d84d8c80990eddbb60f6b864809c558c04db0c1b",
+        "game_log_sha256": "eb0ef1087836eb9c1ecd5c1c79f7833a3ba2cc36d3e82a25415caa12dc4f91d9"
+      },
+      "registration_path": "docs/data/seed461-cross-order-e4-average-registration.json",
+      "registration_sha256": "5c09af5fef62dec497571fe5d0b6956825e9f3d043f43efe0529c57f4efcadf1",
+      "resume_chunk_mapping": null,
+      "stream_key": "A3",
+      "suite_path": "docs/data/seed461-cross-order-e4-average-openings.jsonl",
+      "suite_sha256": "69f50cdc0d97ce7debe8043824e0c60cf285585c81e2a02455957a59ce4c992a",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cross-order-e4-average/arena/A4-games.jsonl",
+          "role": "game_log",
+          "sha256": "76a0143fe7a2ceba4951c28cfdb2fc6be6ee208548533898da6fbfd67b6882cf"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cross-order-e4-average/arena/A4.json",
+          "role": "arena_report",
+          "sha256": "ad8392a602e80cd68f358292a104a0f1a6a1836fe60a603a6e63cfff787d484a"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "76a0143fe7a2ceba4951c28cfdb2fc6be6ee208548533898da6fbfd67b6882cf",
+        "binding_path": "docs/data/seed461-cross-order-e4-average-evaluation-binding.json",
+        "binding_sha256": "a7e8be2ba38b93c92e676c57d84d8c80990eddbb60f6b864809c558c04db0c1b",
+        "game_log_sha256": "76a0143fe7a2ceba4951c28cfdb2fc6be6ee208548533898da6fbfd67b6882cf"
+      },
+      "registration_path": "docs/data/seed461-cross-order-e4-average-registration.json",
+      "registration_sha256": "5c09af5fef62dec497571fe5d0b6956825e9f3d043f43efe0529c57f4efcadf1",
+      "resume_chunk_mapping": null,
+      "stream_key": "A4",
+      "suite_path": "docs/data/seed461-cross-order-e4-average-openings.jsonl",
+      "suite_sha256": "69f50cdc0d97ce7debe8043824e0c60cf285585c81e2a02455957a59ce4c992a",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cross-order-e4-average/arena/A5-games.jsonl",
+          "role": "game_log",
+          "sha256": "edf2c63bb518f4002024c2fd0266e3a799d84e537b533989b80cb25c3084a0e2"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cross-order-e4-average/arena/A5.json",
+          "role": "arena_report",
+          "sha256": "52190f10165bf96ec3714c3236070bd90bb7619b272a12186da4a34fe8f8444e"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "edf2c63bb518f4002024c2fd0266e3a799d84e537b533989b80cb25c3084a0e2",
+        "binding_path": "docs/data/seed461-cross-order-e4-average-evaluation-binding.json",
+        "binding_sha256": "a7e8be2ba38b93c92e676c57d84d8c80990eddbb60f6b864809c558c04db0c1b",
+        "game_log_sha256": "edf2c63bb518f4002024c2fd0266e3a799d84e537b533989b80cb25c3084a0e2"
+      },
+      "registration_path": "docs/data/seed461-cross-order-e4-average-registration.json",
+      "registration_sha256": "5c09af5fef62dec497571fe5d0b6956825e9f3d043f43efe0529c57f4efcadf1",
+      "resume_chunk_mapping": null,
+      "stream_key": "A5",
+      "suite_path": "docs/data/seed461-cross-order-e4-average-openings.jsonl",
+      "suite_sha256": "69f50cdc0d97ce7debe8043824e0c60cf285585c81e2a02455957a59ce4c992a",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cross-order-e4-average/arena/P-games.jsonl",
+          "role": "game_log",
+          "sha256": "c829997381594ae6e16f64b866c5983118cf6231d79173c5ff6e33c1533a5048"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-cross-order-e4-average/arena/P.json",
+          "role": "arena_report",
+          "sha256": "cb7345dcbc3f5de72b5b5a253559ce96f142af3aead18d37514733a277f1313f"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "c829997381594ae6e16f64b866c5983118cf6231d79173c5ff6e33c1533a5048",
+        "binding_path": "docs/data/seed461-cross-order-e4-average-evaluation-binding.json",
+        "binding_sha256": "a7e8be2ba38b93c92e676c57d84d8c80990eddbb60f6b864809c558c04db0c1b",
+        "game_log_sha256": "c829997381594ae6e16f64b866c5983118cf6231d79173c5ff6e33c1533a5048"
+      },
+      "registration_path": "docs/data/seed461-cross-order-e4-average-registration.json",
+      "registration_sha256": "5c09af5fef62dec497571fe5d0b6956825e9f3d043f43efe0529c57f4efcadf1",
+      "resume_chunk_mapping": null,
+      "stream_key": "P",
+      "suite_path": "docs/data/seed461-cross-order-e4-average-openings.jsonl",
+      "suite_sha256": "69f50cdc0d97ce7debe8043824e0c60cf285585c81e2a02455957a59ce4c992a",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e1-e4-corrected-diagnostic/E1-games.jsonl",
+          "role": "game_log",
+          "sha256": "4d52b1248ef5f1dc40a76506f048ee6c6fcc047bd9ce2746e97bb56f9330eef8"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e1-e4-corrected-diagnostic/E1.json",
+          "role": "arena_report",
+          "sha256": "df1b54889298db754a912ae0b71acc818401bac44316b2706034de583a3bf2bf"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "4d52b1248ef5f1dc40a76506f048ee6c6fcc047bd9ce2746e97bb56f9330eef8",
+        "binding_path": "docs/data/seed461-e1-e4-corrected-diagnostic/evaluation-binding.json",
+        "binding_sha256": "9cb4f1cc274809d05f017dff3f1636c5b536ba85f5bb204a24f708b4f46cd505",
+        "game_log_sha256": "4d52b1248ef5f1dc40a76506f048ee6c6fcc047bd9ce2746e97bb56f9330eef8"
+      },
+      "registration_path": "docs/data/seed461-e1-e4-corrected-diagnostic/registration.json",
+      "registration_sha256": "3a072feed2ee52926576357b4367b40378536ef9b7151647e3897cf9865c2e8d",
+      "resume_chunk_mapping": null,
+      "stream_key": "E1",
+      "suite_path": null,
+      "suite_sha256": "8920b4fa7df27292c1f20401a0cae80c5952d6f31b1edb311b75c4df7c970814",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e1-e4-corrected-diagnostic/E4-games.jsonl",
+          "role": "game_log",
+          "sha256": "b5823166d97ca2b1b559682b349fe1a5300f097bb8b12928879149d744ff5c40"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e1-e4-corrected-diagnostic/E4.json",
+          "role": "arena_report",
+          "sha256": "a8fa922a42d3d7c656c5b202c50dc1b3b106fe3c323497b68cec267a7a49b345"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "b5823166d97ca2b1b559682b349fe1a5300f097bb8b12928879149d744ff5c40",
+        "binding_path": "docs/data/seed461-e1-e4-corrected-diagnostic/evaluation-binding.json",
+        "binding_sha256": "9cb4f1cc274809d05f017dff3f1636c5b536ba85f5bb204a24f708b4f46cd505",
+        "game_log_sha256": "b5823166d97ca2b1b559682b349fe1a5300f097bb8b12928879149d744ff5c40"
+      },
+      "registration_path": "docs/data/seed461-e1-e4-corrected-diagnostic/registration.json",
+      "registration_sha256": "3a072feed2ee52926576357b4367b40378536ef9b7151647e3897cf9865c2e8d",
+      "resume_chunk_mapping": null,
+      "stream_key": "E4",
+      "suite_path": null,
+      "suite_sha256": "8920b4fa7df27292c1f20401a0cae80c5952d6f31b1edb311b75c4df7c970814",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/arena/order_38611_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "8aa47d35551d3d4596095119744298c52b10b8fa255434c6af75f24738aaea01"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/arena/order_38611_A.json",
+          "role": "arena_report",
+          "sha256": "447281966787f051b0ae8164a5fd7c55ddb71dd65eb9e8b792fb4d40a5d28956"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "8aa47d35551d3d4596095119744298c52b10b8fa255434c6af75f24738aaea01",
+        "binding_path": "docs/data/seed461-e2-e4-average-evaluation-binding.json",
+        "binding_sha256": "a9a2f89f39206365b1dcc01b1e18b872da29218f89f373fed4fa4758a16eea12",
+        "game_log_sha256": "8aa47d35551d3d4596095119744298c52b10b8fa255434c6af75f24738aaea01"
+      },
+      "registration_path": "docs/data/seed461-e2-e4-average-registration.json",
+      "registration_sha256": "8c63ee1eb39738ee1ba712dcd8d8a77eab212b7d59001d764836db1d7a67c9c5",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38611_A",
+      "suite_path": "docs/data/seed461-e2-e4-average-openings.jsonl",
+      "suite_sha256": "c8b70a86a7d6c9732f9b85818816c96735d5c4d99bcf987c44f7dfe117493d56",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/arena/order_38611_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "c5c197321ffe8f90b7f543d54c225e194112fcfcbdd5ce4406e64e261950e981"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/arena/order_38611_B.json",
+          "role": "arena_report",
+          "sha256": "7c5fbda10a323e1c2a40d422838491b4a857cd20916bd2211f8a5ea06caf7709"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "c5c197321ffe8f90b7f543d54c225e194112fcfcbdd5ce4406e64e261950e981",
+        "binding_path": "docs/data/seed461-e2-e4-average-evaluation-binding.json",
+        "binding_sha256": "a9a2f89f39206365b1dcc01b1e18b872da29218f89f373fed4fa4758a16eea12",
+        "game_log_sha256": "c5c197321ffe8f90b7f543d54c225e194112fcfcbdd5ce4406e64e261950e981"
+      },
+      "registration_path": "docs/data/seed461-e2-e4-average-registration.json",
+      "registration_sha256": "8c63ee1eb39738ee1ba712dcd8d8a77eab212b7d59001d764836db1d7a67c9c5",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38611_B",
+      "suite_path": "docs/data/seed461-e2-e4-average-openings.jsonl",
+      "suite_sha256": "c8b70a86a7d6c9732f9b85818816c96735d5c4d99bcf987c44f7dfe117493d56",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/arena/order_38612_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "bc9991640be68f7374c94d76e00ee15cb8efe9c16b174c2468d18321feffc8ce"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/arena/order_38612_A.json",
+          "role": "arena_report",
+          "sha256": "78bcfaa9571bcf3d69f92a6a3e5c1e121f67409ca2b4b2d0401cee985f64eb21"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "bc9991640be68f7374c94d76e00ee15cb8efe9c16b174c2468d18321feffc8ce",
+        "binding_path": "docs/data/seed461-e2-e4-average-evaluation-binding.json",
+        "binding_sha256": "a9a2f89f39206365b1dcc01b1e18b872da29218f89f373fed4fa4758a16eea12",
+        "game_log_sha256": "bc9991640be68f7374c94d76e00ee15cb8efe9c16b174c2468d18321feffc8ce"
+      },
+      "registration_path": "docs/data/seed461-e2-e4-average-registration.json",
+      "registration_sha256": "8c63ee1eb39738ee1ba712dcd8d8a77eab212b7d59001d764836db1d7a67c9c5",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38612_A",
+      "suite_path": "docs/data/seed461-e2-e4-average-openings.jsonl",
+      "suite_sha256": "c8b70a86a7d6c9732f9b85818816c96735d5c4d99bcf987c44f7dfe117493d56",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/arena/order_38612_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "74fe1eab5f405f7b30407930a25d6741ebef4f6d7eb285eca7d14f8faa6092ac"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/arena/order_38612_B.json",
+          "role": "arena_report",
+          "sha256": "3547ef44261928ef629b579b88fde6ad3e404a8b28a8e2479353492818eaf776"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "74fe1eab5f405f7b30407930a25d6741ebef4f6d7eb285eca7d14f8faa6092ac",
+        "binding_path": "docs/data/seed461-e2-e4-average-evaluation-binding.json",
+        "binding_sha256": "a9a2f89f39206365b1dcc01b1e18b872da29218f89f373fed4fa4758a16eea12",
+        "game_log_sha256": "74fe1eab5f405f7b30407930a25d6741ebef4f6d7eb285eca7d14f8faa6092ac"
+      },
+      "registration_path": "docs/data/seed461-e2-e4-average-registration.json",
+      "registration_sha256": "8c63ee1eb39738ee1ba712dcd8d8a77eab212b7d59001d764836db1d7a67c9c5",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38612_B",
+      "suite_path": "docs/data/seed461-e2-e4-average-openings.jsonl",
+      "suite_sha256": "c8b70a86a7d6c9732f9b85818816c96735d5c4d99bcf987c44f7dfe117493d56",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/arena/order_38613_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "fc3cd410e57046155deabb90c88d23dd2c5308e8c3d806c5805e916883c7d487"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/arena/order_38613_A.json",
+          "role": "arena_report",
+          "sha256": "9f125d9e4a5c075fc540c108cb2731eca11e6fd360e6d5be4e6393deef830d9e"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "fc3cd410e57046155deabb90c88d23dd2c5308e8c3d806c5805e916883c7d487",
+        "binding_path": "docs/data/seed461-e2-e4-average-evaluation-binding.json",
+        "binding_sha256": "a9a2f89f39206365b1dcc01b1e18b872da29218f89f373fed4fa4758a16eea12",
+        "game_log_sha256": "fc3cd410e57046155deabb90c88d23dd2c5308e8c3d806c5805e916883c7d487"
+      },
+      "registration_path": "docs/data/seed461-e2-e4-average-registration.json",
+      "registration_sha256": "8c63ee1eb39738ee1ba712dcd8d8a77eab212b7d59001d764836db1d7a67c9c5",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38613_A",
+      "suite_path": "docs/data/seed461-e2-e4-average-openings.jsonl",
+      "suite_sha256": "c8b70a86a7d6c9732f9b85818816c96735d5c4d99bcf987c44f7dfe117493d56",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/arena/order_38613_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "ac59f54045d2964a925f74a7869e81e6eb7d9886749f3508829147ab7fc9ff4e"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/arena/order_38613_B.json",
+          "role": "arena_report",
+          "sha256": "7fd2d64494d248db8ca089a0ad9c7e24503919dd36fab40424c631653e6fe621"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "ac59f54045d2964a925f74a7869e81e6eb7d9886749f3508829147ab7fc9ff4e",
+        "binding_path": "docs/data/seed461-e2-e4-average-evaluation-binding.json",
+        "binding_sha256": "a9a2f89f39206365b1dcc01b1e18b872da29218f89f373fed4fa4758a16eea12",
+        "game_log_sha256": "ac59f54045d2964a925f74a7869e81e6eb7d9886749f3508829147ab7fc9ff4e"
+      },
+      "registration_path": "docs/data/seed461-e2-e4-average-registration.json",
+      "registration_sha256": "8c63ee1eb39738ee1ba712dcd8d8a77eab212b7d59001d764836db1d7a67c9c5",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38613_B",
+      "suite_path": "docs/data/seed461-e2-e4-average-openings.jsonl",
+      "suite_sha256": "c8b70a86a7d6c9732f9b85818816c96735d5c4d99bcf987c44f7dfe117493d56",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/arena/order_38614_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "5d59aec662f3670bd7105e4976c4d59f0de83cc2e6ca7e282eba08879b467cd7"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/arena/order_38614_A.json",
+          "role": "arena_report",
+          "sha256": "9ecb50552e7b341660677af0a00ecff9c84dfa75e131648deea89a094cb449b9"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "5d59aec662f3670bd7105e4976c4d59f0de83cc2e6ca7e282eba08879b467cd7",
+        "binding_path": "docs/data/seed461-e2-e4-average-evaluation-binding.json",
+        "binding_sha256": "a9a2f89f39206365b1dcc01b1e18b872da29218f89f373fed4fa4758a16eea12",
+        "game_log_sha256": "5d59aec662f3670bd7105e4976c4d59f0de83cc2e6ca7e282eba08879b467cd7"
+      },
+      "registration_path": "docs/data/seed461-e2-e4-average-registration.json",
+      "registration_sha256": "8c63ee1eb39738ee1ba712dcd8d8a77eab212b7d59001d764836db1d7a67c9c5",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38614_A",
+      "suite_path": "docs/data/seed461-e2-e4-average-openings.jsonl",
+      "suite_sha256": "c8b70a86a7d6c9732f9b85818816c96735d5c4d99bcf987c44f7dfe117493d56",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/arena/order_38614_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "144c2473a70813280e8d64f901fbb8e63a087fead2243351bff99d088fa331c5"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/arena/order_38614_B.json",
+          "role": "arena_report",
+          "sha256": "75671928c08109f603e241f652a982b414d30e78ceae320d02dbdea875a9655e"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "144c2473a70813280e8d64f901fbb8e63a087fead2243351bff99d088fa331c5",
+        "binding_path": "docs/data/seed461-e2-e4-average-evaluation-binding.json",
+        "binding_sha256": "a9a2f89f39206365b1dcc01b1e18b872da29218f89f373fed4fa4758a16eea12",
+        "game_log_sha256": "144c2473a70813280e8d64f901fbb8e63a087fead2243351bff99d088fa331c5"
+      },
+      "registration_path": "docs/data/seed461-e2-e4-average-registration.json",
+      "registration_sha256": "8c63ee1eb39738ee1ba712dcd8d8a77eab212b7d59001d764836db1d7a67c9c5",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38614_B",
+      "suite_path": "docs/data/seed461-e2-e4-average-openings.jsonl",
+      "suite_sha256": "c8b70a86a7d6c9732f9b85818816c96735d5c4d99bcf987c44f7dfe117493d56",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/arena/order_38615_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "64bfc4430b44510d1edee3a0e899217f3052557ef5cb2aa6fe5c0a3319500410"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/arena/order_38615_A.json",
+          "role": "arena_report",
+          "sha256": "711db067592e940b9019d40e0678efd0821443be64cc2a6b92d89348e5ae3382"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "64bfc4430b44510d1edee3a0e899217f3052557ef5cb2aa6fe5c0a3319500410",
+        "binding_path": "docs/data/seed461-e2-e4-average-evaluation-binding.json",
+        "binding_sha256": "a9a2f89f39206365b1dcc01b1e18b872da29218f89f373fed4fa4758a16eea12",
+        "game_log_sha256": "64bfc4430b44510d1edee3a0e899217f3052557ef5cb2aa6fe5c0a3319500410"
+      },
+      "registration_path": "docs/data/seed461-e2-e4-average-registration.json",
+      "registration_sha256": "8c63ee1eb39738ee1ba712dcd8d8a77eab212b7d59001d764836db1d7a67c9c5",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38615_A",
+      "suite_path": "docs/data/seed461-e2-e4-average-openings.jsonl",
+      "suite_sha256": "c8b70a86a7d6c9732f9b85818816c96735d5c4d99bcf987c44f7dfe117493d56",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/arena/order_38615_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "23e44ca2730e1015f27f97dba7f001d0a2e04d9af4eb197fcc0cd5b746bf4b4e"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e2-e4-average/arena/order_38615_B.json",
+          "role": "arena_report",
+          "sha256": "0999eb2ac1c886d84d8e83ad3247a9355b945a9af7c074efd3a7ac070c5e24ce"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "23e44ca2730e1015f27f97dba7f001d0a2e04d9af4eb197fcc0cd5b746bf4b4e",
+        "binding_path": "docs/data/seed461-e2-e4-average-evaluation-binding.json",
+        "binding_sha256": "a9a2f89f39206365b1dcc01b1e18b872da29218f89f373fed4fa4758a16eea12",
+        "game_log_sha256": "23e44ca2730e1015f27f97dba7f001d0a2e04d9af4eb197fcc0cd5b746bf4b4e"
+      },
+      "registration_path": "docs/data/seed461-e2-e4-average-registration.json",
+      "registration_sha256": "8c63ee1eb39738ee1ba712dcd8d8a77eab212b7d59001d764836db1d7a67c9c5",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38615_B",
+      "suite_path": "docs/data/seed461-e2-e4-average-openings.jsonl",
+      "suite_sha256": "c8b70a86a7d6c9732f9b85818816c96735d5c4d99bcf987c44f7dfe117493d56",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e3-e4/arena/order_38611_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "ef7d1470622b60c02c7c6b6d57aefae615c91fe403e1479b20a31e4f78e8b541"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e3-e4/arena/order_38611_A.json",
+          "role": "arena_report",
+          "sha256": "dc7b01e35dddb36bd5b4b2112fbd70ea1bd1760ae755f55895889d1d2120be31"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "ef7d1470622b60c02c7c6b6d57aefae615c91fe403e1479b20a31e4f78e8b541",
+        "binding_path": "docs/data/seed461-e3-e4-evaluation-binding.json",
+        "binding_sha256": "5bedda97b27c330e454ef291ac3a922772ac13b1674921baf5477f8e147149af",
+        "game_log_sha256": "ef7d1470622b60c02c7c6b6d57aefae615c91fe403e1479b20a31e4f78e8b541"
+      },
+      "registration_path": "docs/data/seed461-e3-e4-registration.json",
+      "registration_sha256": "5e888028b8b79549ddbfd73924623d63e8256fe147e804701911b476701d176f",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38611_A",
+      "suite_path": "docs/data/seed461-e3-e4-openings.jsonl",
+      "suite_sha256": "75606f87d6acf0e020378fe4ff5b0d98c1b8e81f46f43c9bee81c924b9d85082",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e3-e4/arena/order_38611_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "77c8e7c6a7d6ce4f0da702fc0612b0c6a5e2b817dd17be9bdd33f317a64453b0"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e3-e4/arena/order_38611_B.json",
+          "role": "arena_report",
+          "sha256": "b967c9eb827279a314f367cdff154010a548ef35a8041b59423b7daf3e9bc44d"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "77c8e7c6a7d6ce4f0da702fc0612b0c6a5e2b817dd17be9bdd33f317a64453b0",
+        "binding_path": "docs/data/seed461-e3-e4-evaluation-binding.json",
+        "binding_sha256": "5bedda97b27c330e454ef291ac3a922772ac13b1674921baf5477f8e147149af",
+        "game_log_sha256": "77c8e7c6a7d6ce4f0da702fc0612b0c6a5e2b817dd17be9bdd33f317a64453b0"
+      },
+      "registration_path": "docs/data/seed461-e3-e4-registration.json",
+      "registration_sha256": "5e888028b8b79549ddbfd73924623d63e8256fe147e804701911b476701d176f",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38611_B",
+      "suite_path": "docs/data/seed461-e3-e4-openings.jsonl",
+      "suite_sha256": "75606f87d6acf0e020378fe4ff5b0d98c1b8e81f46f43c9bee81c924b9d85082",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e3-e4/arena/order_38612_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "6906396fa58e344a3813d221e2f7790eac0059854be0d933889636ed96c40aad"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e3-e4/arena/order_38612_A.json",
+          "role": "arena_report",
+          "sha256": "41186c8a669e5ad5054ba9b13c0f57450592b176f707c0b58f44821325e11e16"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "6906396fa58e344a3813d221e2f7790eac0059854be0d933889636ed96c40aad",
+        "binding_path": "docs/data/seed461-e3-e4-evaluation-binding.json",
+        "binding_sha256": "5bedda97b27c330e454ef291ac3a922772ac13b1674921baf5477f8e147149af",
+        "game_log_sha256": "6906396fa58e344a3813d221e2f7790eac0059854be0d933889636ed96c40aad"
+      },
+      "registration_path": "docs/data/seed461-e3-e4-registration.json",
+      "registration_sha256": "5e888028b8b79549ddbfd73924623d63e8256fe147e804701911b476701d176f",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38612_A",
+      "suite_path": "docs/data/seed461-e3-e4-openings.jsonl",
+      "suite_sha256": "75606f87d6acf0e020378fe4ff5b0d98c1b8e81f46f43c9bee81c924b9d85082",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e3-e4/arena/order_38612_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "ec11c056344e115f03c5d2351bbe4bc199cc941ac1ddfec52562251058217f30"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e3-e4/arena/order_38612_B.json",
+          "role": "arena_report",
+          "sha256": "3a6f9f7ea480bf68bb659cdeb8e7b9b12f482548ef198a9bf5bb2b307e2843a3"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "ec11c056344e115f03c5d2351bbe4bc199cc941ac1ddfec52562251058217f30",
+        "binding_path": "docs/data/seed461-e3-e4-evaluation-binding.json",
+        "binding_sha256": "5bedda97b27c330e454ef291ac3a922772ac13b1674921baf5477f8e147149af",
+        "game_log_sha256": "ec11c056344e115f03c5d2351bbe4bc199cc941ac1ddfec52562251058217f30"
+      },
+      "registration_path": "docs/data/seed461-e3-e4-registration.json",
+      "registration_sha256": "5e888028b8b79549ddbfd73924623d63e8256fe147e804701911b476701d176f",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38612_B",
+      "suite_path": "docs/data/seed461-e3-e4-openings.jsonl",
+      "suite_sha256": "75606f87d6acf0e020378fe4ff5b0d98c1b8e81f46f43c9bee81c924b9d85082",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e3-e4/arena/order_38613_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "b1eeb880527ab524c5b847b562a3699a48a2308ab95a7ba38a51a76baa7f93e1"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e3-e4/arena/order_38613_A.json",
+          "role": "arena_report",
+          "sha256": "01adaf561d69482727a17e811d3a4d12242ab0123904fbcb2df50cce71c37754"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "b1eeb880527ab524c5b847b562a3699a48a2308ab95a7ba38a51a76baa7f93e1",
+        "binding_path": "docs/data/seed461-e3-e4-evaluation-binding.json",
+        "binding_sha256": "5bedda97b27c330e454ef291ac3a922772ac13b1674921baf5477f8e147149af",
+        "game_log_sha256": "b1eeb880527ab524c5b847b562a3699a48a2308ab95a7ba38a51a76baa7f93e1"
+      },
+      "registration_path": "docs/data/seed461-e3-e4-registration.json",
+      "registration_sha256": "5e888028b8b79549ddbfd73924623d63e8256fe147e804701911b476701d176f",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38613_A",
+      "suite_path": "docs/data/seed461-e3-e4-openings.jsonl",
+      "suite_sha256": "75606f87d6acf0e020378fe4ff5b0d98c1b8e81f46f43c9bee81c924b9d85082",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e3-e4/arena/order_38613_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "c18a3e0eaa0833474c98b4bfbd06f2cdf901a022b63f7b979b56fa90b0eb251c"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e3-e4/arena/order_38613_B.json",
+          "role": "arena_report",
+          "sha256": "9da7c19c68456c2de9c8a592f6b130b099311f99a3605532ae8cb5f94c97638d"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "c18a3e0eaa0833474c98b4bfbd06f2cdf901a022b63f7b979b56fa90b0eb251c",
+        "binding_path": "docs/data/seed461-e3-e4-evaluation-binding.json",
+        "binding_sha256": "5bedda97b27c330e454ef291ac3a922772ac13b1674921baf5477f8e147149af",
+        "game_log_sha256": "c18a3e0eaa0833474c98b4bfbd06f2cdf901a022b63f7b979b56fa90b0eb251c"
+      },
+      "registration_path": "docs/data/seed461-e3-e4-registration.json",
+      "registration_sha256": "5e888028b8b79549ddbfd73924623d63e8256fe147e804701911b476701d176f",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38613_B",
+      "suite_path": "docs/data/seed461-e3-e4-openings.jsonl",
+      "suite_sha256": "75606f87d6acf0e020378fe4ff5b0d98c1b8e81f46f43c9bee81c924b9d85082",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e3-e4/arena/order_38614_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "a9b270a3411ef277d98292870f9b71cb80c011bfdc13194639c28411913556db"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e3-e4/arena/order_38614_A.json",
+          "role": "arena_report",
+          "sha256": "3c5763018289a19ee2f40457dd3aff82e4cf29506440df02345ac6726536a51b"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "a9b270a3411ef277d98292870f9b71cb80c011bfdc13194639c28411913556db",
+        "binding_path": "docs/data/seed461-e3-e4-evaluation-binding.json",
+        "binding_sha256": "5bedda97b27c330e454ef291ac3a922772ac13b1674921baf5477f8e147149af",
+        "game_log_sha256": "a9b270a3411ef277d98292870f9b71cb80c011bfdc13194639c28411913556db"
+      },
+      "registration_path": "docs/data/seed461-e3-e4-registration.json",
+      "registration_sha256": "5e888028b8b79549ddbfd73924623d63e8256fe147e804701911b476701d176f",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38614_A",
+      "suite_path": "docs/data/seed461-e3-e4-openings.jsonl",
+      "suite_sha256": "75606f87d6acf0e020378fe4ff5b0d98c1b8e81f46f43c9bee81c924b9d85082",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e3-e4/arena/order_38614_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "02ce1ea08ef606ae2a932d29aa1c8e6383d87a001529df2389a8ab93df7c9217"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e3-e4/arena/order_38614_B.json",
+          "role": "arena_report",
+          "sha256": "842d350a1a6ad2915199c059eaab004f2a281fd865c01524f0e763d1efffd169"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "02ce1ea08ef606ae2a932d29aa1c8e6383d87a001529df2389a8ab93df7c9217",
+        "binding_path": "docs/data/seed461-e3-e4-evaluation-binding.json",
+        "binding_sha256": "5bedda97b27c330e454ef291ac3a922772ac13b1674921baf5477f8e147149af",
+        "game_log_sha256": "02ce1ea08ef606ae2a932d29aa1c8e6383d87a001529df2389a8ab93df7c9217"
+      },
+      "registration_path": "docs/data/seed461-e3-e4-registration.json",
+      "registration_sha256": "5e888028b8b79549ddbfd73924623d63e8256fe147e804701911b476701d176f",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38614_B",
+      "suite_path": "docs/data/seed461-e3-e4-openings.jsonl",
+      "suite_sha256": "75606f87d6acf0e020378fe4ff5b0d98c1b8e81f46f43c9bee81c924b9d85082",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e3-e4/arena/order_38615_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "62a998a94a2a87158c2bf18ce93638107d4277340b113a2f1acf099ddb6ab803"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e3-e4/arena/order_38615_A.json",
+          "role": "arena_report",
+          "sha256": "efb56d044d47e7acad969ed658acf1cc3cf0168c97811221b82ec6715a156226"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "62a998a94a2a87158c2bf18ce93638107d4277340b113a2f1acf099ddb6ab803",
+        "binding_path": "docs/data/seed461-e3-e4-evaluation-binding.json",
+        "binding_sha256": "5bedda97b27c330e454ef291ac3a922772ac13b1674921baf5477f8e147149af",
+        "game_log_sha256": "62a998a94a2a87158c2bf18ce93638107d4277340b113a2f1acf099ddb6ab803"
+      },
+      "registration_path": "docs/data/seed461-e3-e4-registration.json",
+      "registration_sha256": "5e888028b8b79549ddbfd73924623d63e8256fe147e804701911b476701d176f",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38615_A",
+      "suite_path": "docs/data/seed461-e3-e4-openings.jsonl",
+      "suite_sha256": "75606f87d6acf0e020378fe4ff5b0d98c1b8e81f46f43c9bee81c924b9d85082",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e3-e4/arena/order_38615_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "3c6a09118aa6b5b0e6cff67b8c8bf625e2743bdd2779edc7676ac8de816aee42"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-e3-e4/arena/order_38615_B.json",
+          "role": "arena_report",
+          "sha256": "377b60cbc2637269838a46242c79e3da77b4ba6cb715ad0697786304f0692965"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "3c6a09118aa6b5b0e6cff67b8c8bf625e2743bdd2779edc7676ac8de816aee42",
+        "binding_path": "docs/data/seed461-e3-e4-evaluation-binding.json",
+        "binding_sha256": "5bedda97b27c330e454ef291ac3a922772ac13b1674921baf5477f8e147149af",
+        "game_log_sha256": "3c6a09118aa6b5b0e6cff67b8c8bf625e2743bdd2779edc7676ac8de816aee42"
+      },
+      "registration_path": "docs/data/seed461-e3-e4-registration.json",
+      "registration_sha256": "5e888028b8b79549ddbfd73924623d63e8256fe147e804701911b476701d176f",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38615_B",
+      "suite_path": "docs/data/seed461-e3-e4-openings.jsonl",
+      "suite_sha256": "75606f87d6acf0e020378fe4ff5b0d98c1b8e81f46f43c9bee81c924b9d85082",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/arena/order_38411_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "737aae6f1303c97ad9cf3f75bc0cc28199189b551475299fa08a7c4ce4fc7e0a"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/arena/order_38411_A.json",
+          "role": "arena_report",
+          "sha256": "b04d4393949d2ebb2f2a57d2e420d1a11a3293055bb8f9c861058a164fde7fa6"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "737aae6f1303c97ad9cf3f75bc0cc28199189b551475299fa08a7c4ce4fc7e0a",
+        "binding_path": "docs/data/seed461-lr-sensitivity-evaluation-binding.json",
+        "binding_sha256": "d1dcbbc861d26c121f2bb40d06d4a86b553e0fc26abcb16c4beb31aad180d91d",
+        "game_log_sha256": "737aae6f1303c97ad9cf3f75bc0cc28199189b551475299fa08a7c4ce4fc7e0a"
+      },
+      "registration_path": "docs/data/seed461-lr-sensitivity-registration-v2.json",
+      "registration_sha256": "b7b0e6011924cd47154cb26f78bc857dadea04247fb55e17c8810a66dd1ec0ab",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38411_A",
+      "suite_path": "docs/data/seed461-lr-sensitivity-openings-v2.jsonl",
+      "suite_sha256": "ca339cb0e22e0127b95762d5a4d89f06756920e4573fcc0483bc411279adf1d8",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/arena/order_38411_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "0b8533f9695d248fa038e7dff635c9353f34a9c21e21415f02ec52170e6c2161"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/arena/order_38411_B.json",
+          "role": "arena_report",
+          "sha256": "22327c326d40a5aa16a202adaec6e0def4ec39b4d6c54645c7ee125012c0b945"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "0b8533f9695d248fa038e7dff635c9353f34a9c21e21415f02ec52170e6c2161",
+        "binding_path": "docs/data/seed461-lr-sensitivity-evaluation-binding.json",
+        "binding_sha256": "d1dcbbc861d26c121f2bb40d06d4a86b553e0fc26abcb16c4beb31aad180d91d",
+        "game_log_sha256": "0b8533f9695d248fa038e7dff635c9353f34a9c21e21415f02ec52170e6c2161"
+      },
+      "registration_path": "docs/data/seed461-lr-sensitivity-registration-v2.json",
+      "registration_sha256": "b7b0e6011924cd47154cb26f78bc857dadea04247fb55e17c8810a66dd1ec0ab",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38411_B",
+      "suite_path": "docs/data/seed461-lr-sensitivity-openings-v2.jsonl",
+      "suite_sha256": "ca339cb0e22e0127b95762d5a4d89f06756920e4573fcc0483bc411279adf1d8",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/arena/order_38412_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "859ac1487327a59cc9427294860ea98af9e2987c22838f0b4ccda0948c7e2e62"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/arena/order_38412_A.json",
+          "role": "arena_report",
+          "sha256": "277f593de71379151260f712e98b9749a91e90ff4063d01ac4662b95e506d45a"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "859ac1487327a59cc9427294860ea98af9e2987c22838f0b4ccda0948c7e2e62",
+        "binding_path": "docs/data/seed461-lr-sensitivity-evaluation-binding.json",
+        "binding_sha256": "d1dcbbc861d26c121f2bb40d06d4a86b553e0fc26abcb16c4beb31aad180d91d",
+        "game_log_sha256": "859ac1487327a59cc9427294860ea98af9e2987c22838f0b4ccda0948c7e2e62"
+      },
+      "registration_path": "docs/data/seed461-lr-sensitivity-registration-v2.json",
+      "registration_sha256": "b7b0e6011924cd47154cb26f78bc857dadea04247fb55e17c8810a66dd1ec0ab",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38412_A",
+      "suite_path": "docs/data/seed461-lr-sensitivity-openings-v2.jsonl",
+      "suite_sha256": "ca339cb0e22e0127b95762d5a4d89f06756920e4573fcc0483bc411279adf1d8",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/arena/order_38412_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "ec81b629d66aeba40bed72a187c9a7a4c29356225509c301f2ee05f3a544c4f0"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/arena/order_38412_B.json",
+          "role": "arena_report",
+          "sha256": "e6d7ad6371a072a37a76dbde0a577888b3f5f949b7848331cb7d0da120c6e1ae"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "ec81b629d66aeba40bed72a187c9a7a4c29356225509c301f2ee05f3a544c4f0",
+        "binding_path": "docs/data/seed461-lr-sensitivity-evaluation-binding.json",
+        "binding_sha256": "d1dcbbc861d26c121f2bb40d06d4a86b553e0fc26abcb16c4beb31aad180d91d",
+        "game_log_sha256": "ec81b629d66aeba40bed72a187c9a7a4c29356225509c301f2ee05f3a544c4f0"
+      },
+      "registration_path": "docs/data/seed461-lr-sensitivity-registration-v2.json",
+      "registration_sha256": "b7b0e6011924cd47154cb26f78bc857dadea04247fb55e17c8810a66dd1ec0ab",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38412_B",
+      "suite_path": "docs/data/seed461-lr-sensitivity-openings-v2.jsonl",
+      "suite_sha256": "ca339cb0e22e0127b95762d5a4d89f06756920e4573fcc0483bc411279adf1d8",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/arena/order_38413_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "75a395edbf0023d2a7fd696f28e857aeefa2dfb52f068df5593de376e5fbb613"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/arena/order_38413_A.json",
+          "role": "arena_report",
+          "sha256": "786685f9b7f3fac814de1e75f6723322ddc08fb86c64b383d0883683242b8eb3"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "75a395edbf0023d2a7fd696f28e857aeefa2dfb52f068df5593de376e5fbb613",
+        "binding_path": "docs/data/seed461-lr-sensitivity-evaluation-binding.json",
+        "binding_sha256": "d1dcbbc861d26c121f2bb40d06d4a86b553e0fc26abcb16c4beb31aad180d91d",
+        "game_log_sha256": "75a395edbf0023d2a7fd696f28e857aeefa2dfb52f068df5593de376e5fbb613"
+      },
+      "registration_path": "docs/data/seed461-lr-sensitivity-registration-v2.json",
+      "registration_sha256": "b7b0e6011924cd47154cb26f78bc857dadea04247fb55e17c8810a66dd1ec0ab",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38413_A",
+      "suite_path": "docs/data/seed461-lr-sensitivity-openings-v2.jsonl",
+      "suite_sha256": "ca339cb0e22e0127b95762d5a4d89f06756920e4573fcc0483bc411279adf1d8",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/arena/order_38413_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "f9a30d4ddaae635d251d052d4389247722cac706495106de7d8528249851b336"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/arena/order_38413_B.json",
+          "role": "arena_report",
+          "sha256": "d63b86255d45b9ff2530cae49bb781666a2557e5a78709b0b9debee5f1a33165"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "f9a30d4ddaae635d251d052d4389247722cac706495106de7d8528249851b336",
+        "binding_path": "docs/data/seed461-lr-sensitivity-evaluation-binding.json",
+        "binding_sha256": "d1dcbbc861d26c121f2bb40d06d4a86b553e0fc26abcb16c4beb31aad180d91d",
+        "game_log_sha256": "f9a30d4ddaae635d251d052d4389247722cac706495106de7d8528249851b336"
+      },
+      "registration_path": "docs/data/seed461-lr-sensitivity-registration-v2.json",
+      "registration_sha256": "b7b0e6011924cd47154cb26f78bc857dadea04247fb55e17c8810a66dd1ec0ab",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38413_B",
+      "suite_path": "docs/data/seed461-lr-sensitivity-openings-v2.jsonl",
+      "suite_sha256": "ca339cb0e22e0127b95762d5a4d89f06756920e4573fcc0483bc411279adf1d8",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/arena/order_38414_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "4c8b4b74f608095767b2a09b748d22012b7b00ac9b150fcc2bc083b4bcf1fbe7"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/arena/order_38414_A.json",
+          "role": "arena_report",
+          "sha256": "29fbcdbe755ae7dc87767957578795a956ea77b8eef6fae302b8c3547d01adc8"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "4c8b4b74f608095767b2a09b748d22012b7b00ac9b150fcc2bc083b4bcf1fbe7",
+        "binding_path": "docs/data/seed461-lr-sensitivity-evaluation-binding.json",
+        "binding_sha256": "d1dcbbc861d26c121f2bb40d06d4a86b553e0fc26abcb16c4beb31aad180d91d",
+        "game_log_sha256": "4c8b4b74f608095767b2a09b748d22012b7b00ac9b150fcc2bc083b4bcf1fbe7"
+      },
+      "registration_path": "docs/data/seed461-lr-sensitivity-registration-v2.json",
+      "registration_sha256": "b7b0e6011924cd47154cb26f78bc857dadea04247fb55e17c8810a66dd1ec0ab",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38414_A",
+      "suite_path": "docs/data/seed461-lr-sensitivity-openings-v2.jsonl",
+      "suite_sha256": "ca339cb0e22e0127b95762d5a4d89f06756920e4573fcc0483bc411279adf1d8",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/arena/order_38414_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "c8079ef62c5f552e7f2153542908a29d3a91108ceea7b0393a5677c471b831ec"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/arena/order_38414_B.json",
+          "role": "arena_report",
+          "sha256": "f48821fd92d8c8d18bde7ed3852b1b6fa744bad92ef064ebfe34d2909edac1e3"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "c8079ef62c5f552e7f2153542908a29d3a91108ceea7b0393a5677c471b831ec",
+        "binding_path": "docs/data/seed461-lr-sensitivity-evaluation-binding.json",
+        "binding_sha256": "d1dcbbc861d26c121f2bb40d06d4a86b553e0fc26abcb16c4beb31aad180d91d",
+        "game_log_sha256": "c8079ef62c5f552e7f2153542908a29d3a91108ceea7b0393a5677c471b831ec"
+      },
+      "registration_path": "docs/data/seed461-lr-sensitivity-registration-v2.json",
+      "registration_sha256": "b7b0e6011924cd47154cb26f78bc857dadea04247fb55e17c8810a66dd1ec0ab",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38414_B",
+      "suite_path": "docs/data/seed461-lr-sensitivity-openings-v2.jsonl",
+      "suite_sha256": "ca339cb0e22e0127b95762d5a4d89f06756920e4573fcc0483bc411279adf1d8",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/arena/order_38415_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "bec2a0d67433a8739e356ef50a04c50d8f408dafba462a9cd766228f6de901a6"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/arena/order_38415_A.json",
+          "role": "arena_report",
+          "sha256": "31e15a51d5343173b6e8025895ce60cc79aa83d5b2cc089f1c4e5a32ff4a53de"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "bec2a0d67433a8739e356ef50a04c50d8f408dafba462a9cd766228f6de901a6",
+        "binding_path": "docs/data/seed461-lr-sensitivity-evaluation-binding.json",
+        "binding_sha256": "d1dcbbc861d26c121f2bb40d06d4a86b553e0fc26abcb16c4beb31aad180d91d",
+        "game_log_sha256": "bec2a0d67433a8739e356ef50a04c50d8f408dafba462a9cd766228f6de901a6"
+      },
+      "registration_path": "docs/data/seed461-lr-sensitivity-registration-v2.json",
+      "registration_sha256": "b7b0e6011924cd47154cb26f78bc857dadea04247fb55e17c8810a66dd1ec0ab",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38415_A",
+      "suite_path": "docs/data/seed461-lr-sensitivity-openings-v2.jsonl",
+      "suite_sha256": "ca339cb0e22e0127b95762d5a4d89f06756920e4573fcc0483bc411279adf1d8",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/arena/order_38415_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "713a1538ec5e7b7c7e4a74d8cda5a110f57afcc1fb0bf723f0cff32c1c5eb948"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/arena/order_38415_B.json",
+          "role": "arena_report",
+          "sha256": "3b6076bebb82a8ef7bbd1ca0b445876f6c5d342bcc4a610e9715ada11fb090ec"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "713a1538ec5e7b7c7e4a74d8cda5a110f57afcc1fb0bf723f0cff32c1c5eb948",
+        "binding_path": "docs/data/seed461-lr-sensitivity-evaluation-binding.json",
+        "binding_sha256": "d1dcbbc861d26c121f2bb40d06d4a86b553e0fc26abcb16c4beb31aad180d91d",
+        "game_log_sha256": "713a1538ec5e7b7c7e4a74d8cda5a110f57afcc1fb0bf723f0cff32c1c5eb948"
+      },
+      "registration_path": "docs/data/seed461-lr-sensitivity-registration-v2.json",
+      "registration_sha256": "b7b0e6011924cd47154cb26f78bc857dadea04247fb55e17c8810a66dd1ec0ab",
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38415_B",
+      "suite_path": "docs/data/seed461-lr-sensitivity-openings-v2.jsonl",
+      "suite_sha256": "ca339cb0e22e0127b95762d5a4d89f06756920e4573fcc0483bc411279adf1d8",
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38411_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "737aae6f1303c97ad9cf3f75bc0cc28199189b551475299fa08a7c4ce4fc7e0a"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38411_A.json",
+          "role": "arena_report",
+          "sha256": "b04d4393949d2ebb2f2a57d2e420d1a11a3293055bb8f9c861058a164fde7fa6"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "737aae6f1303c97ad9cf3f75bc0cc28199189b551475299fa08a7c4ce4fc7e0a",
+        "binding_path": "docs/data/seed461-lr-fixed-e4-evidence.json",
+        "binding_sha256": "7e468be2379cde9dd7745ce1401b3be6b540a612feaf061f8657208be0d978b5",
+        "game_log_sha256": "737aae6f1303c97ad9cf3f75bc0cc28199189b551475299fa08a7c4ce4fc7e0a"
+      },
+      "registration_path": null,
+      "registration_sha256": null,
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38411_A",
+      "suite_path": null,
+      "suite_sha256": null,
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices",
+        "registration and suite receipt"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38411_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "8fe922535d4beead4ea3b233a040b24fbfa6aa14898acc96e019befbe0a5d360"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38411_B.json",
+          "role": "arena_report",
+          "sha256": "a065e078f57ff8f0e1ea8b5bc051e56edc3a9db75c18a422861203a7712f200f"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "8fe922535d4beead4ea3b233a040b24fbfa6aa14898acc96e019befbe0a5d360",
+        "binding_path": "docs/data/seed461-lr-fixed-e4-evidence.json",
+        "binding_sha256": "7e468be2379cde9dd7745ce1401b3be6b540a612feaf061f8657208be0d978b5",
+        "game_log_sha256": "8fe922535d4beead4ea3b233a040b24fbfa6aa14898acc96e019befbe0a5d360"
+      },
+      "registration_path": null,
+      "registration_sha256": null,
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38411_B",
+      "suite_path": null,
+      "suite_sha256": null,
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices",
+        "registration and suite receipt"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38412_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "fd739b6851a28be9cea403d9455906cf6c0a205f013cd67942e43b5ba57a292f"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38412_A.json",
+          "role": "arena_report",
+          "sha256": "7adf3b10a484904d949073d2413b049304c89396532baead2b014780e3116aec"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "fd739b6851a28be9cea403d9455906cf6c0a205f013cd67942e43b5ba57a292f",
+        "binding_path": "docs/data/seed461-lr-fixed-e4-evidence.json",
+        "binding_sha256": "7e468be2379cde9dd7745ce1401b3be6b540a612feaf061f8657208be0d978b5",
+        "game_log_sha256": "fd739b6851a28be9cea403d9455906cf6c0a205f013cd67942e43b5ba57a292f"
+      },
+      "registration_path": null,
+      "registration_sha256": null,
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38412_A",
+      "suite_path": null,
+      "suite_sha256": null,
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices",
+        "registration and suite receipt"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38412_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "ec81b629d66aeba40bed72a187c9a7a4c29356225509c301f2ee05f3a544c4f0"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38412_B.json",
+          "role": "arena_report",
+          "sha256": "e6d7ad6371a072a37a76dbde0a577888b3f5f949b7848331cb7d0da120c6e1ae"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "ec81b629d66aeba40bed72a187c9a7a4c29356225509c301f2ee05f3a544c4f0",
+        "binding_path": "docs/data/seed461-lr-fixed-e4-evidence.json",
+        "binding_sha256": "7e468be2379cde9dd7745ce1401b3be6b540a612feaf061f8657208be0d978b5",
+        "game_log_sha256": "ec81b629d66aeba40bed72a187c9a7a4c29356225509c301f2ee05f3a544c4f0"
+      },
+      "registration_path": null,
+      "registration_sha256": null,
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38412_B",
+      "suite_path": null,
+      "suite_sha256": null,
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices",
+        "registration and suite receipt"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38413_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "75a395edbf0023d2a7fd696f28e857aeefa2dfb52f068df5593de376e5fbb613"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38413_A.json",
+          "role": "arena_report",
+          "sha256": "786685f9b7f3fac814de1e75f6723322ddc08fb86c64b383d0883683242b8eb3"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "75a395edbf0023d2a7fd696f28e857aeefa2dfb52f068df5593de376e5fbb613",
+        "binding_path": "docs/data/seed461-lr-fixed-e4-evidence.json",
+        "binding_sha256": "7e468be2379cde9dd7745ce1401b3be6b540a612feaf061f8657208be0d978b5",
+        "game_log_sha256": "75a395edbf0023d2a7fd696f28e857aeefa2dfb52f068df5593de376e5fbb613"
+      },
+      "registration_path": null,
+      "registration_sha256": null,
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38413_A",
+      "suite_path": null,
+      "suite_sha256": null,
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices",
+        "registration and suite receipt"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38413_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "f9a30d4ddaae635d251d052d4389247722cac706495106de7d8528249851b336"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38413_B.json",
+          "role": "arena_report",
+          "sha256": "d63b86255d45b9ff2530cae49bb781666a2557e5a78709b0b9debee5f1a33165"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "f9a30d4ddaae635d251d052d4389247722cac706495106de7d8528249851b336",
+        "binding_path": "docs/data/seed461-lr-fixed-e4-evidence.json",
+        "binding_sha256": "7e468be2379cde9dd7745ce1401b3be6b540a612feaf061f8657208be0d978b5",
+        "game_log_sha256": "f9a30d4ddaae635d251d052d4389247722cac706495106de7d8528249851b336"
+      },
+      "registration_path": null,
+      "registration_sha256": null,
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38413_B",
+      "suite_path": null,
+      "suite_sha256": null,
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices",
+        "registration and suite receipt"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38414_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "e75c054e5d45cfa3ca5de4981059b4067316746efc8a4c8925e58c0d1cd3d443"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38414_A.json",
+          "role": "arena_report",
+          "sha256": "7d9f944ce72c45df4869cfd839ae84e3ae1a56ce657195ff8768594df12ab378"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "e75c054e5d45cfa3ca5de4981059b4067316746efc8a4c8925e58c0d1cd3d443",
+        "binding_path": "docs/data/seed461-lr-fixed-e4-evidence.json",
+        "binding_sha256": "7e468be2379cde9dd7745ce1401b3be6b540a612feaf061f8657208be0d978b5",
+        "game_log_sha256": "e75c054e5d45cfa3ca5de4981059b4067316746efc8a4c8925e58c0d1cd3d443"
+      },
+      "registration_path": null,
+      "registration_sha256": null,
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38414_A",
+      "suite_path": null,
+      "suite_sha256": null,
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices",
+        "registration and suite receipt"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38414_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "c8079ef62c5f552e7f2153542908a29d3a91108ceea7b0393a5677c471b831ec"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38414_B.json",
+          "role": "arena_report",
+          "sha256": "f48821fd92d8c8d18bde7ed3852b1b6fa744bad92ef064ebfe34d2909edac1e3"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "c8079ef62c5f552e7f2153542908a29d3a91108ceea7b0393a5677c471b831ec",
+        "binding_path": "docs/data/seed461-lr-fixed-e4-evidence.json",
+        "binding_sha256": "7e468be2379cde9dd7745ce1401b3be6b540a612feaf061f8657208be0d978b5",
+        "game_log_sha256": "c8079ef62c5f552e7f2153542908a29d3a91108ceea7b0393a5677c471b831ec"
+      },
+      "registration_path": null,
+      "registration_sha256": null,
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38414_B",
+      "suite_path": null,
+      "suite_sha256": null,
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices",
+        "registration and suite receipt"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38415_A-games.jsonl",
+          "role": "game_log",
+          "sha256": "42c9d3d2c0041b04f74164c0ab444f1c1849b488678682b8546ccbea94dc72c3"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38415_A.json",
+          "role": "arena_report",
+          "sha256": "49e3b71e528e4edbcd59a5de405f59597c5fabfd31ed99ff0ac0b3085ec38f51"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "42c9d3d2c0041b04f74164c0ab444f1c1849b488678682b8546ccbea94dc72c3",
+        "binding_path": "docs/data/seed461-lr-fixed-e4-evidence.json",
+        "binding_sha256": "7e468be2379cde9dd7745ce1401b3be6b540a612feaf061f8657208be0d978b5",
+        "game_log_sha256": "42c9d3d2c0041b04f74164c0ab444f1c1849b488678682b8546ccbea94dc72c3"
+      },
+      "registration_path": null,
+      "registration_sha256": null,
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38415_A",
+      "suite_path": null,
+      "suite_sha256": null,
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices",
+        "registration and suite receipt"
+      ],
+      "working_revision": null
+    },
+    {
+      "arena_rules_source_binding": null,
+      "execution_command": "runner source is available; no run-bound command log/argv receipt located",
+      "explicit_state_trace_rows": 0,
+      "local_artifacts": [
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38415_B-games.jsonl",
+          "role": "game_log",
+          "sha256": "2fa4df7bf7bb7606ca709c51b752844963dbb2a3b593a99f63562cd134bcade3"
+        },
+        {
+          "path": "/home/alex/Mancala/ai/.tmp/seed461-lr-sensitivity/fixed-e4-arena/order_38415_B.json",
+          "role": "arena_report",
+          "sha256": "b413df81e3b9d7285f06eb068fe9335f5a3505bd139610e2e15f8c8ed958acc6"
+        }
+      ],
+      "receipt": {
+        "archive_member_sha256": "2fa4df7bf7bb7606ca709c51b752844963dbb2a3b593a99f63562cd134bcade3",
+        "binding_path": "docs/data/seed461-lr-fixed-e4-evidence.json",
+        "binding_sha256": "7e468be2379cde9dd7745ce1401b3be6b540a612feaf061f8657208be0d978b5",
+        "game_log_sha256": "2fa4df7bf7bb7606ca709c51b752844963dbb2a3b593a99f63562cd134bcade3"
+      },
+      "registration_path": null,
+      "registration_sha256": null,
+      "resume_chunk_mapping": null,
+      "stream_key": "order_38415_B",
+      "suite_path": null,
+      "suite_sha256": null,
+      "unresolved": [
+        "run-bound working revision or execution-source hashes",
+        "run-bound arena writer and rules source hashes",
+        "explicit state traces (game rows contain trajectory strings only)",
+        "resume/chunk mapping beyond recorded game/opening indices",
+        "registration and suite receipt"
+      ],
+      "working_revision": null
+    }
+  ],
+  "uncovered_population": "1,129,643 recorded trajectory action pre-states; no unique identity count asserted"
+}
