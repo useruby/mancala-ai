@@ -1,0 +1,217 @@
+{
+  "schema": "seed484-pr-experiment-provenance-v1",
+  "status": "incomplete",
+  "pr_mappings": [
+    {
+      "pull_request": 458,
+      "pull_request_url": "https://github.com/useruby/mancala-ai/pull/458",
+      "merge_commit": "e68242eb0d35ce7ab8c86f7eedc3c85942958306",
+      "experiment_seed": 457,
+      "change_class": "preparation_correction",
+      "population_action": "registration_only_no_probe_launch",
+      "activity_evidence": "PR description: No real registration was created and no real C/T arm was executed. No searches or games were run and no artifacts were exported.",
+      "evidence": [
+        "docs/alphazero-lite-seed457-preparation.md",
+        "ml/alphazero_lite/seed457_fresh_subgroup_projection.py",
+        "docs/data/seed457-fresh-subgroup-projection/registration.json"
+      ]
+    },
+    {
+      "pull_request": 459,
+      "pull_request_url": "https://github.com/useruby/mancala-ai/pull/459",
+      "merge_commit": "aad1f1dcbba209e5529994510b98b89d50618213",
+      "experiment_seed": 457,
+      "change_class": "verification_correction",
+      "population_action": "reuses_seed457_registration_and_population",
+      "activity_evidence": "PR description: No real registration, C/T arm execution, searches, games, export, or experiment classification was performed. This PR only corrects verification wiring.",
+      "evidence": [
+        "ml/alphazero_lite/verify_seed457_fresh_subgroup_projection.py",
+        "docs/data/seed457-fresh-subgroup-projection/registration.json",
+        "docs/data/seed457-fresh-subgroup-projection/receipt.json"
+      ]
+    },
+    {
+      "pull_request": 460,
+      "pull_request_url": "https://github.com/useruby/mancala-ai/pull/460",
+      "merge_commit": "326570b23c2d8235b518af77fad13b0f773b02d1",
+      "experiment_seed": 457,
+      "change_class": "original_execution_invalid_verification",
+      "population_action": "consumed_registered_seed457_population",
+      "activity_evidence": "PR description: Both arms completed exactly sixteen proposals. The attempt is marked invalid and reports no completed experiment decision.",
+      "evidence": [
+        "docs/data/seed457-fresh-subgroup-projection/registration.json",
+        "docs/data/seed457-fresh-subgroup-projection/receipt.json",
+        "docs/data/seed457-fresh-subgroup-projection/verification-status.json"
+      ]
+    },
+    {
+      "pull_request": 461,
+      "pull_request_url": "https://github.com/useruby/mancala-ai/pull/461",
+      "merge_commit": "34c657d627592e344a4d399d4365de1fdad8c75d",
+      "experiment_seed": 457,
+      "change_class": "post_execution_correction_replay",
+      "population_action": "reuses_original_seed457_population",
+      "activity_evidence": "PR description: Reconstructs the original 16-step arms and 256 trials from the registered inputs; no new training arm, games, or experiment was run.",
+      "evidence": [
+        "ml/alphazero_lite/verify_seed457_occurrence_correction.py",
+        "docs/data/seed457-occurrence-verification-correction/receipt.json",
+        "docs/data/seed457-occurrence-verification-correction/reconciliation.json"
+      ]
+    },
+    {
+      "pull_request": 463,
+      "pull_request_url": "https://github.com/useruby/mancala-ai/pull/463",
+      "merge_commit": "f91521542196fb469b376c7552e555df23d68f1e",
+      "experiment_seed": 462,
+      "change_class": "post_execution_correction",
+      "population_action": "replays_existing_seed462_population",
+      "activity_evidence": "PR description: The correction is read-only; no new training, searches, games, export, or promotion.",
+      "evidence": [
+        "ml/alphazero_lite/verify_seed462_correction.py",
+        "docs/data/seed462-historical-policy-removal/registration.json",
+        "docs/data/seed462-historical-policy-removal-correction/correction-receipt.json"
+      ]
+    },
+    {
+      "pull_request": 465,
+      "pull_request_url": "https://github.com/useruby/mancala-ai/pull/465",
+      "merge_commit": "e1f1dcdc3ce22b4c2158a6793bc81e55157e7c84",
+      "experiment_seed": 464,
+      "change_class": "audit_packet_publication",
+      "population_action": "packages_existing_seed464_evidence_no_new_probe_population",
+      "activity_evidence": "PR description: No training or rerun was performed.",
+      "evidence": [
+        "ml/alphazero_lite/audit_seed464_dependency_closure.py",
+        "docs/data/seed464-dependency-closure-audit/packet/packet-manifest.json",
+        "docs/data/seed464-dependency-closure-audit/packet/docs/data/seed464-historical-value-removal/registration.json",
+        "docs/data/seed464-dependency-closure-audit/packet/docs/data/seed464-historical-value-removal/receipt.json"
+      ]
+    },
+    {
+      "pull_request": 467,
+      "pull_request_url": "https://github.com/useruby/mancala-ai/pull/467",
+      "merge_commit": "3be06c6350ee6e4a0ee52364d0a3e88ca2cd2c1b",
+      "experiment_seed": 466,
+      "change_class": "runtime_reader_authentication",
+      "population_action": "read_only_bundle_access_no_new_probe_population",
+      "activity_evidence": "PR description: No training or new experiment.",
+      "evidence": [
+        "ml/alphazero_lite/seed466_runtime_bundle.py",
+        "docs/data/seed466-replay-input-bundle/manifest.json"
+      ]
+    }
+  ],
+  "separate_historical_lineages": [
+    {
+      "experiment_seed": 461,
+      "origin_pull_requests": [384, 385, 386, 387, 388, 389, 390, 396],
+      "required_because": [
+        "docs/data/seed461-e3-e4-registration.json",
+        "docs/data/seed461-cross-order-e4-average-registration.json",
+        "docs/data/seed461-lr-sensitivity-registration-v2.json"
+      ],
+      "population_status": "opening_roots_reconstructed_arena_continuations_replay_unresolved"
+    },
+    {
+      "experiment_seed": 467,
+      "origin_pull_requests": [377, 378],
+      "required_because": [
+        "docs/data/alphazero-lite-generation-comparisons/seed467-parent-anchor-w010-vs-unanchored-config-diff.json"
+      ],
+      "population_status": "receipt_bound_self_play_recovered_and_identity_reconstructed"
+    }
+  ],
+  "recovered_populations": [
+    {
+      "experiment_seed": 467,
+      "reason_required": "generation receipt identifies self-play rows consumed as the training and fresh-diagnostic source; behavior-anchor audit also binds the same source",
+      "receipt": "docs/data/alphazero-lite-generations/seed455-nextgen-s467-parent-anchor-w010/generation.json",
+      "receipt_sha256": "3c989868860beed12b9b465f691e4d31466afc75594bfcba6a87d3b96c719f3d",
+      "source": ".tmp/seed455-nextgen-s467-parent-anchor-w010/runs/seed455-nextgen-s467-parent-anchor-w010-iter1/self_play.jsonl",
+      "source_sha256": "6f7038dccf282fb9365a031a06f8c5a8af4a2b8a6eda32725fe125b06d654a76",
+      "source_size_bytes": 749547469,
+      "occurrences": 66448,
+      "distinct_identity_pairs": 46276,
+      "portable_snapshot": "docs/data/seed484-seed467-recovered-identities.json.gz",
+      "portable_snapshot_sha256": "cfd3e83038b8f93978e449df81f38a39009e79370d3b97983a68f368a84ef16b"
+    }
+  ],
+  "unresolved_populations": [
+    {
+      "experiment_seed": 461,
+      "source": "docs/data/seed483-recovered-seed461-arena-games.tar.gz",
+      "verified_fact": "all 58 archived game files match their registered SHA-256 values; historical writer stores absolute pit indices and starts each trajectory after applying its opening prefix",
+      "writer_commit": "ec87dc4a77dcd9d31ae0e0dcba08c3bf4f20de0a",
+      "writer_source_path": "ml/alphazero_lite/arena.py",
+      "writer_source_sha256": "85971b30fa8579da7eac1fb6896d8165c6a8c8f7d4c00e878c34e8f848769554",
+      "action_convention": "absolute_pit_indices_0_through_11",
+      "documented_first_action_state": "registered opening root after prefix replay; current_player 0",
+      "recorded_first_action": 8,
+      "contradiction": "first archived A game trajectory action 8 is illegal from the exact registered opening state for opening 0 (current_player 0; legal absolute pits 0,1,2,4,5)",
+      "uncovered_population": "1,129,643 trajectory action-pre-states; opening roots are already reconstructed",
+      "generation_authorized": false
+    }
+  ],
+  "apparent_seed_number_gaps": [
+    {
+      "number": 458,
+      "pull_request_maps_to": 457,
+      "status": "unregistered_not_classified_empty",
+      "pr_population": "preparation correction only; no seed457 probe launch"
+    },
+    {
+      "number": 459,
+      "pull_request_maps_to": 457,
+      "status": "unregistered_not_classified_empty",
+      "pr_population": "verification correction reuses seed457"
+    },
+    {
+      "number": 460,
+      "pull_request_maps_to": 457,
+      "status": "unregistered_not_classified_empty",
+      "pr_population": "original execution is seed457 and is a verified subset in seed483"
+    },
+    {
+      "number": 461,
+      "pull_request_maps_to": 457,
+      "status": "distinct_registered_lineage_continuation_unresolved",
+      "pr_population": "correction replay reuses seed457"
+    },
+    {
+      "number": 463,
+      "pull_request_maps_to": 462,
+      "status": "unregistered_not_classified_empty",
+      "pr_population": "correction replay reuses seed462"
+    },
+    {
+      "number": 465,
+      "pull_request_maps_to": 464,
+      "status": "unregistered_not_classified_empty",
+      "pr_population": "audit publication packages existing seed464 evidence"
+    },
+    {
+      "number": 467,
+      "pull_request_maps_to": 466,
+      "status": "distinct_registered_lineage_recovered",
+      "pr_population": "runtime-reader PR adds no population"
+    }
+  ],
+  "bound_receipts": {
+    "docs/data/seed457-fresh-subgroup-projection/registration.json": "58034469262878a7de99658b9b09c71d59369a1960c69d2e20f83b5f31c5a8a8",
+    "docs/data/seed457-fresh-subgroup-projection/receipt.json": "32c968cc5bb17d3fc8e749016d586a969d0ed92427cf562dbb5546e74e31c6ef",
+    "docs/data/seed457-fresh-subgroup-projection/verification-status.json": "96b0a6d9b25158d534de8bff5a0c47bc19d98b9af49c0468314429a337c7981c",
+    "docs/data/seed457-occurrence-verification-correction/receipt.json": "bac3c8c2c760ab8345c527d0f2df5241aff6180f5d9de8b7fb9bcc35f7680f3f",
+    "docs/data/seed457-occurrence-verification-correction/reconciliation.json": "5dc5623d247d3005d6d2d0cf26d1bc7879ef5f9e708e97606f685b35d80e6c93",
+    "docs/data/seed461-e3-e4-registration.json": "5e888028b8b79549ddbfd73924623d63e8256fe147e804701911b476701d176f",
+    "docs/data/seed461-cross-order-e4-average-registration.json": "5c09af5fef62dec497571fe5d0b6956825e9f3d043f43efe0529c57f4efcadf1",
+    "docs/data/seed461-lr-sensitivity-registration-v2.json": "b7b0e6011924cd47154cb26f78bc857dadea04247fb55e17c8810a66dd1ec0ab",
+    "docs/data/seed483-recovered-seed461-arena-games.tar.gz": "17703bba162596db668c8dff69fc91e6297669c9c0bf70ec2b75de2f06bd1d05",
+    "docs/data/alphazero-lite-generation-comparisons/seed467-parent-anchor-w010-vs-unanchored-config-diff.json": "59fd1b0a6527f40bc1dd059d9941f266607227e98a9db38ae46a47a57a36e0c6",
+    "docs/data/seed462-historical-policy-removal/registration.json": "6d5f7e7fde229ee51de74c58a179bf0fcd4c0293c44810b89558d204c9f84f3e",
+    "docs/data/seed462-historical-policy-removal-correction/correction-receipt.json": "293adc2a256e0f1c4a6749241d9ba7a7f586326b9fab11319dd051cf5b2bfdbb",
+    "docs/data/seed464-dependency-closure-audit/packet/packet-manifest.json": "d4ea022be45e6e6e259d163b8ef2deec1ac06761dec09f6f6ce4463fa507ec03",
+    "docs/data/seed466-replay-input-bundle/manifest.json": "db80f3bdfcc0a126032c1f5a16e78cda74b160d4fa2d80330cec8bed18085b34",
+    "docs/data/alphazero-lite-generations/seed455-nextgen-s467-parent-anchor-w010/generation.json": "3c989868860beed12b9b465f691e4d31466afc75594bfcba6a87d3b96c719f3d"
+  },
+  "generation_authorized": false
+}
