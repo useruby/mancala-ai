@@ -20,7 +20,8 @@ from ml.alphazero_lite.verify_seed488_strength_evaluation import _replay_game
 
 ROOT = Path(__file__).resolve().parents[2]
 RECEIPT = "opening-0000-recovery-receipt.json"
-CONTINUATION_BINDING = "opening-0000-continuation-binding-v3.json"
+CONTINUATION_BINDING = "opening-0000-continuation-binding-v4.json"
+PREVIOUS_CONTINUATION_BINDING = "opening-0000-continuation-binding-v3.json"
 SAVED_HASHES = {
     "games": "34f4d32b0abc864cace899bd3b69b3ef58624be3078e972dbe2a52f08a9a3d1d",
     "report": "d22e47c1ce979fd8067bf9a7148ca637b314817aea5dbfd94aa843b3e6559901",
@@ -183,6 +184,8 @@ def publish_continuation_binding(root: Path) -> dict[str, Any]:
             "source_sha256"
         ],
         "scope": "prospective continuation only; original execution source identities remain historical",
+        "supersedes_binding": PREVIOUS_CONTINUATION_BINDING,
+        "supersedes_binding_sha256": _sha(out / PREVIOUS_CONTINUATION_BINDING),
     }
     path = out / CONTINUATION_BINDING
     payload = json.dumps(binding, indent=2, sort_keys=True) + "\n"

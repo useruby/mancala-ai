@@ -483,6 +483,94 @@ def _write_complete_fixture(root: Path) -> Path:
     return root
 
 
+def _mock_arena_batch(command: list[str]) -> None:
+    """Write deterministic, replayable arena outputs without running search."""
+    from ml.alphazero_lite.kalah_rules import KalahGame
+
+    def option(name: str) -> Path:
+        return Path(command[command.index(name) + 1])
+
+    opening_path = option("--opening-prefixes-jsonl")
+    report_path = option("--out")
+    games_path = option("--game-jsonl")
+    opening = json.loads(opening_path.read_text())
+    registration = json.loads(
+        (protocol.ROOT / protocol.OUT / "registration.json").read_text()
+    )
+    games = []
+    for seat in (0, 1):
+        game = KalahGame.from_state(
+            {
+                "player_pits": [4] * 6,
+                "opponent_pits": [4] * 6,
+                "player_store": 0,
+                "opponent_store": 0,
+                "current_player": 0,
+            }
+        )
+        for move in opening["prefix_moves"]:
+            assert game.move(game.pit_index(int(move)))
+        trajectory = []
+        while not game.over() and len(trajectory) < 200:
+            absolute = game.pit_index(game.possible_moves()[0])
+            trajectory.append(absolute)
+            assert game.move(absolute)
+        margin = int(game.captured_seeds[seat] - game.captured_seeds[1 - seat])
+        winner = "challenger" if margin > 0 else "current" if margin < 0 else "draw"
+        games.append(
+            {
+                "challenger_player": seat,
+                "winner": winner,
+                "margin": margin,
+                "game_length": len(trajectory),
+                "trajectory": ",".join(map(str, trajectory)),
+                "opening_state_hash": opening["state_hash"],
+                "opening_prefix_moves": opening["prefix_moves"],
+            }
+        )
+    games_path.parent.mkdir(parents=True, exist_ok=True)
+    games_path.write_text("".join(json.dumps(row) + "\n" for row in games))
+    winners = [row["winner"] for row in games]
+    notes = {
+        "challenger_simulations": 1200,
+        "current_simulations": 1200,
+        "workers_used": 1,
+        "random_opening_plies": 0,
+        "seed_contract": "azlite_eval_seed_v2",
+        "base_seed": protocol.SEED + int(opening["opening_index"]),
+        "suite_sha256": protocol.sha256_file(opening_path),
+        "search_profile": {"c_puct": 1.25},
+        "exact_root_solve_threshold": 16,
+        "exact_root_native_probe_sha256": registration["runtime"]["identities_sha256"][
+            "model-artifact/runtime/kalah_v1_tablebase"
+        ],
+        "exact_root_tablebase_sha256": registration["runtime"]["identities_sha256"][
+            "model-artifact/runtime/kalah_v1_21.kvtb"
+        ],
+        "runtime_search_policy_sha256": registration["runtime"]["identities_sha256"][
+            "model-artifact/current/search_policy.json"
+        ],
+        "runtime_search_policy_mode": "puct_exact_root_hybrid",
+        "exact_root_objective": "final_score_margin",
+        "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+        "exact_leaf_solve_mode": "disabled",
+        "seed": protocol.SEED + int(opening["opening_index"]),
+        "search_options": protocol.arena_effective_search_options(registration),
+    }
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(
+        json.dumps(
+            {
+                "games_played": 2,
+                "wins": winners.count("challenger"),
+                "losses": winners.count("current"),
+                "draws": winners.count("draw"),
+                "notes": notes,
+            }
+        )
+    )
+
+
 def test_independent_verifier_accepts_rebound_complete_synthetic_fixture(
     tmp_path: Path,
 ):
@@ -623,7 +711,7 @@ def test_missing_and_duplicate_games_rejected_by_verifier(tmp_path: Path):
     receipt = json.loads((out / "receipt.json").read_text())
     receipt["outcomes.jsonl"] = protocol.sha256_file(path)
     (out / "receipt.json").write_text(json.dumps(receipt))
-    with pytest.raises(ValueError, match="game_coverage"):
+    with pytest.raises(ValueError, match="incomplete_opening_pair"):
         verifier.verify(root)
 
     root = _write_complete_fixture(tmp_path / "duplicate")
@@ -662,7 +750,9 @@ def test_runner_rejects_pending_commit_and_revalidates_committed_pair(
     )
 
 
-def test_prepared_verifier_runs_from_physical_copy(tmp_path: Path):
+def test_prepared_verifier_runs_from_physical_copy(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
     source = protocol.ROOT
     copied = tmp_path / "copied-checkout"
     shutil.copytree(
@@ -801,9 +891,61 @@ def test_prepared_verifier_runs_from_physical_copy(tmp_path: Path):
     outcome_path = copied_out / "outcomes.jsonl"
     assert len(outcome_path.read_text().splitlines()) == 2
     partial = verifier.verify(copied)
-    assert partial["status"] == (
-        "opening_zero_recovery_verified_continuation_incomplete"
+    assert partial["status"] == "verified_incomplete"
+    assert partial["completed_openings"] == 1
+    assert partial["remaining_openings"] == 511
+    assert partial["remaining_games"] == 1022
+    saved_paths = [
+        copied_out / "resume/opening-0000.jsonl",
+        copied_out / "resume-corrected/opening-0000.jsonl",
+        copied_out / "resume-corrected/games-0000.jsonl",
+        copied_out / "resume-corrected/report-0000.json",
+    ]
+    evidence_before = {
+        path: (path.read_bytes(), path.stat().st_mtime_ns) for path in saved_paths
+    }
+    arena_calls: list[int] = []
+    original_run = subprocess.run
+    interrupt_after = {2, 4}
+
+    def mocked_run(command, *args, **kwargs):
+        if len(command) > 2 and command[1:3] == ["-m", "ml.alphazero_lite.arena"]:
+            opening_file = Path(command[command.index("--opening-prefixes-jsonl") + 1])
+            index = int(json.loads(opening_file.read_text())["opening_index"])
+            arena_calls.append(index)
+            if len(arena_calls) in interrupt_after:
+                raise RuntimeError("synthetic interruption")
+            _mock_arena_batch(command)
+            return subprocess.CompletedProcess(command, 0)
+        return original_run(command, *args, **kwargs)
+
+    monkeypatch.setattr(protocol.subprocess, "run", mocked_run)
+    with pytest.raises(RuntimeError, match="synthetic interruption"):
+        protocol.run(copied, execute=True)
+    opening1_files = [
+        copied_out / "resume-corrected/opening-0001.jsonl",
+        copied_out / "resume-corrected/games-0001.jsonl",
+        copied_out / "resume-corrected/report-0001.json",
+    ]
+    opening1_before = {
+        path: (path.read_bytes(), path.stat().st_mtime_ns) for path in opening1_files
+    }
+    with pytest.raises(RuntimeError, match="synthetic interruption"):
+        protocol.run(copied, execute=True)
+    assert arena_calls == [1, 2, 2, 3]
+    assert all(
+        (path.read_bytes(), path.stat().st_mtime_ns) == identity
+        for path, identity in evidence_before.items()
     )
+    assert all(
+        (path.read_bytes(), path.stat().st_mtime_ns) == identity
+        for path, identity in opening1_before.items()
+    )
+    resumed = verifier.verify(copied)
+    assert resumed["status"] == "verified_incomplete"
+    assert resumed["completed_openings"] == 3
+    assert resumed["remaining_openings"] == 509
+    assert resumed["remaining_games"] == 1018
     original_outcomes = (outcome_path.read_bytes(), outcome_path.stat().st_mtime_ns)
     outcomes = [json.loads(line) for line in outcome_path.read_text().splitlines()]
     outcomes[0]["historical_execution_provenance"] = {}
