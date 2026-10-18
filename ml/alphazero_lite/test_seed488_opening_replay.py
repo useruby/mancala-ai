@@ -76,3 +76,27 @@ def test_replay_rejects_relative_index_in_absolute_trajectory():
     }
     with pytest.raises(ValueError, match="trajectory_illegal:0"):
         replay_game(opening, row, 0)
+
+
+def test_old_relative_trajectory_interpretation_rejects_arena_absolute_writer_value():
+    prefix = [0, 1, 2, 3, 4]
+    game = KalahGame.from_state(
+        {
+            "player_pits": [4] * 6,
+            "opponent_pits": [4] * 6,
+            "player_store": 0,
+            "opponent_store": 0,
+            "current_player": 0,
+        }
+    )
+    for relative in prefix:
+        assert game.move(game.pit_index(relative))
+    absolute = game.pit_index(game.possible_moves()[0])
+    assert absolute >= 6
+
+    def old_relative_validator(move: int) -> None:
+        if game.over() or move not in game.possible_moves():
+            raise ValueError("trajectory_illegal:0")
+
+    with pytest.raises(ValueError, match="trajectory_illegal:0"):
+        old_relative_validator(absolute)

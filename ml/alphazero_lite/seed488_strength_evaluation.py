@@ -625,11 +625,30 @@ def run(root: Path, *, execute: bool = False) -> None:
         raise ValueError("opening_suite_receipt_mismatch")
     if not execute:
         raise ValueError("execution_requires_explicit_--execute_after_protocol_review")
-    if registration.get("fresh_confirmation_authorized") is not False:
-        raise ValueError("fresh_confirmation_gate_must_remain_closed")
     outcome_path_pending = out / "outcomes.jsonl.pending"
     if outcome_path_pending.exists():
         raise ValueError("interrupted_pending_commit_requires_operator_recovery")
+    if not (out / "opening-0000-recovery-receipt.json").is_file():
+        raise ValueError("seed488_opening_zero_recovery_receipt_required")
+    from ml.alphazero_lite.seed488_replay_recovery import verify_receipt
+
+    recovery = verify_receipt(root)
+    ledger_path = out / "outcomes.jsonl"
+    if not ledger_path.is_file():
+        raise ValueError("seed488_opening_zero_recovery_import_required")
+    opening_zero_rows = [
+        row for row in _read_rows(ledger_path) if int(row.get("opening_index", -1)) == 0
+    ]
+    if len(opening_zero_rows) != 2 or any(
+        row.get("recovery_receipt_sha256")
+        != sha256_file(out / "opening-0000-recovery-receipt.json")
+        for row in opening_zero_rows
+    ):
+        raise ValueError("seed488_opening_zero_recovery_provenance")
+    if recovery.get("status") != "validated_for_recovery_import":
+        raise ValueError("seed488_recovery_receipt_status")
+    if registration.get("fresh_confirmation_authorized") is not False:
+        raise ValueError("fresh_confirmation_gate_must_remain_closed")
     subprocess.run(
         [
             sys.executable,
@@ -642,7 +661,7 @@ def run(root: Path, *, execute: bool = False) -> None:
         check=True,
     )
     opening_rows = _read_rows(suite_path)
-    outcome_path = out / "outcomes.jsonl"
+    outcome_path = ledger_path
     completed_rows = _read_rows(outcome_path) if outcome_path.exists() else []
     completed_openings = completed_opening_indices(completed_rows)
     opening_by_index = {int(row["opening_index"]): row for row in opening_rows}

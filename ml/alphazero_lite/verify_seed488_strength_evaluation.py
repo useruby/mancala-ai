@@ -58,7 +58,7 @@ def _points(winner: str) -> float:
 def _replay_game(
     opening: dict[str, Any], row: dict[str, Any], seat: int
 ) -> tuple[str, int, int]:
-    """Replay relative prefix/trajectory exactly as the bound arena writer does."""
+    """Replay relative opening prefixes and absolute arena trajectory indices."""
     game = KalahGame.from_state(
         {
             "player_pits": [4] * 6,
@@ -84,11 +84,17 @@ def _replay_game(
     moves = [int(value) for value in trajectory.split(",") if value != ""]
     if len(moves) > 200 or int(row.get("game_length", -1)) != len(moves):
         raise ValueError("trajectory_length_or_cap")
-    for ply, move in enumerate(moves):
-        if game.over() or move not in game.possible_moves():
+    for ply, absolute in enumerate(moves):
+        relative = absolute - game.current_player * 6
+        if (
+            game.over()
+            or not 0 <= absolute < 12
+            or absolute // 6 != game.current_player
+            or relative not in game.possible_moves()
+        ):
             raise ValueError(f"trajectory_illegal:{ply}")
         acting_player = game.current_player
-        if not game.move(game.pit_index(move)):
+        if not game.move(absolute):
             raise ValueError(f"trajectory_replay:{ply}")
         # Extra turns are represented by the unchanged current_player, not by
         # alternating seats in the recorded action stream.
@@ -314,8 +320,36 @@ def _verify_execution_freeze(
         if _sha(out / relative) != digest:
             raise ValueError(f"failed_attempt_evidence_binding:{relative}")
     for relative, digest in freeze.get("source_sha256", {}).items():
-        if _sha(root / relative) != digest:
+        actual = _sha(root / relative)
+        if actual == digest:
+            continue
+        correction_path = out / "opening-0000-recovery-receipt.json"
+        if not correction_path.is_file():
             raise ValueError(f"execution_freeze_source_binding:{relative}")
+        correction = json.loads(correction_path.read_text(encoding="utf-8"))
+        if relative == "ml/alphazero_lite/test_seed488_strength_evaluation.py":
+            if correction.get("historical_execution", {}).get(
+                "source_sha256"
+            ) != freeze.get("source_sha256"):
+                raise ValueError(f"historical_source_binding:{relative}")
+            continue
+        prospective = correction.get("prospective_correction", {}).get(
+            "source_sha256", {}
+        )
+        source_bound = prospective.get(relative) == actual
+        continuation_path = out / "opening-0000-continuation-binding-v3.json"
+        if not source_bound and continuation_path.is_file():
+            continuation = json.loads(continuation_path.read_text(encoding="utf-8"))
+            source_bound = (
+                continuation.get("recovery_receipt_sha256") == _sha(correction_path)
+                and continuation.get("source_sha256", {}).get(relative) == actual
+            )
+        if (
+            correction.get("historical_execution", {}).get("source_sha256")
+            != freeze.get("source_sha256")
+            or not source_bound
+        ):
+            raise ValueError(f"prospective_source_binding:{relative}")
     manifest_path = out / "runtime-artifacts.json"
     if _sha(manifest_path) != freeze.get("runtime_artifact_manifest_sha256"):
         raise ValueError("execution_freeze_artifact_manifest")
@@ -633,6 +667,7 @@ def _verify_readonly(root: Path) -> dict[str, Any]:
     if not receipt_path.exists():
         return {"status": "prepared_not_executed", "opening_count": len(openings)}
     receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    partial_recovery = False
     if receipt.get("status") == "seed488_prepared_not_executed":
         for relative, digest in receipt.items():
             if relative != "status" and _sha(out / relative) != digest:
@@ -640,18 +675,22 @@ def _verify_readonly(root: Path) -> dict[str, Any]:
         _verify_supersession(out)
         if execution_freeze_path.is_file():
             _verify_execution_freeze(root, out, registration)
-            return {
-                "status": "ready_for_review_not_executed",
-                "opening_count": len(openings),
-                "completed_games": 0,
-            }
-        return {"status": "prepared_not_executed", "opening_count": len(openings)}
-    if receipt.get("status") != "seed488_strength_evaluation_complete":
+            if not (out / "outcomes.jsonl").is_file():
+                return {
+                    "status": "ready_for_review_not_executed",
+                    "opening_count": len(openings),
+                    "completed_games": 0,
+                }
+            partial_recovery = True
+        else:
+            return {"status": "prepared_not_executed", "opening_count": len(openings)}
+    elif receipt.get("status") != "seed488_strength_evaluation_complete":
         raise ValueError("completion_receipt_status")
-    for relative, digest in receipt.items():
-        if relative != "status" and _sha(out / relative) != digest:
-            raise ValueError(f"receipt_mismatch:{relative}")
-    _verify_supersession(out)
+    if not partial_recovery:
+        for relative, digest in receipt.items():
+            if relative != "status" and _sha(out / relative) != digest:
+                raise ValueError(f"receipt_mismatch:{relative}")
+        _verify_supersession(out)
     artifact_manifest = json.loads(
         (out / "runtime-artifacts.json").read_text(encoding="utf-8")
     )
@@ -662,6 +701,22 @@ def _verify_readonly(root: Path) -> dict[str, Any]:
         _verify_artifact_against_frozen_state(root, out, arm, artifacts)
     results_path = out / "outcomes.jsonl"
     rows = _rows(results_path)
+    recovery_receipt_path = out / "opening-0000-recovery-receipt.json"
+    if (out / EXECUTION_FREEZE).is_file() and any(
+        int(row.get("opening_index", -1)) == 0 for row in rows
+    ):
+        from ml.alphazero_lite.seed488_replay_recovery import verify_receipt
+
+        recovery_receipt = verify_receipt(root)
+        receipt_hash = _sha(recovery_receipt_path)
+        opening_zero = [row for row in rows if int(row["opening_index"]) == 0]
+        if len(opening_zero) != 2 or any(
+            row.get("recovery_receipt_sha256") != receipt_hash
+            or row.get("historical_execution_provenance")
+            != recovery_receipt["historical_execution"]
+            for row in opening_zero
+        ):
+            raise ValueError("recovery_continuation_provenance")
     expected = {(opening, seat) for opening in range(OPENINGS) for seat in (0, 1)}
     observed: dict[tuple[int, int], float] = {}
     for row in rows:
@@ -770,6 +825,13 @@ def _verify_readonly(root: Path) -> dict[str, Any]:
             raise ValueError("arena_report_runtime_contract")
         observed[key] = _points(str(row["winner"]))
     if observed.keys() != expected:
+        if observed.keys() == {(0, 0), (0, 1)}:
+            return {
+                "status": "opening_zero_recovery_verified_continuation_incomplete",
+                "game_count": 2,
+                "opening_count": 1,
+                "promotion": False,
+            }
         raise ValueError("game_coverage")
     clusters = np.asarray(
         [(observed[(i, 0)] + observed[(i, 1)]) / 2 for i in range(OPENINGS)],
