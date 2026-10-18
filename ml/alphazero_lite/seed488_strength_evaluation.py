@@ -423,6 +423,15 @@ def prepare(root: Path) -> dict[str, Any]:
                 "sha256": sha256_file(preserved),
                 "mtime_ns": preserved.stat().st_mtime_ns,
             }
+    prior_supersession = out / "supersession-pr489.json"
+    if not prior_supersession.exists() and (out / "supersession.json").is_file():
+        shutil.copy2(out / "supersession.json", prior_supersession)
+    if prior_supersession.is_file():
+        previous_files["supersession:pr489"] = {
+            "preserved_as": prior_supersession.name,
+            "sha256": sha256_file(prior_supersession),
+            "mtime_ns": prior_supersession.stat().st_mtime_ns,
+        }
     supersession = {
         "status": "seed488_batch_identity_preparation_superseded_before_execution",
         "supersedes_pr": 488,

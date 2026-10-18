@@ -662,6 +662,14 @@ def test_prepared_verifier_runs_from_physical_copy(tmp_path: Path):
         protocol.OUT / "registration.json",
         protocol.OUT / "openings.jsonl",
         protocol.OUT / "receipt.json",
+        protocol.OUT / "supersession.json",
+        protocol.OUT / "supersession-pr489.json",
+        protocol.OUT / "registration-pr487.json",
+        protocol.OUT / "openings-pr487.jsonl",
+        protocol.OUT / "receipt-pr487.json",
+        protocol.OUT / "registration-pre-batch-identity.json",
+        protocol.OUT / "openings-pre-batch-identity.jsonl",
+        protocol.OUT / "receipt-pre-batch-identity.json",
         protocol.INITIALIZER,
         protocol.TRAJECTORY,
         protocol.SEED479_RECEIPT,
@@ -682,27 +690,13 @@ def test_prepared_verifier_runs_from_physical_copy(tmp_path: Path):
         destination = copied / relative
         source_path = source / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source_path, destination)
+        # A physical checkout preserves content but assigns checkout-time
+        # mtimes rather than recreating historical filesystem metadata.
+        shutil.copyfile(source_path, destination)
     env = os.environ.copy()
     env["PYTHONPATH"] = str(copied)
     unrelated = tmp_path / "unrelated-directory"
     unrelated.mkdir()
-    prepared = subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "ml.alphazero_lite.seed488_strength_evaluation",
-            "--root",
-            str(copied),
-            "--prepare",
-        ],
-        cwd=unrelated,
-        env=env,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    assert '"schema": "seed488-frozen-strength-evaluation-v2"' in prepared.stdout
     copied_out = copied / protocol.OUT
     preserved_snapshot = {
         name: ((copied_out / name).read_bytes(), (copied_out / name).stat().st_mtime_ns)
@@ -760,6 +754,64 @@ def test_prepared_verifier_runs_from_physical_copy(tmp_path: Path):
             (copied_out / name).read_bytes(),
             (copied_out / name).stat().st_mtime_ns,
         ) == snapshot
+
+
+def _write_supersession_fixture(out: Path, content: bytes = b"historical") -> Path:
+    out.mkdir(parents=True, exist_ok=True)
+    preserved = out / "registration-pr487.json"
+    preserved.write_bytes(content)
+    (out / "supersession.json").write_text(
+        json.dumps(
+            {
+                "status": "seed488_batch_identity_preparation_superseded_before_execution",
+                "supersedes_pr": 488,
+                "no_outcomes_existed_at_supersession": True,
+                "preserved_originals": {
+                    "registration.json": {
+                        "preserved_as": preserved.name,
+                        "sha256": protocol.sha256_bytes(content),
+                        # This remains provenance; a physical checkout need not
+                        # reproduce the original filesystem timestamp.
+                        "mtime_ns": 1,
+                    }
+                },
+            }
+        )
+    )
+    return preserved
+
+
+def test_superseded_content_hash_accepts_different_current_mtime(tmp_path: Path):
+    out = tmp_path / "publication"
+    preserved = _write_supersession_fixture(out)
+    assert preserved.stat().st_mtime_ns != 1
+    verifier._verify_supersession(out)
+
+
+def test_superseded_content_hash_rejects_changed_bytes_with_recorded_mtime(
+    tmp_path: Path,
+):
+    out = tmp_path / "publication"
+    preserved = _write_supersession_fixture(out)
+    preserved.write_bytes(b"changed")
+    os.utime(preserved, ns=(1, 1))
+    with pytest.raises(ValueError, match="superseded_evidence_changed"):
+        verifier._verify_supersession(out)
+
+
+def test_superseded_snapshot_is_preserved_on_verification_success_and_failure(
+    tmp_path: Path,
+):
+    out = tmp_path / "publication"
+    _write_supersession_fixture(out)
+    snapshot = verifier._superseded_file_snapshot(out)
+    verifier._verify_supersession(out)
+    verifier._assert_superseded_snapshot_unchanged(snapshot)
+
+    (out / "supersession.json").write_text("{}")
+    with pytest.raises(ValueError, match="supersession_record"):
+        verifier._verify_supersession(out)
+    verifier._assert_superseded_snapshot_unchanged(snapshot)
 
 
 def test_outcome_resume_rejects_duplicate_or_missing_games():

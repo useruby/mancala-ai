@@ -33,8 +33,8 @@
     "platform": "linux",
     "python_version": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]"
   },
-  "implementation_sha256": "6ab44300a2c34eaf35063d8f5a5d221f9f976ad7328d1ebc714178179e354707",
-  "independent_verifier_sha256": "8fbaab4879d0aaf05b5d0e79c7fdb25af46602a77dc91f4344c65d4da928634e",
+  "implementation_sha256": "6acfa85ccb94d98610d268475c430737a1ed9975ad62c3c1e3a50b2cdea8a2aa",
+  "independent_verifier_sha256": "16c61850aec23b3ef8401bb686ee7770e28038cb57e17bf586bf389b7af76897",
   "interpretation": "exploratory direct strength evaluation on a newly registered suite; not fresh confirmation or an independently untouched holdout",
   "opening_suite": {
     "batch_identity_contract": {
@@ -118,6 +118,6 @@
   "seed479_and_480_classification": "promising exploratory results; preserved as exploratory",
   "status": "frozen_before_execution",
   "supersedes": "PR #488 preparation registration with parent-suite digest passed to single-opening arena batches; this is a preparation-only correction before any outcomes",
-  "synthetic_tests_sha256": "a0a2c1cd9da62297202c77e7e9f8fd9be98ead9b9d788e13cbe1397d106be85b",
+  "synthetic_tests_sha256": "2131aff7b227c613b8217ae60b027b9002afaddb3a92fc6cd85c35d473b2f3ab",
   "trajectory_contract": "arena.py at the runtime source hash; opening prefixes and trajectories are player-relative v2 moves converted by KalahGame.pit_index at each ply; rules use KalahGame.move including extra turns and terminal sweep; stored margin is challenger captured store minus current captured store; winner is the sign of that margin"
 }
