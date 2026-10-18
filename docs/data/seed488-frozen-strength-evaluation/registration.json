@@ -33,10 +33,17 @@
     "platform": "linux",
     "python_version": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]"
   },
-  "implementation_sha256": "19a05de4dfc9942324ca5bc432fa3d5099e250385ff7d722d1f1b412925ce705",
-  "independent_verifier_sha256": "15f7bcd18dd498f3a1f0418bf0a06aa9301ec9f7ac657864d0907584ff053db2",
+  "implementation_sha256": "6ab44300a2c34eaf35063d8f5a5d221f9f976ad7328d1ebc714178179e354707",
+  "independent_verifier_sha256": "8fbaab4879d0aaf05b5d0e79c7fdb25af46602a77dc91f4344c65d4da928634e",
   "interpretation": "exploratory direct strength evaluation on a newly registered suite; not fresh confirmation or an independently untouched holdout",
   "opening_suite": {
+    "batch_identity_contract": {
+      "batch_suite_sha256": "SHA-256 of the exact one-entry JSONL passed to arena --opening-prefixes-jsonl",
+      "parent_entry_identity": "state_hash of the parent suite entry, validated against exact batch bytes",
+      "parent_opening_index": "opening_index in openings.jsonl; arena-local index is 0",
+      "parent_suite_sha256": "53841cad6c5d34355cd7d6533a0fa435f4164260fd40a2da760a3d78c784cff8",
+      "seed_derivation": "registered base seed = 488 + parent_opening_index; batch-local index does not affect seed"
+    },
     "count": 512,
     "eligible_against_reconstructable_exclusions": true,
     "exclusions": {
@@ -103,14 +110,14 @@
       "tactical_root_bias": 0.0
     },
     "seat_pairing": "each opening is played twice with F in player 0 and player 1; same opening prefix and other settings",
-    "seed_contract": "azlite_eval_seed_v2; per-opening base seed = 488 + opening_index; arena's deterministic seed contract binds opening state, seat, game-within-opening, and ply",
+    "seed_contract": "azlite_eval_seed_v2; batch-local opening index is 0; base seed = 488 + parent opening index; arena deterministically binds the single batch opening state, seat, game-within-opening, and ply",
     "simulations_per_move": 1200,
     "workers": 1
   },
   "schema": "seed488-frozen-strength-evaluation-v2",
   "seed479_and_480_classification": "promising exploratory results; preserved as exploratory",
   "status": "frozen_before_execution",
-  "supersedes": "PR #487 seed488_prepared_not_executed registration and suite; this is a preparation-only correction before any outcomes",
-  "synthetic_tests_sha256": "7d814cf8918f27e82e5a628e8e00d12695f36f2ee7673f7066943cce3b47842e",
+  "supersedes": "PR #488 preparation registration with parent-suite digest passed to single-opening arena batches; this is a preparation-only correction before any outcomes",
+  "synthetic_tests_sha256": "a0a2c1cd9da62297202c77e7e9f8fd9be98ead9b9d788e13cbe1397d106be85b",
   "trajectory_contract": "arena.py at the runtime source hash; opening prefixes and trajectories are player-relative v2 moves converted by KalahGame.pit_index at each ply; rules use KalahGame.move including extra turns and terminal sweep; stored margin is challenger captured store minus current captured store; winner is the sign of that margin"
 }

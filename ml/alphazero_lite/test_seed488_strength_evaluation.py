@@ -16,6 +16,7 @@ import torch
 from ml.alphazero_lite import seed488_strength_evaluation as protocol
 from ml.alphazero_lite import verify_seed488_strength_evaluation as verifier
 from ml.alphazero_lite import train
+from ml.alphazero_lite import arena
 
 
 def _paired_rows(count: int = protocol.OPENING_COUNT) -> list[dict]:
@@ -100,6 +101,47 @@ def test_deterministic_opening_identities(monkeypatch: pytest.MonkeyPatch):
     assert len(set(identities)) == protocol.OPENING_COUNT
 
 
+def test_real_arena_preflight_binds_single_batch_to_parent_without_execution(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    monkeypatch.setattr(protocol, "reconstructable_exclusions", lambda _root: set())
+    openings = protocol.make_suite(Path("."))
+    parent_bytes = protocol.suite_bytes(openings)
+    parent_digest = protocol.sha256_bytes(parent_bytes)
+    opening = openings[7]
+    batch_path = tmp_path / "opening-0007.jsonl"
+    batch_path.write_bytes(protocol.canonical_json(opening) + b"\n")
+    batch_digest = protocol.sha256_file(batch_path)
+    arena.preflight_arena_opening_suite(str(batch_path), batch_digest)
+    with pytest.raises(ValueError, match="opening_suite_sha256_mismatch"):
+        arena.preflight_arena_opening_suite(str(batch_path), parent_digest)
+
+    altered = tmp_path / "altered.jsonl"
+    altered.write_bytes(batch_path.read_bytes() + b" ")
+    with pytest.raises(ValueError, match="opening_suite_sha256_mismatch"):
+        arena.preflight_arena_opening_suite(str(altered), batch_digest)
+
+    registration = {
+        "opening_suite": {"opening_suite_sha256": parent_digest},
+    }
+    identity = protocol.batch_opening_identity(registration, opening, batch_path)
+    assert identity == {
+        "parent_suite_sha256": parent_digest,
+        "batch_suite_sha256": batch_digest,
+        "parent_opening_index": 7,
+        "parent_entry_state_hash": opening["state_hash"],
+        "local_opening_index": 0,
+        "base_seed": 495,
+        "seed_derivation": "488 + parent_opening_index",
+    }
+    wrong_parent_entry = {**opening, "opening_index": 8}
+    with pytest.raises(ValueError, match="batch_parent_opening_association"):
+        protocol.batch_opening_identity(registration, wrong_parent_entry, batch_path)
+    wrong_entry = {**opening, "state_hash": "0" * 64}
+    with pytest.raises(ValueError, match="batch_parent_opening_association"):
+        protocol.batch_opening_identity(registration, wrong_entry, batch_path)
+
+
 def test_synthetic_export_preserves_frozen_policy_and_value_outputs(tmp_path: Path):
     initializer_path = protocol.ROOT / protocol.INITIALIZER
     trajectory_path = protocol.ROOT / protocol.TRAJECTORY
@@ -162,7 +204,7 @@ def _write_complete_fixture(root: Path) -> Path:
     registration = json.loads(registration_source.read_text())
     registration["schema"] = "seed488-frozen-strength-evaluation-v2"
     registration["supersedes"] = (
-        "PR #487 seed488_prepared_not_executed registration and suite; this is a preparation-only correction before any outcomes"
+        "PR #488 preparation registration with parent-suite digest passed to single-opening arena batches; this is a preparation-only correction before any outcomes"
     )
     registration["implementation_sha256"] = protocol.sha256_file(
         source / "ml/alphazero_lite/seed488_strength_evaluation.py"
@@ -179,6 +221,16 @@ def _write_complete_fixture(root: Path) -> Path:
     registration["trajectory_contract"] = (
         "arena.py at the runtime source hash; opening prefixes and trajectories are player-relative v2 moves converted by KalahGame.pit_index at each ply; rules use KalahGame.move including extra turns and terminal sweep; stored margin is challenger captured store minus current captured store; winner is the sign of that margin"
     )
+    registration["runtime"]["seed_contract"] = (
+        "azlite_eval_seed_v2; batch-local opening index is 0; base seed = 488 + parent opening index; arena deterministically binds the single batch opening state, seat, game-within-opening, and ply"
+    )
+    registration["opening_suite"]["batch_identity_contract"] = {
+        "parent_suite_sha256": registration["opening_suite"]["opening_suite_sha256"],
+        "batch_suite_sha256": "SHA-256 of the exact one-entry JSONL passed to arena --opening-prefixes-jsonl",
+        "parent_opening_index": "opening_index in openings.jsonl; arena-local index is 0",
+        "parent_entry_identity": "state_hash of the parent suite entry, validated against exact batch bytes",
+        "seed_derivation": "registered base seed = 488 + parent_opening_index; batch-local index does not affect seed",
+    }
     paths = {
         *registration["runtime"]["identities_sha256"],
         *registration["generator_dependency_sha256"],
@@ -232,8 +284,8 @@ def _write_complete_fixture(root: Path) -> Path:
     (out / "supersession.json").write_text(
         json.dumps(
             {
-                "status": "seed488_preparation_superseded_before_execution",
-                "supersedes_pr": 487,
+                "status": "seed488_batch_identity_preparation_superseded_before_execution",
+                "supersedes_pr": 488,
                 "preserved_originals": preserved,
                 "no_outcomes_existed_at_supersession": True,
             },
@@ -308,9 +360,7 @@ def _write_complete_fixture(root: Path) -> Path:
                         "random_opening_plies": 0,
                         "seed_contract": "azlite_eval_seed_v2",
                         "base_seed": 488 + opening_index,
-                        "suite_sha256": registration["opening_suite"][
-                            "opening_suite_sha256"
-                        ],
+                        "suite_sha256": protocol.sha256_file(opening_file),
                         "search_profile": {"c_puct": 1.25},
                         "exact_root_solve_threshold": 16,
                         "exact_root_native_probe_sha256": registration["runtime"][
@@ -398,8 +448,16 @@ def _write_complete_fixture(root: Path) -> Path:
     )
     artifact_manifest_sha256 = protocol.sha256_file(out / "runtime-artifacts.json")
     for row in rows:
-        row["batch_runtime_contract"] = verifier._expected_batch_runtime_contract(
-            registration, int(row["opening_index"]), artifact_manifest_sha256
+        batch_identity = protocol.batch_opening_identity(
+            registration,
+            suite_rows[int(row["opening_index"])],
+            resume / f"opening-{int(row['opening_index']):04d}.jsonl",
+        )
+        row["batch_runtime_contract"] = protocol._batch_runtime_contract(
+            registration,
+            int(row["opening_index"]),
+            artifact_manifest_sha256,
+            batch_identity,
         )
     (out / "outcomes.jsonl").write_text("".join(json.dumps(row) + "\n" for row in rows))
     receipt = {
@@ -748,6 +806,16 @@ def test_run_entry_point_reaches_mocked_arena_with_prepared_registration(
     def mock_run(command, **kwargs):
         calls.append(command)
         if any(str(item).endswith("ml.alphazero_lite.arena") for item in command):
+            opening_path = Path(command[command.index("--opening-prefixes-jsonl") + 1])
+            batch_digest = protocol.sha256_file(opening_path)
+            assert command[command.index("--suite-sha256") + 1] == batch_digest
+            assert (
+                batch_digest
+                != json.loads((out / "registration.json").read_text())["opening_suite"][
+                    "opening_suite_sha256"
+                ]
+            )
+            assert command[command.index("--seed") + 1] == "488"
             raise MockArenaReached
         environment = os.environ.copy()
         environment["PYTHONPATH"] = str(tmp_path)
