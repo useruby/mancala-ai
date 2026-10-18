@@ -767,6 +767,9 @@ def run(root: Path, *, execute: bool = False) -> None:
             normalized.append(
                 {
                     **game,
+                    "winner": {"challenger": "F", "current": "initializer"}.get(
+                        str(game.get("winner")), game.get("winner")
+                    ),
                     "opening_index": index,
                     "opening_state_hash": entry["state_hash"],
                     "F_player": cp,

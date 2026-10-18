@@ -337,7 +337,7 @@ def _verify_execution_freeze(
             "source_sha256", {}
         )
         source_bound = prospective.get(relative) == actual
-        continuation_path = out / "opening-0000-continuation-binding-v3.json"
+        continuation_path = out / "opening-0000-continuation-binding-v4.json"
         if not source_bound and continuation_path.is_file():
             continuation = json.loads(continuation_path.read_text(encoding="utf-8"))
             source_bound = (
@@ -701,6 +701,8 @@ def _verify_readonly(root: Path) -> dict[str, Any]:
         _verify_artifact_against_frozen_state(root, out, arm, artifacts)
     results_path = out / "outcomes.jsonl"
     rows = _rows(results_path)
+    if (out / "outcomes.jsonl.pending").exists():
+        raise ValueError("conflicting_pending_outcome_batch")
     recovery_receipt_path = out / "opening-0000-recovery-receipt.json"
     if (out / EXECUTION_FREEZE).is_file() and any(
         int(row.get("opening_index", -1)) == 0 for row in rows
@@ -824,15 +826,24 @@ def _verify_readonly(root: Path) -> dict[str, Any]:
         ):
             raise ValueError("arena_report_runtime_contract")
         observed[key] = _points(str(row["winner"]))
+    completed_openings = {opening for opening, _seat in observed}
+    if any(
+        (opening, 0) not in observed or (opening, 1) not in observed
+        for opening in completed_openings
+    ):
+        raise ValueError("incomplete_opening_pair")
     if observed.keys() != expected:
-        if observed.keys() == {(0, 0), (0, 1)}:
-            return {
-                "status": "opening_zero_recovery_verified_continuation_incomplete",
-                "game_count": 2,
-                "opening_count": 1,
-                "promotion": False,
-            }
-        raise ValueError("game_coverage")
+        if (out / "results.json").exists():
+            raise ValueError("premature_partial_results")
+        return {
+            "status": "verified_incomplete",
+            "game_count": len(observed),
+            "opening_count": len(completed_openings),
+            "completed_openings": len(completed_openings),
+            "remaining_openings": OPENINGS - len(completed_openings),
+            "remaining_games": (OPENINGS - len(completed_openings)) * 2,
+            "promotion": False,
+        }
     clusters = np.asarray(
         [(observed[(i, 0)] + observed[(i, 1)]) / 2 for i in range(OPENINGS)],
         dtype=np.float64,

@@ -1,0 +1,33 @@
+{
+  "historical_execution": {
+    "execution_freeze_sha256": "331773935694a5ffe1e73dba1d4fd8ba48fc4d704e7273d1ea7a5b7c5359e7a4",
+    "execution_namespace": "resume-corrected",
+    "registration_sha256": "0e5a04fbfb5629e501654d05d0102b781b15dbf3b61766ac4e44df2bd3a0d04e",
+    "source_sha256": {
+      "ml/alphazero_lite/seed488_strength_evaluation.py": "bc72f2d395915776a9a88fac56770a4f308ae5c33003dddfc9f747c00e69eca5",
+      "ml/alphazero_lite/test_seed488_strength_evaluation.py": "9d0f096bda6d259b5ed3671a33aeae5551a235583c35c3c8f61fb77268b9aea9",
+      "ml/alphazero_lite/verify_seed488_strength_evaluation.py": "d113974f2e5060c8ca9f9799f1b30d24fda2d0308ce74f0d83ec2e910bbe99e6"
+    }
+  },
+  "historical_recovery_source_sha256": {
+    "ml/alphazero_lite/seed488_replay_recovery.py": "7367cab9b215e7f04f15a7ec55c2f06136e7da89d442406494f66b9bbd26324a",
+    "ml/alphazero_lite/seed488_strength_evaluation.py": "2c6536cee1ba90d2b82c0cf6f1ca3505a5bd7fb07e0e1f438510ee19723eb342",
+    "ml/alphazero_lite/test_seed488_strength_evaluation.py": "0144c8567db8a761714d5d8aba29aa72c5fa2cfbda675aa05774971c5c48a713",
+    "ml/alphazero_lite/verify_seed488_opening_replay.py": "98a9d3694d2792f0cf4388907cd09ee1a82a564fb36d9ac7cc3816a985d533f5",
+    "ml/alphazero_lite/verify_seed488_strength_evaluation.py": "6065078def49d43064dd4279557260608348dcd79b43a26abb0f55fd484fadc0"
+  },
+  "recovery_receipt_sha256": "2e95321aa991a4802fc364b76a004e4653164e2be4348c1cf0b0e79a1c5219bc",
+  "rules_sha256": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+  "rules_source": "ml/alphazero_lite/kalah_rules.py",
+  "schema": "seed488-prospective-continuation-binding-v1",
+  "scope": "prospective continuation only; original execution source identities remain historical",
+  "source_sha256": {
+    "ml/alphazero_lite/seed488_replay_recovery.py": "e628340a4144e7e9b86a53d17965341d1a1f4d3d6330daa44fcd6dda0150381d",
+    "ml/alphazero_lite/seed488_strength_evaluation.py": "1091d9a0158aeb4496c24f7950b0d11a65af500bd0e4c70420c275b03895b563",
+    "ml/alphazero_lite/verify_seed488_opening_replay.py": "f832d9e5e966572b7e97dbe1b9972a57406a0e7274a857de80cfb62fa4777c5a",
+    "ml/alphazero_lite/verify_seed488_strength_evaluation.py": "b263667b5af8b88f66d6a85ef7d64979f11c7b7569cb5db87b41030f06a73e92"
+  },
+  "status": "prospective_continuation_source_binding",
+  "supersedes_binding": "opening-0000-continuation-binding-v3.json",
+  "supersedes_binding_sha256": "311b94686002d3e0a2defad60de2c4761a73a4bd911fa4fe60f2a5b07d8b7a6c"
+}
