@@ -7,17 +7,17 @@
       "sha256": "3ca38c7586390be4373f6e8106995b25d25f4bc6dc1e1958907a8689d94ad52e"
     },
     "pre_batch_identity:openings.jsonl": {
-      "mtime_ns": 1792317440656979445,
+      "mtime_ns": 1792318087882779559,
       "preserved_as": "openings-pre-batch-identity.jsonl",
       "sha256": "53841cad6c5d34355cd7d6533a0fa435f4164260fd40a2da760a3d78c784cff8"
     },
     "pre_batch_identity:receipt.json": {
-      "mtime_ns": 1792317440656979445,
+      "mtime_ns": 1792318087882779559,
       "preserved_as": "receipt-pre-batch-identity.json",
       "sha256": "8f187c81ee9ccc38990bf8e0e5a287e09d8f44acbe2fcbc52edd72bc4685b8e8"
     },
     "pre_batch_identity:registration.json": {
-      "mtime_ns": 1792317440656979445,
+      "mtime_ns": 1792318087882779559,
       "preserved_as": "registration-pre-batch-identity.json",
       "sha256": "85f8c55385065277d5fe2109a64e02850d0d72a811664c851a779bf92a4c0b8f"
     },
@@ -30,6 +30,11 @@
       "mtime_ns": 1792317440656979445,
       "preserved_as": "registration-pr487.json",
       "sha256": "c0bb0ea3700312a22bba57c29892922047eb62c20fe40b436dbf9aa66967af3d"
+    },
+    "supersession:pr489": {
+      "mtime_ns": 1792318704618272092,
+      "preserved_as": "supersession-pr489.json",
+      "sha256": "7b48662801666244ab7896aa236b01d458bcd9747d877f204c753a49e8382f36"
     }
   },
   "scope_unchanged": {

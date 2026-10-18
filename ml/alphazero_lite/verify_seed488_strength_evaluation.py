@@ -188,11 +188,35 @@ def _verify_supersession(out: Path) -> None:
         raise ValueError("supersession_record")
     for original, binding in supersession.get("preserved_originals", {}).items():
         preserved = out / binding["preserved_as"]
-        if (
-            _sha(preserved) != binding["sha256"]
-            or preserved.stat().st_mtime_ns != binding["mtime_ns"]
-        ):
+        # The recorded mtime is historical provenance. Checkout/archive tools
+        # may assign a different current mtime, so content identity is the
+        # portable authenticity check.
+        if _sha(preserved) != binding["sha256"]:
             raise ValueError(f"superseded_evidence_changed:{original}")
+
+
+def _superseded_file_snapshot(out: Path) -> dict[Path, tuple[bytes, int]]:
+    supersession_path = out / "supersession.json"
+    if not supersession_path.is_file():
+        return {}
+    supersession = json.loads(supersession_path.read_text(encoding="utf-8"))
+    return {
+        out / binding["preserved_as"]: (
+            (out / binding["preserved_as"]).read_bytes(),
+            (out / binding["preserved_as"]).stat().st_mtime_ns,
+        )
+        for binding in supersession.get("preserved_originals", {}).values()
+    }
+
+
+def _assert_superseded_snapshot_unchanged(
+    snapshot: dict[Path, tuple[bytes, int]],
+) -> None:
+    for path, (content, mtime_ns) in snapshot.items():
+        if not path.is_file() or path.read_bytes() != content:
+            raise ValueError(f"verification_mutated_superseded_evidence:{path.name}")
+        if path.stat().st_mtime_ns != mtime_ns:
+            raise ValueError(f"verification_changed_superseded_mtime:{path.name}")
 
 
 def _expected_batch_runtime_contract(
@@ -238,7 +262,7 @@ def _expected_batch_runtime_contract(
     }
 
 
-def verify(root: Path) -> dict[str, Any]:
+def _verify_readonly(root: Path) -> dict[str, Any]:
     root = root.resolve()
     out = root / OUT
     reg_path = out / "registration.json"
@@ -680,6 +704,16 @@ def verify(root: Path) -> dict[str, Any]:
                 continue
             raise ValueError(f"result_mismatch:{key}")
     return {"status": "verified_complete", **expected_result}
+
+
+def verify(root: Path) -> dict[str, Any]:
+    """Verify publication while proving historical evidence remains untouched."""
+    out = root.resolve() / OUT
+    snapshot = _superseded_file_snapshot(out)
+    try:
+        return _verify_readonly(root)
+    finally:
+        _assert_superseded_snapshot_unchanged(snapshot)
 
 
 def main() -> None:

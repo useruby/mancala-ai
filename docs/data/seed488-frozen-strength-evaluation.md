@@ -100,11 +100,20 @@ ending before 200 plies uses terminal-swept stores; at the 200-ply cap the game
 stops without sweeping and uses captured stores at that point. Interrupted
 uncommitted game/report files are rejected rather than rerun. Checkpoint and
 artifact verification is read-only; it compares exported arrays, weights,
-metadata, and sidecars directly to frozen endpoint states.
+metadata, and sidecars directly to frozen endpoint states. Superseded preparation
+files are authenticated by registered SHA-256 digests; historical mtimes remain
+provenance metadata and need not survive a checkout. Each verification snapshots
+preserved files' current bytes and mtimes immediately before checking and
+requires both unchanged on success or failure.
 
 The runner requires explicit `--execute` after protocol review and is not
 launched by preparation or verification commands. Do not execute it before the
 correction is reviewed.
+
+The portability correction publishes a superseding pre-execution registration
+and receipt while preserving the PR #487, PR #488, and PR #489 preparation
+versions and the PR #489 supersession record byte-for-byte; their recorded
+mtimes remain provenance. No outcomes existed when this freeze was created.
 
 ## Readiness and commands
 
