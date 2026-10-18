@@ -1,0 +1,28 @@
+{
+  "no_outcomes_existed_at_supersession": true,
+  "preserved_originals": {
+    "openings.jsonl": {
+      "mtime_ns": 1792309426176518190,
+      "preserved_as": "openings-pr487.jsonl",
+      "sha256": "3ca38c7586390be4373f6e8106995b25d25f4bc6dc1e1958907a8689d94ad52e"
+    },
+    "receipt.json": {
+      "mtime_ns": 1792309426176518190,
+      "preserved_as": "receipt-pr487.json",
+      "sha256": "3f1da3bf00db4f69a1d7c0e97ad1a1f63eea84b91454edd7a7e51d3fcf806f1b"
+    },
+    "registration.json": {
+      "mtime_ns": 1792309426176518190,
+      "preserved_as": "registration-pr487.json",
+      "sha256": "c0bb0ea3700312a22bba57c29892922047eb62c20fe40b436dbf9aa66967af3d"
+    }
+  },
+  "scope_unchanged": {
+    "exploratory": true,
+    "games": 1024,
+    "paired_opening_bootstrap": true,
+    "promotion": false
+  },
+  "status": "seed488_preparation_superseded_before_execution",
+  "supersedes_pr": 487
+}

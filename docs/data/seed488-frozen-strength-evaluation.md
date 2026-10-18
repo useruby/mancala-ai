@@ -1,6 +1,10 @@
-# Seed488 frozen direct-strength evaluation
+# Seed488 frozen direct-strength evaluation — superseding preparation
 
-**Preparation only. No arena games/search or training has been run. Synthetic
+**This preparation-only correction supersedes PR #487's registration and suite
+before any outcomes existed. The original registration, opening suite, and
+preparation receipt are preserved byte-for-byte as `registration-pr487.json`,
+`openings-pr487.jsonl`, and `receipt-pr487.json`; `supersession.json` binds their
+SHA-256 digests and mtimes. No arena games/search or training has been run. Synthetic
 export and policy/value inference fixtures were tested against the frozen
 parameter states; no runtime arm artifacts or game outputs were produced. The
 seed483 fresh-confirmation gate remains closed.** Seed479 F and the
@@ -32,13 +36,17 @@ tablebase, and runtime policy sidecar.
 `seed488-frozen-strength-evaluation/openings.jsonl` contains 512 deterministic
 legal opening roots generated with `random.Random(488)` from 4–12-ply prefixes.
 The generator rejects root identities colliding in either canonical or float32
-identity with the reconstructable seed482 base exclusion set and seed483 union,
+identity with the complete seed484 reconstructable exclusion union,
 and rejects duplicate roots. Each opening is played twice, once with F seated as
 player 0 and once as player 1: 1,024 total games. Arena base seed is
 `488 + opening_index`, under `azlite_eval_seed_v2`.
 
-The suite is checked against all currently reconstructable training/evaluation
-and historical-probe identities. **Non-overlap with the unresolved seed461
+The suite is checked against the independently reconstructed **149,756-pair**
+seed484 union (pair-set SHA-256
+`d7c3d782181af654d56da2d02b091047df9a9cc5f78795b2cb687c9b528dfcf6`; file
+SHA-256 `f419d615724f8f741fb4a58bb060901d4359e4f975ca64bfa184da4e892c10cd`).
+The seed484 verifier independently reconstructed and verified this union.
+**Non-overlap with the unresolved seed461
 continuation population cannot be certified.** Seed461 opening roots that are
 reconstructable are included in the exclusion union, but the 1,129,643
 receipt-matched continuation actions have no authenticated state identities.
@@ -67,10 +75,20 @@ candidate.
 The conservative simulation budget is at most 245,760,000 simulations
 (`1,024 × 200 × 1,200`), plus exact-root probes. Wall time depends on game lengths
 and native runtime throughput; no duration is claimed from an unrun evaluation.
-The resumable runner writes one paired opening batch atomically, validates
-completed seat pairs, skips completed openings, and publishes a receipt-bound
-outcome ledger. It requires an explicit `--execute` after protocol review and is
-not launched by preparation or verification commands.
+The runner validates runtime/source bindings and both frozen endpoint exports
+before launch and on resume. It revalidates committed pairs before skipping
+them. Prefixes and trajectories use the bound player-relative v2 convention and
+`KalahGame` rules, including extra turns. The independent verifier replays each
+trajectory and derives winner, margin, seat attribution, and F score. A game
+ending before 200 plies uses terminal-swept stores; at the 200-ply cap the game
+stops without sweeping and uses captured stores at that point. Interrupted
+uncommitted game/report files are rejected rather than rerun. Checkpoint and
+artifact verification is read-only; it compares exported arrays, weights,
+metadata, and sidecars directly to frozen endpoint states.
+
+The runner requires explicit `--execute` after protocol review and is not
+launched by preparation or verification commands. Do not execute it before the
+correction is reviewed.
 
 ## Readiness and commands
 

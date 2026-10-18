@@ -33,8 +33,8 @@
     "platform": "linux",
     "python_version": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]"
   },
-  "implementation_sha256": "019de21f00f26559bf773de58c9399f5cf520dc47319715b0c0d508693741191",
-  "independent_verifier_sha256": "ddc5a4f86aed198c9dd0b216f1dbb60742832b2f9e1eda35302107a86b7ab468",
+  "implementation_sha256": "d261df03b65a425f7e3d0fc0cb09929d8e03b0f60daa9b7dc496a15936ed80f6",
+  "independent_verifier_sha256": "1fbbdc31a49c3fa8997cdf0de4fc98c7392dbb3a0bd229bc9ef72308e20806ef",
   "interpretation": "exploratory direct strength evaluation on a newly registered suite; not fresh confirmation or an independently untouched holdout",
   "opening_suite": {
     "count": 512,
@@ -43,13 +43,16 @@
       "limitation": "non-overlap with unresolved seed461 continuation population cannot be certified; seed461 root openings are represented where reconstructable, but trajectory state identities are not",
       "seed482_base_manifest_sha256": "129391fc88118a99552029faafb1880f1daed62476b2d1eafd7e931f621dc60d",
       "seed483_reconstructed_union_file_sha256": "cb11ea5912c530f4a6c01a913b9e5083c454f639d24669a4675ef6d1c2e45c9b",
-      "seed483_reconstructed_union_sha256": "74afb0d0a08d1c03d132124089213735843c1eb19497c3af653fdc672cbfc4bd"
+      "seed483_reconstructed_union_sha256": "74afb0d0a08d1c03d132124089213735843c1eb19497c3af653fdc672cbfc4bd",
+      "seed484_extended_union_file_sha256": "f419d615724f8f741fb4a58bb060901d4359e4f975ca64bfa184da4e892c10cd",
+      "seed484_extended_union_pair_count": 149756,
+      "seed484_extended_union_sha256": "d7c3d782181af654d56da2d02b091047df9a9cc5f78795b2cb687c9b528dfcf6"
     },
     "game_count": 1024,
     "games_per_opening": 2,
-    "generator": "Python random.Random(488), legal rules-only prefixes of 4..12 plies; reject opening-root identity collisions against reconstructable seed482/483 identity pairs and previous selected roots",
+    "generator": "Python random.Random(488), legal rules-only prefixes of 4..12 plies; reject opening-root identity collisions against independently reconstructed seed482/483/484 identity pairs and previous selected roots",
     "generator_seed": 488,
-    "opening_suite_sha256": "3ca38c7586390be4373f6e8106995b25d25f4bc6dc1e1958907a8689d94ad52e"
+    "opening_suite_sha256": "53841cad6c5d34355cd7d6533a0fa435f4164260fd40a2da760a3d78c784cff8"
   },
   "primary_score": "F wins + 0.5 * draws, divided by all 1,024 games",
   "promotion": "No promotion from this experiment alone.",
@@ -58,7 +61,7 @@
     "c_puct": 1.25,
     "exact_root": "shared frozen sidecar policy; threshold 16, final_score_margin objective, highest legal network prior then lowest move index tie rule, exact leaf solve disabled",
     "identities_sha256": {
-      "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+      "ml/alphazero_lite/arena.py": "a49c54b57ade01f7a09d1773b5db78a2548b60275a4f12261b9a9914edeab28a",
       "ml/alphazero_lite/build_opening_suite.py": "5c15d541574905ff9d7c75bc8daf8813311e22f22f220563e18cb9b85fb8bd87",
       "ml/alphazero_lite/classic_mcts.py": "9643d859e22fad8ef83211fb38256a30aa15f245775408310c147d7db65e61b9",
       "ml/alphazero_lite/endgame_tablebase.py": "fe00e7b48277e2f8a5795232f78b25df4d29449b7b5dc819a09771999b2350f5",
@@ -83,6 +86,7 @@
       "model-artifact/runtime/kalah_v1_tablebase": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48"
     },
     "max_moves": 200,
+    "max_moves_policy": "At 200 decision plies, stop without sweeping remaining pits; compare captured stores at the cap. A game ending earlier uses Kalah terminal sweeping. Recorded trajectory length must be terminal before 200 or exactly 200.",
     "native_runtime": "same compiled native exact-root probe and tablebase for both arms, bound by hashes",
     "numpy_version": "2.5.2",
     "policy_and_value_transforms": null,
@@ -103,8 +107,10 @@
     "simulations_per_move": 1200,
     "workers": 1
   },
-  "schema": "seed488-frozen-strength-evaluation-v1",
+  "schema": "seed488-frozen-strength-evaluation-v2",
   "seed479_and_480_classification": "promising exploratory results; preserved as exploratory",
   "status": "frozen_before_execution",
-  "synthetic_tests_sha256": "7b8cae7786f420fd24d1e4dee24ed4bf23670aaf3d46ea60281b59d64e0281de"
+  "supersedes": "PR #487 seed488_prepared_not_executed registration and suite; this is a preparation-only correction before any outcomes",
+  "synthetic_tests_sha256": "a68b1f3944052c62646064572701ecf5fd48281331a590fe7f5a7898d37cf6e8",
+  "trajectory_contract": "arena.py at the runtime source hash; opening prefixes and trajectories are player-relative v2 moves converted by KalahGame.pit_index at each ply; rules use KalahGame.move including extra turns and terminal sweep; stored margin is challenger captured store minus current captured store; winner is the sign of that margin"
 }
