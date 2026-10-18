@@ -11,6 +11,7 @@ import gzip
 import hashlib
 import json
 import random
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -46,11 +47,18 @@ SEED479_EVIDENCE_SHA256 = (
 )
 BASE_EXCLUSIONS = Path("docs/data/seed482-exclusion-manifest.json.gz")
 RECONSTRUCTED_EXCLUSIONS = Path("docs/data/seed483-historical-probe-identities.json.gz")
+EXTENDED_EXCLUSIONS = Path("docs/data/seed484-extended-probe-union.json.gz")
 BASE_EXCLUSIONS_SHA256 = (
     "129391fc88118a99552029faafb1880f1daed62476b2d1eafd7e931f621dc60d"
 )
 RECONSTRUCTED_EXCLUSIONS_SHA256 = (
     "cb11ea5912c530f4a6c01a913b9e5083c454f639d24669a4675ef6d1c2e45c9b"
+)
+EXTENDED_EXCLUSIONS_SHA256 = (
+    "f419d615724f8f741fb4a58bb060901d4359e4f975ca64bfa184da4e892c10cd"
+)
+EXTENDED_UNION_PAIRS_SHA256 = (
+    "d7c3d782181af654d56da2d02b091047df9a9cc5f78795b2cb687c9b528dfcf6"
 )
 ARENA = Path("ml/alphazero_lite/arena.py")
 RUNTIME_POLICY = Path("model-artifact/current/search_policy.json")
@@ -134,6 +142,24 @@ def reconstructable_exclusions(root: Path) -> set[tuple[str, str]]:
         (str(item["canonical_identity"]), str(item["float32_identity"]))
         for item in additions["identities"]
     )
+    extended_path = root / EXTENDED_EXCLUSIONS
+    raw_extended = extended_path.read_bytes()
+    if sha256_bytes(raw_extended) != EXTENDED_EXCLUSIONS_SHA256:
+        raise ValueError("extended_exclusion_file_hash")
+    extended = json.loads(gzip.decompress(raw_extended))
+    pairs.update(
+        (str(item["canonical_identity"]), str(item["float32_identity"]))
+        for item in extended["seed467_additional_identities"]
+    )
+    pair_digest = sha256_bytes(canonical_json([list(pair) for pair in sorted(pairs)]))
+    if (
+        len(pairs) != 149_756
+        or extended.get("final_union_pair_count") != 149_756
+        or extended.get("final_union_pairs_sha256") != EXTENDED_UNION_PAIRS_SHA256
+        or pair_digest != EXTENDED_UNION_PAIRS_SHA256
+        or extended.get("status") != "incomplete_seed461_replay_gap"
+    ):
+        raise ValueError("extended_exclusion_union_identity")
     return pairs
 
 
@@ -216,9 +242,10 @@ def prepare(root: Path) -> dict[str, Any]:
     root = root.resolve()
     out = root / OUT
     out.mkdir(parents=True, exist_ok=True)
+    if any((out / name).exists() for name in ("outcomes.jsonl", "results.json")):
+        raise ValueError("cannot_supersede_seed488_after_outcomes_exist")
     suite = suite_bytes(make_suite(root))
     suite_path = out / "openings.jsonl"
-    suite_path.write_bytes(suite)
     seed479_receipt = json.loads((root / SEED479_RECEIPT).read_text())
     if sha256_file(root / SEED479_RECEIPT) != SEED479_RECEIPT_SHA256:
         raise ValueError("seed479_receipt_file_hash")
@@ -244,7 +271,8 @@ def prepare(root: Path) -> dict[str, Any]:
     )
     runtime_identity = {str(path): sha256_file(root / path) for path in runtime_files}
     registration = {
-        "schema": "seed488-frozen-strength-evaluation-v1",
+        "schema": "seed488-frozen-strength-evaluation-v2",
+        "supersedes": "PR #487 seed488_prepared_not_executed registration and suite; this is a preparation-only correction before any outcomes",
         "status": "frozen_before_execution",
         "interpretation": "exploratory direct strength evaluation on a newly registered suite; not fresh confirmation or an independently untouched holdout",
         "fresh_confirmation_authorized": False,
@@ -287,13 +315,14 @@ def prepare(root: Path) -> dict[str, Any]:
                 "random_opening_plies": 0,
             },
             "max_moves": 200,
+            "max_moves_policy": "At 200 decision plies, stop without sweeping remaining pits; compare captured stores at the cap. A game ending earlier uses Kalah terminal sweeping. Recorded trajectory length must be terminal before 200 or exactly 200.",
             "root_prior_transform": None,
             "policy_and_value_transforms": None,
             "exact_root": "shared frozen sidecar policy; threshold 16, final_score_margin objective, highest legal network prior then lowest move index tie rule, exact leaf solve disabled",
             "seat_pairing": "each opening is played twice with F in player 0 and player 1; same opening prefix and other settings",
         },
         "opening_suite": {
-            "generator": "Python random.Random(488), legal rules-only prefixes of 4..12 plies; reject opening-root identity collisions against reconstructable seed482/483 identity pairs and previous selected roots",
+            "generator": "Python random.Random(488), legal rules-only prefixes of 4..12 plies; reject opening-root identity collisions against independently reconstructed seed482/483/484 identity pairs and previous selected roots",
             "generator_seed": SEED,
             "count": OPENING_COUNT,
             "games_per_opening": GAMES_PER_OPENING,
@@ -304,6 +333,9 @@ def prepare(root: Path) -> dict[str, Any]:
                 "seed482_base_manifest_sha256": BASE_EXCLUSIONS_SHA256,
                 "seed483_reconstructed_union_sha256": "74afb0d0a08d1c03d132124089213735843c1eb19497c3af653fdc672cbfc4bd",
                 "seed483_reconstructed_union_file_sha256": RECONSTRUCTED_EXCLUSIONS_SHA256,
+                "seed484_extended_union_file_sha256": EXTENDED_EXCLUSIONS_SHA256,
+                "seed484_extended_union_sha256": EXTENDED_UNION_PAIRS_SHA256,
+                "seed484_extended_union_pair_count": 149_756,
                 "limitation": "non-overlap with unresolved seed461 continuation population cannot be certified; seed461 root openings are represented where reconstructable, but trajectory state identities are not",
             },
         },
@@ -332,14 +364,47 @@ def prepare(root: Path) -> dict[str, Any]:
         },
         "promotion": "No promotion from this experiment alone.",
         "resumption": "one atomic paired opening batch at a time; completed opening batches are receipt-bound and skipped on resume; duplicate, malformed, or incomplete batches reject",
+        "trajectory_contract": "arena.py at the runtime source hash; opening prefixes and trajectories are player-relative v2 moves converted by KalahGame.pit_index at each ply; rules use KalahGame.move including extra turns and terminal sweep; stored margin is challenger captured store minus current captured store; winner is the sign of that margin",
         "estimated_execution_cost": "1,024 games × at most 200 decision plies × 1,200 simulations = 245,760,000 simulation budget upper bound, plus exact-root probes; actual wall time depends on native runtime throughput and game lengths. No arena run is performed in preparation.",
     }
+    previous_files = {}
+    for filename in ("registration.json", "openings.jsonl", "receipt.json"):
+        original = out / filename
+        if original.is_file():
+            preserved = (
+                out
+                / f"{filename.removesuffix('.json').removesuffix('.jsonl')}-pr487{original.suffix}"
+            )
+            if not preserved.exists():
+                shutil.copy2(original, preserved)
+            previous_files[filename] = {
+                "preserved_as": preserved.name,
+                "sha256": sha256_file(preserved),
+                "mtime_ns": preserved.stat().st_mtime_ns,
+            }
+    supersession = {
+        "status": "seed488_preparation_superseded_before_execution",
+        "supersedes_pr": 487,
+        "preserved_originals": previous_files,
+        "no_outcomes_existed_at_supersession": True,
+        "scope_unchanged": {
+            "games": 1024,
+            "paired_opening_bootstrap": True,
+            "exploratory": True,
+            "promotion": False,
+        },
+    }
+    supersession_path = out / "supersession.json"
+    supersession_path.write_text(
+        json.dumps(supersession, indent=2, sort_keys=True) + "\n"
+    )
+    suite_path.write_bytes(suite)
     (out / "registration.json").write_text(
         json.dumps(registration, indent=2, sort_keys=True) + "\n"
     )
     publish_receipt(
         out,
-        ("registration.json", "openings.jsonl"),
+        ("registration.json", "openings.jsonl", "supersession.json"),
         status="seed488_prepared_not_executed",
     )
     return registration
@@ -435,12 +500,15 @@ def run(root: Path, *, execute: bool = False) -> None:
     if not registration_path.is_file() or not suite_path.is_file():
         raise ValueError("seed488_protocol_not_prepared")
     registration = json.loads(registration_path.read_text())
-    if sha256_file(suite_path) != registration["opening_suite_sha256"]:
+    if sha256_file(suite_path) != registration["opening_suite"]["opening_suite_sha256"]:
         raise ValueError("opening_suite_receipt_mismatch")
     if not execute:
         raise ValueError("execution_requires_explicit_--execute_after_protocol_review")
     if registration.get("fresh_confirmation_authorized") is not False:
         raise ValueError("fresh_confirmation_gate_must_remain_closed")
+    outcome_path_pending = out / "outcomes.jsonl.pending"
+    if outcome_path_pending.exists():
+        raise ValueError("interrupted_pending_commit_requires_operator_recovery")
     subprocess.run(
         [
             sys.executable,
@@ -456,6 +524,11 @@ def run(root: Path, *, execute: bool = False) -> None:
     outcome_path = out / "outcomes.jsonl"
     completed_rows = _read_rows(outcome_path) if outcome_path.exists() else []
     completed_openings = completed_opening_indices(completed_rows)
+    opening_by_index = {int(row["opening_index"]): row for row in opening_rows}
+    for index in sorted(completed_openings):
+        _validate_committed_batch(
+            out, opening_by_index[index], completed_rows, registration
+        )
     artifacts = out / "runtime-artifacts"
     artifacts.mkdir(exist_ok=True)
     for arm in ("F", "initializer"):
@@ -511,6 +584,8 @@ def run(root: Path, *, execute: bool = False) -> None:
         one_opening.write_bytes(canonical_json(entry) + b"\n")
         report = out / "resume" / f"report-{index:04d}.json"
         games = out / "resume" / f"games-{index:04d}.jsonl"
+        if games.exists() or report.exists():
+            raise ValueError(f"interrupted_uncommitted_batch:{index}")
         command = [
             sys.executable,
             "-m",
@@ -544,12 +619,15 @@ def run(root: Path, *, execute: bool = False) -> None:
             "--opening-prefixes-jsonl",
             str(one_opening),
             "--suite-sha256",
-            sha256_file(one_opening),
+            registration["opening_suite"]["opening_suite_sha256"],
             "--game-jsonl",
             str(games),
             "--out",
             str(report),
         ]
+        runtime_contract = _batch_runtime_contract(
+            registration, index, sha256_file(manifest_path)
+        )
         subprocess.run(command, cwd=root, check=True)
         raw_games = _read_rows(games)
         if len(raw_games) != GAMES_PER_OPENING:
@@ -567,8 +645,12 @@ def run(root: Path, *, execute: bool = False) -> None:
                     "batch_game_log_sha256": sha256_file(games),
                     "batch_report_sha256": sha256_file(report),
                     "batch_opening_sha256": sha256_file(one_opening),
+                    "batch_runtime_contract": runtime_contract,
                 }
             )
+        _validate_committed_batch(
+            out, entry, [*completed_rows, *normalized], registration
+        )
         append_rows_atomic(outcome_path, [*completed_rows, *normalized])
         completed_rows.extend(normalized)
         completed_openings.add(index)
@@ -590,6 +672,7 @@ def run(root: Path, *, execute: bool = False) -> None:
         (
             "registration.json",
             "openings.jsonl",
+            "supersession.json",
             "runtime-artifacts.json",
             "outcomes.jsonl",
             "results.json",
@@ -599,8 +682,129 @@ def run(root: Path, *, execute: bool = False) -> None:
 
 def append_rows_atomic(path: Path, rows: list[dict[str, Any]]) -> None:
     pending = path.with_suffix(path.suffix + ".pending")
-    pending.write_text("".join(json.dumps(row, sort_keys=True) + "\n" for row in rows))
+    payload = "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows)
+    if pending.exists() and pending.read_text(encoding="utf-8") != payload:
+        raise ValueError("conflicting_pending_outcome_ledger")
+    pending.write_text(payload, encoding="utf-8")
     pending.replace(path)
+
+
+def _validate_committed_batch(
+    out: Path,
+    opening: dict[str, Any],
+    rows: list[dict[str, Any]],
+    registration: dict[str, Any],
+) -> None:
+    """Revalidate a committed pair before resume skips its arena invocation."""
+    from ml.alphazero_lite.verify_seed488_strength_evaluation import _replay_game
+
+    index = int(opening["opening_index"])
+    expected_runtime_contract = _batch_runtime_contract(
+        registration, index, sha256_file(out / "runtime-artifacts.json")
+    )
+    pair = [row for row in rows if int(row["opening_index"]) == index]
+    if len(pair) != 2 or {int(row["F_player"]) for row in pair} != {0, 1}:
+        raise ValueError(f"committed_pair_coverage:{index}")
+    games_path = out / "resume" / f"games-{index:04d}.jsonl"
+    report_path = out / "resume" / f"report-{index:04d}.json"
+    opening_path = out / "resume" / f"opening-{index:04d}.jsonl"
+    expected_opening = canonical_json(opening) + b"\n"
+    game_rows = _read_rows(games_path)
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    if opening_path.read_bytes() != expected_opening or len(game_rows) != 2:
+        raise ValueError(f"committed_batch_artifacts:{index}")
+    if {int(item.get("challenger_player", -1)) for item in game_rows} != {0, 1}:
+        raise ValueError(f"committed_batch_seats:{index}")
+    for outcome in pair:
+        position = int(outcome["batch_game_position"])
+        game = game_rows[position]
+        if (
+            sha256_file(games_path) != outcome["batch_game_log_sha256"]
+            or sha256_file(report_path) != outcome["batch_report_sha256"]
+            or sha256_file(opening_path) != outcome["batch_opening_sha256"]
+            or outcome["opening_state_hash"] != opening["state_hash"]
+            or int(game["challenger_player"]) != int(outcome["F_player"])
+            or outcome.get("batch_runtime_contract") != expected_runtime_contract
+        ):
+            raise ValueError(f"committed_batch_identity:{index}")
+        _replay_game(opening, game, int(outcome["F_player"]))
+        winner = game["winner"]
+        expected_winner = {"challenger": "F", "current": "initializer"}.get(
+            winner, winner
+        )
+        if normalized_winner(outcome) != expected_winner:
+            raise ValueError(f"committed_batch_outcome:{index}")
+    notes = report.get("notes", {})
+    winners = [str(item.get("winner")) for item in game_rows]
+    if (
+        report.get("games_played") != 2
+        or report.get("wins") != winners.count("challenger")
+        or report.get("losses") != winners.count("current")
+        or report.get("draws") != winners.count("draw")
+        or notes.get("challenger_simulations") != 1200
+        or notes.get("current_simulations") != 1200
+        or notes.get("workers_used") != 1
+        or notes.get("random_opening_plies") != 0
+        or notes.get("seed_contract") != "azlite_eval_seed_v2"
+        or notes.get("base_seed") != SEED + index
+        or notes.get("suite_sha256")
+        != registration["opening_suite"]["opening_suite_sha256"]
+        or notes.get("search_profile", {}).get("c_puct") != 1.25
+        or notes.get("exact_root_solve_threshold") != 16
+        or notes.get("exact_root_native_probe_sha256")
+        != registration["runtime"]["identities_sha256"][
+            "model-artifact/runtime/kalah_v1_tablebase"
+        ]
+        or notes.get("exact_root_tablebase_sha256")
+        != registration["runtime"]["identities_sha256"][
+            "model-artifact/runtime/kalah_v1_21.kvtb"
+        ]
+        or notes.get("runtime_search_policy_sha256")
+        != registration["runtime"]["identities_sha256"][
+            "model-artifact/current/search_policy.json"
+        ]
+        or notes.get("runtime_search_policy_mode") != "puct_exact_root_hybrid"
+        or notes.get("exact_root_objective") != "final_score_margin"
+        or notes.get("exact_root_tie_rule")
+        != "highest_legal_network_prior_then_lowest_move_index"
+        or notes.get("exact_leaf_solve_mode") != "disabled"
+        or notes.get("seed") != SEED + index
+        or notes.get("search_options") != registration["runtime"]["search_options"]
+    ):
+        raise ValueError(f"committed_batch_runtime:{index}")
+
+
+def _batch_runtime_contract(
+    registration: dict[str, Any], opening_index: int, artifact_manifest_sha256: str
+) -> dict[str, Any]:
+    identities = registration["runtime"]["identities_sha256"]
+    return {
+        "games": 2,
+        "games_per_opening": 2,
+        "workers": 1,
+        "challenger_simulations": 1200,
+        "current_simulations": 1200,
+        "c_puct": 1.25,
+        "seed_contract": "azlite_eval_seed_v2",
+        "base_seed": SEED + opening_index,
+        "max_moves": 200,
+        "random_opening_plies": 0,
+        "challenger_search_options": registration["runtime"]["search_options"],
+        "current_search_options": registration["runtime"]["search_options"],
+        "root_prior_transform": None,
+        "challenger_root_prior_transform": None,
+        "current_root_prior_transform": None,
+        "challenger_value_transform": None,
+        "current_value_transform": None,
+        "opening_suite_sha256": registration["opening_suite"]["opening_suite_sha256"],
+        "artifact_manifest_sha256": artifact_manifest_sha256,
+        "native_probe_sha256": identities["model-artifact/runtime/kalah_v1_tablebase"],
+        "tablebase_sha256": identities["model-artifact/runtime/kalah_v1_21.kvtb"],
+        "runtime_search_policy_sha256": identities[
+            "model-artifact/current/search_policy.json"
+        ],
+        "exact_root_solve_threshold": 16,
+    }
 
 
 def publish_receipt(
@@ -674,9 +878,21 @@ def _validate_exported_artifacts(
         ).read_bytes():
             raise ValueError(f"exported_runtime_policy:{arm}")
         metadata = json.loads((artifact / "metadata.json").read_text())
+        artifacts = metadata.get("artifacts", {})
         if (
-            metadata.get("input_encoding") != "kalah_v3"
+            metadata.get("schema_version") != "azlite_model_v1"
+            or metadata.get("version") != f"seed488-{arm}"
+            or metadata.get("game") != "kalah"
+            or metadata.get("rules_version") != "kalah_v1"
+            or metadata.get("input_encoding") != "kalah_v3"
+            or metadata.get("feature_count") != 27
+            or metadata.get("policy_size") != 6
             or metadata.get("architecture", {}).get("model_type") != "residual_v3"
+            or artifacts.get("weights_file") != "weights.json"
+            or artifacts.get("weights_fallback_file") != "model.npz"
+            or artifacts.get("weights_sha256") != sha256_file(artifact / "model.npz")
+            or artifacts.get("weights_json_sha256")
+            != sha256_file(artifact / "weights.json")
         ):
             raise ValueError(f"exported_metadata:{arm}")
         for name, digest in manifest[arm].items():
@@ -700,7 +916,9 @@ def verify(root: Path, results_path: Path | None = None) -> dict[str, Any]:
         or reg.get("fresh_confirmation_authorized") is not False
     ):
         raise ValueError("protocol_status")
-    if reg.get("opening_suite_sha256") != sha256_file(out / "openings.jsonl"):
+    if reg.get("opening_suite", {}).get("opening_suite_sha256") != sha256_file(
+        out / "openings.jsonl"
+    ):
         raise ValueError("suite_binding")
     outcomes = results_path or out / "outcomes.jsonl"
     rows = _read_rows(outcomes)
