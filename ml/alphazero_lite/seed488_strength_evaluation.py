@@ -27,6 +27,8 @@ from ml.alphazero_lite.seed482_fresh_confirmation import (
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = Path("docs/data/seed488-frozen-strength-evaluation")
+EXECUTION_FREEZE = "execution-freeze.json"
+CORRECTED_ATTEMPT_NAMESPACE = "resume-corrected"
 SEED = 488
 OPENING_COUNT = 512
 GAMES_PER_OPENING = 2
@@ -260,11 +262,80 @@ def batch_opening_identity(
     }
 
 
+def arena_search_overrides(registration: dict[str, Any]) -> dict[str, Any]:
+    """Return per-side search settings, excluding arena-level opening options."""
+    options = dict(registration["runtime"]["search_options"])
+    options.pop("random_opening_plies", None)
+    return options
+
+
+def arena_effective_search_options(registration: dict[str, Any]) -> dict[str, Any]:
+    """Resolve JSON overrides to the search options reported by arena."""
+    options = arena_search_overrides(registration)
+    options.pop("root_prior_transform", None)
+    return options
+
+
+def build_arena_command(
+    registration: dict[str, Any],
+    artifacts: Path,
+    opening_path: Path,
+    report_path: Path,
+    games_path: Path,
+    batch_identity: dict[str, Any],
+) -> list[str]:
+    """Construct the exact frozen arena invocation for one paired opening."""
+    overrides = json.dumps(arena_search_overrides(registration), sort_keys=True)
+    return [
+        sys.executable,
+        "-m",
+        "ml.alphazero_lite.arena",
+        "--challenger",
+        str(artifacts / "F"),
+        "--current",
+        str(artifacts / "initializer"),
+        "--games",
+        "2",
+        "--games-per-opening",
+        "2",
+        "--workers",
+        "1",
+        "--challenger-simulations",
+        "1200",
+        "--current-simulations",
+        "1200",
+        "--c-puct",
+        "1.25",
+        "--seed-contract",
+        "azlite_eval_seed_v2",
+        "--challenger-search-options-json",
+        overrides,
+        "--current-search-options-json",
+        overrides,
+        "--random-opening-plies",
+        "0",
+        "--max-moves",
+        "200",
+        "--seed",
+        str(batch_identity["base_seed"]),
+        "--opening-prefixes-jsonl",
+        str(opening_path),
+        "--suite-sha256",
+        batch_identity["batch_suite_sha256"],
+        "--game-jsonl",
+        str(games_path),
+        "--out",
+        str(report_path),
+    ]
+
+
 def prepare(root: Path) -> dict[str, Any]:
     """Freeze the deterministic suite and protocol without exporting or evaluating."""
     root = root.resolve()
     out = root / OUT
     out.mkdir(parents=True, exist_ok=True)
+    if (out / "failure-provenance.json").exists() or (out / EXECUTION_FREEZE).exists():
+        raise ValueError("cannot_prepare_after_seed488_execution_attempt")
     if any((out / name).exists() for name in ("outcomes.jsonl", "results.json")):
         raise ValueError("cannot_supersede_seed488_after_outcomes_exist")
     suite = suite_bytes(make_suite(root))
@@ -579,6 +650,14 @@ def run(root: Path, *, execute: bool = False) -> None:
         _validate_committed_batch(
             out, opening_by_index[index], completed_rows, registration
         )
+    execution_freeze_path = out / EXECUTION_FREEZE
+    if not execution_freeze_path.is_file():
+        raise ValueError("seed488_execution_freeze_missing")
+    execution_freeze = json.loads(execution_freeze_path.read_text())
+    if execution_freeze.get("status") != "frozen_before_execution_review_required":
+        raise ValueError("seed488_execution_freeze_status")
+    if execution_freeze.get("execution_namespace") != CORRECTED_ATTEMPT_NAMESPACE:
+        raise ValueError("seed488_execution_namespace")
     artifacts = out / "runtime-artifacts"
     artifacts.mkdir(exist_ok=True)
     for arm in ("F", "initializer"):
@@ -621,61 +700,38 @@ def run(root: Path, *, execute: bool = False) -> None:
         }
     manifest_path = out / "runtime-artifacts.json"
     serialized_manifest = json.dumps(artifact_manifest, indent=2, sort_keys=True) + "\n"
-    if manifest_path.exists() and manifest_path.read_text() != serialized_manifest:
-        raise ValueError("resumed_runtime_artifact_manifest_mismatch")
-    manifest_path.write_text(serialized_manifest)
+    if manifest_path.exists():
+        if manifest_path.read_text() != serialized_manifest:
+            raise ValueError("resumed_runtime_artifact_manifest_mismatch")
+    else:
+        manifest_path.write_text(serialized_manifest)
     _validate_exported_artifacts(root, out, artifact_manifest)
     for entry in opening_rows:
         index = int(entry["opening_index"])
         if index in completed_openings:
             continue
-        one_opening = out / "resume" / f"opening-{index:04d}.jsonl"
+        batch_out = out / CORRECTED_ATTEMPT_NAMESPACE
+        one_opening = batch_out / f"opening-{index:04d}.jsonl"
         one_opening.parent.mkdir(parents=True, exist_ok=True)
-        one_opening.write_bytes(canonical_json(entry) + b"\n")
+        expected_opening_bytes = canonical_json(entry) + b"\n"
+        if one_opening.exists():
+            if one_opening.read_bytes() != expected_opening_bytes:
+                raise ValueError(f"corrected_batch_opening_mismatch:{index}")
+        else:
+            one_opening.write_bytes(expected_opening_bytes)
         batch_identity = batch_opening_identity(registration, entry, one_opening)
-        report = out / "resume" / f"report-{index:04d}.json"
-        games = out / "resume" / f"games-{index:04d}.jsonl"
+        report = batch_out / f"report-{index:04d}.json"
+        games = batch_out / f"games-{index:04d}.jsonl"
         if games.exists() or report.exists():
             raise ValueError(f"interrupted_uncommitted_batch:{index}")
-        command = [
-            sys.executable,
-            "-m",
-            "ml.alphazero_lite.arena",
-            "--challenger",
-            str(artifacts / "F"),
-            "--current",
-            str(artifacts / "initializer"),
-            "--games",
-            "2",
-            "--games-per-opening",
-            "2",
-            "--workers",
-            "1",
-            "--challenger-simulations",
-            "1200",
-            "--current-simulations",
-            "1200",
-            "--c-puct",
-            "1.25",
-            "--seed-contract",
-            "azlite_eval_seed_v2",
-            "--challenger-search-options-json",
-            json.dumps(registration["runtime"]["search_options"], sort_keys=True),
-            "--current-search-options-json",
-            json.dumps(registration["runtime"]["search_options"], sort_keys=True),
-            "--max-moves",
-            "200",
-            "--seed",
-            str(SEED + index),
-            "--opening-prefixes-jsonl",
-            str(one_opening),
-            "--suite-sha256",
-            batch_identity["batch_suite_sha256"],
-            "--game-jsonl",
-            str(games),
-            "--out",
-            str(report),
-        ]
+        command = build_arena_command(
+            registration,
+            artifacts,
+            one_opening,
+            report,
+            games,
+            batch_identity,
+        )
         runtime_contract = _batch_runtime_contract(
             registration,
             index,
@@ -696,6 +752,7 @@ def run(root: Path, *, execute: bool = False) -> None:
                     "opening_state_hash": entry["state_hash"],
                     "F_player": cp,
                     "batch_game_position": game_position,
+                    "batch_artifact_dir": CORRECTED_ATTEMPT_NAMESPACE,
                     "batch_game_log_sha256": sha256_file(games),
                     "batch_report_sha256": sha256_file(report),
                     "batch_opening_sha256": sha256_file(one_opening),
@@ -727,10 +784,13 @@ def run(root: Path, *, execute: bool = False) -> None:
             "registration.json",
             "openings.jsonl",
             "supersession.json",
+            "failure-provenance.json",
+            EXECUTION_FREEZE,
             "runtime-artifacts.json",
             "outcomes.jsonl",
             "results.json",
         ),
+        receipt_name="execution-receipt.json",
     )
 
 
@@ -753,7 +813,15 @@ def _validate_committed_batch(
     from ml.alphazero_lite.verify_seed488_strength_evaluation import _replay_game
 
     index = int(opening["opening_index"])
-    opening_path = out / "resume" / f"opening-{index:04d}.jsonl"
+    batch_dirs = {
+        row.get("batch_artifact_dir")
+        for row in rows
+        if int(row["opening_index"]) == index
+    }
+    if batch_dirs != {CORRECTED_ATTEMPT_NAMESPACE}:
+        raise ValueError(f"committed_batch_artifact_namespace:{index}")
+    batch_out = out / CORRECTED_ATTEMPT_NAMESPACE
+    opening_path = batch_out / f"opening-{index:04d}.jsonl"
     batch_identity = batch_opening_identity(registration, opening, opening_path)
     expected_runtime_contract = _batch_runtime_contract(
         registration,
@@ -764,8 +832,8 @@ def _validate_committed_batch(
     pair = [row for row in rows if int(row["opening_index"]) == index]
     if len(pair) != 2 or {int(row["F_player"]) for row in pair} != {0, 1}:
         raise ValueError(f"committed_pair_coverage:{index}")
-    games_path = out / "resume" / f"games-{index:04d}.jsonl"
-    report_path = out / "resume" / f"report-{index:04d}.json"
+    games_path = batch_out / f"games-{index:04d}.jsonl"
+    report_path = batch_out / f"report-{index:04d}.json"
     expected_opening = canonical_json(opening) + b"\n"
     game_rows = _read_rows(games_path)
     report = json.loads(report_path.read_text(encoding="utf-8"))
@@ -826,7 +894,7 @@ def _validate_committed_batch(
         != "highest_legal_network_prior_then_lowest_move_index"
         or notes.get("exact_leaf_solve_mode") != "disabled"
         or notes.get("seed") != SEED + index
-        or notes.get("search_options") != registration["runtime"]["search_options"]
+        or notes.get("search_options") != arena_effective_search_options(registration)
     ):
         raise ValueError(f"committed_batch_runtime:{index}")
 
@@ -854,9 +922,9 @@ def _batch_runtime_contract(
         "local_opening_index": 0,
         "seed_derivation": "488 + parent_opening_index",
         "max_moves": 200,
-        "random_opening_plies": 0,
-        "challenger_search_options": registration["runtime"]["search_options"],
-        "current_search_options": registration["runtime"]["search_options"],
+        "opening_configuration": {"random_opening_plies": 0},
+        "challenger_search_options": arena_search_overrides(registration),
+        "current_search_options": arena_search_overrides(registration),
         "root_prior_transform": None,
         "challenger_root_prior_transform": None,
         "current_root_prior_transform": None,
@@ -870,6 +938,7 @@ def _batch_runtime_contract(
             "model-artifact/current/search_policy.json"
         ],
         "exact_root_solve_threshold": 16,
+        "batch_artifact_dir": CORRECTED_ATTEMPT_NAMESPACE,
     }
 
 
@@ -878,10 +947,11 @@ def publish_receipt(
     names: tuple[str, ...],
     *,
     status: str = "seed488_strength_evaluation_complete",
+    receipt_name: str = "receipt.json",
 ) -> None:
     receipt = {name: sha256_file(out / name) for name in names}
     receipt["status"] = status
-    (out / "receipt.json").write_text(
+    (out / receipt_name).write_text(
         json.dumps(receipt, indent=2, sort_keys=True) + "\n"
     )
 
@@ -908,9 +978,16 @@ def _materialize_endpoint(root: Path, arm: str, out: Path) -> Path:
             != "29f9a687dcdd8f39ca09bb7cf8fe6ba7ea268f4fdabc6b2af04f4d93a06402f3"
         ):
             raise ValueError("f_endpoint_parameter_identity")
-        checkpoint = train.checkpoint_from_model(model)
+    checkpoint = train.checkpoint_from_model(model)
     path = out / "F-endpoint.npz"
-    np.savez(path, **checkpoint)
+    if path.exists():
+        with np.load(path, allow_pickle=False) as saved:
+            if set(saved.files) != set(checkpoint) or any(
+                not np.array_equal(saved[key], checkpoint[key]) for key in checkpoint
+            ):
+                raise ValueError("preserved_f_endpoint_checkpoint_mismatch")
+    else:
+        np.savez(path, **checkpoint)
     return path
 
 

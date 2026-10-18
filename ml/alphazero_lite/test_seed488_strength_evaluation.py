@@ -294,7 +294,7 @@ def _write_complete_fixture(root: Path) -> Path:
     )
     rows = _paired_rows()
     suite_rows = [json.loads(line) for line in suite_path.read_text().splitlines()]
-    resume = out / "resume"
+    resume = out / protocol.CORRECTED_ATTEMPT_NAMESPACE
     resume.mkdir()
     for opening_index in range(protocol.OPENING_COUNT):
         opening_row = suite_rows[opening_index]
@@ -376,7 +376,9 @@ def _write_complete_fixture(root: Path) -> Path:
                         "exact_root_objective": "final_score_margin",
                         "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
                         "exact_leaf_solve_mode": "disabled",
-                        "search_options": registration["runtime"]["search_options"],
+                        "search_options": protocol.arena_effective_search_options(
+                            registration
+                        ),
                         "seed": 488 + opening_index,
                     },
                 }
@@ -386,6 +388,7 @@ def _write_complete_fixture(root: Path) -> Path:
             row.update(
                 {
                     "opening_state_hash": opening_row["state_hash"],
+                    "batch_artifact_dir": protocol.CORRECTED_ATTEMPT_NAMESPACE,
                     "batch_game_position": row["F_player"],
                     "batch_game_log_sha256": protocol.sha256_file(game_log),
                     "batch_report_sha256": protocol.sha256_file(report),
@@ -499,7 +502,12 @@ def test_independent_verifier_accepts_rebound_complete_synthetic_fixture(
     for move in opening["prefix_moves"]:
         game.move(game.pit_index(int(move)))
     trajectory = json.loads(
-        (root / protocol.OUT / "resume" / f"games-{opening_index:04d}.jsonl")
+        (
+            root
+            / protocol.OUT
+            / protocol.CORRECTED_ATTEMPT_NAMESPACE
+            / f"games-{opening_index:04d}.jsonl"
+        )
         .read_text()
         .splitlines()[0]
     )["trajectory"]
@@ -531,10 +539,10 @@ def _reseal_outcomes(out: Path) -> None:
     for row in rows:
         index = int(row["opening_index"])
         row["batch_game_log_sha256"] = protocol.sha256_file(
-            out / "resume" / f"games-{index:04d}.jsonl"
+            out / protocol.CORRECTED_ATTEMPT_NAMESPACE / f"games-{index:04d}.jsonl"
         )
         row["batch_report_sha256"] = protocol.sha256_file(
-            out / "resume" / f"report-{index:04d}.json"
+            out / protocol.CORRECTED_ATTEMPT_NAMESPACE / f"report-{index:04d}.json"
         )
     outcome_path.write_text("".join(json.dumps(row) + "\n" for row in rows))
     receipt_path = out / "receipt.json"
@@ -546,7 +554,7 @@ def _reseal_outcomes(out: Path) -> None:
 def test_rebound_corrupt_trajectory_fails_semantic_replay(tmp_path: Path):
     root = _write_complete_fixture(tmp_path)
     out = root / protocol.OUT
-    game_path = out / "resume/games-0000.jsonl"
+    game_path = out / f"{protocol.CORRECTED_ATTEMPT_NAMESPACE}/games-0000.jsonl"
     games = [json.loads(line) for line in game_path.read_text().splitlines()]
     moves = games[0]["trajectory"].split(",")
     moves[0] = "99"
@@ -560,7 +568,7 @@ def test_rebound_corrupt_trajectory_fails_semantic_replay(tmp_path: Path):
 def test_rebound_false_winner_fails_replay_derived_result(tmp_path: Path):
     root = _write_complete_fixture(tmp_path)
     out = root / protocol.OUT
-    game_path = out / "resume/games-0000.jsonl"
+    game_path = out / f"{protocol.CORRECTED_ATTEMPT_NAMESPACE}/games-0000.jsonl"
     games = [json.loads(line) for line in game_path.read_text().splitlines()]
     games[0]["winner"] = (
         "current" if games[0]["winner"] == "challenger" else "challenger"
@@ -578,7 +586,7 @@ def test_rebound_false_winner_fails_replay_derived_result(tmp_path: Path):
 def test_rebound_report_runtime_mismatch_fails(tmp_path: Path):
     root = _write_complete_fixture(tmp_path)
     out = root / protocol.OUT
-    report_path = out / "resume/report-0000.json"
+    report_path = out / f"{protocol.CORRECTED_ATTEMPT_NAMESPACE}/report-0000.json"
     report = json.loads(report_path.read_text())
     report["notes"]["challenger_simulations"] = 4
     report_path.write_text(json.dumps(report))
@@ -628,8 +636,8 @@ def test_missing_and_duplicate_games_rejected_by_verifier(tmp_path: Path):
         verifier.verify(root)
 
 
-def test_runner_rejects_precommit_interruption_and_skips_after_commit(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+def test_runner_rejects_pending_commit_and_revalidates_committed_pair(
+    tmp_path: Path,
 ):
     interrupted = _write_complete_fixture(tmp_path / "before-commit")
     interrupted_out = interrupted / protocol.OUT
@@ -639,16 +647,17 @@ def test_runner_rejects_precommit_interruption_and_skips_after_commit(
         protocol.run(interrupted, execute=True)
 
     committed = _write_complete_fixture(tmp_path / "after-commit")
-    calls = []
-
-    def mock_preflight(command, **kwargs):
-        calls.append(command)
-        if any(str(item).endswith("ml.alphazero_lite.arena") for item in command):
-            raise AssertionError("committed pair must not be rerun")
-
-    monkeypatch.setattr(protocol.subprocess, "run", mock_preflight)
-    protocol.run(committed, execute=True)
-    assert len(calls) == 1
+    committed_out = committed / protocol.OUT
+    committed_registration = json.loads(
+        (committed_out / "registration.json").read_text()
+    )
+    committed_opening = json.loads(
+        (committed_out / "openings.jsonl").read_text().splitlines()[0]
+    )
+    committed_rows = protocol._read_rows(committed_out / "outcomes.jsonl")
+    protocol._validate_committed_batch(
+        committed_out, committed_opening, committed_rows, committed_registration
+    )
 
 
 def test_prepared_verifier_runs_from_physical_copy(tmp_path: Path):
@@ -664,6 +673,21 @@ def test_prepared_verifier_runs_from_physical_copy(tmp_path: Path):
         protocol.OUT / "receipt.json",
         protocol.OUT / "supersession.json",
         protocol.OUT / "supersession-pr489.json",
+        protocol.OUT / "failure-provenance.json",
+        protocol.OUT / "execution-freeze.json",
+        protocol.OUT / "execution-failure.md",
+        protocol.OUT / "execution.log",
+        protocol.OUT / "runtime-artifacts.json",
+        protocol.OUT / "F-endpoint.npz",
+        protocol.OUT / "resume/opening-0000.jsonl",
+        protocol.OUT / "runtime-artifacts/F/model.npz",
+        protocol.OUT / "runtime-artifacts/F/weights.json",
+        protocol.OUT / "runtime-artifacts/F/metadata.json",
+        protocol.OUT / "runtime-artifacts/F/search_policy.json",
+        protocol.OUT / "runtime-artifacts/initializer/model.npz",
+        protocol.OUT / "runtime-artifacts/initializer/weights.json",
+        protocol.OUT / "runtime-artifacts/initializer/metadata.json",
+        protocol.OUT / "runtime-artifacts/initializer/search_policy.json",
         protocol.OUT / "registration-pr487.json",
         protocol.OUT / "openings-pr487.jsonl",
         protocol.OUT / "receipt-pr487.json",
@@ -698,13 +722,18 @@ def test_prepared_verifier_runs_from_physical_copy(tmp_path: Path):
     unrelated = tmp_path / "unrelated-directory"
     unrelated.mkdir()
     copied_out = copied / protocol.OUT
+    provenance = json.loads((copied_out / "failure-provenance.json").read_text())
+    preserved_names = {
+        "execution-freeze.json",
+        "failure-provenance.json",
+        *provenance["preserved_files"],
+        "registration-pr487.json",
+        "openings-pr487.jsonl",
+        "receipt-pr487.json",
+    }
     preserved_snapshot = {
         name: ((copied_out / name).read_bytes(), (copied_out / name).stat().st_mtime_ns)
-        for name in (
-            "registration-pr487.json",
-            "openings-pr487.jsonl",
-            "receipt-pr487.json",
-        )
+        for name in preserved_names
     }
     result = subprocess.run(
         [
@@ -720,7 +749,7 @@ def test_prepared_verifier_runs_from_physical_copy(tmp_path: Path):
         capture_output=True,
         text=True,
     )
-    assert '"status": "prepared_not_executed"' in result.stdout
+    assert '"status": "ready_for_review_not_executed"' in result.stdout
     for relative, (digest, mtime_ns) in source_snapshots.items():
         assert protocol.sha256_file(source / relative) == digest
         assert (source / relative).stat().st_mtime_ns == mtime_ns
@@ -729,18 +758,25 @@ def test_prepared_verifier_runs_from_physical_copy(tmp_path: Path):
             (copied_out / name).read_bytes(),
             (copied_out / name).stat().st_mtime_ns,
         ) == snapshot
-    receipt = copied_out / "receipt.json"
+    failed_copy = tmp_path / "failed-copied-checkout"
+    shutil.copytree(copied, failed_copy)
+    failed_out = failed_copy / protocol.OUT
+    receipt = failed_out / "receipt.json"
     receipt_data = json.loads(receipt.read_text())
     receipt_data["registration.json"] = "0" * 64
     receipt.write_text(json.dumps(receipt_data))
     failed_snapshot = (receipt.read_bytes(), receipt.stat().st_mtime_ns)
+    failed_evidence_snapshot = {
+        name: ((failed_out / name).read_bytes(), (failed_out / name).stat().st_mtime_ns)
+        for name in preserved_names - {"receipt.json"}
+    }
     failed = subprocess.run(
         [
             sys.executable,
             "-m",
             "ml.alphazero_lite.verify_seed488_strength_evaluation",
             "--root",
-            str(copied),
+            str(failed_copy),
         ],
         cwd=unrelated,
         env=env,
@@ -753,6 +789,11 @@ def test_prepared_verifier_runs_from_physical_copy(tmp_path: Path):
         assert (
             (copied_out / name).read_bytes(),
             (copied_out / name).stat().st_mtime_ns,
+        ) == snapshot
+    for name, snapshot in failed_evidence_snapshot.items():
+        assert (
+            (failed_out / name).read_bytes(),
+            (failed_out / name).stat().st_mtime_ns,
         ) == snapshot
 
 
@@ -824,70 +865,117 @@ def test_outcome_resume_rejects_duplicate_or_missing_games():
         protocol.paired_scores(completed + completed[:1] + rows[2:])
 
 
-def test_run_entry_point_reaches_mocked_arena_with_prepared_registration(
+def test_exact_arena_command_parses_runtime_and_stops_before_game_loop(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ):
     source = protocol.ROOT
-    shutil.copytree(
-        source / "ml", tmp_path / "ml", ignore=shutil.ignore_patterns("__pycache__")
+    out = source / protocol.OUT
+    registration = json.loads((out / "registration.json").read_text())
+    artifacts = out / "runtime-artifacts"
+    opening_path = out / "resume/opening-0000.jsonl"
+    opening = json.loads(opening_path.read_text())
+    batch_identity = protocol.batch_opening_identity(
+        registration, opening, opening_path
     )
-    shutil.copytree(source / "model-artifact", tmp_path / "model-artifact")
-    inputs = (
-        protocol.INITIALIZER,
-        protocol.TRAJECTORY,
-        protocol.SEED479_RECEIPT,
-        Path("docs/data/seed479-population-ablation/registration.json"),
-        Path("docs/data/seed479-population-ablation/evidence.json"),
-        protocol.BASE_EXCLUSIONS,
-        protocol.RECONSTRUCTED_EXCLUSIONS,
-        protocol.EXTENDED_EXCLUSIONS,
+    corrected = protocol.build_arena_command(
+        registration,
+        artifacts,
+        opening_path,
+        tmp_path / "corrected-report.json",
+        tmp_path / "corrected-games.jsonl",
+        batch_identity,
     )
-    for relative in inputs:
-        target = tmp_path / relative
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source / relative, target)
-    protocol.prepare(tmp_path)
-    out = tmp_path / protocol.OUT
-    monkeypatch.setattr(protocol, "_validate_exported_artifacts", lambda *_: None)
-    calls = []
-    actual_subprocess_run = subprocess.run
+    assert corrected[corrected.index("--challenger") + 1] == str(artifacts / "F")
+    assert corrected[corrected.index("--current") + 1] == str(artifacts / "initializer")
+    assert (
+        corrected[corrected.index("--suite-sha256") + 1]
+        == batch_identity["batch_suite_sha256"]
+    )
+    assert corrected[corrected.index("--random-opening-plies") + 1] == "0"
+    overrides = [
+        json.loads(corrected[corrected.index(flag) + 1])
+        for flag in (
+            "--challenger-search-options-json",
+            "--current-search-options-json",
+        )
+    ]
+    assert len(overrides) == 2
+    assert overrides[0] == overrides[1] == protocol.arena_search_overrides(registration)
+    assert "random_opening_plies" not in overrides[0]
 
-    class MockArenaReached(RuntimeError):
+    # Reconstruct the exact malformed PR #491 payload and prove the real parser
+    # still rejects it instead of broadening its allowlist.
+    malformed = list(corrected)
+    for flag in ("--challenger-search-options-json", "--current-search-options-json"):
+        malformed[malformed.index(flag) + 1] = json.dumps(
+            registration["runtime"]["search_options"], sort_keys=True
+        )
+    random_option = malformed.index("--random-opening-plies")
+    del malformed[random_option : random_option + 2]
+    monkeypatch.setattr(sys, "argv", [malformed[2], *malformed[3:]])
+    with pytest.raises(
+        ValueError,
+        match="unsupported search-options override fields.*random_opening_plies",
+    ):
+        arena.main()
+
+    submitted = {}
+
+    class GameLoopBoundary(RuntimeError):
         pass
 
-    def mock_run(command, **kwargs):
-        calls.append(command)
-        if any(str(item).endswith("ml.alphazero_lite.arena") for item in command):
-            opening_path = Path(command[command.index("--opening-prefixes-jsonl") + 1])
-            batch_digest = protocol.sha256_file(opening_path)
-            assert command[command.index("--suite-sha256") + 1] == batch_digest
-            assert (
-                batch_digest
-                != json.loads((out / "registration.json").read_text())["opening_suite"][
-                    "opening_suite_sha256"
-                ]
-            )
-            assert command[command.index("--seed") + 1] == "488"
-            raise MockArenaReached
-        environment = os.environ.copy()
-        environment["PYTHONPATH"] = str(tmp_path)
-        kwargs["env"] = environment
-        return actual_subprocess_run(command, **kwargs)
+    class GameLoopExecutor:
+        def __init__(self, *, max_workers):
+            assert max_workers == 1
 
-    monkeypatch.setattr(protocol.subprocess, "run", mock_run)
-    # Pre-populated exports exercise the real registration/preflight path while
-    # the arena launch itself is intercepted before a game can start.
-    for arm in ("F", "initializer"):
-        artifact = out / "runtime-artifacts" / arm
-        artifact.mkdir(parents=True)
-        for name in (
-            "model.npz",
-            "weights.json",
-            "metadata.json",
-            "search_policy.json",
-        ):
-            (artifact / name).write_text("fixture")
-    with pytest.raises(MockArenaReached):
-        protocol.run(tmp_path, execute=True)
-    assert len(calls) == 2
-    assert any("ml.alphazero_lite.arena" in call for call in calls[-1])
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_exc):
+            return False
+
+        def submit(self, function, **kwargs):
+            submitted.update(kwargs)
+            raise GameLoopBoundary
+
+    monkeypatch.setattr(
+        arena.concurrent.futures, "ProcessPoolExecutor", GameLoopExecutor
+    )
+    monkeypatch.setattr(sys, "argv", [corrected[2], *corrected[3:]])
+    with pytest.raises(GameLoopBoundary):
+        arena.main()
+    assert submitted["challenger_path"] == str(artifacts / "F")
+    assert submitted["current_path"] == str(artifacts / "initializer")
+    effective_options = {
+        key: value
+        for key, value in overrides[0].items()
+        if key != "root_prior_transform"
+    }
+    assert submitted["challenger_search_options"] == effective_options
+    assert submitted["current_search_options"] == effective_options
+    assert submitted["random_opening_plies"] == 0
+    assert submitted["challenger_simulations"] == 1200
+    assert submitted["current_simulations"] == 1200
+    assert submitted["c_puct"] == 1.25
+    assert submitted["max_moves"] == 200
+    assert submitted["seed"] == 488
+    assert submitted["opening_prefixes_jsonl"] == str(opening_path)
+    assert submitted["suite_sha256_override"] == batch_identity["batch_suite_sha256"]
+    runtime_contract = submitted["runtime_search_contract"]
+    assert runtime_contract is not None
+    identities = registration["runtime"]["identities_sha256"]
+    assert runtime_contract["exact_root_solve_threshold"] == 16
+    assert (
+        runtime_contract["runtime_search_policy_sha256"]
+        == identities["model-artifact/current/search_policy.json"]
+    )
+    assert (
+        runtime_contract["exact_root_native_probe_sha256"]
+        == identities["model-artifact/runtime/kalah_v1_tablebase"]
+    )
+    assert (
+        runtime_contract["exact_root_tablebase_sha256"]
+        == identities["model-artifact/runtime/kalah_v1_21.kvtb"]
+    )
+    assert not (tmp_path / "corrected-games.jsonl").exists()
+    assert not (tmp_path / "corrected-report.json").exists()
