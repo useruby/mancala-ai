@@ -12,6 +12,19 @@ seed480 correction remain promising exploratory evidence; this prospective arena
 is an exploratory direct strength evaluation, not fresh confirmation and not an
 independently untouched holdout.
 
+The batch-identity correction also supersedes the pre-execution freeze published
+by PR #488. Its registration, opening suite, and receipt are preserved as
+`registration-pre-batch-identity.json`, `openings-pre-batch-identity.jsonl`, and
+`receipt-pre-batch-identity.json`; the updated `supersession.json` records their
+SHA-256 digests and original mtimes. Each arena call receives a one-entry JSONL
+whose SHA-256 is passed as `--suite-sha256`. The 512-opening parent digest remains
+registered separately and is carried with the parent `opening_index` and
+`state_hash` in each batch runtime contract and outcome provenance. The arena's
+local opening index is 0; the parent index is the row's index in the frozen
+512-entry suite. The registered base seed remains `488 + parent_opening_index`,
+so each single-entry batch is prospectively and deterministically tied to its
+parent opening.
+
 ## Frozen comparison
 
 Compare the exact step-16 seed479 F endpoint against the seed479 initializer.
@@ -39,7 +52,10 @@ The generator rejects root identities colliding in either canonical or float32
 identity with the complete seed484 reconstructable exclusion union,
 and rejects duplicate roots. Each opening is played twice, once with F seated as
 player 0 and once as player 1: 1,024 total games. Arena base seed is
-`488 + opening_index`, under `azlite_eval_seed_v2`.
+`488 + parent_opening_index`, under `azlite_eval_seed_v2`. Because each arena
+invocation receives one opening, arena-local opening index is always 0; it must
+not be confused with the parent suite index used for seed derivation and outcome
+identity.
 
 The suite is checked against the independently reconstructed **149,756-pair**
 seed484 union (pair-set SHA-256

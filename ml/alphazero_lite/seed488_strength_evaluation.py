@@ -237,6 +237,29 @@ def suite_bytes(entries: list[dict[str, Any]]) -> bytes:
     return b"".join(canonical_json(entry) + b"\n" for entry in entries)
 
 
+def batch_opening_identity(
+    registration: dict[str, Any], opening: dict[str, Any], batch_path: Path
+) -> dict[str, Any]:
+    """Bind the local single-row arena batch to its parent-suite entry."""
+    parent_index = int(opening["opening_index"])
+    if not 0 <= parent_index < OPENING_COUNT:
+        raise ValueError("batch_parent_opening_index")
+    expected_seed = SEED + parent_index
+    parent_digest = registration["opening_suite"]["opening_suite_sha256"]
+    batch_digest = sha256_file(batch_path)
+    if batch_path.read_bytes() != canonical_json(opening) + b"\n":
+        raise ValueError("batch_parent_opening_association")
+    return {
+        "parent_suite_sha256": parent_digest,
+        "batch_suite_sha256": batch_digest,
+        "parent_opening_index": parent_index,
+        "parent_entry_state_hash": opening["state_hash"],
+        "local_opening_index": 0,
+        "base_seed": expected_seed,
+        "seed_derivation": "488 + parent_opening_index",
+    }
+
+
 def prepare(root: Path) -> dict[str, Any]:
     """Freeze the deterministic suite and protocol without exporting or evaluating."""
     root = root.resolve()
@@ -272,7 +295,7 @@ def prepare(root: Path) -> dict[str, Any]:
     runtime_identity = {str(path): sha256_file(root / path) for path in runtime_files}
     registration = {
         "schema": "seed488-frozen-strength-evaluation-v2",
-        "supersedes": "PR #487 seed488_prepared_not_executed registration and suite; this is a preparation-only correction before any outcomes",
+        "supersedes": "PR #488 preparation registration with parent-suite digest passed to single-opening arena batches; this is a preparation-only correction before any outcomes",
         "status": "frozen_before_execution",
         "interpretation": "exploratory direct strength evaluation on a newly registered suite; not fresh confirmation or an independently untouched holdout",
         "fresh_confirmation_authorized": False,
@@ -303,7 +326,7 @@ def prepare(root: Path) -> dict[str, Any]:
             "simulations_per_move": 1200,
             "c_puct": 1.25,
             "workers": 1,
-            "seed_contract": "azlite_eval_seed_v2; per-opening base seed = 488 + opening_index; arena's deterministic seed contract binds opening state, seat, game-within-opening, and ply",
+            "seed_contract": "azlite_eval_seed_v2; batch-local opening index is 0; base seed = 488 + parent opening index; arena deterministically binds the single batch opening state, seat, game-within-opening, and ply",
             "search_options": {
                 "fpu_mode": "zero",
                 "reuse_subtree": False,
@@ -328,6 +351,13 @@ def prepare(root: Path) -> dict[str, Any]:
             "games_per_opening": GAMES_PER_OPENING,
             "game_count": OPENING_COUNT * GAMES_PER_OPENING,
             "opening_suite_sha256": sha256_bytes(suite),
+            "batch_identity_contract": {
+                "parent_suite_sha256": sha256_bytes(suite),
+                "batch_suite_sha256": "SHA-256 of the exact one-entry JSONL passed to arena --opening-prefixes-jsonl",
+                "parent_opening_index": "opening_index in openings.jsonl; arena-local index is 0",
+                "parent_entry_identity": "state_hash of the parent suite entry, validated against exact batch bytes",
+                "seed_derivation": "registered base seed = 488 + parent_opening_index; batch-local index does not affect seed",
+            },
             "eligible_against_reconstructable_exclusions": True,
             "exclusions": {
                 "seed482_base_manifest_sha256": BASE_EXCLUSIONS_SHA256,
@@ -373,6 +403,17 @@ def prepare(root: Path) -> dict[str, Any]:
         if original.is_file():
             preserved = (
                 out
+                / f"{filename.removesuffix('.json').removesuffix('.jsonl')}-pre-batch-identity{original.suffix}"
+            )
+            if not preserved.exists():
+                shutil.copy2(original, preserved)
+            previous_files[f"pre_batch_identity:{filename}"] = {
+                "preserved_as": preserved.name,
+                "sha256": sha256_file(preserved),
+                "mtime_ns": preserved.stat().st_mtime_ns,
+            }
+            preserved = (
+                out
                 / f"{filename.removesuffix('.json').removesuffix('.jsonl')}-pr487{original.suffix}"
             )
             if not preserved.exists():
@@ -383,8 +424,8 @@ def prepare(root: Path) -> dict[str, Any]:
                 "mtime_ns": preserved.stat().st_mtime_ns,
             }
     supersession = {
-        "status": "seed488_preparation_superseded_before_execution",
-        "supersedes_pr": 487,
+        "status": "seed488_batch_identity_preparation_superseded_before_execution",
+        "supersedes_pr": 488,
         "preserved_originals": previous_files,
         "no_outcomes_existed_at_supersession": True,
         "scope_unchanged": {
@@ -582,6 +623,7 @@ def run(root: Path, *, execute: bool = False) -> None:
         one_opening = out / "resume" / f"opening-{index:04d}.jsonl"
         one_opening.parent.mkdir(parents=True, exist_ok=True)
         one_opening.write_bytes(canonical_json(entry) + b"\n")
+        batch_identity = batch_opening_identity(registration, entry, one_opening)
         report = out / "resume" / f"report-{index:04d}.json"
         games = out / "resume" / f"games-{index:04d}.jsonl"
         if games.exists() or report.exists():
@@ -619,14 +661,17 @@ def run(root: Path, *, execute: bool = False) -> None:
             "--opening-prefixes-jsonl",
             str(one_opening),
             "--suite-sha256",
-            registration["opening_suite"]["opening_suite_sha256"],
+            batch_identity["batch_suite_sha256"],
             "--game-jsonl",
             str(games),
             "--out",
             str(report),
         ]
         runtime_contract = _batch_runtime_contract(
-            registration, index, sha256_file(manifest_path)
+            registration,
+            index,
+            sha256_file(manifest_path),
+            batch_identity,
         )
         subprocess.run(command, cwd=root, check=True)
         raw_games = _read_rows(games)
@@ -699,15 +744,19 @@ def _validate_committed_batch(
     from ml.alphazero_lite.verify_seed488_strength_evaluation import _replay_game
 
     index = int(opening["opening_index"])
+    opening_path = out / "resume" / f"opening-{index:04d}.jsonl"
+    batch_identity = batch_opening_identity(registration, opening, opening_path)
     expected_runtime_contract = _batch_runtime_contract(
-        registration, index, sha256_file(out / "runtime-artifacts.json")
+        registration,
+        index,
+        sha256_file(out / "runtime-artifacts.json"),
+        batch_identity,
     )
     pair = [row for row in rows if int(row["opening_index"]) == index]
     if len(pair) != 2 or {int(row["F_player"]) for row in pair} != {0, 1}:
         raise ValueError(f"committed_pair_coverage:{index}")
     games_path = out / "resume" / f"games-{index:04d}.jsonl"
     report_path = out / "resume" / f"report-{index:04d}.json"
-    opening_path = out / "resume" / f"opening-{index:04d}.jsonl"
     expected_opening = canonical_json(opening) + b"\n"
     game_rows = _read_rows(games_path)
     report = json.loads(report_path.read_text(encoding="utf-8"))
@@ -747,8 +796,7 @@ def _validate_committed_batch(
         or notes.get("random_opening_plies") != 0
         or notes.get("seed_contract") != "azlite_eval_seed_v2"
         or notes.get("base_seed") != SEED + index
-        or notes.get("suite_sha256")
-        != registration["opening_suite"]["opening_suite_sha256"]
+        or notes.get("suite_sha256") != expected_runtime_contract["batch_suite_sha256"]
         or notes.get("search_profile", {}).get("c_puct") != 1.25
         or notes.get("exact_root_solve_threshold") != 16
         or notes.get("exact_root_native_probe_sha256")
@@ -775,7 +823,10 @@ def _validate_committed_batch(
 
 
 def _batch_runtime_contract(
-    registration: dict[str, Any], opening_index: int, artifact_manifest_sha256: str
+    registration: dict[str, Any],
+    opening_index: int,
+    artifact_manifest_sha256: str,
+    batch_identity: dict[str, Any],
 ) -> dict[str, Any]:
     identities = registration["runtime"]["identities_sha256"]
     return {
@@ -787,6 +838,12 @@ def _batch_runtime_contract(
         "c_puct": 1.25,
         "seed_contract": "azlite_eval_seed_v2",
         "base_seed": SEED + opening_index,
+        "parent_suite_sha256": registration["opening_suite"]["opening_suite_sha256"],
+        "batch_suite_sha256": batch_identity["batch_suite_sha256"],
+        "parent_opening_index": opening_index,
+        "parent_entry_state_hash": batch_identity["parent_entry_state_hash"],
+        "local_opening_index": 0,
+        "seed_derivation": "488 + parent_opening_index",
         "max_moves": 200,
         "random_opening_plies": 0,
         "challenger_search_options": registration["runtime"]["search_options"],

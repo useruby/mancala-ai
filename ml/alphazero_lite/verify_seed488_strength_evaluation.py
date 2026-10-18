@@ -180,8 +180,9 @@ def _verify_artifact_against_frozen_state(
 def _verify_supersession(out: Path) -> None:
     supersession = json.loads((out / "supersession.json").read_text(encoding="utf-8"))
     if (
-        supersession.get("status") != "seed488_preparation_superseded_before_execution"
-        or supersession.get("supersedes_pr") != 487
+        supersession.get("status")
+        != "seed488_batch_identity_preparation_superseded_before_execution"
+        or supersession.get("supersedes_pr") != 488
         or supersession.get("no_outcomes_existed_at_supersession") is not True
     ):
         raise ValueError("supersession_record")
@@ -195,7 +196,11 @@ def _verify_supersession(out: Path) -> None:
 
 
 def _expected_batch_runtime_contract(
-    registration: dict[str, Any], opening_index: int, artifact_manifest_sha256: str
+    registration: dict[str, Any],
+    opening_index: int,
+    artifact_manifest_sha256: str,
+    batch_sha256: str,
+    entry_state_hash: str,
 ) -> dict[str, Any]:
     identities = registration["runtime"]["identities_sha256"]
     return {
@@ -207,6 +212,12 @@ def _expected_batch_runtime_contract(
         "c_puct": 1.25,
         "seed_contract": "azlite_eval_seed_v2",
         "base_seed": SEED + opening_index,
+        "parent_suite_sha256": registration["opening_suite"]["opening_suite_sha256"],
+        "batch_suite_sha256": batch_sha256,
+        "parent_opening_index": opening_index,
+        "parent_entry_state_hash": entry_state_hash,
+        "local_opening_index": 0,
+        "seed_derivation": "488 + parent_opening_index",
         "max_moves": 200,
         "random_opening_plies": 0,
         "challenger_search_options": registration["runtime"]["search_options"],
@@ -242,7 +253,7 @@ def verify(root: Path) -> dict[str, Any]:
     if registration.get("fresh_confirmation_authorized") is not False:
         raise ValueError("confirmation_gate_open")
     if registration.get("supersedes") != (
-        "PR #487 seed488_prepared_not_executed registration and suite; this is a preparation-only correction before any outcomes"
+        "PR #488 preparation registration with parent-suite digest passed to single-opening arena batches; this is a preparation-only correction before any outcomes"
     ):
         raise ValueError("supersession_declaration")
     runtime = registration.get("runtime", {})
@@ -265,7 +276,7 @@ def verify(root: Path) -> dict[str, Any]:
         != "At 200 decision plies, stop without sweeping remaining pits; compare captured stores at the cap. A game ending earlier uses Kalah terminal sweeping. Recorded trajectory length must be terminal before 200 or exactly 200."
         or runtime.get("search_options") != expected_search_options
         or runtime.get("seed_contract")
-        != "azlite_eval_seed_v2; per-opening base seed = 488 + opening_index; arena's deterministic seed contract binds opening state, seat, game-within-opening, and ply"
+        != "azlite_eval_seed_v2; batch-local opening index is 0; base seed = 488 + parent opening index; arena deterministically binds the single batch opening state, seat, game-within-opening, and ply"
     ):
         raise ValueError("runtime_protocol_mismatch")
     suite_contract = registration.get("opening_suite", {})
@@ -303,6 +314,17 @@ def verify(root: Path) -> dict[str, Any]:
         raise ValueError("trajectory_contract")
     if registration["opening_suite"].get("opening_suite_sha256") != suite_digest:
         raise ValueError("suite_digest")
+    batch_contract = registration["opening_suite"].get("batch_identity_contract", {})
+    if (
+        batch_contract.get("parent_suite_sha256") != suite_digest
+        or batch_contract.get("parent_opening_index")
+        != "opening_index in openings.jsonl; arena-local index is 0"
+        or batch_contract.get("parent_entry_identity")
+        != "state_hash of the parent suite entry, validated against exact batch bytes"
+        or batch_contract.get("seed_derivation")
+        != "registered base seed = 488 + parent_opening_index; batch-local index does not affect seed"
+    ):
+        raise ValueError("batch_identity_registration")
     impl = root / "ml/alphazero_lite/seed488_strength_evaluation.py"
     if registration.get("implementation_sha256") != _sha(impl):
         raise ValueError("implementation_binding")
@@ -572,7 +594,11 @@ def verify(root: Path) -> dict[str, Any]:
         ] or arena_winner != row.get("winner"):
             raise ValueError("arena_game_outcome_mismatch")
         expected_runtime_contract = _expected_batch_runtime_contract(
-            registration, opening, _sha(out / "runtime-artifacts.json")
+            registration,
+            opening,
+            _sha(out / "runtime-artifacts.json"),
+            _sha(opening_file),
+            openings[opening]["state_hash"],
         )
         if row.get("batch_runtime_contract") != expected_runtime_contract:
             raise ValueError("batch_runtime_contract_mismatch")
@@ -591,8 +617,7 @@ def verify(root: Path) -> dict[str, Any]:
             or report_notes.get("random_opening_plies") != 0
             or report_notes.get("seed_contract") != "azlite_eval_seed_v2"
             or report_notes.get("base_seed") != SEED + opening
-            or report_notes.get("suite_sha256")
-            != registration["opening_suite"]["opening_suite_sha256"]
+            or report_notes.get("suite_sha256") != _sha(opening_file)
             or report_notes.get("search_profile", {}).get("c_puct") != 1.25
             or report_notes.get("exact_root_solve_threshold") != 16
             or report_notes.get("exact_root_native_probe_sha256")
