@@ -1,0 +1,14 @@
+{
+  "F": {
+    "metadata.json": "dc9e20e23d8a0439f71fcdc4731b3dc4368af175da0dfd59bb0c5cee49c22c48",
+    "model.npz": "605a3fb9863c58fa038b2925a6fea26b4f48fb0a9349c33de9d5d39d6e774021",
+    "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "weights.json": "692d7b490e85b9224fd55bead0329e4005c62c2c6adcd70c10c03f47f2a43915"
+  },
+  "initializer": {
+    "metadata.json": "5775a8cef35f252967ff0fe5f5b55dae6a223d6ed6b87fea4eb472d1d0fd0487",
+    "model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+  }
+}
