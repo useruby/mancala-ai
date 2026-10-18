@@ -194,6 +194,39 @@ def _verify_supersession(out: Path) -> None:
             raise ValueError(f"superseded_evidence_changed:{original}")
 
 
+def _expected_batch_runtime_contract(
+    registration: dict[str, Any], opening_index: int, artifact_manifest_sha256: str
+) -> dict[str, Any]:
+    identities = registration["runtime"]["identities_sha256"]
+    return {
+        "games": 2,
+        "games_per_opening": 2,
+        "workers": 1,
+        "challenger_simulations": 1200,
+        "current_simulations": 1200,
+        "c_puct": 1.25,
+        "seed_contract": "azlite_eval_seed_v2",
+        "base_seed": SEED + opening_index,
+        "max_moves": 200,
+        "random_opening_plies": 0,
+        "challenger_search_options": registration["runtime"]["search_options"],
+        "current_search_options": registration["runtime"]["search_options"],
+        "root_prior_transform": None,
+        "challenger_root_prior_transform": None,
+        "current_root_prior_transform": None,
+        "challenger_value_transform": None,
+        "current_value_transform": None,
+        "opening_suite_sha256": registration["opening_suite"]["opening_suite_sha256"],
+        "artifact_manifest_sha256": artifact_manifest_sha256,
+        "native_probe_sha256": identities["model-artifact/runtime/kalah_v1_tablebase"],
+        "tablebase_sha256": identities["model-artifact/runtime/kalah_v1_21.kvtb"],
+        "runtime_search_policy_sha256": identities[
+            "model-artifact/current/search_policy.json"
+        ],
+        "exact_root_solve_threshold": 16,
+    }
+
+
 def verify(root: Path) -> dict[str, Any]:
     root = root.resolve()
     out = root / OUT
@@ -538,6 +571,11 @@ def verify(root: Path) -> dict[str, Any]:
             1
         ] or arena_winner != row.get("winner"):
             raise ValueError("arena_game_outcome_mismatch")
+        expected_runtime_contract = _expected_batch_runtime_contract(
+            registration, opening, _sha(out / "runtime-artifacts.json")
+        )
+        if row.get("batch_runtime_contract") != expected_runtime_contract:
+            raise ValueError("batch_runtime_contract_mismatch")
         _replay_game(openings[opening], arena_row, key[1])
         report_data = json.loads(report.read_text(encoding="utf-8"))
         report_notes = report_data.get("notes", {})
@@ -550,10 +588,6 @@ def verify(root: Path) -> dict[str, Any]:
             or report_notes.get("challenger_simulations") != 1200
             or report_notes.get("current_simulations") != 1200
             or report_notes.get("workers_used") != 1
-            or report_notes.get("workers") != 1
-            or report_notes.get("games") != 2
-            or report_notes.get("games_per_opening") != 2
-            or report_notes.get("max_moves") != 200
             or report_notes.get("random_opening_plies") != 0
             or report_notes.get("seed_contract") != "azlite_eval_seed_v2"
             or report_notes.get("base_seed") != SEED + opening

@@ -625,6 +625,9 @@ def run(root: Path, *, execute: bool = False) -> None:
             "--out",
             str(report),
         ]
+        runtime_contract = _batch_runtime_contract(
+            registration, index, sha256_file(manifest_path)
+        )
         subprocess.run(command, cwd=root, check=True)
         raw_games = _read_rows(games)
         if len(raw_games) != GAMES_PER_OPENING:
@@ -642,6 +645,7 @@ def run(root: Path, *, execute: bool = False) -> None:
                     "batch_game_log_sha256": sha256_file(games),
                     "batch_report_sha256": sha256_file(report),
                     "batch_opening_sha256": sha256_file(one_opening),
+                    "batch_runtime_contract": runtime_contract,
                 }
             )
         _validate_committed_batch(
@@ -695,6 +699,9 @@ def _validate_committed_batch(
     from ml.alphazero_lite.verify_seed488_strength_evaluation import _replay_game
 
     index = int(opening["opening_index"])
+    expected_runtime_contract = _batch_runtime_contract(
+        registration, index, sha256_file(out / "runtime-artifacts.json")
+    )
     pair = [row for row in rows if int(row["opening_index"]) == index]
     if len(pair) != 2 or {int(row["F_player"]) for row in pair} != {0, 1}:
         raise ValueError(f"committed_pair_coverage:{index}")
@@ -717,6 +724,7 @@ def _validate_committed_batch(
             or sha256_file(opening_path) != outcome["batch_opening_sha256"]
             or outcome["opening_state_hash"] != opening["state_hash"]
             or int(game["challenger_player"]) != int(outcome["F_player"])
+            or outcome.get("batch_runtime_contract") != expected_runtime_contract
         ):
             raise ValueError(f"committed_batch_identity:{index}")
         _replay_game(opening, game, int(outcome["F_player"]))
@@ -736,10 +744,6 @@ def _validate_committed_batch(
         or notes.get("challenger_simulations") != 1200
         or notes.get("current_simulations") != 1200
         or notes.get("workers_used") != 1
-        or notes.get("workers") != 1
-        or notes.get("games") != 2
-        or notes.get("games_per_opening") != 2
-        or notes.get("max_moves") != 200
         or notes.get("random_opening_plies") != 0
         or notes.get("seed_contract") != "azlite_eval_seed_v2"
         or notes.get("base_seed") != SEED + index
@@ -768,6 +772,39 @@ def _validate_committed_batch(
         or notes.get("search_options") != registration["runtime"]["search_options"]
     ):
         raise ValueError(f"committed_batch_runtime:{index}")
+
+
+def _batch_runtime_contract(
+    registration: dict[str, Any], opening_index: int, artifact_manifest_sha256: str
+) -> dict[str, Any]:
+    identities = registration["runtime"]["identities_sha256"]
+    return {
+        "games": 2,
+        "games_per_opening": 2,
+        "workers": 1,
+        "challenger_simulations": 1200,
+        "current_simulations": 1200,
+        "c_puct": 1.25,
+        "seed_contract": "azlite_eval_seed_v2",
+        "base_seed": SEED + opening_index,
+        "max_moves": 200,
+        "random_opening_plies": 0,
+        "challenger_search_options": registration["runtime"]["search_options"],
+        "current_search_options": registration["runtime"]["search_options"],
+        "root_prior_transform": None,
+        "challenger_root_prior_transform": None,
+        "current_root_prior_transform": None,
+        "challenger_value_transform": None,
+        "current_value_transform": None,
+        "opening_suite_sha256": registration["opening_suite"]["opening_suite_sha256"],
+        "artifact_manifest_sha256": artifact_manifest_sha256,
+        "native_probe_sha256": identities["model-artifact/runtime/kalah_v1_tablebase"],
+        "tablebase_sha256": identities["model-artifact/runtime/kalah_v1_21.kvtb"],
+        "runtime_search_policy_sha256": identities[
+            "model-artifact/current/search_policy.json"
+        ],
+        "exact_root_solve_threshold": 16,
+    }
 
 
 def publish_receipt(

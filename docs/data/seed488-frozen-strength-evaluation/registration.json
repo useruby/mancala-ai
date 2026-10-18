@@ -33,8 +33,8 @@
     "platform": "linux",
     "python_version": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]"
   },
-  "implementation_sha256": "d261df03b65a425f7e3d0fc0cb09929d8e03b0f60daa9b7dc496a15936ed80f6",
-  "independent_verifier_sha256": "1fbbdc31a49c3fa8997cdf0de4fc98c7392dbb3a0bd229bc9ef72308e20806ef",
+  "implementation_sha256": "19a05de4dfc9942324ca5bc432fa3d5099e250385ff7d722d1f1b412925ce705",
+  "independent_verifier_sha256": "15f7bcd18dd498f3a1f0418bf0a06aa9301ec9f7ac657864d0907584ff053db2",
   "interpretation": "exploratory direct strength evaluation on a newly registered suite; not fresh confirmation or an independently untouched holdout",
   "opening_suite": {
     "count": 512,
@@ -61,7 +61,7 @@
     "c_puct": 1.25,
     "exact_root": "shared frozen sidecar policy; threshold 16, final_score_margin objective, highest legal network prior then lowest move index tie rule, exact leaf solve disabled",
     "identities_sha256": {
-      "ml/alphazero_lite/arena.py": "a49c54b57ade01f7a09d1773b5db78a2548b60275a4f12261b9a9914edeab28a",
+      "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
       "ml/alphazero_lite/build_opening_suite.py": "5c15d541574905ff9d7c75bc8daf8813311e22f22f220563e18cb9b85fb8bd87",
       "ml/alphazero_lite/classic_mcts.py": "9643d859e22fad8ef83211fb38256a30aa15f245775408310c147d7db65e61b9",
       "ml/alphazero_lite/endgame_tablebase.py": "fe00e7b48277e2f8a5795232f78b25df4d29449b7b5dc819a09771999b2350f5",
@@ -111,6 +111,6 @@
   "seed479_and_480_classification": "promising exploratory results; preserved as exploratory",
   "status": "frozen_before_execution",
   "supersedes": "PR #487 seed488_prepared_not_executed registration and suite; this is a preparation-only correction before any outcomes",
-  "synthetic_tests_sha256": "a68b1f3944052c62646064572701ecf5fd48281331a590fe7f5a7898d37cf6e8",
+  "synthetic_tests_sha256": "7d814cf8918f27e82e5a628e8e00d12695f36f2ee7673f7066943cce3b47842e",
   "trajectory_contract": "arena.py at the runtime source hash; opening prefixes and trajectories are player-relative v2 moves converted by KalahGame.pit_index at each ply; rules use KalahGame.move including extra turns and terminal sweep; stored margin is challenger captured store minus current captured store; winner is the sign of that margin"
 }

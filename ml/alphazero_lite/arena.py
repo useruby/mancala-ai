@@ -3139,10 +3139,6 @@ def main() -> None:
         {
             "seed_contract": SEED_CONTRACT_VERSION,
             "base_seed": int(args.seed),
-            "max_moves": int(args.max_moves),
-            "games_per_opening": int(getattr(args, "games_per_opening", 2)),
-            "games": int(args.games),
-            "workers": int(args.workers),
             "suite_sha256": results[0].get("suite_sha256") if results else None,
             "seed_identity_ledger_sha256": seed_identity_ledger_hash,
             "search_configuration_ledger_sha256": search_configuration_ledger_hash,

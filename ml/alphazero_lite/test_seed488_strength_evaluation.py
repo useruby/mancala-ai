@@ -396,6 +396,12 @@ def _write_complete_fixture(root: Path) -> Path:
     (out / "runtime-artifacts.json").write_text(
         json.dumps(artifact_manifest, indent=2, sort_keys=True) + "\n"
     )
+    artifact_manifest_sha256 = protocol.sha256_file(out / "runtime-artifacts.json")
+    for row in rows:
+        row["batch_runtime_contract"] = verifier._expected_batch_runtime_contract(
+            registration, int(row["opening_index"]), artifact_manifest_sha256
+        )
+    (out / "outcomes.jsonl").write_text("".join(json.dumps(row) + "\n" for row in rows))
     receipt = {
         "status": "seed488_strength_evaluation_complete",
         **{
