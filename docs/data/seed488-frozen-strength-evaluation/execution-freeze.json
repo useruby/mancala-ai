@@ -1,0 +1,60 @@
+{
+  "artifact_endpoint_bindings": {
+    "F_parameter_state_sha256": "29f9a687dcdd8f39ca09bb7cf8fe6ba7ea268f4fdabc6b2af04f4d93a06402f3",
+    "F_exported_model_sha256": "605a3fb9863c58fa038b2925a6fea26b4f48fb0a9349c33de9d5d39d6e774021",
+    "initializer_checkpoint_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "initializer_exported_model_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+  },
+  "execution_namespace": "resume-corrected",
+  "failed_batch_sha256": "4dee384ce68692d75ce8b5e0d1ca67cafefc7f87330aeb9005938f6e55a13c7b",
+  "failure_provenance_sha256": "899d908ae61f7438fb7b983dc30fe0d0606a7093956872d8a7285f37415b02b7",
+  "opening_configuration": {
+    "random_opening_plies": 0
+  },
+  "opening_suite_sha256": "53841cad6c5d34355cd7d6533a0fa435f4164260fd40a2da760a3d78c784cff8",
+  "per_side_search_options": {
+    "challenger": {
+      "fpu_mode": "zero",
+      "normalize_values": false,
+      "reuse_subtree": false,
+      "root_policy_mode": "deterministic",
+      "root_prior_transform": null,
+      "root_temperature": 0.0,
+      "tactical_root_bias": 0.0
+    },
+    "current": {
+      "fpu_mode": "zero",
+      "normalize_values": false,
+      "reuse_subtree": false,
+      "root_policy_mode": "deterministic",
+      "root_prior_transform": null,
+      "root_temperature": 0.0,
+      "tactical_root_bias": 0.0
+    }
+  },
+  "receipt_sha256": "ad7347edaf4c3c19a05a0dc75b340fa4fa0082ecc04963dfca2bfeb75c46a8c4",
+  "registration_sha256": "0e5a04fbfb5629e501654d05d0102b781b15dbf3b61766ac4e44df2bd3a0d04e",
+  "runtime_artifact_manifest_sha256": "a3bbca1f701247957d0d7d1aa3fab0cfd49de5d70fd17bfaa56edd6cd24e1ab2",
+  "runtime_artifacts_sha256": {
+    "F": {
+      "metadata.json": "dc9e20e23d8a0439f71fcdc4731b3dc4368af175da0dfd59bb0c5cee49c22c48",
+      "model.npz": "605a3fb9863c58fa038b2925a6fea26b4f48fb0a9349c33de9d5d39d6e774021",
+      "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "weights.json": "692d7b490e85b9224fd55bead0329e4005c62c2c6adcd70c10c03f47f2a43915"
+    },
+    "initializer": {
+      "metadata.json": "5775a8cef35f252967ff0fe5f5b55dae6a223d6ed6b87fea4eb472d1d0fd0487",
+      "model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+    }
+  },
+  "schema": "seed488-pre-game-execution-freeze-v1",
+  "source_sha256": {
+    "ml/alphazero_lite/seed488_strength_evaluation.py": "bc72f2d395915776a9a88fac56770a4f308ae5c33003dddfc9f747c00e69eca5",
+    "ml/alphazero_lite/test_seed488_strength_evaluation.py": "9d0f096bda6d259b5ed3671a33aeae5551a235583c35c3c8f61fb77268b9aea9",
+    "ml/alphazero_lite/verify_seed488_strength_evaluation.py": "d113974f2e5060c8ca9f9799f1b30d24fda2d0308ce74f0d83ec2e910bbe99e6"
+  },
+  "status": "frozen_before_execution_review_required",
+  "supersedes_pr": 491
+}

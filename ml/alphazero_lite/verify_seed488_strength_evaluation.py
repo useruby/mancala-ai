@@ -16,6 +16,7 @@ from ml.alphazero_lite.seed482_fresh_confirmation import encode_state
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = Path("docs/data/seed488-frozen-strength-evaluation")
+EXECUTION_FREEZE = "execution-freeze.json"
 OPENINGS = 512
 REPLICATES = 20_000
 SEED = 488
@@ -200,13 +201,23 @@ def _superseded_file_snapshot(out: Path) -> dict[Path, tuple[bytes, int]]:
     if not supersession_path.is_file():
         return {}
     supersession = json.loads(supersession_path.read_text(encoding="utf-8"))
-    return {
+    snapshot = {
         out / binding["preserved_as"]: (
             (out / binding["preserved_as"]).read_bytes(),
             (out / binding["preserved_as"]).stat().st_mtime_ns,
         )
         for binding in supersession.get("preserved_originals", {}).values()
     }
+    provenance_path = out / "failure-provenance.json"
+    if provenance_path.is_file():
+        provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+        for path in (provenance_path, out / EXECUTION_FREEZE):
+            if path.is_file():
+                snapshot[path] = (path.read_bytes(), path.stat().st_mtime_ns)
+        for relative in provenance.get("preserved_files", {}):
+            path = out / relative
+            snapshot[path] = (path.read_bytes(), path.stat().st_mtime_ns)
+    return snapshot
 
 
 def _assert_superseded_snapshot_unchanged(
@@ -227,6 +238,8 @@ def _expected_batch_runtime_contract(
     entry_state_hash: str,
 ) -> dict[str, Any]:
     identities = registration["runtime"]["identities_sha256"]
+    search_options = dict(registration["runtime"]["search_options"])
+    search_options.pop("random_opening_plies", None)
     return {
         "games": 2,
         "games_per_opening": 2,
@@ -243,9 +256,9 @@ def _expected_batch_runtime_contract(
         "local_opening_index": 0,
         "seed_derivation": "488 + parent_opening_index",
         "max_moves": 200,
-        "random_opening_plies": 0,
-        "challenger_search_options": registration["runtime"]["search_options"],
-        "current_search_options": registration["runtime"]["search_options"],
+        "opening_configuration": {"random_opening_plies": 0},
+        "challenger_search_options": search_options,
+        "current_search_options": search_options,
         "root_prior_transform": None,
         "challenger_root_prior_transform": None,
         "current_root_prior_transform": None,
@@ -259,7 +272,75 @@ def _expected_batch_runtime_contract(
             "model-artifact/current/search_policy.json"
         ],
         "exact_root_solve_threshold": 16,
+        "batch_artifact_dir": "resume-corrected",
     }
+
+
+def _verify_execution_freeze(
+    root: Path, out: Path, registration: dict[str, Any]
+) -> dict[str, Any]:
+    """Authenticate the corrected, review-required freeze without rewriting evidence."""
+    freeze = json.loads((out / EXECUTION_FREEZE).read_text(encoding="utf-8"))
+    if (
+        freeze.get("schema") != "seed488-pre-game-execution-freeze-v1"
+        or freeze.get("status") != "frozen_before_execution_review_required"
+        or freeze.get("supersedes_pr") != 491
+        or freeze.get("execution_namespace") != "resume-corrected"
+        or freeze.get("registration_sha256") != _sha(out / "registration.json")
+        or freeze.get("receipt_sha256") != _sha(out / "receipt.json")
+        or freeze.get("opening_suite_sha256") != _sha(out / "openings.jsonl")
+    ):
+        raise ValueError("execution_freeze_identity")
+    expected_overrides = dict(registration["runtime"]["search_options"])
+    expected_overrides.pop("random_opening_plies", None)
+    if (
+        freeze.get("opening_configuration") != {"random_opening_plies": 0}
+        or freeze.get("per_side_search_options")
+        != {"challenger": expected_overrides, "current": expected_overrides}
+        or registration["runtime"]["search_options"].get("random_opening_plies") != 0
+    ):
+        raise ValueError("execution_freeze_option_partition")
+    provenance_path = out / "failure-provenance.json"
+    if _sha(provenance_path) != freeze.get("failure_provenance_sha256"):
+        raise ValueError("failure_provenance_binding")
+    provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+    if (
+        provenance.get("status") != "seed488_attempt_491_failed_before_game"
+        or provenance.get("completed_games") != 0
+        or provenance.get("outcomes_committed") is not False
+    ):
+        raise ValueError("failure_provenance_status")
+    for relative, digest in provenance.get("preserved_files", {}).items():
+        if _sha(out / relative) != digest:
+            raise ValueError(f"failed_attempt_evidence_binding:{relative}")
+    for relative, digest in freeze.get("source_sha256", {}).items():
+        if _sha(root / relative) != digest:
+            raise ValueError(f"execution_freeze_source_binding:{relative}")
+    manifest_path = out / "runtime-artifacts.json"
+    if _sha(manifest_path) != freeze.get("runtime_artifact_manifest_sha256"):
+        raise ValueError("execution_freeze_artifact_manifest")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if manifest != freeze.get("runtime_artifacts_sha256"):
+        raise ValueError("execution_freeze_artifact_identities")
+    for arm, artifacts in manifest.items():
+        for name, digest in artifacts.items():
+            if _sha(out / "runtime-artifacts" / arm / name) != digest:
+                raise ValueError(f"execution_freeze_artifact:{arm}:{name}")
+        _verify_artifact_against_frozen_state(root, out, arm, artifacts)
+    failed_opening = out / "resume/opening-0000.jsonl"
+    rows = _rows(out / "openings.jsonl")
+    if (
+        failed_opening.read_bytes()
+        != (json.dumps(rows[0], sort_keys=True, separators=(",", ":")) + "\n").encode()
+        or _sha(failed_opening) != freeze.get("failed_batch_sha256")
+        or (out / "resume/games-0000.jsonl").exists()
+        or (out / "resume/report-0000.json").exists()
+        or (out / "outcomes.jsonl.pending").exists()
+    ):
+        raise ValueError("failed_attempt_batch_state")
+    if registration.get("fresh_confirmation_authorized") is not False:
+        raise ValueError("execution_freeze_confirmation_gate")
+    return freeze
 
 
 def _verify_readonly(root: Path) -> dict[str, Any]:
@@ -267,7 +348,9 @@ def _verify_readonly(root: Path) -> dict[str, Any]:
     out = root / OUT
     reg_path = out / "registration.json"
     suite_path = out / "openings.jsonl"
-    receipt_path = out / "receipt.json"
+    receipt_path = out / "execution-receipt.json"
+    if not receipt_path.is_file():
+        receipt_path = out / "receipt.json"
     registration = json.loads(reg_path.read_text(encoding="utf-8"))
     suite_digest = _sha(suite_path)
     if registration.get("schema") != "seed488-frozen-strength-evaluation-v2":
@@ -349,17 +432,21 @@ def _verify_readonly(root: Path) -> dict[str, Any]:
         != "registered base seed = 488 + parent_opening_index; batch-local index does not affect seed"
     ):
         raise ValueError("batch_identity_registration")
-    impl = root / "ml/alphazero_lite/seed488_strength_evaluation.py"
-    if registration.get("implementation_sha256") != _sha(impl):
-        raise ValueError("implementation_binding")
-    if registration.get("independent_verifier_sha256") != _sha(
-        root / "ml/alphazero_lite/verify_seed488_strength_evaluation.py"
-    ):
-        raise ValueError("verifier_binding")
-    if registration.get("synthetic_tests_sha256") != _sha(
-        root / "ml/alphazero_lite/test_seed488_strength_evaluation.py"
-    ):
-        raise ValueError("synthetic_test_binding")
+    execution_freeze_path = out / EXECUTION_FREEZE
+    if execution_freeze_path.is_file():
+        _verify_execution_freeze(root, out, registration)
+    else:
+        impl = root / "ml/alphazero_lite/seed488_strength_evaluation.py"
+        if registration.get("implementation_sha256") != _sha(impl):
+            raise ValueError("implementation_binding")
+        if registration.get("independent_verifier_sha256") != _sha(
+            root / "ml/alphazero_lite/verify_seed488_strength_evaluation.py"
+        ):
+            raise ValueError("verifier_binding")
+        if registration.get("synthetic_tests_sha256") != _sha(
+            root / "ml/alphazero_lite/test_seed488_strength_evaluation.py"
+        ):
+            raise ValueError("synthetic_test_binding")
     for relative, digest in registration.get("generator_dependency_sha256", {}).items():
         if _sha(root / relative) != digest:
             raise ValueError(f"generator_dependency_binding:{relative}")
@@ -551,6 +638,13 @@ def _verify_readonly(root: Path) -> dict[str, Any]:
             if relative != "status" and _sha(out / relative) != digest:
                 raise ValueError(f"prepared_receipt_mismatch:{relative}")
         _verify_supersession(out)
+        if execution_freeze_path.is_file():
+            _verify_execution_freeze(root, out, registration)
+            return {
+                "status": "ready_for_review_not_executed",
+                "opening_count": len(openings),
+                "completed_games": 0,
+            }
         return {"status": "prepared_not_executed", "opening_count": len(openings)}
     if receipt.get("status") != "seed488_strength_evaluation_complete":
         raise ValueError("completion_receipt_status")
@@ -577,9 +671,12 @@ def _verify_readonly(root: Path) -> dict[str, Any]:
         if row.get("opening_state_hash") != openings[key[0]]["state_hash"]:
             raise ValueError("game_opening_identity_mismatch")
         opening = key[0]
-        game_log = out / "resume" / f"games-{opening:04d}.jsonl"
-        report = out / "resume" / f"report-{opening:04d}.json"
-        opening_file = out / "resume" / f"opening-{opening:04d}.jsonl"
+        artifact_dir = row.get("batch_artifact_dir")
+        if artifact_dir != "resume-corrected":
+            raise ValueError("batch_artifact_namespace")
+        game_log = out / artifact_dir / f"games-{opening:04d}.jsonl"
+        report = out / artifact_dir / f"report-{opening:04d}.json"
+        opening_file = out / artifact_dir / f"opening-{opening:04d}.jsonl"
         if _sha(game_log) != row.get("batch_game_log_sha256"):
             raise ValueError("game_log_receipt_mismatch")
         if _sha(report) != row.get("batch_report_sha256"):
@@ -662,7 +759,12 @@ def _verify_readonly(root: Path) -> dict[str, Any]:
             or report_notes.get("exact_root_tie_rule")
             != "highest_legal_network_prior_then_lowest_move_index"
             or report_notes.get("exact_leaf_solve_mode") != "disabled"
-            or report_notes.get("search_options") != expected_search_options
+            or report_notes.get("search_options")
+            != {
+                key: value
+                for key, value in registration["runtime"]["search_options"].items()
+                if key not in {"random_opening_plies", "root_prior_transform"}
+            }
             or report_notes.get("seed") != SEED + opening
         ):
             raise ValueError("arena_report_runtime_contract")
