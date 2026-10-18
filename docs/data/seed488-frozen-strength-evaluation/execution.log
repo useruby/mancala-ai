@@ -1,0 +1,37 @@
+{
+  "opening_count": 512,
+  "status": "prepared_not_executed"
+}
+exported artifact to /home/alex/Mancala/ai/docs/data/seed488-frozen-strength-evaluation/runtime-artifacts/F
+exported artifact to /home/alex/Mancala/ai/docs/data/seed488-frozen-strength-evaluation/runtime-artifacts/initializer
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/alex/Mancala/ai/ml/alphazero_lite/arena.py", line 3169, in <module>
+    main()
+    ~~~~^^
+  File "/home/alex/Mancala/ai/ml/alphazero_lite/arena.py", line 2969, in main
+    challenger_search_options = parse_search_options_override(
+        args.challenger_search_options_json, base=search_options
+    )
+  File "/home/alex/Mancala/ai/ml/alphazero_lite/arena.py", line 620, in parse_search_options_override
+    raise ValueError(
+        f"unsupported search-options override fields: {sorted(unknown)}"
+    )
+ValueError: unsupported search-options override fields: ['random_opening_plies']
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/alex/Mancala/ai/ml/alphazero_lite/seed488_strength_evaluation.py", line 1026, in <module>
+    main()
+    ~~~~^^
+  File "/home/alex/Mancala/ai/ml/alphazero_lite/seed488_strength_evaluation.py", line 1022, in main
+    run(args.root, execute=args.execute)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alex/Mancala/ai/ml/alphazero_lite/seed488_strength_evaluation.py", line 685, in run
+    subprocess.run(command, cwd=root, check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/home/alex/Mancala/ai/.venv-azlite/bin/python', '-m', 'ml.alphazero_lite.arena', '--challenger', '/home/alex/Mancala/ai/docs/data/seed488-frozen-strength-evaluation/runtime-artifacts/F', '--current', '/home/alex/Mancala/ai/docs/data/seed488-frozen-strength-evaluation/runtime-artifacts/initializer', '--games', '2', '--games-per-opening', '2', '--workers', '1', '--challenger-simulations', '1200', '--current-simulations', '1200', '--c-puct', '1.25', '--seed-contract', 'azlite_eval_seed_v2', '--challenger-search-options-json', '{"fpu_mode": "zero", "normalize_values": false, "random_opening_plies": 0, "reuse_subtree": false, "root_policy_mode": "deterministic", "root_prior_transform": null, "root_temperature": 0.0, "tactical_root_bias": 0.0}', '--current-search-options-json', '{"fpu_mode": "zero", "normalize_values": false, "random_opening_plies": 0, "reuse_subtree": false, "root_policy_mode": "deterministic", "root_prior_transform": null, "root_temperature": 0.0, "tactical_root_bias": 0.0}', '--max-moves', '200', '--seed', '488', '--opening-prefixes-jsonl', '/home/alex/Mancala/ai/docs/data/seed488-frozen-strength-evaluation/resume/opening-0000.jsonl', '--suite-sha256', '4dee384ce68692d75ce8b5e0d1ca67cafefc7f87330aeb9005938f6e55a13c7b', '--game-jsonl', '/home/alex/Mancala/ai/docs/data/seed488-frozen-strength-evaluation/resume/games-0000.jsonl', '--out', '/home/alex/Mancala/ai/docs/data/seed488-frozen-strength-evaluation/resume/report-0000.json']' returned non-zero exit status 1.
