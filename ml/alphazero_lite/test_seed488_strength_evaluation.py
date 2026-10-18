@@ -15,6 +15,7 @@ import torch
 
 from ml.alphazero_lite import seed488_strength_evaluation as protocol
 from ml.alphazero_lite import verify_seed488_strength_evaluation as verifier
+from ml.alphazero_lite import seed488_replay_recovery as recovery
 from ml.alphazero_lite import train
 from ml.alphazero_lite import arena
 
@@ -318,8 +319,9 @@ def _write_complete_fixture(root: Path) -> Path:
             trajectory = []
             while not game.over() and len(trajectory) < 200:
                 move = game.possible_moves()[0]
-                trajectory.append(move)
-                assert game.move(game.pit_index(move))
+                absolute = game.pit_index(move)
+                trajectory.append(absolute)
+                assert game.move(absolute)
             margin = game.captured_seeds[seat] - game.captured_seeds[1 - seat]
             winner = "challenger" if margin > 0 else "current" if margin < 0 else "draw"
             arena_rows.append(
@@ -512,9 +514,9 @@ def test_independent_verifier_accepts_rebound_complete_synthetic_fixture(
         .splitlines()[0]
     )["trajectory"]
     extra_turn_seen = False
-    for move in map(int, trajectory.split(",")):
+    for absolute in map(int, trajectory.split(",")):
         player = game.current_player
-        game.move(game.pit_index(move))
+        game.move(absolute)
         extra_turn_seen |= game.current_player == player
     assert extra_turn_seen
 
@@ -680,6 +682,9 @@ def test_prepared_verifier_runs_from_physical_copy(tmp_path: Path):
         protocol.OUT / "runtime-artifacts.json",
         protocol.OUT / "F-endpoint.npz",
         protocol.OUT / "resume/opening-0000.jsonl",
+        protocol.OUT / "resume-corrected/opening-0000.jsonl",
+        protocol.OUT / "resume-corrected/games-0000.jsonl",
+        protocol.OUT / "resume-corrected/report-0000.json",
         protocol.OUT / "runtime-artifacts/F/model.npz",
         protocol.OUT / "runtime-artifacts/F/weights.json",
         protocol.OUT / "runtime-artifacts/F/metadata.json",
@@ -717,11 +722,15 @@ def test_prepared_verifier_runs_from_physical_copy(tmp_path: Path):
         # A physical checkout preserves content but assigns checkout-time
         # mtimes rather than recreating historical filesystem metadata.
         shutil.copyfile(source_path, destination)
+    copied_out = copied / protocol.OUT
+    copied_out.mkdir(parents=True, exist_ok=True)
+    (copied_out / recovery.RECEIPT).write_text(
+        json.dumps(recovery.correction_receipt(source), indent=2, sort_keys=True) + "\n"
+    )
     env = os.environ.copy()
     env["PYTHONPATH"] = str(copied)
     unrelated = tmp_path / "unrelated-directory"
     unrelated.mkdir()
-    copied_out = copied / protocol.OUT
     provenance = json.loads((copied_out / "failure-provenance.json").read_text())
     preserved_names = {
         "execution-freeze.json",
@@ -758,6 +767,54 @@ def test_prepared_verifier_runs_from_physical_copy(tmp_path: Path):
             (copied_out / name).read_bytes(),
             (copied_out / name).stat().st_mtime_ns,
         ) == snapshot
+    imported = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "ml.alphazero_lite.seed488_replay_recovery",
+            "--import-pair",
+            "--root",
+            str(copied),
+        ],
+        cwd=unrelated,
+        env=env,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert '"recovery_receipt_sha256"' in imported.stdout
+    replay_verified = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "ml.alphazero_lite.verify_seed488_opening_replay",
+            "--root",
+            str(copied),
+        ],
+        cwd=unrelated,
+        env=env,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert '"status": "opening_0000_pair_replay_verified"' in replay_verified.stdout
+    outcome_path = copied_out / "outcomes.jsonl"
+    assert len(outcome_path.read_text().splitlines()) == 2
+    partial = verifier.verify(copied)
+    assert partial["status"] == (
+        "opening_zero_recovery_verified_continuation_incomplete"
+    )
+    original_outcomes = (outcome_path.read_bytes(), outcome_path.stat().st_mtime_ns)
+    outcomes = [json.loads(line) for line in outcome_path.read_text().splitlines()]
+    outcomes[0]["historical_execution_provenance"] = {}
+    outcome_path.write_text("".join(json.dumps(row) + "\n" for row in outcomes))
+    rebound_corrupt = (outcome_path.read_bytes(), outcome_path.stat().st_mtime_ns)
+    with pytest.raises(ValueError, match="recovery_continuation_provenance"):
+        verifier.verify(copied)
+    assert (outcome_path.read_bytes(), outcome_path.stat().st_mtime_ns) == (
+        rebound_corrupt
+    )
+    assert original_outcomes != rebound_corrupt
     failed_copy = tmp_path / "failed-copied-checkout"
     shutil.copytree(copied, failed_copy)
     failed_out = failed_copy / protocol.OUT
@@ -979,3 +1036,236 @@ def test_exact_arena_command_parses_runtime_and_stops_before_game_loop(
     )
     assert not (tmp_path / "corrected-games.jsonl").exists()
     assert not (tmp_path / "corrected-report.json").exists()
+
+
+@pytest.mark.parametrize("seat", [0, 1])
+def test_actual_arena_writer_serializes_absolute_trajectory_with_stub_search(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, seat: int
+):
+    prefix = [0, 1, 2, 3, 4]
+    initial = protocol.KalahGame.from_state(protocol.INITIAL_STATE)
+    for move in prefix:
+        assert initial.move(initial.pit_index(move))
+    opening = {"prefix_moves": prefix, "state": initial.to_state()}
+    game_log = tmp_path / f"writer-{seat}.jsonl"
+
+    class StubEvaluator:
+        def __init__(self, _path):
+            pass
+
+    class NoSearch:
+        def __init__(self, **_kwargs):
+            pass
+
+        def run(self, game):
+            visits = np.zeros(6, dtype=np.float32)
+            visits[game.possible_moves()[0]] = 1
+            return visits, None
+
+    monkeypatch.setattr(arena, "ArtifactEvaluator", StubEvaluator)
+    monkeypatch.setattr(arena, "PUCT", NoSearch)
+    result = arena.run_arena_worker(
+        worker_id=0,
+        start_index=0,
+        games=1,
+        challenger_path="stub-challenger",
+        current_path="stub-current",
+        challenger_simulations=1,
+        current_simulations=1,
+        seed=488,
+        c_puct=1.25,
+        max_moves=200,
+        random_opening_plies=0,
+        challenger_starts=seat,
+        opening_prefix_override=prefix,
+        opening_index_override=0,
+        game_jsonl_path=str(game_log),
+    )
+    row = json.loads(game_log.read_text().splitlines()[0])
+    assert result["game_entries"] == [row]
+    assert row["challenger_player"] == seat
+    assert row["opening_prefix_moves"] == prefix
+    assert row["opening_applied_prefix_length"] == len(prefix)
+    absolute = [int(item) for item in row["trajectory"].split(",")]
+    replay = protocol.KalahGame.from_state(protocol.INITIAL_STATE)
+    for relative in prefix:
+        assert replay.move(replay.pit_index(relative))
+    extra_turn = False
+    for move in absolute:
+        player = replay.current_player
+        assert move // 6 == player
+        assert replay.move(move)
+        extra_turn |= replay.current_player == player
+    assert replay.over() and extra_turn
+
+    def old_relative_replay() -> None:
+        old_game = protocol.KalahGame.from_state(protocol.INITIAL_STATE)
+        for relative in prefix:
+            assert old_game.move(old_game.pit_index(relative))
+        for ply, move in enumerate(absolute):
+            if old_game.over() or move not in old_game.possible_moves():
+                raise ValueError(f"trajectory_illegal:{ply}")
+            assert old_game.move(old_game.pit_index(move))
+
+    with pytest.raises(ValueError, match="trajectory_illegal"):
+        old_relative_replay()
+    margin = replay.captured_seeds[seat] - replay.captured_seeds[1 - seat]
+    winner = "challenger" if margin > 0 else "current" if margin < 0 else "draw"
+    assert (row["winner"], row["margin"], row["game_length"]) == (
+        winner,
+        margin,
+        len(absolute),
+    )
+    assert verifier._replay_game(opening, row, seat) == (winner, margin, len(absolute))
+
+
+def test_actual_arena_writer_stops_at_move_cap_without_terminal_sweep(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    class StubEvaluator:
+        def __init__(self, _path):
+            pass
+
+    class NoSearch:
+        def __init__(self, **_kwargs):
+            pass
+
+        def run(self, game):
+            visits = np.zeros(6, dtype=np.float32)
+            visits[game.possible_moves()[0]] = 1
+            return visits, None
+
+    monkeypatch.setattr(arena, "ArtifactEvaluator", StubEvaluator)
+    monkeypatch.setattr(arena, "PUCT", NoSearch)
+    path = tmp_path / "capped.jsonl"
+    result = arena.run_arena_worker(
+        worker_id=0,
+        start_index=0,
+        games=1,
+        challenger_path="stub-challenger",
+        current_path="stub-current",
+        challenger_simulations=1,
+        current_simulations=1,
+        seed=488,
+        c_puct=1.25,
+        max_moves=1,
+        random_opening_plies=0,
+        challenger_starts=0,
+        game_jsonl_path=str(path),
+    )
+    row = json.loads(path.read_text().splitlines()[0])
+    assert result["game_entries"] == [row]
+    assert row["game_length"] == 1
+    assert len(row["trajectory"].split(",")) == 1
+    assert row["margin"] == 0
+
+
+def _copy_saved_recovery_fixture(destination: Path) -> Path:
+    source = protocol.ROOT
+    destination.mkdir(parents=True)
+    (destination / "ml").symlink_to(source / "ml", target_is_directory=True)
+    (destination / "model-artifact").symlink_to(
+        source / "model-artifact", target_is_directory=True
+    )
+    data = destination / protocol.OUT
+    shutil.copytree(source / protocol.OUT, data)
+    for generated in (
+        recovery.RECEIPT,
+        recovery.CONTINUATION_BINDING,
+        "opening-0000-continuation-binding-v2.json",
+        "opening-0000-continuation-binding.json",
+        "outcomes.jsonl",
+        "outcomes.jsonl.pending",
+    ):
+        (data / generated).unlink(missing_ok=True)
+    return destination
+
+
+def _historical_snapshot(out: Path) -> dict[str, tuple[bytes, int]]:
+    provenance = json.loads((out / "failure-provenance.json").read_text())
+    names = {
+        "execution-freeze.json",
+        "failure-provenance.json",
+        *provenance["preserved_files"],
+        "resume-corrected/opening-0000.jsonl",
+        "resume-corrected/games-0000.jsonl",
+        "resume-corrected/report-0000.json",
+    }
+    return {
+        name: ((out / name).read_bytes(), (out / name).stat().st_mtime_ns)
+        for name in names
+    }
+
+
+def test_exact_saved_pair_recovery_import_is_receipt_bound_idempotence_rejected(
+    tmp_path: Path,
+):
+    root = _copy_saved_recovery_fixture(tmp_path / "recovery-copy")
+    out = root / protocol.OUT
+    before = _historical_snapshot(out)
+    receipt = recovery.publish_receipt(root)
+    assert receipt["saved_evidence_sha256"] == recovery.SAVED_HASHES
+    assert (
+        receipt["historical_execution"]["source_sha256"]
+        == json.loads((out / "execution-freeze.json").read_text())["source_sha256"]
+    )
+    assert receipt["prospective_correction"]["coordinates"] == (
+        "opening prefixes are player-relative; trajectory pit indices are absolute"
+    )
+    rows = recovery.import_pair(root)
+    assert len(rows) == 2
+    assert {row["F_player"] for row in rows} == {0, 1}
+    assert all(row["winner"] == "draw" for row in rows)
+    with pytest.raises(ValueError, match="duplicate_recovery_import"):
+        recovery.import_pair(root)
+    assert _historical_snapshot(out) == before
+
+
+def test_recovery_receipt_rejects_changed_pair_and_rebound_receipt(tmp_path: Path):
+    root = _copy_saved_recovery_fixture(tmp_path / "altered-copy")
+    out = root / protocol.OUT
+    recovery.publish_receipt(root)
+    games = out / "resume-corrected/games-0000.jsonl"
+    payload = games.read_bytes()
+    games.write_bytes(payload + b" ")
+    failed_snapshot = _historical_snapshot(out)
+    with pytest.raises(ValueError):
+        recovery.verify_receipt(root)
+    assert _historical_snapshot(out) == failed_snapshot
+    games.write_bytes(payload)
+
+    receipt_path = out / recovery.RECEIPT
+    receipt = json.loads(receipt_path.read_text())
+    receipt["saved_evidence_sha256"]["report"] = "0" * 64
+    receipt_path.write_text(json.dumps(receipt))
+    with pytest.raises(ValueError, match="recovery_receipt_binding"):
+        recovery.verify_receipt(root)
+
+
+def test_recovery_import_rejects_conflicting_outcomes_and_unrelated_batches(
+    tmp_path: Path,
+):
+    root = _copy_saved_recovery_fixture(tmp_path / "conflicting-copy")
+    out = root / protocol.OUT
+    recovery.publish_receipt(root)
+    pending = out / "outcomes.jsonl.pending"
+    pending.write_text('{"opening_index": 2}\n')
+    with pytest.raises(ValueError, match="unrelated_or_conflicting_pending_batch"):
+        recovery.import_pair(root)
+    pending.unlink()
+
+    foreign_batch = out / "resume-corrected/games-0001.jsonl"
+    foreign_batch.write_text("{}\n")
+    with pytest.raises(ValueError, match="unrelated_uncommitted_batch"):
+        recovery.import_pair(root)
+    foreign_batch.unlink()
+
+    (out / "outcomes.jsonl").write_text('{"opening_index": 1}\n')
+    with pytest.raises(ValueError, match="unrelated_or_conflicting_outcomes"):
+        recovery.import_pair(root)
+
+
+def test_runner_hard_gates_continuation_without_recovery_receipt(tmp_path: Path):
+    root = _write_complete_fixture(tmp_path)
+    with pytest.raises(ValueError, match="recovery_receipt_required"):
+        protocol.run(root, execute=True)

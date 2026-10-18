@@ -1,0 +1,48 @@
+{
+  "historical_execution": {
+    "execution_freeze_sha256": "331773935694a5ffe1e73dba1d4fd8ba48fc4d704e7273d1ea7a5b7c5359e7a4",
+    "execution_namespace": "resume-corrected",
+    "registration_sha256": "0e5a04fbfb5629e501654d05d0102b781b15dbf3b61766ac4e44df2bd3a0d04e",
+    "source_sha256": {
+      "ml/alphazero_lite/seed488_strength_evaluation.py": "bc72f2d395915776a9a88fac56770a4f308ae5c33003dddfc9f747c00e69eca5",
+      "ml/alphazero_lite/test_seed488_strength_evaluation.py": "9d0f096bda6d259b5ed3671a33aeae5551a235583c35c3c8f61fb77268b9aea9",
+      "ml/alphazero_lite/verify_seed488_strength_evaluation.py": "d113974f2e5060c8ca9f9799f1b30d24fda2d0308ce74f0d83ec2e910bbe99e6"
+    }
+  },
+  "opening_index": 0,
+  "outcomes": [
+    {
+      "challenger_player": 0,
+      "game_length": 33,
+      "margin": 0,
+      "winner": "draw"
+    },
+    {
+      "challenger_player": 1,
+      "game_length": 33,
+      "margin": 0,
+      "winner": "draw"
+    }
+  ],
+  "prospective_correction": {
+    "applies_to": "recovery and prospective continuation only",
+    "coordinates": "opening prefixes are player-relative; trajectory pit indices are absolute",
+    "rules_sha256": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "rules_source": "ml/alphazero_lite/kalah_rules.py",
+    "source_sha256": {
+      "ml/alphazero_lite/seed488_replay_recovery.py": "7367cab9b215e7f04f15a7ec55c2f06136e7da89d442406494f66b9bbd26324a",
+      "ml/alphazero_lite/seed488_strength_evaluation.py": "2c6536cee1ba90d2b82c0cf6f1ca3505a5bd7fb07e0e1f438510ee19723eb342",
+      "ml/alphazero_lite/test_seed488_strength_evaluation.py": "0144c8567db8a761714d5d8aba29aa72c5fa2cfbda675aa05774971c5c48a713",
+      "ml/alphazero_lite/verify_seed488_opening_replay.py": "98a9d3694d2792f0cf4388907cd09ee1a82a564fb36d9ac7cc3816a985d533f5",
+      "ml/alphazero_lite/verify_seed488_strength_evaluation.py": "6065078def49d43064dd4279557260608348dcd79b43a26abb0f55fd484fadc0"
+    }
+  },
+  "saved_evidence_sha256": {
+    "batch": "4dee384ce68692d75ce8b5e0d1ca67cafefc7f87330aeb9005938f6e55a13c7b",
+    "games": "34f4d32b0abc864cace899bd3b69b3ef58624be3078e972dbe2a52f08a9a3d1d",
+    "parent_suite": "53841cad6c5d34355cd7d6533a0fa435f4164260fd40a2da760a3d78c784cff8",
+    "report": "d22e47c1ce979fd8067bf9a7148ca637b314817aea5dbfd94aa843b3e6559901"
+  },
+  "schema": "seed488-opening-0000-correction-receipt-v1",
+  "status": "validated_for_recovery_import"
+}

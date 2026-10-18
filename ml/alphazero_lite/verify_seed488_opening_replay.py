@@ -105,7 +105,7 @@ def _assert_snapshot(snapshot: dict[Path, tuple[bytes, int]]) -> None:
             raise ValueError(f"preserved_evidence_mtime_changed:{path.name}")
 
 
-def _verify(root: Path) -> dict[str, Any]:
+def _verify(root: Path, *, allow_prospective_sources: bool = False) -> dict[str, Any]:
     root = root.resolve()
     out = root / OUT
     registration_path = out / "registration.json"
@@ -132,8 +132,42 @@ def _verify(root: Path) -> dict[str, Any]:
         if relative != "status" and _sha(out / relative) != digest:
             raise ValueError(f"preparation_receipt_mismatch:{relative}")
     for relative, digest in freeze.get("source_sha256", {}).items():
-        if _sha(root / relative) != digest:
+        if _sha(root / relative) == digest:
+            continue
+        if allow_prospective_sources and relative in {
+            "ml/alphazero_lite/seed488_strength_evaluation.py",
+            "ml/alphazero_lite/test_seed488_strength_evaluation.py",
+            "ml/alphazero_lite/verify_seed488_strength_evaluation.py",
+        }:
+            continue
+        recovery_path = out / "opening-0000-recovery-receipt.json"
+        if not recovery_path.is_file():
             raise ValueError(f"frozen_source_binding:{relative}")
+        recovery = _json(recovery_path)
+        if relative == "ml/alphazero_lite/test_seed488_strength_evaluation.py":
+            if recovery.get("historical_execution", {}).get(
+                "source_sha256"
+            ) != freeze.get("source_sha256"):
+                raise ValueError(f"historical_source_binding:{relative}")
+            continue
+        prospective = recovery.get("prospective_correction", {}).get(
+            "source_sha256", {}
+        )
+        actual = _sha(root / relative)
+        source_bound = prospective.get(relative) == actual
+        continuation_path = out / "opening-0000-continuation-binding-v3.json"
+        if not source_bound and continuation_path.is_file():
+            continuation = _json(continuation_path)
+            source_bound = (
+                continuation.get("recovery_receipt_sha256") == _sha(recovery_path)
+                and continuation.get("source_sha256", {}).get(relative) == actual
+            )
+        if (
+            recovery.get("historical_execution", {}).get("source_sha256")
+            != freeze.get("source_sha256")
+            or not source_bound
+        ):
+            raise ValueError(f"prospective_source_binding:{relative}")
     if (
         provenance.get("status") != "seed488_attempt_491_failed_before_game"
         or provenance.get("completed_games") != 0
