@@ -1,0 +1,18 @@
+{
+  "advance": false,
+  "bootstrap": {
+    "confidence_level": 0.95,
+    "method": "opening-paired percentile bootstrap; resample 512 opening clusters, carrying both seats together",
+    "one_sided_lower": 0.4755859375,
+    "replicates": 20000,
+    "seed": 488,
+    "two_sided_interval": [
+      0.47314453125,
+      0.50537109375
+    ]
+  },
+  "game_count": 1024,
+  "promotion": false,
+  "schema": "seed488-strength-evaluation-results-v1",
+  "score": 0.4892578125
+}
