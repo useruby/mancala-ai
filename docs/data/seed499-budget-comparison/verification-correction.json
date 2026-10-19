@@ -1,0 +1,22 @@
+{
+  "schema": "seed499-readonly-verification-correction-v1",
+  "status": "verified_after_readonly_checker_correction",
+  "initial_verification_error": "ValueError: outcome_replay:0:0",
+  "cause": "The first frozen publication verifier normalized independently replayed challenger/current winner labels to F/initializer, while seed499's copied arena game rows and outcome ledger retain the arena-native challenger/current labels.",
+  "frozen_verifier": {
+    "path": "ml/alphazero_lite/verify_seed499_budget_comparison.py",
+    "sha256": "2b881f1599a774b1720f2a0a92754451ce04f82c0c6125ab6f8d94df037157b4",
+    "unchanged_from_preexecution_freeze": true
+  },
+  "corrected_readonly_verifier": {
+    "path": "ml/alphazero_lite/verify_seed499_publication.py",
+    "sha256": "76640f3250c2ec06ec8e27b12195a5f732f7fba1b88ff01c3f5b82b4a554108f",
+    "change": "Compare replayed arena-native winner label directly with the corresponding game/ledger label."
+  },
+  "outcomes_sha256": "5992845d2e8107a5102dcea6b883b7dea0b60ed56d24eaddd02d56445dfca899",
+  "analysis_sha256": "625488f408dfb7be38d50191c7956f98f2f3ceb302d2f5db1923f431f05449b1",
+  "game_execution_repeated": false,
+  "outcomes_modified": false,
+  "settings_modified": false,
+  "verification_result": "verified_complete; independently replayed 1,024 games and reproduced the registered analysis"
+}

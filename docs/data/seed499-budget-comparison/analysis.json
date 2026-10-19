@@ -1,0 +1,45 @@
+{
+  "fresh_confirmation": false,
+  "historical_game_count": 1024,
+  "interpretation": "A positive budget contrast does not establish strength above the initializer.",
+  "new_game_count": 1024,
+  "paired_budget_contrast": {
+    "estimand": "mean across 512 openings of (128-simulation paired F score minus historical 1,200-simulation paired F score)",
+    "historical_comparison_only": true,
+    "mean_difference": -0.0048828125,
+    "method": "percentile bootstrap resampling 512 matched opening clusters",
+    "one_sided_95_lower": -0.025390625,
+    "replicates": 20000,
+    "seed": 499,
+    "supports_budget_sensitivity": false,
+    "two_sided_95_interval": [
+      -0.029296875,
+      0.02001953125
+    ]
+  },
+  "promotion": false,
+  "schema": "seed499-budget-contrast-analysis-v1",
+  "seed461_overlap_limitation": "Non-overlap with the unresolved seed461 continuation population cannot be certified.",
+  "standalone_128": {
+    "capped_games": 0,
+    "draws": 78,
+    "losses": 489,
+    "opening_cluster_bootstrap": {
+      "method": "percentile bootstrap resampling 512 matched opening clusters",
+      "one_sided_95_lower": 0.46728515625,
+      "replicates": 20000,
+      "seed": 499,
+      "two_sided_95_interval": [
+        0.4638671875,
+        0.5048828125
+      ]
+    },
+    "recorded_search_time_ms": {
+      "combined_total": 182831.98970509693,
+      "exact_root_total": 1144.7704387828708,
+      "normal_puct_total": 181687.21926631406
+    },
+    "score": 0.484375,
+    "wins": 457
+  }
+}
