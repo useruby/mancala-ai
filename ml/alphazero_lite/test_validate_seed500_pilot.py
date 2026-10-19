@@ -8,7 +8,9 @@ import pytest
 from ml.alphazero_lite.validate_seed500_pilot import (
     EXPECTED_SHA256,
     _validate_and_account,
+    partition_overlap,
     validate,
+    validate_shards,
 )
 
 
@@ -60,3 +62,17 @@ def test_replay_rejects_value_target_corruption() -> None:
     game[0]["value"] = -1.0
     with pytest.raises(ValueError, match="value_target_mismatch"):
         _validate_and_account(rows)
+
+
+def test_eight_shards_aggregate_and_partition_overlap() -> None:
+    root = CORPUS.parent / "seed500-selfplay-512"
+    shards = [root / f"shard-{seed}.jsonl" for seed in range(503000, 503008)]
+    report = validate_shards(shards)
+    assert (report["games"], report["rows"], report["actions"]) == (512, 18281, 18281)
+    assert report["production_loader"] == "accepted"
+    assert report["game_status"] == {"complete": 512, "capped": 0, "incomplete": 0}
+    assert report["diversity_growth_by_shard"][-1]["cumulative_unique_inputs"] == 11896
+    overlap = partition_overlap(shards, set(range(503000, 503006)))
+    assert overlap["training_source_rows"] == 13724
+    assert overlap["development_original"]["rows"] == 4557
+    assert overlap["development_after_training_identity_exclusion"]["rows"] == 2671
