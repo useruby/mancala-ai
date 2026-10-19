@@ -9,6 +9,59 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+from .kalah_rules import KalahGame
+
+
+def _root_action(opening: dict[str, Any], row: dict[str, Any]) -> int:
+    """Return the relative pit chosen at the shared opening root."""
+    moves = row.get("trajectory")
+    if not isinstance(moves, str) or not moves:
+        raise ValueError("first_trajectory_action_missing")
+    absolute = [int(value) for value in moves.split(",")]
+    if not absolute:
+        raise ValueError("first_trajectory_action_missing")
+    game = KalahGame.from_state(opening["state"])
+    root_player = game.current_player
+    first = absolute[0]
+    if not 0 <= first < 12 or first // 6 != root_player:
+        raise ValueError("root_action_player_mismatch")
+    seat = int(row["challenger_player"])
+    logged_key = (
+        "first_move_challenger" if seat == root_player else "first_move_current"
+    )
+    logged = row.get(logged_key)
+    if logged is None or int(logged) != first % 6:
+        raise ValueError("first_trajectory_action_missing_or_mismatch")
+    return first % 6
+
+
+def _validate_ledger(ledger: list[dict[str, Any]], games: list[dict[str, Any]]) -> None:
+    ledger_keys = [(int(row["opening_index"]), int(row["F_player"])) for row in ledger]
+    game_keys = [
+        (int(row["parent_opening_index"]), int(row["challenger_player"]))
+        for row in games
+    ]
+    if len(set(ledger_keys)) != len(ledger_keys) or len(set(game_keys)) != len(
+        game_keys
+    ):
+        raise ValueError("duplicate_ledger_or_game_identity")
+    if Counter(ledger_keys) != Counter(game_keys):
+        raise ValueError("ledger_game_identity_mismatch")
+    if len(ledger) != len(games):
+        raise ValueError("ledger_game_identity_mismatch")
+    game_by_key = dict(zip(game_keys, games, strict=True))
+    winner_names = {"challenger": "F", "current": "initializer"}
+    for key, ledger_row in zip(ledger_keys, ledger, strict=True):
+        ledger_winner = ledger_row.get("winner")
+        game_winner = game_by_key[key].get("winner")
+        expected_winner = (
+            winner_names.get(game_winner, game_winner)
+            if isinstance(game_winner, str)
+            else game_winner
+        )
+        if ledger_winner is not None and ledger_winner != expected_winner:
+            raise ValueError("ledger_game_result_mismatch")
+
 
 def analyze(root: Path) -> dict[str, Any]:
     data = root / "docs/data/seed488-frozen-strength-evaluation"
@@ -28,7 +81,11 @@ def analyze(root: Path) -> dict[str, Any]:
             row = json.loads(line)
             row["parent_opening_index"] = opening
             games.append(row)
-    assert len(openings) == 512 and len(ledger) == len(games) == 1024
+    if len(openings) != 512 or len(ledger) != 1024 or len(games) != 1024:
+        raise ValueError("opening_or_game_count")
+    # Outcome ledger identity is (parent opening, F seat); log row order is
+    # deliberately irrelevant.
+    _validate_ledger(ledger, games)
     points = {
         "challenger": 1.0,
         "F": 1.0,
@@ -64,21 +121,25 @@ def analyze(root: Path) -> dict[str, Any]:
     normal_ms = [float(r["normal_puct_time_ms"]) for r in games]
     exact_ms = [float(r["exact_root_solve_time_ms"]) for r in games]
     paired_first = []
-    for pair in by_opening.values():
+    for opening_index, pair in by_opening.items():
         if len(pair) != 2 or {int(r["challenger_player"]) for r in pair} != {0, 1}:
             raise ValueError("opening_pair_coverage")
+        opening = openings[opening_index]
+        actions: list[tuple[int, int]] = []
+        for row in pair:
+            prefix = opening.get("prefix_moves")
+            if not isinstance(prefix, list) or len(prefix) != int(
+                row.get("opening_applied_prefix_length", -1)
+            ):
+                raise ValueError("opening_prefix_accounting")
+            actions.append((int(row["challenger_player"]), _root_action(opening, row)))
         paired_first.append(
             {
-                "challenger_agree": pair[0].get("first_move_challenger")
-                == pair[1].get("first_move_challenger"),
-                "current_agree": pair[0].get("first_move_current")
-                == pair[1].get("first_move_current"),
+                "agree": actions[0][1] == actions[1][1],
+                "score": sum(points[r["winner"]] for r in pair) / 2,
             }
         )
-    agreement = {
-        arm: sum(p[f"{arm}_agree"] for p in paired_first)
-        for arm in ("challenger", "current")
-    }
+    agreement = sum(p["agree"] for p in paired_first)
     return {
         "game_count": len(games),
         "opening_count": len(openings),
@@ -111,12 +172,20 @@ def analyze(root: Path) -> dict[str, Any]:
             "exact_root_per_game_mean": statistics.mean(exact_ms),
             "exact_root_per_handoff_mean": sum(exact_ms) / sum(handoffs),
         },
-        "paired_first_action": {
+        "root_action_comparison": {
             "compared_openings": len(paired_first),
-            "challenger_agreements": agreement["challenger"],
-            "challenger_disagreements": 512 - agreement["challenger"],
-            "current_agreements": agreement["current"],
-            "current_disagreements": 512 - agreement["current"],
+            "agreements": agreement,
+            "disagreements": 512 - agreement,
+            "paired_score_distribution_by_agreement": {
+                str(agree): {
+                    str(score): sum(
+                        p["agree"] == agree and p["score"] == score
+                        for p in paired_first
+                    )
+                    for score in (0.0, 0.25, 0.5, 0.75, 1.0)
+                }
+                for agree in (True, False)
+            },
         },
         "ledger_game_count": len(ledger),
     }
