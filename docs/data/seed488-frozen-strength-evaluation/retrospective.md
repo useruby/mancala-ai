@@ -50,25 +50,37 @@ The game records' `normal_puct_time_ms` totals **2,010,197.43 ms** (mean
 means of the fields as recorded, not independently timed or normalized per
 move; they describe this run's recorded telemetry only.
 
-## First-action comparison and interpretation
+## Corrected opening-root action comparison
 
-The two seat-swapped logs per opening record actor-relative first actions for
-both arms. Comparing each arm's logged first action between the two games of
-the same opening gives F agreement on **95/512** openings (417 disagreements)
-and initializer agreement on **88/512** (424 disagreements). The logs do not
-provide a reliable action-value/regret measure or a causal account of why a
-first action differs. First-action agreement is only a descriptive repeatability
-comparison across the seat-swapped runs.
+Correction to the original PR #497 retrospective: the reported F **95/512** and
+initializer **88/512** agreements compared each model's first personal action
+across swapped seats. These are superseded descriptive counts, **not
+repeatability**: the model's first turn may occur at different game states in
+the two games.
 
-The seat-score gap and frequent seat-swapped first-action disagreement provide
-a concrete *candidate for further descriptive investigation*: whether early
-action choices or seat-conditioned behavior account for part of the observed
-variation. They do not establish a mechanism, treatment effect, or a revised
-advance decision. The available artifacts do not report per-decision value
-estimates/regret, controlled counterfactual outcomes, or a certified comparison
-against seed461's unresolved continuation population. Consequently they do not
-support a causal next-step claim or fresh confirmation. Any subgroup observation
-here is retrospective and descriptive only.
+Instead, for every opening, this comparison takes the first **absolute** action
+in each archived trajectory. Trajectories begin at the opening root, and the
+root's `current_player` from the registered opening state identifies the acting
+arm in each seat-swapped game. Absolute pit indices are converted to relative
+pit indices for comparing the same root choice. This does not compare the
+models' first personal turns: those can be at different states, and extra turns
+can leave the root player acting again immediately.
+
+F and initializer chose the same root action on **480/512** openings and
+different root actions on **32/512**. Paired-opening scores grouped by this
+agreement classification were:
+
+| Root action comparison | 0.00 | 0.25 | 0.50 | 0.75 | 1.00 | Total |
+|---|---:|---:|---:|---:|---:|---:|
+| Agree | 27 | 35 | 367 | 29 | 22 | 480 |
+| Disagree | 5 | 2 | 21 | 2 | 2 | 32 |
+
+These are descriptive paired-opening counts only; they do not imply causation,
+explain outcome differences, or change the registered strength decision. The
+available artifacts do not report per-decision value estimates/regret,
+controlled counterfactual outcomes, or a certified comparison against seed461's
+unresolved continuation population. They support no causal next-step claim or
+fresh confirmation.
 
 ## Practical conclusion and limits
 
