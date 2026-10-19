@@ -1,0 +1,19 @@
+{
+  "schema": "seed499-finalization-receipt-v1",
+  "status": "seed499_exploratory_publication_finalized",
+  "files": {
+    "analysis.json": "625488f408dfb7be38d50191c7956f98f2f3ceb302d2f5db1923f431f05449b1",
+    "execution-commands.md": "e9cb92d26e37a6b68668689af7813e8d290ac0d5526c6f722c5aa99c60b2b842",
+    "freeze.json": "c211da9dc495d7497af2db1a76f6730afedb1129bbfb4d23c35740c77b92cf0a",
+    "outcomes.jsonl": "5992845d2e8107a5102dcea6b883b7dea0b60ed56d24eaddd02d56445dfca899",
+    "publication-receipt.json": "34eaf9dfe55e81822732d03c78ff16949906881392b3e91709f5db5b7a4ec8e7",
+    "registration.json": "75f5fb564f1348ca3686f9a47b30e4849f6647a81af63ffc47295361f8f6a39c",
+    "results.md": "180f52c4d8be9c4d21db064ca38343caff38d09f00a174ad95d05605cfa418fe",
+    "verification-correction.json": "10d6eedd4b78121b6fe645d6f3d285215b8f14313d6c3245c2a1fc1c6a5cc77c"
+  },
+  "corrected_verifier": {
+    "path": "ml/alphazero_lite/verify_seed499_publication.py",
+    "sha256": "76640f3250c2ec06ec8e27b12195a5f732f7fba1b88ff01c3f5b82b4a554108f"
+  },
+  "historical_seed488_evidence_modified": false
+}

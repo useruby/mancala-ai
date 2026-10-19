@@ -1320,6 +1320,15 @@ def _copy_saved_recovery_fixture(destination: Path) -> Path:
         "outcomes.jsonl.pending",
     ):
         (data / generated).unlink(missing_ok=True)
+    # The published evaluation now contains many committed batches in this
+    # namespace. A recovery fixture must retain only its saved opening-zero
+    # pair; otherwise production's deliberate foreign-batch guard rejects it.
+    attempt = data / recovery.ATTEMPT
+    allowed = {"opening-0000.jsonl", "games-0000.jsonl", "report-0000.json"}
+    for path in attempt.iterdir():
+        if path.is_file() and path.name.startswith(("opening-", "games-", "report-")):
+            if path.name not in allowed:
+                path.unlink()
     return destination
 
 

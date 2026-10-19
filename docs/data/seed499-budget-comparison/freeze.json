@@ -1,0 +1,18 @@
+{
+  "historical_seed488_outcomes_sha256": "7c19ed9fdea928fcfcf7c8c09d1aebeef9d95304b258ed1c9009f99c3f70b711",
+  "historical_seed488_publication_sha256": "64074aa040ecfa298483222b33f7f77b92d3423488b2445d17d081e228a1bcdf",
+  "opening_suite_sha256": "53841cad6c5d34355cd7d6533a0fa435f4164260fd40a2da760a3d78c784cff8",
+  "registration_sha256": "75f5fb564f1348ca3686f9a47b30e4849f6647a81af63ffc47295361f8f6a39c",
+  "runtime_artifacts_sha256": "a3bbca1f701247957d0d7d1aa3fab0cfd49de5d70fd17bfaa56edd6cd24e1ab2",
+  "schema": "seed499-pre-execution-freeze-v1",
+  "source_sha256": {
+    "ml/alphazero_lite/seed499_budget_analysis.py": "dd294f07f674ff700ba992ad6d3910358a06c86961b8310f5763a3bef153578f",
+    "ml/alphazero_lite/seed499_budget_comparison.py": "4bd54fa24bd21605a8797a371007fabebdf15dbe19607942bb072eb3d6348c94",
+    "ml/alphazero_lite/test_seed488_opening_replay.py": "b48a6adfff6109894b2b72886b8afdd58cea926688af78774c1fb92550c73127",
+    "ml/alphazero_lite/test_seed488_strength_evaluation.py": "4a8618acfa49d52cf39e32ae3daf6488cd1e642f9eeade3d4941fb9f23503b39",
+    "ml/alphazero_lite/test_seed499_budget_analysis.py": "6ddfe507a9bcc28d49c0859b42a9aa84ae5fc2f9f09bcd66eab00ebeec79a3ef",
+    "ml/alphazero_lite/test_seed499_budget_comparison.py": "a53b78583b590d00ed2910a4408c05bf14a270d19808cb4e04397ef85845d847",
+    "ml/alphazero_lite/verify_seed499_budget_comparison.py": "2b881f1599a774b1720f2a0a92754451ce04f82c0c6125ab6f8d94df037157b4"
+  },
+  "status": "frozen_before_execution"
+}
