@@ -1,0 +1,39 @@
+{
+  "schema": "seed499-readonly-semantic-supplement-receipt-v1",
+  "status": "verified_complete_with_semantic_supplement",
+  "supplement": "verification-supplement.md",
+  "verifier": "../../../../ml/alphazero_lite/verify_seed499_supplement.py",
+  "tests": "../../../../ml/alphazero_lite/test_seed499_supplement.py",
+  "sha256": {
+    "supplement": "8d17bf73fe8d74deba842c2f9db2ddeafc93033f79a309c5689b1aa11c888d03",
+    "verifier": "7a76f89c9030190e82e1688abcc970bce0285ae3fef43387c735df3c19bef782",
+    "tests": "741462edf6bc6117292ea8234493b4e60a4002e622fedf925486f4cd6e134e55"
+  },
+  "original_publication_receipt_preserved": true,
+  "original_registration_and_freeze_preserved": true,
+  "games_rerun": false,
+  "batches_checked": 512,
+  "ledger_games_reconciled": 1024,
+  "semantic_corruption_tests_passed": 7,
+  "focused_tests_passed": 14,
+  "ruff": "passed",
+  "physical_copy_verification": "passed; 512 batches and 1,024 games verified",
+  "protected_file_preservation": "passed; all seed488 and seed499 data bytes and modification times unchanged",
+  "unrelated_work_preservation": "passed; 27 files in docs/data/seed416-policy-target-softening retained bytes and modification times; working-tree status unchanged by copied verification",
+  "recomputed_analysis": {
+    "wins": 457,
+    "draws": 78,
+    "losses": 489,
+    "standalone_score": 0.484375,
+    "capped_games": 0,
+    "normal_puct_time_ms": 181687.21926631406,
+    "exact_root_time_ms": 1144.7704387828708,
+    "matched_mean_difference": -0.0048828125,
+    "matched_one_sided_95_lower": -0.025390625,
+    "supports_budget_sensitivity": false,
+    "promotion": false,
+    "fresh_confirmation": false
+  },
+  "seed461_overlap_limitation": "Non-overlap with the unresolved seed461 continuation population cannot be certified.",
+  "execution_provenance_limitation": "The seed488 execution freeze binds an earlier command-builder digest, but it differs from current checkout and seed499 does not prospectively bind the imported module; the exact builder used by seed499 execution is unauthenticated. Archived reports do not record max-moves, so the executed cap cannot be confirmed although all games were shorter than 200 moves and the current reconstructed command specifies 200. Arena and rules identities are prospectively authenticated. No trusted process transcript or executable/environment digest proves which runtime bytes were loaded or that the recorded invocation was executed. No retrospective freeze or provenance claim is made."
+}
