@@ -1,0 +1,254 @@
+{
+  "actions": 18281,
+  "canonical_duplicate_rows": 6385,
+  "canonical_unique_states": 11896,
+  "corpus_sha256": "a2602c6c908c41be273c357a425fe06267e230a700ecd5368df15e70b9836534",
+  "diversity_growth_by_shard": [
+    {
+      "cumulative_unique_inputs": 1897,
+      "new_unique_inputs": 1897,
+      "seed": 503000,
+      "shard_unique_inputs": 1897
+    },
+    {
+      "cumulative_unique_inputs": 3527,
+      "new_unique_inputs": 1630,
+      "seed": 503001,
+      "shard_unique_inputs": 1795
+    },
+    {
+      "cumulative_unique_inputs": 4977,
+      "new_unique_inputs": 1450,
+      "seed": 503002,
+      "shard_unique_inputs": 1771
+    },
+    {
+      "cumulative_unique_inputs": 6285,
+      "new_unique_inputs": 1308,
+      "seed": 503003,
+      "shard_unique_inputs": 1784
+    },
+    {
+      "cumulative_unique_inputs": 7884,
+      "new_unique_inputs": 1599,
+      "seed": 503004,
+      "shard_unique_inputs": 2039
+    },
+    {
+      "cumulative_unique_inputs": 9281,
+      "new_unique_inputs": 1397,
+      "seed": 503005,
+      "shard_unique_inputs": 1907
+    },
+    {
+      "cumulative_unique_inputs": 10699,
+      "new_unique_inputs": 1418,
+      "seed": 503006,
+      "shard_unique_inputs": 2040
+    },
+    {
+      "cumulative_unique_inputs": 11896,
+      "new_unique_inputs": 1197,
+      "seed": 503007,
+      "shard_unique_inputs": 1778
+    }
+  ],
+  "encoded_input_duplicate_rows": 6385,
+  "encoded_input_unique_states": 11896,
+  "extra_turns": 7276,
+  "game_status": {
+    "capped": 0,
+    "complete": 512,
+    "incomplete": 0
+  },
+  "games": 512,
+  "generation_duration": "270.70 seconds (sum of per-shard Bash time -p real measurements)",
+  "generation_elapsed_seconds_total": 270.7,
+  "loader_accepted_rows": 18281,
+  "loader_shapes": {
+    "policies": [
+      18281,
+      6
+    ],
+    "states": [
+      18281,
+      27
+    ],
+    "values": [
+      18281,
+      1
+    ]
+  },
+  "notes": [
+    "Canonical and encoded-input identity counts agree; uniqueness/duplicate accounting is over decision rows.",
+    "Development-source data is not claimed historically unseen.",
+    "No capped/incomplete games were substituted; no training, candidate evaluation, promotion, or fresh-confirmation claim."
+  ],
+  "outcomes_by_winner": {
+    "0": 407,
+    "1": 76,
+    "draw": 29
+  },
+  "production_loader": "accepted",
+  "rows": 18281,
+  "shards": [
+    {
+      "bytes": 8163922,
+      "capped_games": 0,
+      "complete_games": 64,
+      "elapsed_seconds": 34.72,
+      "games": 64,
+      "incomplete_games": 0,
+      "path": "docs/data/seed500-selfplay-512/shard-503000.jsonl",
+      "rows": 2352,
+      "seed": 503000,
+      "sha256": "db48f2b944925c575261ae285758d91866d029a705db7665f80b96e23675f9cd"
+    },
+    {
+      "bytes": 7836707,
+      "capped_games": 0,
+      "complete_games": 64,
+      "elapsed_seconds": 34.08,
+      "games": 64,
+      "incomplete_games": 0,
+      "path": "docs/data/seed500-selfplay-512/shard-503001.jsonl",
+      "rows": 2254,
+      "seed": 503001,
+      "sha256": "2c707c5868013d2b91df0250001266ac84f79b72e1fad55d2ae74f10327e6cb4"
+    },
+    {
+      "bytes": 7467562,
+      "capped_games": 0,
+      "complete_games": 64,
+      "elapsed_seconds": 33.03,
+      "games": 64,
+      "incomplete_games": 0,
+      "path": "docs/data/seed500-selfplay-512/shard-503002.jsonl",
+      "rows": 2152,
+      "seed": 503002,
+      "sha256": "abecfdd3a6dd5ce0720f1ebf64b192ec36bf344a15b2942cc3af2f87f930da0c"
+    },
+    {
+      "bytes": 7940224,
+      "capped_games": 0,
+      "complete_games": 64,
+      "elapsed_seconds": 33.7,
+      "games": 64,
+      "incomplete_games": 0,
+      "path": "docs/data/seed500-selfplay-512/shard-503003.jsonl",
+      "rows": 2281,
+      "seed": 503003,
+      "sha256": "c1462711adaa5fe88e90b2d713baa08c750ea6b6450ae791e6be5881fe9dd39f"
+    },
+    {
+      "bytes": 8385819,
+      "capped_games": 0,
+      "complete_games": 64,
+      "elapsed_seconds": 35.55,
+      "games": 64,
+      "incomplete_games": 0,
+      "path": "docs/data/seed500-selfplay-512/shard-503004.jsonl",
+      "rows": 2409,
+      "seed": 503004,
+      "sha256": "d150631d5947eb22254903a93e0a8a7242ea42364eac6c99d0151ad08b2722c6"
+    },
+    {
+      "bytes": 7929590,
+      "capped_games": 0,
+      "complete_games": 64,
+      "elapsed_seconds": 33.3,
+      "games": 64,
+      "incomplete_games": 0,
+      "path": "docs/data/seed500-selfplay-512/shard-503005.jsonl",
+      "rows": 2276,
+      "seed": 503005,
+      "sha256": "fce737e9ae3c33e38a81931847ec6c9ccf58bc2df05510dd193d9203391671d2"
+    },
+    {
+      "bytes": 8299749,
+      "capped_games": 0,
+      "complete_games": 64,
+      "elapsed_seconds": 34.08,
+      "games": 64,
+      "incomplete_games": 0,
+      "path": "docs/data/seed500-selfplay-512/shard-503006.jsonl",
+      "rows": 2380,
+      "seed": 503006,
+      "sha256": "981fa7978eb8c71aee1fba33acecb704d23d61ec629b342c776c847fee22cba4"
+    },
+    {
+      "bytes": 7565095,
+      "capped_games": 0,
+      "complete_games": 64,
+      "elapsed_seconds": 32.24,
+      "games": 64,
+      "incomplete_games": 0,
+      "path": "docs/data/seed500-selfplay-512/shard-503007.jsonl",
+      "rows": 2177,
+      "seed": 503007,
+      "sha256": "128029ce1ef0304bc3eb7d3330def5a6e6249454e8abc32bf2d4c4fdb7dff732"
+    }
+  ],
+  "subgroups_by_teacher_and_active_stones": {
+    "PUCT": {
+      "17\u201332": {
+        "duplicate_rows": 1181,
+        "mean_legal_policy_entropy_nats": 0.08376658398560338,
+        "one_hot_fraction": 0.35254529767040554,
+        "rows": 5795,
+        "usable_rows": 5795
+      },
+      ">32": {
+        "duplicate_rows": 3975,
+        "mean_legal_policy_entropy_nats": 0.5607308138501882,
+        "one_hot_fraction": 0.11306413301662707,
+        "rows": 6315,
+        "usable_rows": 6315
+      },
+      "\u226416": {
+        "duplicate_rows": 0,
+        "mean_legal_policy_entropy_nats": 0.0,
+        "one_hot_fraction": 0.0,
+        "rows": 0,
+        "usable_rows": 0
+      }
+    },
+    "exact-root": {
+      "17\u201332": {
+        "duplicate_rows": 0,
+        "mean_legal_policy_entropy_nats": 0.0,
+        "one_hot_fraction": 0.0,
+        "rows": 0,
+        "usable_rows": 0
+      },
+      ">32": {
+        "duplicate_rows": 0,
+        "mean_legal_policy_entropy_nats": 0.0,
+        "one_hot_fraction": 0.0,
+        "rows": 0,
+        "usable_rows": 0
+      },
+      "\u226416": {
+        "duplicate_rows": 1229,
+        "mean_legal_policy_entropy_nats": 0.0,
+        "one_hot_fraction": 1.0,
+        "rows": 6171,
+        "usable_rows": 6171
+      }
+    }
+  },
+  "training_development_identity_overlap": {
+    "development_after_training_identity_exclusion": {
+      "canonical_unique": 2615,
+      "encoded_input_unique": 2615,
+      "rows": 2671
+    },
+    "development_original": {
+      "canonical_unique": 3654,
+      "encoded_input_unique": 3654,
+      "rows": 4557
+    },
+    "development_rows_excluded_by_training_canonical_or_exact_input": 1886,
+    "training_source_rows": 13724
+  }
+}

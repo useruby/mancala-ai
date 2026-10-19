@@ -33,8 +33,8 @@ def _validate_and_account(rows: list[dict[str, Any]]) -> dict[str, Any]:
     games: dict[int, list[tuple[int, dict[str, Any]]]] = defaultdict(list)
     for index, row in enumerate(rows):
         games[int(row["game_index"])].append((index, row))
-    if sorted(games) != list(range(64)):
-        raise ValueError("game_ids_not_complete_0_to_63")
+    if sorted(games) != list(range(len(games))):
+        raise ValueError("game_ids_not_complete_zero_based")
 
     seen_canonical: Counter[tuple[Any, ...]] = Counter()
     seen_encoded: Counter[tuple[float, ...]] = Counter()
@@ -184,11 +184,110 @@ def validate(path: Path) -> dict[str, Any]:
     return accounting
 
 
+def validate_shards(paths: list[Path]) -> dict[str, Any]:
+    """Replay and account for separate shards as one corpus without changing bytes."""
+    rows: list[dict[str, Any]] = []
+    shard_reports = []
+    digest = hashlib.sha256()
+    for shard_index, path in enumerate(paths):
+        report = validate(path)
+        if report["games"] != 64:
+            raise ValueError(f"shard_game_count_mismatch:{path}:{report['games']}")
+        shard_reports.append({"path": str(path), **report})
+        shard_rows = [
+            json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()
+        ]
+        for row in shard_rows:
+            row["game_index"] = int(row["game_index"]) + shard_index * 64
+        rows.extend(shard_rows)
+        digest.update(path.name.encode("utf-8"))
+        digest.update(path.read_bytes())
+    accounting = _validate_and_account(rows)
+    loaded = [
+        train.load_jsonl(
+            path, policy_target_mode="default", value_target_mode="default"
+        )
+        for path in paths
+    ]
+    accounting["production_loader"] = "accepted"
+    accounting["loader_shapes"] = {
+        "states": [sum(int(x.shape[0]) for x, _, _ in loaded), 27],
+        "policies": [sum(int(p.shape[0]) for _, p, _ in loaded), 6],
+        "values": [sum(int(v.shape[0]) for _, _, v in loaded), 1],
+    }
+    accounting["corpus_sha256"] = digest.hexdigest()
+    accounting["shards"] = shard_reports
+    return accounting
+
+
+def partition_overlap(paths: list[Path], training_seeds: set[int]) -> dict[str, Any]:
+    """Compare development identities to the designated training-source shards."""
+    training_canonical: set[tuple[Any, ...]] = set()
+    training_encoded: set[tuple[float, ...]] = set()
+    development: list[tuple[tuple[Any, ...], tuple[float, ...]]] = []
+    for path in paths:
+        rows = [
+            json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()
+        ]
+        games: dict[int, list[dict[str, Any]]] = defaultdict(list)
+        for row in rows:
+            games[int(row["game_index"])].append(row)
+        for game_rows in games.values():
+            sequence = sorted(game_rows, key=lambda row: int(row["move_index"]))
+            game = KalahGame.from_state(sequence[0]["game_start_state"])
+            moves = sequence[0]["game_moves"]
+            for row in sequence:
+                canonical = _canonical_state(game.to_state())
+                encoded = tuple(float(x) for x in row["state"])
+                if int(row["game_seed"]) in training_seeds:
+                    training_canonical.add(canonical)
+                    training_encoded.add(encoded)
+                else:
+                    development.append((canonical, encoded))
+                game.move(game.pit_index(int(moves[int(row["move_index"])])))
+    filtered = [
+        (canonical, encoded)
+        for canonical, encoded in development
+        if canonical not in training_canonical and encoded not in training_encoded
+    ]
+    return {
+        "training_source_rows": sum(
+            1
+            for path in paths
+            for line in path.read_text(encoding="utf-8").splitlines()
+            if int(json.loads(line)["game_seed"]) in training_seeds
+        ),
+        "development_original": {
+            "rows": len(development),
+            "canonical_unique": len({canonical for canonical, _ in development}),
+            "encoded_input_unique": len({encoded for _, encoded in development}),
+        },
+        "development_after_training_identity_exclusion": {
+            "rows": len(filtered),
+            "canonical_unique": len({canonical for canonical, _ in filtered}),
+            "encoded_input_unique": len({encoded for _, encoded in filtered}),
+        },
+        "development_rows_excluded_by_training_canonical_or_exact_input": len(
+            development
+        )
+        - len(filtered),
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("corpus", type=Path)
+    parser.add_argument("corpus", type=Path, nargs="+")
     args = parser.parse_args()
-    print(json.dumps(validate(args.corpus), indent=2, sort_keys=True))
+    report = (
+        validate(args.corpus[0])
+        if len(args.corpus) == 1
+        else validate_shards(args.corpus)
+    )
+    if len(args.corpus) > 1:
+        report["training_development_identity_overlap"] = partition_overlap(
+            args.corpus, set(range(503000, 503006))
+        )
+    print(json.dumps(report, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":
