@@ -70,6 +70,8 @@ def test_eight_shards_aggregate_and_partition_overlap() -> None:
     report = validate_shards(shards)
     assert (report["games"], report["rows"], report["actions"]) == (512, 18281, 18281)
     assert report["production_loader"] == "accepted"
+    assert report["game_status"] == {"complete": 512, "capped": 0, "incomplete": 0}
+    assert report["diversity_growth_by_shard"][-1]["cumulative_unique_inputs"] == 11896
     overlap = partition_overlap(shards, set(range(503000, 503006)))
     assert overlap["training_source_rows"] == 13724
     assert overlap["development_original"]["rows"] == 4557

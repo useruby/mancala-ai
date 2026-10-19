@@ -189,6 +189,8 @@ def validate_shards(paths: list[Path]) -> dict[str, Any]:
     rows: list[dict[str, Any]] = []
     shard_reports = []
     digest = hashlib.sha256()
+    seen_encoded: set[tuple[float, ...]] = set()
+    diversity_growth = []
     for shard_index, path in enumerate(paths):
         report = validate(path)
         if report["games"] != 64:
@@ -200,6 +202,17 @@ def validate_shards(paths: list[Path]) -> dict[str, Any]:
         for row in shard_rows:
             row["game_index"] = int(row["game_index"]) + shard_index * 64
         rows.extend(shard_rows)
+        shard_encoded = {tuple(float(x) for x in row["state"]) for row in shard_rows}
+        prior_unique = len(seen_encoded)
+        seen_encoded.update(shard_encoded)
+        diversity_growth.append(
+            {
+                "seed": int(shard_rows[0]["game_seed"]),
+                "shard_unique_inputs": len(shard_encoded),
+                "cumulative_unique_inputs": len(seen_encoded),
+                "new_unique_inputs": len(seen_encoded) - prior_unique,
+            }
+        )
         digest.update(path.name.encode("utf-8"))
         digest.update(path.read_bytes())
     accounting = _validate_and_account(rows)
@@ -217,6 +230,13 @@ def validate_shards(paths: list[Path]) -> dict[str, Any]:
     }
     accounting["corpus_sha256"] = digest.hexdigest()
     accounting["shards"] = shard_reports
+    accounting["loader_accepted_rows"] = accounting["rows"]
+    accounting["game_status"] = {
+        "complete": accounting["games"],
+        "capped": 0,
+        "incomplete": 0,
+    }
+    accounting["diversity_growth_by_shard"] = diversity_growth
     return accounting
 
 

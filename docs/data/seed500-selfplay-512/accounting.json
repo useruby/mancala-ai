@@ -56,6 +56,9 @@
   "encoded_input_duplicate_rows": 6385,
   "encoded_input_unique_states": 11896,
   "extra_turns": 7276,
+  "failures": [
+    "Initial prelaunch wrapper attempt failed for all seeds because /usr/bin/time was absent; no outputs were created. The authorized generator invocations then completed successfully."
+  ],
   "game_status": {
     "capped": 0,
     "complete": 512,
@@ -93,100 +96,659 @@
   "rows": 18281,
   "shards": [
     {
-      "bytes": 8163922,
-      "capped_games": 0,
-      "complete_games": 64,
+      "actions": 2352,
+      "canonical_duplicate_rows": 455,
+      "canonical_unique_states": 1897,
+      "corpus_sha256": "db48f2b944925c575261ae285758d91866d029a705db7665f80b96e23675f9cd",
       "elapsed_seconds": 34.72,
+      "encoded_input_duplicate_rows": 455,
+      "encoded_input_unique_states": 1897,
+      "extra_turns": 916,
       "games": 64,
-      "incomplete_games": 0,
+      "generation_duration": "unavailable (no original timing record)",
+      "loader_shapes": {
+        "policies": [
+          2352,
+          6
+        ],
+        "states": [
+          2352,
+          27
+        ],
+        "values": [
+          2352,
+          1
+        ]
+      },
+      "outcomes_by_winner": {
+        "0": 50,
+        "1": 9,
+        "draw": 5
+      },
       "path": "docs/data/seed500-selfplay-512/shard-503000.jsonl",
+      "production_loader": "accepted",
       "rows": 2352,
-      "seed": 503000,
-      "sha256": "db48f2b944925c575261ae285758d91866d029a705db7665f80b96e23675f9cd"
+      "subgroups_by_teacher_and_active_stones": {
+        "PUCT": {
+          "17\u201332": {
+            "duplicate_rows": 34,
+            "mean_legal_policy_entropy_nats": 0.07853796734997757,
+            "one_hot_fraction": 0.35182849936948296,
+            "rows": 793,
+            "usable_rows": 793
+          },
+          ">32": {
+            "duplicate_rows": 375,
+            "mean_legal_policy_entropy_nats": 0.5654111397231765,
+            "one_hot_fraction": 0.1214017521902378,
+            "rows": 799,
+            "usable_rows": 799
+          },
+          "\u226416": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          }
+        },
+        "exact-root": {
+          "17\u201332": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          },
+          ">32": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          },
+          "\u226416": {
+            "duplicate_rows": 46,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 1.0,
+            "rows": 760,
+            "usable_rows": 760
+          }
+        }
+      }
     },
     {
-      "bytes": 7836707,
-      "capped_games": 0,
-      "complete_games": 64,
+      "actions": 2254,
+      "canonical_duplicate_rows": 459,
+      "canonical_unique_states": 1795,
+      "corpus_sha256": "2c707c5868013d2b91df0250001266ac84f79b72e1fad55d2ae74f10327e6cb4",
       "elapsed_seconds": 34.08,
+      "encoded_input_duplicate_rows": 459,
+      "encoded_input_unique_states": 1795,
+      "extra_turns": 871,
       "games": 64,
-      "incomplete_games": 0,
+      "generation_duration": "unavailable (no original timing record)",
+      "loader_shapes": {
+        "policies": [
+          2254,
+          6
+        ],
+        "states": [
+          2254,
+          27
+        ],
+        "values": [
+          2254,
+          1
+        ]
+      },
+      "outcomes_by_winner": {
+        "0": 54,
+        "1": 8,
+        "draw": 2
+      },
       "path": "docs/data/seed500-selfplay-512/shard-503001.jsonl",
+      "production_loader": "accepted",
       "rows": 2254,
-      "seed": 503001,
-      "sha256": "2c707c5868013d2b91df0250001266ac84f79b72e1fad55d2ae74f10327e6cb4"
+      "subgroups_by_teacher_and_active_stones": {
+        "PUCT": {
+          "17\u201332": {
+            "duplicate_rows": 59,
+            "mean_legal_policy_entropy_nats": 0.09749592751146786,
+            "one_hot_fraction": 0.32413793103448274,
+            "rows": 725,
+            "usable_rows": 725
+          },
+          ">32": {
+            "duplicate_rows": 369,
+            "mean_legal_policy_entropy_nats": 0.5488927555740901,
+            "one_hot_fraction": 0.10089399744572158,
+            "rows": 783,
+            "usable_rows": 783
+          },
+          "\u226416": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          }
+        },
+        "exact-root": {
+          "17\u201332": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          },
+          ">32": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          },
+          "\u226416": {
+            "duplicate_rows": 31,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 1.0,
+            "rows": 746,
+            "usable_rows": 746
+          }
+        }
+      }
     },
     {
-      "bytes": 7467562,
-      "capped_games": 0,
-      "complete_games": 64,
+      "actions": 2152,
+      "canonical_duplicate_rows": 381,
+      "canonical_unique_states": 1771,
+      "corpus_sha256": "abecfdd3a6dd5ce0720f1ebf64b192ec36bf344a15b2942cc3af2f87f930da0c",
       "elapsed_seconds": 33.03,
+      "encoded_input_duplicate_rows": 381,
+      "encoded_input_unique_states": 1771,
+      "extra_turns": 833,
       "games": 64,
-      "incomplete_games": 0,
+      "generation_duration": "unavailable (no original timing record)",
+      "loader_shapes": {
+        "policies": [
+          2152,
+          6
+        ],
+        "states": [
+          2152,
+          27
+        ],
+        "values": [
+          2152,
+          1
+        ]
+      },
+      "outcomes_by_winner": {
+        "0": 46,
+        "1": 16,
+        "draw": 2
+      },
       "path": "docs/data/seed500-selfplay-512/shard-503002.jsonl",
+      "production_loader": "accepted",
       "rows": 2152,
-      "seed": 503002,
-      "sha256": "abecfdd3a6dd5ce0720f1ebf64b192ec36bf344a15b2942cc3af2f87f930da0c"
+      "subgroups_by_teacher_and_active_stones": {
+        "PUCT": {
+          "17\u201332": {
+            "duplicate_rows": 28,
+            "mean_legal_policy_entropy_nats": 0.09680491531298624,
+            "one_hot_fraction": 0.32047477744807124,
+            "rows": 674,
+            "usable_rows": 674
+          },
+          ">32": {
+            "duplicate_rows": 346,
+            "mean_legal_policy_entropy_nats": 0.5512663390967395,
+            "one_hot_fraction": 0.10902255639097744,
+            "rows": 798,
+            "usable_rows": 798
+          },
+          "\u226416": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          }
+        },
+        "exact-root": {
+          "17\u201332": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          },
+          ">32": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          },
+          "\u226416": {
+            "duplicate_rows": 7,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 1.0,
+            "rows": 680,
+            "usable_rows": 680
+          }
+        }
+      }
     },
     {
-      "bytes": 7940224,
-      "capped_games": 0,
-      "complete_games": 64,
+      "actions": 2281,
+      "canonical_duplicate_rows": 497,
+      "canonical_unique_states": 1784,
+      "corpus_sha256": "c1462711adaa5fe88e90b2d713baa08c750ea6b6450ae791e6be5881fe9dd39f",
       "elapsed_seconds": 33.7,
+      "encoded_input_duplicate_rows": 497,
+      "encoded_input_unique_states": 1784,
+      "extra_turns": 951,
       "games": 64,
-      "incomplete_games": 0,
+      "generation_duration": "unavailable (no original timing record)",
+      "loader_shapes": {
+        "policies": [
+          2281,
+          6
+        ],
+        "states": [
+          2281,
+          27
+        ],
+        "values": [
+          2281,
+          1
+        ]
+      },
+      "outcomes_by_winner": {
+        "0": 51,
+        "1": 7,
+        "draw": 6
+      },
       "path": "docs/data/seed500-selfplay-512/shard-503003.jsonl",
+      "production_loader": "accepted",
       "rows": 2281,
-      "seed": 503003,
-      "sha256": "c1462711adaa5fe88e90b2d713baa08c750ea6b6450ae791e6be5881fe9dd39f"
+      "subgroups_by_teacher_and_active_stones": {
+        "PUCT": {
+          "17\u201332": {
+            "duplicate_rows": 51,
+            "mean_legal_policy_entropy_nats": 0.07626738319630809,
+            "one_hot_fraction": 0.3700137551581843,
+            "rows": 727,
+            "usable_rows": 727
+          },
+          ">32": {
+            "duplicate_rows": 384,
+            "mean_legal_policy_entropy_nats": 0.5523525982812036,
+            "one_hot_fraction": 0.11855670103092783,
+            "rows": 776,
+            "usable_rows": 776
+          },
+          "\u226416": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          }
+        },
+        "exact-root": {
+          "17\u201332": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          },
+          ">32": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          },
+          "\u226416": {
+            "duplicate_rows": 62,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 1.0,
+            "rows": 778,
+            "usable_rows": 778
+          }
+        }
+      }
     },
     {
-      "bytes": 8385819,
-      "capped_games": 0,
-      "complete_games": 64,
+      "actions": 2409,
+      "canonical_duplicate_rows": 370,
+      "canonical_unique_states": 2039,
+      "corpus_sha256": "d150631d5947eb22254903a93e0a8a7242ea42364eac6c99d0151ad08b2722c6",
       "elapsed_seconds": 35.55,
+      "encoded_input_duplicate_rows": 370,
+      "encoded_input_unique_states": 2039,
+      "extra_turns": 968,
       "games": 64,
-      "incomplete_games": 0,
+      "generation_duration": "unavailable (no original timing record)",
+      "loader_shapes": {
+        "policies": [
+          2409,
+          6
+        ],
+        "states": [
+          2409,
+          27
+        ],
+        "values": [
+          2409,
+          1
+        ]
+      },
+      "outcomes_by_winner": {
+        "0": 45,
+        "1": 11,
+        "draw": 8
+      },
       "path": "docs/data/seed500-selfplay-512/shard-503004.jsonl",
+      "production_loader": "accepted",
       "rows": 2409,
-      "seed": 503004,
-      "sha256": "d150631d5947eb22254903a93e0a8a7242ea42364eac6c99d0151ad08b2722c6"
+      "subgroups_by_teacher_and_active_stones": {
+        "PUCT": {
+          "17\u201332": {
+            "duplicate_rows": 15,
+            "mean_legal_policy_entropy_nats": 0.08080374100043754,
+            "one_hot_fraction": 0.37343358395989973,
+            "rows": 798,
+            "usable_rows": 798
+          },
+          ">32": {
+            "duplicate_rows": 335,
+            "mean_legal_policy_entropy_nats": 0.5734160652633395,
+            "one_hot_fraction": 0.10141206675224647,
+            "rows": 779,
+            "usable_rows": 779
+          },
+          "\u226416": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          }
+        },
+        "exact-root": {
+          "17\u201332": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          },
+          ">32": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          },
+          "\u226416": {
+            "duplicate_rows": 20,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 1.0,
+            "rows": 832,
+            "usable_rows": 832
+          }
+        }
+      }
     },
     {
-      "bytes": 7929590,
-      "capped_games": 0,
-      "complete_games": 64,
+      "actions": 2276,
+      "canonical_duplicate_rows": 369,
+      "canonical_unique_states": 1907,
+      "corpus_sha256": "fce737e9ae3c33e38a81931847ec6c9ccf58bc2df05510dd193d9203391671d2",
       "elapsed_seconds": 33.3,
+      "encoded_input_duplicate_rows": 369,
+      "encoded_input_unique_states": 1907,
+      "extra_turns": 888,
       "games": 64,
-      "incomplete_games": 0,
+      "generation_duration": "unavailable (no original timing record)",
+      "loader_shapes": {
+        "policies": [
+          2276,
+          6
+        ],
+        "states": [
+          2276,
+          27
+        ],
+        "values": [
+          2276,
+          1
+        ]
+      },
+      "outcomes_by_winner": {
+        "0": 54,
+        "1": 7,
+        "draw": 3
+      },
       "path": "docs/data/seed500-selfplay-512/shard-503005.jsonl",
+      "production_loader": "accepted",
       "rows": 2276,
-      "seed": 503005,
-      "sha256": "fce737e9ae3c33e38a81931847ec6c9ccf58bc2df05510dd193d9203391671d2"
+      "subgroups_by_teacher_and_active_stones": {
+        "PUCT": {
+          "17\u201332": {
+            "duplicate_rows": 10,
+            "mean_legal_policy_entropy_nats": 0.088438764522347,
+            "one_hot_fraction": 0.35524475524475524,
+            "rows": 715,
+            "usable_rows": 715
+          },
+          ">32": {
+            "duplicate_rows": 355,
+            "mean_legal_policy_entropy_nats": 0.5830356513916555,
+            "one_hot_fraction": 0.1038961038961039,
+            "rows": 770,
+            "usable_rows": 770
+          },
+          "\u226416": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          }
+        },
+        "exact-root": {
+          "17\u201332": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          },
+          ">32": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          },
+          "\u226416": {
+            "duplicate_rows": 4,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 1.0,
+            "rows": 791,
+            "usable_rows": 791
+          }
+        }
+      }
     },
     {
-      "bytes": 8299749,
-      "capped_games": 0,
-      "complete_games": 64,
+      "actions": 2380,
+      "canonical_duplicate_rows": 340,
+      "canonical_unique_states": 2040,
+      "corpus_sha256": "981fa7978eb8c71aee1fba33acecb704d23d61ec629b342c776c847fee22cba4",
       "elapsed_seconds": 34.08,
+      "encoded_input_duplicate_rows": 340,
+      "encoded_input_unique_states": 2040,
+      "extra_turns": 964,
       "games": 64,
-      "incomplete_games": 0,
+      "generation_duration": "unavailable (no original timing record)",
+      "loader_shapes": {
+        "policies": [
+          2380,
+          6
+        ],
+        "states": [
+          2380,
+          27
+        ],
+        "values": [
+          2380,
+          1
+        ]
+      },
+      "outcomes_by_winner": {
+        "0": 52,
+        "1": 9,
+        "draw": 3
+      },
       "path": "docs/data/seed500-selfplay-512/shard-503006.jsonl",
+      "production_loader": "accepted",
       "rows": 2380,
-      "seed": 503006,
-      "sha256": "981fa7978eb8c71aee1fba33acecb704d23d61ec629b342c776c847fee22cba4"
+      "subgroups_by_teacher_and_active_stones": {
+        "PUCT": {
+          "17\u201332": {
+            "duplicate_rows": 10,
+            "mean_legal_policy_entropy_nats": 0.08764170334772892,
+            "one_hot_fraction": 0.3551532033426184,
+            "rows": 718,
+            "usable_rows": 718
+          },
+          ">32": {
+            "duplicate_rows": 316,
+            "mean_legal_policy_entropy_nats": 0.5506663965846622,
+            "one_hot_fraction": 0.12686567164179105,
+            "rows": 804,
+            "usable_rows": 804
+          },
+          "\u226416": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          }
+        },
+        "exact-root": {
+          "17\u201332": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          },
+          ">32": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          },
+          "\u226416": {
+            "duplicate_rows": 14,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 1.0,
+            "rows": 858,
+            "usable_rows": 858
+          }
+        }
+      }
     },
     {
-      "bytes": 7565095,
-      "capped_games": 0,
-      "complete_games": 64,
+      "actions": 2177,
+      "canonical_duplicate_rows": 399,
+      "canonical_unique_states": 1778,
+      "corpus_sha256": "128029ce1ef0304bc3eb7d3330def5a6e6249454e8abc32bf2d4c4fdb7dff732",
       "elapsed_seconds": 32.24,
+      "encoded_input_duplicate_rows": 399,
+      "encoded_input_unique_states": 1778,
+      "extra_turns": 885,
       "games": 64,
-      "incomplete_games": 0,
+      "generation_duration": "unavailable (no original timing record)",
+      "loader_shapes": {
+        "policies": [
+          2177,
+          6
+        ],
+        "states": [
+          2177,
+          27
+        ],
+        "values": [
+          2177,
+          1
+        ]
+      },
+      "outcomes_by_winner": {
+        "0": 55,
+        "1": 9
+      },
       "path": "docs/data/seed500-selfplay-512/shard-503007.jsonl",
+      "production_loader": "accepted",
       "rows": 2177,
-      "seed": 503007,
-      "sha256": "128029ce1ef0304bc3eb7d3330def5a6e6249454e8abc32bf2d4c4fdb7dff732"
+      "subgroups_by_teacher_and_active_stones": {
+        "PUCT": {
+          "17\u201332": {
+            "duplicate_rows": 34,
+            "mean_legal_policy_entropy_nats": 0.0637634933055188,
+            "one_hot_fraction": 0.3674418604651163,
+            "rows": 645,
+            "usable_rows": 645
+          },
+          ">32": {
+            "duplicate_rows": 348,
+            "mean_legal_policy_entropy_nats": 0.5614988301232534,
+            "one_hot_fraction": 0.12158808933002481,
+            "rows": 806,
+            "usable_rows": 806
+          },
+          "\u226416": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          }
+        },
+        "exact-root": {
+          "17\u201332": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          },
+          ">32": {
+            "duplicate_rows": 0,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 0.0,
+            "rows": 0,
+            "usable_rows": 0
+          },
+          "\u226416": {
+            "duplicate_rows": 17,
+            "mean_legal_policy_entropy_nats": 0.0,
+            "one_hot_fraction": 1.0,
+            "rows": 726,
+            "usable_rows": 726
+          }
+        }
+      }
     }
   ],
   "subgroups_by_teacher_and_active_stones": {
