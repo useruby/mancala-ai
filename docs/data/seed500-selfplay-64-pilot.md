@@ -87,6 +87,8 @@ usable rows.
 - `train.load_jsonl` accepted all 2,376 rows with default policy and value-target
   modes. The report also reconciles 2,376 actions, 64 complete games (48 wins
   for player 0, 12 for player 1, 4 draws), and 937 extra turns.
+- Reproduced the same report and all three focused tests in a clean detached
+  checkout at commit `d4c8e91`.
 
 These checks establish pilot-data integrity and basic usability, not model
 strength or training benefit. They do not initiate a training ablation. Seed488's
