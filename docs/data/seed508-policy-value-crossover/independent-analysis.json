@@ -1,0 +1,13 @@
+{
+  "bootstrap_interval_decision": "P supported",
+  "bootstrap_resamples": 20000,
+  "games": 2048,
+  "mean_P_minus_V": 0.029296875,
+  "method": "independent recomputation from outcomes.jsonl; opening-cluster percentile bootstrap",
+  "opening_differences": 512,
+  "seed": 508,
+  "two_sided_95": [
+    0.0009765625,
+    0.05712890625
+  ]
+}

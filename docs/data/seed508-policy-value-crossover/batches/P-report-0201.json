@@ -1,0 +1,210 @@
+{
+  "budget_summary": {
+    "mean_final_simulations": 128.0,
+    "p95_root_latency_ms": 17.0,
+    "trigger_counts": {
+      "fixed_budget": 2
+    }
+  },
+  "confidence_interval_95": {
+    "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+    "lower": 0.3423719528896193,
+    "method": "wilson_score",
+    "upper": 1.0
+  },
+  "draws": 0,
+  "games": 2,
+  "games_played": 2,
+  "hard_suite_buckets": {
+    "late": {
+      "games": 2,
+      "score": null
+    },
+    "midgame": {
+      "games": 0,
+      "score": null
+    },
+    "opening": {
+      "games": 0,
+      "score": null
+    }
+  },
+  "losses": 0,
+  "notes": {
+    "base_seed": 689,
+    "challenger_path": "/home/alex/Mancala/ai-seed508/docs/data/seed508-policy-value-crossover/runtime-artifacts/E4",
+    "challenger_root_prior_transform": null,
+    "challenger_runtime_policy_inherited": false,
+    "challenger_simulations": 128,
+    "current_path": "/home/alex/Mancala/ai-seed508/docs/data/seed508-policy-value-crossover/runtime-artifacts/initializer",
+    "current_root_prior_transform": null,
+    "current_simulations": 128,
+    "exact_leaf_solve_mode": "disabled",
+    "exact_root_native_probe": "/home/alex/Mancala/ai-seed508/model-artifact/runtime/kalah_v1_tablebase",
+    "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "exact_root_objective": "final_score_margin",
+    "exact_root_solve_threshold": 16,
+    "exact_root_solver": "native_kvtb_root_action_probe_v1",
+    "exact_root_tablebase": "/home/alex/Mancala/ai-seed508/model-artifact/runtime/kalah_v1_21.kvtb",
+    "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+    "exact_solve_semantics": "network_priors_exact_leaf_value",
+    "exact_solve_stone_threshold": null,
+    "exact_solve_value_mode": "wdl",
+    "move_time_mean_ms": 7.14,
+    "move_time_p95_ms": 17.0,
+    "random_opening_plies": 0,
+    "root_prior_transform": null,
+    "runtime_search_policy_mode": "puct_exact_root_hybrid",
+    "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "search_configuration_ledger_output": null,
+    "search_configuration_ledger_sha256": "261b5c2d890897231cbf725b23f5561c2adbda1bf4c05cdaa5fea447a27a7863",
+    "search_options": {
+      "fpu_mode": "zero",
+      "normalize_values": false,
+      "reuse_subtree": false,
+      "root_policy_mode": "deterministic",
+      "root_temperature": 0.0,
+      "tactical_root_bias": 0.0
+    },
+    "search_outcome_ledger_output": null,
+    "search_outcome_ledger_sha256": "de10b4b127a921c5741074a896c81e753d961e42911564a32ae77ab497048301",
+    "search_profile": {
+      "c_puct": 1.25,
+      "challenger_runtime_policy_inherited": false,
+      "challenger_simulations": 128,
+      "current_simulations": 128,
+      "exact_leaf_solve_mode": "disabled",
+      "exact_root_native_probe": "/home/alex/Mancala/ai-seed508/model-artifact/runtime/kalah_v1_tablebase",
+      "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "exact_root_objective": "final_score_margin",
+      "exact_root_solve_enabled": true,
+      "exact_root_solve_threshold": 16,
+      "exact_root_solver": "native_kvtb_root_action_probe_v1",
+      "exact_root_solver_max_solved_seeds": 16,
+      "exact_root_tablebase": "/home/alex/Mancala/ai-seed508/model-artifact/runtime/kalah_v1_21.kvtb",
+      "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+      "exact_solve_semantics": "network_priors_exact_leaf_value",
+      "exact_solve_stone_threshold": null,
+      "exact_solve_value_mode": "wdl",
+      "hash": "c9a9e372fc3920b9c26f65bff9c43d607060a079f69a15b7e1f799f5425ceae2",
+      "kind": "arena_eval",
+      "player_mode": "puct",
+      "runtime_search_policy_mode": "puct_exact_root_hybrid",
+      "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "search_options": {
+        "fpu_mode": "zero",
+        "normalize_values": false,
+        "reuse_subtree": false,
+        "root_policy_mode": "deterministic",
+        "root_temperature": 0.0,
+        "tactical_root_bias": 0.0
+      },
+      "simulations": 128,
+      "version": "v1"
+    },
+    "search_profile_hash": "c9a9e372fc3920b9c26f65bff9c43d607060a079f69a15b7e1f799f5425ceae2",
+    "seed": 689,
+    "seed_contract": "azlite_eval_seed_v2",
+    "seed_identity_ledger_sha256": "5dada484a6294c20c66550064cc3b912554c3da9724db3ff2e2b04445d3c2a64",
+    "seed_ledger_hash": "5dada484a6294c20c66550064cc3b912554c3da9724db3ff2e2b04445d3c2a64",
+    "seed_ledger_output": null,
+    "seed_ledger_records": 40,
+    "suite_sha256": "fe3ea590ff73d68a70cf1d8cd69d5c7554a78b0b25223dc7baae4c6e6d8b442d",
+    "value_transform_hash": null,
+    "value_transform_summary": null,
+    "worker_game_counts": [
+      2
+    ],
+    "workers_requested": 1,
+    "workers_used": 1
+  },
+  "opening_cache_summary": {
+    "latency_delta_ms": null,
+    "opening_bucket_quality_delta": null,
+    "runtime_hit_rate": null,
+    "training_hit_rate": null
+  },
+  "promotion_decision": {
+    "passed": true
+  },
+  "root_prior_telemetry": {
+    "challenger": {
+      "activation_count": 0,
+      "activation_rate": 0.0,
+      "average_mass_shift": null,
+      "legal_move_context_counts": {
+        "legal_move_count": 0,
+        "no_extra_turn_capture_count": 0,
+        "no_extra_turn_noncapture_seed5_count": 0,
+        "seed4_extra_turn_count": 0
+      },
+      "root_states_evaluated": 14,
+      "top_changed_move_feature_patterns": []
+    },
+    "current": {
+      "activation_count": 0,
+      "activation_rate": 0.0,
+      "average_mass_shift": null,
+      "legal_move_context_counts": {
+        "legal_move_count": 0,
+        "no_extra_turn_capture_count": 0,
+        "no_extra_turn_noncapture_seed5_count": 0,
+        "seed4_extra_turn_count": 0
+      },
+      "root_states_evaluated": 11,
+      "top_changed_move_feature_patterns": []
+    }
+  },
+  "schema": "arena_v1",
+  "score": 1.0,
+  "seed508_composition": {
+    "component_artifacts": {
+      "policy": "/home/alex/Mancala/ai-seed508/docs/data/seed508-policy-value-crossover/runtime-artifacts/E4",
+      "value": "/home/alex/Mancala/ai-seed508/docs/data/seed508-policy-value-crossover/runtime-artifacts/initializer"
+    },
+    "component_checkpoints": {
+      "E4": {
+        "path": "docs/data/seed504/seed504_epoch4.npz",
+        "sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad"
+      },
+      "initializer": {
+        "path": "initializer.npz",
+        "sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+      }
+    },
+    "component_file_sha256": {
+      "E4": {
+        "artifact": "runtime-artifacts/E4",
+        "checkpoint": "docs/data/seed504/seed504_epoch4.npz",
+        "checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+        "files": {
+          "metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+          "model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+          "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+          "weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+        }
+      },
+      "initializer": {
+        "artifact": "runtime-artifacts/initializer",
+        "checkpoint": "initializer.npz",
+        "checkpoint_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+        "files": {
+          "metadata.json": "7ce41fde58c219c9fd2aa7a912db1c2da357099d6f72e3f715d9a78ce500cb5d",
+          "model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+          "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+          "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+        }
+      }
+    },
+    "policy_source": "E4",
+    "trunk_policy": "policy source's own trunk",
+    "trunk_value": "value source's own trunk",
+    "value_source": "initializer"
+  },
+  "threshold": 0.55,
+  "threshold_margin": 0.44999999999999996,
+  "unstable_decision": true,
+  "wins": 2
+}
