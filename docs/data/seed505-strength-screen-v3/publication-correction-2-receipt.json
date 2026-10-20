@@ -1,0 +1,9 @@
+{
+  "files": {
+    "docs/data/seed505-strength-screen-v3/publication-correction-2.md": "103bc3b0ca0d7a87c311dbd8a3a2ad6e3e7a120c34983c6387ad8b2fc9fcacb2",
+    "ml/alphazero_lite/test_seed505_publication_semantic_rejection.py": "426dd76cee28c28fc8d69f6d1ae31362dcdad406bb9e3b658e3fb742f17e6ce3"
+  },
+  "previous_correction_receipt_sha256": "0a6b4bc4cb93a4f431ff3661e96185b9bf0f7f119f9be1d00d5ad505c218879f",
+  "schema": "seed505-publication-correction-receipt-v1",
+  "status": "semantic_rejection_coverage_corrected"
+}
