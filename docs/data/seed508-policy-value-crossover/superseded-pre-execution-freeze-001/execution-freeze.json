@@ -1,0 +1,34 @@
+{
+  "component_artifacts": {
+    "E4": {
+      "metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+      "model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+    },
+    "initializer": {
+      "metadata.json": "7ce41fde58c219c9fd2aa7a912db1c2da357099d6f72e3f715d9a78ce500cb5d",
+      "model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+    }
+  },
+  "registration_sha256": "3e2e920a1c0e526999e6712359395eb15d40c53d8bebd808181984f7b7e7e709",
+  "source_sha256": {
+    "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "ml/alphazero_lite/evaluation_seed_contract.py": "be5ed17519f86040cdac2a2380d4dd907015b927c6b80fedc85f7d668b9422c3",
+    "ml/alphazero_lite/exact_root_decision.py": "c806a7c3c3a8fd7d7be800f59fc568c670889164a46c7acbde8ff92473776905",
+    "ml/alphazero_lite/input_encodings.py": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/native_exact_root_tablebase.py": "49fe76e8dc0e827db3181397dee7bfbcf3b1b35234757be1ac441ea09eefab6a",
+    "ml/alphazero_lite/runtime_search_policy.py": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
+    "ml/alphazero_lite/seed488_strength_evaluation.py": "1091d9a0158aeb4496c24f7950b0d11a65af500bd0e4c70420c275b03895b563",
+    "ml/alphazero_lite/seed508_policy_value_crossover.py": "bec9877a5fe1047a29d136a4bed43b641d843a7599946f775803a15fb89ff13f",
+    "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
+    "ml/alphazero_lite/test_seed508_policy_value_crossover.py": "b8b160b6536d409a15f61ac5b1af43d172d650e4064b3fc0874a73ad91ecd30f",
+    "ml/alphazero_lite/verify_seed488_strength_evaluation.py": "b263667b5af8b88f66d6a85ef7d64979f11c7b7569cb5db87b41030f06a73e92",
+    "ml/alphazero_lite/verify_seed508_policy_value_crossover.py": "f70d4b459489f12def73e01c47cd9937b73477226e80e75040189ec6c6f4121c"
+  },
+  "status": "frozen_before_execution",
+  "suite_sha256": "53841cad6c5d34355cd7d6533a0fa435f4164260fd40a2da760a3d78c784cff8"
+}

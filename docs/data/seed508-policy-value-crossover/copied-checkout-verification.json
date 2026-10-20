@@ -1,0 +1,16 @@
+{
+  "command": "python -m ml.alphazero_lite.verify_seed508_policy_value_crossover --root .tmp/seed508-copied-checkout",
+  "copy_method": "git archive of merged base plus seed508 source/evidence files and the hash-verified seed488 runtime tablebase",
+  "status": "verified_complete",
+  "games": 2048,
+  "primary": {
+    "mean_difference": 0.029296875,
+    "two_sided_95": [
+      0.0009765625,
+      0.05712890625
+    ],
+    "bootstrap_resamples": 20000,
+    "seed": 508,
+    "interpretation": "P supported"
+  }
+}

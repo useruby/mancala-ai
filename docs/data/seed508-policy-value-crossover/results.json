@@ -1,0 +1,51 @@
+{
+  "fresh_confirmation": false,
+  "historical_seed505_e4_vs_initializer": {
+    "classification": "historical descriptive result; not additive decomposition or promotion gate",
+    "descriptive_two_sided_95": [
+      0.48583984375,
+      0.5302734375
+    ],
+    "draws": 93,
+    "losses": 457,
+    "one_sided_lower_95": 0.48974609375,
+    "score": 0.50830078125,
+    "wins": 474
+  },
+  "primary": {
+    "bootstrap_resamples": 20000,
+    "estimand": "per-opening P score minus V score, each score averages two seat games",
+    "interpretation": "P supported",
+    "mean_difference": 0.029296875,
+    "seed": 508,
+    "two_sided_95": [
+      0.0009765625,
+      0.05712890625
+    ]
+  },
+  "promotion": false,
+  "standalone": {
+    "P": {
+      "descriptive_two_sided_95": [
+        0.49609375,
+        0.53564453125
+      ],
+      "draws": 70,
+      "games": 1024,
+      "losses": 461,
+      "score": 0.515625,
+      "wins": 493
+    },
+    "V": {
+      "descriptive_two_sided_95": [
+        0.4638671875,
+        0.50830078125
+      ],
+      "draws": 90,
+      "games": 1024,
+      "losses": 481,
+      "score": 0.486328125,
+      "wins": 453
+    }
+  }
+}
