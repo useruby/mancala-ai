@@ -1,0 +1,12 @@
+{
+  "files": {
+    "docs/data/seed508-policy-value-crossover/make_supplement_receipt.py": "9e44ed32b51f5d49831d75e07ecc4430a8704b229e5b68270657a0d0d6363963",
+    "docs/data/seed508-policy-value-crossover/publication-receipt-regenerated-001.json": "bdc5afb9e062619c7e34f828bdef6769e0ea34d2edda594db9cde4bf0991b8c4",
+    "docs/data/seed508-policy-value-crossover/publication-receipt.json": "facb2aacaec1e6ad62a2fac72fbee168b1f3f54ee7dfcfa4cfca5afc2c97a1ae",
+    "docs/data/seed508-policy-value-crossover/verification-supplement-001.md": "99dd3cdc1679faff0b99be2184dfbc55e5173af4506bb7f96c41e9a845424c69",
+    "docs/data/seed508-policy-value-crossover/verify_supplement.py": "462fc8b4158b5c5da4147044f5b3179432657d290ec244676782326b6ccafeb5",
+    "ml/alphazero_lite/test_seed508_verification_supplement.py": "8ef07e7159cba758f2c55fe6787c8dc1ec3a746fa756a9a38c5a3f44c893ce33"
+  },
+  "schema": "seed508-verification-supplement-receipt-v1",
+  "status": "verified"
+}
