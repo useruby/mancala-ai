@@ -1,0 +1,10 @@
+{
+  "files": {
+    "docs/data/seed508-policy-value-crossover/make_supplement_receipt_v2.py": "5e3e76b7f4f0552180117f95c431aa6b7cdf5fbd97c6aa751fe7d1b9168e8138",
+    "docs/data/seed508-policy-value-crossover/verification-supplement-002.md": "08dd8b0ac68be1848354b6ece51102a8f9cf582ee65ed7dc6866a43267de7a1a",
+    "docs/data/seed508-policy-value-crossover/verify_supplement_v2.py": "6d1d67801ce2adad6226180a50d0e29d591b64c2450f4a6436fb04168a366d03",
+    "ml/alphazero_lite/test_seed508_verification_supplement_v2.py": "308115163d40b99a24c8330683ee99354817be9092d6b56b21e8b88e4b7977e7"
+  },
+  "schema": "seed508-verification-supplement-receipt-v2",
+  "status": "verified"
+}
