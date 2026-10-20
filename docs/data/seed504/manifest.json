@@ -1,0 +1,71 @@
+{
+  "device": "cpu",
+  "initializer": {
+    "path": ".tmp/seed500-current-checkpoint.npz",
+    "sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+  },
+  "numpy": "2.5.2",
+  "permutations_sha256": "1115b156abd646fe3ba4483c18465b9323c926427a7305a026e95309982589eb",
+  "protocol": {
+    "architecture": "residual_v3/kalah_v3",
+    "batch_size": 512,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "epochs": 4,
+    "epsilon": 1e-08,
+    "exact_root_policy_coefficient": 1,
+    "gradient_clip_norm": 1,
+    "lr": 0.0001,
+    "lr_scheduler": "none",
+    "objective": "legal policy CE + 0.5 * Huber(value, delta=1)",
+    "optimizer": "Adam",
+    "seed": 504,
+    "weight_decay": 0
+  },
+  "python": "3.14.7",
+  "runner_sha256": "75f90cb0c03b30d9cae7e8038d8d41442c9ba65975ce4d9cf38d83d101f0d4ba",
+  "sources": {
+    "development": [
+      {
+        "path": "docs/data/seed500-selfplay-512/shard-503006.jsonl",
+        "sha256": "981fa7978eb8c71aee1fba33acecb704d23d61ec629b342c776c847fee22cba4"
+      },
+      {
+        "path": "docs/data/seed500-selfplay-512/shard-503007.jsonl",
+        "sha256": "128029ce1ef0304bc3eb7d3330def5a6e6249454e8abc32bf2d4c4fdb7dff732"
+      }
+    ],
+    "training": [
+      {
+        "path": "docs/data/seed500-selfplay-512/shard-503000.jsonl",
+        "sha256": "db48f2b944925c575261ae285758d91866d029a705db7665f80b96e23675f9cd"
+      },
+      {
+        "path": "docs/data/seed500-selfplay-512/shard-503001.jsonl",
+        "sha256": "2c707c5868013d2b91df0250001266ac84f79b72e1fad55d2ae74f10327e6cb4"
+      },
+      {
+        "path": "docs/data/seed500-selfplay-512/shard-503002.jsonl",
+        "sha256": "abecfdd3a6dd5ce0720f1ebf64b192ec36bf344a15b2942cc3af2f87f930da0c"
+      },
+      {
+        "path": "docs/data/seed500-selfplay-512/shard-503003.jsonl",
+        "sha256": "c1462711adaa5fe88e90b2d713baa08c750ea6b6450ae791e6be5881fe9dd39f"
+      },
+      {
+        "path": "docs/data/seed500-selfplay-512/shard-503004.jsonl",
+        "sha256": "d150631d5947eb22254903a93e0a8a7242ea42364eac6c99d0151ad08b2722c6"
+      },
+      {
+        "path": "docs/data/seed500-selfplay-512/shard-503005.jsonl",
+        "sha256": "fce737e9ae3c33e38a81931847ec6c9ccf58bc2df05510dd193d9203391671d2"
+      }
+    ]
+  },
+  "split_sha256": "080b362d334dcce81bbd04a490900ec78483d6c05ad38c88ebb33fd8b8695d89",
+  "status": "prospective frozen before training",
+  "torch": "2.13.0+cu130",
+  "train_source_sha256": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32"
+}
