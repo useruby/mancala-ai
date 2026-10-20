@@ -1,0 +1,19 @@
+{
+  "bootstrap": {
+    "one_sided_lower_95": 0.48974609375,
+    "replicates": 20000,
+    "seed": 505,
+    "two_sided_95": [
+      0.48583984375,
+      0.5302734375
+    ]
+  },
+  "draws": 93,
+  "fresh_confirmation": false,
+  "games": 1024,
+  "losses": 457,
+  "pass": false,
+  "promotion": false,
+  "score": 0.50830078125,
+  "wins": 474
+}
