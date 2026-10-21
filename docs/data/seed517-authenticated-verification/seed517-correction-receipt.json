@@ -1,0 +1,77 @@
+{
+  "schema": "seed517-authenticated-verification-v1",
+  "implementation": {
+    "entrypoint": "ml/alphazero_lite/verify_seed516.py",
+    "runtime_asset_verifier": "ml/alphazero_lite/verify_seed515.py::verify_runtime_asset",
+    "historical_seed515_replay_and_semantic_checks": "retained",
+    "lfs_validation": "SHA-256 actual local bytes against registered pointer digest; if pointer, SHA-256 actual materialized object against registered object digest",
+    "materialized_validation": "SHA-256 actual local bytes against registered object digest",
+    "external_cache_validation": "separate SHA-256 of the external object when pointer bytes require it",
+    "ordinary_cli": "stdout only; --output writes with exclusive create and refuses overwrite"
+  },
+  "focused_tests": {
+    "command": "./.venv-azlite/bin/python -m pytest -q ml/alphazero_lite/test_seed516.py ml/alphazero_lite/test_seed514_operational_benchmark.py ml/alphazero_lite/test_seed515.py",
+    "exit_status": 0,
+    "passed": 49,
+    "coverage": [
+      "valid LFS pointer plus valid external object",
+      "valid materialized local object",
+      "altered and missing local artifact rejected despite available object",
+      "corrupt external object rejected when pointer requires it",
+      "real CLI stdout-only default and explicit report creation",
+      "repeated explicit output refuses overwrite",
+      "seed514 and seed515 regressions"
+    ],
+    "production_hash_mocking_bypass": false
+  },
+  "quality": {
+    "ruff_check": "passed",
+    "ruff_format_check": "passed",
+    "script/ai/run_python_quality.sh": "passed",
+    "git_diff_check": "passed"
+  },
+  "cli_preservation": {
+    "scope": [
+      "docs/data/seed514-operational-benchmark/**",
+      "docs/data/seed514-operational-benchmark-v2/**",
+      "docs/data/seed515-independent-verification/**",
+      "docs/seed512-deployment-evaluation-proposal.md"
+    ],
+    "inventory_fields": ["repo-relative path", "SHA-256", "byte size", "mtime_ns"],
+    "source_checkout": {
+      "commands": [
+        "./.venv-azlite/bin/python ml/alphazero_lite/verify_seed516.py",
+        "./.venv-azlite/bin/python ml/alphazero_lite/verify_seed516.py"
+      ],
+      "working_directory": "/home/alex/Mancala/ai",
+      "file_count": 16,
+      "before_after_inventory_sha256": "83b6469a3f6ef67781f70cadfb1c6bc23494d0e575a0107d5493409881e8bc96",
+      "all_sha256_and_mtime_ns_unchanged": true
+    },
+    "physical_copy": {
+      "path": "/home/alex/tmp/seed517-physical-copy",
+      "checkout_identity": "e80c4cc9533b946c43da1cfc66b27b5e73fad782 with the two modified verifier files copied into the physical checkout before execution",
+      "command": "\"/home/alex/Mancala/ai/.venv-azlite/bin/python\" /home/alex/tmp/seed517-physical-copy/ml/alphazero_lite/verify_seed516.py",
+      "invocations": 2,
+      "working_directory": "/home/alex/tmp",
+      "exit_statuses": [0, 0],
+      "file_count": 16,
+      "before_after_inventory_sha256": "01696582c0eb5d713ad00f9d276d6ac1e65e4e0d9db811e4bd9d3a8c4dd1b1fd",
+      "all_sha256_and_mtime_ns_unchanged": true
+    }
+  },
+  "dependency_paths": {
+    "registration": "docs/data/seed512-fixed-composition-evaluation/registration.json",
+    "registered_artifact": "model-artifact/runtime/kalah_v1_21.kvtb",
+    "registered_artifact_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "registered_artifact_size_bytes": 709635072,
+    "recorded_lfs_cache_path": "/home/alex/Mancala/ai/.git/lfs/objects/f1/26/f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "recorded_lfs_cache_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "copy_run_asset_path": "/home/alex/tmp/seed517-physical-copy/model-artifact/runtime/kalah_v1_21.kvtb",
+    "copy_run_asset_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "copy_run_external_object_used": false,
+    "self_contained_source_checkout": false
+  },
+  "historical_publications_regenerated": false,
+  "prohibited_activities_performed": []
+}

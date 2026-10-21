@@ -9,7 +9,6 @@ import re
 import sys
 from pathlib import Path
 from typing import Any
-from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
@@ -161,22 +160,7 @@ def _check_table(
 
 def verify(execution_record: Path | None = None) -> dict[str, Any]:
     _validate_numeric_report()
-    # This checkout has the LFS object materialized at the registered path, not
-    # the pointer text expected by seed515's pointer-hash check. Preserve the
-    # independent verifier unchanged while supplying the authenticated pointer
-    # identity for that one check; subsequent object hashing still checks bytes.
-    registration = json.loads(verify_seed515.REGISTRATION.read_text())
-    asset = registration["runtime_assets"]["exact_root_tablebase"]
-    pointer_path = ROOT / asset["artifact"]
-    original_digest = verify_seed515.digest
-
-    def digest_with_materialized_lfs(path: Path) -> str:
-        if path.resolve() == pointer_path.resolve():
-            return asset["source_pointer_sha256"]
-        return original_digest(path)
-
-    with patch.object(verify_seed515, "digest", digest_with_materialized_lfs):
-        report = verify_seed515.verify(PUBLICATION)
+    report = verify_seed515.verify(PUBLICATION)
     # Re-key the replay output for display checks and validate each value in its
     # labeled row/column. Reuse its exact independent arithmetic, not seed515's
     # substring searches.
@@ -244,21 +228,18 @@ def verify(execution_record: Path | None = None) -> dict[str, Any]:
         "finite_numeric_statistics": "passed",
         "labeled_table_cells_and_units": "passed",
         "portability_execution": physical,
-        "external_dependency": "The registered seed512 exact-root tablebase object is external to the source tree and required by seed515's replay verification.",
+        "runtime_dependency": "The registered seed512 exact-root tablebase is authenticated from local bytes; if the checkout contains its LFS pointer, the registered external materialization is separately authenticated.",
     }
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--receipt",
-        type=Path,
-        default=ROOT
-        / "docs/data/seed516-semantic-correction/seed516-correction-receipt.json",
-    )
+    parser.add_argument("--output", type=Path, help="write the report to a new file")
     parser.add_argument("--execution-record", type=Path)
     args = parser.parse_args()
     result = verify(args.execution_record)
-    args.receipt.parent.mkdir(parents=True, exist_ok=True)
-    args.receipt.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
-    print(json.dumps(result, indent=2, sort_keys=True))
+    rendered = json.dumps(result, indent=2, sort_keys=True) + "\n"
+    if args.output is not None:
+        with args.output.open("x") as output:
+            output.write(rendered)
+    print(rendered, end="")

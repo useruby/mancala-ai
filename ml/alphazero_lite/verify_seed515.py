@@ -35,6 +35,40 @@ def bucket(state: dict[str, Any]) -> str:
     return "gt32" if total > 32 else "17to32" if total >= 17 else "le16"
 
 
+def verify_runtime_asset(
+    name: str, asset: dict[str, Any], frozen_asset: dict[str, Any]
+) -> None:
+    """Authenticate the checked-out bytes before considering external materialization."""
+    artifact = ROOT / asset["artifact"]
+    if name == "exact_root_tablebase":
+        if not artifact.exists():
+            raise ValueError("runtime_tablebase_artifact_missing")
+        local_hash = digest(artifact)
+        if local_hash == asset["sha256"]:
+            materialized = artifact
+        elif local_hash == asset["source_pointer_sha256"]:
+            recorded = Path(asset["runtime_materialized_path"])
+            materialized = (
+                recorded
+                if recorded.exists()
+                else ROOT
+                / ".git/lfs/objects"
+                / asset["lfs_oid"][:2]
+                / asset["lfs_oid"][2:4]
+                / asset["lfs_oid"]
+            )
+        else:
+            raise ValueError("runtime_tablebase_artifact_hash")
+        if not materialized.exists() or digest(materialized) != asset["sha256"]:
+            raise ValueError("runtime_asset_hash:exact_root_tablebase")
+    else:
+        materialized = artifact
+        if not materialized.exists() or digest(materialized) != asset["sha256"]:
+            raise ValueError(f"runtime_asset_hash:{name}")
+    if frozen_asset.get("sha256") != asset["sha256"]:
+        raise ValueError(f"runtime_asset_hash:{name}")
+
+
 def reconstruct(
     freeze: dict[str, Any],
 ) -> tuple[list[dict[str, Any]], dict[str, list[dict[str, Any]]]]:
@@ -440,28 +474,8 @@ def verify(directory: Path = PUBLICATION) -> dict[str, Any]:
             ):
                 raise ValueError(f"artifact_hash:{name}:{filename}")
     for name, asset in registration["runtime_assets"].items():
-        actual = ROOT / asset["artifact"]
-        if name == "exact_root_tablebase":
-            if digest(actual) != asset["source_pointer_sha256"]:
-                raise ValueError("runtime_tablebase_pointer_hash")
-            recorded_materialization = Path(asset["runtime_materialized_path"])
-            if recorded_materialization.exists():
-                actual = recorded_materialization
-            else:
-                actual = (
-                    ROOT
-                    / ".git/lfs/objects"
-                    / asset["lfs_oid"][:2]
-                    / asset["lfs_oid"][2:4]
-                    / asset["lfs_oid"]
-                )
         frozen_asset = freeze["artifacts"]["runtime_assets"].get(name, {})
-        if (
-            not actual.exists()
-            or digest(actual) != asset["sha256"]
-            or frozen_asset.get("sha256") != asset["sha256"]
-        ):
-            raise ValueError(f"runtime_asset_hash:{name}")
+        verify_runtime_asset(name, asset, frozen_asset)
     memory_record = json.loads((directory / "memory-snapshot.json").read_text())
     if (
         digest(ROOT / "ml/alphazero_lite/run_seed514_memory_snapshot.py")
