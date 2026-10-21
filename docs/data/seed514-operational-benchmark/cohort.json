@@ -1,0 +1,1858 @@
+[
+  {
+    "bucket": "gt32",
+    "ply": 14,
+    "selection_order_sha256": "000537eedb014bc40186dd449cd880728ea7abcdd5dbb371df4a27886392697d",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        2,
+        11,
+        0,
+        7,
+        1,
+        1
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        1,
+        1,
+        9,
+        2,
+        0,
+        4
+      ],
+      "player_store": 5
+    },
+    "state_sha256": "d3ae97ce353b01f6144615a95b0a1a30602461035f9331327c730e224f64e1ae"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 9,
+    "selection_order_sha256": "000891e1d6e3c5af2d1aa52f7203f283748f2ec4c69e4a30e9c6be4cfeea9ac3",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        7,
+        0,
+        0,
+        8,
+        8
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        1,
+        3,
+        3,
+        8,
+        3,
+        0
+      ],
+      "player_store": 5
+    },
+    "state_sha256": "2f807ec69c41f4ee6faa8f48d17586ca928aeca2c2d06e9c194a26e79333399d"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 19,
+    "selection_order_sha256": "0008fb599080c0e0ede1dd995985ed13726e091420d3e5058a6f45e041a6f6c0",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        0,
+        3,
+        2,
+        0,
+        1
+      ],
+      "opponent_store": 11,
+      "player_pits": [
+        1,
+        12,
+        3,
+        1,
+        10,
+        0
+      ],
+      "player_store": 4
+    },
+    "state_sha256": "1186516ec5dada69b34254a47db9fccd4f902b66cc2e0e19fcf3367599c61a1b"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 12,
+    "selection_order_sha256": "000ad1490beb4f320236a0daf6dfbb5fc5349fb1ad440849407377ee56ad4ca1",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        0,
+        0,
+        3,
+        9,
+        2,
+        3
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        0,
+        8,
+        2,
+        1,
+        0,
+        8
+      ],
+      "player_store": 8
+    },
+    "state_sha256": "72b9543f7dc416099a7869b9656bdb8b177933d7c393232762cf0d82206761c6"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 10,
+    "selection_order_sha256": "000c6575c67903067f33dc6c3fa76e32cc8d31a44061772d48206a8e1360bd67",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        1,
+        2,
+        9,
+        7,
+        1
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        1,
+        2,
+        0,
+        8,
+        2,
+        1
+      ],
+      "player_store": 10
+    },
+    "state_sha256": "b1fed738361092e52fbe38d31d5171e399a07bec5975952f7763ee5f46ddecef"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 14,
+    "selection_order_sha256": "002312fbdfb4a4fa02d0e1c391b424a19a565c25ac20d7d8151e10925cff44b7",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        1,
+        2,
+        2,
+        0,
+        4,
+        11
+      ],
+      "opponent_store": 7,
+      "player_pits": [
+        3,
+        2,
+        6,
+        2,
+        0,
+        1
+      ],
+      "player_store": 7
+    },
+    "state_sha256": "8f3d364c2d4e9930b055f7d5347ebf0e8a493fbc33e25d900b6fa287c1770a7f"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 16,
+    "selection_order_sha256": "0029e70b02f0da8e44d003672caa620a15ba29fa5b9f5b5ebfda2aebfc6e191a",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        8,
+        7,
+        2,
+        1,
+        0,
+        1
+      ],
+      "opponent_store": 10,
+      "player_pits": [
+        5,
+        0,
+        2,
+        8,
+        0,
+        0
+      ],
+      "player_store": 4
+    },
+    "state_sha256": "b41dfb0b7fc4a1dbfcae8fcf529e8a5d0595690a698ebf2496ba74513fa2c837"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 16,
+    "selection_order_sha256": "00372c7de8b9f6ba8b9e94fc2c5b92f3d8300370a7e6e0936d50f3fd45469677",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        2,
+        2,
+        9,
+        9,
+        1
+      ],
+      "opponent_store": 7,
+      "player_pits": [
+        0,
+        3,
+        3,
+        0,
+        0,
+        9
+      ],
+      "player_store": 3
+    },
+    "state_sha256": "abdc04edc18a97e8e84014f510c3e44e80987503183b80404b2df789bd83ba8a"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 7,
+    "selection_order_sha256": "00429178bbc18fab31639492820af47589ea53fcce9f97bd935e01b43c252ee9",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        7,
+        1,
+        1,
+        7,
+        7
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        0,
+        0,
+        6,
+        6,
+        2,
+        7
+      ],
+      "player_store": 2
+    },
+    "state_sha256": "4a481d9f248636332464d0e13a1b0182f0c775e68ced7484ec84076be3f17f52"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 13,
+    "selection_order_sha256": "00446406df2cc2456282cb35e0992d9c85e2c5e1cb121a8b13de2ba81e48166f",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        5,
+        8,
+        3,
+        2,
+        5
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        4,
+        10,
+        1,
+        0,
+        0,
+        1
+      ],
+      "player_store": 5
+    },
+    "state_sha256": "830446eabe4bf9af9b43b4fa21a09282c1c4216a44689af266c4006ed079b92b"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 11,
+    "selection_order_sha256": "00531e00b2a58feab72a5e164f1364abcc32d367f2a5bd2b04ba446324281c39",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        2,
+        9,
+        8,
+        4,
+        9
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        2,
+        2,
+        3,
+        0,
+        1,
+        0
+      ],
+      "player_store": 6
+    },
+    "state_sha256": "41ca1fa8d7b122d631c6e6db57af73fbf1ee82dcbaa9c364b76d6c59aa4245af"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 14,
+    "selection_order_sha256": "005869c01483cb8bf44a889412b3b3ea831f5fc7bffb6ca72b35c04a0b786866",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        3,
+        8,
+        1,
+        2,
+        0,
+        3
+      ],
+      "opponent_store": 7,
+      "player_pits": [
+        3,
+        10,
+        1,
+        7,
+        0,
+        0
+      ],
+      "player_store": 3
+    },
+    "state_sha256": "aa2188142f85d15ae1348a21fd110ad0160e2ce000d247b780ded459b6b2ede2"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 19,
+    "selection_order_sha256": "005b75d3dabf1f3f8801b31329f5b959ae459c05a7e7fa95d3d8c19f59712d3d",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        0,
+        2,
+        10,
+        1,
+        1
+      ],
+      "opponent_store": 10,
+      "player_pits": [
+        1,
+        2,
+        0,
+        4,
+        1,
+        10
+      ],
+      "player_store": 5
+    },
+    "state_sha256": "deffa3abbf69f0b064a490ff2fe18161da91f04e5d90799ec976733a6ce118c8"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 9,
+    "selection_order_sha256": "005d22aa6d516adeb49eec1fceb23b2b71ae018f7beb89302f7510e0948abea6",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        2,
+        8,
+        1,
+        7,
+        7,
+        2
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        2,
+        6,
+        0,
+        6,
+        0,
+        0
+      ],
+      "player_store": 4
+    },
+    "state_sha256": "af776019f461bfcfd006975531e94a7dc573522c5b7b9744ae4ffca599368b74"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 17,
+    "selection_order_sha256": "0060e9a2fa754a8a726731d63cc3a72aaa3dada17f186ec0cca39176965f133d",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        2,
+        0,
+        0,
+        3,
+        2,
+        1
+      ],
+      "opponent_store": 11,
+      "player_pits": [
+        0,
+        0,
+        3,
+        0,
+        12,
+        10
+      ],
+      "player_store": 4
+    },
+    "state_sha256": "338b9a582a76799e6b6a99d8838571f33036ea53849e365b6aa4108501e58a3d"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 10,
+    "selection_order_sha256": "0065376168e0848c064264db4e47c8c58c0cc3abb750e5a9c214cd1474180d3c",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        8,
+        0,
+        2,
+        4,
+        1,
+        8
+      ],
+      "opponent_store": 7,
+      "player_pits": [
+        7,
+        1,
+        6,
+        0,
+        0,
+        0
+      ],
+      "player_store": 4
+    },
+    "state_sha256": "32c905c9477d082d6724244063096f45911561473f0d765bb260141571e2fb07"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 5,
+    "selection_order_sha256": "006ab37c44745ce497c5e26077f1bba2bb9f2c36f43cd42e36a6beb12ebdcd5b",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        6,
+        6,
+        5,
+        5,
+        0
+      ],
+      "opponent_store": 1,
+      "player_pits": [
+        0,
+        7,
+        6,
+        5,
+        0,
+        5
+      ],
+      "player_store": 1
+    },
+    "state_sha256": "d0e47ba684a40083940dedc938d4330e64cffb2c4b7ef61604cab9dcde49f2dc"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 19,
+    "selection_order_sha256": "006ca7631b92afb91710a903998d7169231b9bd884a4a7a3e58f5263847db075",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        3,
+        1,
+        2,
+        0,
+        0,
+        4
+      ],
+      "opponent_store": 8,
+      "player_pits": [
+        1,
+        11,
+        1,
+        1,
+        0,
+        10
+      ],
+      "player_store": 6
+    },
+    "state_sha256": "8bc1242bcf7f0ba83344afb3961fc22617048d94c11eed4a3dd80a82583a196e"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 12,
+    "selection_order_sha256": "006d8b7a75d452aaf896e19b6a8c69f5c5147dec4ada996b19d2e640462727a5",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        2,
+        4,
+        1,
+        3,
+        5,
+        4
+      ],
+      "opponent_store": 7,
+      "player_pits": [
+        3,
+        2,
+        0,
+        8,
+        4,
+        1
+      ],
+      "player_store": 4
+    },
+    "state_sha256": "2bc9fcc93c6af507e0d37756dbb5883a5d66dc69db2b14ea5ab5c0422a878e8e"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 15,
+    "selection_order_sha256": "007b9b69b6ee655bcb0eab0337c45bf962795b019ed329aa81c7e3a624561e2d",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        9,
+        2,
+        1,
+        1,
+        1
+      ],
+      "opponent_store": 7,
+      "player_pits": [
+        2,
+        1,
+        3,
+        8,
+        1,
+        6
+      ],
+      "player_store": 6
+    },
+    "state_sha256": "ac0300f576a8859a0d8e0918c41528cf81beb4db4fd41249d0be7c327bba6f4c"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 8,
+    "selection_order_sha256": "007d24cf6c8de75c30a03be56e42a85c9b442ee7f1a3f2576bd35a004d24fd7e",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        7,
+        0,
+        1,
+        6,
+        6,
+        0
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        0,
+        2,
+        7,
+        7,
+        1,
+        4
+      ],
+      "player_store": 4
+    },
+    "state_sha256": "772a417f7359088d2bb959e493fe436bd917d922d0287985c4bb73b2f3884192"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 16,
+    "selection_order_sha256": "0086e77a08d54c50ba106c690b74d625c7bdad8b9aaa3294a55f91a0ac635510",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        3,
+        0,
+        3,
+        3,
+        1,
+        1
+      ],
+      "opponent_store": 8,
+      "player_pits": [
+        1,
+        0,
+        3,
+        3,
+        4,
+        12
+      ],
+      "player_store": 6
+    },
+    "state_sha256": "3c48baaf9ea8cc6d514e58032b05b3e6e2601ec4caca789cd5994fb137225ce0"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 8,
+    "selection_order_sha256": "00872bcfcf46a4c7bd60d56685b8f4eb96d619e94b0c6aacd78b0c151f775120",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        1,
+        0,
+        2,
+        7,
+        1,
+        7
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        7,
+        1,
+        2,
+        0,
+        7,
+        0
+      ],
+      "player_store": 10
+    },
+    "state_sha256": "c652af8286d64edc823a184f1b8146231b892170efeabd79ab39985460ed3143"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 16,
+    "selection_order_sha256": "008bb5eef9437ccdb59facedd66872be9027fc585ea0d031b3e66ba5dbc3254f",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        2,
+        3,
+        1,
+        0,
+        1,
+        0
+      ],
+      "opponent_store": 5,
+      "player_pits": [
+        3,
+        2,
+        1,
+        2,
+        14,
+        10
+      ],
+      "player_store": 4
+    },
+    "state_sha256": "46db7c4809549897968de4e0ad55de75729b65824ae830b79dafa2b594460199"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 13,
+    "selection_order_sha256": "008dabd059ca61d6a7884fda5006919d076afbc9a52b440d20d16769d3ed7792",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        7,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "opponent_store": 6,
+      "player_pits": [
+        0,
+        9,
+        0,
+        3,
+        11,
+        9
+      ],
+      "player_store": 3
+    },
+    "state_sha256": "a6d8b8f6b508a63661d95e4b7413b0eb2c1023c3d10bb552dba2bb43a0152456"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 9,
+    "selection_order_sha256": "009024e37203a7719d17f3879788bdd0a22f98a6a4642ea3be53724ed0107285",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        5,
+        0,
+        0,
+        3,
+        1,
+        8
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        1,
+        0,
+        9,
+        8,
+        1,
+        6
+      ],
+      "player_store": 2
+    },
+    "state_sha256": "f4fa84e15954c583b3f5b263fd821ffab9594d5cfd0bb297278ae8a420aeb16b"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 8,
+    "selection_order_sha256": "009b757a884f53fefc599b8411d9f53343035f09b29c7e6faabae1fa6c38fdca",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        2,
+        7,
+        6,
+        5,
+        5,
+        0
+      ],
+      "opponent_store": 1,
+      "player_pits": [
+        5,
+        0,
+        0,
+        3,
+        7,
+        1
+      ],
+      "player_store": 6
+    },
+    "state_sha256": "41f00a50d358d02ab292c10b024790904a3f890d73dfc9dee748ce7d013d3c71"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 13,
+    "selection_order_sha256": "009f2f4225788bf9bf2051185b1e38a4c136606c3df62b07e6572c79073ab224",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        0,
+        0,
+        9,
+        1,
+        8
+      ],
+      "opponent_store": 6,
+      "player_pits": [
+        6,
+        1,
+        1,
+        1,
+        2,
+        10
+      ],
+      "player_store": 3
+    },
+    "state_sha256": "b58edb772ddb8bdc39bb31518263bbd61ddacaed224f7e16a4bdcbe9163c37bc"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 13,
+    "selection_order_sha256": "00a337fbe701e82b3ab64e8a5c78559ea62b5132d75877243c0dfa9695dd1d9a",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        5,
+        3,
+        10,
+        2,
+        1,
+        0
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        4,
+        4,
+        4,
+        1,
+        3,
+        4
+      ],
+      "player_store": 4
+    },
+    "state_sha256": "ad989efcbeea7c98083660fcd44922a4400026d2dbae123f20d0ae79a9499f20"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 12,
+    "selection_order_sha256": "00aa416fa26d7f0d67a323fa253073e73dd454121074a6f400964c4637f4a3cb",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        2,
+        0,
+        4,
+        9,
+        1,
+        1
+      ],
+      "opponent_store": 6,
+      "player_pits": [
+        2,
+        9,
+        3,
+        0,
+        7,
+        1
+      ],
+      "player_store": 3
+    },
+    "state_sha256": "3817d68b6df6b85e3c7ecbf32badaa5831786f5bc18b4ad10e1fec769261e1c7"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 11,
+    "selection_order_sha256": "00b3f824ba4661b31b8645d6d896a57f1d4c5cc1e344071943f4f8edab56d7d0",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        0,
+        1,
+        2,
+        7,
+        7,
+        0
+      ],
+      "opponent_store": 7,
+      "player_pits": [
+        0,
+        6,
+        6,
+        0,
+        2,
+        7
+      ],
+      "player_store": 3
+    },
+    "state_sha256": "71b06a4c5c12cab1755a44f5788bdac761a8c8275f88380f3c9d20f80028d6dc"
+  },
+  {
+    "bucket": "gt32",
+    "ply": 10,
+    "selection_order_sha256": "00b55ace277b4416d5f79674498b81671ac8392d2160ca5c57796a3438d714bb",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        7,
+        6,
+        6,
+        1,
+        0,
+        0
+      ],
+      "opponent_store": 9,
+      "player_pits": [
+        0,
+        1,
+        0,
+        0,
+        8,
+        7
+      ],
+      "player_store": 3
+    },
+    "state_sha256": "0b537ffe95473645620e961d3f89d96b6f8998414ecc9661b25c013ad1071e4f"
+  },
+  {
+    "bucket": "17to32",
+    "ply": 29,
+    "selection_order_sha256": "000053a58d4d7d1d0164669b9b2814f702e0c608297eb723437b36734d2c4621",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        1,
+        1,
+        2,
+        0,
+        1,
+        1
+      ],
+      "opponent_store": 17,
+      "player_pits": [
+        2,
+        3,
+        0,
+        1,
+        3,
+        2
+      ],
+      "player_store": 14
+    },
+    "state_sha256": "438b02c90c78061b04d85f6db7871909fba28ad18f35b8ef6bf67ab0af25acfa"
+  },
+  {
+    "bucket": "17to32",
+    "ply": 22,
+    "selection_order_sha256": "000085adf48488dd1280f040d9e3041e477719eb1d48a16be383f00708d76658",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        1,
+        3,
+        3,
+        0,
+        2,
+        5
+      ],
+      "opponent_store": 14,
+      "player_pits": [
+        3,
+        0,
+        2,
+        0,
+        1,
+        0
+      ],
+      "player_store": 14
+    },
+    "state_sha256": "eb888285d28bfbc47df676c4ebbe38e80d19eedfb8075b8fff5e65273fa9bcdf"
+  },
+  {
+    "bucket": "17to32",
+    "ply": 22,
+    "selection_order_sha256": "00040462d23366389a3355321beac147b91b58e0ec664a37397e409312e4b365",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        1,
+        3,
+        1,
+        1,
+        1
+      ],
+      "opponent_store": 10,
+      "player_pits": [
+        2,
+        1,
+        0,
+        1,
+        2,
+        10
+      ],
+      "player_store": 14
+    },
+    "state_sha256": "8b1672a3a6226ecfb823f5f7643d78491ea19109d939a0c3b41596c5442c93c5"
+  },
+  {
+    "bucket": "17to32",
+    "ply": 24,
+    "selection_order_sha256": "00040e06b9d45a282742ad3cd28e2839c52a59ec94dc6235c117764336b5446a",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        2,
+        9,
+        1,
+        1,
+        0,
+        1
+      ],
+      "opponent_store": 23,
+      "player_pits": [
+        0,
+        2,
+        1,
+        1,
+        0,
+        0
+      ],
+      "player_store": 7
+    },
+    "state_sha256": "e7111b1703816fe35630b7ad0e0558c61b9d490284910ca7f40ba6e685e65c63"
+  },
+  {
+    "bucket": "17to32",
+    "ply": 30,
+    "selection_order_sha256": "00049363e236f1f885bb131d7b2bd930c7773da5ab2e3f498f6dc75316d2e555",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        2,
+        0,
+        3,
+        2,
+        0,
+        0
+      ],
+      "opponent_store": 14,
+      "player_pits": [
+        0,
+        1,
+        0,
+        1,
+        1,
+        13
+      ],
+      "player_store": 11
+    },
+    "state_sha256": "1917517b5f9aeb524f84325fb2c9af8291401539ce54869085ebf0ca540f3933"
+  },
+  {
+    "bucket": "17to32",
+    "ply": 25,
+    "selection_order_sha256": "0005f83a91c75aa332e8505d436ae6cebb7feee1e25269895a0b776917b5cd26",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        3,
+        0,
+        0,
+        0,
+        5,
+        0
+      ],
+      "opponent_store": 16,
+      "player_pits": [
+        3,
+        6,
+        2,
+        0,
+        0,
+        1
+      ],
+      "player_store": 12
+    },
+    "state_sha256": "5ba1128aa19c7f4a86c348a0640a4203f4e9c130a99b42a2c63c0fe65e214382"
+  },
+  {
+    "bucket": "17to32",
+    "ply": 18,
+    "selection_order_sha256": "0006d0d43341a02cee806599db90e78729a98f66145480530cf7781fc05d996f",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        0,
+        3,
+        4,
+        1,
+        0,
+        13
+      ],
+      "opponent_store": 6,
+      "player_pits": [
+        3,
+        0,
+        4,
+        2,
+        2,
+        0
+      ],
+      "player_store": 10
+    },
+    "state_sha256": "329db9f9c79bbf2515d433547191331fd43f72346e2619dcf086c9f3997ac000"
+  },
+  {
+    "bucket": "17to32",
+    "ply": 13,
+    "selection_order_sha256": "000722d8b8ad77728f74dec215000b78c4a0b8e1879cb3c10f554da6dc8064dc",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        0,
+        3,
+        0,
+        10,
+        1
+      ],
+      "opponent_store": 5,
+      "player_pits": [
+        2,
+        3,
+        1,
+        8,
+        0,
+        0
+      ],
+      "player_store": 15
+    },
+    "state_sha256": "6e3858aa39f5f5f8f9e3a176f0fa7bb273996623dee9b54feb50f6e756caf999"
+  },
+  {
+    "bucket": "17to32",
+    "ply": 16,
+    "selection_order_sha256": "00096e2ea676600c9f0b496ac25c4e01d6b43c733dcd0081fa3cc0ad06085894",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        0,
+        3,
+        1,
+        2,
+        6
+      ],
+      "opponent_store": 7,
+      "player_pits": [
+        1,
+        6,
+        1,
+        2,
+        8,
+        0
+      ],
+      "player_store": 11
+    },
+    "state_sha256": "8de201ee50b9b82b63a7d374bea57e5f8d579fcdc29a916633d0b8c4feada351"
+  },
+  {
+    "bucket": "17to32",
+    "ply": 13,
+    "selection_order_sha256": "001038b4d37d9c24eefb9b54799f1c8c8ff0313d117168c32040aa9d2aefd704",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        0,
+        0,
+        7,
+        1,
+        4
+      ],
+      "opponent_store": 14,
+      "player_pits": [
+        1,
+        2,
+        9,
+        0,
+        0,
+        8
+      ],
+      "player_store": 2
+    },
+    "state_sha256": "21c54d235b8f6861fd068bf017ea2fa21ef7d05a24ff9160069835e89017ecfb"
+  },
+  {
+    "bucket": "17to32",
+    "ply": 18,
+    "selection_order_sha256": "00124aa19901ac193714576681cd309094fe58b18db2f86784b2e4d865f85b59",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        2,
+        1,
+        0,
+        2,
+        0,
+        1
+      ],
+      "opponent_store": 14,
+      "player_pits": [
+        1,
+        10,
+        2,
+        1,
+        2,
+        7
+      ],
+      "player_store": 5
+    },
+    "state_sha256": "afbf643752e4339e019462aa901b561c1ee36910fbc863693ccf368d1b41c8bd"
+  },
+  {
+    "bucket": "17to32",
+    "ply": 28,
+    "selection_order_sha256": "001341c4494f1f339f21cfc9e33a230227d4169b2f22e64fbf32c63119268ecb",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        4,
+        1,
+        1,
+        2,
+        10
+      ],
+      "opponent_store": 8,
+      "player_pits": [
+        0,
+        1,
+        3,
+        1,
+        6,
+        0
+      ],
+      "player_store": 11
+    },
+    "state_sha256": "788a4a3a3fe6454ef87ceb02d4afb93bc889f74f39a05a11bdcdb02317173353"
+  },
+  {
+    "bucket": "17to32",
+    "ply": 39,
+    "selection_order_sha256": "001451aa66ece96fdfc5572ff17066ed6a426f8fe6906bf9085bf0c2ba0c35a4",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        3,
+        0,
+        2,
+        1,
+        0
+      ],
+      "opponent_store": 16,
+      "player_pits": [
+        0,
+        0,
+        3,
+        0,
+        7,
+        0
+      ],
+      "player_store": 15
+    },
+    "state_sha256": "bfa5e927571aa37ecbc82b9f955f23af99e9cc5043a4a79b60ca8ae582be07cd"
+  },
+  {
+    "bucket": "17to32",
+    "ply": 30,
+    "selection_order_sha256": "00149774a0e76383f301f9f6a805758abd059dfce0ead2494437e233100799e3",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        2,
+        3,
+        0,
+        0,
+        1
+      ],
+      "opponent_store": 9,
+      "player_pits": [
+        1,
+        13,
+        3,
+        1,
+        0,
+        1
+      ],
+      "player_store": 14
+    },
+    "state_sha256": "e6634c2bfc3f10a4e7cdeb16fc31f9ba90d15fc8cf7a2551162bc49de05cf3f3"
+  },
+  {
+    "bucket": "17to32",
+    "ply": 17,
+    "selection_order_sha256": "0017f2a36b4ef038c7825a6a919a9f28a3aace943c16b0d8f35f0ba66090e9d6",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        3,
+        1,
+        2,
+        3,
+        3,
+        2
+      ],
+      "opponent_store": 9,
+      "player_pits": [
+        3,
+        4,
+        3,
+        0,
+        2,
+        5
+      ],
+      "player_store": 8
+    },
+    "state_sha256": "f40ee2654a1b6b0d4a20f6e689d9077f6e5803d7a3940c88cc3885779230ff2b"
+  },
+  {
+    "bucket": "17to32",
+    "ply": 13,
+    "selection_order_sha256": "001b60d55a2da93e956448e80048f51a8cb6cdca0b8be9e105d6d5d2214929f1",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        2,
+        1,
+        8,
+        7,
+        0,
+        0
+      ],
+      "opponent_store": 14,
+      "player_pits": [
+        0,
+        6,
+        0,
+        1,
+        1,
+        1
+      ],
+      "player_store": 7
+    },
+    "state_sha256": "8651ec7c7e94cb36f89600bcb010b18b98339c6d3629d6e797d80727afccd0f0"
+  },
+  {
+    "bucket": "le16",
+    "ply": 44,
+    "selection_order_sha256": "0002a300b69f263f12ab1504bd5ecc8d960596cbe890a23f47235cb4f2925347",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        0,
+        0,
+        1,
+        9,
+        1
+      ],
+      "opponent_store": 15,
+      "player_pits": [
+        0,
+        0,
+        1,
+        2,
+        1,
+        0
+      ],
+      "player_store": 18
+    },
+    "state_sha256": "e352f7ee894f48f8a8a04e16a0049721f9d9f5bf0e7f75d6549be0c0c99e969a"
+  },
+  {
+    "bucket": "le16",
+    "ply": 37,
+    "selection_order_sha256": "0005c2cda0a89580c31b7a24a719704c5fee093e0fd6bcfe0b4fd3925e315bd1",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        1,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "opponent_store": 21,
+      "player_pits": [
+        0,
+        1,
+        2,
+        0,
+        1,
+        0
+      ],
+      "player_store": 21
+    },
+    "state_sha256": "cdabd0980efb27a33076a734720260a23f915f65eb8bce680b2b51d9e7312012"
+  },
+  {
+    "bucket": "le16",
+    "ply": 40,
+    "selection_order_sha256": "000aa39f3d822f385e188bc8e0988822eed39520a6ae11e9c73caf42a6803c59",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        0,
+        0,
+        0,
+        2,
+        0
+      ],
+      "opponent_store": 28,
+      "player_pits": [
+        0,
+        0,
+        2,
+        1,
+        0,
+        0
+      ],
+      "player_store": 15
+    },
+    "state_sha256": "f94074d38af271d8c9e37c0f3703dd5d89bcd9457872fbca738e1fd52d1cbd42"
+  },
+  {
+    "bucket": "le16",
+    "ply": 55,
+    "selection_order_sha256": "000c76f8b44ecc77e0bcbda62ce32f8c3602fde1e220c1e191df6ef4eb4bb4e7",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "opponent_store": 28,
+      "player_pits": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        3
+      ],
+      "player_store": 12
+    },
+    "state_sha256": "be45b07746dd5323f97528ab322af66f1ebe9c9e33cb21aa4213a74bd9b9e408"
+  },
+  {
+    "bucket": "le16",
+    "ply": 24,
+    "selection_order_sha256": "000d2f0b6f1180b8e8ef17db621172c7e900e052e5a051bc390d1a28f486ffd4",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        0,
+        11,
+        0,
+        1,
+        0
+      ],
+      "opponent_store": 16,
+      "player_pits": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        1
+      ],
+      "player_store": 17
+    },
+    "state_sha256": "fb1ad2573a323d64948c0b4678476a09f1b4f065a33fd6c0630bfb957a888148"
+  },
+  {
+    "bucket": "le16",
+    "ply": 38,
+    "selection_order_sha256": "000db0c922392fff94b26ddfd5177dc4aa9bcde8a98cd1f7314de7d88a993c8e",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        0,
+        0,
+        1,
+        0,
+        1,
+        0
+      ],
+      "opponent_store": 24,
+      "player_pits": [
+        0,
+        1,
+        0,
+        0,
+        1,
+        1
+      ],
+      "player_store": 19
+    },
+    "state_sha256": "bbb5bdcddfa124cc7aa9dc6980f41b59deae1e68b05c2c19f7ff8473881840e7"
+  },
+  {
+    "bucket": "le16",
+    "ply": 46,
+    "selection_order_sha256": "00105ea01ed3d0fc9bc56e4852924d1c0bac6deedaf9bea4314e592d3c9d90b1",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "opponent_store": 25,
+      "player_pits": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "player_store": 20
+    },
+    "state_sha256": "ecc86f6aee875978892dc55876e58a8ac312315a196a49b285394a27271057fe"
+  },
+  {
+    "bucket": "le16",
+    "ply": 24,
+    "selection_order_sha256": "00111eaa599107d1244a22f83c3c4d70a8cc81c3dd1c8fc01d2b59d75e983fb1",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        1,
+        0,
+        2,
+        3,
+        1,
+        1
+      ],
+      "opponent_store": 13,
+      "player_pits": [
+        1,
+        0,
+        3,
+        2,
+        1,
+        0
+      ],
+      "player_store": 20
+    },
+    "state_sha256": "80767e9828cc95733280e6966121143b57c28a3ab16acfbb7062206810dab00d"
+  },
+  {
+    "bucket": "le16",
+    "ply": 36,
+    "selection_order_sha256": "0012da698ca6986d8ac28f59cfb841c20f2d6a89c46dbcbb63a56dbcf71e7fdd",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        2,
+        1,
+        2,
+        0,
+        2,
+        1
+      ],
+      "opponent_store": 22,
+      "player_pits": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "player_store": 12
+    },
+    "state_sha256": "b1d80f075e4bd3352cf0835dfe0ecfc73c58d9686849c0c958d06b81cfa616f8"
+  },
+  {
+    "bucket": "le16",
+    "ply": 25,
+    "selection_order_sha256": "0019247c1534cee3c76b9deec88c6cf28f23921ada336bfbd47450ed8cc8efcf",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        0,
+        3,
+        2,
+        2,
+        1,
+        0
+      ],
+      "opponent_store": 16,
+      "player_pits": [
+        0,
+        1,
+        1,
+        2,
+        1,
+        0
+      ],
+      "player_store": 19
+    },
+    "state_sha256": "3a50f2d5d719a668ab24119d694e2e56daa8830c2020fc907e53e3bad201916b"
+  },
+  {
+    "bucket": "le16",
+    "ply": 41,
+    "selection_order_sha256": "001a1ae7997c68c39e4ad3bb743b1aa6ded3cc8448e127cffdb57c778e662a62",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        2,
+        1,
+        1,
+        1,
+        1,
+        2
+      ],
+      "opponent_store": 17,
+      "player_pits": [
+        2,
+        2,
+        0,
+        2,
+        1,
+        1
+      ],
+      "player_store": 15
+    },
+    "state_sha256": "0b675c023aa8a755c6b0d028829cb9efc398cc3413e4ff87893bdd71aa057f0d"
+  },
+  {
+    "bucket": "le16",
+    "ply": 37,
+    "selection_order_sha256": "001d280a68d3c0b9084b0cfbdf8dc05971a2158df2b8901fbca55cf409a094e6",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        2,
+        0,
+        1,
+        3,
+        0,
+        0
+      ],
+      "opponent_store": 23,
+      "player_pits": [
+        0,
+        3,
+        2,
+        0,
+        0,
+        1
+      ],
+      "player_store": 13
+    },
+    "state_sha256": "bd6e052fe9d353c8baa37840f8743cfd96f157f190a530c3ecab17b2195465b3"
+  },
+  {
+    "bucket": "le16",
+    "ply": 41,
+    "selection_order_sha256": "001fa0f37b30aeac01789a38004017e0ea59a2cca7af997dfacbb7e763f73ede",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        0,
+        0,
+        2,
+        2,
+        1
+      ],
+      "opponent_store": 19,
+      "player_pits": [
+        0,
+        0,
+        0,
+        2,
+        1,
+        1
+      ],
+      "player_store": 20
+    },
+    "state_sha256": "175ac02b79b48b4b23e0c5e95024df346f804726656049323578ce45c04bd8ac"
+  },
+  {
+    "bucket": "le16",
+    "ply": 28,
+    "selection_order_sha256": "0022263d0fc2df9541fbf24473fa2c7b93456377c39f4c7679f2703ee80e4c66",
+    "source_game_index": 0,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        0,
+        0,
+        1,
+        3,
+        0,
+        1
+      ],
+      "opponent_store": 16,
+      "player_pits": [
+        1,
+        1,
+        2,
+        0,
+        0,
+        0
+      ],
+      "player_store": 23
+    },
+    "state_sha256": "f6d5ce12ed5f0f9ef7694c699e2d25a496dc72e063952bf9c9d0f2eff83c1c82"
+  },
+  {
+    "bucket": "le16",
+    "ply": 37,
+    "selection_order_sha256": "002231576de2a8e314a7e8f63c7d997aa761b7a92e94fe904c9ac40c7f2db8c3",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "opponent_store": 20,
+      "player_pits": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        1
+      ],
+      "player_store": 24
+    },
+    "state_sha256": "e10b8fdc3c71f675508cbf53bf555fe2869facd8717f0d9f45064c4881c4373b"
+  },
+  {
+    "bucket": "le16",
+    "ply": 28,
+    "selection_order_sha256": "0029af084e113cb8fda0539cbc343c6473c61866da45aa5e73ffc05f601308dd",
+    "source_game_index": 1,
+    "source_opening_index": 0,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        0,
+        3,
+        2,
+        1,
+        1,
+        0
+      ],
+      "opponent_store": 12,
+      "player_pits": [
+        0,
+        0,
+        2,
+        1,
+        6,
+        0
+      ],
+      "player_store": 20
+    },
+    "state_sha256": "bd9bf7cfa02d13cc1c2b3551b2e459f50564c2658b508fa5da744c1b7c0a9adc"
+  }
+]

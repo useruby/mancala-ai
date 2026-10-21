@@ -1,0 +1,13 @@
+{
+  "schema": "seed514-correctness-checks-v1",
+  "status": "passed_before_timed_repetitions",
+  "cohort_states_checked": 64,
+  "artifact_and_runtime_identity_checks": "all registered component sidecars and exact-root assets matched seed512 registration",
+  "component_routing": "P policy output matched E4 evaluator; P value output matched initializer evaluator on every cohort state",
+  "legal_action_checks": "baseline and P complete-search results used legal root actions for every cohort state",
+  "terminal_handling": "terminal composition returned zero policy/value without evaluating either model; focused test passed",
+  "fixed_seed_search_repeatability": "passed for baseline and P on all 64 cohort states; wall-clock telemetry excluded from equality comparison",
+  "exact_root_behavior": "all 16 states in the <=16 active-stone stratum dispatched through the registered exact-root path for both configurations; exact leaf solve remained disabled",
+  "focused_test_command": "/home/alex/Mancala/ai/.venv/bin/python -m pytest ml/alphazero_lite/test_seed514_operational_benchmark.py -q",
+  "focused_tests_passed": 6
+}

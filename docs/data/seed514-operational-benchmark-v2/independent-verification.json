@@ -1,0 +1,33 @@
+{
+  "schema": "seed514-independent-verification-v1",
+  "status": "passed",
+  "checkout": {
+    "kind": "second isolated detached worktree",
+    "commit": "b0072fc6"
+  },
+  "command": "/home/alex/Mancala/ai/.venv/bin/python -m ml.alphazero_lite.verify_seed514_operational_benchmark docs/data/seed514-operational-benchmark-v2",
+  "arithmetic": {
+    "cohort_states": 64,
+    "timed_searches": 640,
+    "paired_searches": 320,
+    "baseline_p50_seconds": 0.106234853,
+    "baseline_p95_seconds": 8.070799515100003,
+    "baseline_searches_per_second": 0.3783756421523017,
+    "P_p50_seconds": 0.1718205385,
+    "P_p95_seconds": 7.90654580155,
+    "P_searches_per_second": 0.37252588527443836,
+    "paired_ratio_p50": 1.5820285398607288,
+    "paired_ratio_p95": 1.6690899564878663,
+    "per_state_ratios": 64,
+    "search_paths_per_configuration": {
+      "exact_root": 80,
+      "puct": 240
+    }
+  },
+  "cohort_reconstruction": {
+    "same_records_as_publication": true,
+    "state_count": 64,
+    "published_cohort_sha256": "7ce8d73a80cf61db9cfde9c6c213d80a491bbf5c7686a1a175a6ffe44ea2974f"
+  },
+  "limitations": "Reproduction is an evidence integrity and arithmetic check from a second worktree on the same host, not an independent hardware replication."
+}
