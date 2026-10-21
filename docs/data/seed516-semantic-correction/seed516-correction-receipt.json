@@ -1,0 +1,9 @@
+{
+  "external_dependency": "The registered seed512 exact-root tablebase object is external to the source tree and required by seed515's replay verification.",
+  "finite_numeric_statistics": "passed",
+  "labeled_table_cells_and_units": "passed",
+  "portability_execution": null,
+  "schema": "seed516-semantic-correction-v1",
+  "seed515_receipt_sha256": "d07f3305e5130734459835e996ae3fbf0a9aa151ca42816b629b2f0ee5e7c0f5",
+  "status": "verified"
+}
