@@ -1,6 +1,6 @@
 {
   "execution_freeze_sha256": "e6476fa3f587292e41ff97d99db87b942587c211fb861f8837e37077292eb633",
-  "file_count": 3094,
+  "file_count": 3095,
   "files": {
     "batches/games-0000.jsonl": "43e67ff8cf02c1e211bc70618f604ea62ff28fdb3a890dd932e8ab9a716ed56d",
     "batches/games-0001.jsonl": "ef43d18f02a9ebf88729de703fb14ba5cdad137e3ad41a191cd9403ebb75316b",
@@ -3083,9 +3083,10 @@
     "make_receipt.py": "cc7b43a6fa8f66568d71abbceb2d403de3f3ecda7c4080a5202744035e19cb2d",
     "openings.jsonl": "27a003322e5469507a508010a9743b40062928140e6a4b9d5628b0290e32c21d",
     "outcomes.jsonl": "6324ce385df6ee3e824630b84744947e96cda97748caf703cd6ecc60f5ad2cb8",
+    "physical-copy-verification.json": "c7048822e2b7e63e8e8fe9a8f7eba00d55eaaa5185d364c516d3faff659907f2",
     "registration.json": "89f04c6e1f774d81a7866d3913dd5ffa990b9e04a58f9a7f066b8f19204445c4",
     "results.json": "c0c69fa35da52e434f009fcba18fe7a18a6f66c58987b91fb41dac45859e4541",
-    "results.md": "9c902f3d492d22f9d1761c6d0fc280b39e0764602a175f94602d815927efcd85",
+    "results.md": "65ab48bf4ed36a53b6fda19bb2850f783b80660fa70ba8b48d7785b083ec3865",
     "runtime-artifacts/E4/metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
     "runtime-artifacts/E4/model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
     "runtime-artifacts/E4/search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",

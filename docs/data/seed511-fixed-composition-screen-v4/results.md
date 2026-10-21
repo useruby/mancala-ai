@@ -96,7 +96,10 @@ recomputed the paired-opening bootstrap directly from the ledger. It reproduced
 the published counts, score, interval and pass decision. Synthetic controls
 also cover command routing, interruption/resume preservation and semantic
 corruption rejection. The corrected seed508 verification tests pass as an
-additional regression check.
+additional regression check. A separate detached worktree of the committed
+publication passed `verify_copy.py`, including receipt hashes, command contracts,
+all-game replay and independently recomputed analysis; its verification record
+is `physical-copy-verification.json`.
 
 The repository's commit hook applied Ruff formatting to the three seed511
 Python files after the games had completed. `execution-source-snapshots/`
