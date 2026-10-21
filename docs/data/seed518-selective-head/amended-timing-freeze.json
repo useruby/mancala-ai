@@ -1,0 +1,147 @@
+{
+  "amendment_sha256": "f6a15e424a44810e4882c3edaf4950dee9b5cbba56e61bfc3c1d64fe79b591e5",
+  "architecture": {
+    "E4": {
+      "activation": "relu",
+      "hidden_layer_count": 9,
+      "hidden_sizes": [
+        96
+      ],
+      "model_type": "residual_v3",
+      "policy_hidden_size": 96,
+      "policy_size": 6,
+      "residual_block_count": 3,
+      "trunk_size": 96,
+      "type": "residual_policy_value",
+      "value_hidden_size": 48,
+      "value_size": 1
+    },
+    "initializer": {
+      "activation": "relu",
+      "hidden_layer_count": 9,
+      "hidden_sizes": [
+        96
+      ],
+      "model_type": "residual_v3",
+      "policy_hidden_size": 96,
+      "policy_size": 6,
+      "residual_block_count": 3,
+      "trunk_size": 96,
+      "type": "residual_policy_value",
+      "value_hidden_size": 48,
+      "value_size": 1
+    }
+  },
+  "cohort_sha256": "7ce8d73a80cf61db9cfde9c6c213d80a491bbf5c7686a1a175a6ffe44ea2974f",
+  "cohort_source": "docs/data/seed514-operational-benchmark-v2/cohort.json",
+  "components": {
+    "E4": {
+      "metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+      "model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+    },
+    "initializer": {
+      "metadata.json": "7ce41fde58c219c9fd2aa7a912db1c2da357099d6f72e3f715d9a78ce500cb5d",
+      "model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+    }
+  },
+  "dependencies": [
+    "Jinja2==3.1.6",
+    "MarkupSafe==3.0.3",
+    "PyYAML==6.0.3",
+    "Pygments==2.20.0",
+    "cfgv==3.5.0",
+    "cuda-bindings==13.3.0",
+    "cuda-pathfinder==1.5.5",
+    "cuda-toolkit==13.0.3.0",
+    "distlib==0.4.0",
+    "filelock==3.29.0",
+    "fsspec==2026.4.0",
+    "identify==2.6.19",
+    "iniconfig==2.3.0",
+    "mpmath==1.3.0",
+    "networkx==3.6.1",
+    "nodeenv==1.10.0",
+    "numpy==2.5.2",
+    "nvidia-cublas==13.1.1.3",
+    "nvidia-cuda-cupti==13.0.85",
+    "nvidia-cuda-nvrtc==13.0.88",
+    "nvidia-cuda-runtime==13.0.96",
+    "nvidia-cudnn-cu13==9.20.0.48",
+    "nvidia-cufft==12.0.0.61",
+    "nvidia-cufile==1.15.1.6",
+    "nvidia-curand==10.4.0.35",
+    "nvidia-cusolver==12.0.4.66",
+    "nvidia-cusparse==12.6.3.3",
+    "nvidia-cusparselt-cu13==0.8.1",
+    "nvidia-nccl-cu13==2.29.7",
+    "nvidia-nvjitlink==13.0.88",
+    "nvidia-nvshmem-cu13==3.4.5",
+    "nvidia-nvtx==13.0.85",
+    "packaging==26.2",
+    "pip==26.2.1",
+    "platformdirs==4.10.0",
+    "pluggy==1.6.0",
+    "pre_commit==4.6.0",
+    "pytest==9.0.3",
+    "python-discovery==1.4.0",
+    "ruff==0.15.13",
+    "setuptools==81.0.0",
+    "sympy==1.14.0",
+    "torch==2.13.0+cu130",
+    "triton==3.7.1",
+    "typing_extensions==4.15.0",
+    "virtualenv==21.4.1"
+  ],
+  "original_failed_freeze_sha256": "ecaaa877961698d6f9850e96614bcf7c8db328a5aa4ad8e156f3bac311da1ee2",
+  "original_failed_parity_sha256": "b0c83ed240b7a9e03f5518167ca1791ef8b0db034cc3a84e7b81175bab830308",
+  "protocol": {
+    "c_puct": 1.25,
+    "exact_root_solve_threshold": 16,
+    "exact_solve_stone_threshold": null,
+    "order": "alternating by state-index plus repetition parity",
+    "repetitions": 5,
+    "seed_contract": "518000 + frozen cohort index",
+    "simulations": 1200,
+    "telemetry_exclusions": [
+      "exact_root_decision.root_latency_ms",
+      "root_latency_ms"
+    ],
+    "timing": "perf_counter_ns around full evaluate_artifact_position dispatch",
+    "warmups": 1,
+    "workers": 1
+  },
+  "registration_sha256": "44d41e9d5bc78654a8713d5e9027cb3071b4484a2042308be0591d8aafac5309",
+  "routing": {
+    "policy": "E4 trunk + policy branch",
+    "value": "initializer trunk + value branch"
+  },
+  "runtime_identities": {
+    "checked_out_tablebase": {
+      "path": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+      "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+    },
+    "exact_root_native_probe": {
+      "path": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+      "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48"
+    },
+    "exact_root_tablebase": {
+      "path": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+      "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+    }
+  },
+  "schema": "seed518-protocol-freeze-v1",
+  "source_sha256": {
+    "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "ml/alphazero_lite/seed518_selective_head.py": "252d8b37546b8c79630a96f5b8fcdccd30802df737c776d61b6e22edf76088c5",
+    "ml/alphazero_lite/selective_head_evaluator.py": "11611cf7ae9ee65e4c6180d90fc3903cfcd371e324a3bd8973a154080410e777",
+    "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
+    "ml/alphazero_lite/test_seed518_comparison_contract.py": "36185cc7494ca584b084b402780e1b98f048ee112aab65f465db2ead1d7d1bb0",
+    "ml/alphazero_lite/test_seed518_runtime_identity.py": "effa502241478d9a40db0e614c45fce2cbfa86de8e0bfd097d4369c79deadd13",
+    "ml/alphazero_lite/test_selective_head_evaluator.py": "3057a306f66de1fa3dd90ed3f1530d3648d146022b78439853ce97492c646d97",
+    "ml/alphazero_lite/verify_seed518_selective_head.py": "7e1120d44933183ecd3b7dc2694c6ae5a898bab7f3f9a4c24d929608284ff0ba"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "seed518-comparison-contract-amendment-v1",
+  "status": "post-failed-gate-pre-measurement",
+  "original_freeze": {
+    "path": "protocol-freeze.json",
+    "sha256": "ecaaa877961698d6f9850e96614bcf7c8db328a5aa4ad8e156f3bac311da1ee2"
+  },
+  "failed_parity_archive": {
+    "path": "parity-outputs.json",
+    "sha256": "b0c83ed240b7a9e03f5518167ca1791ef8b0db034cc3a84e7b81175bab830308",
+    "original_command": "OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 TMPDIR=$PWD/.tmp ./.venv/bin/python -m ml.alphazero_lite.seed518_selective_head",
+    "original_error": "ValueError: seed518_parity_mismatch; all 64 rows marked search_outputs"
+  },
+  "observed_leaf_differences": {
+    "search.root_latency_ms": 64,
+    "other_undeclared_paths": 0,
+    "evaluator_output_mismatches": 0
+  },
+  "added_exclusion": "root_latency_ms",
+  "reason": "The field is elapsed wall-clock telemetry: self_play.py:1563 assigns (time.perf_counter() - started) * 1000.0; arena.py:1347-1349 copies the root summary value into the returned search result.",
+  "source_identities": {
+    "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c"
+  },
+  "constraint": "Only the exact root_latency_ms field is added; all other result fields remain comparison-significant. No archived output or original failed-gate record is rewritten."
+}

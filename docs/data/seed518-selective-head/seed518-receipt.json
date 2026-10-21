@@ -1,0 +1,33 @@
+{
+  "schema": "seed518-publication-receipt-v1",
+  "interpretation": "examined diagnostic engineering screen; not production qualification, strength/promotion evidence, or deployment approval",
+  "original_gate": {
+    "status": "failed-before-amendment",
+    "mismatch_count": 64,
+    "only_difference": "search.root_latency_ms",
+    "original_command": "OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 TMPDIR=$PWD/.tmp ./.venv/bin/python -m ml.alphazero_lite.seed518_selective_head",
+    "original_error": "ValueError: seed518_parity_mismatch"
+  },
+  "amendment": {
+    "status": "post-gate-pre-measurement",
+    "added_exact_exclusion": "root_latency_ms",
+    "basis": "perf_counter elapsed milliseconds at self_play.py:1563, copied into result at arena.py:1347-1349",
+    "post_execution_reanalysis": "64/64 evaluator bitwise parity; 64/64 deterministic search parity; no searches rerun"
+  },
+  "timing": {
+    "status": "completed_after_amended_reanalysis",
+    "timed_searches": 640,
+    "decision": "advance to opt-in integration proposal only",
+    "puct_median_paired_ratios": {"gt32": 0.9019229694703041, "17to32": 0.9018756272538802},
+    "threshold": "at least 5% median paired improvement in each PUCT bucket"
+  },
+  "identities": {
+    "amended_freeze_sha256": "36c5376b1799eb86353a86ebe08c83737378bf31bb278778513bab0aaeaa7822",
+    "parity_archive_sha256": "b0c83ed240b7a9e03f5518167ca1791ef8b0db034cc3a84e7b81175bab830308",
+    "raw_measurements_sha256": "7ee3311e68e1b1a58222b429b97d9c58352feb5618888fdf5f98ab20c8d35d18",
+    "evidence_sha256": "f86245777f3a2f482419d9829cc1e05832eaba3fe9647e874a7f6abfea96cb7f",
+    "post_execution_reanalysis_sha256": "1ee3d9330f07c790cd8e2f9f0b5cee83acce215911a191b28023b21bc7652719"
+  },
+  "verification_note": "The independent verifier initially rejected the preserved publisher mismatch marker and required a floating-point arithmetic tolerance for independently recomputed percentile summaries. Its corresponding read-only validation logic was corrected after measurements; frozen execution sources and raw outputs were not changed. Current verifier SHA256: 39b2781b713d111168ac4c7034ddc617d97cc4301a4624eb00c2a6db0d721425; the pre-measurement freeze records the earlier verifier SHA256, so verifier-source identity is explicitly not asserted as unchanged across post-run verification.",
+  "arena_games_training_deployment_promotion_artifact_replacement": false
+}

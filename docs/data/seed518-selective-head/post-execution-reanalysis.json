@@ -1,0 +1,395 @@
+{
+  "amendment": "comparison-contract-amendment.json",
+  "evaluator_bitwise_equal_count": 64,
+  "interpretation": "post-execution reanalysis of archived outputs; no searches rerun",
+  "parity_archive_sha256": "b0c83ed240b7a9e03f5518167ca1791ef8b0db034cc3a84e7b81175bab830308",
+  "passed": true,
+  "schema": "seed518-post-execution-reanalysis-v1",
+  "search_equal_under_amended_contract_count": 64,
+  "states": [
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "d3ae97ce353b01f6144615a95b0a1a30602461035f9331327c730e224f64e1ae"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "2f807ec69c41f4ee6faa8f48d17586ca928aeca2c2d06e9c194a26e79333399d"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "1186516ec5dada69b34254a47db9fccd4f902b66cc2e0e19fcf3367599c61a1b"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "72b9543f7dc416099a7869b9656bdb8b177933d7c393232762cf0d82206761c6"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "b1fed738361092e52fbe38d31d5171e399a07bec5975952f7763ee5f46ddecef"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "8f3d364c2d4e9930b055f7d5347ebf0e8a493fbc33e25d900b6fa287c1770a7f"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "b41dfb0b7fc4a1dbfcae8fcf529e8a5d0595690a698ebf2496ba74513fa2c837"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "abdc04edc18a97e8e84014f510c3e44e80987503183b80404b2df789bd83ba8a"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "4a481d9f248636332464d0e13a1b0182f0c775e68ced7484ec84076be3f17f52"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "830446eabe4bf9af9b43b4fa21a09282c1c4216a44689af266c4006ed079b92b"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "41ca1fa8d7b122d631c6e6db57af73fbf1ee82dcbaa9c364b76d6c59aa4245af"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "aa2188142f85d15ae1348a21fd110ad0160e2ce000d247b780ded459b6b2ede2"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "deffa3abbf69f0b064a490ff2fe18161da91f04e5d90799ec976733a6ce118c8"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "af776019f461bfcfd006975531e94a7dc573522c5b7b9744ae4ffca599368b74"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "338b9a582a76799e6b6a99d8838571f33036ea53849e365b6aa4108501e58a3d"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "32c905c9477d082d6724244063096f45911561473f0d765bb260141571e2fb07"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "d0e47ba684a40083940dedc938d4330e64cffb2c4b7ef61604cab9dcde49f2dc"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "8bc1242bcf7f0ba83344afb3961fc22617048d94c11eed4a3dd80a82583a196e"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "2bc9fcc93c6af507e0d37756dbb5883a5d66dc69db2b14ea5ab5c0422a878e8e"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "ac0300f576a8859a0d8e0918c41528cf81beb4db4fd41249d0be7c327bba6f4c"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "772a417f7359088d2bb959e493fe436bd917d922d0287985c4bb73b2f3884192"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "3c48baaf9ea8cc6d514e58032b05b3e6e2601ec4caca789cd5994fb137225ce0"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "c652af8286d64edc823a184f1b8146231b892170efeabd79ab39985460ed3143"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "46db7c4809549897968de4e0ad55de75729b65824ae830b79dafa2b594460199"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "a6d8b8f6b508a63661d95e4b7413b0eb2c1023c3d10bb552dba2bb43a0152456"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "f4fa84e15954c583b3f5b263fd821ffab9594d5cfd0bb297278ae8a420aeb16b"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "41f00a50d358d02ab292c10b024790904a3f890d73dfc9dee748ce7d013d3c71"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "b58edb772ddb8bdc39bb31518263bbd61ddacaed224f7e16a4bdcbe9163c37bc"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "ad989efcbeea7c98083660fcd44922a4400026d2dbae123f20d0ae79a9499f20"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "3817d68b6df6b85e3c7ecbf32badaa5831786f5bc18b4ad10e1fec769261e1c7"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "71b06a4c5c12cab1755a44f5788bdac761a8c8275f88380f3c9d20f80028d6dc"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "0b537ffe95473645620e961d3f89d96b6f8998414ecc9661b25c013ad1071e4f"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "438b02c90c78061b04d85f6db7871909fba28ad18f35b8ef6bf67ab0af25acfa"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "eb888285d28bfbc47df676c4ebbe38e80d19eedfb8075b8fff5e65273fa9bcdf"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "8b1672a3a6226ecfb823f5f7643d78491ea19109d939a0c3b41596c5442c93c5"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "e7111b1703816fe35630b7ad0e0558c61b9d490284910ca7f40ba6e685e65c63"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "1917517b5f9aeb524f84325fb2c9af8291401539ce54869085ebf0ca540f3933"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "5ba1128aa19c7f4a86c348a0640a4203f4e9c130a99b42a2c63c0fe65e214382"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "329db9f9c79bbf2515d433547191331fd43f72346e2619dcf086c9f3997ac000"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "6e3858aa39f5f5f8f9e3a176f0fa7bb273996623dee9b54feb50f6e756caf999"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "8de201ee50b9b82b63a7d374bea57e5f8d579fcdc29a916633d0b8c4feada351"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "21c54d235b8f6861fd068bf017ea2fa21ef7d05a24ff9160069835e89017ecfb"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "afbf643752e4339e019462aa901b561c1ee36910fbc863693ccf368d1b41c8bd"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "788a4a3a3fe6454ef87ceb02d4afb93bc889f74f39a05a11bdcdb02317173353"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "bfa5e927571aa37ecbc82b9f955f23af99e9cc5043a4a79b60ca8ae582be07cd"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "e6634c2bfc3f10a4e7cdeb16fc31f9ba90d15fc8cf7a2551162bc49de05cf3f3"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "f40ee2654a1b6b0d4a20f6e689d9077f6e5803d7a3940c88cc3885779230ff2b"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "8651ec7c7e94cb36f89600bcb010b18b98339c6d3629d6e797d80727afccd0f0"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "e352f7ee894f48f8a8a04e16a0049721f9d9f5bf0e7f75d6549be0c0c99e969a"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "cdabd0980efb27a33076a734720260a23f915f65eb8bce680b2b51d9e7312012"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "f94074d38af271d8c9e37c0f3703dd5d89bcd9457872fbca738e1fd52d1cbd42"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "be45b07746dd5323f97528ab322af66f1ebe9c9e33cb21aa4213a74bd9b9e408"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "fb1ad2573a323d64948c0b4678476a09f1b4f065a33fd6c0630bfb957a888148"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "bbb5bdcddfa124cc7aa9dc6980f41b59deae1e68b05c2c19f7ff8473881840e7"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "ecc86f6aee875978892dc55876e58a8ac312315a196a49b285394a27271057fe"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "80767e9828cc95733280e6966121143b57c28a3ab16acfbb7062206810dab00d"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "b1d80f075e4bd3352cf0835dfe0ecfc73c58d9686849c0c958d06b81cfa616f8"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "3a50f2d5d719a668ab24119d694e2e56daa8830c2020fc907e53e3bad201916b"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "0b675c023aa8a755c6b0d028829cb9efc398cc3413e4ff87893bdd71aa057f0d"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "bd6e052fe9d353c8baa37840f8743cfd96f157f190a530c3ecab17b2195465b3"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "175ac02b79b48b4b23e0c5e95024df346f804726656049323578ce45c04bd8ac"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "f6d5ce12ed5f0f9ef7694c699e2d25a496dc72e063952bf9c9d0f2eff83c1c82"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "e10b8fdc3c71f675508cbf53bf555fe2869facd8717f0d9f45064c4881c4373b"
+    },
+    {
+      "evaluator_bitwise_equal": true,
+      "passed": true,
+      "search_differences_after_declared_exclusions": [],
+      "state_sha256": "bd9bf7cfa02d13cc1c2b3551b2e459f50564c2658b508fa5da744c1b7c0a9adc"
+    }
+  ]
+}
