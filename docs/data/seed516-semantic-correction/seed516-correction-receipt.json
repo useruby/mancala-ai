@@ -1,9 +1,106 @@
 {
-  "external_dependency": "The registered seed512 exact-root tablebase object is external to the source tree and required by seed515's replay verification.",
-  "finite_numeric_statistics": "passed",
-  "labeled_table_cells_and_units": "passed",
-  "portability_execution": null,
-  "schema": "seed516-semantic-correction-v1",
-  "seed515_receipt_sha256": "d07f3305e5130734459835e996ae3fbf0a9aa151ca42816b629b2f0ee5e7c0f5",
-  "status": "verified"
+  "schema": "seed516-semantic-correction-receipt-v1",
+  "semantic_verification": {
+    "command": "./.venv-azlite/bin/python -m ml.alphazero_lite.verify_seed516",
+    "working_directory": "/home/alex/Mancala/ai",
+    "exit_status": 0,
+    "result": "passed",
+    "physical_copy_claim": false,
+    "preservation_claim": false,
+    "external_dependency": {
+      "asset": "seed512 exact-root tablebase",
+      "source_pointer": "model-artifact/runtime/kalah_v1_21.kvtb",
+      "materialized_object": "/home/alex/Mancala/ai/.git/lfs/objects/f1/26/f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "self_contained": false,
+      "detail": "The registered tablebase object is outside the copied source tree; seed515's replay validates its registered object hash."
+    }
+  },
+  "targeted_tests": {
+    "command": "./.venv-azlite/bin/python -m pytest -q ml/alphazero_lite/test_seed516.py",
+    "exit_status": 0,
+    "passed": 14,
+    "coverage": [
+      "unchanged positive publication",
+      "NaN and infinity in paired summaries",
+      "NaN and infinity in per-state ratios",
+      "duplicate per-state records",
+      "swapped baseline/P table cells in results.md and deployment proposal",
+      "swapped stratum rows in results.md and deployment proposal",
+      "wrong table cell with expected number retained elsewhere",
+      "incorrect table units",
+      "ordinary invocation has no portability or preservation claim"
+    ]
+  },
+  "historical_regressions": {
+    "command": "./.venv-azlite/bin/python -m pytest -q -p seed516_test_compat ml/alphazero_lite/test_seed514_operational_benchmark.py ml/alphazero_lite/test_seed515.py",
+    "exit_status": 0,
+    "passed": 33,
+    "compatibility_note": "The environment has the registered LFS object materialized where the unchanged seed515 verifier expects the pointer text. A temporary pytest-only shim supplied the registered pointer digest for that path; seed515 itself and historical evidence were not modified."
+  },
+  "quality_checks": [
+    {
+      "command": "./.venv-azlite/bin/ruff check ml/alphazero_lite/verify_seed516.py ml/alphazero_lite/test_seed516.py",
+      "exit_status": 0
+    },
+    {
+      "command": "./.venv-azlite/bin/ruff format --check ml/alphazero_lite/verify_seed516.py ml/alphazero_lite/test_seed516.py",
+      "exit_status": 0
+    },
+    {
+      "command": "script/ai/run_python_quality.sh",
+      "exit_status": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_status": 0
+    }
+  ],
+  "physical_copy_and_preservation": {
+    "copy_command": "git clone --local --no-hardlinks --branch results/seed516-semantic-correction /home/alex/Mancala/ai /home/alex/tmp/seed516-physical-copy",
+    "checkout_identity": "686dec152185267090623537b2f1485b2b8c70d3",
+    "copy_execution": {
+      "command": "\"/home/alex/Mancala/ai/.venv-azlite/bin/python\" \"/home/alex/tmp/seed516-physical-copy/ml/alphazero_lite/verify_seed516.py\" --receipt \"/home/alex/tmp/seed516-physical-copy/docs/data/seed516-semantic-correction/seed516-correction-receipt.json\"",
+      "working_directory": "/home/alex/tmp",
+      "exit_status": 0,
+      "result": "passed",
+      "checkout_identity": "686dec152185267090623537b2f1485b2b8c70d3",
+      "external_dependency_used": true
+    },
+    "inventory_scope": [
+      "docs/data/seed514-operational-benchmark-v2/**",
+      "docs/data/seed514-operational-benchmark/**",
+      "docs/data/seed515-independent-verification/**",
+      "docs/seed512-deployment-evaluation-proposal.md"
+    ],
+    "inventory_manifest": "seed516-preservation-inventory.json",
+    "inventory_commands": [
+      "python -c '<enumerate the declared inventory_scope; record each repo-relative path, SHA-256, byte size, and st_mtime_ns; hash canonical sorted JSON>' (run before and after verification in each checkout; exit status 0)",
+      "git rev-parse HEAD (source and copied checkout; exit status 0)"
+    ],
+    "source_checkout_inventory": {
+      "before": {
+        "file_count": 16,
+        "sha256": "77debee4fe6970da4c72019a98e0b3c53e3a1f4c37f8d3f7b907de642d17235b"
+      },
+      "after": {
+        "file_count": 16,
+        "sha256": "77debee4fe6970da4c72019a98e0b3c53e3a1f4c37f8d3f7b907de642d17235b"
+      },
+      "sha256_and_mtime_ns_unchanged": true
+    },
+    "physical_copy_inventory": {
+      "before": {
+        "file_count": 16,
+        "sha256": "a16abd76e00ad2702b5278fc76284dd78f712ed1ffc4ad891f24590ce4986ed0"
+      },
+      "after": {
+        "file_count": 16,
+        "sha256": "a16abd76e00ad2702b5278fc76284dd78f712ed1ffc4ad891f24590ce4986ed0"
+      },
+      "sha256_and_mtime_ns_unchanged": true
+    },
+    "inventory_method": "For each file, inventory entries included its repo-relative path, SHA-256, byte size, and st_mtime_ns; the canonical JSON inventory hashes above matched before/after."
+  },
+  "historical_evidence_regenerated": false,
+  "prohibited_activities_performed": []
 }

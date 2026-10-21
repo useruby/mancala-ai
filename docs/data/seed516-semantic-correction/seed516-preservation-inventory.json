@@ -1,0 +1,50 @@
+{
+  "schema": "seed516-preservation-inventory-v1",
+  "inventory_method": "Sorted repo-relative file paths with SHA-256, byte size, and st_mtime_ns; the canonical JSON inventory digest matched between before and after snapshots.",
+  "source_checkout": {
+    "before": [
+      {"path":"docs/data/seed514-operational-benchmark-v2/cohort.json","sha256":"7ce8d73a80cf61db9cfde9c6c213d80a491bbf5c7686a1a175a6ffe44ea2974f","size":37616,"mtime_ns":1792599097355301519},
+      {"path":"docs/data/seed514-operational-benchmark-v2/correctness.json","sha256":"36693bbb0feb41658e131911f34e31620bc02ae678603780ae72bf1de461bab6","size":1125,"mtime_ns":1792599097356621583},
+      {"path":"docs/data/seed514-operational-benchmark-v2/evidence.json","sha256":"76a7f3ee014177f37cfd103c230bd7eabf4eb033a45dd007941fecb38b32eab9","size":112303,"mtime_ns":1792599097356621583},
+      {"path":"docs/data/seed514-operational-benchmark-v2/independent-verification.json","sha256":"4afc7cc43ea786151253fb42035833e5e12414dcccd458cb6ef0b001e8ecbb32","size":1256,"mtime_ns":1792599097356621583},
+      {"path":"docs/data/seed514-operational-benchmark-v2/memory-snapshot.json","sha256":"1f173f3b6e96c605f30f6de0946d975f0de2d22ab949acdd1b041a78242a5e29","size":1297,"mtime_ns":1792599097356621583},
+      {"path":"docs/data/seed514-operational-benchmark-v2/protocol-freeze.json","sha256":"7c2f1bcc682e98505a0a4e7c4423094e932ce0dbcf887606b465fc5bf644f88f","size":155586,"mtime_ns":1792599097356621583},
+      {"path":"docs/data/seed514-operational-benchmark-v2/raw-measurements.jsonl","sha256":"af7533aad75e150402bf960dfe22c2b488d692b8f3ad4a3dd55d45d55a4f7b15","size":137859,"mtime_ns":1792599097357301524},
+      {"path":"docs/data/seed514-operational-benchmark-v2/results.md","sha256":"d8cffac5247d45a2132e6771cc54ef93f8c155e51430c8e8af8194cd83813280","size":3936,"mtime_ns":1792599097357301524},
+      {"path":"docs/data/seed515-independent-verification/original-publication-inventory-after.json","sha256":"bd78f5ef9df5fa25e17cecf9f3e0011a395c35b218d72afd2b93a7af8068ffa2","size":2288,"mtime_ns":1792603493520878097},
+      {"path":"docs/data/seed515-independent-verification/original-publication-inventory-before.json","sha256":"bd78f5ef9df5fa25e17cecf9f3e0011a395c35b218d72afd2b93a7af8068ffa2","size":2288,"mtime_ns":1792603493521970340},
+      {"path":"docs/data/seed515-independent-verification/seed515-provenance-supplement.json","sha256":"5553c1f91bd85a8803795774ae31fe07fd4a54bc71144f742138167b7a0dc474","size":73435,"mtime_ns":1792603493521970340},
+      {"path":"docs/data/seed515-independent-verification/seed515-verification-receipt.json","sha256":"d07f3305e5130734459835e996ae3fbf0a9aa151ca42816b629b2f0ee5e7c0f5","size":10624,"mtime_ns":1792603493521970340},
+      {"path":"docs/data/seed514-operational-benchmark/cohort.json","sha256":"7ce8d73a80cf61db9cfde9c6c213d80a491bbf5c7686a1a175a6ffe44ea2974f","size":37616,"mtime_ns":1792599097357301524},
+      {"path":"docs/data/seed514-operational-benchmark/failed-correctness-attempt.json","sha256":"0b059967ea9eb084d262b701a4a9bf2072bad6fa5511ad27ba8da014be114ac1","size":654,"mtime_ns":1792599097358581664},
+      {"path":"docs/data/seed514-operational-benchmark/protocol-freeze.json","sha256":"9d7582d3a8dcf187ca7536403cc06c35f224b4c95e7c71f6df044fb6610d3dbb","size":155586,"mtime_ns":1792599097358581664},
+      {"path":"docs/seed512-deployment-evaluation-proposal.md","sha256":"cec787431776c20eea683cdde00464086458df6697c69506cbefcd2e88527316","size":9538,"mtime_ns":1792603493521970340}
+    ],
+    "after_matches_before": true,
+    "file_count": 16,
+    "canonical_inventory_sha256": "77debee4fe6970da4c72019a98e0b3c53e3a1f4c37f8d3f7b907de642d17235b"
+  },
+  "physical_copy": {
+    "before": [
+      {"path":"docs/data/seed514-operational-benchmark-v2/cohort.json","sha256":"7ce8d73a80cf61db9cfde9c6c213d80a491bbf5c7686a1a175a6ffe44ea2974f","size":37616,"mtime_ns":1792604632730980064},
+      {"path":"docs/data/seed514-operational-benchmark-v2/correctness.json","sha256":"36693bbb0feb41658e131911f34e31620bc02ae678603780ae72bf1de461bab6","size":1125,"mtime_ns":1792604632731887345},
+      {"path":"docs/data/seed514-operational-benchmark-v2/evidence.json","sha256":"76a7f3ee014177f37cfd103c230bd7eabf4eb033a45dd007941fecb38b32eab9","size":112303,"mtime_ns":1792604632731887345},
+      {"path":"docs/data/seed514-operational-benchmark-v2/independent-verification.json","sha256":"4afc7cc43ea786151253fb42035833e5e12414dcccd458cb6ef0b001e8ecbb32","size":1256,"mtime_ns":1792604632731887345},
+      {"path":"docs/data/seed514-operational-benchmark-v2/memory-snapshot.json","sha256":"1f173f3b6e96c605f30f6de0946d975f0de2d22ab949acdd1b041a78242a5e29","size":1297,"mtime_ns":1792604632731887345},
+      {"path":"docs/data/seed514-operational-benchmark-v2/protocol-freeze.json","sha256":"7c2f1bcc682e98505a0a4e7c4423094e932ce0dbcf887606b465fc5bf644f88f","size":155586,"mtime_ns":1792604632731980067},
+      {"path":"docs/data/seed514-operational-benchmark-v2/raw-measurements.jsonl","sha256":"af7533aad75e150402bf960dfe22c2b488d692b8f3ad4a3dd55d45d55a4f7b15","size":137859,"mtime_ns":1792604632731980067},
+      {"path":"docs/data/seed514-operational-benchmark-v2/results.md","sha256":"d8cffac5247d45a2132e6771cc54ef93f8c155e51430c8e8af8194cd83813280","size":3936,"mtime_ns":1792604632731980067},
+      {"path":"docs/data/seed515-independent-verification/original-publication-inventory-after.json","sha256":"bd78f5ef9df5fa25e17cecf9f3e0011a395c35b218d72afd2b93a7af8068ffa2","size":2288,"mtime_ns":1792604632732483456},
+      {"path":"docs/data/seed515-independent-verification/original-publication-inventory-before.json","sha256":"bd78f5ef9df5fa25e17cecf9f3e0011a395c35b218d72afd2b93a7af8068ffa2","size":2288,"mtime_ns":1792604632732776250},
+      {"path":"docs/data/seed515-independent-verification/seed515-provenance-supplement.json","sha256":"5553c1f91bd85a8803795774ae31fe07fd4a54bc71144f742138167b7a0dc474","size":73435,"mtime_ns":1792604632732776250},
+      {"path":"docs/data/seed515-independent-verification/seed515-verification-receipt.json","sha256":"d07f3305e5130734459835e996ae3fbf0a9aa151ca42816b629b2f0ee5e7c0f5","size":10624,"mtime_ns":1792604632732776250},
+      {"path":"docs/data/seed514-operational-benchmark/cohort.json","sha256":"7ce8d73a80cf61db9cfde9c6c213d80a491bbf5c7686a1a175a6ffe44ea2974f","size":37616,"mtime_ns":1792604632731980067},
+      {"path":"docs/data/seed514-operational-benchmark/failed-correctness-attempt.json","sha256":"0b059967ea9eb084d262b701a4a9bf2072bad6fa5511ad27ba8da014be114ac1","size":654,"mtime_ns":1792604632732483456},
+      {"path":"docs/data/seed514-operational-benchmark/protocol-freeze.json","sha256":"9d7582d3a8dcf187ca7536403cc06c35f224b4c95e7c71f6df044fb6610d3dbb","size":155586,"mtime_ns":1792604632732483456},
+      {"path":"docs/seed512-deployment-evaluation-proposal.md","sha256":"cec787431776c20eea683cdde00464086458df6697c69506cbefcd2e88527316","size":9538,"mtime_ns":1792604632732980070}
+    ],
+    "after_matches_before": true,
+    "file_count": 16,
+    "canonical_inventory_sha256": "a16abd76e00ad2702b5278fc76284dd78f712ed1ffc4ad891f24590ce4986ed0"
+  }
+}
