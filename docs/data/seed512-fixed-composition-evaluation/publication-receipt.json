@@ -1,9 +1,7 @@
 {
   "execution_freeze_sha256": "34ab5b882f4906bc5c0e641a1c59aebd2f387c0cf083d54c2a2a1146f2d52f25",
-  "file_count": 3086,
+  "file_count": 3084,
   "files": {
-    "__pycache__/make_receipt.cpython-314.pyc": "29285f565427b29239a1bbc9e159ac15b73c31378bf0c4c545f94266b3955764",
-    "__pycache__/verify_copy.cpython-314.pyc": "4ac2f9e75a0b4d7e051c3970f7193f6fa9972b324df910adcc6580f05d33b4fd",
     "batches/games-0000.jsonl": "20bc90208895021b9d064c73c8822e8e5862226002d624a14626959915425344",
     "batches/games-0001.jsonl": "d8e6650c13c01370d1b10c951ff01acc71acb1a22258f20eb06fbbf223e9c186",
     "batches/games-0002.jsonl": "ebf12db11c644f4242cff075a3a507b16c9a2a8bfa6c79290a0a9a743814b9b8",
@@ -3079,7 +3077,7 @@
     "commands.jsonl": "c439524a30ac3e493c8b15643d93b13bafda2791e54353835fd09b0b7664d5f0",
     "execution-freeze.json": "34ab5b882f4906bc5c0e641a1c59aebd2f387c0cf083d54c2a2a1146f2d52f25",
     "first-pair-timing.json": "d8f833f2814fbc8262020a006f8ad4cd40c962fdf2b01c6a28011ea351694b32",
-    "make_receipt.py": "0ce398fa51157f348c7ce613a7b453ece7276c5bb8f44fd1be9e501737535989",
+    "make_receipt.py": "e41efaf3cffc28b00446c8cd2aec1075595aada8723ee9360ccd74cbfb0fac8f",
     "openings.jsonl": "27a003322e5469507a508010a9743b40062928140e6a4b9d5628b0290e32c21d",
     "outcomes.jsonl": "b3c5679e8523e968f7b0f2e76ae477f677ca1688e5e513e28ea64cf845cf84bb",
     "registration.json": "44d41e9d5bc78654a8713d5e9027cb3071b4484a2042308be0591d8aafac5309",
@@ -3087,7 +3085,7 @@
     "results.md": "196f2021e70a2cfd75042cde41a51f58a55af2dee0cd714e1263aa029e499810",
     "runtime-summary.json": "7c374cefee01659efed90beb0efc275baf6a4bcb229646665e813b6528272849",
     "verification.json": "7a0541c667453b2252e997f72baf2d94475675f161226dadb32cf056b2cbdd8c",
-    "verify_copy.py": "20444fc2455d877c89f0062c9d10f07f3fbe4ef15731b30e2da229917e76b6ba"
+    "verify_copy.py": "7bc4c801721723c7481647f900952642a272bb39e727b44102f6bbbf42cbb725"
   },
   "outcomes_sha256": "b3c5679e8523e968f7b0f2e76ae477f677ca1688e5e513e28ea64cf845cf84bb",
   "registration_sha256": "44d41e9d5bc78654a8713d5e9027cb3071b4484a2042308be0591d8aafac5309",

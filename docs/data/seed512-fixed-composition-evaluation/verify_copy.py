@@ -38,7 +38,9 @@ def verify(root: Path) -> dict[str, Any]:
     actual = {
         str(path.relative_to(out))
         for path in out.rglob("*")
-        if path.is_file() and path != receipt_path
+        if path.is_file()
+        and path != receipt_path
+        and "__pycache__" not in path.parts
     }
     if actual != set(receipt["files"]) or len(actual) != receipt["file_count"]:
         raise ValueError("seed512_copy_file_set")

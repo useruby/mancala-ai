@@ -34,7 +34,9 @@ def make(root: Path = Path.cwd()) -> dict[str, Any]:
     files = {
         str(path.relative_to(OUT)): sha(path)
         for path in sorted(OUT.rglob("*"))
-        if path.is_file() and path != RECEIPT
+        if path.is_file()
+        and path != RECEIPT
+        and "__pycache__" not in path.parts
     }
     receipt = {
         "schema": "seed512-publication-receipt-v1",
