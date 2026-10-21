@@ -1,0 +1,50 @@
+{
+  "docs/data/seed514-operational-benchmark-v2/cohort.json": {
+    "mtime_ns": 1792599152855428364,
+    "sha256": "7ce8d73a80cf61db9cfde9c6c213d80a491bbf5c7686a1a175a6ffe44ea2974f"
+  },
+  "docs/data/seed514-operational-benchmark-v2/correctness.json": {
+    "mtime_ns": 1792599152856228844,
+    "sha256": "36693bbb0feb41658e131911f34e31620bc02ae678603780ae72bf1de461bab6"
+  },
+  "docs/data/seed514-operational-benchmark-v2/evidence.json": {
+    "mtime_ns": 1792599152856228844,
+    "sha256": "76a7f3ee014177f37cfd103c230bd7eabf4eb033a45dd007941fecb38b32eab9"
+  },
+  "docs/data/seed514-operational-benchmark-v2/independent-verification.json": {
+    "mtime_ns": 1792599152856228844,
+    "sha256": "4afc7cc43ea786151253fb42035833e5e12414dcccd458cb6ef0b001e8ecbb32"
+  },
+  "docs/data/seed514-operational-benchmark-v2/memory-snapshot.json": {
+    "mtime_ns": 1792599152856228844,
+    "sha256": "1f173f3b6e96c605f30f6de0946d975f0de2d22ab949acdd1b041a78242a5e29"
+  },
+  "docs/data/seed514-operational-benchmark-v2/protocol-freeze.json": {
+    "mtime_ns": 1792599152856228844,
+    "sha256": "7c2f1bcc682e98505a0a4e7c4423094e932ce0dbcf887606b465fc5bf644f88f"
+  },
+  "docs/data/seed514-operational-benchmark-v2/raw-measurements.jsonl": {
+    "mtime_ns": 1792599152856228844,
+    "sha256": "af7533aad75e150402bf960dfe22c2b488d692b8f3ad4a3dd55d45d55a4f7b15"
+  },
+  "docs/data/seed514-operational-benchmark-v2/results.md": {
+    "mtime_ns": 1792599152856228844,
+    "sha256": "d8cffac5247d45a2132e6771cc54ef93f8c155e51430c8e8af8194cd83813280"
+  },
+  "docs/data/seed514-operational-benchmark/cohort.json": {
+    "mtime_ns": 1792599152856228844,
+    "sha256": "7ce8d73a80cf61db9cfde9c6c213d80a491bbf5c7686a1a175a6ffe44ea2974f"
+  },
+  "docs/data/seed514-operational-benchmark/failed-correctness-attempt.json": {
+    "mtime_ns": 1792599152856820445,
+    "sha256": "0b059967ea9eb084d262b701a4a9bf2072bad6fa5511ad27ba8da014be114ac1"
+  },
+  "docs/data/seed514-operational-benchmark/protocol-freeze.json": {
+    "mtime_ns": 1792599152856820445,
+    "sha256": "9d7582d3a8dcf187ca7536403cc06c35f224b4c95e7c71f6df044fb6610d3dbb"
+  },
+  "docs/seed512-deployment-evaluation-proposal.md": {
+    "mtime_ns": 1792601351333300957,
+    "sha256": "cec787431776c20eea683cdde00464086458df6697c69506cbefcd2e88527316"
+  }
+}
