@@ -1,0 +1,31 @@
+{
+  "artifact_sha256": {
+    "E4": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+    "initializer": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+  },
+  "configurations": {
+    "P": {
+      "incremental_over_baseline_bytes": 958464,
+      "policy_source": "seed504 E4, own trunk",
+      "resident_bytes": 43028480,
+      "value_source": "frozen initializer, own trunk"
+    },
+    "baseline": {
+      "resident_bytes": 42070016
+    }
+  },
+  "environment": {
+    "command": "/home/alex/Mancala/ai/.venv/bin/python -m ml.alphazero_lite.run_seed514_memory_snapshot",
+    "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+    "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]"
+  },
+  "implementation_sha256": "430332c2bce48279da5ac6344a5231ac76d4abcc235dcb2b3919e9b3b0d1ddb9",
+  "interpretation": "fresh-process model-resident-memory snapshot; no search, timing, allocation tracing, or profiler",
+  "limitations": "Does not measure transient search allocations or exact-root native tablebase working memory; production-hardware memory qualification remains required.",
+  "retained_evaluators": [
+    "ArtifactEvaluator",
+    "ArtifactEvaluator",
+    "ComposedArtifactEvaluator"
+  ],
+  "schema": "seed514-model-memory-snapshot-v1"
+}

@@ -1,0 +1,12 @@
+{
+  "attempt": "pre-measurement frozen protocol v1",
+  "command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 /home/alex/Mancala/ai/.venv/bin/python -m ml.alphazero_lite.seed514_operational_benchmark",
+  "error": "ValueError: seed514_fixed_seed_search_not_repeatable",
+  "diagnosis": "The search decision and deterministic outputs repeated; nested exact_root_decision.root_latency_ms differed and was incorrectly treated as a search mismatch.",
+  "timed_repetitions_started": false,
+  "preserved_files": [
+    "cohort.json",
+    "protocol-freeze.json"
+  ],
+  "superseded_by": "../seed514-operational-benchmark-v2"
+}
