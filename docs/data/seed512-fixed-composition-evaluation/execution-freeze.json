@@ -1,0 +1,6 @@
+{
+  "registration_sha256": "44d41e9d5bc78654a8713d5e9027cb3071b4484a2042308be0591d8aafac5309",
+  "status": "frozen_before_seed512_games",
+  "suite_sha256": "27a003322e5469507a508010a9743b40062928140e6a4b9d5628b0290e32c21d",
+  "supersedes_pre_execution_freeze_sha256": "43bcf80b2ed7076eba6223e40995f6a0a9e6dd80b56ca690d75eb6d45839daac"
+}

@@ -1,0 +1,29 @@
+{
+  "bootstrap_resamples": 20000,
+  "bootstrap_seed": 512,
+  "descriptive_two_sided_95": [
+    0.5126953125,
+    0.538818359375
+  ],
+  "draws": 259,
+  "fresh_confirmation": false,
+  "games": 2048,
+  "interpretation": "examined exploratory follow-up only; seed511 and its 128-simulation outcomes were already examined",
+  "losses": 842,
+  "one_sided_95_lower": 0.514892578125,
+  "pass": true,
+  "promotion": false,
+  "score": 0.525634765625,
+  "seed511_matched_contrast": {
+    "bootstrap_resamples": 20000,
+    "bootstrap_seed": 512,
+    "descriptive_two_sided_95": [
+      -0.01318359375,
+      0.0263671875
+    ],
+    "mean_1200_minus_128": 0.006591796875,
+    "primary_gate_substitute": false,
+    "resampling_unit": "paired opening, keeping both seats together"
+  },
+  "wins": 947
+}

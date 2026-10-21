@@ -1,0 +1,214 @@
+{
+  "budget_summary": {
+    "mean_final_simulations": 1200.0,
+    "p95_root_latency_ms": 166.78,
+    "trigger_counts": {
+      "fixed_budget": 2
+    }
+  },
+  "confidence_interval_95": {
+    "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+    "lower": 0.026676532765647083,
+    "method": "wilson_score",
+    "upper": 0.8021374907895433
+  },
+  "draws": 1,
+  "games": 2,
+  "games_played": 2,
+  "hard_suite_buckets": {
+    "late": {
+      "games": 1,
+      "score": null
+    },
+    "midgame": {
+      "games": 1,
+      "score": null
+    },
+    "opening": {
+      "games": 0,
+      "score": null
+    }
+  },
+  "losses": 1,
+  "notes": {
+    "base_seed": 1176,
+    "challenger_path": "/home/alex/Mancala/ai/docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/E4",
+    "challenger_root_prior_transform": null,
+    "challenger_runtime_policy_inherited": false,
+    "challenger_simulations": 1200,
+    "current_path": "/home/alex/Mancala/ai/docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/initializer",
+    "current_root_prior_transform": null,
+    "current_simulations": 1200,
+    "exact_leaf_solve_mode": "disabled",
+    "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+    "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "exact_root_objective": "final_score_margin",
+    "exact_root_solve_threshold": 16,
+    "exact_root_solver": "native_kvtb_root_action_probe_v1",
+    "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+    "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+    "exact_solve_semantics": "network_priors_exact_leaf_value",
+    "exact_solve_stone_threshold": null,
+    "exact_solve_value_mode": "wdl",
+    "move_time_mean_ms": 70.1,
+    "move_time_p95_ms": 166.78,
+    "random_opening_plies": 0,
+    "root_prior_transform": null,
+    "runtime_search_policy_mode": "puct_exact_root_hybrid",
+    "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "search_configuration_ledger_output": null,
+    "search_configuration_ledger_sha256": "9bad2cc6b077aa5ca888ecde390872f49c2294b623b2abbc2e02d886b5890c5d",
+    "search_options": {
+      "fpu_mode": "zero",
+      "normalize_values": false,
+      "reuse_subtree": false,
+      "root_policy_mode": "deterministic",
+      "root_temperature": 0.0,
+      "tactical_root_bias": 0.0
+    },
+    "search_outcome_ledger_output": null,
+    "search_outcome_ledger_sha256": "887260d735ccb9cb0859ae19afbe117b9dc8785827979b477fc0d388366cf7e8",
+    "search_profile": {
+      "c_puct": 1.25,
+      "challenger_runtime_policy_inherited": false,
+      "challenger_simulations": 1200,
+      "current_simulations": 1200,
+      "exact_leaf_solve_mode": "disabled",
+      "exact_root_native_probe": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+      "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "exact_root_objective": "final_score_margin",
+      "exact_root_solve_enabled": true,
+      "exact_root_solve_threshold": 16,
+      "exact_root_solver": "native_kvtb_root_action_probe_v1",
+      "exact_root_solver_max_solved_seeds": 16,
+      "exact_root_tablebase": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+      "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+      "exact_solve_semantics": "network_priors_exact_leaf_value",
+      "exact_solve_stone_threshold": null,
+      "exact_solve_value_mode": "wdl",
+      "hash": "4487bf5f1af33f399fcd01918a7f73f6de7d6a1949e43b41fe83e10ad434bd48",
+      "kind": "arena_eval",
+      "player_mode": "puct",
+      "runtime_search_policy_mode": "puct_exact_root_hybrid",
+      "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "search_options": {
+        "fpu_mode": "zero",
+        "normalize_values": false,
+        "reuse_subtree": false,
+        "root_policy_mode": "deterministic",
+        "root_temperature": 0.0,
+        "tactical_root_bias": 0.0
+      },
+      "simulations": 1200,
+      "version": "v1"
+    },
+    "search_profile_hash": "4487bf5f1af33f399fcd01918a7f73f6de7d6a1949e43b41fe83e10ad434bd48",
+    "seed": 1176,
+    "seed_contract": "azlite_eval_seed_v2",
+    "seed_identity_ledger_sha256": "59fadc74e1bb2bdd98a96e8d443ad4eb63ea8b06faa8addceb168031f2b4ff86",
+    "seed_ledger_hash": "59fadc74e1bb2bdd98a96e8d443ad4eb63ea8b06faa8addceb168031f2b4ff86",
+    "seed_ledger_output": null,
+    "seed_ledger_records": 58,
+    "suite_sha256": "441355f973c32343c76e144c518ab102da87e0ae79b20b65ef8a4dcc1aaae359",
+    "value_transform_hash": null,
+    "value_transform_summary": null,
+    "worker_game_counts": [
+      2
+    ],
+    "workers_requested": 1,
+    "workers_used": 1
+  },
+  "opening_cache_summary": {
+    "latency_delta_ms": null,
+    "opening_bucket_quality_delta": null,
+    "runtime_hit_rate": null,
+    "training_hit_rate": null
+  },
+  "promotion_decision": {
+    "passed": false
+  },
+  "root_prior_telemetry": {
+    "challenger": {
+      "activation_count": 0,
+      "activation_rate": 0.0,
+      "average_mass_shift": null,
+      "legal_move_context_counts": {
+        "legal_move_count": 0,
+        "no_extra_turn_capture_count": 0,
+        "no_extra_turn_noncapture_seed5_count": 0,
+        "seed4_extra_turn_count": 0
+      },
+      "root_states_evaluated": 18,
+      "top_changed_move_feature_patterns": []
+    },
+    "current": {
+      "activation_count": 0,
+      "activation_rate": 0.0,
+      "average_mass_shift": null,
+      "legal_move_context_counts": {
+        "legal_move_count": 0,
+        "no_extra_turn_capture_count": 0,
+        "no_extra_turn_noncapture_seed5_count": 0,
+        "seed4_extra_turn_count": 0
+      },
+      "root_states_evaluated": 24,
+      "top_changed_move_feature_patterns": []
+    }
+  },
+  "schema": "arena_v1",
+  "score": 0.25,
+  "seed512_elapsed_seconds": 9.74531313078478,
+  "seed512_followup": {
+    "examined_exploratory_follow_up": true,
+    "opponent": "complete frozen initializer",
+    "policy_source": "seed504 E4 with own trunk",
+    "runtime_contract": {
+      "c_puct": 1.25,
+      "exact_root": "same seed488/508 registered exact-root behavior; threshold 16, final_score_margin objective, highest legal network prior then lowest move index tie rule, exact leaf solve disabled",
+      "exact_root_native_probe": {
+        "artifact": "model-artifact/runtime/kalah_v1_tablebase",
+        "git_blob_sha1": "365d723fca35783e3f11d90a39853be671d3e1a9",
+        "recovered_from": "committed_git_blob",
+        "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "source_commit": "71fa5248cff5da5e3e7aa46f6d71057ee3e9ab5c",
+        "source_git_path": "model-artifact/runtime/kalah_v1_tablebase",
+        "source_path": "model-artifact/runtime/kalah_v1_tablebase"
+      },
+      "exact_root_tablebase": {
+        "artifact": "model-artifact/runtime/kalah_v1_21.kvtb",
+        "lfs_oid": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "recovered_from": "shared_git_lfs_object_cache",
+        "runtime_materialized_path": "/home/alex/Mancala/ai/.git/lfs/objects/f1/26/f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "source_commit": "71fa5248cff5da5e3e7aa46f6d71057ee3e9ab5c",
+        "source_git_path": "model-artifact/runtime/kalah_v1_21.kvtb",
+        "source_path": "model-artifact/runtime/kalah_v1_21.kvtb",
+        "source_pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c"
+      },
+      "max_plies": 200,
+      "random_opening_plies": 0,
+      "search_options": {
+        "fpu_mode": "zero",
+        "normalize_values": false,
+        "random_opening_plies": 0,
+        "reuse_subtree": false,
+        "root_policy_mode": "deterministic",
+        "root_prior_transform": null,
+        "root_temperature": 0.0,
+        "tactical_root_bias": 0.0
+      },
+      "seed_contract": "azlite_eval_seed_v2; base seed = 511 + opening index",
+      "simulations_per_side": 1200,
+      "workers": 1
+    },
+    "seed511_128_simulation_outcomes_previously_examined": true,
+    "simulations_per_side": 1200,
+    "value_source": "initializer with own trunk"
+  },
+  "threshold": 0.55,
+  "threshold_margin": -0.30000000000000004,
+  "unstable_decision": true,
+  "wins": 0
+}
