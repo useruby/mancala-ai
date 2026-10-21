@@ -1,0 +1,18 @@
+{
+  "bootstrap_resamples": 20000,
+  "bootstrap_seed": 511,
+  "descriptive_two_sided_95": [
+    0.50439453125,
+    0.53369140625
+  ],
+  "draws": 196,
+  "fresh_confirmation": false,
+  "games": 2048,
+  "interpretation": "exploratory fixed-composition screen only",
+  "losses": 887,
+  "one_sided_95_lower": 0.5068359375,
+  "pass": true,
+  "promotion": false,
+  "score": 0.51904296875,
+  "wins": 965
+}
