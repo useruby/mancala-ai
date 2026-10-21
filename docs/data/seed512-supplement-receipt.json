@@ -1,0 +1,36 @@
+{
+  "schema": "seed512-read-only-supplement-receipt-v1",
+  "status": "verified_complete_with_imported_source_limitation",
+  "base_publication": "docs/data/seed512-fixed-composition-evaluation",
+  "base_publication_receipt_preserved": true,
+  "verification": {
+    "unique_opening_seat_rows": 2048,
+    "valid_positions_per_opening": [0, 1],
+    "raw_games_replayed": 2048,
+    "checkpoint_artifact_sidecar_native_probe_tablebase_identities": "matched recorded seed511 bindings",
+    "primary_score": 0.525634765625,
+    "one_sided_95_lower": 0.514892578125,
+    "matched_1200_minus_128_mean": 0.006591796875,
+    "matched_descriptive_interval": [-0.01318359375, 0.0263671875]
+  },
+  "controls": {
+    "copied_publication": "passed",
+    "duplicate_seat_error": "seed512_supplement_duplicate_seat:0:0",
+    "duplicate_position_error": "seed512_supplement_duplicate_position:0:0",
+    "artifact_mutation_error": "seed512_supplement_artifact_hash:E4:model.npz",
+    "altered_result_error": "seed512_supplement_result_mismatch",
+    "focused_tests": "9 passed",
+    "ruff": "passed",
+    "diff_check": "passed",
+    "preservation": "3085 publication files' bytes and mtimes unchanged across successful and rejected checks"
+  },
+  "provenance_limitation": "Seed512 did not prospectively freeze every transitive imported Python source dependency. No retrospective freeze was manufactured.",
+  "runtime_recovery": {
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "command": "cp /home/alex/Mancala/ai/.git/lfs/objects/f1/26/f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7 model-artifact/runtime/kalah_v1_21.kvtb",
+    "sha256_check": "passed"
+  },
+  "promotion": false,
+  "deployment": false,
+  "new_games": false
+}
