@@ -1,0 +1,215 @@
+{
+  "candidate": {
+    "checkpoint_tensor_splicing": false,
+    "policy_output": "seed504 E4 policy output with its own trunk",
+    "training": false,
+    "value_output": "frozen initializer value output with its own trunk"
+  },
+  "components": {
+    "E4": {
+      "artifact": "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/E4",
+      "artifact_source": "docs/data/seed508-policy-value-crossover/runtime-artifacts/E4",
+      "checkpoint": "docs/data/seed504/seed504_epoch4.npz",
+      "checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "checkpoint_source": "docs/data/seed504/seed504_epoch4.npz",
+      "files": {
+        "metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+        "model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+      }
+    },
+    "initializer": {
+      "artifact": "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/initializer",
+      "artifact_source": "docs/data/seed508-policy-value-crossover/runtime-artifacts/initializer",
+      "checkpoint": "initializer.npz",
+      "checkpoint_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "checkpoint_source": "docs/data/seed508-policy-value-crossover/initializer.npz",
+      "files": {
+        "metadata.json": "7ce41fde58c219c9fd2aa7a912db1c2da357099d6f72e3f715d9a78ce500cb5d",
+        "model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+      }
+    }
+  },
+  "decision": {
+    "bootstrap_resamples": 20000,
+    "bootstrap_seed": 512,
+    "fresh_confirmation": false,
+    "gate": "pass only if one-sided 95% lower bound > 0.50",
+    "passing_only_supports_later_deployment_and_evaluation_proposal": true,
+    "primary_score": "(wins + 0.5 * draws) / 2048",
+    "promotion": false,
+    "seed461_overlap_limitation_preserved": true,
+    "seed505_separate_failed_gate_preserved": true
+  },
+  "environment": {
+    "device": "CPU; torch.cuda.is_available()=False",
+    "numpy": "2.5.2",
+    "pip_freeze": [
+      "cuda-bindings==13.4.4",
+      "cuda-pathfinder==1.8.3",
+      "cuda-toolkit==13.0.3.0",
+      "filelock==4.2.4",
+      "fsspec==2026.9.0",
+      "iniconfig==2.3.1",
+      "Jinja2==3.1.6",
+      "MarkupSafe==3.0.4",
+      "mpmath==1.3.0",
+      "networkx==3.7",
+      "numpy==2.5.2",
+      "nvidia-cublas==13.1.1.3",
+      "nvidia-cuda-cupti==13.0.85",
+      "nvidia-cuda-nvrtc==13.0.88",
+      "nvidia-cuda-runtime==13.0.96",
+      "nvidia-cudnn-cu13==9.24.0.43",
+      "nvidia-cufft==12.0.0.61",
+      "nvidia-cufile==1.15.1.6",
+      "nvidia-curand==10.4.0.35",
+      "nvidia-cusolver==12.0.4.66",
+      "nvidia-cusparse==12.6.3.3",
+      "nvidia-cusparselt-cu13==0.8.1",
+      "nvidia-nccl-cu13==2.30.7",
+      "nvidia-nvjitlink==13.4.92",
+      "nvidia-nvshmem-cu13==3.4.5",
+      "nvidia-nvtx==13.0.85",
+      "packaging==26.3",
+      "pip==26.2.2",
+      "pluggy==1.7.0",
+      "Pygments==2.21.0",
+      "pytest==9.1.1",
+      "ruff==0.17.1",
+      "setuptools==84.2.1",
+      "sympy==1.14.0",
+      "torch==2.14.1",
+      "triton==3.8.0",
+      "typing_extensions==4.16.0"
+    ],
+    "pip_freeze_sha256": "9fe706c203f8c813f5471b4cffb24384ad4122a73e94be3239ec0dfad6087301",
+    "platform": "linux",
+    "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+    "torch": "2.14.1+cu130"
+  },
+  "inputs_sha256": {
+    "seed511_execution-freeze.json": "e6476fa3f587292e41ff97d99db87b942587c211fb861f8837e37077292eb633",
+    "seed511_openings.jsonl": "27a003322e5469507a508010a9743b40062928140e6a4b9d5628b0290e32c21d",
+    "seed511_outcomes.jsonl": "6324ce385df6ee3e824630b84744947e96cda97748caf703cd6ecc60f5ad2cb8",
+    "seed511_registration.json": "89f04c6e1f774d81a7866d3913dd5ffa990b9e04a58f9a7f066b8f19204445c4",
+    "seed511_results.json": "c0c69fa35da52e434f009fcba18fe7a18a6f66c58987b91fb41dac45859e4541"
+  },
+  "interpretation": "exploratory only; seed511 and its 128-simulation outcomes have already been examined; not fresh confirmation",
+  "opponent": "complete frozen initializer artifact",
+  "publication_file_count": 3095,
+  "runtime": {
+    "c_puct": 1.25,
+    "exact_root": "same seed488/508 registered exact-root behavior; threshold 16, final_score_margin objective, highest legal network prior then lowest move index tie rule, exact leaf solve disabled",
+    "exact_root_native_probe": {
+      "artifact": "model-artifact/runtime/kalah_v1_tablebase",
+      "git_blob_sha1": "365d723fca35783e3f11d90a39853be671d3e1a9",
+      "recovered_from": "committed_git_blob",
+      "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "source_commit": "71fa5248cff5da5e3e7aa46f6d71057ee3e9ab5c",
+      "source_git_path": "model-artifact/runtime/kalah_v1_tablebase",
+      "source_path": "model-artifact/runtime/kalah_v1_tablebase"
+    },
+    "exact_root_tablebase": {
+      "artifact": "model-artifact/runtime/kalah_v1_21.kvtb",
+      "lfs_oid": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "recovered_from": "shared_git_lfs_object_cache",
+      "runtime_materialized_path": "/home/alex/Mancala/ai/.git/lfs/objects/f1/26/f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "source_commit": "71fa5248cff5da5e3e7aa46f6d71057ee3e9ab5c",
+      "source_git_path": "model-artifact/runtime/kalah_v1_21.kvtb",
+      "source_path": "model-artifact/runtime/kalah_v1_21.kvtb",
+      "source_pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c"
+    },
+    "max_plies": 200,
+    "random_opening_plies": 0,
+    "search_options": {
+      "fpu_mode": "zero",
+      "normalize_values": false,
+      "random_opening_plies": 0,
+      "reuse_subtree": false,
+      "root_policy_mode": "deterministic",
+      "root_prior_transform": null,
+      "root_temperature": 0.0,
+      "tactical_root_bias": 0.0
+    },
+    "seed_contract": "azlite_eval_seed_v2; base seed = 511 + opening index",
+    "simulations_per_side": 1200,
+    "workers": 1
+  },
+  "runtime_assets": {
+    "exact_root_native_probe": {
+      "artifact": "model-artifact/runtime/kalah_v1_tablebase",
+      "git_blob_sha1": "365d723fca35783e3f11d90a39853be671d3e1a9",
+      "recovered_from": "committed_git_blob",
+      "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "source_commit": "71fa5248cff5da5e3e7aa46f6d71057ee3e9ab5c",
+      "source_git_path": "model-artifact/runtime/kalah_v1_tablebase",
+      "source_path": "model-artifact/runtime/kalah_v1_tablebase"
+    },
+    "exact_root_tablebase": {
+      "artifact": "model-artifact/runtime/kalah_v1_21.kvtb",
+      "lfs_oid": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "recovered_from": "shared_git_lfs_object_cache",
+      "runtime_materialized_path": "/home/alex/Mancala/ai/.git/lfs/objects/f1/26/f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "source_commit": "71fa5248cff5da5e3e7aa46f6d71057ee3e9ab5c",
+      "source_git_path": "model-artifact/runtime/kalah_v1_21.kvtb",
+      "source_path": "model-artifact/runtime/kalah_v1_21.kvtb",
+      "source_pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c"
+    }
+  },
+  "schema": "seed512-examined-exploratory-follow-up-v1",
+  "secondary": {
+    "contrast": "matched per-opening seed512 minus seed511 score difference",
+    "descriptive_only": true,
+    "resamples": 20000,
+    "resampling_unit": "opening; both seats kept together",
+    "seed": 512
+  },
+  "seed511_publication": {
+    "directory": "docs/data/seed511-fixed-composition-screen-v4",
+    "examined_before_seed512": true,
+    "execution_freeze_sha256": "e6476fa3f587292e41ff97d99db87b942587c211fb861f8837e37077292eb633",
+    "outcomes_sha256": "6324ce385df6ee3e824630b84744947e96cda97748caf703cd6ecc60f5ad2cb8",
+    "publication_receipt_sha256": "daf24729427f2b45d8ac19d83f2b6a367d35e006279a2a236585eba82d6b3006",
+    "registration_sha256": "89f04c6e1f774d81a7866d3913dd5ffa990b9e04a58f9a7f066b8f19204445c4",
+    "results": {
+      "bootstrap_resamples": 20000,
+      "bootstrap_seed": 511,
+      "descriptive_two_sided_95": [
+        0.50439453125,
+        0.53369140625
+      ],
+      "draws": 196,
+      "fresh_confirmation": false,
+      "games": 2048,
+      "interpretation": "exploratory fixed-composition screen only",
+      "losses": 887,
+      "one_sided_95_lower": 0.5068359375,
+      "pass": true,
+      "promotion": false,
+      "score": 0.51904296875,
+      "wins": 965
+    },
+    "results_sha256": "c0c69fa35da52e434f009fcba18fe7a18a6f66c58987b91fb41dac45859e4541"
+  },
+  "source_sha256": {
+    "ml/alphazero_lite/seed512_evaluation.py": "1627430cfbaacb76351c98944168d7b3d278771220ef76b8943bd78bee7beefb",
+    "ml/alphazero_lite/test_seed512_evaluation.py": "18fbbf916b69fdab95abdc73c6ffb43f3df3ed9b6092a089b2db558c67217f34",
+    "ml/alphazero_lite/verify_seed512_evaluation.py": "a5b8c49f51b68f71138439da94bb7dadb49496d659ad4f007cfa3ed99811447d"
+  },
+  "status": "frozen_before_seed512_games",
+  "suite": {
+    "games": 2048,
+    "identity": "exact seed511 published frozen opening roots; no regeneration or replacement",
+    "openings": 1024,
+    "seed": 511,
+    "sha256": "27a003322e5469507a508010a9743b40062928140e6a4b9d5628b0290e32c21d",
+    "source": "docs/data/seed511-fixed-composition-screen-v4/openings.jsonl"
+  },
+  "superseded_pre_execution_freeze_sha256": "43bcf80b2ed7076eba6223e40995f6a0a9e6dd80b56ca690d75eb6d45839daac"
+}

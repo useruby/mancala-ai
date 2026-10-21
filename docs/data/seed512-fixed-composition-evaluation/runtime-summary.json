@@ -1,0 +1,19 @@
+{
+  "first_pair": {
+    "elapsed_seconds": 11.528599623125046,
+    "estimated_remaining_pairs": 1023,
+    "estimated_remaining_seconds_at_first_pair_rate": 11793.757414456923,
+    "games_complete": 2,
+    "opening_index": 0
+  },
+  "complete_run": {
+    "games": 2048,
+    "opening_pairs": 1024,
+    "sum_pair_elapsed_seconds": 10965.18185360264,
+    "mean_pair_elapsed_seconds": 10.708185403908828,
+    "mean_game_plies": 34.16796875,
+    "maximum_game_plies": 66,
+    "games_reaching_200_ply_cap": 0,
+    "device": "CPU"
+  }
+}
