@@ -1,0 +1,19 @@
+{
+  "status": "physical_copy_verified",
+  "checkout_revision": "8f32a33d",
+  "checkout_mode": "separate detached Git worktree containing the committed seed512 publication",
+  "physical_copy_root": "/home/alex/Mancala/ai-seed512-copy",
+  "command": "/home/alex/Mancala/ai-seed511/.tmp/seed511-venv/bin/python docs/data/seed512-fixed-composition-evaluation/verify_copy.py --root .",
+  "games_replayed": 2048,
+  "result": {
+    "wins": 947,
+    "draws": 259,
+    "losses": 842,
+    "score": 0.525634765625,
+    "one_sided_95_lower": 0.514892578125,
+    "descriptive_two_sided_95": [0.5126953125, 0.538818359375],
+    "pass": true,
+    "promotion": false,
+    "fresh_confirmation": false
+  }
+}
