@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -154,3 +157,80 @@ def test_ordinary_invocation_makes_no_portability_or_preservation_claim() -> Non
     assert result["portability_execution"] is None
     assert not any("preservation" in key for key in result)
     assert not any("inventory" in key for key in result)
+
+
+def test_cli_prints_by_default_and_explicit_output_is_create_only(
+    tmp_path: Path,
+) -> None:
+    entrypoint = Path(correction.__file__).resolve()
+    environment = os.environ.copy()
+    default_run = subprocess.run(
+        [sys.executable, str(entrypoint)],
+        cwd=tmp_path,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert default_run.returncode == 0, default_run.stderr
+    assert json.loads(default_run.stdout)["status"] == "verified"
+
+    output = tmp_path / "report.json"
+    explicit_run = subprocess.run(
+        [sys.executable, str(entrypoint), "--output", str(output)],
+        cwd=tmp_path,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert explicit_run.returncode == 0, explicit_run.stderr
+    assert json.loads(output.read_text())["status"] == "verified"
+    repeated_run = subprocess.run(
+        [sys.executable, str(entrypoint), "--output", str(output)],
+        cwd=tmp_path,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert repeated_run.returncode != 0
+    assert "FileExistsError" in repeated_run.stderr
+
+
+def test_lfs_and_materialized_bytes_are_authenticated(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(historical, "ROOT", tmp_path)
+    pointer = tmp_path / "tablebase.kvtb"
+    external = tmp_path / "external-object"
+    pointer_bytes = b"version https://git-lfs.github.com/spec/v1\n"
+    object_bytes = b"registered tablebase object bytes"
+    pointer.write_bytes(pointer_bytes)
+    external.write_bytes(object_bytes)
+    asset = {
+        "artifact": "tablebase.kvtb",
+        "source_pointer_sha256": historical.hashlib.sha256(pointer_bytes).hexdigest(),
+        "sha256": historical.hashlib.sha256(object_bytes).hexdigest(),
+        "runtime_materialized_path": str(external),
+        "lfs_oid": historical.hashlib.sha256(object_bytes).hexdigest(),
+    }
+    frozen = {"sha256": asset["sha256"]}
+
+    # A pointer is accepted only with its matching object, and a local object
+    # is independently accepted without consulting the external cache.
+    historical.verify_runtime_asset("exact_root_tablebase", asset, frozen)
+    pointer.write_bytes(object_bytes)
+    historical.verify_runtime_asset("exact_root_tablebase", asset, frozen)
+
+    pointer.write_bytes(b"altered local artifact")
+    with pytest.raises(ValueError, match="runtime_tablebase_artifact_hash"):
+        historical.verify_runtime_asset("exact_root_tablebase", asset, frozen)
+    pointer.unlink()
+    with pytest.raises(ValueError, match="runtime_tablebase_artifact_missing"):
+        historical.verify_runtime_asset("exact_root_tablebase", asset, frozen)
+
+    pointer.write_bytes(pointer_bytes)
+    external.write_bytes(b"corrupt external object")
+    with pytest.raises(ValueError, match="runtime_asset_hash:exact_root_tablebase"):
+        historical.verify_runtime_asset("exact_root_tablebase", asset, frozen)
