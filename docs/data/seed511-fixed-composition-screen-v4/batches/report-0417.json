@@ -1,0 +1,223 @@
+{
+  "budget_summary": {
+    "mean_final_simulations": 128.0,
+    "p95_root_latency_ms": 17.2,
+    "trigger_counts": {
+      "fixed_budget": 2
+    }
+  },
+  "confidence_interval_95": {
+    "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+    "lower": 0.19786250921045673,
+    "method": "wilson_score",
+    "upper": 0.973323467234353
+  },
+  "draws": 1,
+  "games": 2,
+  "games_played": 2,
+  "hard_suite_buckets": {
+    "late": {
+      "games": 2,
+      "score": null
+    },
+    "midgame": {
+      "games": 0,
+      "score": null
+    },
+    "opening": {
+      "games": 0,
+      "score": null
+    }
+  },
+  "losses": 0,
+  "notes": {
+    "base_seed": 928,
+    "challenger_path": "/home/alex/Mancala/ai-seed511/docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/E4",
+    "challenger_root_prior_transform": null,
+    "challenger_runtime_policy_inherited": false,
+    "challenger_simulations": 128,
+    "current_path": "/home/alex/Mancala/ai-seed511/docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/initializer",
+    "current_root_prior_transform": null,
+    "current_simulations": 128,
+    "exact_leaf_solve_mode": "disabled",
+    "exact_root_native_probe": "/home/alex/Mancala/ai-seed511/model-artifact/runtime/kalah_v1_tablebase",
+    "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "exact_root_objective": "final_score_margin",
+    "exact_root_solve_threshold": 16,
+    "exact_root_solver": "native_kvtb_root_action_probe_v1",
+    "exact_root_tablebase": "/home/alex/Mancala/ai-seed511/model-artifact/runtime/kalah_v1_21.kvtb",
+    "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+    "exact_solve_semantics": "network_priors_exact_leaf_value",
+    "exact_solve_stone_threshold": null,
+    "exact_solve_value_mode": "wdl",
+    "move_time_mean_ms": 6.83,
+    "move_time_p95_ms": 17.2,
+    "random_opening_plies": 0,
+    "root_prior_transform": null,
+    "runtime_search_policy_mode": "puct_exact_root_hybrid",
+    "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "search_configuration_ledger_output": null,
+    "search_configuration_ledger_sha256": "87b9b39d26e5678c6d0a87da0bfbc0807d8d71546cbdc0c4c4c3331b2141333a",
+    "search_options": {
+      "fpu_mode": "zero",
+      "normalize_values": false,
+      "reuse_subtree": false,
+      "root_policy_mode": "deterministic",
+      "root_temperature": 0.0,
+      "tactical_root_bias": 0.0
+    },
+    "search_outcome_ledger_output": null,
+    "search_outcome_ledger_sha256": "ac0a36bacd150eb1a588a5e62e0e34c257a66066373a54cd595fe169448b1488",
+    "search_profile": {
+      "c_puct": 1.25,
+      "challenger_runtime_policy_inherited": false,
+      "challenger_simulations": 128,
+      "current_simulations": 128,
+      "exact_leaf_solve_mode": "disabled",
+      "exact_root_native_probe": "/home/alex/Mancala/ai-seed511/model-artifact/runtime/kalah_v1_tablebase",
+      "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "exact_root_objective": "final_score_margin",
+      "exact_root_solve_enabled": true,
+      "exact_root_solve_threshold": 16,
+      "exact_root_solver": "native_kvtb_root_action_probe_v1",
+      "exact_root_solver_max_solved_seeds": 16,
+      "exact_root_tablebase": "/home/alex/Mancala/ai-seed511/model-artifact/runtime/kalah_v1_21.kvtb",
+      "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+      "exact_solve_semantics": "network_priors_exact_leaf_value",
+      "exact_solve_stone_threshold": null,
+      "exact_solve_value_mode": "wdl",
+      "hash": "1f593985a2b059589eada1bf678b9b204f6bafa6ed54e282207646796126ee78",
+      "kind": "arena_eval",
+      "player_mode": "puct",
+      "runtime_search_policy_mode": "puct_exact_root_hybrid",
+      "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "search_options": {
+        "fpu_mode": "zero",
+        "normalize_values": false,
+        "reuse_subtree": false,
+        "root_policy_mode": "deterministic",
+        "root_temperature": 0.0,
+        "tactical_root_bias": 0.0
+      },
+      "simulations": 128,
+      "version": "v1"
+    },
+    "search_profile_hash": "1f593985a2b059589eada1bf678b9b204f6bafa6ed54e282207646796126ee78",
+    "seed": 928,
+    "seed_contract": "azlite_eval_seed_v2",
+    "seed_identity_ledger_sha256": "dc4622e4a87e466db8014eab2c0b5b526ef71f9a65a51fa2e8abcb8af73cd2eb",
+    "seed_ledger_hash": "dc4622e4a87e466db8014eab2c0b5b526ef71f9a65a51fa2e8abcb8af73cd2eb",
+    "seed_ledger_output": null,
+    "seed_ledger_records": 60,
+    "suite_sha256": "03a67c7b44b9effccb0eb3c6a1182d9625f8ab73a42e71ccd4235eb15c5f4a12",
+    "value_transform_hash": null,
+    "value_transform_summary": null,
+    "worker_game_counts": [
+      2
+    ],
+    "workers_requested": 1,
+    "workers_used": 1
+  },
+  "opening_cache_summary": {
+    "latency_delta_ms": null,
+    "opening_bucket_quality_delta": null,
+    "runtime_hit_rate": null,
+    "training_hit_rate": null
+  },
+  "promotion_decision": {
+    "passed": true
+  },
+  "root_prior_telemetry": {
+    "challenger": {
+      "activation_count": 0,
+      "activation_rate": 0.0,
+      "average_mass_shift": null,
+      "legal_move_context_counts": {
+        "legal_move_count": 0,
+        "no_extra_turn_capture_count": 0,
+        "no_extra_turn_noncapture_seed5_count": 0,
+        "seed4_extra_turn_count": 0
+      },
+      "root_states_evaluated": 18,
+      "top_changed_move_feature_patterns": []
+    },
+    "current": {
+      "activation_count": 0,
+      "activation_rate": 0.0,
+      "average_mass_shift": null,
+      "legal_move_context_counts": {
+        "legal_move_count": 0,
+        "no_extra_turn_capture_count": 0,
+        "no_extra_turn_noncapture_seed5_count": 0,
+        "seed4_extra_turn_count": 0
+      },
+      "root_states_evaluated": 11,
+      "top_changed_move_feature_patterns": []
+    }
+  },
+  "schema": "arena_v1",
+  "score": 0.75,
+  "seed511_composition": {
+    "components": {
+      "E4": {
+        "artifact": "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/E4",
+        "artifact_source": "docs/data/seed508-policy-value-crossover/runtime-artifacts/E4",
+        "checkpoint": "docs/data/seed504/seed504_epoch4.npz",
+        "checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+        "checkpoint_source": "docs/data/seed504/seed504_epoch4.npz",
+        "files": {
+          "metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+          "model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+          "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+          "weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+        }
+      },
+      "initializer": {
+        "artifact": "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/initializer",
+        "artifact_source": "docs/data/seed508-policy-value-crossover/runtime-artifacts/initializer",
+        "checkpoint": "initializer.npz",
+        "checkpoint_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+        "checkpoint_source": "docs/data/seed508-policy-value-crossover/initializer.npz",
+        "files": {
+          "metadata.json": "7ce41fde58c219c9fd2aa7a912db1c2da357099d6f72e3f715d9a78ce500cb5d",
+          "model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+          "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+          "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+        }
+      }
+    },
+    "opponent": "complete initializer artifact",
+    "policy_source": "E4",
+    "policy_trunk": "E4 own trunk",
+    "runtime_assets": {
+      "exact_root_native_probe": {
+        "artifact": "model-artifact/runtime/kalah_v1_tablebase",
+        "git_blob_sha1": "365d723fca35783e3f11d90a39853be671d3e1a9",
+        "recovered_from": "committed_git_blob",
+        "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "source_commit": "71fa5248cff5da5e3e7aa46f6d71057ee3e9ab5c",
+        "source_git_path": "model-artifact/runtime/kalah_v1_tablebase",
+        "source_path": "model-artifact/runtime/kalah_v1_tablebase"
+      },
+      "exact_root_tablebase": {
+        "artifact": "model-artifact/runtime/kalah_v1_21.kvtb",
+        "lfs_oid": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "recovered_from": "shared_git_lfs_object_cache",
+        "runtime_materialized_path": "/home/alex/Mancala/ai/.git/lfs/objects/f1/26/f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "source_commit": "71fa5248cff5da5e3e7aa46f6d71057ee3e9ab5c",
+        "source_git_path": "model-artifact/runtime/kalah_v1_21.kvtb",
+        "source_path": "model-artifact/runtime/kalah_v1_21.kvtb",
+        "source_pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c"
+      }
+    },
+    "value_source": "initializer",
+    "value_trunk": "initializer own trunk"
+  },
+  "threshold": 0.55,
+  "threshold_margin": 0.19999999999999996,
+  "unstable_decision": true,
+  "wins": 1
+}

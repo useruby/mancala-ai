@@ -1,0 +1,8 @@
+{
+  "sources_sha256": {
+    "ml/alphazero_lite/seed511_fixed_composition_screen.py": "30dcf4a2609bff466977f948203ebda6415f3606e147488ee2597ecabfa0752a",
+    "ml/alphazero_lite/test_seed511_fixed_composition_screen.py": "944411b15a4049ff6e51fd396e1bc11fd129d7adb985c014a127879f2df7ab63",
+    "ml/alphazero_lite/verify_seed511_fixed_composition_screen.py": "53901661c6f6ec419c36b8daba759a99229023e1f9f9270978aaa38855a9c45d"
+  },
+  "status": "recovered_exact_frozen_source_bytes_from_precommit_index"
+}
