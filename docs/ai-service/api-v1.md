@@ -18,20 +18,43 @@ All errors use `{ "error": { "code", "message", "request_id", "retryable" } }`. 
 
 ## In-process Python engine
 
-`ml.alphazero_lite.serving.MoveEngine` accepts an explicit asset root, immutable `RuntimeBundle` definitions, and an allowlist of `SearchProfile` definitions. Initialize it once at process startup; initialization loads and hashes each artifact once, and requests cannot supply paths or search settings. Bundle kinds are `single` and `composed`; a composed bundle selects policy/value output sources while each source retains its own trunk. Keep test-only profiles separate from deployment profile registries. Missing or unsupported artifacts fail initialization.
+`ml.alphazero_lite.serving.MoveEngine` accepts an explicit asset root, immutable `RuntimeBundle` definitions, and an allowlist of `SearchProfile` definitions. Initialize it once at process startup and call `close()` at shutdown (or use it as a context manager). Initialization authenticates artifacts against manifest identities; hashing whatever files happen to be present is not authentication. Each component's `expected_artifact_sha256` is the SHA-256 returned by `serving_artifact_identity(metadata.json, weights.json)`. The identity uses the fixed domain `azlite-serving-artifact-v1`, each fixed filename, its 8-byte big-endian length, and its complete bytes. Metadata's optional `artifacts.weights_sha256` declaration is checked as well. Runtime sidecars require their own explicit expected SHA-256 in `expected_policy_sha256`.
 
-Direct invocation:
+All paths are relative to `asset_root`, and resolved paths may not escape it. Runtime-policy paths in each sidecar are also relative to that root. A runtime-policy sidecar binds exact-root enablement, threshold, objective, tie rule, disabled exact-leaf mode, native implementation identity, and hashes for the executable probe and materialized tablebase. The executable must be a file with execute permission; the tablebase and probe must be real files, not directories or Git LFS pointer text. Architecture/encoding and actual evaluator tensor outputs are checked before engine startup completes. Composed bundles must provide the same validated policy on both components. Their policy/value output routing is explicit (`current` or `candidate`) and contributes to the immutable bundle identity.
 
 ```python
-from ml.alphazero_lite.serving import MoveEngine, RuntimeBundle, SearchProfile, SearchSettings
-
-engine = MoveEngine(
-    asset_root="/srv/mancala/assets",
-    bundles={"production": RuntimeBundle("production-v1", "single", ("incumbent",))},
-    profiles={"balanced@v1": SearchProfile("balanced@v1", "balanced-v1", "production", SearchSettings(simulations=256))},
+from ml.alphazero_lite.serving import (
+    MoveEngine, RuntimeBundle, SearchProfile, SearchSettings,
 )
-response = engine.select_move(request_dict)
+
+root = "/srv/mancala/assets"
+bundle = RuntimeBundle(
+    bundle_id="production-v1",
+    kind="single",
+    artifacts=("incumbent",),
+    expected_artifact_sha256=("<release-manifest artifact SHA-256>",),
+    # Omit only when the artifact intentionally has no search_policy.json.
+    expected_policy_sha256=("<manifest SHA-256 of search_policy.json>",),
+)
+engine = MoveEngine(
+    asset_root=root,
+    bundles={"production": bundle},
+    profiles={
+        "balanced@v1": SearchProfile(
+            "balanced@v1", "balanced-v1", "production",
+            SearchSettings(simulations=256),
+        )
+    },
+)
+try:
+    response = engine.select_move(request_dict)
+finally:
+    engine.close()
 ```
+
+Use a release/build-produced serving manifest for expected hashes; do not calculate expected hashes from mutable assets at service startup. Bundle identities canonically bind component identities, composition routing, runtime policy semantics, and native asset hashes, but omit resolved absolute paths so identical bytes remain stable after relocation. Profile identities bind that bundle identity, the profile identifiers, and all search settings. Search settings and identifiers are validated during initialization. The old `deployment` profile flag was removed because it did not enforce a runtime behavior; `require_runtime_search_policy` is retained as an actual startup gate.
+
+Terminal requests return without invoking the evaluator, search, or native probe. Exact-root adapter resources are initialized and warmed once per unique native asset identity in the engine, reused for requests at or below the configured threshold, and released on `close()`; initialization failures close resources already created. Outside the threshold normal PUCT runs. Serving passes the resolved adapter and threshold into arena search and disables research-checkout sidecar discovery.
 
 The engine raises typed failures for invalid requests, unknown profiles, runtime configuration errors, and invalid backend results. It is synchronous and does not itself enforce hard deadlines; a supervised worker layer must provide that guarantee.
 

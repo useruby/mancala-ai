@@ -17,6 +17,7 @@ from .contract import (
 )
 from .engine import (
     EngineError,
+    EngineClosedError,
     InvalidBackendResultError,
     MoveEngine,
     RuntimeBundle,
@@ -24,12 +25,14 @@ from .engine import (
     SearchProfile,
     SearchSettings,
     UnknownProfileError,
+    serving_artifact_identity,
 )
 
 __all__ = [
     "Error",
     "ErrorBody",
     "EngineError",
+    "EngineClosedError",
     "InvalidBackendResultError",
     "MoveRequest",
     "MoveResponse",
@@ -39,6 +42,7 @@ __all__ = [
     "RuntimeConfigurationError",
     "SearchProfile",
     "SearchSettings",
+    "serving_artifact_identity",
     "State",
     "TerminalResult",
     "canonical_state_bytes",

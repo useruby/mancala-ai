@@ -1067,6 +1067,8 @@ def evaluate_artifact_position(
     exact_solve_fail_closed: bool = False,
     exact_solve_value_mode: str = "wdl",
     exact_root_solve_threshold: int | None = None,
+    exact_root_tablebase=None,
+    discover_runtime_policy: bool = True,
     root_child_telemetry: dict[str, Any] | None = None,
     root_snapshot_checkpoints: set[int] | None = None,
 ) -> dict:
@@ -1157,30 +1159,44 @@ def evaluate_artifact_position(
         raise ValueError("exact root handoff and exact leaf solving cannot be combined")
     policy = None
     policy_owner = artifact_path or getattr(evaluator, "artifact_dir", None)
-    if exact_root_solve_threshold is None and isinstance(policy_owner, (str, Path)):
+    if (
+        discover_runtime_policy
+        and exact_root_solve_threshold is None
+        and isinstance(policy_owner, (str, Path))
+    ):
         policy = load_runtime_search_policy(policy_owner)
         if policy is not None:
             exact_root_solve_threshold = policy["exact_root_threshold"]
-    native_root_tablebase = None
-    if policy is not None and int(sum(game.pits)) <= exact_root_solve_threshold:
+    if exact_root_solve_threshold is not None and exact_root_tablebase is None:
+        if not discover_runtime_policy:
+            raise ValueError("an explicit exact-root tablebase is required")
+    native_root_tablebase = exact_root_tablebase
+    if (
+        native_root_tablebase is None
+        and policy is not None
+        and int(sum(game.pits)) <= exact_root_solve_threshold
+    ):
         native_root_tablebase = NativeExactRootTablebase(
             policy["native_probe"]["resolved_path"],
             policy["tablebase"]["resolved_path"],
             warm_on_start=True,
         )
+    if native_root_tablebase is not None:
+        root_tablebase = native_root_tablebase
+    elif endgame_tablebase is not None:
+        root_tablebase = endgame_tablebase
+    else:
+        root_tablebase = EndgameTablebase()
     root_decision = exact_root_decision(
         game,
         evaluator,
-        tablebase=(
-            native_root_tablebase
-            if native_root_tablebase is not None
-            else endgame_tablebase
-            if endgame_tablebase is not None
-            else EndgameTablebase()
-        ),
+        tablebase=root_tablebase,
         threshold=exact_root_solve_threshold,
     )
-    if native_root_tablebase is not None:
+    if (
+        native_root_tablebase is not None
+        and native_root_tablebase is not exact_root_tablebase
+    ):
         native_root_tablebase.close()
     if root_decision is not None:
         policy = np.asarray(root_decision.network_priors, dtype=np.float32)
