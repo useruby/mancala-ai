@@ -315,13 +315,43 @@ class MoveEngine:
                 )
             metadata_bytes = metadata.read_bytes()
             metadata_obj = json.loads(metadata_bytes)
-            weight_hash = _sha256_file(weights)
-            declared_hash = metadata_obj.get("artifacts", {}).get("weights_sha256")
-            if (
-                declared_hash not in (None, "REPLACE_WITH_SHA256")
-                and declared_hash != weight_hash
+            artifact_metadata = metadata_obj.get("artifacts", {})
+            if not isinstance(artifact_metadata, dict):
+                raise RuntimeConfigurationError("invalid artifact hash metadata")
+            json_hash = _sha256_file(weights)
+            json_declaration = artifact_metadata.get("weights_json_sha256")
+            legacy_declaration = artifact_metadata.get("weights_sha256")
+            if "weights_json_sha256" in artifact_metadata and not _is_sha256(
+                json_declaration
             ):
-                raise RuntimeConfigurationError("metadata weight hash mismatch")
+                raise RuntimeConfigurationError("invalid metadata JSON weight hash")
+            if json_declaration is not None:
+                if json_declaration != json_hash:
+                    raise RuntimeConfigurationError(
+                        "metadata JSON weight hash mismatch"
+                    )
+            elif legacy_declaration is not None:
+                # Legacy serving metadata used weights_sha256 for weights.json.
+                if (
+                    not _is_sha256(legacy_declaration)
+                    or legacy_declaration != json_hash
+                ):
+                    raise RuntimeConfigurationError(
+                        "metadata legacy weight hash mismatch"
+                    )
+            model_npz = path / "model.npz"
+            if legacy_declaration is not None and json_declaration is not None:
+                if not _is_sha256(legacy_declaration):
+                    raise RuntimeConfigurationError("invalid metadata checkpoint hash")
+                if model_npz.exists() and (
+                    not model_npz.is_file()
+                    or _sha256_file(model_npz) != legacy_declaration
+                ):
+                    raise RuntimeConfigurationError("metadata checkpoint hash mismatch")
+            elif legacy_declaration is not None and json_declaration is None:
+                # Legacy convention was consumed as JSON; an included NPZ is
+                # provenance only under this convention.
+                pass
             if serving_artifact_identity(metadata, weights) != expected_identity:
                 raise RuntimeConfigurationError("artifact identity mismatch")
             sidecar = path / "search_policy.json"
@@ -375,10 +405,20 @@ class MoveEngine:
                 policy_vector, value = evaluator.evaluate(
                     KalahGame([4] * 12, [0, 0], 0)
                 )
-                if getattr(policy_vector, "shape", None) != (6,) or not math.isfinite(
-                    float(value)
+                if getattr(policy_vector, "shape", None) != (6,):
+                    raise ValueError("incompatible policy output shape")
+                probabilities = [float(item) for item in policy_vector]
+                if not all(math.isfinite(item) for item in probabilities):
+                    raise ValueError("policy probabilities must be finite")
+                if any(item < 0.0 for item in probabilities):
+                    raise ValueError("policy probabilities must be nonnegative")
+                if not math.isclose(
+                    math.fsum(probabilities), 1.0, rel_tol=1e-5, abs_tol=1e-6
                 ):
-                    raise ValueError("incompatible policy/value output shape")
+                    raise ValueError("policy probabilities must sum to one")
+                numeric_value = float(value)
+                if not math.isfinite(numeric_value) or not -1.0 <= numeric_value <= 1.0:
+                    raise ValueError("value output must be finite and in [-1, 1]")
             except Exception as error:
                 raise RuntimeConfigurationError(
                     "artifact architecture or tensor compatibility failure"
