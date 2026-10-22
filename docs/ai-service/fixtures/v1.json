@@ -1,0 +1,44 @@
+{
+  "fixture_purpose": "Portable contract examples; successful selected moves are illustrative, not measured model predictions.",
+  "canonical_state_vectors": [
+    {
+      "state": {"player0_pits": [4, 3, 2, 1, 0, 5], "player1_pits": [1, 2, 3, 4, 5, 6], "player0_store": 6, "player1_store": 6, "current_player": 0},
+      "canonical_utf8": "{\"player0_pits\":[4,3,2,1,0,5],\"player1_pits\":[1,2,3,4,5,6],\"player0_store\":6,\"player1_store\":6,\"current_player\":0}",
+      "sha256": "a39102918d4cd3f2578c262ebd379dd69e0979c730ca1d15583584f54bf4ee9b"
+    },
+    {
+      "state": {"player0_pits": [4, 3, 2, 1, 0, 5], "player1_pits": [1, 2, 3, 4, 5, 6], "player0_store": 6, "player1_store": 6, "current_player": 1},
+      "canonical_utf8": "{\"player0_pits\":[4,3,2,1,0,5],\"player1_pits\":[1,2,3,4,5,6],\"player0_store\":6,\"player1_store\":6,\"current_player\":1}",
+      "sha256": "aaf9822147dfb237829e140cdc680b62c4b230b79368ce291ed623822f44e81a"
+    },
+    {
+      "state": {"player0_pits": [0, 0, 0, 0, 0, 0], "player1_pits": [0, 0, 0, 0, 0, 0], "player0_store": 20, "player1_store": 28, "current_player": 0},
+      "canonical_utf8": "{\"player0_pits\":[0,0,0,0,0,0],\"player1_pits\":[0,0,0,0,0,0],\"player0_store\":20,\"player1_store\":28,\"current_player\":0}",
+      "sha256": "fb84e8eedb4bcc1345c6fa0aac78677295b312170b32f712085888924b23b7b5"
+    }
+  ],
+  "valid_requests": [
+    {"request_id": "fixture-p0-1", "game_revision": 4, "state": {"player0_pits": [4, 3, 2, 1, 0, 5], "player1_pits": [1, 2, 3, 4, 5, 6], "player0_store": 6, "player1_store": 6, "current_player": 0}, "profile": "balanced@v1", "seed": 17},
+    {"request_id": "fixture-p1-1", "game_revision": 5, "state": {"player0_pits": [4, 3, 2, 1, 0, 5], "player1_pits": [1, 2, 3, 4, 5, 6], "player0_store": 6, "player1_store": 6, "current_player": 1}, "profile": "balanced@v1", "seed": 18},
+    {"request_id": "fixture-extra-turn", "game_revision": 1, "state": {"player0_pits": [1, 0, 0, 0, 0, 1], "player1_pits": [1, 1, 1, 1, 1, 1], "player0_store": 20, "player1_store": 20, "current_player": 0}, "profile": "balanced@v1", "seed": 19}
+  ],
+  "valid_responses": [
+    {"request_id": "fixture-p0-1", "game_revision": 4, "state_sha256": "a39102918d4cd3f2578c262ebd379dd69e0979c730ca1d15583584f54bf4ee9b", "result": {"kind": "move", "move": 0}, "model_bundle_id": "model:sha256-0123456789abcdef", "search_profile_id": "balanced@v1:sha256-abcdef0123456789", "elapsed_ms": 9, "completed_simulations": 128, "termination_reason": "completed"},
+    {"request_id": "fixture-p1-1", "game_revision": 5, "state_sha256": "aaf9822147dfb237829e140cdc680b62c4b230b79368ce291ed623822f44e81a", "result": {"kind": "move", "move": 5}, "model_bundle_id": "model:sha256-0123456789abcdef", "search_profile_id": "balanced@v1:sha256-abcdef0123456789", "elapsed_ms": 9, "completed_simulations": 128, "termination_reason": "completed"},
+    {"request_id": "fixture-extra-turn", "game_revision": 1, "state_sha256": "f8c4fb5886dae83563e697503a1ae1875f81675e3bcc9a6512bf5ae03f6925db", "result": {"kind": "move", "move": 5}, "model_bundle_id": "model:sha256-0123456789abcdef", "search_profile_id": "balanced@v1:sha256-abcdef0123456789", "elapsed_ms": 1, "completed_simulations": 32, "termination_reason": "completed"},
+    {"request_id": "fixture-terminal", "game_revision": 9, "state_sha256": "fb84e8eedb4bcc1345c6fa0aac78677295b312170b32f712085888924b23b7b5", "result": {"kind": "terminal", "move": null}, "model_bundle_id": "model:none@v1", "search_profile_id": "balanced@v1:sha256-abcdef0123456789", "elapsed_ms": 0, "completed_simulations": 0, "termination_reason": "terminal"}
+  ],
+  "invalid_states": [
+    {"id": "invalid-dimensions", "state": {"player0_pits": [1, 2], "player1_pits": [0, 0, 0, 0, 0, 0], "player0_store": 0, "player1_store": 45, "current_player": 0}},
+    {"id": "negative-seeds", "state": {"player0_pits": [-1, 5, 0, 0, 0, 0], "player1_pits": [0, 0, 0, 0, 0, 0], "player0_store": 0, "player1_store": 44, "current_player": 0}},
+    {"id": "invalid-player", "state": {"player0_pits": [4, 4, 4, 4, 4, 4], "player1_pits": [4, 4, 4, 4, 4, 4], "player0_store": 0, "player1_store": 0, "current_player": 2}},
+    {"id": "invalid-numeric-type", "state": {"player0_pits": [4, 4, 4, 4, 4, 4], "player1_pits": [4, 4, 4, 4, 4, 4], "player0_store": 0, "player1_store": 0, "current_player": true}},
+    {"id": "wrong-seed-total", "state": {"player0_pits": [0, 0, 0, 0, 0, 0], "player1_pits": [0, 0, 0, 0, 0, 0], "player0_store": 0, "player1_store": 0, "current_player": 0}}
+  ],
+  "invalid_results": [
+    {"id": "illegal-empty-pit", "request_state_index": 0, "response": {"result": {"kind": "move", "move": 4}}},
+    {"id": "incorrect-request-identity", "request_id": "fixture-p0-1", "response_request_id": "another-request", "request_revision": 4, "response_revision": 3},
+    {"id": "stale-revision", "request_id": "fixture-p0-1", "response_request_id": "fixture-p0-1", "request_revision": 4, "response_revision": 3}
+  ],
+  "terminal_state": {"player0_pits": [0, 0, 0, 0, 0, 0], "player1_pits": [0, 0, 0, 0, 0, 0], "player0_store": 20, "player1_store": 28, "current_player": 0}
+}
