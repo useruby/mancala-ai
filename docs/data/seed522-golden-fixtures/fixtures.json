@@ -1,0 +1,2631 @@
+{
+  "case_count": 66,
+  "cases": [
+    {
+      "case_id": "cohort-00",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "696b453df1f83d3d000000000e68143da6ae863cc44d5a3f",
+      "selection_order_sha256": "000537eedb014bc40186dd449cd880728ea7abcdd5dbb371df4a27886392697d",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0613.jsonl",
+        "batch_sha256": "22999edae31ab77c207c75325d3f76b6e53b420fba31e51f45e9ac69f1312386",
+        "continuation_ply": 2,
+        "game_index": 1,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 14
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          11,
+          0,
+          7,
+          1,
+          1
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          1,
+          1,
+          9,
+          2,
+          0,
+          4
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "d3ae97ce353b01f6144615a95b0a1a30602461035f9331327c730e224f64e1ae",
+      "value_f64_hex": "000000a0f3dcd73f"
+    },
+    {
+      "case_id": "cohort-01",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "6818343cc497543d3714ec3dfbd0463f1b2a393d00000000",
+      "selection_order_sha256": "000891e1d6e3c5af2d1aa52f7203f283748f2ec4c69e4a30e9c6be4cfeea9ac3",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-1019.jsonl",
+        "batch_sha256": "af3ff611d6aefc17d5a2960cf29f878cae387a5d3a0bb8bbb1fee1e1a34b5c5e",
+        "continuation_ply": 0,
+        "game_index": 1,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 9
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          7,
+          0,
+          0,
+          8,
+          8
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          1,
+          3,
+          3,
+          8,
+          3,
+          0
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "2f807ec69c41f4ee6faa8f48d17586ca928aeca2c2d06e9c194a26e79333399d",
+      "value_f64_hex": "0000008007eabebf"
+    },
+    {
+      "case_id": "cohort-02",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "38bc893dcf9e393fde149a3da38cb53db457333d00000000",
+      "selection_order_sha256": "0008fb599080c0e0ede1dd995985ed13726e091420d3e5058a6f45e041a6f6c0",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0794.jsonl",
+        "batch_sha256": "c82e6c105685f95b5763f380dfd00f7001551a366043032ee839dec726bcb6c8",
+        "continuation_ply": 12,
+        "game_index": 1,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 19
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          3,
+          2,
+          0,
+          1
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          1,
+          12,
+          3,
+          1,
+          10,
+          0
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "1186516ec5dada69b34254a47db9fccd4f902b66cc2e0e19fcf3367599c61a1b",
+      "value_f64_hex": "00000080c411d0bf"
+    },
+    {
+      "case_id": "cohort-03",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "00000000000000008e97503d302d913eacfda93e32c2aa3e",
+      "selection_order_sha256": "000ad1490beb4f320236a0daf6dfbb5fc5349fb1ad440849407377ee56ad4ca1",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0195.jsonl",
+        "batch_sha256": "b19d601eaa1634df7db0d1b26383d013ace44715ab646eb655f02b494f4d9920",
+        "continuation_ply": 2,
+        "game_index": 1,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 12
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          3,
+          9,
+          2,
+          3
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          0,
+          8,
+          2,
+          1,
+          0,
+          8
+        ],
+        "player_store": 8
+      },
+      "state_sha256": "72b9543f7dc416099a7869b9656bdb8b177933d7c393232762cf0d82206761c6",
+      "value_f64_hex": "000000600ad3d1bf"
+    },
+    {
+      "case_id": "cohort-04",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "5a94623b2495183c15bba13e7adc793d29c12c3db373113f",
+      "selection_order_sha256": "000c6575c67903067f33dc6c3fa76e32cc8d31a44061772d48206a8e1360bd67",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0935.jsonl",
+        "batch_sha256": "02f1fafff31075ed1b1039b1c739eaaf4668422cede2919115b900e1a3b1d755",
+        "continuation_ply": 1,
+        "game_index": 1,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 10
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          1,
+          2,
+          9,
+          7,
+          1
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          1,
+          2,
+          0,
+          8,
+          2,
+          1
+        ],
+        "player_store": 10
+      },
+      "state_sha256": "b1fed738361092e52fbe38d31d5171e399a07bec5975952f7763ee5f46ddecef",
+      "value_f64_hex": "000000a009e7c8bf"
+    },
+    {
+      "case_id": "cohort-05",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "12094f3a2638eb3a2ab1dc3cc4ab213c0000000069ea753f",
+      "selection_order_sha256": "002312fbdfb4a4fa02d0e1c391b424a19a565c25ac20d7d8151e10925cff44b7",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0733.jsonl",
+        "batch_sha256": "569240963d5bc524d53f3d31ff8f77f562b1199909a476c7e27abe4b6f8c0ea2",
+        "continuation_ply": 7,
+        "game_index": 1,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 14
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          2,
+          2,
+          0,
+          4,
+          11
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          3,
+          2,
+          6,
+          2,
+          0,
+          1
+        ],
+        "player_store": 7
+      },
+      "state_sha256": "8f3d364c2d4e9930b055f7d5347ebf0e8a493fbc33e25d900b6fa287c1770a7f",
+      "value_f64_hex": "000000c0cfa7c7bf"
+    },
+    {
+      "case_id": "cohort-06",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "a205693d2967a53ba496783cbe2bbe3c000000001f51663f",
+      "selection_order_sha256": "0029e70b02f0da8e44d003672caa620a15ba29fa5b9f5b5ebfda2aebfc6e191a",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-1009.jsonl",
+        "batch_sha256": "1d4616fc7509152c736bf55225505def425e4433f3b9517e8575bdfccd829d0b",
+        "continuation_ply": 12,
+        "game_index": 1,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 16
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          8,
+          7,
+          2,
+          1,
+          0,
+          1
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          5,
+          0,
+          2,
+          8,
+          0,
+          0
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "b41dfb0b7fc4a1dbfcae8fcf529e8a5d0595690a698ebf2496ba74513fa2c837",
+      "value_f64_hex": "000000c0eb7fc93f"
+    },
+    {
+      "case_id": "cohort-07",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "00000000ff0ce93e6b4bbc3e00000000000000002f4f353e",
+      "selection_order_sha256": "00372c7de8b9f6ba8b9e94fc2c5b92f3d8300370a7e6e0936d50f3fd45469677",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0119.jsonl",
+        "batch_sha256": "ee526877d05d415e312552f8d9a6267ead56704d1792c39bce0ac2187f487858",
+        "continuation_ply": 9,
+        "game_index": 0,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 16
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          2,
+          9,
+          9,
+          1
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          0,
+          3,
+          3,
+          0,
+          0,
+          9
+        ],
+        "player_store": 3
+      },
+      "state_sha256": "abdc04edc18a97e8e84014f510c3e44e80987503183b80404b2df789bd83ba8a",
+      "value_f64_hex": "000000e0bdcec13f"
+    },
+    {
+      "case_id": "cohort-08",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "00000000000000004f60fa3dce5f1b3f694f7e3e9509b83c",
+      "selection_order_sha256": "00429178bbc18fab31639492820af47589ea53fcce9f97bd935e01b43c252ee9",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0141.jsonl",
+        "batch_sha256": "2cb850aa57d774650ef393688edde1ff2956318a3f61c0a81aab122e6b1b0d87",
+        "continuation_ply": 0,
+        "game_index": 1,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 7
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          7,
+          1,
+          1,
+          7,
+          7
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          0,
+          0,
+          6,
+          6,
+          2,
+          7
+        ],
+        "player_store": 2
+      },
+      "state_sha256": "4a481d9f248636332464d0e13a1b0182f0c775e68ced7484ec84076be3f17f52",
+      "value_f64_hex": "00000080f91aa43f"
+    },
+    {
+      "case_id": "cohort-09",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "7e2ba93c8a41a53d1bec523d0000000000000000b1df583f",
+      "selection_order_sha256": "00446406df2cc2456282cb35e0992d9c85e2c5e1cb121a8b13de2ba81e48166f",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0603.jsonl",
+        "batch_sha256": "a493f55bb2b1aa1a55527e9eefcc86e08a84cc09e5a15bb3f5a0d77a652a51e8",
+        "continuation_ply": 5,
+        "game_index": 1,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 13
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          5,
+          8,
+          3,
+          2,
+          5
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          4,
+          10,
+          1,
+          0,
+          0,
+          1
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "830446eabe4bf9af9b43b4fa21a09282c1c4216a44689af266c4006ed079b92b",
+      "value_f64_hex": "00000020dad0e03f"
+    },
+    {
+      "case_id": "cohort-10",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "d9375b3e2c34e03deec4173f00000000b134ab3d00000000",
+      "selection_order_sha256": "00531e00b2a58feab72a5e164f1364abcc32d367f2a5bd2b04ba446324281c39",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0124.jsonl",
+        "batch_sha256": "d060e93c08996409a4b786c79fdb926f5bc9aeb5eeee9a2eb6a03613e663187e",
+        "continuation_ply": 3,
+        "game_index": 0,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 11
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          9,
+          8,
+          4,
+          9
+        ],
+        "opponent_store": 2,
+        "player_pits": [
+          2,
+          2,
+          3,
+          0,
+          1,
+          0
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "41ca1fa8d7b122d631c6e6db57af73fbf1ee82dcbaa9c364b76d6c59aa4245af",
+      "value_f64_hex": "00000020779de63f"
+    },
+    {
+      "case_id": "cohort-11",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "f134ad3df853b13edf95573dd526373e00000000a8d8ac3e",
+      "selection_order_sha256": "005869c01483cb8bf44a889412b3b3ea831f5fc7bffb6ca72b35c04a0b786866",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0941.jsonl",
+        "batch_sha256": "886577dfb369cb9795d994d7d9d5ba7da9c05879436e09df9733daadb5f858fd",
+        "continuation_ply": 9,
+        "game_index": 0,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 14
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          8,
+          1,
+          2,
+          0,
+          3
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          3,
+          10,
+          1,
+          7,
+          0,
+          0
+        ],
+        "player_store": 3
+      },
+      "state_sha256": "aa2188142f85d15ae1348a21fd110ad0160e2ce000d247b780ded459b6b2ede2",
+      "value_f64_hex": "000000a0cf7fbc3f"
+    },
+    {
+      "case_id": "cohort-12",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "d4a1ce3c00000000ffc18d3dfce8bc3dc29e423da50b443f",
+      "selection_order_sha256": "005b75d3dabf1f3f8801b31329f5b959ae459c05a7e7fa95d3d8c19f59712d3d",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0223.jsonl",
+        "batch_sha256": "eb4c012b01103d30094ee95ef693dab5e1f817d12538aa6065dfb03248bdd33f",
+        "continuation_ply": 12,
+        "game_index": 1,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 19
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          0,
+          2,
+          10,
+          1,
+          1
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          1,
+          2,
+          0,
+          4,
+          1,
+          10
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "deffa3abbf69f0b064a490ff2fe18161da91f04e5d90799ec976733a6ce118c8",
+      "value_f64_hex": "00000080df8edf3f"
+    },
+    {
+      "case_id": "cohort-13",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "8dc02c3ca590d43e2605543e7609f53d4b73053e062bf03d",
+      "selection_order_sha256": "005d22aa6d516adeb49eec1fceb23b2b71ae018f7beb89302f7510e0948abea6",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0830.jsonl",
+        "batch_sha256": "3ea20b8ee89a67cbfc80686051040430e378ddee10ca9a49e185b923147e4bd5",
+        "continuation_ply": 5,
+        "game_index": 0,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 9
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          8,
+          1,
+          7,
+          7,
+          2
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          2,
+          6,
+          0,
+          6,
+          0,
+          0
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "af776019f461bfcfd006975531e94a7dc573522c5b7b9744ae4ffca599368b74",
+      "value_f64_hex": "000000a0319de0bf"
+    },
+    {
+      "case_id": "cohort-14",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "0000000000000000ea51cf3d0000000052e0463f86abf93d",
+      "selection_order_sha256": "0060e9a2fa754a8a726731d63cc3a72aaa3dada17f186ec0cca39176965f133d",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0871.jsonl",
+        "batch_sha256": "f81662bd17380d7b68438716b79934592538d8906dd1bc25f8b3d4932ed137d7",
+        "continuation_ply": 11,
+        "game_index": 0,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 17
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          0,
+          3,
+          2,
+          1
+        ],
+        "opponent_store": 11,
+        "player_pits": [
+          0,
+          0,
+          3,
+          0,
+          12,
+          10
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "338b9a582a76799e6b6a99d8838571f33036ea53849e365b6aa4108501e58a3d",
+      "value_f64_hex": "000000007568a23f"
+    },
+    {
+      "case_id": "cohort-15",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "be03c73e00000000bbef083e1e2e8f3e4bac143eff00583d",
+      "selection_order_sha256": "0065376168e0848c064264db4e47c8c58c0cc3abb750e5a9c214cd1474180d3c",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0122.jsonl",
+        "batch_sha256": "fa45be6ab3225ccc9acf2b0e6884c90bc7c56bebd1939fe211e119b2e02ece5c",
+        "continuation_ply": 1,
+        "game_index": 0,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 10
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          8,
+          0,
+          2,
+          4,
+          1,
+          8
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          7,
+          1,
+          6,
+          0,
+          0,
+          0
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "32c905c9477d082d6724244063096f45911561473f0d765bb260141571e2fb07",
+      "value_f64_hex": "00000080bc3a7d3f"
+    },
+    {
+      "case_id": "cohort-16",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "81f90d3cc9f7c03e8ac9933e98ec743e5062b13d00000000",
+      "selection_order_sha256": "006ab37c44745ce497c5e26077f1bba2bb9f2c36f43cd42e36a6beb12ebdcd5b",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0941.jsonl",
+        "batch_sha256": "886577dfb369cb9795d994d7d9d5ba7da9c05879436e09df9733daadb5f858fd",
+        "continuation_ply": 0,
+        "game_index": 1,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 5
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          6,
+          6,
+          5,
+          5,
+          0
+        ],
+        "opponent_store": 1,
+        "player_pits": [
+          0,
+          7,
+          6,
+          5,
+          0,
+          5
+        ],
+        "player_store": 1
+      },
+      "state_sha256": "d0e47ba684a40083940dedc938d4330e64cffb2c4b7ef61604cab9dcde49f2dc",
+      "value_f64_hex": "000000c0924b86bf"
+    },
+    {
+      "case_id": "cohort-17",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "819c353d6d15503e8915183e5698703e00000000cbeabc3e",
+      "selection_order_sha256": "006ca7631b92afb91710a903998d7169231b9bd884a4a7a3e58f5263847db075",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0890.jsonl",
+        "batch_sha256": "a61d6ccf1c66b613932cc5627bb52febacf3aea791b0da89075b47d5d1192eab",
+        "continuation_ply": 11,
+        "game_index": 1,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 19
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          1,
+          2,
+          0,
+          0,
+          4
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          1,
+          11,
+          1,
+          1,
+          0,
+          10
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "8bc1242bcf7f0ba83344afb3961fc22617048d94c11eed4a3dd80a82583a196e",
+      "value_f64_hex": "000000e0b78bc43f"
+    },
+    {
+      "case_id": "cohort-18",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "72b8003df753e43dc3e55c3e072a233ea97a273eba0ea33e",
+      "selection_order_sha256": "006d8b7a75d452aaf896e19b6a8c69f5c5147dec4ada996b19d2e640462727a5",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0930.jsonl",
+        "batch_sha256": "7f47385339c3084b190e7e2f86f74d4684e5acb8198d9344db2ce2ef217dbb13",
+        "continuation_ply": 6,
+        "game_index": 1,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 12
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          4,
+          1,
+          3,
+          5,
+          4
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          3,
+          2,
+          0,
+          8,
+          4,
+          1
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "2bc9fcc93c6af507e0d37756dbb5883a5d66dc69db2b14ea5ab5c0422a878e8e",
+      "value_f64_hex": "000000003817cc3f"
+    },
+    {
+      "case_id": "cohort-19",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "f37d9d3cc9e1bc3bbf53173ef231853e7e60023f65be6c3d",
+      "selection_order_sha256": "007b9b69b6ee655bcb0eab0337c45bf962795b019ed329aa81c7e3a624561e2d",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0286.jsonl",
+        "batch_sha256": "7888431f147bf458755a1bd6b9268aaa0c61e28c4cbb9a85b9a7a4a3cf5b844e",
+        "continuation_ply": 4,
+        "game_index": 0,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 15
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          9,
+          2,
+          1,
+          1,
+          1
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          2,
+          1,
+          3,
+          8,
+          1,
+          6
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "ac0300f576a8859a0d8e0918c41528cf81beb4db4fd41249d0be7c327bba6f4c",
+      "value_f64_hex": "000000a0d2c0c0bf"
+    },
+    {
+      "case_id": "cohort-20",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "9cbfc13d00000000cabc913d2b49443f393a8a3d00000000",
+      "selection_order_sha256": "007d24cf6c8de75c30a03be56e42a85c9b442ee7f1a3f2576bd35a004d24fd7e",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0000.jsonl",
+        "batch_sha256": "20bc90208895021b9d064c73c8822e8e5862226002d624a14626959915425344",
+        "continuation_ply": 1,
+        "game_index": 0,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 8
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          7,
+          0,
+          1,
+          6,
+          6,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          0,
+          2,
+          7,
+          7,
+          1,
+          4
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "772a417f7359088d2bb959e493fe436bd917d922d0287985c4bb73b2f3884192",
+      "value_f64_hex": "000000a08d33c83f"
+    },
+    {
+      "case_id": "cohort-21",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "ca1f1a3b000000001747b03cc2d68c3b4b59473d65546c3f",
+      "selection_order_sha256": "0086e77a08d54c50ba106c690b74d625c7bdad8b9aaa3294a55f91a0ac635510",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0719.jsonl",
+        "batch_sha256": "6aae98ae24270cf479ed5a096515c14684116e02aeb6d42bbbe7e172089833fc",
+        "continuation_ply": 7,
+        "game_index": 0,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 16
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          0,
+          3,
+          3,
+          1,
+          1
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          1,
+          0,
+          3,
+          3,
+          4,
+          12
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "3c48baaf9ea8cc6d514e58032b05b3e6e2601ec4caca789cd5994fb137225ce0",
+      "value_f64_hex": "00000040ad7fa73f"
+    },
+    {
+      "case_id": "cohort-22",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "93474e3f59a6b23ae1cd323b000000002eb1423e00000000",
+      "selection_order_sha256": "00872bcfcf46a4c7bd60d56685b8f4eb96d619e94b0c6aacd78b0c151f775120",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0234.jsonl",
+        "batch_sha256": "730a0473215f46d6596c30064ceb310b671f6900524a8185041490014880f945",
+        "continuation_ply": 1,
+        "game_index": 0,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 8
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          2,
+          7,
+          1,
+          7
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          7,
+          1,
+          2,
+          0,
+          7,
+          0
+        ],
+        "player_store": 10
+      },
+      "state_sha256": "c652af8286d64edc823a184f1b8146231b892170efeabd79ab39985460ed3143",
+      "value_f64_hex": "000000403ab2cf3f"
+    },
+    {
+      "case_id": "cohort-23",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "ad72873e5cb4833d25fe3d3c1254313e3917d23e1dbc9b3d",
+      "selection_order_sha256": "008bb5eef9437ccdb59facedd66872be9027fc585ea0d031b3e66ba5dbc3254f",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0094.jsonl",
+        "batch_sha256": "9e4a6ab2bb304736d4f26c58cc60a5b2e4b60ff97e8ba8c2a21a74f762aa9556",
+        "continuation_ply": 5,
+        "game_index": 1,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 16
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          3,
+          1,
+          0,
+          1,
+          0
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          3,
+          2,
+          1,
+          2,
+          14,
+          10
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "46db7c4809549897968de4e0ad55de75729b65824ae830b79dafa2b594460199",
+      "value_f64_hex": "00000040c59ca63f"
+    },
+    {
+      "case_id": "cohort-24",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "00000000b18c093e00000000f8b4923ef8e3cc3e7141373e",
+      "selection_order_sha256": "008dabd059ca61d6a7884fda5006919d076afbc9a52b440d20d16769d3ed7792",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0300.jsonl",
+        "batch_sha256": "8106401f2c6dd47024f037f9b6d31e500c8bd82f539ab056c294b8325b9cd4ab",
+        "continuation_ply": 7,
+        "game_index": 1,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 13
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          7,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          0,
+          9,
+          0,
+          3,
+          11,
+          9
+        ],
+        "player_store": 3
+      },
+      "state_sha256": "a6d8b8f6b508a63661d95e4b7413b0eb2c1023c3d10bb552dba2bb43a0152456",
+      "value_f64_hex": "00000080c7dbe33f"
+    },
+    {
+      "case_id": "cohort-25",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "946b143f00000000000000006a8c263d448db43e72a0dc3c",
+      "selection_order_sha256": "009024e37203a7719d17f3879788bdd0a22f98a6a4642ea3be53724ed0107285",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0835.jsonl",
+        "batch_sha256": "fabf0f30af3cb01fcf46d1fac8ae78858eae2fb265f28a4bd1f6328280cfbcf1",
+        "continuation_ply": 5,
+        "game_index": 1,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 9
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          5,
+          0,
+          0,
+          3,
+          1,
+          8
+        ],
+        "opponent_store": 4,
+        "player_pits": [
+          1,
+          0,
+          9,
+          8,
+          1,
+          6
+        ],
+        "player_store": 2
+      },
+      "state_sha256": "f4fa84e15954c583b3f5b263fd821ffab9594d5cfd0bb297278ae8a420aeb16b",
+      "value_f64_hex": "00000060a358ca3f"
+    },
+    {
+      "case_id": "cohort-26",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "bbe6203de6debe3e0e9ac13e20a3133e9362863d00000000",
+      "selection_order_sha256": "009b757a884f53fefc599b8411d9f53343035f09b29c7e6faabae1fa6c38fdca",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0114.jsonl",
+        "batch_sha256": "482113cd551d4a524dea097c913430bd3ee69464206f91b52afdd95a9223ad95",
+        "continuation_ply": 4,
+        "game_index": 0,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 8
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          7,
+          6,
+          5,
+          5,
+          0
+        ],
+        "opponent_store": 1,
+        "player_pits": [
+          5,
+          0,
+          0,
+          3,
+          7,
+          1
+        ],
+        "player_store": 6
+      },
+      "state_sha256": "41f00a50d358d02ab292c10b024790904a3f890d73dfc9dee748ce7d013d3c71",
+      "value_f64_hex": "000000206ec0dbbf"
+    },
+    {
+      "case_id": "cohort-27",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "0c4efa3e986af63b9a27903cb775f93d853fb53e671b273c",
+      "selection_order_sha256": "009f2f4225788bf9bf2051185b1e38a4c136606c3df62b07e6572c79073ab224",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0104.jsonl",
+        "batch_sha256": "0b6acb5cf373ac1d09ed2a70dcd84c405c6eb1a23a4656c8677ee10c7175310c",
+        "continuation_ply": 7,
+        "game_index": 0,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 13
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          9,
+          1,
+          8
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          6,
+          1,
+          1,
+          1,
+          2,
+          10
+        ],
+        "player_store": 3
+      },
+      "state_sha256": "b58edb772ddb8bdc39bb31518263bbd61ddacaed224f7e16a4bdcbe9163c37bc",
+      "value_f64_hex": "000000409cc8dd3f"
+    },
+    {
+      "case_id": "cohort-28",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "9b08863d2d90cf3dfcd8a73dcfadc93ec59ea63ec3b7023d",
+      "selection_order_sha256": "00a337fbe701e82b3ab64e8a5c78559ea62b5132d75877243c0dfa9695dd1d9a",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0346.jsonl",
+        "batch_sha256": "33c6147c447397246f65f0d81762cc49c278fc481f1e046da7d71217c4f120cf",
+        "continuation_ply": 3,
+        "game_index": 0,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 13
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          5,
+          3,
+          10,
+          2,
+          1,
+          0
+        ],
+        "opponent_store": 3,
+        "player_pits": [
+          4,
+          4,
+          4,
+          1,
+          3,
+          4
+        ],
+        "player_store": 4
+      },
+      "state_sha256": "ad989efcbeea7c98083660fcd44922a4400026d2dbae123f20d0ae79a9499f20",
+      "value_f64_hex": "00000060ef69bcbf"
+    },
+    {
+      "case_id": "cohort-29",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "0204293b00ae973d4bded73d0000000043975d3ea2ff193f",
+      "selection_order_sha256": "00aa416fa26d7f0d67a323fa253073e73dd454121074a6f400964c4637f4a3cb",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0636.jsonl",
+        "batch_sha256": "114d9a6d2a80f88b9a8e800c7f7853be72b142711c9669854cdc35fa2afcd3e8",
+        "continuation_ply": 1,
+        "game_index": 1,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 12
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          0,
+          4,
+          9,
+          1,
+          1
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          2,
+          9,
+          3,
+          0,
+          7,
+          1
+        ],
+        "player_store": 3
+      },
+      "state_sha256": "3817d68b6df6b85e3c7ecbf32badaa5831786f5bc18b4ad10e1fec769261e1c7",
+      "value_f64_hex": "00000080ec91d1bf"
+    },
+    {
+      "case_id": "cohort-30",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "00000000d50d4a3c77c42d3d47faf93ebbfce93e00000000",
+      "selection_order_sha256": "00b3f824ba4661b31b8645d6d896a57f1d4c5cc1e344071943f4f8edab56d7d0",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0239.jsonl",
+        "batch_sha256": "b4ca6059403731c742cbdce00d6010c27dc5c514b819ce0313f361755e5207b8",
+        "continuation_ply": 5,
+        "game_index": 1,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 11
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          1,
+          2,
+          7,
+          7,
+          0
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          0,
+          6,
+          6,
+          0,
+          2,
+          7
+        ],
+        "player_store": 3
+      },
+      "state_sha256": "71b06a4c5c12cab1755a44f5788bdac761a8c8275f88380f3c9d20f80028d6dc",
+      "value_f64_hex": "000000a0b0d8b23f"
+    },
+    {
+      "case_id": "cohort-31",
+      "cohort_bucket": "gt32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "00000000300cf03d00000000000000005d473a3ea36c333f",
+      "selection_order_sha256": "00b55ace277b4416d5f79674498b81671ac8392d2160ca5c57796a3438d714bb",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-1009.jsonl",
+        "batch_sha256": "1d4616fc7509152c736bf55225505def425e4433f3b9517e8575bdfccd829d0b",
+        "continuation_ply": 6,
+        "game_index": 0,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 10
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          7,
+          6,
+          6,
+          1,
+          0,
+          0
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          0,
+          1,
+          0,
+          0,
+          8,
+          7
+        ],
+        "player_store": 3
+      },
+      "state_sha256": "0b537ffe95473645620e961d3f89d96b6f8998414ecc9661b25c013ad1071e4f",
+      "value_f64_hex": "0000002012ebe0bf"
+    },
+    {
+      "case_id": "cohort-32",
+      "cohort_bucket": "17to32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "0eeaf13c2a5c4d3c00000000016d263deb6e043eb4b8493f",
+      "selection_order_sha256": "000053a58d4d7d1d0164669b9b2814f702e0c608297eb723437b36734d2c4621",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0857.jsonl",
+        "batch_sha256": "11f384d4a1b63ce1816ad8dcb2e8c124f2ab59ab1d7b0584c923b4d54cbe93ff",
+        "continuation_ply": 17,
+        "game_index": 0,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 29
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          1,
+          2,
+          0,
+          1,
+          1
+        ],
+        "opponent_store": 17,
+        "player_pits": [
+          2,
+          3,
+          0,
+          1,
+          3,
+          2
+        ],
+        "player_store": 14
+      },
+      "state_sha256": "438b02c90c78061b04d85f6db7871909fba28ad18f35b8ef6bf67ab0af25acfa",
+      "value_f64_hex": "000000e04b15e0bf"
+    },
+    {
+      "case_id": "cohort-33",
+      "cohort_bucket": "17to32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "a7412a3d00000000170d213e00000000a0184d3f00000000",
+      "selection_order_sha256": "000085adf48488dd1280f040d9e3041e477719eb1d48a16be383f00708d76658",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0708.jsonl",
+        "batch_sha256": "c4ff7aeefeaa914baa08d87b1c388526d65e5c9c1daf437982c100acaf95d19d",
+        "continuation_ply": 11,
+        "game_index": 0,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 22
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          3,
+          3,
+          0,
+          2,
+          5
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          3,
+          0,
+          2,
+          0,
+          1,
+          0
+        ],
+        "player_store": 14
+      },
+      "state_sha256": "eb888285d28bfbc47df676c4ebbe38e80d19eedfb8075b8fff5e65273fa9bcdf",
+      "value_f64_hex": "000000a07205e0bf"
+    },
+    {
+      "case_id": "cohort-34",
+      "cohort_bucket": "17to32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "eb75573955fa9a38934a053c043e623adf1d383c80bf7a3f",
+      "selection_order_sha256": "00040462d23366389a3355321beac147b91b58e0ec664a37397e409312e4b365",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0134.jsonl",
+        "batch_sha256": "174cdd88efd3bae02b38da9f74b458fa05fde64afde507f3fd4c5b6085e2408e",
+        "continuation_ply": 15,
+        "game_index": 1,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 22
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          1,
+          3,
+          1,
+          1,
+          1
+        ],
+        "opponent_store": 10,
+        "player_pits": [
+          2,
+          1,
+          0,
+          1,
+          2,
+          10
+        ],
+        "player_store": 14
+      },
+      "state_sha256": "8b1672a3a6226ecfb823f5f7643d78491ea19109d939a0c3b41596c5442c93c5",
+      "value_f64_hex": "000000e08e77d6bf"
+    },
+    {
+      "case_id": "cohort-35",
+      "cohort_bucket": "17to32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "0060eb3d8056723e55c5373ec468c13e000000004ac5ba3d",
+      "selection_order_sha256": "00040e06b9d45a282742ad3cd28e2839c52a59ec94dc6235c117764336b5446a",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0466.jsonl",
+        "batch_sha256": "e13c1b654af22b93508046099370b09c86e1b1f6dce6831a051ad16d325220ff",
+        "continuation_ply": 14,
+        "game_index": 0,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 24
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          9,
+          1,
+          1,
+          0,
+          1
+        ],
+        "opponent_store": 23,
+        "player_pits": [
+          0,
+          2,
+          1,
+          1,
+          0,
+          0
+        ],
+        "player_store": 7
+      },
+      "state_sha256": "e7111b1703816fe35630b7ad0e0558c61b9d490284910ca7f40ba6e685e65c63",
+      "value_f64_hex": "000000e05845e63f"
+    },
+    {
+      "case_id": "cohort-36",
+      "cohort_bucket": "17to32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "972dcd3d0000000091bf283ff26a763e0000000000000000",
+      "selection_order_sha256": "00049363e236f1f885bb131d7b2bd930c7773da5ab2e3f498f6dc75316d2e555",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-1002.jsonl",
+        "batch_sha256": "1e40a0f9cc6e73d023034872cf0f624568b6bfb5af5e8fa1e49d3dfad95fc929",
+        "continuation_ply": 22,
+        "game_index": 0,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 30
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          0,
+          3,
+          2,
+          0,
+          0
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          0,
+          1,
+          0,
+          1,
+          1,
+          13
+        ],
+        "player_store": 11
+      },
+      "state_sha256": "1917517b5f9aeb524f84325fb2c9af8291401539ce54869085ebf0ca540f3933",
+      "value_f64_hex": "000000405671c33f"
+    },
+    {
+      "case_id": "cohort-37",
+      "cohort_bucket": "17to32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "e128da3b8d8aa03cd1bea53b0000000000000000dcfb773f",
+      "selection_order_sha256": "0005f83a91c75aa332e8505d436ae6cebb7feee1e25269895a0b776917b5cd26",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0608.jsonl",
+        "batch_sha256": "9723256c9865602132a3db24a68a46832ec2c61dbe412071b4e8b85fe4f7aeff",
+        "continuation_ply": 18,
+        "game_index": 0,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 25
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          3,
+          0,
+          0,
+          0,
+          5,
+          0
+        ],
+        "opponent_store": 16,
+        "player_pits": [
+          3,
+          6,
+          2,
+          0,
+          0,
+          1
+        ],
+        "player_store": 12
+      },
+      "state_sha256": "5ba1128aa19c7f4a86c348a0640a4203f4e9c130a99b42a2c63c0fe65e214382",
+      "value_f64_hex": "000000e04f87d1bf"
+    },
+    {
+      "case_id": "cohort-38",
+      "cohort_bucket": "17to32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "000000004ecffe3c4127883ea7f0163f00000000f329e83d",
+      "selection_order_sha256": "0006d0d43341a02cee806599db90e78729a98f66145480530cf7781fc05d996f",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0360.jsonl",
+        "batch_sha256": "f465fef0cfd3d2c251cf0445547e13707378cbad45b9ce548c48b9a57b048ac8",
+        "continuation_ply": 9,
+        "game_index": 1,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 18
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          3,
+          4,
+          1,
+          0,
+          13
+        ],
+        "opponent_store": 6,
+        "player_pits": [
+          3,
+          0,
+          4,
+          2,
+          2,
+          0
+        ],
+        "player_store": 10
+      },
+      "state_sha256": "329db9f9c79bbf2515d433547191331fd43f72346e2619dcf086c9f3997ac000",
+      "value_f64_hex": "00000080e63fce3f"
+    },
+    {
+      "case_id": "cohort-39",
+      "cohort_bucket": "17to32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "0c61d23c4e1a013df4c66c3c37a86d3f0000000000000000",
+      "selection_order_sha256": "000722d8b8ad77728f74dec215000b78c4a0b8e1879cb3c10f554da6dc8064dc",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0901.jsonl",
+        "batch_sha256": "8f9fb21dffec8669b907d7081b4ec10e4a1c225350fb5182f2c7fb2d3b04721a",
+        "continuation_ply": 6,
+        "game_index": 1,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 13
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          3,
+          0,
+          10,
+          1
+        ],
+        "opponent_store": 5,
+        "player_pits": [
+          2,
+          3,
+          1,
+          8,
+          0,
+          0
+        ],
+        "player_store": 15
+      },
+      "state_sha256": "6e3858aa39f5f5f8f9e3a176f0fa7bb273996623dee9b54feb50f6e756caf999",
+      "value_f64_hex": "0000002053ccd03f"
+    },
+    {
+      "case_id": "cohort-40",
+      "cohort_bucket": "17to32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "cd98c23c87d00a3e43eefc3b8e2f443e5831243f00000000",
+      "selection_order_sha256": "00096e2ea676600c9f0b496ac25c4e01d6b43c733dcd0081fa3cc0ad06085894",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0700.jsonl",
+        "batch_sha256": "63d0ba9908c08e6bca2b06526b4d80a35a1b1d7ac2650592e342132bbd44386e",
+        "continuation_ply": 5,
+        "game_index": 1,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 16
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          3,
+          1,
+          2,
+          6
+        ],
+        "opponent_store": 7,
+        "player_pits": [
+          1,
+          6,
+          1,
+          2,
+          8,
+          0
+        ],
+        "player_store": 11
+      },
+      "state_sha256": "8de201ee50b9b82b63a7d374bea57e5f8d579fcdc29a916633d0b8c4feada351",
+      "value_f64_hex": "00000060f117c73f"
+    },
+    {
+      "case_id": "cohort-41",
+      "cohort_bucket": "17to32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "54440a3ea631a03ee0c7bb3e0000000000000000a1c83d3e",
+      "selection_order_sha256": "001038b4d37d9c24eefb9b54799f1c8c8ff0313d117168c32040aa9d2aefd704",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0801.jsonl",
+        "batch_sha256": "fd535efc4aeba8f4a5fa9368f4c15330f55e4e241852b1e8bfdf6e78eb23bb4c",
+        "continuation_ply": 3,
+        "game_index": 1,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 13
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          7,
+          1,
+          4
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          1,
+          2,
+          9,
+          0,
+          0,
+          8
+        ],
+        "player_store": 2
+      },
+      "state_sha256": "21c54d235b8f6861fd068bf017ea2fa21ef7d05a24ff9160069835e89017ecfb",
+      "value_f64_hex": "00000080cd3ec9bf"
+    },
+    {
+      "case_id": "cohort-42",
+      "cohort_bucket": "17to32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "20bda13b592fe23c8d4dbc3c0b386b3ed174313f62b9b03c",
+      "selection_order_sha256": "00124aa19901ac193714576681cd309094fe58b18db2f86784b2e4d865f85b59",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0361.jsonl",
+        "batch_sha256": "a570f53a52185ac79c8c6690db495058053e8fe71aafce21d1a135541d4d2073",
+        "continuation_ply": 7,
+        "game_index": 0,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 18
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          2,
+          1,
+          0,
+          2,
+          0,
+          1
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          1,
+          10,
+          2,
+          1,
+          2,
+          7
+        ],
+        "player_store": 5
+      },
+      "state_sha256": "afbf643752e4339e019462aa901b561c1ee36910fbc863693ccf368d1b41c8bd",
+      "value_f64_hex": "000000801940c5bf"
+    },
+    {
+      "case_id": "cohort-43",
+      "cohort_bucket": "17to32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "000000006a9e3c3bd4592f3d82599e3d9582603f00000000",
+      "selection_order_sha256": "001341c4494f1f339f21cfc9e33a230227d4169b2f22e64fbf32c63119268ecb",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0796.jsonl",
+        "batch_sha256": "83ff523220a744955999fc923c3d135f131eda48015ee14a437109e15082792e",
+        "continuation_ply": 16,
+        "game_index": 0,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 28
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          4,
+          1,
+          1,
+          2,
+          10
+        ],
+        "opponent_store": 8,
+        "player_pits": [
+          0,
+          1,
+          3,
+          1,
+          6,
+          0
+        ],
+        "player_store": 11
+      },
+      "state_sha256": "788a4a3a3fe6454ef87ceb02d4afb93bc889f74f39a05a11bdcdb02317173353",
+      "value_f64_hex": "000000c0c68ec8bf"
+    },
+    {
+      "case_id": "cohort-44",
+      "cohort_bucket": "17to32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "2bda883e073d953e000000004546b33e278aba3d00000000",
+      "selection_order_sha256": "001451aa66ece96fdfc5572ff17066ed6a426f8fe6906bf9085bf0c2ba0c35a4",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0860.jsonl",
+        "batch_sha256": "96395b6f4942b5c598a7354f93b4d73d734e471bd533094b2526fbbdbf9b821f",
+        "continuation_ply": 27,
+        "game_index": 1,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 39
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          1,
+          3,
+          0,
+          2,
+          1,
+          0
+        ],
+        "opponent_store": 16,
+        "player_pits": [
+          0,
+          0,
+          3,
+          0,
+          7,
+          0
+        ],
+        "player_store": 15
+      },
+      "state_sha256": "bfa5e927571aa37ecbc82b9f955f23af99e9cc5043a4a79b60ca8ae582be07cd",
+      "value_f64_hex": "000000a04a2de63f"
+    },
+    {
+      "case_id": "cohort-45",
+      "cohort_bucket": "17to32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "bfd04d3c0592553e1b77193ee22b5a3e00000000faf6d43e",
+      "selection_order_sha256": "00149774a0e76383f301f9f6a805758abd059dfce0ead2494437e233100799e3",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0118.jsonl",
+        "batch_sha256": "187bbfc361e69e53bebda6fdd552f0c6573029bde03d466edc6a48416f52ad11",
+        "continuation_ply": 25,
+        "game_index": 1,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 30
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          2,
+          3,
+          0,
+          0,
+          1
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          1,
+          13,
+          3,
+          1,
+          0,
+          1
+        ],
+        "player_store": 14
+      },
+      "state_sha256": "e6634c2bfc3f10a4e7cdeb16fc31f9ba90d15fc8cf7a2551162bc49de05cf3f3",
+      "value_f64_hex": "000000a01f7aea3f"
+    },
+    {
+      "case_id": "cohort-46",
+      "cohort_bucket": "17to32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "ed120c3b6a303b3acbe8b73c6f361c3d750e193ed77e493f",
+      "selection_order_sha256": "0017f2a36b4ef038c7825a6a919a9f28a3aace943c16b0d8f35f0ba66090e9d6",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0761.jsonl",
+        "batch_sha256": "b899fe31845dc06f57adbff3cfa452b9231579045044325a1a1c78c46990c144",
+        "continuation_ply": 7,
+        "game_index": 0,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 17
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          3,
+          1,
+          2,
+          3,
+          3,
+          2
+        ],
+        "opponent_store": 9,
+        "player_pits": [
+          3,
+          4,
+          3,
+          0,
+          2,
+          5
+        ],
+        "player_store": 8
+      },
+      "state_sha256": "f40ee2654a1b6b0d4a20f6e689d9077f6e5803d7a3940c88cc3885779230ff2b",
+      "value_f64_hex": "0000002020bfbe3f"
+    },
+    {
+      "case_id": "cohort-47",
+      "cohort_bucket": "17to32",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "e583603e043c8e3d6ccca13ea262ca3e0000000000000000",
+      "selection_order_sha256": "001b60d55a2da93e956448e80048f51a8cb6cdca0b8be9e105d6d5d2214929f1",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0546.jsonl",
+        "batch_sha256": "a6c76c5e9b9e7708f006b5ad4ed5da0c70a377e9d82803398d146d634d73a43f",
+        "continuation_ply": 5,
+        "game_index": 0,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 13
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          1,
+          8,
+          7,
+          0,
+          0
+        ],
+        "opponent_store": 14,
+        "player_pits": [
+          0,
+          6,
+          0,
+          1,
+          1,
+          1
+        ],
+        "player_store": 7
+      },
+      "state_sha256": "8651ec7c7e94cb36f89600bcb010b18b98339c6d3629d6e797d80727afccd0f0",
+      "value_f64_hex": "000000a04c92de3f"
+    },
+    {
+      "case_id": "cohort-48",
+      "cohort_bucket": "le16",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "00000000000000006a327e3d30ad023e8d714f3f00000000",
+      "selection_order_sha256": "0002a300b69f263f12ab1504bd5ecc8d960596cbe890a23f47235cb4f2925347",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0885.jsonl",
+        "batch_sha256": "5c0e0bc869e2042d540d7c688c476e32deffa56f56a7a5fb88520b7dce98975c",
+        "continuation_ply": 38,
+        "game_index": 1,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 44
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          1,
+          9,
+          1
+        ],
+        "opponent_store": 15,
+        "player_pits": [
+          0,
+          0,
+          1,
+          2,
+          1,
+          0
+        ],
+        "player_store": 18
+      },
+      "state_sha256": "e352f7ee894f48f8a8a04e16a0049721f9d9f5bf0e7f75d6549be0c0c99e969a",
+      "value_f64_hex": "00000040ba63e0bf"
+    },
+    {
+      "case_id": "cohort-49",
+      "cohort_bucket": "le16",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "00000000a5cbf63e9124bd3e00000000981f183e00000000",
+      "selection_order_sha256": "0005c2cda0a89580c31b7a24a719704c5fee093e0fd6bcfe0b4fd3925e315bd1",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0836.jsonl",
+        "batch_sha256": "06b319d3d308915af257f8ab5729dc63704fcc307d3713c1ff44bdf47e8252b0",
+        "continuation_ply": 25,
+        "game_index": 1,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 37
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 21,
+        "player_pits": [
+          0,
+          1,
+          2,
+          0,
+          1,
+          0
+        ],
+        "player_store": 21
+      },
+      "state_sha256": "cdabd0980efb27a33076a734720260a23f915f65eb8bce680b2b51d9e7312012",
+      "value_f64_hex": "000000a0884de33f"
+    },
+    {
+      "case_id": "cohort-50",
+      "cohort_bucket": "le16",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "000000000000000032bfeb3e68200a3f0000000000000000",
+      "selection_order_sha256": "000aa39f3d822f385e188bc8e0988822eed39520a6ae11e9c73caf42a6803c59",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0889.jsonl",
+        "batch_sha256": "195cc6f121e463c4f2aecfb9943beb029bc4df63b31f9405d81b21512cfc4cc1",
+        "continuation_ply": 28,
+        "game_index": 0,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 40
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          0,
+          2,
+          0
+        ],
+        "opponent_store": 28,
+        "player_pits": [
+          0,
+          0,
+          2,
+          1,
+          0,
+          0
+        ],
+        "player_store": 15
+      },
+      "state_sha256": "f94074d38af271d8c9e37c0f3703dd5d89bcd9457872fbca738e1fd52d1cbd42",
+      "value_f64_hex": "000000e0b177eebf"
+    },
+    {
+      "case_id": "cohort-51",
+      "cohort_bucket": "le16",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "000000000000000072c9383e09937c3e42b7813e809aa33e",
+      "selection_order_sha256": "000c76f8b44ecc77e0bcbda62ce32f8c3602fde1e220c1e191df6ef4eb4bb4e7",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0654.jsonl",
+        "batch_sha256": "5db28037045415c643ee7823d0791a0d079d674438e2aefe535082851772dd92",
+        "continuation_ply": 50,
+        "game_index": 1,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 55
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "opponent_store": 28,
+        "player_pits": [
+          0,
+          0,
+          1,
+          1,
+          2,
+          3
+        ],
+        "player_store": 12
+      },
+      "state_sha256": "be45b07746dd5323f97528ab322af66f1ebe9c9e33cb21aa4213a74bd9b9e408",
+      "value_f64_hex": "000000e05f57eabf"
+    },
+    {
+      "case_id": "cohort-52",
+      "cohort_bucket": "le16",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "0000000000000000000000005f8cf03c92ad873c313e743f",
+      "selection_order_sha256": "000d2f0b6f1180b8e8ef17db621172c7e900e052e5a051bc390d1a28f486ffd4",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0480.jsonl",
+        "batch_sha256": "e72f471ea061be4a14678e36390436ea7471e83ae3709c140b1798a79b64fc3f",
+        "continuation_ply": 12,
+        "game_index": 0,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 24
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          11,
+          0,
+          1,
+          0
+        ],
+        "opponent_store": 16,
+        "player_pits": [
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "player_store": 17
+      },
+      "state_sha256": "fb1ad2573a323d64948c0b4678476a09f1b4f065a33fd6c0630bfb957a888148",
+      "value_f64_hex": "000000000f58d8bf"
+    },
+    {
+      "case_id": "cohort-53",
+      "cohort_bucket": "le16",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "000000000000000000102d3f00000000fedfa53e00000000",
+      "selection_order_sha256": "000db0c922392fff94b26ddfd5177dc4aa9bcde8a98cd1f7314de7d88a993c8e",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0213.jsonl",
+        "batch_sha256": "d73c6c963879aa8f96a9ef222a3619567c14f0bc27f62bb34cef18eed54d20fa",
+        "continuation_ply": 29,
+        "game_index": 1,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 38
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        "opponent_store": 24,
+        "player_pits": [
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        "player_store": 19
+      },
+      "state_sha256": "bbb5bdcddfa124cc7aa9dc6980f41b59deae1e68b05c2c19f7ff8473881840e7",
+      "value_f64_hex": "000000a05ac1eb3f"
+    },
+    {
+      "case_id": "cohort-54",
+      "cohort_bucket": "le16",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "0000000000000000000000000000803f0000000000000000",
+      "selection_order_sha256": "00105ea01ed3d0fc9bc56e4852924d1c0bac6deedaf9bea4314e592d3c9d90b1",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0530.jsonl",
+        "batch_sha256": "ba1b3d108a0a74fe27afd6b2c0b90b4ac5721af67ba65b6918a808d48eda8ae9",
+        "continuation_ply": 36,
+        "game_index": 1,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 46
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        "opponent_store": 25,
+        "player_pits": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          1
+        ],
+        "player_store": 20
+      },
+      "state_sha256": "ecc86f6aee875978892dc55876e58a8ac312315a196a49b285394a27271057fe",
+      "value_f64_hex": "00000060ed54ec3f"
+    },
+    {
+      "case_id": "cohort-55",
+      "cohort_bucket": "le16",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "1437a53c000000006cdd533e7b8f3c3e0ebb163f00000000",
+      "selection_order_sha256": "00111eaa599107d1244a22f83c3c4d70a8cc81c3dd1c8fc01d2b59d75e983fb1",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0172.jsonl",
+        "batch_sha256": "3adbacb0c43045831cbae911c14ed11bb65ad843e504b68e616c7d8f65b4ffa6",
+        "continuation_ply": 16,
+        "game_index": 1,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 24
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          1,
+          0,
+          2,
+          3,
+          1,
+          1
+        ],
+        "opponent_store": 13,
+        "player_pits": [
+          1,
+          0,
+          3,
+          2,
+          1,
+          0
+        ],
+        "player_store": 20
+      },
+      "state_sha256": "80767e9828cc95733280e6966121143b57c28a3ab16acfbb7062206810dab00d",
+      "value_f64_hex": "00000080de4deb3f"
+    },
+    {
+      "case_id": "cohort-56",
+      "cohort_bucket": "le16",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "149e3a3a541b1b38eb447b3a000000006214c23c787f793f",
+      "selection_order_sha256": "0012da698ca6986d8ac28f59cfb841c20f2d6a89c46dbcbb63a56dbcf71e7fdd",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0528.jsonl",
+        "batch_sha256": "587a6fea66fd647bc433a3252bd72305c9d6e11cc177036061995ca6e6d6592a",
+        "continuation_ply": 29,
+        "game_index": 0,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 36
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          1,
+          2,
+          0,
+          2,
+          1
+        ],
+        "opponent_store": 22,
+        "player_pits": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "player_store": 12
+      },
+      "state_sha256": "b1d80f075e4bd3352cf0835dfe0ecfc73c58d9686849c0c958d06b81cfa616f8",
+      "value_f64_hex": "00000040f152e03f"
+    },
+    {
+      "case_id": "cohort-57",
+      "cohort_bucket": "le16",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "00000000efed113ebc462a3e72ca713e7300e93e00000000",
+      "selection_order_sha256": "0019247c1534cee3c76b9deec88c6cf28f23921ada336bfbd47450ed8cc8efcf",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0626.jsonl",
+        "batch_sha256": "08bcf2505a6f77a592b04b74eb94148aa4f2c9e612355d65ee286549f4c87858",
+        "continuation_ply": 14,
+        "game_index": 1,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 25
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          3,
+          2,
+          2,
+          1,
+          0
+        ],
+        "opponent_store": 16,
+        "player_pits": [
+          0,
+          1,
+          1,
+          2,
+          1,
+          0
+        ],
+        "player_store": 19
+      },
+      "state_sha256": "3a50f2d5d719a668ab24119d694e2e56daa8830c2020fc907e53e3bad201916b",
+      "value_f64_hex": "000000e0d9a2d03f"
+    },
+    {
+      "case_id": "cohort-58",
+      "cohort_bucket": "le16",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "1880ae3daaf49b3c6deac03d37d73e3c7b34413d66243e3f",
+      "selection_order_sha256": "001a1ae7997c68c39e4ad3bb743b1aa6ded3cc8448e127cffdb57c778e662a62",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0963.jsonl",
+        "batch_sha256": "5527588aa2df94fa1e9f810037ca0399d6ddcc3dc98218323a5c0c26697643a4",
+        "continuation_ply": 35,
+        "game_index": 1,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 41
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          1,
+          1,
+          1,
+          1,
+          2
+        ],
+        "opponent_store": 17,
+        "player_pits": [
+          2,
+          2,
+          0,
+          2,
+          1,
+          1
+        ],
+        "player_store": 15
+      },
+      "state_sha256": "0b675c023aa8a755c6b0d028829cb9efc398cc3413e4ff87893bdd71aa057f0d",
+      "value_f64_hex": "0000008032afc43f"
+    },
+    {
+      "case_id": "cohort-59",
+      "cohort_bucket": "le16",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "de0c4a3e000000006f551e3e6de7253f0000000000000000",
+      "selection_order_sha256": "001d280a68d3c0b9084b0cfbdf8dc05971a2158df2b8901fbca55cf409a094e6",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0147.jsonl",
+        "batch_sha256": "1e0e83d3b8fdd10656df6bcf8caac31fde51eba52898a067cc857573efb552b1",
+        "continuation_ply": 31,
+        "game_index": 1,
+        "matching_occurrences": 2,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 37
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          2,
+          0,
+          1,
+          3,
+          0,
+          0
+        ],
+        "opponent_store": 23,
+        "player_pits": [
+          0,
+          3,
+          2,
+          0,
+          0,
+          1
+        ],
+        "player_store": 13
+      },
+      "state_sha256": "bd6e052fe9d353c8baa37840f8743cfd96f157f190a530c3ecab17b2195465b3",
+      "value_f64_hex": "000000600a57ed3f"
+    },
+    {
+      "case_id": "cohort-60",
+      "cohort_bucket": "le16",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "000000000000000000000000e86acc3ba6e9e33cdd47773f",
+      "selection_order_sha256": "001fa0f37b30aeac01789a38004017e0ea59a2cca7af997dfacbb7e763f73ede",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0008.jsonl",
+        "batch_sha256": "2b2f5efb2644f16841c75c28005bbc462f433c01c86b57c46ed15dfa9d566a81",
+        "continuation_ply": 31,
+        "game_index": 1,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 41
+      },
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          2,
+          2,
+          1
+        ],
+        "opponent_store": 19,
+        "player_pits": [
+          0,
+          0,
+          0,
+          2,
+          1,
+          1
+        ],
+        "player_store": 20
+      },
+      "state_sha256": "175ac02b79b48b4b23e0c5e95024df346f804726656049323578ce45c04bd8ac",
+      "value_f64_hex": "00000080e3c7e4bf"
+    },
+    {
+      "case_id": "cohort-61",
+      "cohort_bucket": "le16",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "00000000000000008f9c903b80d5ec3c000000001b78773f",
+      "selection_order_sha256": "0022263d0fc2df9541fbf24473fa2c7b93456377c39f4c7679f2703ee80e4c66",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0717.jsonl",
+        "batch_sha256": "3ba3dae9e728420d075f062caa9fabd071cd1d3756ad32cf363911f41e61cd4b",
+        "continuation_ply": 20,
+        "game_index": 0,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 0,
+        "total_ply": 28
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          1,
+          3,
+          0,
+          1
+        ],
+        "opponent_store": 16,
+        "player_pits": [
+          1,
+          1,
+          2,
+          0,
+          0,
+          0
+        ],
+        "player_store": 23
+      },
+      "state_sha256": "f6d5ce12ed5f0f9ef7694c699e2d25a496dc72e063952bf9c9d0f2eff83c1c82",
+      "value_f64_hex": "000000a06484edbf"
+    },
+    {
+      "case_id": "cohort-62",
+      "cohort_bucket": "le16",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "0000000000000000000000000000803f0000000000000000",
+      "selection_order_sha256": "002231576de2a8e314a7e8f63c7d997aa761b7a92e94fe904c9ac40c7f2db8c3",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0869.jsonl",
+        "batch_sha256": "ff3a18c291d07aab22f390fb54e81e7280fc3be8dcb053480c620fbdedca5b6b",
+        "continuation_ply": 25,
+        "game_index": 1,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 37
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        "opponent_store": 20,
+        "player_pits": [
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "player_store": 24
+      },
+      "state_sha256": "e10b8fdc3c71f675508cbf53bf555fe2869facd8717f0d9f45064c4881c4373b",
+      "value_f64_hex": "000000805fcfecbf"
+    },
+    {
+      "case_id": "cohort-63",
+      "cohort_bucket": "le16",
+      "kind": "archived_nonterminal",
+      "policy_f32_hex": "000000000058c03ec1236c3edeb6513e5c75413e00000000",
+      "selection_order_sha256": "0029af084e113cb8fda0539cbc343c6473c61866da45aa5e73ffc05f601308dd",
+      "source": {
+        "batch_relative_path": "docs/data/seed512-fixed-composition-evaluation/batches/games-0571.jsonl",
+        "batch_sha256": "b14c51c6b364f94f2be1382ad11038152a53acd0b6c542bdf593fa604fe02dfe",
+        "continuation_ply": 22,
+        "game_index": 1,
+        "matching_occurrences": 1,
+        "opening_index": 0,
+        "record_index": 1,
+        "total_ply": 28
+      },
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          3,
+          2,
+          1,
+          1,
+          0
+        ],
+        "opponent_store": 12,
+        "player_pits": [
+          0,
+          0,
+          2,
+          1,
+          6,
+          0
+        ],
+        "player_store": 20
+      },
+      "state_sha256": "bd9bf7cfa02d13cc1c2b3551b2e459f50564c2658b508fa5da744c1b7c0a9adc",
+      "value_f64_hex": "00000000c0a5e2bf"
+    },
+    {
+      "case_id": "terminal-player-0",
+      "kind": "explicit_terminal_semantics",
+      "policy_f32_hex": "000000000000000000000000000000000000000000000000",
+      "state": {
+        "current_player": 0,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 0,
+        "player_pits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "player_store": 48
+      },
+      "terminal_player": 0,
+      "value_f64_hex": "0000000000000000"
+    },
+    {
+      "case_id": "terminal-player-1",
+      "kind": "explicit_terminal_semantics",
+      "policy_f32_hex": "000000000000000000000000000000000000000000000000",
+      "state": {
+        "current_player": 1,
+        "opponent_pits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "opponent_store": 0,
+        "player_pits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "player_store": 48
+      },
+      "terminal_player": 1,
+      "value_f64_hex": "0000000000000000"
+    }
+  ],
+  "field_orientation": {
+    "current_player": "the acting side; it does not change field orientation",
+    "opponent_pits": "fixed player-1 pits, indices 0..5 in sowing order",
+    "opponent_store": "fixed player-1 store",
+    "player_pits": "fixed player-0 pits, indices 0..5 in sowing order",
+    "player_store": "fixed player-0 store",
+    "policy_indices": "indices 0..5 are relative to current_player; index 0 is that side's first pit"
+  },
+  "output_encoding": "policy_f32_hex is six little-endian IEEE-754 float32 values; value_f64_hex is one little-endian IEEE-754 float64",
+  "schema": "seed522-golden-fixtures-v2"
+}

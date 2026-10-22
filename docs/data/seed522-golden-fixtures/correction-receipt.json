@@ -1,0 +1,50 @@
+{
+  "schema": "seed522-golden-fixture-correction-receipt-v1",
+  "supersedes": "docs/data/seed521-golden-fixtures/preparation-receipt.json",
+  "bundle": {
+    "path": "docs/data/seed522-golden-fixtures/fixtures.json",
+    "sha256": "3aff98ce9105e908e4456c3923751584302aa0b69feccb4ca51cc86583dd4211"
+  },
+  "index": {
+    "path": "docs/data/seed522-golden-fixtures/index.json",
+    "sha256": "93ebb536c505600ed4f9874c8a6204359f83cb2be1e45345aebe90d10aee99e5"
+  },
+  "proposal": {
+    "path": "docs/seed512-deployment-evaluation-proposal.md",
+    "sha256": "0b87e32e74b217202499258d5b13a987958a463275c7919e9eaa523ab5516606"
+  },
+  "contract": {
+    "orientation": "player_pits/player_store are fixed player 0; opponent_pits/opponent_store are fixed player 1; current_player selects actor; policy indices 0-5 are actor-relative",
+    "output_encoding": "six little-endian IEEE-754 float32 policy values and one little-endian IEEE-754 float64 value",
+    "verifier": "python -m ml.alphazero_lite.seed521_golden_fixtures verify",
+    "generation": "python -m ml.alphazero_lite.seed521_golden_fixtures generate --output NEW_DIRECTORY (create-only)"
+  },
+  "verification": {
+    "python": "3.14.7",
+    "pytest": "9.0.3",
+    "ruff": "0.15.13",
+    "pre_commit": "4.6.0",
+    "development_dependencies": "requirements-dev.txt (pre-commit==4.6.0, ruff==0.15.13); pytest==9.0.3 installed in ignored .venv",
+    "focused_test_command": "TMPDIR=$PWD/.tmp/seed522-test-tmp .venv/bin/python -m pytest ml/alphazero_lite/test_seed522_golden_fixtures.py ml/alphazero_lite/test_seed520_composition_manifest.py ml/alphazero_lite/test_seed518_comparison_contract.py ml/alphazero_lite/test_seed518_runtime_identity.py -q",
+    "focused_tests": "58 passed: seed522 fixtures, seed520 composition, seed518 comparison/runtime identity",
+    "quality_command": "script/ai/run_python_quality.sh (passed)",
+    "read_only_preservation": "CLI tests compare SHA-256 and st_mtime_ns for all bundle files including index and correction receipt across two ordinary invocations, and assert damaged fixture input is unchanged after failure",
+    "physical_copy_command": "PYTHONPATH=/home/alex/Mancala/ai/.tmp/seed522-physical-copy /home/alex/Mancala/ai/.venv/bin/python -m ml.alphazero_lite.seed521_golden_fixtures verify --repository-root /home/alex/Mancala/ai/.tmp/seed522-physical-copy --fixture-root /home/alex/Mancala/ai/.tmp/seed522-physical-copy/docs/data/seed522-golden-fixtures (cwd: /home/alex/Mancala/ai/.tmp/seed522-unrelated)",
+    "physical_copy_repeat_inventory": "Two verifier invocations from unrelated cwd preserved every copied packet file SHA-256 and nanosecond mtime; final fixture/index identities are bound above.",
+    "tests": "real module CLI tests; source archives unchanged"
+  },
+  "seed521_preservation": {
+    "fixtures.json": {
+      "sha256": "e9a4d4ec72b8e8d72c57eaef551b151aea97721485a906a9e3b9335cf252b79d",
+      "mtime_ns": 1792664139535469821
+    },
+    "index.json": {
+      "sha256": "41716c71b550947245d83c822d4e542d477f844882153737f7bb7b4e28f2b669",
+      "mtime_ns": 1792664139537102194
+    },
+    "preparation-receipt.json": {
+      "sha256": "c32cd3d954e0862342b7e7f8d79bfb41449eedd6a4200c848738fa2e225feca0",
+      "mtime_ns": 1792664139537102194
+    }
+  }
+}

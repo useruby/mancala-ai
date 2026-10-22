@@ -214,7 +214,7 @@ def test_temporary_lfs_pointer_and_probe_bytes_are_authenticated(tmp_path) -> No
 def test_golden_fixture_mutations_are_rejected(tmp_path, mutation) -> None:
     from ml.alphazero_lite.seed521_golden_fixtures import sha256, verify
 
-    source = ROOT / "docs/data/seed521-golden-fixtures"
+    source = ROOT / "docs/data/seed522-golden-fixtures"
     fixture_dir = tmp_path / "fixtures"
     shutil.copytree(source, fixture_dir)
     fixture_path = fixture_dir / "fixtures.json"
@@ -231,5 +231,5 @@ def test_golden_fixture_mutations_are_rejected(tmp_path, mutation) -> None:
     index = json.loads(index_path.read_text())
     index["fixtures"]["sha256"] = sha256(fixture_path)
     index_path.write_text(json.dumps(index))
-    with pytest.raises(ValueError, match="seed521_fixture"):
+    with pytest.raises(ValueError, match="seed522_"):
         verify(fixture_dir=fixture_dir)
