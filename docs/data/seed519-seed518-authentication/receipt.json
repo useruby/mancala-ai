@@ -1,0 +1,15 @@
+{
+  "amended_freeze_sha256": "36c5376b1799eb86353a86ebe08c83737378bf31bb278778513bab0aaeaa7822",
+  "amendment_sha256": "f6a15e424a44810e4882c3edaf4950dee9b5cbba56e61bfc3c1d64fe79b591e5",
+  "evidence_sha256": "f86245777f3a2f482419d9829cc1e05832eaba3fe9647e874a7f6abfea96cb7f",
+  "historical_seed518_receipt_sha256": "a97fa69fb2c66fc27c2a192be38c5f0cdf0a563d5f15af5bf2395367de485fa6",
+  "parity_sha256": "b0c83ed240b7a9e03f5518167ca1791ef8b0db034cc3a84e7b81175bab830308",
+  "preservation_sha256": "2d183ac345308f6b63cad20a7505953f003fedb5ac0ffc609d65bcb1d8bf20c7",
+  "raw_measurements_sha256": "7ee3311e68e1b1a58222b429b97d9c58352feb5618888fdf5f98ab20c8d35d18",
+  "reanalysis_sha256": "1ee3d9330f07c790cd8e2f9f0b5cee83acce215911a191b28023b21bc7652719",
+  "registration_sha256": "44d41e9d5bc78654a8713d5e9027cb3071b4484a2042308be0591d8aafac5309",
+  "result": "verified",
+  "schema": "seed519-supplement-receipt-v1",
+  "supplement_sha256": "2eab2c09c0c67a3eb32481a63eb44c7add00083db8fbc8b4b066b60363053535",
+  "verifier_sha256": "9f4292a89bd64bd0412910ee3b1a40cfbb9ef924a25820be5dba5531f55552ca"
+}

@@ -1,0 +1,206 @@
+{
+  "dependency_paths": {
+    "seed515_runtime_helper": "/home/alex/Mancala/ai/.tmp/seed519-physical-copy/ml/alphazero_lite/verify_seed515.py",
+    "seed518_semantic_verifier": "/home/alex/Mancala/ai/.tmp/seed519-physical-copy/ml/alphazero_lite/verify_seed518_selective_head.py",
+    "verifier": "/home/alex/Mancala/ai/.tmp/seed519-physical-copy/ml/alphazero_lite/verify_seed519.py"
+  },
+  "historical_inventory_after": {
+    "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/E4/metadata.json": {
+      "mtime_ns": 1792655805842971297,
+      "sha256": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c"
+    },
+    "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/E4/model.npz": {
+      "mtime_ns": 1792655805842991806,
+      "sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad"
+    },
+    "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/E4/search_policy.json": {
+      "mtime_ns": 1792655805842991806,
+      "sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+    },
+    "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/E4/weights.json": {
+      "mtime_ns": 1792655805845991812,
+      "sha256": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+    },
+    "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/initializer/metadata.json": {
+      "mtime_ns": 1792655805845991812,
+      "sha256": "7ce41fde58c219c9fd2aa7a912db1c2da357099d6f72e3f715d9a78ce500cb5d"
+    },
+    "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/initializer/model.npz": {
+      "mtime_ns": 1792655805846212909,
+      "sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+    },
+    "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/initializer/search_policy.json": {
+      "mtime_ns": 1792655805846212909,
+      "sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+    },
+    "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/initializer/weights.json": {
+      "mtime_ns": 1792655805848991818,
+      "sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+    },
+    "docs/data/seed512-fixed-composition-evaluation/registration.json": {
+      "mtime_ns": 1792655805886991889,
+      "sha256": "44d41e9d5bc78654a8713d5e9027cb3071b4484a2042308be0591d8aafac5309"
+    },
+    "docs/data/seed518-selective-head/amended-timing-freeze.json": {
+      "mtime_ns": 1792655805888639292,
+      "sha256": "36c5376b1799eb86353a86ebe08c83737378bf31bb278778513bab0aaeaa7822"
+    },
+    "docs/data/seed518-selective-head/comparison-contract-amendment.json": {
+      "mtime_ns": 1792655805888691766,
+      "sha256": "f6a15e424a44810e4882c3edaf4950dee9b5cbba56e61bfc3c1d64fe79b591e5"
+    },
+    "docs/data/seed518-selective-head/evidence.json": {
+      "mtime_ns": 1792655805888691766,
+      "sha256": "f86245777f3a2f482419d9829cc1e05832eaba3fe9647e874a7f6abfea96cb7f"
+    },
+    "docs/data/seed518-selective-head/final-protocol-freeze-v2.json": {
+      "mtime_ns": 1792655805888691766,
+      "sha256": "0f2ddaec2d17ea6d7f87e3a8e82765e6a92449282254d058fb0739136ee02e25"
+    },
+    "docs/data/seed518-selective-head/final-protocol-freeze.json": {
+      "mtime_ns": 1792655805888691766,
+      "sha256": "22acdfa43fc2b7c6f6f49a06dc978bf64ffd249b76ee0af92fd2df6353d744b6"
+    },
+    "docs/data/seed518-selective-head/parity-outputs.json": {
+      "mtime_ns": 1792655805888991893,
+      "sha256": "b0c83ed240b7a9e03f5518167ca1791ef8b0db034cc3a84e7b81175bab830308"
+    },
+    "docs/data/seed518-selective-head/post-execution-reanalysis.json": {
+      "mtime_ns": 1792655805888991893,
+      "sha256": "1ee3d9330f07c790cd8e2f9f0b5cee83acce215911a191b28023b21bc7652719"
+    },
+    "docs/data/seed518-selective-head/preparation-freeze-superseded.json": {
+      "mtime_ns": 1792655805888991893,
+      "sha256": "f6fc9905c085c3d58a51feb0c9a030d5255ce883b20565f7f71d80abf980df2c"
+    },
+    "docs/data/seed518-selective-head/protocol-freeze.json": {
+      "mtime_ns": 1792655805888991893,
+      "sha256": "ecaaa877961698d6f9850e96614bcf7c8db328a5aa4ad8e156f3bac311da1ee2"
+    },
+    "docs/data/seed518-selective-head/raw-measurements.jsonl": {
+      "mtime_ns": 1792655805888991893,
+      "sha256": "7ee3311e68e1b1a58222b429b97d9c58352feb5618888fdf5f98ab20c8d35d18"
+    },
+    "docs/data/seed518-selective-head/seed518-receipt.json": {
+      "mtime_ns": 1792655805888991893,
+      "sha256": "a97fa69fb2c66fc27c2a192be38c5f0cdf0a563d5f15af5bf2395367de485fa6"
+    },
+    "model-artifact/runtime/kalah_v1_21.kvtb": {
+      "mtime_ns": 1792655805928991968,
+      "sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c"
+    },
+    "model-artifact/runtime/kalah_v1_tablebase": {
+      "mtime_ns": 1792655805929991970,
+      "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48"
+    }
+  },
+  "historical_inventory_before": {
+    "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/E4/metadata.json": {
+      "mtime_ns": 1792655805842971297,
+      "sha256": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c"
+    },
+    "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/E4/model.npz": {
+      "mtime_ns": 1792655805842991806,
+      "sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad"
+    },
+    "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/E4/search_policy.json": {
+      "mtime_ns": 1792655805842991806,
+      "sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+    },
+    "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/E4/weights.json": {
+      "mtime_ns": 1792655805845991812,
+      "sha256": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+    },
+    "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/initializer/metadata.json": {
+      "mtime_ns": 1792655805845991812,
+      "sha256": "7ce41fde58c219c9fd2aa7a912db1c2da357099d6f72e3f715d9a78ce500cb5d"
+    },
+    "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/initializer/model.npz": {
+      "mtime_ns": 1792655805846212909,
+      "sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+    },
+    "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/initializer/search_policy.json": {
+      "mtime_ns": 1792655805846212909,
+      "sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+    },
+    "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/initializer/weights.json": {
+      "mtime_ns": 1792655805848991818,
+      "sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+    },
+    "docs/data/seed512-fixed-composition-evaluation/registration.json": {
+      "mtime_ns": 1792655805886991889,
+      "sha256": "44d41e9d5bc78654a8713d5e9027cb3071b4484a2042308be0591d8aafac5309"
+    },
+    "docs/data/seed518-selective-head/amended-timing-freeze.json": {
+      "mtime_ns": 1792655805888639292,
+      "sha256": "36c5376b1799eb86353a86ebe08c83737378bf31bb278778513bab0aaeaa7822"
+    },
+    "docs/data/seed518-selective-head/comparison-contract-amendment.json": {
+      "mtime_ns": 1792655805888691766,
+      "sha256": "f6a15e424a44810e4882c3edaf4950dee9b5cbba56e61bfc3c1d64fe79b591e5"
+    },
+    "docs/data/seed518-selective-head/evidence.json": {
+      "mtime_ns": 1792655805888691766,
+      "sha256": "f86245777f3a2f482419d9829cc1e05832eaba3fe9647e874a7f6abfea96cb7f"
+    },
+    "docs/data/seed518-selective-head/final-protocol-freeze-v2.json": {
+      "mtime_ns": 1792655805888691766,
+      "sha256": "0f2ddaec2d17ea6d7f87e3a8e82765e6a92449282254d058fb0739136ee02e25"
+    },
+    "docs/data/seed518-selective-head/final-protocol-freeze.json": {
+      "mtime_ns": 1792655805888691766,
+      "sha256": "22acdfa43fc2b7c6f6f49a06dc978bf64ffd249b76ee0af92fd2df6353d744b6"
+    },
+    "docs/data/seed518-selective-head/parity-outputs.json": {
+      "mtime_ns": 1792655805888991893,
+      "sha256": "b0c83ed240b7a9e03f5518167ca1791ef8b0db034cc3a84e7b81175bab830308"
+    },
+    "docs/data/seed518-selective-head/post-execution-reanalysis.json": {
+      "mtime_ns": 1792655805888991893,
+      "sha256": "1ee3d9330f07c790cd8e2f9f0b5cee83acce215911a191b28023b21bc7652719"
+    },
+    "docs/data/seed518-selective-head/preparation-freeze-superseded.json": {
+      "mtime_ns": 1792655805888991893,
+      "sha256": "f6fc9905c085c3d58a51feb0c9a030d5255ce883b20565f7f71d80abf980df2c"
+    },
+    "docs/data/seed518-selective-head/protocol-freeze.json": {
+      "mtime_ns": 1792655805888991893,
+      "sha256": "ecaaa877961698d6f9850e96614bcf7c8db328a5aa4ad8e156f3bac311da1ee2"
+    },
+    "docs/data/seed518-selective-head/raw-measurements.jsonl": {
+      "mtime_ns": 1792655805888991893,
+      "sha256": "7ee3311e68e1b1a58222b429b97d9c58352feb5618888fdf5f98ab20c8d35d18"
+    },
+    "docs/data/seed518-selective-head/seed518-receipt.json": {
+      "mtime_ns": 1792655805888991893,
+      "sha256": "a97fa69fb2c66fc27c2a192be38c5f0cdf0a563d5f15af5bf2395367de485fa6"
+    },
+    "model-artifact/runtime/kalah_v1_21.kvtb": {
+      "mtime_ns": 1792655805928991968,
+      "sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c"
+    },
+    "model-artifact/runtime/kalah_v1_tablebase": {
+      "mtime_ns": 1792655805929991970,
+      "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48"
+    }
+  },
+  "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+  "python_executable": "/usr/bin/python3.14",
+  "python_version": "3.14.7",
+  "schema": "seed519-physical-copy-preservation-v1",
+  "status": "verified",
+  "unchanged_sha256_and_mtime_ns": true,
+  "verification": {
+    "decision": {
+      "advance": true,
+      "minimum_improvement": 0.05,
+      "parity_required": true,
+      "puct_bucket_median_ratios": {
+        "17to32": 0.9018756272538802,
+        "gt32": 0.9019229694703041
+      }
+    },
+    "publication": "seed518",
+    "status": "verified"
+  }
+}
