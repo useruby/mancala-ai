@@ -1,0 +1,9 @@
+{
+  "schema": "seed518-superseded-preparation-freeze-v1",
+  "freeze_file": "protocol-freeze.json",
+  "status": "superseded-before-execution",
+  "reason": "Runner, evidence arithmetic, and independent verifier were still being finalized; the authoritative runtime check was subsequently corrected.",
+  "parity_searches_run_under_this_freeze": 0,
+  "timing_measurements_run_under_this_freeze": 0,
+  "superseded_by": "final-protocol-freeze.json"
+}
