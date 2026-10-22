@@ -310,6 +310,52 @@ def test_idle_worker_death_replaces_its_pool():
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux process-death guarantee")
+def test_procfs_disappearance_race_keeps_monitoring_and_recovers(monkeypatch):
+    ctx = __import__("multiprocessing").get_context("spawn")
+    workers = _fake_workers(ctx, initargs=(None, None, None, None, None))
+    real_kill = os.kill
+    real_state = worker_module._process_state
+    old_pid = None
+    kill_race_pending = True
+    state_race_pending = True
+
+    def kill(pid, signal_number):
+        nonlocal kill_race_pending
+        if pid == old_pid and kill_race_pending:
+            kill_race_pending = False
+            return None
+        return real_kill(pid, signal_number)
+
+    def process_state(pid):
+        nonlocal state_race_pending
+        if pid == old_pid and state_race_pending:
+            state_race_pending = False
+            raise ProcessLookupError(pid)
+        return real_state(pid)
+
+    monkeypatch.setattr(worker_module.os, "kill", kill)
+    monkeypatch.setattr(worker_module, "_process_state", process_state)
+    try:
+        old_pid = _ready(workers)
+        old_generation = workers.status.slots[0].generation
+        real_kill(old_pid, signal.SIGKILL)
+        new_pid = _await(
+            lambda: (
+                workers.status.slots[0].pid
+                if workers.status.slots[0].state == "ready"
+                and workers.status.slots[0].generation > old_generation
+                else None
+            )
+        )
+        assert not kill_race_pending
+        assert not state_race_pending
+        assert new_pid != old_pid
+        assert _action(workers, "after-procfs-race").result(timeout=3)["pid"] == new_pid
+    finally:
+        workers.shutdown(graceful=False)
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux process-death guarantee")
 def test_idle_pool_loss_preserves_other_ready_slot():
     ctx = __import__("multiprocessing").get_context("spawn")
     workers = _fake_workers(
