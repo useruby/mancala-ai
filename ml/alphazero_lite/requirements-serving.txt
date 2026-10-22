@@ -1,0 +1,2 @@
+# Install alongside requirements.txt for the in-process serving boundary.
+pydantic==2.12.5

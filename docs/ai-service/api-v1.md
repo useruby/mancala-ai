@@ -14,6 +14,27 @@ Success echoes `request_id` and `game_revision`, binds the result to `state_sha2
 
 All errors use `{ "error": { "code", "message", "request_id", "retryable" } }`. Status mapping: 400 malformed JSON/field types; 409 reused request ID with different payload; 422 invalid game state or unknown profile; 429 capacity exhausted; 503 no initialized usable worker; 504 search deadline exceeded; 500 internal failure. Errors are not successful move results. A repeated request ID with the identical payload while its result is available returns the same result; a different payload conflicts. Deduplication is service-instance scoped and is not durable exactly-once execution across restart. Clients must tolerate uncertain completion after connection loss.
 
+`error.request_id` is required and nullable: the HTTP adapter returns `null` when a malformed request has no trustworthy identifier. This matches the OpenAPI schema and strict runtime `ErrorBody` model.
+
+## In-process Python engine
+
+`ml.alphazero_lite.serving.MoveEngine` accepts an explicit asset root, immutable `RuntimeBundle` definitions, and an allowlist of `SearchProfile` definitions. Initialize it once at process startup; initialization loads and hashes each artifact once, and requests cannot supply paths or search settings. Bundle kinds are `single` and `composed`; a composed bundle selects policy/value output sources while each source retains its own trunk. Keep test-only profiles separate from deployment profile registries. Missing or unsupported artifacts fail initialization.
+
+Direct invocation:
+
+```python
+from ml.alphazero_lite.serving import MoveEngine, RuntimeBundle, SearchProfile, SearchSettings
+
+engine = MoveEngine(
+    asset_root="/srv/mancala/assets",
+    bundles={"production": RuntimeBundle("production-v1", "single", ("incumbent",))},
+    profiles={"balanced@v1": SearchProfile("balanced@v1", "balanced-v1", "production", SearchSettings(simulations=256))},
+)
+response = engine.select_move(request_dict)
+```
+
+The engine raises typed failures for invalid requests, unknown profiles, runtime configuration errors, and invalid backend results. It is synchronous and does not itself enforce hard deadlines; a supervised worker layer must provide that guarantee.
+
 `GET /health/live` returns 200 while the API process runs. `GET /health/ready` returns 200 only when search workers are initialized and usable, otherwise 503. Deployment must restrict access to approved WireGuard hosts; this contract defines no API token or OAuth scheme.
 
 ## State digest
