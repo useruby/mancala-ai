@@ -13,11 +13,13 @@ returns the expected generation token and worker PID. `status.slots` reports
 each slot's generation, `starting`/`ready`/`busy`/`unavailable` state, PID, and
 startup/recovery error; `status.workers` is the number of verified idle workers.
 After timeout, cancellation, or worker death, the slot is removed from usable
-capacity. Pebble terminates/replaces a worker for timed-out, cancelled-running,
-or dead tasks; the parent queues a new token handshake on that slot's pool and
-only counts the slot again after that handshake completes. A failed or hung
-replacement initializer leaves the slot unavailable and visible in status.
-Generation checks discard late readiness callbacks.
+capacity. A bounded idle-process monitor also detects workers that die while no
+task is running. Loss of a process replaces its one-worker Pebble pool (a broken
+pool is never reused), boundedly stops and joins the old pool, then starts a new
+pool and performs a generation-bound token handshake. Capacity returns only
+after that handshake succeeds. A failed or hung replacement initializer leaves
+the slot unavailable and visible in status; no outcome-bearing search is
+retried. Generation checks discard late readiness callbacks.
 
 `startup_timeout` bounds each initial or replacement initialization handshake;
 when it expires, the slot pool is stopped and joined. `execution_timeout` is
@@ -34,9 +36,11 @@ The returned concurrent future supports running cancellation through Pebble's
 `ProcessFuture.cancel()`. When Pebble accepts cancellation, the task future
 completes with `SearchCancelledError`; running work is terminated and capacity
 returns only after a valid readiness handshake. A completed future cannot be
-cancelled. Application exceptions are propagated without worker replacement;
-execution deadlines and worker death produce `ExecutionTimeoutError` and
-`WorkerCrashedError` respectively.
+cancelled. Application exceptions are propagated without worker replacement,
+including application `TimeoutError` and `CancelledError`; Pebble future
+failures are classified separately as transport failures. Submission failures
+produce `WorkerSubmissionError`. Execution deadlines and worker death produce
+`ExecutionTimeoutError` and `WorkerCrashedError` respectively.
 
 ## Native child-process guarantee
 
