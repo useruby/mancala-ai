@@ -1,0 +1,44 @@
+{
+  "openapi": "3.1.0",
+  "info": {"title": "Mancala AI Move Service", "version": "1.0.0", "description": "Synchronous move-selection boundary. Search deadlines and profile contents are deployment-controlled."},
+  "paths": {
+    "/v1/move": {"post": {
+      "operationId": "selectMove",
+      "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/MoveRequest"}}}},
+      "responses": {
+        "200": {"description": "A validated move or terminal result", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/MoveResponse"}}}},
+        "400": {"$ref": "#/components/responses/InvalidRequest"}, "409": {"$ref": "#/components/responses/Conflict"}, "422": {"$ref": "#/components/responses/InvalidState"}, "429": {"$ref": "#/components/responses/Capacity"}, "503": {"$ref": "#/components/responses/Unavailable"}, "504": {"$ref": "#/components/responses/Deadline"}, "500": {"$ref": "#/components/responses/Internal"}
+      }
+    }},
+    "/health/live": {"get": {"operationId": "live", "responses": {"200": {"description": "API process is running"}}}},
+    "/health/ready": {"get": {"operationId": "ready", "responses": {"200": {"description": "At least one initialized usable search worker is available"}, "503": {"description": "Workers are not initialized or usable"}}}}
+  },
+  "components": {
+    "schemas": {
+      "Identifier": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@-]*$"},
+      "State": {"type": "object", "additionalProperties": false, "required": ["player0_pits", "player1_pits", "player0_store", "player1_store", "current_player"], "properties": {
+        "player0_pits": {"$ref": "#/components/schemas/Pits"}, "player1_pits": {"$ref": "#/components/schemas/Pits"}, "player0_store": {"$ref": "#/components/schemas/Seeds"}, "player1_store": {"$ref": "#/components/schemas/Seeds"}, "current_player": {"type": "integer", "enum": [0, 1]}
+      }, "description": "Absolute orientation: player0_pits and player0_store always belong to player 0; likewise player 1. Pit index 0..5 runs from that player's leftmost pit to rightmost pit. Each player starts with 6 pits containing 4 seeds; a legal state conserves the initial total of 48 seeds. Under kalah_v1, a side with no legal pits ends the game and the remaining seeds are swept. Canonical API terminal states have all pits empty and settled stores; nonterminal states have a legal pit for the current player."},
+      "Pits": {"type": "array", "minItems": 6, "maxItems": 6, "items": {"$ref": "#/components/schemas/Seeds"}},
+      "Seeds": {"type": "integer", "minimum": 0, "maximum": 48},
+      "MoveRequest": {"type": "object", "additionalProperties": false, "required": ["request_id", "game_revision", "state", "profile", "seed"], "properties": {
+        "request_id": {"$ref": "#/components/schemas/Identifier"}, "game_revision": {"type": "integer", "minimum": 0, "maximum": 9007199254740991}, "state": {"$ref": "#/components/schemas/State"}, "profile": {"$ref": "#/components/schemas/Identifier", "description": "Server-allowlisted name@immutable-version; clients cannot submit paths, profile bodies, or search options."}, "seed": {"type": "integer", "minimum": 0, "maximum": 4294967295}
+      }},
+      "MoveResult": {"type": "object", "additionalProperties": false, "required": ["kind", "move"], "properties": {"kind": {"const": "move"}, "move": {"type": "integer", "minimum": 0, "maximum": 5}}},
+      "TerminalResult": {"type": "object", "additionalProperties": false, "required": ["kind", "move"], "properties": {"kind": {"const": "terminal"}, "move": {"type": "null"}}},
+      "MoveResponse": {"type": "object", "additionalProperties": false, "required": ["request_id", "game_revision", "state_sha256", "result", "model_bundle_id", "search_profile_id", "elapsed_ms", "completed_simulations", "termination_reason"], "properties": {
+        "request_id": {"$ref": "#/components/schemas/Identifier"}, "game_revision": {"type": "integer", "minimum": 0, "maximum": 9007199254740991}, "state_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "result": {"oneOf": [{"$ref": "#/components/schemas/MoveResult"}, {"$ref": "#/components/schemas/TerminalResult"}]}, "model_bundle_id": {"$ref": "#/components/schemas/Identifier", "description": "Immutable content-addressed model bundle identity, or explicit versioned no-model identity for a profile that uses no learned model."}, "search_profile_id": {"$ref": "#/components/schemas/Identifier", "description": "Immutable identity of resolved server-controlled profile including version/content digest."}, "elapsed_ms": {"type": "integer", "minimum": 0, "maximum": 9007199254740991}, "completed_simulations": {"type": "integer", "minimum": 0, "maximum": 9007199254740991}, "termination_reason": {"type": "string", "enum": ["completed", "terminal"]}
+      }},
+      "Error": {"type": "object", "additionalProperties": false, "required": ["error"], "properties": {"error": {"type": "object", "additionalProperties": false, "required": ["code", "message", "request_id", "retryable"], "properties": {"code": {"type": "string", "enum": ["invalid_request", "invalid_state", "unknown_profile", "request_id_conflict", "capacity_exhausted", "workers_unavailable", "deadline_exceeded", "internal_error"]}, "message": {"type": "string"}, "request_id": {"type": ["string", "null"]}, "retryable": {"type": "boolean"}}}}}
+    },
+    "responses": {
+      "InvalidRequest": {"description": "Malformed request or wrong JSON types", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}, "headers": {}},
+      "Conflict": {"description": "Request ID reused with a different payload", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
+      "InvalidState": {"description": "Semantically invalid state, unknown profile, or illegal selected result validation failure", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
+      "Capacity": {"description": "Search capacity exhausted; retryable", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
+      "Unavailable": {"description": "No usable worker; retryable", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
+      "Deadline": {"description": "Search deadline expired. No best-so-far move is returned; retryable according to caller policy", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
+      "Internal": {"description": "Unexpected internal failure", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}}
+    }
+  }
+}
