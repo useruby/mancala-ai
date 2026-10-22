@@ -527,7 +527,28 @@ class SearchWorkers:
 
     async def await_result(self, future: concurrent.futures.Future) -> dict[str, Any]:
         """Await a result without blocking an asyncio event loop."""
-        return await asyncio.wrap_future(future)
+        loop = asyncio.get_running_loop()
+        completed = loop.create_future()
+
+        def deliver(source: concurrent.futures.Future) -> None:
+            try:
+                outcome = (True, source.result())
+            except BaseException as error:
+                # Put the exception in a value. In particular, an application
+                # CancelledError must not cancel the coroutine awaiting it.
+                outcome = (False, error)
+
+            def resolve() -> None:
+                if not completed.done():
+                    completed.set_result(outcome)
+
+            loop.call_soon_threadsafe(resolve)
+
+        future.add_done_callback(deliver)
+        succeeded, result = await completed
+        if not succeeded:
+            raise result
+        return result
 
     def shutdown(self, *, graceful: bool = True) -> None:
         """Stop admission and drain boundedly, then terminate remaining workers."""
