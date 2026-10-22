@@ -76,6 +76,12 @@ def _test_task(payload):
         os._exit(77)
     if payload == "raise":
         raise ValueError("controlled application exception")
+    if payload == "raise-timeout":
+        raise TimeoutError("application timeout")
+    if payload == "raise-cancelled":
+        raise __import__("concurrent.futures").futures.CancelledError(
+            "application cancellation"
+        )
     if payload == "native-child":
         from ml.alphazero_lite.native_exact_root_tablebase import _spawn_parent_bound
 
@@ -282,6 +288,49 @@ def test_unexpected_worker_death_is_replaced():
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux process-death guarantee")
+def test_idle_worker_death_replaces_its_pool():
+    ctx = __import__("multiprocessing").get_context("spawn")
+    workers = _fake_workers(ctx, initargs=(None, None, None, None, None))
+    try:
+        old_pid = _ready(workers)
+        old_generation = workers.status.slots[0].generation
+        os.kill(old_pid, signal.SIGKILL)
+        _await(lambda: workers.status.slots[0].generation > old_generation)
+        new_pid = _await(
+            lambda: (
+                workers.status.slots[0].pid
+                if workers.status.slots[0].state == "ready"
+                else None
+            )
+        )
+        assert workers.status.slots[0].generation > old_generation
+        assert _action(workers, "after-idle-loss").result(timeout=3)["pid"] == new_pid
+    finally:
+        workers.shutdown(graceful=False)
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux process-death guarantee")
+def test_idle_pool_loss_preserves_other_ready_slot():
+    ctx = __import__("multiprocessing").get_context("spawn")
+    workers = _fake_workers(
+        ctx, initargs=(None, None, None, None, None), worker_count=2
+    )
+    try:
+        _await(lambda: workers.status.workers == 2)
+        slots = workers.status.slots
+        lost = slots[0]
+        healthy = slots[1]
+        os.kill(lost.pid, signal.SIGKILL)
+        result = _action(workers, "healthy-slot").result(timeout=3)
+        assert result["pid"] == healthy.pid
+        _await(lambda: workers.status.slots[0].generation > lost.generation)
+        assert workers.status.slots[1].state == "ready"
+        assert workers.status.slots[1].pid == healthy.pid
+    finally:
+        workers.shutdown(graceful=False)
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux process-death guarantee")
 def test_forced_worker_death_kills_native_child_and_recovers(scratch):
     ctx = __import__("multiprocessing").get_context("spawn")
     marker = scratch / "child.pid"
@@ -450,6 +499,19 @@ def test_application_exception_propagates_without_restarting_worker():
             _action(workers, "raise").result(timeout=4)
         assert workers.status.slots[0].state == "ready"
         assert workers.status.slots[0].pid == pid
+        for action, exception, message in (
+            ("raise-timeout", TimeoutError, "application timeout"),
+            (
+                "raise-cancelled",
+                __import__("concurrent.futures").futures.CancelledError,
+                "application cancellation",
+            ),
+        ):
+            with pytest.raises(exception, match=message):
+                _action(workers, action).result(timeout=4)
+            assert workers.status.slots[0].state == "ready"
+            assert workers.status.slots[0].pid == pid
+        assert _action(workers, "still-healthy").result(timeout=3)["pid"] == pid
     finally:
         workers.shutdown()
 

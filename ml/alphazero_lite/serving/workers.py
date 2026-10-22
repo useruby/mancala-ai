@@ -26,6 +26,19 @@ from ml.alphazero_lite.serving.engine import MoveEngine, RuntimeBundle, SearchPr
 _ENGINE: MoveEngine | None = None
 
 
+def _process_alive(pid: int) -> bool:
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    try:
+        return open(f"/proc/{pid}/stat", encoding="ascii").read().split()[2] != "Z"
+    except FileNotFoundError:
+        return False
+
+
 class WorkerError(RuntimeError):
     """Base class for supervised execution failures."""
 
@@ -44,6 +57,10 @@ class ExecutionTimeoutError(WorkerError):
 
 class WorkerCrashedError(WorkerError):
     """The worker died unexpectedly during a search."""
+
+
+class WorkerSubmissionError(WorkerError):
+    """Pebble rejected a task submission to an initialized worker."""
 
 
 class SearchCancelledError(concurrent.futures.CancelledError):
@@ -179,6 +196,10 @@ class SearchWorkers:
         self._startup_failed = False
         for slot in self._slots:
             self._launch(slot)
+        self._monitor_thread = threading.Thread(
+            target=self._monitor_idle_workers, daemon=True
+        )
+        self._monitor_thread.start()
 
     def _new_pool(self) -> ProcessPool:
         return ProcessPool(
@@ -285,7 +306,19 @@ class SearchWorkers:
         with self._lock:
             if not self._accepting or self._stopping:
                 raise CapacityExhaustedError("search workers are shutting down")
-            slot = next((s for s in self._slots if s.state == "ready"), None)
+            slot = None
+            for candidate in self._slots:
+                if candidate.state != "ready":
+                    continue
+                if candidate.pid is None or _process_alive(candidate.pid):
+                    slot = candidate
+                    break
+                generation = candidate.generation
+                previous_pid = candidate.pid
+                candidate.state = "unavailable"
+                candidate.pid = None
+                candidate.error = "idle worker exited unexpectedly"
+                self._recover(candidate, generation, previous_pid, require_new_pid=True)
             if slot is None:
                 if any(s.state in {"starting", "busy"} for s in self._slots):
                     raise CapacityExhaustedError(
@@ -306,13 +339,15 @@ class SearchWorkers:
                     args=(self._task_function, snapshot),
                     timeout=self.execution_timeout,
                 )
-            except Exception:
+            except Exception as error:
                 previous_pid = slot.pid
                 slot.state = "unavailable"
                 slot.pid = None
                 slot.error = "submission failed"
                 self._recover(slot, generation, previous_pid, require_new_pid=True)
-                raise
+                raise WorkerSubmissionError(
+                    f"worker task submission failed: {type(error).__name__}: {error}"
+                ) from error
             public = _SearchFuture(execution.cancel, execution.running)
             slot.busy_future = execution
             slot.public_future = public
@@ -332,13 +367,17 @@ class SearchWorkers:
     ) -> None:
         failure: BaseException | None = None
         result: Any = None
+        outcome: str | None = None
         try:
             outcome, result = completed.result()
             if outcome == "application-error":
                 failure = result
         except BaseException as error:
             failure = error
-        transport_failure = isinstance(
+        # Only exceptions raised by Pebble's future represent transport. An
+        # exception returned inside the _invoke envelope belongs to the app,
+        # even when its type is TimeoutError or CancelledError.
+        transport_failure = outcome != "application-error" and isinstance(
             failure,
             (
                 concurrent.futures.TimeoutError,
@@ -415,28 +454,13 @@ class SearchWorkers:
             slot.state = "starting"
             slot.pid = None
             slot.error = None
-            token = secrets.token_hex(24)
-            try:
-                handshake = pool.schedule(
-                    self._ready_function,
-                    args=(token,),
-                    timeout=self.startup_timeout,
-                )
-            except BaseException as error:
-                slot.state = "unavailable"
-                slot.error = (
-                    f"readiness submission failed: {type(error).__name__}: {error}"
-                )
-                self._startup_failed = True
-                return
+            slot.pool = None
             thread = threading.Thread(
-                target=self._confirm_ready,
+                target=self._replace_pool,
                 args=(
                     slot,
                     replacement_generation,
-                    token,
                     pool,
-                    handshake,
                     previous_pid,
                     require_new_pid,
                 ),
@@ -444,6 +468,62 @@ class SearchWorkers:
             )
             slot.restart_thread = thread
             thread.start()
+
+    def _replace_pool(
+        self,
+        slot: _Slot,
+        generation: int,
+        old_pool: ProcessPool,
+        previous_pid: int | None,
+        require_new_pid: bool,
+    ) -> None:
+        try:
+            old_pool.stop()
+            old_pool.join(timeout=self.shutdown_timeout)
+            with self._lock:
+                if self._stopping or slot.generation != generation:
+                    return
+                pool = self._new_pool()
+                slot.pool = pool
+            token = secrets.token_hex(24)
+            handshake = pool.schedule(
+                self._ready_function, args=(token,), timeout=self.startup_timeout
+            )
+            self._confirm_ready(
+                slot, generation, token, pool, handshake, previous_pid, require_new_pid
+            )
+        except BaseException as error:
+            with self._lock:
+                if slot.generation == generation and not self._stopping:
+                    slot.pool = None
+                    slot.state = "unavailable"
+                    slot.pid = None
+                    slot.error = f"replacement failed: {type(error).__name__}: {error}"
+                    self._startup_failed = True
+
+    def _monitor_idle_workers(self) -> None:
+        """Detect process loss that has no task completion callback to observe."""
+        interval = min(0.25, max(0.05, self.execution_timeout / 4))
+        while True:
+            time.sleep(interval)
+            with self._lock:
+                if self._stopping:
+                    return
+                lost = [
+                    (slot, slot.generation, slot.pid)
+                    for slot in self._slots
+                    if slot.state == "ready"
+                    and slot.pid is not None
+                    and not _process_alive(slot.pid)
+                ]
+            for slot, generation, pid in lost:
+                with self._lock:
+                    if slot.generation != generation or slot.state != "ready":
+                        continue
+                    slot.state = "unavailable"
+                    slot.pid = None
+                    slot.error = "idle worker exited unexpectedly"
+                self._recover(slot, generation, pid, require_new_pid=True)
 
     async def await_result(self, future: concurrent.futures.Future) -> dict[str, Any]:
         """Await a result without blocking an asyncio event loop."""
