@@ -1,0 +1,38 @@
+{
+  "schema": "azlite_composition_manifest_v1",
+  "encoding": "kalah_v3",
+  "architecture": "residual_v3",
+  "components": {
+    "policy": {
+      "path": "docs/data/seed504/seed504_epoch4.npz",
+      "sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "source": "policy",
+      "trunk": "owned_by_component"
+    },
+    "value": {
+      "path": "docs/data/seed505-strength-screen-v3/initializer.npz",
+      "sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "source": "value",
+      "trunk": "owned_by_component"
+    }
+  },
+  "search_policy": {
+    "simulations": 1200,
+    "workers": 1,
+    "c_puct": 1.25,
+    "exact_root_threshold": 16,
+    "exact_root_objective": "final_score_margin",
+    "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+    "exact_leaf_solve": "disabled",
+    "solver_identity": "native_kvtb_root_action_probe_v1"
+  },
+  "runtime": {
+    "search_policy_path": "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/E4/search_policy.json",
+    "native_probe_path": "model-artifact/runtime/kalah_v1_tablebase",
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "tablebase_path": "model-artifact/runtime/kalah_v1_21.kvtb",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "native_probe_identity": "native_kvtb_root_action_probe_v1",
+    "tablebase_identity": "seed512_registered_tablebase"
+  }
+}
