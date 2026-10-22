@@ -1,5 +1,41 @@
 # Seed512 deployment and evaluation proposal
 
+## Seed520 opt-in composition integration contract (proposal only)
+
+This document and `docs/data/seed520-composition/manifest.json` specify a candidate contract; they do not enable it or alter defaults. The manifest validator is `ml/alphazero_lite/seed520_composition_manifest.py`. It authenticates the two existing NPZ byte streams and rejects identity changes. No merged weights or replacement exports are part of this proposal.
+
+### Actual integration boundary
+
+In this repository, `ml/alphazero_lite/arena.py` is the artifact loader and NumPy diagnostic consumer; `ArtifactEvaluator` loads checkpoint metadata/weights, while `ml/alphazero_lite/input_encodings.py` / `self_play.py:encode_state` provide `kalah_v3`. `selective_head_evaluator.py:SelectiveHeadArtifactEvaluator` is experiment-only composition evaluation and explicitly owns separate `ArtifactEvaluator` instances, applies each source's own trunk, and rejects non-`residual_v3` architectures and extensions. `runtime_search_policy.py` validates the per-artifact `search_policy.json` sidecar and bound native-probe/tablebase objects. The Rails/Ruby application consumer, its model loader, configuration registry, feature switch, and deployment/rollback machinery are not present in this repository. Therefore the Python path is diagnostic evidence and not an implementation of that consumer.
+
+**Proposed target interface (not existing code):** `CompositionManifest.load(path, root:) -> validated immutable component references`; `EvaluatorFactory.build(policy_artifact:, value_artifact:) -> evaluator`; and configuration `evaluator_mode=initializer|composition`, defaulting to `initializer`, with composition requiring a manifest path. The Ruby implementation must map existing model keys to two independent `residual_v3` model instances; policy head and trunk come exclusively from E4 and value head and trunk exclusively from the frozen initializer. Never splice, retag, or substitute a model silently. Keep the search configuration bound to 1,200 simulations, one worker, `c_puct=1.25`, deterministic root policy, exact-root threshold 16, final-score-margin objective, network-prior then lowest-move tie rule, and no exact leaf solve. The referenced sidecar/native identities must be validated by the target loader against actual bytes, not just labels.
+
+### Manifest and golden evaluator contract
+
+The v1 manifest names `docs/data/seed504/seed504_epoch4.npz` (SHA-256 `2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad`) for policy and `docs/data/seed505-strength-screen-v3/initializer.npz` (SHA-256 `7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c`) for value. Both are `.npz`, `residual_v3`, `kalah_v3`; each component retains and evaluates its own trunk. Its search sidecar digest is `b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d`; native solver identity is `native_kvtb_root_action_probe_v1` and the tablebase is the seed512-registered object. `runtime_search_policy.py` remains the Python reference for those requirements.
+
+Seed518's archived `parity-outputs.json` contains the 64 examined states' output bytes and search traces; `cohort.json` in `docs/data/seed514-operational-benchmark-v2/` supplies state contents and source game/ply bindings, with seed515's provenance supplement retaining source occurrence detail. The parity archive SHA-256 is `b0c83ed240b7a9e03f5518167ca1791ef8b0db034cc3a84e7b81175bab830308`, bound by `docs/data/seed518-selective-head/evidence.json`. Golden cases must preserve these state objects, state hashes, source game/opening/ply locators, `policy_f32_hex` and `value_f64_hex` for reference and selective P. Expected outputs are byte sequences (little-endian f32 policy, f64 scalar value); terminal semantics are all-zero six-entry float32 policy and scalar float64 zero, as implemented by `SelectiveHeadArtifactEvaluator.evaluate` before network evaluation. These are archived Python parity bytes, not claims of cross-language agreement.
+
+Target-runtime test: decode each state using the documented field orientation and `kalah_v3` encoder, evaluate each network's own trunk/head, compare serialized policy/value bytes exactly, check legal-move masking and terminal all-zero behavior, then run deterministic root-search contract cases. The Ruby consumer must publish its own runner/version and report every case/hash/output; only a successful execution in the target runtime establishes compatibility.
+
+### Opt-in, failure, rollback, and observability
+
+Disabled mode continues loading the unchanged initializer by its existing configuration. Enabled mode validates the complete manifest and then loads two independently owned models. Any missing, altered, unsupported, or incompatible component/sidecar/runtime binding is an explicit startup/configuration validation failure; it must not fall back to initializer or any alternate model. Rollback is an explicit configuration change to the unchanged initializer model key, followed by normal reload/restart confirmation. Preserve both immutable artifacts.
+
+Required structured observability: selected mode and manifest digest; policy/value artifact paths and verified hashes; architecture/encoding; sidecar/native/tablebase identities; load/validation failures; evaluator latency by component and total; model memory; search dispatch counts (PUCT/exact-root); legal-action validity; and rollback/config revision. Do not emit a healthy composition status unless both component identities validated.
+
+### Preparation checklist and remaining gates
+
+- [x] Publish an opt-in contract and immutable component identities without modifying artifacts/defaults.
+- [x] Add read-only Python manifest validation for component paths/bytes, source routing, encoding/architecture, sidecar and runtime bindings.
+- [ ] Implement Ruby manifest parsing, secure path/materialized-object resolution, byte hashing, sidecar/native identity checks, and two-network ownership; reject unsupported extensions and all silent fallback paths.
+- [ ] Add Ruby loader/config tests proving disabled initializer behavior, enabled two-model construction, explicit invalid-config failures, and rollback to unchanged initializer.
+- [ ] Run the archived golden evaluator and deterministic search contract in the target runtime; publish exact per-case parity results. Target-runtime parity has not passed here.
+- [ ] Measure latency, peak/transient memory, reliability and concurrency on production hardware/runtime, and obtain prospectively defined SLO thresholds. Local seed514/518 diagnostics are not production qualification.
+- [ ] Separately authorize strength confirmation and preregister a fresh held-out evaluation before any promotion decision.
+
+The seed512 examined suite remains 1,024 openings/2,048 games and its recorded results are not fresh confirmation. Seed461 overlap limitations and the separate seed505 failed gate remain in force. Historical source/provenance limitations stated below and in the evidence supplements remain unchanged.
+
 ## Configuration and cost
 
 P is the seed504 E4 policy output and its own trunk paired with the frozen initializer value output and its own trunk; no tensor splicing or training. The opponent is the complete frozen initializer. Search uses 1,200 simulations per side, one worker, deterministic root policy, `c_puct=1.25`, the registered exact-root behavior (threshold 16; final-score-margin objective; network-prior then lowest-move tie break), and no exact leaf solve. Inference computes policy and value through two separate networks/trunks per search evaluation; relative to a single shared-trunk model this duplicates trunk inference (two forward passes and two trunk activations per node), plus each head. Measure end-to-end latency and memory before rollout.
