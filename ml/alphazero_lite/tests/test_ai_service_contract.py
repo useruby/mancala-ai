@@ -41,6 +41,103 @@ def schema_validator(name):
 
 
 class AiServiceContractTest(unittest.TestCase):
+    def test_openapi_required_fields_bounds_enums_unknowns_and_errors_match_runtime(
+        self,
+    ):
+        expected = {
+            "MoveRequest": (
+                {"request_id", "game_revision", "state", "profile", "seed"},
+                "properties",
+            ),
+            "State": (
+                {
+                    "player0_pits",
+                    "player1_pits",
+                    "player0_store",
+                    "player1_store",
+                    "current_player",
+                },
+                "properties",
+            ),
+            "MoveResponse": (
+                {
+                    "request_id",
+                    "game_revision",
+                    "state_sha256",
+                    "result",
+                    "model_bundle_id",
+                    "search_profile_id",
+                    "elapsed_ms",
+                    "completed_simulations",
+                    "termination_reason",
+                },
+                "properties",
+            ),
+        }
+        for name, (required, _) in expected.items():
+            self.assertEqual(set(SCHEMAS[name]["required"]), required)
+            self.assertFalse(SCHEMAS[name]["additionalProperties"])
+        self.assertEqual(SCHEMAS["Seeds"]["minimum"], 0)
+        self.assertEqual(SCHEMAS["Seeds"]["maximum"], 48)
+        self.assertEqual(SCHEMAS["MoveResult"]["properties"]["move"]["maximum"], 5)
+        self.assertEqual(
+            SCHEMAS["State"]["properties"]["current_player"]["enum"], [0, 1]
+        )
+        self.assertEqual(
+            SCHEMAS["MoveResponse"]["properties"]["termination_reason"]["enum"],
+            ["completed", "terminal"],
+        )
+        # Error.request_id is deliberately required-but-nullable in both layers.
+        self.assertIn("request_id", SCHEMAS["Error"]["properties"]["error"]["required"])
+        self.assertEqual(
+            SCHEMAS["Error"]["properties"]["error"]["properties"]["request_id"]["type"],
+            ["string", "null"],
+        )
+        error = {
+            "error": {
+                "code": "invalid_request",
+                "message": "bad",
+                "request_id": None,
+                "retryable": False,
+            }
+        }
+        schema_validator("Error").validate(error)
+        from ml.alphazero_lite.serving.contract import Error
+
+        Error.model_validate(error)
+        with self.assertRaises(ValidationError):
+            MoveRequest.model_validate(
+                dict(FIXTURES["valid_requests"][0], unexpected=True)
+            )
+
+    def test_mutated_model_instances_and_nested_values_are_revalidated(self):
+        raw = FIXTURES["valid_requests"][0]
+        state = State.model_validate(raw["state"])
+        state.player0_pits[0] = -1
+        state.player0_store += 5
+        self.assertEqual(
+            sum(state.player0_pits + state.player1_pits)
+            + state.player0_store
+            + state.player1_store,
+            48,
+        )
+        with self.assertRaises(ValidationError):
+            validate_state(state)
+        request = MoveRequest.model_validate(raw)
+        request.state.player0_pits[0] = -1
+        request.state.player0_store += 5
+        with self.assertRaises(ValidationError):
+            MoveRequest.model_validate(request.model_dump())
+        valid_response = FIXTURES["valid_responses"][0]
+        response = MoveResponse.model_validate(valid_response)
+        response.result.move = True
+        with self.assertRaises(ValidationError):
+            validate_response(raw, response)
+        nested_request = MoveRequest.model_validate(raw)
+        nested_request.state.current_player = True
+        with self.assertRaises(ValidationError):
+            validate_state(nested_request.state)
+
     def test_examples_validate_with_standard_schema_and_strict_models(self):
         self.assertEqual(CONTRACT["openapi"], "3.1.0")
         request_validator = schema_validator("MoveRequest")

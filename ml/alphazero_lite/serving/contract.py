@@ -82,7 +82,11 @@ class Error(StrictModel):
 
 def validate_state(value: State | dict) -> State:
     """Parse state and enforce seed conservation and canonical terminal form."""
-    state = value if isinstance(value, State) else State.model_validate(value)
+    # model_construct and post-construction mutation are both possible; always
+    # cross the decoded-data boundary again, including all nested fields.
+    state = State.model_validate(
+        value.model_dump(mode="python") if isinstance(value, State) else value
+    )
     total = (
         sum(state.player0_pits + state.player1_pits)
         + state.player0_store
@@ -151,16 +155,16 @@ def validate_response(
 
     The engine supplies the resolved immutable model/profile identities for comparison.
     """
-    req = (
-        request
+    req = MoveRequest.model_validate(
+        request.model_dump(mode="python")
         if isinstance(request, MoveRequest)
-        else MoveRequest.model_validate(request)
+        else request
     )
     validate_state(req.state)
-    res = (
-        response
+    res = MoveResponse.model_validate(
+        response.model_dump(mode="python")
         if isinstance(response, MoveResponse)
-        else MoveResponse.model_validate(response)
+        else response
     )
     if (res.request_id, res.game_revision) != (req.request_id, req.game_revision):
         raise ValueError("response request identity does not match request")

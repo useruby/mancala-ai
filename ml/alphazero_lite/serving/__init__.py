@@ -15,13 +15,30 @@ from .contract import (
     validate_response,
     validate_state,
 )
+from .engine import (
+    EngineError,
+    InvalidBackendResultError,
+    MoveEngine,
+    RuntimeBundle,
+    RuntimeConfigurationError,
+    SearchProfile,
+    SearchSettings,
+    UnknownProfileError,
+)
 
 __all__ = [
     "Error",
     "ErrorBody",
+    "EngineError",
+    "InvalidBackendResultError",
     "MoveRequest",
     "MoveResponse",
     "MoveResult",
+    "MoveEngine",
+    "RuntimeBundle",
+    "RuntimeConfigurationError",
+    "SearchProfile",
+    "SearchSettings",
     "State",
     "TerminalResult",
     "canonical_state_bytes",
@@ -30,4 +47,5 @@ __all__ = [
     "to_kalah_game",
     "validate_response",
     "validate_state",
+    "UnknownProfileError",
 ]
