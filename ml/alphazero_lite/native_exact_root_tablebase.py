@@ -34,11 +34,7 @@ class NativeExactRootTablebase:
         self.calls = 0
         self.startup_warm_latency_ms: float | None = None
         if warm_on_start:
-            try:
-                self.warm()
-            except Exception:
-                self.close()
-                raise
+            self.warm()
 
     def close(self) -> None:
         if self.process.poll() is None:

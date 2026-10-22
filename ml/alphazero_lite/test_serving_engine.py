@@ -82,6 +82,9 @@ class NativeDouble:
     def close(self):
         type(self).closed += 1
 
+    def warm(self):
+        return None
+
     def root_action_margins(self, game, perspective_player):
         self.calls += 1
         return {move: 0 for move in game.possible_moves()}
@@ -235,23 +238,14 @@ def test_composed_routing_and_search_policy_are_identity_bound(monkeypatch, tmp_
 
     def backend(**kwargs):
         calls.append(kwargs)
-        exact = kwargs["state"]["player_pits"] + kwargs["state"]["opponent_pits"]
-        if sum(exact) <= kwargs["exact_root_solve_threshold"]:
-            return {
-                "selected_move": 0,
-                "exact_root_decision": {},
-                "child_stats": [{"visits": 0}],
-            }
         return {"selected_move": 0, "child_stats": [{"visits": 3}]}
 
     monkeypatch.setattr(engine_module, "evaluate_artifact_position", backend)
     assert NativeDouble.created == 1
     ordinary_response = engine.select_move(_request(1))
     assert ordinary_response.completed_simulations == 3
-    assert calls[-1]["exact_root_solve_threshold"] == 12
-    assert calls[-1]["exact_root_tablebase"] is engine._native_resources["bundle"]
-    assert calls[-1]["evaluator"].policy_source == "candidate"
-    assert calls[-1]["evaluator"].value_source == "current"
+    assert calls[-1]["evaluator"].evaluator.policy_source == "candidate"
+    assert calls[-1]["evaluator"].evaluator.value_source == "current"
     exact_request = _request(
         1,
         pits0=[0, 0, 0, 0, 0, 0],
@@ -260,6 +254,7 @@ def test_composed_routing_and_search_policy_are_identity_bound(monkeypatch, tmp_
     )
     exact_response = engine.select_move(exact_request)
     assert exact_response.completed_simulations == 0
+    assert engine._native_resources["bundle"].calls == 1
     engine.close()
     engine.close()
     assert NativeDouble.closed == 1
@@ -272,17 +267,6 @@ def test_single_artifact_exact_root_routing(monkeypatch, tmp_path):
     monkeypatch.setattr(engine_module, "NativeExactRootTablebase", NativeDouble)
     policy_hash = _write_policy(tmp_path, ("model",), threshold=8)
     engine = _engine(tmp_path, expected_policy_sha256=(policy_hash,))
-    seen = []
-
-    def backend(**kwargs):
-        seen.append(kwargs)
-        return {
-            "selected_move": 0,
-            "exact_root_decision": {},
-            "child_stats": [{"visits": 0}],
-        }
-
-    monkeypatch.setattr(engine_module, "evaluate_artifact_position", backend)
     response = engine.select_move(
         _request(
             1,
@@ -292,8 +276,7 @@ def test_single_artifact_exact_root_routing(monkeypatch, tmp_path):
         )
     )
     assert response.completed_simulations == 0
-    assert seen[0]["exact_root_solve_threshold"] == 8
-    assert seen[0]["exact_root_tablebase"] is engine._native_resources["bundle"]
+    assert engine._native_resources["bundle"].calls == 1
     engine.close()
 
 

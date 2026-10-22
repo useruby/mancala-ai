@@ -10,13 +10,14 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from types import MappingProxyType
-from typing import Mapping
+from typing import Any, Mapping
 
 from pydantic import TypeAdapter
 
 from ml.alphazero_lite.native_exact_root_tablebase import NativeExactRootTablebase
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.input_encodings import feature_count_for
+from ml.alphazero_lite.exact_root_decision import exact_root_decision
 
 from ml.alphazero_lite.arena import (
     ArtifactEvaluator,
@@ -111,6 +112,66 @@ class SearchProfile:
     bundle_id: str
     settings: SearchSettings
     require_runtime_search_policy: bool = False
+
+
+class _ServingEvaluator:
+    """Delegate evaluations without exposing research artifact paths to arena."""
+
+    def __init__(self, evaluator: Any) -> None:
+        self.evaluator = evaluator
+
+    def evaluate(self, game: KalahGame):
+        return self.evaluator.evaluate(game)
+
+    def reset_telemetry(self) -> None:
+        reset = getattr(self.evaluator, "reset_telemetry", None)
+        if callable(reset):
+            reset()
+
+    @property
+    def telemetry(self):
+        return getattr(self.evaluator, "telemetry", None)
+
+    @property
+    def last_evaluation(self):
+        return getattr(self.evaluator, "last_evaluation", None)
+
+
+def _exact_root_outcome(
+    game: KalahGame, evaluator: Any, native_adapter: object, threshold: int
+) -> dict:
+    decision = exact_root_decision(
+        game,
+        evaluator,
+        tablebase=native_adapter,
+        threshold=threshold,
+    )
+    if decision is None:
+        raise RuntimeConfigurationError("eligible exact-root position was not solved")
+    return {
+        "selected_move": decision.selected_move,
+        "legal_moves": decision.legal_moves,
+        "policy": decision.network_priors,
+        "value": 0.0,
+        "child_stats": [
+            {"move": move, "visits": 0, "q_value": 0.0} for move in decision.legal_moves
+        ],
+        "visits": [0.0] * 6,
+        "exact_root_decision": {
+            "active_pit_stones": decision.active_pit_stones,
+            "root_player": decision.root_player,
+            "action_margins": {
+                str(move): margin for move, margin in decision.action_margins.items()
+            },
+            "wdl": {str(move): value for move, value in decision.wdl.items()},
+            "optimal_moves": decision.optimal_moves,
+            "network_priors": decision.network_priors,
+            "solver_calls": decision.solver_calls,
+            "root_latency_ms": decision.root_latency_ms,
+            "puct_simulations_executed": 0,
+        },
+        "root_latency_ms": decision.root_latency_ms,
+    }
 
 
 class MoveEngine:
@@ -351,8 +412,13 @@ class MoveEngine:
                 resource = NativeExactRootTablebase(
                     runtime_policy["native_probe"]["resolved_path"],
                     runtime_policy["tablebase"]["resolved_path"],
-                    warm_on_start=True,
+                    warm_on_start=False,
                 )
+                try:
+                    resource.warm()
+                except Exception:
+                    resource.close()
+                    raise
                 self._native_resources_by_identity[native_key] = resource
             self._native_resources[key] = resource
         self._runtime_policies[key] = runtime_policy
@@ -416,22 +482,28 @@ class MoveEngine:
         # not imply that the acting player is player 0.
         backend_state = game.to_state()
         runtime_policy = self._runtime_policies[profile.bundle_id]
-        outcome = evaluate_artifact_position(
-            evaluator=self._evaluators[profile.bundle_id],
-            state=backend_state,
-            simulations=profile.settings.simulations,
-            seed=req.seed,
-            c_puct=profile.settings.c_puct,
-            search_options=profile.settings.options(),
-            ablation_mode="full",
-            exact_root_solve_threshold=(
-                None
-                if runtime_policy is None
-                else runtime_policy["exact_root_threshold"]
-            ),
-            exact_root_tablebase=self._native_resources.get(profile.bundle_id),
-            discover_runtime_policy=False,
+        threshold = (
+            None if runtime_policy is None else runtime_policy["exact_root_threshold"]
         )
+        if threshold is not None and sum(game.pits) <= threshold:
+            native = self._native_resources.get(profile.bundle_id)
+            if native is None:
+                raise RuntimeConfigurationError(
+                    "exact-root policy has no initialized native adapter"
+                )
+            outcome = _exact_root_outcome(
+                game, self._evaluators[profile.bundle_id], native, threshold
+            )
+        else:
+            outcome = evaluate_artifact_position(
+                evaluator=_ServingEvaluator(self._evaluators[profile.bundle_id]),
+                state=backend_state,
+                simulations=profile.settings.simulations,
+                seed=req.seed,
+                c_puct=profile.settings.c_puct,
+                search_options=profile.settings.options(),
+                ablation_mode="full",
+            )
         move = outcome.get("selected_move")
         legal = game.possible_moves()
         if type(move) is not int or move not in legal:
