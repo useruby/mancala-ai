@@ -3,11 +3,63 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
+import sys
 import time
 from pathlib import Path
+from typing import Any
 
 from ml.alphazero_lite.kalah_rules import KalahGame
+
+
+_PARENT_BOUND_BOOTSTRAP = """\
+import ctypes, os, signal, sys, time
+parent = int(os.environ['MANCALA_PROBE_PARENT_PID'])
+marker = os.environ.get('MANCALA_TEST_CHILD_PID_FILE')
+if marker:
+    open(marker, 'w').write(str(os.getpid()))
+delay = float(os.environ.get('MANCALA_TEST_CHILD_START_DELAY', '0'))
+if delay:
+    time.sleep(delay)
+libc = ctypes.CDLL(None, use_errno=True)
+if libc.prctl(1, signal.SIGKILL, 0, 0, 0) != 0:
+    os.kill(os.getpid(), signal.SIGKILL)
+actual_parent = os.getppid()
+if actual_parent <= 1 or actual_parent != parent:
+    os.kill(os.getpid(), signal.SIGKILL)
+os.environ.pop('MANCALA_PROBE_PARENT_PID', None)
+os.environ.pop('MANCALA_TEST_CHILD_PID_FILE', None)
+os.environ.pop('MANCALA_TEST_CHILD_START_DELAY', None)
+os.execvpe(sys.argv[1], sys.argv[1:], os.environ)
+"""
+
+
+def _spawn_parent_bound(
+    command: list[str],
+    *,
+    test_start_delay: float = 0.0,
+    test_pid_file: str | None = None,
+    **popen_options: Any,
+) -> subprocess.Popen:
+    """Launch a direct child that receives Linux parent-death signaling."""
+    if sys.platform != "linux":
+        raise RuntimeError("parent-bound native children require Linux")
+    environment = os.environ.copy()
+    environment["MANCALA_PROBE_PARENT_PID"] = str(os.getpid())
+    if test_start_delay:
+        environment["MANCALA_TEST_CHILD_START_DELAY"] = str(test_start_delay)
+    else:
+        environment.pop("MANCALA_TEST_CHILD_START_DELAY", None)
+    if test_pid_file is not None:
+        environment["MANCALA_TEST_CHILD_PID_FILE"] = test_pid_file
+    else:
+        environment.pop("MANCALA_TEST_CHILD_PID_FILE", None)
+    return subprocess.Popen(
+        [sys.executable, "-c", _PARENT_BOUND_BOOTSTRAP, *command],
+        env=environment,
+        **popen_options,
+    )
 
 
 class NativeExactRootTablebase:
@@ -24,7 +76,7 @@ class NativeExactRootTablebase:
             raise FileNotFoundError(
                 "native exact-root probe binary or tablebase is missing"
             )
-        self.process = subprocess.Popen(
+        self.process = _spawn_parent_bound(
             [str(self.binary), "probe", str(self.tablebase)],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,

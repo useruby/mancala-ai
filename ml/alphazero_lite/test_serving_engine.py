@@ -550,8 +550,32 @@ def test_supported_legacy_json_hash_metadata(tmp_path):
         ).hexdigest()
     }
     metadata_path.write_text(json.dumps(metadata))
-    engine = _engine(tmp_path, names=(name,))
+    identity = serving_artifact_identity(
+        metadata_path, tmp_path / name / "weights.json"
+    )
+    engine = MoveEngine(
+        tmp_path,
+        {"bundle": RuntimeBundle("bundle-v1", "single", (name,), (identity,))},
+        {"default": SearchProfile("default", "v1", "bundle", SearchSettings())},
+    )
     engine.close()
+
+
+def test_incorrect_legacy_json_hash_metadata_is_rejected(tmp_path):
+    name, _ = _artifact(tmp_path, "model")
+    metadata_path = tmp_path / name / "metadata.json"
+    metadata = json.loads(metadata_path.read_text())
+    metadata["artifacts"] = {"weights_sha256": "0" * 64}
+    metadata_path.write_text(json.dumps(metadata))
+    identity = serving_artifact_identity(
+        metadata_path, tmp_path / name / "weights.json"
+    )
+    with pytest.raises(RuntimeConfigurationError, match="legacy weight hash mismatch"):
+        MoveEngine(
+            tmp_path,
+            {"bundle": RuntimeBundle("bundle-v1", "single", (name,), (identity,))},
+            {"default": SearchProfile("default", "v1", "bundle", SearchSettings())},
+        )
 
 
 @pytest.mark.parametrize(
