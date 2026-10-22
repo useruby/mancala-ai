@@ -117,34 +117,89 @@ def test_table_semantics_rejected_by_real_path(
         shutil.copyfile(correction.PROPOSAL, results_path)
         monkeypatch.setattr(correction, "PROPOSAL", results_path)
     text = results_path.read_text()
-    rows = text.splitlines()
-    if proposal:
-        offset = 32
-        if mutation == "proposal_swap_configs":
-            first, second = rows[offset].split("|"), rows[offset + 1].split("|")
-            rows[offset] = "|".join(first[:1] + second[1:-1] + [""])
-            rows[offset + 1] = "|".join(second[:1] + first[1:-1] + [""])
-        elif mutation == "proposal_swap_strata":
-            rows[offset + 2], rows[offset + 4] = rows[offset + 4], rows[offset + 2]
-            rows[offset + 3], rows[offset + 5] = rows[offset + 5], rows[offset + 3]
-        elif mutation == "proposal_wrong_cell":
-            rows[offset] = rows[offset].replace("106.2 ms", "999.9 ms", 1)
-            rows.append("Control retains expected value 106.2 ms elsewhere.")
-        else:
-            rows[offset] = rows[offset].replace("106.2 ms", "106.2 sec", 1)
-            rows.append("Control retains expected value 106.2 ms elsewhere.")
-    elif mutation == "swap_configs":
-        first, second = rows[20].split("|"), rows[21].split("|")
-        rows[20] = "|".join(first[:3] + second[3:-1] + [""])
-        rows[21] = "|".join(second[:3] + first[3:-1] + [""])
-    elif mutation == "swap_strata":
-        rows[22], rows[24] = rows[24], rows[22]
-        rows[23], rows[25] = rows[25], rows[23]
-    elif mutation in {"wrong_cell", "unit"}:
-        replacement = "999.9 ms" if mutation == "wrong_cell" else "106.2 sec"
-        rows[20] = rows[20].replace("106.2 ms", replacement, 1)
-        rows.append("Control retains expected value 106.2 ms elsewhere.")
-    results_path.write_text("\n".join(rows) + "\n")
+    lines = text.splitlines()
+    expected_header = (
+        [
+            "Cohort / configuration",
+            "Searches",
+            "p50 latency",
+            "p95 latency",
+            "throughput",
+        ]
+        if proposal
+        else ["Cohort", "Configuration", "Searches", "p50", "p95", "Throughput"]
+    )
+
+    def cells(line: str) -> list[str]:
+        return [part.strip() for part in line.strip().strip("|").split("|")]
+
+    header_index = next(
+        i for i, line in enumerate(lines) if cells(line) == expected_header
+    )
+    data_indices = []
+    labeled_rows: dict[tuple[str, str], int] = {}
+    for index in range(header_index + 1, len(lines)):
+        if not lines[index].strip().startswith("|"):
+            if data_indices:
+                break
+            continue
+        candidate = cells(lines[index])
+        if (
+            candidate
+            and candidate[0]
+            and not all(set(part) <= {"-", ":"} for part in candidate)
+        ):
+            data_indices.append(index)
+            if proposal:
+                label, _, config = candidate[0].partition(" — ")
+            else:
+                label, config = candidate[0], candidate[1]
+            labeled_rows[(label, config.lower())] = index
+            if len(data_indices) == 8:
+                break
+    assert len(data_indices) == 8
+
+    def update_row(index: int, transform) -> None:
+        before = lines[index]
+        parts = cells(before)
+        parts = transform(parts)
+        lines[index] = "| " + " | ".join(parts) + " |"
+        assert lines[index] != before
+
+    if mutation.endswith("swap_configs"):
+        first, second = data_indices[:2]
+        update_row(
+            first,
+            lambda row: (
+                row[: (1 if proposal else 3)]
+                + cells(lines[second])[(1 if proposal else 3) :]
+            ),
+        )
+        update_row(
+            second,
+            lambda row: (
+                row[: (1 if proposal else 3)]
+                + cells(text.splitlines()[first])[(1 if proposal else 3) :]
+            ),
+        )
+    elif mutation.endswith("swap_strata"):
+        first, second = data_indices[2], data_indices[4]
+        lines[first], lines[second] = lines[second], lines[first]
+        assert lines[first] != text.splitlines()[first]
+    elif mutation.endswith("wrong_cell") or mutation.endswith("unit"):
+        row_index = labeled_rows[("All states" if proposal else "All", "baseline")]
+        column = 2 if proposal else 3
+        replacement = "999.9 ms" if mutation.endswith("wrong_cell") else "106.2 sec"
+        update_row(
+            row_index,
+            lambda row: row[:column] + [replacement] + row[column + 1 :],
+        )
+        # Keep the expected token elsewhere so the historical verifier's
+        # whole-document presence guard does not mask the table-cell check.
+        lines.append("Control retains expected value 106.2 ms elsewhere.")
+    mutated = "\n".join(lines) + "\n"
+    assert mutated != text
+    results_path.write_text(mutated)
     reason = (
         "table_cell_or_unit:proposal" if proposal else "table_cell_or_unit:results.md"
     )
