@@ -1,200 +1,153 @@
-"""Portable v1 contract checks; no model/runtime dependencies required."""
+"""Portable, executable API v1 contract tests."""
 
-import hashlib
 import json
-import re
 import unittest
 from pathlib import Path
 
-from ml.alphazero_lite.kalah_rules import KalahGame
+from jsonschema import Draft202012Validator
+from pydantic import ValidationError
+
+from ml.alphazero_lite.serving import (
+    MoveRequest,
+    MoveResponse,
+    State,
+    canonical_state_bytes,
+    from_kalah_game,
+    state_sha256,
+    to_kalah_game,
+    validate_response,
+    validate_state,
+)
 
 ROOT = Path(__file__).parents[3]
 CONTRACT = json.loads((ROOT / "docs/ai-service/api-v1.json").read_text())
-FIXTURES = json.loads(
-    (ROOT / "docs/ai-service/fixtures/v1.json").read_text(encoding="utf-8")
-)
+FIXTURES = json.loads((ROOT / "docs/ai-service/fixtures/v1.json").read_text())
 SCHEMAS = CONTRACT["components"]["schemas"]
 
 
-def schema_valid(value, schema):
-    """Small OpenAPI/JSON-Schema subset validator for schemas used here."""
-    if "$ref" in schema:
-        name = schema["$ref"].rsplit("/", 1)[1]
-        return schema_valid(value, SCHEMAS[name])
-    if "oneOf" in schema:
-        return sum(schema_valid(value, option) for option in schema["oneOf"]) == 1
-    kind = schema.get("type")
-    if kind == "object":
-        if not isinstance(value, dict):
-            return False
-        if any(key not in value for key in schema.get("required", [])):
-            return False
-        properties = schema.get("properties", {})
-        if schema.get("additionalProperties") is False and set(value) - set(properties):
-            return False
-        return all(
-            key not in properties or schema_valid(item, properties[key])
-            for key, item in value.items()
-        ) and all(
-            value.get(key) in prop["enum"]
-            for key, prop in properties.items()
-            if key in value and "enum" in prop
-        )
-    if kind == "array":
-        return (
-            isinstance(value, list)
-            and len(value) >= schema.get("minItems", 0)
-            and len(value) <= schema.get("maxItems", 2**53)
-            and all(schema_valid(item, schema["items"]) for item in value)
-        )
-    if kind == "integer":
-        if isinstance(value, bool) or not isinstance(value, int):
-            return False
-        return (
-            value >= schema.get("minimum", -(2**53))
-            and value <= schema.get("maximum", 2**53 - 1)
-            and ("enum" not in schema or value in schema["enum"])
-        )
-    if isinstance(kind, list):
-        return any(schema_valid(value, {**schema, "type": entry}) for entry in kind)
-    if kind == "string":
-        return (
-            isinstance(value, str)
-            and len(value) >= schema.get("minLength", 0)
-            and len(value) <= schema.get("maxLength", 2**53)
-            and ("pattern" not in schema or re.fullmatch(schema["pattern"], value))
-            and ("enum" not in schema or value in schema["enum"])
-            and ("const" not in schema or value == schema["const"])
-        )
-    if kind == "null":
-        return value is None
-    if kind == "boolean":
-        return isinstance(value, bool)
-    if "const" in schema:
-        return value == schema["const"]
-    return True
+def schema_validator(name):
+    """JSON Schema validation intentionally has standard JSON numeric semantics."""
+    from referencing import Registry, Resource
+    from referencing.jsonschema import DRAFT202012
 
-
-def valid_game_state(state):
-    """Validate the semantic conservation and terminal representation rules."""
-    if not schema_valid(state, SCHEMAS["State"]):
-        return False
-    stones = sum(state["player0_pits"] + state["player1_pits"])
-    stones += state["player0_store"] + state["player1_store"]
-    if stones != 48:
-        return False
-    terminal = all(
-        stone == 0 for stone in state["player0_pits"] + state["player1_pits"]
+    registry = Registry().with_resource(
+        "https://contract.invalid/api-v1.json",
+        Resource.from_contents(CONTRACT, default_specification=DRAFT202012),
     )
-    current_pits = state[f"player{state['current_player']}_pits"]
-    return (terminal and state["player0_store"] + state["player1_store"] == 48) or (
-        not terminal and any(current_pits)
-    )
+    schema = {
+        "$ref": f"https://contract.invalid/api-v1.json#/components/schemas/{name}"
+    }
+    return Draft202012Validator(schema, registry=registry)
 
 
 class AiServiceContractTest(unittest.TestCase):
-    def test_openapi_is_31_and_fixtures_validate_against_contract(self):
+    def test_examples_validate_with_standard_schema_and_strict_models(self):
         self.assertEqual(CONTRACT["openapi"], "3.1.0")
-        request_schema = SCHEMAS["MoveRequest"]
-        response_schema = SCHEMAS["MoveResponse"]
-        for request in FIXTURES["valid_requests"]:
-            self.assertTrue(schema_valid(request, request_schema), request)
-            self.assertTrue(valid_game_state(request["state"]), request)
-        for response in FIXTURES["valid_responses"]:
-            self.assertTrue(schema_valid(response, response_schema), response)
+        request_validator = schema_validator("MoveRequest")
+        response_validator = schema_validator("MoveResponse")
+        for raw in FIXTURES["valid_requests"]:
+            request_validator.validate(raw)
+            MoveRequest.model_validate(raw)
+            validate_state(raw["state"])
+        for raw in FIXTURES["valid_responses"]:
+            response_validator.validate(raw)
+            MoveResponse.model_validate(raw)
 
-    def test_schema_rejects_bad_shapes_types_and_unknown_properties(self):
-        valid = FIXTURES["valid_requests"][0]
-        for change in (
-            {"game_revision": True},
-            {"extra": "not allowed"},
-            {"seed": 1.0},
-            {"state": {**valid["state"], "player0_pits": [1]}},
-            {"profile": "balanced@v1", "search_options": {"deadline": 1}},
-        ):
-            with self.subTest(change=change):
-                self.assertFalse(
-                    schema_valid({**valid, **change}, SCHEMAS["MoveRequest"])
+    def test_standard_integer_semantics_differ_from_runtime_strictness(self):
+        raw = dict(FIXTURES["valid_requests"][0], seed=1.0)
+        schema_validator("MoveRequest").validate(raw)
+        with self.assertRaises(ValidationError):
+            MoveRequest.model_validate(raw)
+        for bad in (True, "1", 1.0, -1, 2**32):
+            with self.subTest(value=bad), self.assertRaises(ValidationError):
+                MoveRequest.model_validate(
+                    dict(FIXTURES["valid_requests"][0], seed=bad)
                 )
-        self.assertFalse(schema_valid(True, SCHEMAS["Seeds"]))
 
-    def test_fixture_states_pass_or_fail_semantics_as_declared(self):
-        self.assertTrue(valid_game_state(FIXTURES["valid_requests"][0]["state"]))
-        self.assertTrue(valid_game_state(FIXTURES["valid_requests"][1]["state"]))
-        self.assertTrue(valid_game_state(FIXTURES["terminal_state"]))
+    def test_state_semantics_and_invalid_fixture_states(self):
         for case in FIXTURES["invalid_states"]:
-            with self.subTest(case=case["id"]):
-                self.assertFalse(valid_game_state(case["state"]))
+            with (
+                self.subTest(case=case["id"]),
+                self.assertRaises((ValueError, ValidationError)),
+            ):
+                validate_state(case["state"])
+        for bad in (True, "0", 1.0, -1, 2):
+            raw = dict(FIXTURES["valid_requests"][0]["state"], current_player=bad)
+            with self.assertRaises((ValueError, ValidationError)):
+                validate_state(raw)
 
-    def test_successful_move_examples_are_legal_under_repository_rules(self):
-        for request, response in zip(
-            FIXTURES["valid_requests"], FIXTURES["valid_responses"][:3], strict=True
-        ):
-            state = request["state"]
-            self.assertTrue(valid_game_state(state))
-            game = KalahGame(
-                pits=state["player0_pits"] + state["player1_pits"],
-                captured_seeds=[state["player0_store"], state["player1_store"]],
-                current_player=state["current_player"],
-            )
-            move = response["result"]["move"]
-            self.assertIn(move, game.possible_moves())
-        extra_state = FIXTURES["valid_requests"][2]["state"]
-        self.assertTrue(valid_game_state(extra_state))
-        extra = KalahGame(
-            pits=extra_state["player0_pits"] + extra_state["player1_pits"],
-            captured_seeds=[extra_state["player0_store"], extra_state["player1_store"]],
-            current_player=extra_state["current_player"],
-        )
-        self.assertTrue(extra.move(extra.pit_index(5)))
-        self.assertEqual(extra.current_player, 0)
-        self.assertEqual(extra.captured_seeds[0], 21)
-        terminal = KalahGame(pits=[0] * 12, captured_seeds=[20, 28], current_player=0)
-        self.assertTrue(terminal.over())
-
-    def test_literal_canonical_bytes_and_independent_sha256_vectors(self):
+    def test_canonical_bytes_vectors_and_dictionary_order(self):
         for vector in FIXTURES["canonical_state_vectors"]:
             state = vector["state"]
-            canonical = (
-                "{"
-                + ",".join(
-                    f"{json.dumps(key)}:{json.dumps(state[key], separators=(',', ':'))}"
-                    for key in (
-                        "player0_pits",
-                        "player1_pits",
-                        "player0_store",
-                        "player1_store",
-                        "current_player",
-                    )
-                )
-                + "}"
-            ).encode("utf-8")
-            self.assertEqual(canonical, vector["canonical_utf8"].encode("utf-8"))
-            self.assertEqual(hashlib.sha256(canonical).hexdigest(), vector["sha256"])
+            self.assertEqual(
+                canonical_state_bytes(state).decode(), vector["canonical_utf8"]
+            )
+            self.assertEqual(state_sha256(state), vector["sha256"])
+            reordered = dict(reversed(list(state.items())))
+            self.assertEqual(
+                canonical_state_bytes(reordered), canonical_state_bytes(state)
+            )
 
-    def test_fixtures_cover_identity_mismatches_and_illegal_move(self):
-        for request, response in zip(
-            FIXTURES["valid_requests"], FIXTURES["valid_responses"][:3], strict=True
+    def test_conversion_is_fixed_orientation_and_defensive(self):
+        raw = FIXTURES["valid_requests"][1]["state"]
+        game = to_kalah_game(raw)
+        self.assertEqual(game.to_state()["player_pits"], raw["player0_pits"])
+        self.assertEqual(game.to_state()["opponent_pits"], raw["player1_pits"])
+        self.assertEqual(
+            from_kalah_game(game).model_dump(), State.model_validate(raw).model_dump()
+        )
+        game.pits[0] = 99
+        self.assertEqual(raw["player0_pits"][0], 4)
+        self.assertEqual(to_kalah_game(raw).pits[0], 4)
+
+    def test_contextual_response_validation(self):
+        requests = FIXTURES["valid_requests"]
+        responses = FIXTURES["valid_responses"]
+        for req, res in zip(requests, responses, strict=False):
+            if req["request_id"] == "fixture-terminal":
+                continue
+            validate_response(req, res)
+        req = requests[0]
+        res = responses[0]
+        for key, value in (
+            ("request_id", "wrong"),
+            ("game_revision", 8),
+            ("state_sha256", "0" * 64),
         ):
-            self.assertEqual(request["request_id"], response["request_id"])
-            self.assertEqual(request["game_revision"], response["game_revision"])
-        for case in FIXTURES["invalid_results"]:
-            if case["id"] == "illegal-empty-pit":
-                state = FIXTURES["valid_requests"][case["request_state_index"]]["state"]
-                game = KalahGame(
-                    pits=state["player0_pits"] + state["player1_pits"],
-                    captured_seeds=[state["player0_store"], state["player1_store"]],
-                    current_player=state["current_player"],
-                )
-                self.assertNotIn(
-                    case["response"]["result"]["move"], game.possible_moves()
-                )
-            else:
-                if case["id"] == "incorrect-request-identity":
-                    self.assertNotEqual(case["request_id"], case["response_request_id"])
-                else:
-                    self.assertEqual(case["request_id"], case["response_request_id"])
-                self.assertNotEqual(case["request_revision"], case["response_revision"])
+            changed = dict(res, **{key: value})
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                validate_response(req, changed)
+        illegal = dict(res, result={"kind": "move", "move": 4})
+        with self.assertRaises(ValueError):
+            validate_response(req, illegal)
+        self.assertEqual(state_sha256(req["state"]), res["state_sha256"])
+
+    def test_terminal_state_requires_zero_simulations_and_consistent_reason(self):
+        terminal_request = {
+            "request_id": "terminal",
+            "game_revision": 0,
+            "state": FIXTURES["terminal_state"],
+            "profile": "balanced@v1",
+            "seed": 0,
+        }
+        base = FIXTURES["valid_responses"][3]
+        response = dict(
+            base,
+            request_id="terminal",
+            game_revision=0,
+            state_sha256=state_sha256(terminal_request["state"]),
+        )
+        validate_response(terminal_request, response)
+        for change in (
+            {"completed_simulations": 1},
+            {"termination_reason": "completed"},
+            {"result": {"kind": "move", "move": 0}},
+        ):
+            with (
+                self.subTest(change=change),
+                self.assertRaises((ValueError, ValidationError)),
+            ):
+                validate_response(terminal_request, dict(response, **change))
 
 
 if __name__ == "__main__":
