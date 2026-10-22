@@ -1,5 +1,6 @@
 {
   "schema": "azlite_composition_manifest_v1",
+  "scope": "checkpoint_only_proposal; not runtime-consumable; superseded for runtime contract by manifest-v2.json",
   "encoding": "kalah_v3",
   "architecture": "residual_v3",
   "components": {

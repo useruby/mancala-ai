@@ -1,0 +1,21 @@
+{
+  "fixtures": {
+    "path": "fixtures.json",
+    "sha256": "e9a4d4ec72b8e8d72c57eaef551b151aea97721485a906a9e3b9335cf252b79d"
+  },
+  "schema": "seed521-golden-fixture-index-v1",
+  "sources": {
+    "seed514_cohort": {
+      "path": "docs/data/seed514-operational-benchmark-v2/cohort.json",
+      "sha256": "7ce8d73a80cf61db9cfde9c6c213d80a491bbf5c7686a1a175a6ffe44ea2974f"
+    },
+    "seed515_provenance": {
+      "path": "docs/data/seed515-independent-verification/seed515-provenance-supplement.json",
+      "sha256": "5553c1f91bd85a8803795774ae31fe07fd4a54bc71144f742138167b7a0dc474"
+    },
+    "seed518_outputs": {
+      "path": "docs/data/seed518-selective-head/parity-outputs.json",
+      "sha256": "b0c83ed240b7a9e03f5518167ca1791ef8b0db034cc3a84e7b81175bab830308"
+    }
+  }
+}

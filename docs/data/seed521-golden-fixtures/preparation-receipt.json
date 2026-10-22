@@ -1,0 +1,25 @@
+{
+  "schema": "seed521-preparation-receipt-v1",
+  "status": "prepared_and_verified",
+  "scope": "offline extraction and byte/contract verification only",
+  "manifest_v1_checkpoint_only_sha256": "281a25a11f41d72711e0949d88f16b3056136448f6ae3050162a6395aeb56673",
+  "manifest_v2_runtime_proposal_sha256": "ee9086037f5ac83beaabe67492b9740d2202e4e7346b1003c55e5eb9a59ad9cb",
+  "fixture_index_sha256": "41716c71b550947245d83c822d4e542d477f844882153737f7bb7b4e28f2b669",
+  "fixtures_sha256": "e9a4d4ec72b8e8d72c57eaef551b151aea97721485a906a9e3b9335cf252b79d",
+  "case_count": 66,
+  "archived_nonterminal_case_count": 64,
+  "explicit_terminal_case_count": 2,
+  "entry_point": "python -m ml.alphazero_lite.seed521_golden_fixtures",
+  "performed": [
+    "authenticated registered runtime artifact files and exact-root assets",
+    "joined archived seed514 states, seed515 provenance, and seed518 evaluator output bytes",
+    "checked reference/selective output agreement and complete fixture ordering",
+    "verified runtime contract and golden fixture bundle"
+  ],
+  "not_performed": [
+    "inference", "searches", "benchmarks", "games", "training", "deployment", "promotion", "artifact replacement"
+  ],
+  "pending": [
+    "Ruby implementation", "target-runtime parity", "production SLOs", "strength confirmation"
+  ]
+}

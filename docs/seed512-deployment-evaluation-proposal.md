@@ -2,7 +2,7 @@
 
 ## Seed520 opt-in composition integration contract (proposal only)
 
-This document and `docs/data/seed520-composition/manifest.json` specify a candidate contract; they do not enable it or alter defaults. The manifest validator is `ml/alphazero_lite/seed520_composition_manifest.py`. It authenticates the two existing NPZ byte streams and rejects identity changes. No merged weights or replacement exports are part of this proposal.
+This document remains proposal-only and does not enable composition or alter defaults. `docs/data/seed520-composition/manifest.json` is retained as the original checkpoint-only v1 proposal. The corrected runtime-input proposal is `docs/data/seed520-composition/manifest-v2.json`; its validator is `ml/alphazero_lite/seed520_composition_manifest.py`. The actual extracted fixture entry point is `ml/alphazero_lite/seed521_golden_fixtures.py`, and the portable bundle is `docs/data/seed521-golden-fixtures/`. No merged weights or replacement exports are part of this proposal.
 
 ### Actual integration boundary
 
@@ -12,9 +12,9 @@ In this repository, `ml/alphazero_lite/arena.py` is the artifact loader and NumP
 
 ### Manifest and golden evaluator contract
 
-The v1 manifest names `docs/data/seed504/seed504_epoch4.npz` (SHA-256 `2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad`) for policy and `docs/data/seed505-strength-screen-v3/initializer.npz` (SHA-256 `7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c`) for value. Both are `.npz`, `residual_v3`, `kalah_v3`; each component retains and evaluates its own trunk. Its search sidecar digest is `b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d`; native solver identity is `native_kvtb_root_action_probe_v1` and the tablebase is the seed512-registered object. `runtime_search_policy.py` remains the Python reference for those requirements.
+The v1 manifest is explicitly checkpoint-only and is not runtime consumable. V2 binds runtime artifact directories from the authoritative seed512 registration: E4 for policy and initializer for value, including `model.npz`, `weights.json`, `metadata.json`, and each `search_policy.json` with its registered SHA-256. It separately retains checkpoint identity as provenance. Validation reads the authenticated metadata and enforces `kalah_v3`, `residual_v3`, 27 input features, six policy outputs, one value output, the registered residual architecture and `.npz` model input; unsupported extensions and metadata disagreement fail closed. Both independently owned components retain their own trunk and meet the selective-head P architecture. Exact-root probe and tablebase bytes are checked separately from a materialized tablebase object when the local artifact is a pointer. The verifier accepts explicit repository and asset roots; it does not infer either from manifest location. No fallback or digest substitution is allowed.
 
-Seed518's archived `parity-outputs.json` contains the 64 examined states' output bytes and search traces; `cohort.json` in `docs/data/seed514-operational-benchmark-v2/` supplies state contents and source game/ply bindings, with seed515's provenance supplement retaining source occurrence detail. The parity archive SHA-256 is `b0c83ed240b7a9e03f5518167ca1791ef8b0db034cc3a84e7b81175bab830308`, bound by `docs/data/seed518-selective-head/evidence.json`. Golden cases must preserve these state objects, state hashes, source game/opening/ply locators, `policy_f32_hex` and `value_f64_hex` for reference and selective P. Expected outputs are byte sequences (little-endian f32 policy, f64 scalar value); terminal semantics are all-zero six-entry float32 policy and scalar float64 zero, as implemented by `SelectiveHeadArtifactEvaluator.evaluate` before network evaluation. These are archived Python parity bytes, not claims of cross-language agreement.
+The seed521 bundle joins seed514 cohort states, seed515 provenance and archived seed518 evaluator output bytes without inference or searches. It preserves all 64 frozen cohort cases in order, state identities and source bindings and includes `policy_f32_hex` and `value_f64_hex`. The archived reference and selective outputs are checked for agreement. Two separately labeled terminal fixtures (one per current player) specify six zero float32 policy values and one zero float64 value. The bundle index binds the three source archives and generated fixture bytes by SHA-256. Field orientation and little-endian encoding are documented in `fixtures.json`. These are archived Python bytes, not claims of cross-language agreement.
 
 Target-runtime test: decode each state using the documented field orientation and `kalah_v3` encoder, evaluate each network's own trunk/head, compare serialized policy/value bytes exactly, check legal-move masking and terminal all-zero behavior, then run deterministic root-search contract cases. The Ruby consumer must publish its own runner/version and report every case/hash/output; only a successful execution in the target runtime establishes compatibility.
 
@@ -27,12 +27,15 @@ Required structured observability: selected mode and manifest digest; policy/val
 ### Preparation checklist and remaining gates
 
 - [x] Publish an opt-in contract and immutable component identities without modifying artifacts/defaults.
-- [x] Add read-only Python manifest validation for component paths/bytes, source routing, encoding/architecture, sidecar and runtime bindings.
+- [x] Add read-only Python validation for registered runtime files, source routing, authenticated metadata, sidecars, probe and pointer/materialized runtime bytes.
+- [x] Publish and executable-verify the portable 66-case seed521 golden bundle.
 - [ ] Implement Ruby manifest parsing, secure path/materialized-object resolution, byte hashing, sidecar/native identity checks, and two-network ownership; reject unsupported extensions and all silent fallback paths.
 - [ ] Add Ruby loader/config tests proving disabled initializer behavior, enabled two-model construction, explicit invalid-config failures, and rollback to unchanged initializer.
 - [ ] Run the archived golden evaluator and deterministic search contract in the target runtime; publish exact per-case parity results. Target-runtime parity has not passed here.
 - [ ] Measure latency, peak/transient memory, reliability and concurrency on production hardware/runtime, and obtain prospectively defined SLO thresholds. Local seed514/518 diagnostics are not production qualification.
 - [ ] Separately authorize strength confirmation and preregister a fresh held-out evaluation before any promotion decision.
+
+Ruby implementation, target-runtime parity, production SLOs and strength confirmation remain explicitly pending. Publishing the Python contract and fixtures does not satisfy these gates.
 
 The seed512 examined suite remains 1,024 openings/2,048 games and its recorded results are not fresh confirmation. Seed461 overlap limitations and the separate seed505 failed gate remain in force. Historical source/provenance limitations stated below and in the evidence supplements remain unchanged.
 
