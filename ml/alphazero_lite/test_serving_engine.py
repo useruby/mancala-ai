@@ -495,6 +495,101 @@ def test_hashes_and_metadata_are_enforced(tmp_path, mutation):
         )
 
 
+@pytest.mark.parametrize("asset", ["E4", "initializer"])
+def test_exporter_hashes_authenticate_distinct_files_and_json_only_bundle(
+    tmp_path, asset
+):
+    source = (
+        Path(__file__).parents[2]
+        / "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts"
+        / asset
+    )
+    artifact = tmp_path / "model"
+    shutil.copytree(source, artifact)
+    metadata_path = artifact / "metadata.json"
+    metadata = json.loads(metadata_path.read_text())
+    weights_path = artifact / "weights.json"
+    metadata["artifacts"]["weights_json_sha256"] = hashlib.sha256(
+        weights_path.read_bytes()
+    ).hexdigest()
+    metadata["artifacts"]["weights_sha256"] = hashlib.sha256(
+        (artifact / "model.npz").read_bytes()
+    ).hexdigest()
+    metadata_path.write_text(json.dumps(metadata))
+    metadata["artifacts"]["weights_json_sha256"] = "0" * 64
+    metadata_path.write_text(json.dumps(metadata))
+    bad_identity = serving_artifact_identity(metadata_path, weights_path)
+    with pytest.raises(RuntimeConfigurationError):
+        MoveEngine(
+            tmp_path,
+            {"bundle": RuntimeBundle("bundle", "single", ("model",), (bad_identity,))},
+            {"default": SearchProfile("default", "v1", "bundle", SearchSettings())},
+        )
+    shutil.copy(source / "metadata.json", metadata_path)
+    # Native sidecars are outside this bounded component-evaluator smoke check.
+    (artifact / "search_policy.json").unlink()
+    identity = serving_artifact_identity(metadata_path, weights_path)
+    bundle = RuntimeBundle("bundle", "single", ("model",), (identity,))
+    profile = SearchProfile("default", "v1", "bundle", SearchSettings())
+    engine = MoveEngine(tmp_path, {"bundle": bundle}, {"default": profile})
+    engine.close()
+
+    # JSON inference also succeeds when the provenance checkpoint is omitted.
+    (artifact / "model.npz").unlink()
+    engine = MoveEngine(tmp_path, {"bundle": bundle}, {"default": profile})
+    engine.close()
+
+
+def test_supported_legacy_json_hash_metadata(tmp_path):
+    name, _ = _artifact(tmp_path, "model")
+    metadata_path = tmp_path / name / "metadata.json"
+    metadata = json.loads(metadata_path.read_text())
+    metadata["artifacts"] = {
+        "weights_sha256": hashlib.sha256(
+            (tmp_path / name / "weights.json").read_bytes()
+        ).hexdigest()
+    }
+    metadata_path.write_text(json.dumps(metadata))
+    engine = _engine(tmp_path, names=(name,))
+    engine.close()
+
+
+@pytest.mark.parametrize(
+    "policy,value",
+    [
+        ([float("nan"), 0, 0, 0, 0, 1], 0.0),
+        ([float("inf"), 0, 0, 0, 0, 1], 0.0),
+        ([-0.1, 0.22, 0.22, 0.22, 0.22, 0.22], 0.0),
+        ([0.1] * 6, 0.0),
+        ([1, 0, 0, 0, 0, 0], float("inf")),
+        ([1, 0, 0, 0, 0, 0], float("nan")),
+        ([1, 0, 0, 0, 0, 0], 1.1),
+    ],
+)
+def test_invalid_evaluator_outputs_fail_startup(tmp_path, monkeypatch, policy, value):
+    name, identity = _artifact(tmp_path, "model")
+
+    class InvalidEvaluator:
+        input_encoding = "kalah_v1"
+        model_type = "mlp_v1"
+
+        def __init__(self, _path):
+            pass
+
+        def evaluate(self, _game):
+            import numpy as np
+
+            return np.asarray(policy, dtype=np.float32), value
+
+    monkeypatch.setattr(engine_module, "ArtifactEvaluator", InvalidEvaluator)
+    with pytest.raises(RuntimeConfigurationError):
+        MoveEngine(
+            tmp_path,
+            {"bundle": RuntimeBundle("bundle", "single", (name,), (identity,))},
+            {"default": SearchProfile("default", "v1", "bundle", SearchSettings())},
+        )
+
+
 def test_directories_and_lfs_pointers_are_rejected(tmp_path):
     _, identity = _artifact(tmp_path, "model")
     policy_hash = _write_policy(tmp_path, ("model",))
