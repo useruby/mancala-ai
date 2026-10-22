@@ -1,0 +1,42 @@
+{
+  "schema": "azlite_runtime_composition_manifest_v1",
+  "scope": "checkpoint_runtime_inputs_and_search_assets; proposal_only",
+  "encoding": "kalah_v3",
+  "architecture": "residual_v3",
+  "components": {
+    "policy": {
+      "artifact_directory": "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/E4",
+      "source": "policy",
+      "checkpoint": "docs/data/seed504/seed504_epoch4.npz",
+      "checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad"
+    },
+    "value": {
+      "artifact_directory": "docs/data/seed511-fixed-composition-screen-v4/runtime-artifacts/initializer",
+      "source": "value",
+      "checkpoint": "initializer.npz",
+      "checkpoint_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+    }
+  },
+  "search_policy": {
+    "simulations": 1200,
+    "workers": 1,
+    "c_puct": 1.25,
+    "exact_root_threshold": 16,
+    "exact_root_objective": "final_score_margin",
+    "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+    "exact_leaf_solve": "disabled",
+    "solver_identity": "native_kvtb_root_action_probe_v1"
+  },
+  "runtime": {
+    "exact_root_native_probe": {
+      "path": "model-artifact/runtime/kalah_v1_tablebase",
+      "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48"
+    },
+    "exact_root_tablebase": {
+      "path": "model-artifact/runtime/kalah_v1_21.kvtb",
+      "pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+      "materialized_path": ".git/lfs/objects/f1/26/f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+    }
+  }
+}
