@@ -1,6 +1,6 @@
 # AI move API v1
 
-The machine-readable contract is [`api-v1.json`](api-v1.json); its embedded schemas are the authoritative field definitions. Integers are bounded to exact IEEE-754-safe JSON integers where applicable (revision, durations and simulation counts ≤ 2^53−1); seeds/stores/pits are 0..48 and seed ≤ 2^32−1. JSON booleans, strings and floating point numbers are not integers. Objects reject unknown properties.
+The machine-readable contract is [`api-v1.json`](api-v1.json); its embedded schemas are the authoritative field definitions. Contract tests validate examples with the maintained `jsonschema` validator. JSON Schema considers an integral-valued number such as `1.0` an integer; the service's decoded Python boundary additionally requires strict `int` values (and rejects booleans, strings, and floats). Integers are bounded to exact IEEE-754-safe JSON integers where applicable (revision, durations and simulation counts ≤ 2^53−1); seeds/stores/pits are 0..48 and seed ≤ 2^32−1. Objects reject unknown properties.
 
 ## Rules and orientation
 
