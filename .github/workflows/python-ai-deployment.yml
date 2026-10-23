@@ -140,7 +140,7 @@ jobs:
           sudo mkdir -p /run/sshd
           sudo /usr/sbin/sshd -p 2222 -o PidFile="$RUNNER_TEMP/sshd.pid" -o PasswordAuthentication=no -o PermitRootLogin=no
           mkdir -p ~/.ssh
-          printf 'Host 127.0.0.1\n  Port 2222\n  IdentityFile %s\n  StrictHostKeyChecking no\n  UserKnownHostsFile /dev/null\n' "$RUNNER_TEMP/kamal-test-key" >> ~/.ssh/config
+          printf 'Host 127.0.0.1\n  User kamaltest\n  Port 2222\n  IdentityFile %s\n  StrictHostKeyChecking no\n  UserKnownHostsFile /dev/null\n' "$RUNNER_TEMP/kamal-test-key" >> ~/.ssh/config
           docker run --rm httpd:2.4-alpine htpasswd -Bbn testuser testpassword > "$RUNNER_TEMP/registry-auth"
           docker run -d --name kamal-test-registry -p 5000:5000 \
             -e REGISTRY_AUTH=htpasswd \
@@ -154,7 +154,7 @@ jobs:
           curl -fsS -u testuser:testpassword -o /dev/null http://127.0.0.1:5000/v2/
       - name: Exercise real Kamal deploy, rollback, failed-start recovery, and immutable assets
         env:
-          KAMAL_HOST: kamaltest@127.0.0.1
+          KAMAL_HOST: 127.0.0.1
           KAMAL_WIREGUARD_IP: 127.0.0.1
           MANCALA_AI_ASSET_RELEASE: ${{ github.workspace }}/.tmp/lifecycle/initial-assets
           KAMAL_IMAGE: mancala-ai
