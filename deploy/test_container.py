@@ -115,7 +115,24 @@ def main() -> None:
                     )
                 time.sleep(1)
         else:
-            raise RuntimeError("container did not become ready")
+            state = subprocess.run(
+                [
+                    "docker",
+                    "inspect",
+                    container,
+                    "--format",
+                    "{{json .State}}",
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
+            ).stdout
+            logs = subprocess.run(
+                ["docker", "logs", container], capture_output=True, text=True
+            )
+            raise RuntimeError(
+                f"container did not become ready; state={state}\n{logs.stdout}{logs.stderr}"
+            )
 
         assert request(base, "/health/live")[0] == 200
         assert request(base, "/health/ready")[0] == 200
