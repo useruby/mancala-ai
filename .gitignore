@@ -1,5 +1,6 @@
 /.worktrees/
 /.venv/
+/.venv-deploy/
 /tmp/
 /.agents/
 /skills-lock.json

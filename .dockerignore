@@ -1,0 +1,15 @@
+**/.git
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+**/.venv*
+**/venv*
+.tmp*/
+**/.tmp*/
+tmp/
+**/tmp/
+docs/data
+model-artifact
+storage
+*.npz
+*.kvtb

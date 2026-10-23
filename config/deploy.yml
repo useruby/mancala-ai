@@ -1,0 +1,39 @@
+service: mancala-ai
+image: "<%= ENV.fetch("KAMAL_IMAGE") %>"
+minimum_version: 2.5.2
+require_destination: true
+
+servers:
+  web:
+    hosts:
+      - "<%= ENV.fetch("KAMAL_HOST") %>"
+    proxy: false
+    options:
+      publish: "<%= ENV.fetch("KAMAL_WIREGUARD_IP") %>:8080:8080"
+      memory: "<%= ENV.fetch("KAMAL_MEMORY", "2g") %>"
+      cpus: "<%= ENV.fetch("KAMAL_CPUS", "2.0") %>"
+      health-cmd: "python -c 'import urllib.request; urllib.request.urlopen(\"http://127.0.0.1:8080/health/ready\", timeout=3)'"
+      health-interval: 10s
+      health-timeout: 5s
+      health-start-period: 120s
+      health-retries: 12
+      stop-timeout: 45
+
+env:
+  clear:
+    MANCALA_AI_CONFIG: /releases/current/service.json
+
+volumes:
+  - "<%= ENV.fetch("KAMAL_RELEASE_PATH") %>:/releases:ro"
+
+builder:
+  arch: amd64
+
+deploy_timeout: 180
+readiness_delay: 120
+drain_timeout: 45
+registry:
+  server: "<%= ENV.fetch("KAMAL_REGISTRY_SERVER") %>"
+  username: "<%= ENV.fetch("KAMAL_REGISTRY_USERNAME") %>"
+  password:
+    - KAMAL_REGISTRY_PASSWORD
