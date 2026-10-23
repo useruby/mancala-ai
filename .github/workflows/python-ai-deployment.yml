@@ -1,0 +1,109 @@
+name: Python AI Deployment
+
+on:
+  pull_request:
+    paths:
+      - "Dockerfile"
+      - ".dockerignore"
+      - "Gemfile"
+      - "Gemfile.lock"
+      - "config/deploy*.yml"
+      - "deploy/**"
+      - "ml/alphazero_lite/**"
+      - "model-artifact/current/**"
+      - "model-artifact/runtime/**"
+      - "docs/ai-service/**"
+      - ".github/workflows/python-ai-deployment.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Dockerfile"
+      - ".dockerignore"
+      - "Gemfile"
+      - "Gemfile.lock"
+      - "config/deploy*.yml"
+      - "deploy/**"
+      - "ml/alphazero_lite/**"
+      - "model-artifact/current/**"
+      - "model-artifact/runtime/**"
+      - "docs/ai-service/**"
+      - ".github/workflows/python-ai-deployment.yml"
+
+jobs:
+  container-runtime:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.8"
+          cache: pip
+          cache-dependency-path: |
+            deploy/requirements-test.txt
+      - name: Install pinned serving, test, and quality dependencies
+        run: python -m pip install -r deploy/requirements-test.txt
+      - name: Build native exact-root probe and verify committed identity
+        run: |
+          actual=$(sha256sum model-artifact/runtime/kalah_v1_tablebase | cut -d' ' -f1)
+          test "$actual" = d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48
+          test -x model-artifact/runtime/kalah_v1_tablebase
+          test "$(sha256sum model-artifact/runtime/kalah_v1_21.kvtb | cut -d' ' -f1)" = f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7
+      - name: Serving and asset regressions
+        run: |
+          python -m pytest deploy/test_assemble_release.py \
+            ml/alphazero_lite/test_serving_http.py \
+            ml/alphazero_lite/test_serving_workers.py \
+            ml/alphazero_lite/test_serving_engine.py \
+            ml/alphazero_lite/tests/test_ai_service_contract.py \
+            ml/alphazero_lite/test_native_exact_root_tablebase.py
+      - name: Assemble authenticated CI release
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/.tmp/deploy-ci"
+          python deploy/assemble_release.py deploy/ci-release-manifest.json "$GITHUB_WORKSPACE/.tmp/deploy-ci/release"
+          ln -s release "$GITHUB_WORKSPACE/.tmp/deploy-ci/current"
+      - name: Smoke-test packaged real assets through Uvicorn and supervised workers
+        env:
+          TMPDIR: ${{ github.workspace }}/.tmp
+        run: python deploy/test_real_assets.py "$GITHUB_WORKSPACE/.tmp/deploy-ci/release"
+      - name: Build production image
+        run: docker build --pull --tag "mancala-ai:${GITHUB_SHA}" .
+      - name: Exercise real Uvicorn, Pebble workers, model, and native exact-root over HTTP
+        env:
+          MANCALA_TEST_IMAGE: mancala-ai:${{ github.sha }}
+        run: python deploy/test_container.py "$GITHUB_WORKSPACE/.tmp/deploy-ci"
+      - name: Python quality gate for deployment code
+        run: |
+          python -m ruff check deploy
+          python -m ruff format --check deploy
+          git diff --check
+
+  kamal-config:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.8"
+          cache: pip
+          cache-dependency-path: deploy/requirements-test.txt
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3.6"
+          bundler-cache: true
+      - name: Install Python config test dependencies
+        run: python -m pip install -r deploy/requirements-test.txt
+      - name: Validate staging and production with pinned Kamal 2.5.2
+        env:
+          KAMAL_HOST: 192.0.2.1
+          KAMAL_WIREGUARD_IP: 192.0.2.1
+          KAMAL_RELEASE_PATH: /srv/mancala-ai/releases
+          KAMAL_IMAGE: useruby/mancala-ai
+          KAMAL_REGISTRY_SERVER: ghcr.io
+          KAMAL_REGISTRY_USERNAME: deployment-validation
+          KAMAL_REGISTRY_PASSWORD: validation-only
+        run: |
+          bundle exec kamal config -d staging
+          bundle exec kamal config -d production
+          python -m pytest deploy/test_kamal_config.py -q

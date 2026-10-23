@@ -1,0 +1,35 @@
+{
+  "asset_root": "/releases/current",
+  "worker_count": 1,
+  "startup_timeout": 90.0,
+  "execution_timeout": 30.0,
+  "shutdown_timeout": 10.0,
+  "bundles": {
+    "ci_current": {
+      "bundle_id": "ci-current-seed48-s455",
+      "kind": "single",
+      "artifacts": ["model-artifact/current"],
+      "policy_source": "current",
+      "value_source": "current",
+      "expected_artifact_sha256": ["4551493a81efeeb83e84339724a0199cf7e00cb3b04e32475ab9e5ac07a3781f"],
+      "expected_policy_sha256": ["b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"]
+    }
+  },
+  "profiles": {
+    "balanced@v1": {
+      "name": "balanced@v1",
+      "profile_id": "balanced@v1",
+      "bundle_id": "ci_current",
+      "require_runtime_search_policy": true,
+      "settings": {
+        "simulations": 128,
+        "c_puct": 1.25,
+        "fpu_mode": "zero",
+        "reuse_subtree": false,
+        "normalize_values": false,
+        "root_policy_mode": "deterministic",
+        "tactical_root_bias": 0.0
+      }
+    }
+  }
+}
