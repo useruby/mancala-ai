@@ -10,7 +10,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from deploy.assemble_release import artifact_identity, digest
@@ -167,7 +167,15 @@ def move(base: str, profile: str, request_id: str) -> dict:
         "profile": profile,
         "seed": 17,
     }
-    return request(base, "/v1/move", body)
+    deadline = time.monotonic() + 60
+    while time.monotonic() < deadline:
+        try:
+            return request(base, "/v1/move", body)
+        except HTTPError as error:
+            if error.code != 503:
+                raise
+            time.sleep(0.5)
+    raise AssertionError(f"search worker never served {request_id}")
 
 
 def docker(*args: str) -> str:
@@ -229,6 +237,9 @@ def main() -> None:
         )
         assert mount["RW"] is False
         assert Path(mount["Source"]).resolve() == release_a.resolve()
+        assert (
+            move(base, expected_a["profile"], "initial-A")["result"]["kind"] == "move"
+        )
 
         # Selecting/preparing B cannot retarget A's mounted release. Kill the
         # supervised search child to force Pebble to create its replacement.
