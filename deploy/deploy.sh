@@ -36,7 +36,22 @@ active_config="$(config_path "$previous_config")"
 kamal() {
   bundle exec kamal "$@" -c "$active_config" -d mancala-ai
 }
-old_version="$(kamal app version 2>/dev/null | tr -d '\r' | awk '!/^App Host:/ && NF { value=$0 } END { print value }' || true)"
+running_container="$(ssh "$KAMAL_HOST" docker ps \
+  --filter label=service=mancala-ai \
+  --filter label=destination=mancala-ai \
+  --filter status=running \
+  --format '{{.ID}}')"
+running_version=""
+if [[ -n "$running_container" ]]; then
+  running_version="$(ssh "$KAMAL_HOST" docker inspect \
+    --format '{{range .Config.Env}}{{println .}}{{end}}' "$running_container" \
+    | awk -F= '$1 == "KAMAL_VERSION" { print $2 }')"
+  if [[ -z "$running_version" || "$running_version" != "$previous_version" ]]; then
+    echo "running image version does not match the recorded deployment state" >&2
+    exit 2
+  fi
+fi
+old_version="${running_version:-$previous_version}"
 if [[ -n "$old_version" && ( -z "$previous_version" || -z "$previous_assets" || -z "$previous_config" ) ]]; then
   echo "existing service lacks wrapper release state; record its image and asset release before updating" >&2
   exit 2
@@ -88,7 +103,7 @@ else
 fi
 kamal config >/dev/null
 
-if [[ -n "$old_version" ]]; then
+if [[ -n "$running_container" ]]; then
   # Release the fixed published port before Kamal boots a replacement. Kamal
   # 2.5.2's app boot otherwise starts new before stopping old.
   # Stop using the current release's host and role configuration.
