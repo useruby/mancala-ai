@@ -1,9 +1,11 @@
 # Python AI service deployment
 
-The service image uses the immutable CPython 3.12 / Debian Trixie base
+The CI-tested service image runs CPython 3.12.15 on the immutable Debian Trixie base
 `python:3.12-slim-trixie@sha256:a0f57064cbdcd6285fa45f51237ab0b35ea8ebaed06a1f5973e89e19dfb86704`,
-FastAPI/Uvicorn, one Uvicorn process, and Pebble-owned search workers. Container dependencies are
-locked in `deploy/requirements-container.txt`; tests are pinned in
+FastAPI/Uvicorn, one Uvicorn process, and Pebble-owned search workers. The tested
+runtime dependency versions include FastAPI 0.135.1, Uvicorn 0.41.0, Pebble
+5.2.3, Pydantic 2.12.5, and NumPy 2.2.6. Container dependencies are locked in
+`deploy/requirements-container.txt`; tests are pinned in
 `deploy/requirements-test.txt`. Numerical libraries are limited
 to one thread per worker. The image runs as UID 10001. `SIGTERM` is delivered
 to Uvicorn (exec-form entry point); Uvicorn may wait 25 seconds for requests,
