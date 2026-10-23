@@ -171,9 +171,13 @@ def move(base: str, profile: str, request_id: str) -> dict:
 
 
 def docker(*args: str) -> str:
-    return subprocess.run(
-        ["docker", *args], check=True, text=True, capture_output=True
-    ).stdout.strip()
+    result = subprocess.run(["docker", *args], text=True, capture_output=True)
+    if result.returncode:
+        raise RuntimeError(
+            f"docker {' '.join(args)} failed ({result.returncode}): "
+            f"{result.stdout}\n{result.stderr}"
+        )
+    return result.stdout.strip()
 
 
 def running_container() -> tuple[str, dict]:
@@ -235,7 +239,16 @@ def main() -> None:
             container,
             "python",
             "-c",
-            "import os,signal; p='/proc/1/task/1/children'; ids=open(p).read().split(); assert ids; os.kill(int(ids[0]),signal.SIGKILL)",
+            "import os,signal; found=[]; procs=[]\n"
+            "for entry in os.listdir('/proc'):\n"
+            " if entry.isdigit() and entry != '1':\n"
+            "  try:\n"
+            "   status=open(f'/proc/{entry}/status').read(); cmd=open(f'/proc/{entry}/cmdline','rb').read().replace(b'\\0',b' ').decode(errors='replace')\n"
+            "   ppid=int(next(line.split()[1] for line in status.splitlines() if line.startswith('PPid:')))\n"
+            "   if ppid > 1: procs.append((int(entry),ppid,cmd))\n"
+            "   if 'multiprocessing.spawn' in cmd and 'spawn_main' in cmd: found.append(int(entry))\n"
+            "  except (OSError,StopIteration,ValueError): pass\n"
+            "assert found, f'no spawned worker process; descendants={procs!r}'; os.kill(found[0],signal.SIGKILL)",
         )
         wait_ready(base, expected_a["profile"])
         assert (
