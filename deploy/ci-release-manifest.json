@@ -7,6 +7,6 @@
     {"source": "../model-artifact/current/search_policy.json", "destination": "model-artifact/current/search_policy.json", "kind": "policy", "sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"},
     {"source": "../model-artifact/runtime/kalah_v1_tablebase", "destination": "model-artifact/runtime/kalah_v1_tablebase", "kind": "native_probe", "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48"},
     {"source": "../model-artifact/runtime/kalah_v1_21.kvtb", "destination": "model-artifact/runtime/kalah_v1_21.kvtb", "kind": "tablebase", "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"},
-    {"source": "ci-service.json", "destination": "service.json", "kind": "config", "sha256": "f9526ea51354c73c12a1c51d506c90cf6412d8d663a8c3dbf7f186998b6a0dd0"}
+    {"source": "ci-service.json", "destination": "service.json", "kind": "config", "sha256": "f7b22d1cdb0dcff10069801512729cb99522383b95602ce5ed7c13d1966913a4"}
   ]
 }
