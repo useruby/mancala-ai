@@ -1,4 +1,4 @@
-"""Validate deployment contracts and render both destinations with Kamal."""
+"""Validate the single deployment destination with pinned Kamal."""
 
 from __future__ import annotations
 
@@ -30,70 +30,62 @@ def command_env() -> dict[str, str]:
     return env
 
 
-def test_kamal_staging_and_production_config_render() -> None:
+def test_kamal_ai_config_render() -> None:
     env = command_env() | {
         "KAMAL_HOST": "192.0.2.1",
         "KAMAL_WIREGUARD_IP": "192.0.2.1",
-        "KAMAL_RELEASE_PATH": "/srv/mancala-ai/releases",
+        "MANCALA_AI_ASSET_RELEASE": "/srv/mancala-ai/releases/release-a",
         "KAMAL_IMAGE": "useruby/mancala-ai",
         "KAMAL_REGISTRY_SERVER": "ghcr.io",
         "KAMAL_REGISTRY_USERNAME": "ci-user",
         "KAMAL_REGISTRY_PASSWORD": "test-only",
     }
-    for destination, expected_environment in (
-        ("staging", "staging"),
-        ("production", "production"),
+    destination = "mancala-ai"
+    result = subprocess.run(
+        [str(BUNDLE), "exec", "kamal", "config", "-d", destination],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    rendered = subprocess.run(
+        [
+            str(BUNDLE),
+            "exec",
+            "ruby",
+            "-e",
+            'require "kamal"; require "json"; c=Kamal::Configuration.create_from(config_file: Pathname("config/deploy.yml"), destination: ARGV.fetch(0)); r=c.role("web"); puts JSON.generate({options: r.option_args, proxy: r.proxy, volume_args: c.volume_args, drain_timeout: c.drain_timeout, readiness_delay: c.readiness_delay})',
+            destination,
+        ],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert ":repository: ghcr.io/useruby/mancala-ai" in result.stdout
+    assert ":absolute_image: ghcr.io/useruby/mancala-ai:" in result.stdout
+    assert re.search(r":version: [0-9a-f]{40}", result.stdout)
+    options = json.loads(rendered.stdout)
+    assert options["proxy"] is None
+    assert "192.0.2.1:8080:8080" in " ".join(options["options"])
+    assert "/srv/mancala-ai/releases/release-a:/assets:ro" in " ".join(
+        options["volume_args"]
+    )
+    assert options["drain_timeout"] == 45
+    assert options["readiness_delay"] == 120
+    for docker_option in (
+        "--memory",
+        "--cpus",
+        "--health-cmd",
+        "--health-interval",
+        "--health-timeout",
+        "--health-start-period",
+        "--health-retries",
+        "--stop-timeout",
     ):
-        result = subprocess.run(
-            [str(BUNDLE), "exec", "kamal", "config", "-d", destination],
-            cwd=ROOT,
-            env=env,
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        assert ":repository: ghcr.io/useruby/mancala-ai" in result.stdout
-        assert ":absolute_image: ghcr.io/useruby/mancala-ai:" in result.stdout
-        assert re.search(r":version: [0-9a-f]{40}", result.stdout)
-        assert "/srv/mancala-ai/releases:/releases:ro" in result.stdout
-        overlay = (ROOT / f"config/deploy.{destination}.yml").read_text(
-            encoding="utf-8"
-        )
-        assert f"MANCALA_ENVIRONMENT: {expected_environment}" in overlay
-        rendered = subprocess.run(
-            [
-                str(BUNDLE),
-                "exec",
-                "ruby",
-                "-e",
-                'require "kamal"; require "json"; c=Kamal::Configuration.create_from(config_file: Pathname("config/deploy.yml"), destination: ARGV.fetch(0)); r=c.role("web"); puts JSON.generate({options: r.option_args, proxy: r.proxy, volume_args: c.volume_args, drain_timeout: c.drain_timeout, readiness_delay: c.readiness_delay})',
-                destination,
-            ],
-            cwd=ROOT,
-            env=env,
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        options = json.loads(rendered.stdout)
-        assert options["proxy"] is None
-        assert "192.0.2.1:8080:8080" in " ".join(options["options"])
-        assert "/srv/mancala-ai/releases:/releases:ro" in " ".join(
-            options["volume_args"]
-        )
-        assert options["drain_timeout"] == 45
-        assert options["readiness_delay"] == 120
-        for docker_option in (
-            "--memory",
-            "--cpus",
-            "--health-cmd",
-            "--health-interval",
-            "--health-timeout",
-            "--health-start-period",
-            "--health-retries",
-            "--stop-timeout",
-        ):
-            assert docker_option in options["options"]
+        assert docker_option in options["options"]
 
 
 @pytest.mark.parametrize(
@@ -101,7 +93,7 @@ def test_kamal_staging_and_production_config_render() -> None:
     [
         "KAMAL_HOST",
         "KAMAL_WIREGUARD_IP",
-        "KAMAL_RELEASE_PATH",
+        "MANCALA_AI_ASSET_RELEASE",
         "KAMAL_IMAGE",
         "KAMAL_REGISTRY_SERVER",
         "KAMAL_REGISTRY_USERNAME",
@@ -111,7 +103,7 @@ def test_kamal_requires_operator_values(missing_key: str) -> None:
     env = command_env() | {
         "KAMAL_HOST": "192.0.2.1",
         "KAMAL_WIREGUARD_IP": "192.0.2.1",
-        "KAMAL_RELEASE_PATH": "/srv/mancala-ai/releases",
+        "MANCALA_AI_ASSET_RELEASE": "/srv/mancala-ai/releases/release-a",
         "KAMAL_IMAGE": "useruby/mancala-ai",
         "KAMAL_REGISTRY_SERVER": "ghcr.io",
         "KAMAL_REGISTRY_USERNAME": "ci-user",
@@ -119,7 +111,7 @@ def test_kamal_requires_operator_values(missing_key: str) -> None:
     }
     env.pop(missing_key)
     result = subprocess.run(
-        [str(BUNDLE), "exec", "kamal", "config", "-d", "staging"],
+        [str(BUNDLE), "exec", "kamal", "config", "-d", "mancala-ai"],
         cwd=ROOT,
         env=env,
         capture_output=True,
@@ -134,7 +126,8 @@ def test_wireguard_only_publish_and_runtime_controls() -> None:
     assert 'publish: "<%= ENV.fetch("KAMAL_WIREGUARD_IP") %>:8080:8080"' in config
     assert "proxy: false" in config
     assert (
-        'volumes:\n  - "<%= ENV.fetch("KAMAL_RELEASE_PATH") %>:/releases:ro"' in config
+        'volumes:\n  - "<%= ENV.fetch("MANCALA_AI_ASSET_RELEASE") %>:/assets:ro"'
+        in config
     )
     for setting in (
         "memory:",

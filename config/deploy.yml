@@ -3,6 +3,10 @@ image: "<%= ENV.fetch("KAMAL_IMAGE") %>"
 minimum_version: 2.5.2
 require_destination: true
 
+ssh:
+  user: "<%= ENV.fetch("KAMAL_SSH_USER", "root") %>"
+  port: <%= ENV.fetch("KAMAL_SSH_PORT", "22") %>
+
 servers:
   web:
     hosts:
@@ -21,13 +25,14 @@ servers:
 
 env:
   clear:
-    MANCALA_AI_CONFIG: /releases/current/service.json
+    MANCALA_AI_CONFIG: /assets/service.json
 
 volumes:
-  - "<%= ENV.fetch("KAMAL_RELEASE_PATH") %>:/releases:ro"
+  - "<%= ENV.fetch("MANCALA_AI_ASSET_RELEASE") %>:/assets:ro"
 
 builder:
   arch: amd64
+  driver: "<%= ENV.fetch("KAMAL_BUILDER_DRIVER", "docker-container") %>"
 
 deploy_timeout: 180
 readiness_delay: 120

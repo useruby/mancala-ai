@@ -1,5 +1,5 @@
 {
-  "asset_root": "/releases/current",
+  "asset_root": "/assets",
   "worker_count": 1,
   "startup_timeout": 90.0,
   "execution_timeout": 30.0,

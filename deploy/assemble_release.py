@@ -175,7 +175,7 @@ def assemble(manifest_path: Path, destination: Path) -> None:
                 raise ValueError(
                     f"service config must explicitly define {sorted(required_config)}"
                 )
-            if config.get("asset_root") != "/releases/current":
+            if config.get("asset_root") != "/assets":
                 raise ValueError(
                     "packaged service config asset_root must match the read-only deployment mount"
                 )

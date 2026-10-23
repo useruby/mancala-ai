@@ -61,7 +61,7 @@ def build_fixture(root: Path) -> tuple[Path, list[dict]]:
     artifact = root / "model-artifact/current"
     policy = artifact / "search_policy.json"
     config = {
-        "asset_root": "/releases/current",
+        "asset_root": "/assets",
         "worker_count": 1,
         "startup_timeout": 60,
         "execution_timeout": 10,
@@ -120,7 +120,7 @@ def test_assemble_valid_release_and_retain_config_paths(tmp_path: Path) -> None:
             encoding="utf-8"
         )
     )
-    assert config["asset_root"] == "/releases/current"
+    assert config["asset_root"] == "/assets"
     assert (
         release / config["bundles"]["current"]["artifacts"][0] / "weights.json"
     ).is_file()

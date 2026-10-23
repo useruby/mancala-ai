@@ -9,3 +9,7 @@
 .ruff_cache/
 **/__pycache__/
 *.pyc
+/.kamal/deploy.lock
+/.kamal/mancala-ai-deployment
+/.kamal/config-revisions/
+/.kamal/secrets.mancala-ai
