@@ -139,8 +139,11 @@ jobs:
           sudo install -m 600 -o kamaltest -g kamaltest "$RUNNER_TEMP/kamal-test-key.pub" /home/kamaltest/.ssh/authorized_keys
           sudo mkdir -p /run/sshd
           sudo /usr/sbin/sshd -p 2222 -o PidFile="$RUNNER_TEMP/sshd.pid" -o PasswordAuthentication=no -o PermitRootLogin=no
+          eval "$(ssh-agent -s)"
+          ssh-add "$RUNNER_TEMP/kamal-test-key"
+          printf 'SSH_AUTH_SOCK=%s\nSSH_AGENT_PID=%s\n' "$SSH_AUTH_SOCK" "$SSH_AGENT_PID" >> "$GITHUB_ENV"
           mkdir -p ~/.ssh
-          printf 'Host 127.0.0.1\n  User kamaltest\n  Port 2222\n  IdentityFile %s\n  StrictHostKeyChecking no\n  UserKnownHostsFile /dev/null\n' "$RUNNER_TEMP/kamal-test-key" >> ~/.ssh/config
+          ssh-keyscan -p 2222 127.0.0.1 >> ~/.ssh/known_hosts
           docker run --rm httpd:2.4-alpine htpasswd -Bbn testuser testpassword > "$RUNNER_TEMP/registry-auth"
           docker run -d --name kamal-test-registry -p 5000:5000 \
             -e REGISTRY_AUTH=htpasswd \
@@ -171,6 +174,7 @@ jobs:
           mkdir -p .kamal
           printf 'KAMAL_REGISTRY_PASSWORD=%s\n' "$KAMAL_REGISTRY_PASSWORD" > .kamal/secrets.mancala-ai
           chmod 600 .kamal/secrets.mancala-ai
+          python -m pytest deploy/test_deploy_wrapper.py -q
           python -m deploy.test_kamal_lifecycle "$GITHUB_WORKSPACE/ml/alphazero_lite/fixtures/incumbent_forensic_proxy_current"
       - name: Stop disposable target and registry
         if: always()
