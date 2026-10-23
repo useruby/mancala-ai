@@ -148,7 +148,7 @@ jobs:
             -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
             -v "$RUNNER_TEMP/registry-auth:/auth/htpasswd:ro" registry:2
           for attempt in $(seq 1 30); do
-            if docker exec kamal-test-registry wget -q -O- http://127.0.0.1:5000/v2/ >/dev/null; then break; fi
+            if docker exec kamal-test-registry wget -q --user=testuser --password=testpassword -O- http://127.0.0.1:5000/v2/ >/dev/null; then break; fi
             sleep 1
           done
       - name: Exercise real Kamal deploy, rollback, failed-start recovery, and immutable assets
@@ -164,6 +164,7 @@ jobs:
           MANCALA_AI_DEPLOY_LOCK: ${{ github.workspace }}/.tmp/lifecycle/lock
           TMPDIR: ${{ github.workspace }}/.tmp
         run: |
+          mkdir -p .kamal
           printf 'KAMAL_REGISTRY_PASSWORD=%s\n' "$KAMAL_REGISTRY_PASSWORD" > .kamal/secrets.mancala-ai
           chmod 600 .kamal/secrets.mancala-ai
           python deploy/test_kamal_lifecycle.py "$GITHUB_WORKSPACE/ml/alphazero_lite/fixtures/incumbent_forensic_proxy_current"
