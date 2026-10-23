@@ -179,6 +179,7 @@ jobs:
       - name: Stop disposable target and registry
         if: always()
         run: |
+          ssh -o BatchMode=yes -l kamaltest -p 2222 127.0.0.1 'rm -rf "$HOME/mancala-ai-lifecycle"' || true
           docker ps -aq --filter label=service=mancala-ai | xargs -r docker rm -f || true
           docker rm -f kamal-test-registry || true
           if test -f "$RUNNER_TEMP/sshd.pid"; then sudo kill "$(<"$RUNNER_TEMP/sshd.pid")" || true; fi

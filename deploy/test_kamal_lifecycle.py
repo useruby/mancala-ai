@@ -188,6 +188,36 @@ def docker(*args: str) -> str:
     return result.stdout.strip()
 
 
+def publish_asset_releases(
+    releases: dict[str, Path], env: dict[str, str]
+) -> dict[str, str]:
+    host = env["KAMAL_HOST"]
+    user = env["KAMAL_SSH_USER"]
+    port = env["KAMAL_SSH_PORT"]
+    ssh = ["ssh", "-o", "BatchMode=yes", "-l", user, "-p", port, host]
+    home = run(ssh + ['printf %s "$HOME"'], env=env).strip()
+    remote_root = f"{home}/mancala-ai-lifecycle"
+    run(ssh + [f"mkdir -p {remote_root}"], env=env)
+    remote_paths = {}
+    for name, release in releases.items():
+        destination = f"{remote_root}/{name}"
+        run(
+            [
+                "scp",
+                "-r",
+                "-o",
+                "BatchMode=yes",
+                "-P",
+                port,
+                str(release),
+                f"{user}@{host}:{destination}",
+            ],
+            env=env,
+        )
+        remote_paths[name] = destination
+    return remote_paths
+
+
 def running_container() -> tuple[str, dict]:
     identifiers = docker(
         "ps", "--filter", "label=service=mancala-ai", "--format", "{{.ID}}"
@@ -223,9 +253,17 @@ def main() -> None:
         freeze_release(release_bad)
 
         env = os.environ.copy()
+        remote_assets = publish_asset_releases(
+            {
+                "release-a": release_a,
+                "release-b": release_b,
+                "release-broken": release_bad,
+            },
+            env,
+        )
         env["MANCALA_AI_DEPLOY_STATE"] = str(root / "state")
         env["MANCALA_AI_DEPLOY_LOCK"] = str(root / "lock")
-        env["MANCALA_AI_ASSET_RELEASE"] = str(release_a)
+        env["MANCALA_AI_ASSET_RELEASE"] = remote_assets["release-a"]
         env["VERSION"] = "lifecycle-a"
         run(["deploy/deploy.sh"], env=env)
         identity_a = wait_ready(base, expected_a["profile"])
@@ -236,14 +274,14 @@ def main() -> None:
             item for item in inspect["Mounts"] if item["Destination"] == "/assets"
         )
         assert mount["RW"] is False
-        assert Path(mount["Source"]).resolve() == release_a.resolve()
+        assert mount["Source"] == remote_assets["release-a"]
         assert (
             move(base, expected_a["profile"], "initial-A")["result"]["kind"] == "move"
         )
 
         # Selecting/preparing B cannot retarget A's mounted release. Kill the
         # supervised search child to force Pebble to create its replacement.
-        env["MANCALA_AI_ASSET_RELEASE"] = str(release_b)
+        env["MANCALA_AI_ASSET_RELEASE"] = remote_assets["release-b"]
         assert json.loads(docker("inspect", container))[0]["Mounts"]
         docker(
             "exec",
@@ -285,7 +323,7 @@ def main() -> None:
         identity_a = wait_ready(base, expected_a["profile"])
         assert_identity(identity_a, expected_a)
 
-        env["MANCALA_AI_ASSET_RELEASE"] = str(release_bad)
+        env["MANCALA_AI_ASSET_RELEASE"] = remote_assets["release-broken"]
         env["VERSION"] = "lifecycle-broken"
         try:
             run(["deploy/deploy.sh"], env=env)
@@ -306,7 +344,7 @@ def main() -> None:
             item for item in recovered["Mounts"] if item["Destination"] == "/assets"
         )
         assert recovered_mount["RW"] is False
-        assert Path(recovered_mount["Source"]).resolve() == release_a.resolve()
+        assert recovered_mount["Source"] == remote_assets["release-a"]
         for release in (release_a, release_b, release_bad):
             thaw_release(release)
 
