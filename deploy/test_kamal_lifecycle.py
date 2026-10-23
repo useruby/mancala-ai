@@ -15,7 +15,6 @@ from urllib.request import Request, urlopen
 
 from deploy.assemble_release import artifact_identity, digest
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 

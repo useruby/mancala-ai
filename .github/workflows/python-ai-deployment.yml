@@ -148,9 +148,10 @@ jobs:
             -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
             -v "$RUNNER_TEMP/registry-auth:/auth/htpasswd:ro" registry:2
           for attempt in $(seq 1 30); do
-            if docker exec kamal-test-registry wget -q --user=testuser --password=testpassword -O- http://127.0.0.1:5000/v2/ >/dev/null; then break; fi
+            if curl -fsS -u testuser:testpassword -o /dev/null http://127.0.0.1:5000/v2/; then break; fi
             sleep 1
           done
+          curl -fsS -u testuser:testpassword -o /dev/null http://127.0.0.1:5000/v2/
       - name: Exercise real Kamal deploy, rollback, failed-start recovery, and immutable assets
         env:
           KAMAL_HOST: kamaltest@127.0.0.1
@@ -167,7 +168,7 @@ jobs:
           mkdir -p .kamal
           printf 'KAMAL_REGISTRY_PASSWORD=%s\n' "$KAMAL_REGISTRY_PASSWORD" > .kamal/secrets.mancala-ai
           chmod 600 .kamal/secrets.mancala-ai
-          python deploy/test_kamal_lifecycle.py "$GITHUB_WORKSPACE/ml/alphazero_lite/fixtures/incumbent_forensic_proxy_current"
+          python -m deploy.test_kamal_lifecycle "$GITHUB_WORKSPACE/ml/alphazero_lite/fixtures/incumbent_forensic_proxy_current"
       - name: Stop disposable target and registry
         if: always()
         run: |
