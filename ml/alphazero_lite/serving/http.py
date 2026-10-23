@@ -164,6 +164,27 @@ def create_app(
     async def live():
         return {"status": "live"}
 
+    @app.get("/health/identity", response_model=None)
+    async def identity():
+        """Expose configured release identities for private deployment checks."""
+        return {
+            "bundles": {
+                name: {
+                    "bundle_id": bundle.bundle_id,
+                    "artifact_sha256": list(bundle.expected_artifact_sha256),
+                    "policy_sha256": list(bundle.expected_policy_sha256),
+                }
+                for name, bundle in config.bundles.items()
+            },
+            "profiles": {
+                name: {
+                    "profile_id": profile.profile_id,
+                    "bundle_id": profile.bundle_id,
+                }
+                for name, profile in config.profiles.items()
+            },
+        }
+
     @app.get(
         "/health/ready",
         response_model=None,

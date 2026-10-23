@@ -187,6 +187,8 @@ async def test_move_and_health_stay_responsive_during_search(setup_app):
                 await asyncio.sleep(0)
             assert (await client.get("/health/live")).status_code == 200
             assert (await client.get("/health/ready")).status_code == 200
+            identity = (await client.get("/health/identity")).json()
+            assert identity["profiles"]["balanced@v1"]["profile_id"] == "balanced"
             workers[0].gate.set()
             response = await pending
             assert response.status_code == 200

@@ -1,0 +1,4 @@
+# The sole deployment destination serves Rails staging and production clients.
+env:
+  clear:
+    MANCALA_ENVIRONMENT: production
