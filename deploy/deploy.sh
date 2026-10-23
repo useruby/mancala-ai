@@ -36,15 +36,12 @@ active_config="$(config_path "$previous_config")"
 kamal() {
   bundle exec kamal "$@" -c "$active_config" -d mancala-ai
 }
-running_container="$(ssh "$KAMAL_HOST" docker ps \
-  --filter label=service=mancala-ai \
-  --filter label=destination=mancala-ai \
-  --filter status=running \
-  --format '{{.ID}}')"
+running_container="$(ssh "$KAMAL_HOST" \
+  "docker ps --filter label=service=mancala-ai --filter label=destination=mancala-ai --filter status=running --format '{{.ID}}'")"
 running_version=""
 if [[ -n "$running_container" ]]; then
-  running_version="$(ssh "$KAMAL_HOST" docker inspect \
-    --format '{{range .Config.Env}}{{println .}}{{end}}' "$running_container" \
+  running_version="$(ssh "$KAMAL_HOST" \
+    "docker inspect --format '{{range .Config.Env}}{{println .}}{{end}}' '$running_container'" \
     | awk -F= '$1 == "KAMAL_VERSION" { print $2 }')"
   if [[ -z "$running_version" || "$running_version" != "$previous_version" ]]; then
     echo "running image version does not match the recorded deployment state" >&2
