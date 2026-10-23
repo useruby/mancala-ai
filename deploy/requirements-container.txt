@@ -1,4 +1,4 @@
-# Tested deployment dependency lock for CPython 3.12.8 / Linux x86_64.
+# Tested deployment dependency lock for CPython 3.12 / Linux amd64.
 annotated-doc==0.0.5
 annotated-types==0.8.0
 anyio==4.15.1

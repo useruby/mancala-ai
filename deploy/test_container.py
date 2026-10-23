@@ -75,6 +75,16 @@ def main() -> None:
             "VECLIB_MAXIMUM_THREADS",
         ):
             assert environment[variable] == "1"
+        python_version = subprocess.run(
+            ["docker", "exec", container, "python", "--version"],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=15,
+        )
+        version_text = python_version.stdout + python_version.stderr
+        assert version_text.startswith("Python 3.12."), version_text
+        print(f"Container runtime: {version_text.strip()}", flush=True)
         published = (
             subprocess.run(
                 ["docker", "port", container, "8080/tcp"],
