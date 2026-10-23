@@ -161,6 +161,7 @@ jobs:
           KAMAL_REGISTRY_SERVER: 127.0.0.1:5000
           KAMAL_REGISTRY_USERNAME: testuser
           KAMAL_REGISTRY_PASSWORD: testpassword
+          KAMAL_BUILDER_DRIVER: docker
           MANCALA_AI_DEPLOY_STATE: ${{ github.workspace }}/.tmp/lifecycle/state
           MANCALA_AI_DEPLOY_LOCK: ${{ github.workspace }}/.tmp/lifecycle/lock
           TMPDIR: ${{ github.workspace }}/.tmp

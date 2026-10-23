@@ -28,6 +28,7 @@ volumes:
 
 builder:
   arch: amd64
+  driver: "<%= ENV.fetch("KAMAL_BUILDER_DRIVER", "docker-container") %>"
 
 deploy_timeout: 180
 readiness_delay: 120
