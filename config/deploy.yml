@@ -3,6 +3,10 @@ image: "<%= ENV.fetch("KAMAL_IMAGE") %>"
 minimum_version: 2.5.2
 require_destination: true
 
+ssh:
+  user: "<%= ENV.fetch("KAMAL_SSH_USER", "root") %>"
+  port: <%= ENV.fetch("KAMAL_SSH_PORT", "22") %>
+
 servers:
   web:
     hosts:

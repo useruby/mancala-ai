@@ -155,6 +155,8 @@ jobs:
       - name: Exercise real Kamal deploy, rollback, failed-start recovery, and immutable assets
         env:
           KAMAL_HOST: 127.0.0.1
+          KAMAL_SSH_USER: kamaltest
+          KAMAL_SSH_PORT: 2222
           KAMAL_WIREGUARD_IP: 127.0.0.1
           MANCALA_AI_ASSET_RELEASE: ${{ github.workspace }}/.tmp/lifecycle/initial-assets
           KAMAL_IMAGE: mancala-ai
