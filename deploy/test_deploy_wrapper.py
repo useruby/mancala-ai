@@ -18,15 +18,15 @@ def wrapper(tmp_path: Path) -> tuple[dict[str, str], Path]:
     bindir.mkdir()
     log = tmp_path / "commands.log"
     for name, content in {
-        "ssh": '''#!/bin/sh
+        "ssh": """#!/bin/sh
 printf 'ssh %s\\n' "$*" >> "$COMMAND_LOG"
 case "$*" in
   *"docker ps"*) printf 'old-container\\n' ;;
   *"docker inspect"*) printf 'KAMAL_VERSION=%s\\n' "${RUNNING_VERSION:-release-a}" ;;
   *"test -d"*) exit "${PREFLIGHT_STATUS:-0}" ;;
 esac
-''',
-        "bundle": '''#!/bin/sh
+""",
+        "bundle": """#!/bin/sh
 printf 'bundle %s\\n' "$*" >> "$COMMAND_LOG"
 case "$*" in
   *"kamal deploy"*) exit "${DEPLOY_STATUS:-0}" ;;
@@ -37,8 +37,8 @@ case "$*" in
     exit "${ROLLBACK_STATUS:-0}" ;;
   *"kamal app stop"*) exit "${STOP_STATUS:-0}" ;;
 esac
-''',
-        "python": f'''#!/bin/sh
+""",
+        "python": f"""#!/bin/sh
 case "$*" in
   *urllib.request*)
     if [ -n "${{FAIL_FIRST_READINESS:-}}" ]; then
@@ -49,14 +49,14 @@ case "$*" in
     exit 0 ;;
 esac
 exec {sys.executable} "$@"
-''',
-        "mv": '''#!/bin/sh
+""",
+        "mv": """#!/bin/sh
 case "$2" in
   "$MANCALA_AI_DEPLOY_STATE")
     if [ "${FAIL_STATE_WRITE:-0}" = 1 ]; then exit 1; fi ;;
 esac
 exec /usr/bin/mv "$@"
-''',
+""",
     }.items():
         executable = bindir / name
         executable.write_text(content, encoding="utf-8")
@@ -80,9 +80,7 @@ exec /usr/bin/mv "$@"
         encoding="utf-8",
     )
     state = tmp_path / "state"
-    state.write_text(
-        f"release-a\t{assets}\trelease-a-config\t\t\t\n", encoding="utf-8"
-    )
+    state.write_text(f"release-a\t{assets}\trelease-a-config\t\t\t\n", encoding="utf-8")
     env = os.environ.copy() | {
         "PATH": f"{bindir}:{os.environ['PATH']}",
         "COMMAND_LOG": str(log),
@@ -162,7 +160,7 @@ def test_target_drift_is_rejected_before_stop(wrapper) -> None:
     result = invoke(env)
     assert result.returncode != 0
     assert "target drift" in result.stderr
-    assert "kamal app stop" not in log.read_text(encoding="utf-8")
+    assert not log.exists() or "kamal app stop" not in log.read_text(encoding="utf-8")
 
 
 def test_failed_recovery_is_reported(wrapper) -> None:
@@ -172,7 +170,9 @@ def test_failed_recovery_is_reported(wrapper) -> None:
     result = invoke(env)
     assert result.returncode != 0
     assert "recovery failed: Kamal could not restore" in result.stderr
-    assert Path(env["MANCALA_AI_DEPLOY_STATE"]).read_text().startswith("RECOVERY_FAILED\t")
+    assert (
+        Path(env["MANCALA_AI_DEPLOY_STATE"]).read_text().startswith("RECOVERY_FAILED\t")
+    )
 
 
 def test_rollback_restores_recorded_image_and_environment(wrapper) -> None:
