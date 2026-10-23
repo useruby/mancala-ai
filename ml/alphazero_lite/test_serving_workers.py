@@ -367,6 +367,12 @@ def test_idle_pool_loss_preserves_other_ready_slot():
         lost = slots[0]
         healthy = slots[1]
         os.kill(lost.pid, signal.SIGKILL)
+        _await(
+            lambda: (
+                workers.status.slots[0].generation > lost.generation
+                or workers.status.slots[0].state != "ready"
+            )
+        )
         result = _action(workers, "healthy-slot").result(timeout=3)
         assert result["pid"] == healthy.pid
         _await(lambda: workers.status.slots[0].generation > lost.generation)
