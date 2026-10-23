@@ -24,11 +24,18 @@ python deploy/assemble_release.py /secure/release/manifest.json \
   /srv/mancala-ai/releases/2026-10-23.1
 ```
 
-Select an absolute versioned directory in `MANCALA_AI_ASSET_RELEASE`. The
-container mounts that directory read-only at `/assets`; do not use a mutable
+Select an absolute versioned directory on the `mancala-ai` host in
+`MANCALA_AI_ASSET_RELEASE`. The wrapper validates it remotely using the same
+`KAMAL_SSH_USER` and `KAMAL_SSH_PORT` as Kamal; it need not exist on the
+deployment runner. The container mounts that directory read-only at `/assets`; do not use a mutable
 `current` symlink. Record the image revision, deployment configuration revision,
-and asset release identifier together in the release record. Rollbacks restore
-all three as a unit.
+and asset release identifier together in the release record. The configuration
+snapshot also records the resolved non-secret image repository, registry
+location and username, target host, SSH user/port, WireGuard port binding,
+runtime sizing, builder, and asset path. The registry password remains a Kamal
+secret reference and is never copied into the release record. Rollbacks restore
+the recorded configuration and asset release as a unit. A changed host, SSH
+user, or SSH port is rejected before the current service is stopped.
 
 ## Network and deployment
 
@@ -45,8 +52,9 @@ bundle exec kamal config -d mancala-ai
 deploy/deploy.sh
 ```
 
-The wrapper takes an exclusive lock, stops the current container, deploys with
-the pinned Kamal CLI, then checks readiness on the WireGuard address. Because
+The wrapper takes an exclusive lock, performs remote asset and target preflight,
+stops the current container, deploys with the pinned Kamal CLI, then checks
+readiness on the WireGuard address. Because
 port 8080 cannot be bound concurrently, each update includes an expected API
 interruption from stop through replacement health verification. Do not run
 Kamal deploy/rollback directly; serialize all operations through the wrapper
@@ -60,9 +68,10 @@ invalid JSON behavior, resource use, worker capacity and startup duration.
 
 ## Failure recovery and rollback
 
-If replacement startup or health verification fails, the wrapper invokes
-`kamal rollback PREVIOUS_VERSION` with the previous asset mount restored, then
-checks readiness. Verify its reported model/profile identities before restoring
+If replacement startup, health verification, or release-state persistence
+fails, the wrapper stops the replacement to release port 8080, then invokes
+`kamal rollback PREVIOUS_VERSION` with the previous asset mount restored and
+checks readiness. Recovery failures are reported explicitly. Verify its reported model/profile identities before restoring
 client traffic expectations. The wrapper retains the current and prior complete
 release records; use its rollback subcommand for an intentional rollback:
 
