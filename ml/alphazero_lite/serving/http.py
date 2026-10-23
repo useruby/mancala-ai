@@ -81,12 +81,31 @@ class _Entry:
     callers: int
     completed_at: float | None = None
     response: dict | None = None
+    finalized: bool = False
+    request: dict | None = None
+
+
+def _finalize_entry(
+    entries: OrderedDict, request_id: str, entry: _Entry, now: float
+) -> None:
+    """Finalize only this task's generation of a request ID."""
+    if entry.finalized:
+        return
+    entry.finalized = True
+    if entries.get(request_id) is not entry:
+        return
+    if entry.response is None:
+        # Errors and cancellations are not retained as successful results.
+        del entries[request_id]
+        return
+    entry.completed_at = now
 
 
 def create_app(
     config: ServiceConfig,
     *,
     worker_factory: Callable[..., Any] = SearchWorkers,
+    clock: Callable[[], float] = time.monotonic,
 ) -> FastAPI:
     """Create an application with injectable workers and lifespan ownership."""
 
@@ -195,6 +214,24 @@ def create_app(
             key, _ = completed.pop(0)
             del entries[key]
 
+    def task_finished(entries: OrderedDict, request_id: str, entry: _Entry) -> None:
+        try:
+            if not entry.task.cancelled():
+                result = entry.task.result()
+                # Validate before retaining. Invalid results follow the ordinary
+                # error path for all waiters and do not poison duplicate cache.
+                validate_response(
+                    MoveRequest.model_validate(entry.request),
+                    result,
+                    search_profile_id=None,
+                )
+                entry.response = result
+        except BaseException:
+            entry.response = None
+        finally:
+            _finalize_entry(entries, request_id, entry, clock())
+            prune(entries, clock())
+
     @app.post(
         "/v1/move",
         response_model=MoveResponse,
@@ -259,7 +296,7 @@ def create_app(
                 )
             fingerprint = hashlib.sha256(req.model_dump_json().encode()).hexdigest()
             entries: OrderedDict = request.app.state.entries
-            now = time.monotonic()
+            now = clock()
             prune(entries, now)
             entry = entries.get(req.request_id)
             if entry is not None and entry.fingerprint != fingerprint:
@@ -273,38 +310,44 @@ def create_app(
             if entry is None:
                 task = asyncio.create_task(execute(workers, req))
                 entry = _Entry(fingerprint, task, 0)
+                entry.request = req.model_dump(mode="python")
                 entries[req.request_id] = entry
+                task.add_done_callback(
+                    lambda _task, target=entry, key=req.request_id, store=entries: (
+                        task_finished(store, key, target)
+                    )
+                )
             entry.callers += 1
+            disconnect = asyncio.create_task(_wait_for_disconnect(request))
             try:
                 if entry.response is not None:
                     result = entry.response
                 else:
-                    result = await asyncio.shield(entry.task)
-                    entry.response = result
-                    entry.completed_at = time.monotonic()
-                    prune(entries, entry.completed_at)
+                    done, _pending = await asyncio.wait(
+                        (entry.task, disconnect),
+                        return_when=asyncio.FIRST_COMPLETED,
+                    )
+                    if disconnect in done:
+                        raise _ClientDisconnected
+                    result = entry.task.result()
+                    # Completion callback owns retention, including abandoned
+                    # tasks; this awaiter only validates for its response.
                 response = validate_response(req, result, search_profile_id=None)
                 outcome = "success"
                 return JSONResponse(
                     status_code=200, content=response.model_dump(mode="json")
                 )
             finally:
+                disconnect.cancel()
                 entry.callers -= 1
                 if entry.callers == 0 and not entry.task.done():
                     entry.task.cancel()
-                if (
-                    entry.callers == 0
-                    and entry.task.done()
-                    and entry.completed_at is None
-                ):
-                    entry.completed_at = time.monotonic()
-                    prune(entries, entry.completed_at)
+                elif entry.callers == 0 and entry.task.done():
+                    task_finished(entries, req.request_id, entry)
         except CapacityExhaustedError:
             status = request.app.state.workers.status
-            if (
-                any(slot.state in {"ready", "busy"} for slot in status.slots)
-                and status.in_flight >= status.capacity
-            ):
+            healthy = sum(slot.state in {"ready", "busy"} for slot in status.slots)
+            if healthy and status.in_flight >= healthy:
                 outcome = "capacity_exhausted"
                 return await error(
                     429,
@@ -396,3 +439,14 @@ def create_app(
 
     app.openapi = contract_openapi
     return app
+
+
+class _ClientDisconnected(Exception):
+    """Internal signal: the HTTP peer left while its search was pending."""
+
+
+async def _wait_for_disconnect(request: Request) -> None:
+    while True:
+        message = await request.receive()
+        if message["type"] == "http.disconnect":
+            return

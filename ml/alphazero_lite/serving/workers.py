@@ -34,9 +34,15 @@ def _process_alive(pid: int) -> bool:
     except PermissionError:
         return True
     try:
-        return open(f"/proc/{pid}/stat", encoding="ascii").read().split()[2] != "Z"
-    except FileNotFoundError:
+        return _process_state(pid) != "Z"
+    except (FileNotFoundError, ProcessLookupError):
+        # The process can exit after kill(pid, 0) but before procfs is read.
         return False
+
+
+def _process_state(pid: int) -> str:
+    """Read procfs state separately so disappearance races are testable."""
+    return open(f"/proc/{pid}/stat", encoding="ascii").read().split()[2]
 
 
 class WorkerError(RuntimeError):

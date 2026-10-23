@@ -34,7 +34,7 @@
     "responses": {
       "InvalidRequest": {"description": "Malformed request or wrong JSON types", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}, "headers": {}},
       "Conflict": {"description": "Request ID reused with a different payload", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
-      "InvalidState": {"description": "Semantically invalid state, unknown profile, or illegal selected result validation failure", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
+      "InvalidState": {"description": "Semantically invalid state or unknown profile", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
       "Capacity": {"description": "Search capacity exhausted; retryable", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
       "Unavailable": {"description": "No usable worker; retryable", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
       "Deadline": {"description": "Search deadline expired. No best-so-far move is returned; retryable according to caller policy", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
