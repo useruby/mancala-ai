@@ -89,7 +89,30 @@ def main() -> None:
                 if request(base, "/health/ready")[0] == 200:
                     break
                 time.sleep(1)
-            except (URLError, TimeoutError):
+            except (URLError, TimeoutError, OSError):
+                state = json.loads(
+                    subprocess.run(
+                        [
+                            "docker",
+                            "inspect",
+                            container,
+                            "--format",
+                            "{{json .State}}",
+                        ],
+                        capture_output=True,
+                        text=True,
+                        check=True,
+                    ).stdout
+                )
+                if not state["Running"]:
+                    logs = subprocess.run(
+                        ["docker", "logs", container],
+                        capture_output=True,
+                        text=True,
+                    )
+                    raise RuntimeError(
+                        f"service container exited during startup: {logs.stdout}{logs.stderr}"
+                    )
                 time.sleep(1)
         else:
             raise RuntimeError("container did not become ready")
@@ -154,7 +177,7 @@ def main() -> None:
 
         assert request(base, "/v1/move", b"{malformed")[0] == 400
         stop = subprocess.run(
-            ["docker", "stop", "--time", "35", container],
+            ["docker", "stop", "--timeout", "45", container],
             capture_output=True,
             text=True,
             check=True,
@@ -177,7 +200,9 @@ def main() -> None:
         assert "Application shutdown complete" in logs.stdout + logs.stderr
     finally:
         if not stopped:
-            subprocess.run(["docker", "stop", "--time", "35", container], check=False)
+            subprocess.run(
+                ["docker", "stop", "--timeout", "45", container], check=False
+            )
         subprocess.run(["docker", "rm", "--force", container], check=False)
 
 
