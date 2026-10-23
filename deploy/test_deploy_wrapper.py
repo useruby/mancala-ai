@@ -51,8 +51,10 @@ esac
 exec {sys.executable} "$@"
 ''',
         "mv": '''#!/bin/sh
-case "$2" in "$MANCALA_AI_DEPLOY_STATE")
-  if [ "${FAIL_STATE_WRITE:-0}" = 1 ]; then exit 1; fi ;;
+case "$2" in
+  "$MANCALA_AI_DEPLOY_STATE")
+    if [ "${FAIL_STATE_WRITE:-0}" = 1 ]; then exit 1; fi ;;
+esac
 exec /usr/bin/mv "$@"
 ''',
     }.items():
@@ -129,7 +131,7 @@ def test_failed_preflight_does_not_stop_incumbent(wrapper) -> None:
     env["PREFLIGHT_STATUS"] = "1"
     result = invoke(env)
     assert result.returncode != 0
-    assert "kamal app stop" not in log.read_text(encoding="utf-8")
+    assert not log.exists() or "kamal app stop" not in log.read_text(encoding="utf-8")
 
 
 def test_failure_after_replacement_start_restores_previous_release(wrapper) -> None:
