@@ -49,8 +49,10 @@ def main() -> None:
         capture_output=True,
         text=True,
         check=True,
+        timeout=300,
     )
     container = process.stdout.strip()
+    print(f"Started service container {container}", flush=True)
     stopped = False
     try:
         inspect = json.loads(
@@ -59,6 +61,7 @@ def main() -> None:
                 capture_output=True,
                 text=True,
                 check=True,
+                timeout=30,
             ).stdout
         )[0]
         assert inspect["Config"]["User"] == "10001:10001"
@@ -102,6 +105,7 @@ def main() -> None:
                         capture_output=True,
                         text=True,
                         check=True,
+                        timeout=15,
                     ).stdout
                 )
                 if not state["Running"]:
@@ -109,6 +113,7 @@ def main() -> None:
                         ["docker", "logs", container],
                         capture_output=True,
                         text=True,
+                        timeout=15,
                     )
                     raise RuntimeError(
                         f"service container exited during startup: {logs.stdout}{logs.stderr}"
@@ -126,16 +131,22 @@ def main() -> None:
                 capture_output=True,
                 text=True,
                 check=True,
+                timeout=15,
             ).stdout
             logs = subprocess.run(
-                ["docker", "logs", container], capture_output=True, text=True
+                ["docker", "logs", container],
+                capture_output=True,
+                text=True,
+                timeout=15,
             )
             raise RuntimeError(
                 f"container did not become ready; state={state}\n{logs.stdout}{logs.stderr}"
             )
 
+        print("Container readiness check passed", flush=True)
         assert request(base, "/health/live")[0] == 200
         assert request(base, "/health/ready")[0] == 200
+        print("Container liveness check passed", flush=True)
         ordinary = {
             "request_id": "container-ordinary",
             "game_revision": 1,
@@ -153,6 +164,7 @@ def main() -> None:
         assert status == 200 and moved["result"]["kind"] == "move"
         assert moved["result"]["move"] in [0, 1, 2, 3, 5]
         assert moved["completed_simulations"] > 0
+        print("Ordinary search HTTP check passed", flush=True)
 
         exact = {
             "request_id": "container-native-exact-root",
@@ -171,6 +183,7 @@ def main() -> None:
         assert status == 200 and exact_response["result"]["kind"] == "move"
         assert exact_response["result"]["move"] in [0, 5]
         assert exact_response["completed_simulations"] == 0
+        print("Native exact-root HTTP check passed", flush=True)
 
         terminal = {
             "request_id": "container-terminal",
@@ -193,11 +206,13 @@ def main() -> None:
         assert terminal_response["completed_simulations"] == 0
 
         assert request(base, "/v1/move", b"{malformed")[0] == 400
+        print("Terminal and malformed-request checks passed", flush=True)
         stop = subprocess.run(
             ["docker", "stop", "--timeout", "45", container],
             capture_output=True,
             text=True,
             check=True,
+            timeout=60,
         )
         stopped = True
         state = json.loads(
@@ -206,21 +221,27 @@ def main() -> None:
                 capture_output=True,
                 text=True,
                 check=True,
+                timeout=15,
             ).stdout
         )
         assert state["ExitCode"] in (0, 143), (
             f"container exited {state['ExitCode']}: {stop.stdout}"
         )
         logs = subprocess.run(
-            ["docker", "logs", container], capture_output=True, text=True
+            ["docker", "logs", container],
+            capture_output=True,
+            text=True,
+            timeout=15,
         )
         assert "Application shutdown complete" in logs.stdout + logs.stderr
     finally:
         if not stopped:
             subprocess.run(
-                ["docker", "stop", "--timeout", "45", container], check=False
+                ["docker", "stop", "--timeout", "45", container],
+                check=False,
+                timeout=60,
             )
-        subprocess.run(["docker", "rm", "--force", container], check=False)
+        subprocess.run(["docker", "rm", "--force", container], check=False, timeout=15)
 
 
 if __name__ == "__main__":
