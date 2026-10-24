@@ -12,6 +12,7 @@ import logging
 from pathlib import Path
 import re
 import time
+import uuid
 from typing import Any, Callable, Mapping
 
 from fastapi import FastAPI, Request
@@ -83,6 +84,13 @@ class _Entry:
     response: dict | None = None
     finalized: bool = False
     request: dict | None = None
+
+
+def _adapt_http_request(payload: Any) -> tuple[Any, bool]:
+    """Adapt caller-ID-free HTTP requests to the stable ID-bearing engine model."""
+    if not isinstance(payload, dict) or "request_id" in payload:
+        return payload, isinstance(payload, dict) and "request_id" in payload
+    return {**payload, "request_id": f"http-{uuid.uuid4().hex}"}, False
 
 
 def _finalize_entry(
@@ -269,11 +277,13 @@ def create_app(
     async def move(request: Request):
         started = time.perf_counter()
         req_id = None
+        correlation_id = None
         profile = None
         outcome = "internal_error"
         try:
             try:
                 payload = await request.json()
+                payload, caller_supplied_request_id = _adapt_http_request(payload)
                 if isinstance(payload, dict):
                     candidate = payload.get("request_id")
                     if isinstance(candidate, str) and re.fullmatch(
@@ -281,6 +291,7 @@ def create_app(
                     ):
                         req_id = candidate
                 req = MoveRequest.model_validate(payload)
+                correlation_id = req.request_id
             except (ValueError, ValidationError, json.JSONDecodeError):
                 outcome = "invalid_request"
                 return await error(
@@ -355,9 +366,10 @@ def create_app(
                     # tasks; this awaiter only validates for its response.
                 response = validate_response(req, result, search_profile_id=None)
                 outcome = "success"
-                return JSONResponse(
-                    status_code=200, content=response.model_dump(mode="json")
-                )
+                body = response.model_dump(mode="json")
+                if not caller_supplied_request_id:
+                    body.pop("request_id", None)
+                return JSONResponse(status_code=200, content=body)
             finally:
                 disconnect.cancel()
                 entry.callers -= 1
@@ -444,7 +456,7 @@ def create_app(
             LOGGER.info(
                 "move_request",
                 extra={
-                    "request_id": req_id,
+                    "request_id": correlation_id,
                     "profile": profile,
                     "outcome": outcome,
                     "elapsed_ms": int((time.perf_counter() - started) * 1000),

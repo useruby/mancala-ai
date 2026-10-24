@@ -46,7 +46,7 @@ class AiServiceContractTest(unittest.TestCase):
     ):
         expected = {
             "MoveRequest": (
-                {"request_id", "game_revision", "state", "profile", "seed"},
+                {"game_revision", "state", "profile", "seed"},
                 "properties",
             ),
             "State": (
@@ -61,7 +61,6 @@ class AiServiceContractTest(unittest.TestCase):
             ),
             "MoveResponse": (
                 {
-                    "request_id",
                     "game_revision",
                     "state_sha256",
                     "result",
@@ -129,7 +128,9 @@ class AiServiceContractTest(unittest.TestCase):
         with self.assertRaises(ValidationError):
             MoveRequest.model_validate(request.model_dump())
         valid_response = FIXTURES["valid_responses"][0]
-        response = MoveResponse.model_validate(valid_response)
+        response = MoveResponse.model_validate(
+            dict(valid_response, request_id=raw["request_id"])
+        )
         response.result.move = True
         with self.assertRaises(ValidationError):
             validate_response(raw, response)
@@ -146,9 +147,13 @@ class AiServiceContractTest(unittest.TestCase):
             request_validator.validate(raw)
             MoveRequest.model_validate(raw)
             validate_state(raw["state"])
+        for raw in FIXTURES["ruby_shaped_requests"]:
+            request_validator.validate(raw)
+            validate_state(raw["state"])
         for raw in FIXTURES["valid_responses"]:
             response_validator.validate(raw)
-            MoveResponse.model_validate(raw)
+            self.assertNotIn("request_id", raw)
+            MoveResponse.model_validate(dict(raw, request_id="fixture-internal"))
 
     def test_standard_integer_semantics_differ_from_runtime_strictness(self):
         raw = dict(FIXTURES["valid_requests"][0], seed=1.0)
@@ -203,7 +208,7 @@ class AiServiceContractTest(unittest.TestCase):
         for req, res in zip(requests, responses, strict=False):
             if req["request_id"] == "fixture-terminal":
                 continue
-            validate_response(req, res)
+            validate_response(req, dict(res, request_id=req["request_id"]))
         req = requests[0]
         res = responses[0]
         for key, value in (

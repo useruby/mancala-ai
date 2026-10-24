@@ -1,0 +1,15 @@
+{
+  "files": [
+    {"source": "../docs/data/seed505-strength-screen-v3/runtime-artifacts/E4/metadata.json", "destination": "components/E4/metadata.json", "sha256": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c", "kind": "metadata"},
+    {"source": "../docs/data/seed505-strength-screen-v3/runtime-artifacts/E4/model.npz", "destination": "components/E4/model.npz", "sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad", "kind": "weight"},
+    {"source": "../docs/data/seed505-strength-screen-v3/runtime-artifacts/E4/weights.json", "destination": "components/E4/weights.json", "sha256": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136", "kind": "weight"},
+    {"source": "../docs/data/seed505-strength-screen-v3/runtime-artifacts/E4/search_policy.json", "destination": "components/E4/search_policy.json", "sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d", "kind": "policy"},
+    {"source": "../docs/data/seed505-strength-screen-v3/runtime-artifacts/initializer/metadata.json", "destination": "components/initializer/metadata.json", "sha256": "7ce41fde58c219c9fd2aa7a912db1c2da357099d6f72e3f715d9a78ce500cb5d", "kind": "metadata"},
+    {"source": "../docs/data/seed505-strength-screen-v3/runtime-artifacts/initializer/model.npz", "destination": "components/initializer/model.npz", "sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c", "kind": "weight"},
+    {"source": "../docs/data/seed505-strength-screen-v3/runtime-artifacts/initializer/weights.json", "destination": "components/initializer/weights.json", "sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c", "kind": "weight"},
+    {"source": "../docs/data/seed505-strength-screen-v3/runtime-artifacts/initializer/search_policy.json", "destination": "components/initializer/search_policy.json", "sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d", "kind": "policy"},
+    {"source": "../model-artifact/runtime/kalah_v1_tablebase", "destination": "model-artifact/runtime/kalah_v1_tablebase", "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48", "kind": "native_probe"},
+    {"source": "../model-artifact/runtime/kalah_v1_21.kvtb", "destination": "model-artifact/runtime/kalah_v1_21.kvtb", "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7", "kind": "tablebase"},
+    {"source": "serving-release.json", "destination": "service.json", "sha256": "8525718a68f7738f58f2df4431d8fc478d37ed1f3cb26f89fc6e85e68720c14f", "kind": "config"}
+  ]
+}

@@ -63,6 +63,9 @@ jobs:
           mkdir -p "$GITHUB_WORKSPACE/.tmp/deploy-ci"
           python deploy/assemble_release.py deploy/ci-release-manifest.json "$GITHUB_WORKSPACE/.tmp/deploy-ci/release"
           ln -s release "$GITHUB_WORKSPACE/.tmp/deploy-ci/current"
+      - name: Assemble authenticated balanced E2E release
+        run: |
+          python deploy/assemble_release.py deploy/release-manifest.json "$GITHUB_WORKSPACE/.tmp/deploy-ci/e2e-release"
       - name: Smoke-test packaged real assets through Uvicorn and supervised workers
         env:
           TMPDIR: ${{ github.workspace }}/.tmp
@@ -73,6 +76,10 @@ jobs:
         env:
           MANCALA_TEST_IMAGE: mancala-ai:${{ github.sha }}
         run: python deploy/test_container.py "$GITHUB_WORKSPACE/.tmp/deploy-ci/release"
+      - name: Smoke-test composed balanced release in the production container
+        env:
+          MANCALA_TEST_IMAGE: mancala-ai:${{ github.sha }}
+        run: python deploy/test_container.py "$GITHUB_WORKSPACE/.tmp/deploy-ci/e2e-release"
       - name: Python quality gate for deployment code
         run: |
           python -m ruff check deploy
