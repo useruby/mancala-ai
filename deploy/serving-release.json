@@ -1,0 +1,41 @@
+{
+  "asset_root": "/assets",
+  "worker_count": 1,
+  "startup_timeout": 90,
+  "execution_timeout": 10,
+  "shutdown_timeout": 10,
+  "bundles": {
+    "policy-value-p": {
+      "bundle_id": "policy-value-p",
+      "kind": "composed",
+      "artifacts": ["components/initializer", "components/E4"],
+      "policy_source": "candidate",
+      "value_source": "current",
+      "expected_artifact_sha256": [
+        "07f7fd71ef9dea5480dd010c7808f6fcc1c2821c3f54da2203d17140a8bed79c",
+        "ea6151620e9af849f6aa0aa90661be7db279a316a3b748b1f904a7a29ad70aa9"
+      ],
+      "expected_policy_sha256": [
+        "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+      ]
+    }
+  },
+  "profiles": {
+    "balanced@v1": {
+      "name": "balanced@v1",
+      "profile_id": "balanced@v1",
+      "bundle_id": "policy-value-p",
+      "require_runtime_search_policy": true,
+      "settings": {
+        "simulations": 1200,
+        "c_puct": 1.25,
+        "fpu_mode": "zero",
+        "reuse_subtree": false,
+        "normalize_values": false,
+        "root_policy_mode": "deterministic",
+        "tactical_root_bias": 0.0
+      }
+    }
+  }
+}

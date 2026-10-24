@@ -13,7 +13,7 @@ servers:
       - "<%= ENV.fetch("KAMAL_HOST") %>"
     proxy: false
     options:
-      publish: "<%= ENV.fetch("KAMAL_WIREGUARD_IP") %>:8080:8080"
+      publish: "<%= ENV.fetch("KAMAL_WIREGUARD_IP") %>:80:8080"
       memory: "<%= ENV.fetch("KAMAL_MEMORY", "2g") %>"
       cpus: "<%= ENV.fetch("KAMAL_CPUS", "2.0") %>"
       health-cmd: "python -c 'import urllib.request; urllib.request.urlopen(\"http://127.0.0.1:8080/health/ready\", timeout=3)'"

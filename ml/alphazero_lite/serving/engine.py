@@ -506,7 +506,7 @@ class MoveEngine:
                 game_revision=req.game_revision,
                 state_sha256=state_sha256(state),
                 result=TerminalResult(kind="terminal", move=None),
-                model_bundle_id=self._bundle_ids[profile.bundle_id],
+                model_bundle_id="model:none@v1",
                 search_profile_id=self._profile_ids[req.profile],
                 elapsed_ms=0,
                 completed_simulations=0,
@@ -515,7 +515,6 @@ class MoveEngine:
             return validate_response(
                 req,
                 response,
-                model_bundle_id=self._bundle_ids[profile.bundle_id],
                 search_profile_id=self._profile_ids[req.profile],
             )
         # The arena adapter uses fixed ownership: player-relative field names do

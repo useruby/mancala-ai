@@ -192,3 +192,20 @@ def test_implicit_search_setting_is_rejected(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="every search setting"):
         assemble(manifest, destination)
     assert not destination.exists()
+
+
+def test_actual_balanced_release_manifest_authenticates_composed_assets(
+    tmp_path: Path,
+) -> None:
+    root = Path(__file__).resolve().parents[1]
+    destination = tmp_path / "balanced-release"
+    assemble(root / "deploy/release-manifest.json", destination)
+    config = json.loads((destination / "service.json").read_text(encoding="utf-8"))
+    bundle = config["bundles"]["policy-value-p"]
+    profile = config["profiles"]["balanced@v1"]
+    assert bundle["kind"] == "composed"
+    assert bundle["policy_source"] == "candidate"
+    assert bundle["value_source"] == "current"
+    assert profile["settings"]["simulations"] == 1200
+    assert config["execution_timeout"] == 10
+    assert (destination / "release-manifest.json").is_file()

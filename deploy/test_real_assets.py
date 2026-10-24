@@ -87,7 +87,6 @@ def main() -> None:
 
             assert send(base, "/health/live")[0] == 200
             ordinary = {
-                "request_id": "real-asset-ordinary",
                 "game_revision": 1,
                 "state": {
                     "player0_pits": [4, 3, 2, 1, 0, 5],
@@ -101,8 +100,12 @@ def main() -> None:
             }
             status, response = send(base, "/v1/move", ordinary)
             assert status == 200 and response["result"]["kind"] == "move"
+            assert "request_id" not in response
             assert response["result"]["move"] in [0, 1, 2, 3, 5]
-            assert response["completed_simulations"] == 128
+            assert (
+                response["completed_simulations"]
+                == config["profiles"]["balanced@v1"]["settings"]["simulations"]
+            )
 
             exact = {
                 "request_id": "real-asset-exact-root",
@@ -141,7 +144,11 @@ def main() -> None:
                 "move": None,
             }
             assert response["completed_simulations"] == 0
+            assert response["model_bundle_id"] == "model:none@v1"
             assert send(base, "/v1/move", b"{malformed")[0] == 400
+            assert (
+                send(base, "/v1/move", {**ordinary, "profile": "unknown@v1"})[0] == 422
+            )
             clean_shutdown = True
         finally:
             process.terminate()

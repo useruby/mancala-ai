@@ -69,7 +69,7 @@ def test_kamal_ai_config_render() -> None:
     assert re.search(r":version: [0-9a-f]{40}", result.stdout)
     options = json.loads(rendered.stdout)
     assert options["proxy"] is None
-    assert "192.0.2.1:8080:8080" in " ".join(options["options"])
+    assert "192.0.2.1:80:8080" in " ".join(options["options"])
     assert "/srv/mancala-ai/releases/release-a:/assets:ro" in " ".join(
         options["volume_args"]
     )
@@ -123,7 +123,7 @@ def test_kamal_requires_operator_values(missing_key: str) -> None:
 
 def test_wireguard_only_publish_and_runtime_controls() -> None:
     config = (ROOT / "config/deploy.yml").read_text(encoding="utf-8")
-    assert 'publish: "<%= ENV.fetch("KAMAL_WIREGUARD_IP") %>:8080:8080"' in config
+    assert 'publish: "<%= ENV.fetch("KAMAL_WIREGUARD_IP") %>:80:8080"' in config
     assert "proxy: false" in config
     assert (
         'volumes:\n  - "<%= ENV.fetch("MANCALA_AI_ASSET_RELEASE") %>:/assets:ro"'

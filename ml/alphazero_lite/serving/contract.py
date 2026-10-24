@@ -181,6 +181,7 @@ def validate_response(
             not isinstance(res.result, TerminalResult)
             or res.termination_reason != "terminal"
             or res.completed_simulations != 0
+            or res.model_bundle_id != "model:none@v1"
         ):
             raise ValueError(
                 "terminal state requires terminal result and zero simulations"

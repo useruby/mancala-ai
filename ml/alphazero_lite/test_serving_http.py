@@ -197,6 +197,61 @@ async def test_move_and_health_stay_responsive_during_search(setup_app):
 
 
 @pytest.mark.asyncio
+async def test_ruby_shaped_request_has_no_id_and_distinct_requests_are_independent(
+    setup_app,
+):
+    app, workers = setup_app
+    async with app.router.lifespan_context(app):
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            payload = {
+                "game_revision": 8,
+                "state": STATE,
+                "profile": "balanced@v1",
+                "seed": 11,
+            }
+            first = asyncio.create_task(client.post("/v1/move", json=payload))
+            while workers[0].calls < 1:
+                await asyncio.sleep(0)
+            second = asyncio.create_task(client.post("/v1/move", json=payload))
+            while workers[0].calls < 2:
+                await asyncio.sleep(0)
+            workers[0].gate.set()
+            responses = await asyncio.gather(first, second)
+            assert all(response.status_code == 200 for response in responses)
+            for response in responses:
+                body = response.json()
+                assert "request_id" not in body
+                assert body["game_revision"] == 8
+                assert body["result"] == {"kind": "move", "move": 0}
+            assert workers[0].calls == 2
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("current_player", [0, 1])
+async def test_ruby_shaped_player_ownership_is_preserved(setup_app, current_player):
+    app, workers = setup_app
+    async with app.router.lifespan_context(app):
+        workers[0].gate.set()
+        payload = {
+            "game_revision": 12 + current_player,
+            "state": {**STATE, "current_player": current_player},
+            "profile": "balanced@v1",
+            "seed": 21,
+        }
+        response = await _post(app, payload)
+        assert response.status_code == 200
+        assert "request_id" not in response.json()
+        assert (
+            payload["state"][f"player{current_player}_pits"][
+                response.json()["result"]["move"]
+            ]
+            > 0
+        )
+
+
+@pytest.mark.asyncio
 async def test_strict_request_and_semantic_state_errors(setup_app):
     app, _workers = setup_app
     async with app.router.lifespan_context(app):

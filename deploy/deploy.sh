@@ -177,7 +177,7 @@ recover() {
       mark_recovery_failed
       exit "$status"
     fi
-    python -c 'import time,urllib.request; u="http://"+__import__("os").environ["KAMAL_WIREGUARD_IP"]+":8080/health/ready"; end=time.monotonic()+180
+    python -c 'import time,urllib.request; u="http://"+__import__("os").environ["KAMAL_WIREGUARD_IP"]+":80/health/ready"; end=time.monotonic()+180
 while time.monotonic()<end:
  try: urllib.request.urlopen(u,timeout=3); break
  except Exception: time.sleep(1)
@@ -209,7 +209,7 @@ if [[ "${1:-deploy}" == "rollback" ]]; then
 else
   kamal deploy
 fi
-python -c 'import time,urllib.request; u="http://"+__import__("os").environ["KAMAL_WIREGUARD_IP"]+":8080/health/ready"; end=time.monotonic()+180
+python -c 'import time,urllib.request; u="http://"+__import__("os").environ["KAMAL_WIREGUARD_IP"]+":80/health/ready"; end=time.monotonic()+180
 while time.monotonic()<end:
  try: urllib.request.urlopen(u,timeout=3); break
  except Exception: time.sleep(1)

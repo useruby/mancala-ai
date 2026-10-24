@@ -231,7 +231,7 @@ def running_container() -> tuple[str, dict]:
 
 def main() -> None:
     source = Path(sys.argv[1]).resolve()
-    port = int(os.environ.get("MANCALA_LIFECYCLE_PORT", "8080"))
+    port = int(os.environ.get("MANCALA_LIFECYCLE_PORT", "80"))
     base = f"http://127.0.0.1:{port}"
     with tempfile.TemporaryDirectory(prefix="kamal-lifecycle-") as temporary:
         root = Path(temporary)
@@ -316,7 +316,7 @@ def main() -> None:
         started_at = inspect_b["State"]["StartedAt"]
         assert stopped_at != "0001-01-01T00:00:00Z"
         assert stopped_at <= started_at, (stopped_at, started_at)
-        assert docker("port", inspect_b["Id"], "8080/tcp") == "127.0.0.1:8080"
+        assert docker("port", inspect_b["Id"], "8080/tcp") == "127.0.0.1:80"
 
         # Rollback uses the recorded previous image revision and asset path.
         run(["deploy/deploy.sh", "rollback"], env=env)
