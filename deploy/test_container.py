@@ -158,7 +158,6 @@ def main() -> None:
         assert request(base, "/health/ready")[0] == 200
         print("Container liveness check passed", flush=True)
         ordinary = {
-            "request_id": "container-ordinary",
             "game_revision": 1,
             "state": {
                 "player0_pits": [4, 3, 2, 1, 0, 5],
@@ -172,6 +171,7 @@ def main() -> None:
         }
         status, moved = request(base, "/v1/move", ordinary)
         assert status == 200 and moved["result"]["kind"] == "move"
+        assert "request_id" not in moved
         assert moved["result"]["move"] in [0, 1, 2, 3, 5]
         assert moved["completed_simulations"] > 0
         print("Ordinary search HTTP check passed", flush=True)
@@ -214,8 +214,12 @@ def main() -> None:
             "move": None,
         }
         assert terminal_response["completed_simulations"] == 0
+        assert terminal_response["model_bundle_id"] == "model:none@v1"
 
         assert request(base, "/v1/move", b"{malformed")[0] == 400
+        assert (
+            request(base, "/v1/move", {**ordinary, "profile": "unknown@v1"})[0] == 422
+        )
         print("Terminal and malformed-request checks passed", flush=True)
         stop = subprocess.run(
             ["docker", "stop", "--timeout", "45", container],
