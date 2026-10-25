@@ -51,6 +51,19 @@ user, or SSH port is rejected before the current service is stopped.
 
 ## Network and deployment
 
+### Registry credential
+
+The GHCR token is stored as an age-encrypted file in
+`deploy/secrets/ghcr-registry-password.age`. Its age identity is local to the
+deployment account at `~/.config/mancala-ai/age-identity.txt` and must never be
+committed or copied into the repository. Install `age` (`sudo pacman -S age` on
+Arch Linux), then run `deploy/setup_registry_secret.sh` once. It creates the
+identity if needed and prompts without echoing for a GHCR token with
+`write:packages` permission. The encrypted file may be committed and shared;
+the setup script also creates the ignored `.kamal/secrets.mancala-ai` loader so
+deployments decrypt it without prompting.
+To rotate the token, run `deploy/setup_registry_secret.sh --rotate`.
+
 Set `KAMAL_HOST` to the dedicated host, `KAMAL_WIREGUARD_IP` to its WireGuard
 address, `MANCALA_AI_ASSET_RELEASE` to the selected versioned asset directory,
 `KAMAL_IMAGE` to `useruby/mancala-ai`, registry server/username/password, and
