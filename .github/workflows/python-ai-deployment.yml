@@ -181,7 +181,7 @@ jobs:
           mkdir -p .kamal
           printf 'KAMAL_REGISTRY_PASSWORD=%s\n' "$KAMAL_REGISTRY_PASSWORD" > .kamal/secrets.mancala-ai
           chmod 600 .kamal/secrets.mancala-ai
-          python -m pytest deploy/test_deploy_wrapper.py -q
+          python -m pytest deploy/test_deploy_wrapper.py deploy/test_registry_secret_setup.py -q
           python -m deploy.test_kamal_lifecycle "$GITHUB_WORKSPACE/ml/alphazero_lite/fixtures/incumbent_forensic_proxy_current"
       - name: Stop disposable target and registry
         if: always()

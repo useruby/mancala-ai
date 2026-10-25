@@ -16,7 +16,32 @@ KAMAL_SSH_PORT="${KAMAL_SSH_PORT:-22}"
 KAMAL_MEMORY="${KAMAL_MEMORY:-2g}"
 KAMAL_CPUS="${KAMAL_CPUS:-2.0}"
 KAMAL_BUILDER_DRIVER="${KAMAL_BUILDER_DRIVER:-docker-container}"
-export KAMAL_SSH_USER KAMAL_SSH_PORT KAMAL_MEMORY KAMAL_CPUS KAMAL_BUILDER_DRIVER
+if [[ "${KAMAL_REGISTRY_PASSWORD+x}" ]]; then
+  [[ -n "$KAMAL_REGISTRY_PASSWORD" ]] || {
+    echo "KAMAL_REGISTRY_PASSWORD cannot be empty" >&2
+    exit 2
+  }
+else
+  age_identity="${MANCALA_AI_AGE_IDENTITY:-$HOME/.config/mancala-ai/age-identity.txt}"
+  encrypted_registry_password="$ROOT/deploy/secrets/ghcr-registry-password.age"
+  command -v age >/dev/null || {
+    echo "age is required to decrypt the GHCR registry credential" >&2
+    exit 2
+  }
+  [[ -r "$age_identity" && -r "$encrypted_registry_password" ]] || {
+    echo "GHCR age identity or encrypted credential is missing" >&2
+    exit 2
+  }
+  if ! KAMAL_REGISTRY_PASSWORD="$(age --decrypt --identity "$age_identity" "$encrypted_registry_password")"; then
+    echo "could not decrypt the GHCR registry credential" >&2
+    exit 2
+  fi
+  [[ -n "$KAMAL_REGISTRY_PASSWORD" ]] || {
+    echo "decrypted GHCR registry credential is empty" >&2
+    exit 2
+  }
+fi
+export KAMAL_SSH_USER KAMAL_SSH_PORT KAMAL_MEMORY KAMAL_CPUS KAMAL_BUILDER_DRIVER KAMAL_REGISTRY_PASSWORD
 state="${MANCALA_AI_DEPLOY_STATE:-.kamal/mancala-ai-deployment}"
 config_store="${MANCALA_AI_CONFIG_STORE:-.kamal/config-revisions}"
 previous_version=""

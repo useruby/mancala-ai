@@ -9,7 +9,7 @@ recipient_file="$secret_dir/ghcr-recipient.txt"
 secret_file="$secret_dir/ghcr-registry-password.age"
 kamal_dir="$ROOT/.kamal"
 kamal_secrets="$kamal_dir/secrets.mancala-ai"
-kamal_secret_line='KAMAL_REGISTRY_PASSWORD=$(age --decrypt --identity "$HOME/.config/mancala-ai/age-identity.txt" deploy/secrets/ghcr-registry-password.age)'
+kamal_secret_line='KAMAL_REGISTRY_PASSWORD=$KAMAL_REGISTRY_PASSWORD'
 rotate=0
 
 if [[ "${1:-}" == "--rotate" && $# == 1 ]]; then
@@ -52,10 +52,6 @@ else
   chmod 0644 "$recipient_file"
 fi
 
-if [[ -e "$secret_file" && "$rotate" -ne 1 ]]; then
-  echo "encrypted registry secret already exists; use --rotate to replace it" >&2
-  exit 1
-fi
 if [[ -e "$kamal_secrets" && ( ! -f "$kamal_secrets" || -L "$kamal_secrets" ) ]]; then
   echo "Kamal secrets path must be a regular file: $kamal_secrets" >&2
   exit 1
@@ -67,20 +63,40 @@ if [[ -f "$kamal_secrets" ]] && \
   exit 1
 fi
 
-read -r -s -p 'GHCR token with write:packages permission: ' token
-printf '\n'
-[[ -n "$token" ]] || {
-  echo "registry token cannot be empty" >&2
-  exit 1
-}
+if [[ -f "$secret_file" && "$rotate" -ne 1 ]]; then
+  if ! existing_token="$(age --decrypt --identity "$identity" "$secret_file")"; then
+    echo "could not decrypt existing GHCR registry credential" >&2
+    exit 1
+  fi
+  [[ -n "$existing_token" ]] || {
+    echo "existing GHCR registry credential decrypts to an empty value" >&2
+    exit 1
+  }
+  unset existing_token
+else
+  read -r -s -p 'GHCR token with write:packages permission: ' token
+  printf '\n'
+  [[ -n "$token" ]] || {
+    echo "registry token cannot be empty" >&2
+    exit 1
+  }
 
-temporary="$(mktemp "$secret_dir/.ghcr-registry-password.XXXXXX")"
-trap 'rm -f "$temporary"; unset token' EXIT
-printf '%s' "$token" | age --encrypt --recipient "$recipient" --output "$temporary"
-unset token
-chmod 0644 "$temporary"
-mv -f "$temporary" "$secret_file"
-trap - EXIT
+  temporary="$(mktemp "$secret_dir/.ghcr-registry-password.XXXXXX")"
+  trap 'rm -f "$temporary"; unset token decrypted_token' EXIT
+  printf '%s' "$token" | age --encrypt --recipient "$recipient" --output "$temporary"
+  if ! decrypted_token="$(age --decrypt --identity "$identity" "$temporary")"; then
+    echo "could not verify encrypted GHCR registry credential" >&2
+    exit 1
+  fi
+  [[ "$decrypted_token" == "$token" ]] || {
+    echo "encrypted GHCR registry credential verification failed" >&2
+    exit 1
+  }
+  unset token decrypted_token
+  chmod 0644 "$temporary"
+  mv -f "$temporary" "$secret_file"
+  trap - EXIT
+fi
 
 mkdir -p "$kamal_dir"
 if [[ ! -f "$kamal_secrets" ]]; then
