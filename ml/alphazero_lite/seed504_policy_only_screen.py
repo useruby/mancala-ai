@@ -416,6 +416,7 @@ def _pair_rows(root: Path, index: int, opening: dict[str, Any]) -> list[dict[str
         or notes.get("current_simulations") != SIMULATIONS
         or notes.get("workers_used") != 1
         or notes.get("base_seed") != BASE_SEED + index
+        or notes.get("seed") != BASE_SEED + index
         or notes.get("seed_contract") != "azlite_eval_seed_v2"
         or notes.get("exact_root_solve_threshold") != 16
         or notes.get("exact_leaf_solve_mode") != "disabled"

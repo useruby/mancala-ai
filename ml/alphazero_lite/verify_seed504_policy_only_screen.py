@@ -58,7 +58,12 @@ def verify(root: Path = protocol.ROOT) -> dict[str, Any]:
             or command.get("registration_sha256")
             != protocol.sha(out / "registration.json")
             or command.get("suite_sha256") != protocol.sha(out / "openings.jsonl")
+            or command.get("seed") != protocol.BASE_SEED + index
             or command.get("component_assignments") != registration["assignments"]
+            or command.get("component_files")
+            != {
+                key: value["files"] for key, value in registration["components"].items()
+            }
         ):
             raise ValueError(f"command_binding_mismatch:{index}")
     complete = len(committed) == protocol.OPENINGS and len(ledger) == protocol.GAMES
