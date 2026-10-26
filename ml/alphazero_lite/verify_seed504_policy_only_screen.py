@@ -29,7 +29,8 @@ def verify(root: Path = protocol.ROOT) -> dict[str, Any]:
         index = int(command["opening_index"])
         if (
             index not in range(protocol.OPENINGS)
-            or command.get("argv") != protocol.command(root, index)
+            or command.get("argv")
+            != protocol.command(root, index, prepare_opening=False)
             or command.get("registration_sha256")
             != protocol.sha(out / "registration.json")
             or command.get("suite_sha256") != protocol.sha(out / "openings.jsonl")

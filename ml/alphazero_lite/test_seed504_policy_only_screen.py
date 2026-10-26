@@ -94,6 +94,32 @@ def test_semantic_corruption_is_rejected_after_receipt_rebinding(
         protocol._verify_committed(root, openings, rows)
 
 
+def test_read_only_command_resolution_does_not_recreate_missing_opening(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root, _ = _fixture(tmp_path, monkeypatch)
+    opening_path = root / protocol.OUT / "batches/opening-0000.jsonl"
+    opening_path.unlink()
+    argv = protocol.command(root, 0, prepare_opening=False)
+    assert str(opening_path) in argv
+    assert not opening_path.exists()
+
+
+def test_capped_game_is_not_committed_as_an_ordinary_outcome(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root, openings = _fixture(tmp_path, monkeypatch)
+    out = root / protocol.OUT
+    game_path = out / "batches/games-0000.jsonl"
+    games = protocol.read_rows(game_path)
+    games[0]["game_length"] = 200
+    game_path.write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in games)
+    )
+    with pytest.raises(ValueError, match="capped_or_incomplete_game:0:0"):
+        protocol._pair_rows(root, 0, openings[0])
+
+
 @pytest.mark.parametrize("binding", ["suite", "artifact", "runtime"])
 def test_changed_bindings_are_rejected_before_execution(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, binding: str

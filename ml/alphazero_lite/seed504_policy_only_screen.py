@@ -289,7 +289,11 @@ def preflight(root: Path = ROOT, *, allow_started: bool = True) -> dict[str, Any
     ):
         raise ValueError("screen_freeze_mismatch")
     for rel, digest in registration["source_sha256"].items():
-        if sha(root / rel) != digest:
+        source = root / rel
+        snapshot = out / "execution-source-snapshots" / f"{Path(rel).name}.txt"
+        if (not source.is_file() or sha(source) != digest) and (
+            not snapshot.is_file() or sha(snapshot) != digest
+        ):
             raise ValueError(f"frozen_source_changed:{rel}")
     for rel, digest in registration["runtime_asset_sha256"].items():
         if sha(root / rel) != digest:
@@ -312,7 +316,7 @@ def preflight(root: Path = ROOT, *, allow_started: bool = True) -> dict[str, Any
     return registration
 
 
-def command(root: Path, index: int) -> list[str]:
+def command(root: Path, index: int, *, prepare_opening: bool = True) -> list[str]:
     root = root.resolve()
     out = root / OUT
     registration = json.loads((out / "registration.json").read_text())
@@ -322,8 +326,13 @@ def command(root: Path, index: int) -> list[str]:
     expected = canonical(opening) + b"\n"
     if opening_path.exists() and opening_path.read_bytes() != expected:
         raise ValueError("opening_batch_identity_conflict")
-    if not opening_path.exists():
+    if prepare_opening and not opening_path.exists():
         opening_path.write_bytes(expected)
+    opening_digest = (
+        sha(opening_path)
+        if opening_path.exists()
+        else hashlib.sha256(expected).hexdigest()
+    )
     artifacts = out / "runtime-artifacts"
     options = json.dumps(
         arena_protocol.arena_search_overrides(registration), sort_keys=True
@@ -375,7 +384,7 @@ def command(root: Path, index: int) -> list[str]:
         "--opening-prefixes-jsonl",
         str(opening_path),
         "--suite-sha256",
-        sha(opening_path),
+        opening_digest,
         "--game-jsonl",
         str(batch / f"games-{index:04d}.jsonl"),
         "--out",
@@ -438,7 +447,11 @@ def _pair_rows(root: Path, index: int, opening: dict[str, Any]) -> list[dict[str
         raise ValueError(f"pair_search_options:{index}")
     result = []
     for position, game in enumerate(games):
-        if game.get("capped") or game.get("status") in {"capped", "incomplete"}:
+        if (
+            game.get("capped")
+            or game.get("status") in {"capped", "incomplete"}
+            or int(game.get("game_length", -1)) >= 200
+        ):
             raise ValueError(f"capped_or_incomplete_game:{index}:{position}")
         winner, _, _ = _replay_game(opening, game, int(game["challenger_player"]))
         if winner != game.get("winner"):

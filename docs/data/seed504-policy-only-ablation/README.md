@@ -1,15 +1,16 @@
-# Seed504 policy-only training ablation — incomplete strength screen
+# Seed504 policy-only training ablation — strength screen in progress
 
 ## Outcome classification
 
 **Development/training: valid. Strength screen: incomplete. Advancement: no.**
 The policy-only arm completed under a prospectively frozen protocol, and the
 historical control reproduced all four saved parameter states exactly. The
-1,024-opening arena was not run because Docker access was unavailable to inspect
-the live API container's reserved CPU allocation. No strength result, positive
-or negative, is claimed; incomplete games are not treated as draws. The
-exploratory screen must still be run in a resource-isolated environment before
-any strength decision.
+1,024-opening arena is running on the host, outside CI and the API container, in
+a CPUQuota=25%, CPUWeight=1, nice=19 scope pinned to CPU 31. The API container's
+separate CPU quota and cpuset were read from its host cgroup before launch. The
+read-only verifier currently validates completed pairs incrementally; no final
+strength result is claimed until all 2,048 games pass replay and binding checks.
+Incomplete or capped games are not ordinary draws.
 
 Seed511's authenticated 1,024-opening suite is the intended reused suite. Its
 known seed461 historical-overlap limitation remains in force; this is not fresh
@@ -30,11 +31,14 @@ T used the unchanged production policy CE/targets/weights/legality and
 asserted unchanged after training. The optimizer and policy minibatch
 normalization were otherwise unchanged.
 
-The repository's Ruff formatter changed the newly added runner during the
-commit hook, after the prospective freeze and training. Its exact frozen bytes
-are retained as `execution-source-snapshots/run_seed504_policy_only.py.txt`;
-the registration digest resolves to that snapshot. The verifier checks the
-snapshot when the formatted working source no longer has the frozen digest.
+The repository's Ruff formatter changed the newly added training runner during
+the commit hook, after its prospective freeze and training. Its exact frozen
+bytes are retained at the publication root in
+`execution-source-snapshots/run_seed504_policy_only.py.txt`. The arena
+registration similarly binds the screen sources before launch; their exact
+registered bytes are retained under `screen/execution-source-snapshots/` when
+later read-only/cap validation hardening changes the working copies. Preflight
+authenticates those snapshots against the registered digests.
 
 | Arm | Objective | Policy trunk/head | Value head |
 |---|---|---|---|
@@ -88,17 +92,20 @@ observed improvements do not establish stronger playing strength.
 
 The planned opponent is the existing P composition (seed504 E4 policy plus
 initializer value). The challenger is T E4 policy plus the identical initializer
-value. Each component must retain its own trunk; no tensors may be spliced. The
-arena binding, candidate runtime artifact/sidecars, resumable pair ledger, raw
-games, replay verification, and bootstrap statistics are **not yet present**.
-The fixed seed511 suite and its historical reuse limitation are bound at
+value. Each component retains its own trunk; no tensors are spliced. The
+prospective registration binds the copied seed511 suite, P/T/initializer runtime
+artifacts and sidecars, arena/native/tablebase source identities, command
+settings, and bootstrap protocol. Complete opening pairs are atomically
+committed to the ledger; complete raw pairs can be recovered after interruption,
+while partial/capped pairs remain uncommitted. The fixed seed511 suite and its
+historical reuse limitation are bound at
 `docs/data/seed511-fixed-composition-screen-v4/`.
 
 The registered decision would use exactly two seat-swapped games per opening,
 128 simulations per side, score `(wins + 0.5 × draws) / 2,048`, and a paired
 opening bootstrap with 20,000 resamples, seed 539, linear quantiles. Advancement
 requires all games valid and the one-sided 95% lower bound strictly above 0.50.
-Since no games have run, the result is **incomplete**, not a negative result.
+Until then the strength outcome remains **incomplete**, not negative.
 
 ## Verification
 
@@ -107,11 +114,15 @@ experiment:
 
 ```bash
 .tmp/venv/bin/python -m ml.alphazero_lite.verify_seed504_policy_only
+.tmp/venv/bin/python -m ml.alphazero_lite.verify_seed504_policy_only_screen
 .tmp/venv/bin/python -m pytest ml/alphazero_lite/test_seed504_policy_only.py \
-  ml/alphazero_lite/test_run_seed504.py -q
+  ml/alphazero_lite/test_run_seed504.py \
+  ml/alphazero_lite/test_seed504_policy_only_screen.py -q
 ```
 
 The verifier is read-only and recomputes development predictions and metrics,
 validates all available source/input/checkpoint bindings, and verifies that the
-T value-head arrays equal the initializer. It reports the arena as incomplete
-and does not authorize advancement.
+T value-head arrays equal the initializer. The screen verifier is read-only,
+replays raw trajectories, checks pair receipts and runtime settings, recomputes
+bootstrap statistics when complete, and rejects capped games even if their
+ordinary receipt hashes were rebound.
