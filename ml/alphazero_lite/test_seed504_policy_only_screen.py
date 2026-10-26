@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from ml.alphazero_lite import seed504_policy_only_screen as protocol
+from ml.alphazero_lite import verify_seed504_policy_only_screen as screen_verifier
 
 
 def _fixture(
@@ -103,6 +104,32 @@ def test_read_only_command_resolution_does_not_recreate_missing_opening(
     argv = protocol.command(root, 0, prepare_opening=False)
     assert str(opening_path) in argv
     assert not opening_path.exists()
+
+
+def test_verifier_relocates_registered_commands_in_physical_checkout(
+    tmp_path: Path,
+) -> None:
+    recorded = [
+        "/usr/bin/python",
+        "--challenger",
+        "/original/docs/data/seed504-policy-only-ablation/screen/runtime-artifacts/T-E4",
+        "--out",
+        "/original/docs/data/seed504-policy-only-ablation/screen/batches/report-0000.json",
+    ]
+    relocated = screen_verifier._relocate_command(recorded, tmp_path)
+    assert relocated == [
+        "/usr/bin/python",
+        "--challenger",
+        str(
+            tmp_path
+            / "docs/data/seed504-policy-only-ablation/screen/runtime-artifacts/T-E4"
+        ),
+        "--out",
+        str(
+            tmp_path
+            / "docs/data/seed504-policy-only-ablation/screen/batches/report-0000.json"
+        ),
+    ]
 
 
 def test_capped_game_is_not_committed_as_an_ordinary_outcome(

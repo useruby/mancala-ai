@@ -9,6 +9,27 @@ from typing import Any
 from ml.alphazero_lite import seed504_policy_only_screen as protocol
 
 
+def _relocate_command(argv: list[str], root: Path) -> list[str]:
+    """Resolve registered absolute checkout paths in a physical copy."""
+    result = list(argv)
+    try:
+        artifact = Path(result[result.index("--challenger") + 1])
+    except (ValueError, IndexError) as error:
+        raise ValueError("command_challenger_path_missing") from error
+    suffix = protocol.OUT / "runtime-artifacts/T-E4"
+    if tuple(artifact.parts[-len(suffix.parts) :]) != suffix.parts:
+        raise ValueError("command_artifact_path_mismatch")
+    original_root = artifact.parents[len(suffix.parts) - 1]
+    original = str(original_root)
+    replacement = str(root.resolve())
+    return [
+        replacement + item[len(original) :]
+        if item == original or item.startswith(original + "/")
+        else item
+        for item in result
+    ]
+
+
 def verify(root: Path = protocol.ROOT) -> dict[str, Any]:
     root = root.resolve()
     registration = protocol.preflight(root, allow_started=True)
@@ -29,7 +50,7 @@ def verify(root: Path = protocol.ROOT) -> dict[str, Any]:
         index = int(command["opening_index"])
         if (
             index not in range(protocol.OPENINGS)
-            or command.get("argv")
+            or _relocate_command(command.get("argv", []), root)
             != protocol.command(root, index, prepare_opening=False)
             or command.get("registration_sha256")
             != protocol.sha(out / "registration.json")
