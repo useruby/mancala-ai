@@ -110,7 +110,7 @@ def test_verifier_relocates_registered_commands_in_physical_checkout(
     tmp_path: Path,
 ) -> None:
     recorded = [
-        "/usr/bin/python",
+        "/original/.tmp/venv/bin/python",
         "--challenger",
         "/original/docs/data/seed504-policy-only-ablation/screen/runtime-artifacts/T-E4",
         "--out",
@@ -118,7 +118,7 @@ def test_verifier_relocates_registered_commands_in_physical_checkout(
     ]
     relocated = screen_verifier._relocate_command(recorded, tmp_path)
     assert relocated == [
-        "/usr/bin/python",
+        "/original/.tmp/venv/bin/python",
         "--challenger",
         str(
             tmp_path

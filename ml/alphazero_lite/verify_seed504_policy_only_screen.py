@@ -23,10 +23,13 @@ def _relocate_command(argv: list[str], root: Path) -> list[str]:
     original = str(original_root)
     replacement = str(root.resolve())
     return [
-        replacement + item[len(original) :]
-        if item == original or item.startswith(original + "/")
-        else item
-        for item in result
+        result[0],
+        *[
+            replacement + item[len(original) :]
+            if item == original or item.startswith(original + "/")
+            else item
+            for item in result[1:]
+        ],
     ]
 
 
