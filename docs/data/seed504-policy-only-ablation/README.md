@@ -51,6 +51,10 @@ hashes also matched: E1 `6187b0e702a2118579c82fc0950398babe255e95f1f64a4f695d52b
 E2 `d1ef62ad445ad33a532a9a5efa8aadefe5657235af1706fdba4b1c1c8579d796`,
 E3 `e049d2a7e6702b68cf4bf2d230f5966f86e4dfc8e4ed928a534b61f7d7804842`,
 E4 `2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad`.
+The reproduced C checkpoint archives are included under
+`control-reproduction-checkpoints/`; the verifier reloads all 22 parameter
+arrays per epoch and compares them bitwise with the authenticated historical
+archives.
 The available deterministic runtime was Python 3.14.7, NumPy 2.5.3, and Torch
 2.14.0+cu130 (CPU execution), rather than the seed504 manifest's NumPy 2.5.2 and
 Torch 2.13.0+cu130. Exact parameter-array reproduction was required and passed;

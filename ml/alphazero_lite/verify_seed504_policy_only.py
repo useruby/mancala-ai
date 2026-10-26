@@ -79,6 +79,25 @@ def verify(root: Path = ROOT) -> dict[str, Any]:
         checkpoint = root / f"docs/data/seed504/seed504_epoch{label[1:]}.npz"
         if sha(checkpoint) != entry:
             raise ValueError(f"historical_checkpoint_mismatch:{label}")
+    control_evidence = json.loads(
+        (out / "control-reproduction-arrays.json").read_text()
+    )
+    for label, evidence in control_evidence["epochs"].items():
+        historical = root / f"docs/data/seed504/seed504_epoch{label[1:]}.npz"
+        reproduced = root / evidence["path"]
+        expected_arrays = _arrays(historical)
+        reproduced_arrays = _arrays(reproduced)
+        if (
+            sha(reproduced) != evidence["reproduced_sha256"]
+            or sha(historical) != evidence["historical_sha256"]
+            or set(expected_arrays) != set(reproduced_arrays)
+            or evidence["parameter_arrays"] != len(expected_arrays)
+            or any(
+                not np.array_equal(expected_arrays[name], reproduced_arrays[name])
+                for name in expected_arrays
+            )
+        ):
+            raise ValueError(f"control_parameter_array_mismatch:{label}")
     sources = bindings["sources"]
     for rel, expected in (
         ("ml/alphazero_lite/run_seed504_policy_only.py", sources["runner"]),
@@ -148,18 +167,30 @@ def verify(root: Path = ROOT) -> dict[str, Any]:
             raise ValueError("T_objective_contains_non_policy_loss")
     # No arena ledger exists yet: this is a valid training/development result,
     # but strength status remains incomplete and cannot advance.
-    arena_complete = (out / "outcomes.jsonl").is_file()
+    screen = out / "screen"
+    screen_ledger = screen / "outcomes.jsonl"
+    arena_validated_games = (
+        sum(1 for line in screen_ledger.read_text().splitlines() if line.strip())
+        if screen_ledger.is_file()
+        else 0
+    )
+    arena_complete = arena_validated_games == 2048
     return {
         "status": "verified_development_incomplete_arena"
         if not arena_complete
         else "arena_requires_full_verification",
-        "control": json.loads((out / "control-reproduction.json").read_text()),
+        "control": control_evidence,
         "T_value_head_parameter_arrays_equal_initializer": True,
         "development_rows": len(development),
         "cohorts_recomputed": ["pooled", ">32", "17-32", "<=16"],
-        "arena_status": "not_run_resource_allocation_unverified"
-        if not arena_complete
-        else "unverified",
+        "arena_status": (
+            "complete_requires_screen_verifier"
+            if arena_complete
+            else "in_progress_or_incomplete"
+            if arena_validated_games
+            else "frozen_not_started"
+        ),
+        "arena_validated_games": arena_validated_games,
         "advance": False,
     }
 
