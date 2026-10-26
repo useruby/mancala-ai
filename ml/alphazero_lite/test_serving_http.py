@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import shutil
+import subprocess
 from collections import OrderedDict
 from types import SimpleNamespace
 from pathlib import Path
 import sys
+import io
 
 import httpx
 import pytest
@@ -26,6 +29,8 @@ from ml.alphazero_lite.serving.http import (
     _finalize_entry,
     create_app,
 )
+from ml.alphazero_lite.serving import logging as service_logging
+from ml.alphazero_lite.serving.logging import configure_application_logging
 from ml.alphazero_lite.serving.workers import (
     CapacityExhaustedError,
     ExecutionTimeoutError,
@@ -194,6 +199,92 @@ async def test_move_and_health_stay_responsive_during_search(setup_app):
             assert response.status_code == 200
             assert response.json()["request_id"] == "req-1"
             assert app.openapi()["paths"]["/v1/move"]["post"]["operationId"]
+
+
+@pytest.mark.asyncio
+async def test_move_application_records_include_success_and_failure(setup_app):
+    app, workers = setup_app
+    stream = io.StringIO()
+    logger = logging.getLogger("mancala.ai")
+    previous_handlers = logger.handlers[:]
+    previous_level, previous_propagate = logger.level, logger.propagate
+    original_stderr = service_logging.sys.stderr
+    try:
+        logger.handlers.clear()
+        service_logging.sys.stderr = stream
+        configure_application_logging()
+        async with app.router.lifespan_context(app):
+            workers[0].gate.set()
+            assert (await _post(app, _payload("logged-success"))).status_code == 200
+            assert (
+                await _post(app, {**_payload("logged-failure"), "profile": "missing"})
+            ).status_code == 422
+        records = [json.loads(line) for line in stream.getvalue().splitlines()]
+        assert [(record["event"], record["outcome"]) for record in records] == [
+            ("move_request", "success"),
+            ("move_request", "unknown_profile"),
+        ]
+        assert records[0]["profile"] == "balanced@v1"
+        assert records[0]["request_id"] == "logged-success"
+        assert isinstance(records[0]["elapsed_ms"], int)
+        assert records[0]["logger"] == "mancala.ai.http"
+        assert records[0]["severity"] == "INFO"
+        assert records[0]["timestamp"].endswith("Z")
+        assert records[1]["profile"] == "missing"
+    finally:
+        service_logging.sys.stderr = original_stderr
+        logger.handlers[:] = previous_handlers
+        logger.setLevel(previous_level)
+        logger.propagate = previous_propagate
+
+
+def test_json_logging_configuration_is_idempotent_and_encodes_optional_fields():
+    logger = logging.getLogger("mancala.ai")
+    previous_handlers = logger.handlers[:]
+    previous_level, previous_propagate = logger.level, logger.propagate
+    stream = io.StringIO()
+    original_stderr = service_logging.sys.stderr
+    service_logging.sys.stderr = stream
+    try:
+        logger.handlers.clear()
+        configure_application_logging()
+        configure_application_logging()
+        assert len(logger.handlers) == 1
+        logger.info("move_request", extra={"request_id": None, "profile": None})
+        record = json.loads(stream.getvalue())
+        assert record["event"] == "move_request"
+        assert record["request_id"] is None
+        assert record["profile"] is None
+        assert "outcome" not in record
+        assert "elapsed_ms" not in record
+        assert logger.level == logging.INFO
+    finally:
+        service_logging.sys.stderr = original_stderr
+        logger.handlers[:] = previous_handlers
+        logger.setLevel(previous_level)
+        logger.propagate = previous_propagate
+
+
+def test_application_logs_reach_subprocess_stderr():
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import logging; from ml.alphazero_lite.serving.logging import "
+            "configure_application_logging; configure_application_logging(); "
+            "logging.getLogger('mancala.ai.http').info('move_request', "
+            "extra={'request_id': 'stream-check', 'profile': 'balanced@v1', "
+            "'outcome': 'success', 'elapsed_ms': 1})",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert result.stdout == ""
+    record = json.loads(result.stderr)
+    assert record["event"] == "move_request"
+    assert record["request_id"] == "stream-check"
+    assert record["outcome"] == "success"
 
 
 @pytest.mark.asyncio

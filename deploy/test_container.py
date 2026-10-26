@@ -197,6 +197,30 @@ def main() -> None:
         assert "request_id" not in moved
         assert moved["result"]["move"] in [0, 1, 2, 3, 5]
         assert moved["completed_simulations"] > 0
+        status, logged_move = request(
+            base,
+            "/v1/move",
+            {**ordinary, "request_id": "container-log-smoke"},
+        )
+        assert status == 200 and logged_move["result"]["kind"] == "move"
+        logs = subprocess.run(
+            ["docker", "logs", container],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=15,
+        )
+        log_lines = (logs.stdout + logs.stderr).splitlines()
+        app_record = next(
+            json.loads(line)
+            for line in log_lines
+            if '"request_id":"container-log-smoke"' in line
+        )
+        assert app_record["event"] == "move_request"
+        assert app_record["profile"] == "balanced@v1"
+        assert app_record["outcome"] == "success"
+        assert isinstance(app_record["elapsed_ms"], int)
+        assert any('"POST /v1/move HTTP/1.1" 200' in line for line in log_lines)
         print("Ordinary search HTTP check passed", flush=True)
 
         exact = {

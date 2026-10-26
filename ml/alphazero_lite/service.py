@@ -11,6 +11,10 @@ from ml.alphazero_lite.serving.engine import (
     SearchSettings,
 )
 from ml.alphazero_lite.serving.http import ServiceConfig, create_app
+from ml.alphazero_lite.serving.logging import configure_application_logging
+
+
+configure_application_logging()
 
 
 def load_config(path: str) -> ServiceConfig:
