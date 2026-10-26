@@ -12,6 +12,12 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "deploy" / "setup_registry_secret.sh"
 RECIPIENT = "age1testrecipient"
+LEGACY_LOADER = (
+    "KAMAL_REGISTRY_PASSWORD=$(age --decrypt --identity "
+    '"$HOME/.config/mancala-ai/age-identity.txt" '
+    "deploy/secrets/ghcr-registry-password.age)"
+)
+CURRENT_LOADER = "KAMAL_REGISTRY_PASSWORD=$KAMAL_REGISTRY_PASSWORD"
 
 
 @pytest.fixture
@@ -77,8 +83,61 @@ def test_setup_reuses_existing_ciphertext_without_prompting_or_rotation(
     assert "GHCR token with write:packages permission" not in result.stderr
     assert "existing-token-value" not in result.stdout + result.stderr
     loader = (project / ".kamal/secrets.mancala-ai").read_text(encoding="utf-8")
-    assert loader == "KAMAL_REGISTRY_PASSWORD=$KAMAL_REGISTRY_PASSWORD\n"
+    assert loader == CURRENT_LOADER + "\n"
     assert (project / ".kamal/secrets.mancala-ai").stat().st_mode & 0o777 == 0o600
+
+
+def test_setup_migrates_legacy_loader_without_prompting_or_changing_ciphertext(
+    existing_secret_workspace: tuple[Path, dict[str, str]],
+) -> None:
+    project, env = existing_secret_workspace
+    secret_file = project / "deploy/secrets/ghcr-registry-password.age"
+    original_ciphertext = secret_file.read_bytes()
+    loader_path = project / ".kamal/secrets.mancala-ai"
+    loader_path.parent.mkdir()
+    loader_path.write_text(f"OTHER_SECRET=keep\n{LEGACY_LOADER}\n", encoding="utf-8")
+
+    result = subprocess.run(
+        [str(project / "deploy/setup_registry_secret.sh")],
+        cwd=project,
+        env=env,
+        input="",
+        text=True,
+        capture_output=True,
+        timeout=10,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert secret_file.read_bytes() == original_ciphertext
+    assert "GHCR token with write:packages permission" not in result.stderr
+    assert "existing-token-value" not in result.stdout + result.stderr
+    assert loader_path.read_text(encoding="utf-8") == (
+        f"OTHER_SECRET=keep\n{CURRENT_LOADER}\n"
+    )
+
+
+def test_setup_rejects_unknown_registry_loader_configuration(
+    existing_secret_workspace: tuple[Path, dict[str, str]],
+) -> None:
+    project, env = existing_secret_workspace
+    loader_path = project / ".kamal/secrets.mancala-ai"
+    loader_path.parent.mkdir()
+    unknown_loader = "KAMAL_REGISTRY_PASSWORD=$(custom-secret-command)\n"
+    loader_path.write_text(unknown_loader, encoding="utf-8")
+
+    result = subprocess.run(
+        [str(project / "deploy/setup_registry_secret.sh")],
+        cwd=project,
+        env=env,
+        input="",
+        text=True,
+        capture_output=True,
+        timeout=10,
+    )
+
+    assert result.returncode != 0
+    assert "KAMAL_REGISTRY_PASSWORD is already configured differently" in result.stderr
+    assert loader_path.read_text(encoding="utf-8") == unknown_loader
 
 
 def test_setup_rejects_existing_ciphertext_that_cannot_be_decrypted(

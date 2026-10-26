@@ -10,6 +10,7 @@ secret_file="$secret_dir/ghcr-registry-password.age"
 kamal_dir="$ROOT/.kamal"
 kamal_secrets="$kamal_dir/secrets.mancala-ai"
 kamal_secret_line='KAMAL_REGISTRY_PASSWORD=$KAMAL_REGISTRY_PASSWORD'
+legacy_kamal_secret_line='KAMAL_REGISTRY_PASSWORD=$(age --decrypt --identity "$HOME/.config/mancala-ai/age-identity.txt" deploy/secrets/ghcr-registry-password.age)'
 rotate=0
 
 if [[ "${1:-}" == "--rotate" && $# == 1 ]]; then
@@ -56,11 +57,14 @@ if [[ -e "$kamal_secrets" && ( ! -f "$kamal_secrets" || -L "$kamal_secrets" ) ]]
   echo "Kamal secrets path must be a regular file: $kamal_secrets" >&2
   exit 1
 fi
-if [[ -f "$kamal_secrets" ]] && \
-  ! grep -Fqx "$kamal_secret_line" "$kamal_secrets" && \
-  grep -q '^KAMAL_REGISTRY_PASSWORD=' "$kamal_secrets"; then
-  echo "KAMAL_REGISTRY_PASSWORD is already configured differently in $kamal_secrets" >&2
-  exit 1
+if [[ -f "$kamal_secrets" ]]; then
+  if ! awk -v current="$kamal_secret_line" -v legacy="$legacy_kamal_secret_line" '
+    /^KAMAL_REGISTRY_PASSWORD=/ && $0 != current && $0 != legacy { invalid = 1 }
+    END { exit invalid }
+  ' "$kamal_secrets"; then
+    echo "KAMAL_REGISTRY_PASSWORD is already configured differently in $kamal_secrets" >&2
+    exit 1
+  fi
 fi
 
 if [[ -f "$secret_file" && "$rotate" -ne 1 ]]; then
@@ -101,7 +105,25 @@ fi
 mkdir -p "$kamal_dir"
 if [[ ! -f "$kamal_secrets" ]]; then
   printf '%s\n' "$kamal_secret_line" > "$kamal_secrets"
-elif ! grep -Fqx "$kamal_secret_line" "$kamal_secrets"; then
+elif grep -Fqx "$legacy_kamal_secret_line" "$kamal_secrets" || \
+  grep -Fqx "$kamal_secret_line" "$kamal_secrets"; then
+  temporary_loader="$(mktemp "$kamal_dir/.secrets.mancala-ai.XXXXXX")"
+  if ! awk -v current="$kamal_secret_line" -v legacy="$legacy_kamal_secret_line" '
+    $0 == current || $0 == legacy {
+      if (!written) print current
+      written = 1
+      next
+    }
+    { print }
+    END { if (!written) print current }
+  ' "$kamal_secrets" > "$temporary_loader"; then
+    rm -f "$temporary_loader"
+    echo "could not update Kamal registry secret loader" >&2
+    exit 1
+  fi
+  chmod 0600 "$temporary_loader"
+  mv -f "$temporary_loader" "$kamal_secrets"
+else
   printf '%s\n' "$kamal_secret_line" >> "$kamal_secrets"
 fi
 chmod 0600 "$kamal_secrets"
