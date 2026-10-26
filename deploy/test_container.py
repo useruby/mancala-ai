@@ -33,6 +33,7 @@ def request(base: str, path: str, body: dict | bytes | None = None):
 def main() -> None:
     image = os.environ["MANCALA_TEST_IMAGE"]
     release_root = Path(sys.argv[1]).resolve()
+    config = json.loads((release_root / "service.json").read_text(encoding="utf-8"))
     process = subprocess.run(
         [
             "docker",
@@ -157,6 +158,8 @@ def main() -> None:
         assert request(base, "/health/live")[0] == 200
         assert request(base, "/health/ready")[0] == 200
         print("Container liveness check passed", flush=True)
+        identity_status, identity = request(base, "/health/identity")
+        assert identity_status == 200
         ordinary = {
             "game_revision": 1,
             "state": {
@@ -169,6 +172,26 @@ def main() -> None:
             "profile": "balanced@v1",
             "seed": 17,
         }
+        profile_ids = {}
+        for profile, definition in config["profiles"].items():
+            profile_identity = identity["profiles"][profile]
+            assert profile_identity["bundle_id"] == definition["bundle_id"]
+            profile_status, profile_response = request(
+                base, "/v1/move", {**ordinary, "profile": profile}
+            )
+            assert (
+                profile_status == 200 and profile_response["result"]["kind"] == "move"
+            )
+            assert profile_response["result"]["move"] in [0, 1, 2, 3, 5]
+            assert (
+                profile_response["completed_simulations"]
+                == definition["settings"]["simulations"]
+            )
+            resolved_profile_id = profile_response["search_profile_id"]
+            assert resolved_profile_id.startswith(f"{profile}:")
+            profile_ids[profile] = resolved_profile_id
+        assert len(set(profile_ids.values())) == len(config["profiles"])
+
         status, moved = request(base, "/v1/move", ordinary)
         assert status == 200 and moved["result"]["kind"] == "move"
         assert "request_id" not in moved

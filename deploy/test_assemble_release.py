@@ -194,7 +194,7 @@ def test_implicit_search_setting_is_rejected(tmp_path: Path) -> None:
     assert not destination.exists()
 
 
-def test_actual_balanced_release_manifest_authenticates_composed_assets(
+def test_actual_release_manifest_authenticates_all_profiles_and_composed_assets(
     tmp_path: Path,
 ) -> None:
     root = Path(__file__).resolve().parents[1]
@@ -207,5 +207,19 @@ def test_actual_balanced_release_manifest_authenticates_composed_assets(
     assert bundle["policy_source"] == "candidate"
     assert bundle["value_source"] == "current"
     assert profile["settings"]["simulations"] == 1200
+    expected_budgets = {
+        "easy@v1": 64,
+        "medium@v1": 256,
+        "hard@v1": 640,
+        "expert@v1": 1200,
+        "balanced@v1": 1200,
+    }
+    for name, simulations in expected_budgets.items():
+        resolved = config["profiles"][name]
+        assert resolved["settings"]["simulations"] == simulations
+        assert resolved["bundle_id"] == "policy-value-p"
+        assert resolved["settings"] == profile["settings"] | {
+            "simulations": simulations
+        }
     assert config["execution_timeout"] == 10
     assert (destination / "release-manifest.json").is_file()

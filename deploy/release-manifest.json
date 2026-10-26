@@ -10,6 +10,6 @@
     {"source": "../docs/data/seed505-strength-screen-v3/runtime-artifacts/initializer/search_policy.json", "destination": "components/initializer/search_policy.json", "sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d", "kind": "policy"},
     {"source": "../model-artifact/runtime/kalah_v1_tablebase", "destination": "model-artifact/runtime/kalah_v1_tablebase", "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48", "kind": "native_probe"},
     {"source": "../model-artifact/runtime/kalah_v1_21.kvtb", "destination": "model-artifact/runtime/kalah_v1_21.kvtb", "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7", "kind": "tablebase"},
-    {"source": "serving-release.json", "destination": "service.json", "sha256": "8525718a68f7738f58f2df4431d8fc478d37ed1f3cb26f89fc6e85e68720c14f", "kind": "config"}
+    {"source": "serving-release.json", "destination": "service.json", "sha256": "f283e0ded25d496c7ade8c4188f4a632e443dcedbe7f5a537e2c0105e7ca4ee0", "kind": "config"}
   ]
 }

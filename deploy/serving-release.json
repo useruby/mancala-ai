@@ -22,6 +22,66 @@
     }
   },
   "profiles": {
+    "easy@v1": {
+      "name": "easy@v1",
+      "profile_id": "easy@v1",
+      "bundle_id": "policy-value-p",
+      "require_runtime_search_policy": true,
+      "settings": {
+        "simulations": 64,
+        "c_puct": 1.25,
+        "fpu_mode": "zero",
+        "reuse_subtree": false,
+        "normalize_values": false,
+        "root_policy_mode": "deterministic",
+        "tactical_root_bias": 0.0
+      }
+    },
+    "medium@v1": {
+      "name": "medium@v1",
+      "profile_id": "medium@v1",
+      "bundle_id": "policy-value-p",
+      "require_runtime_search_policy": true,
+      "settings": {
+        "simulations": 256,
+        "c_puct": 1.25,
+        "fpu_mode": "zero",
+        "reuse_subtree": false,
+        "normalize_values": false,
+        "root_policy_mode": "deterministic",
+        "tactical_root_bias": 0.0
+      }
+    },
+    "hard@v1": {
+      "name": "hard@v1",
+      "profile_id": "hard@v1",
+      "bundle_id": "policy-value-p",
+      "require_runtime_search_policy": true,
+      "settings": {
+        "simulations": 640,
+        "c_puct": 1.25,
+        "fpu_mode": "zero",
+        "reuse_subtree": false,
+        "normalize_values": false,
+        "root_policy_mode": "deterministic",
+        "tactical_root_bias": 0.0
+      }
+    },
+    "expert@v1": {
+      "name": "expert@v1",
+      "profile_id": "expert@v1",
+      "bundle_id": "policy-value-p",
+      "require_runtime_search_policy": true,
+      "settings": {
+        "simulations": 1200,
+        "c_puct": 1.25,
+        "fpu_mode": "zero",
+        "reuse_subtree": false,
+        "normalize_values": false,
+        "root_policy_mode": "deterministic",
+        "tactical_root_bias": 0.0
+      }
+    },
     "balanced@v1": {
       "name": "balanced@v1",
       "profile_id": "balanced@v1",

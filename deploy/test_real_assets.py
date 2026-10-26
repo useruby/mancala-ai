@@ -86,6 +86,8 @@ def main() -> None:
                 raise RuntimeError("real asset service did not become ready")
 
             assert send(base, "/health/live")[0] == 200
+            identity_status, identity = send(base, "/health/identity")
+            assert identity_status == 200
             ordinary = {
                 "game_revision": 1,
                 "state": {
@@ -98,6 +100,24 @@ def main() -> None:
                 "profile": "balanced@v1",
                 "seed": 17,
             }
+            profile_ids = {}
+            for profile, definition in config["profiles"].items():
+                profile_identity = identity["profiles"][profile]
+                assert profile_identity["bundle_id"] == definition["bundle_id"]
+                status, response = send(
+                    base, "/v1/move", {**ordinary, "profile": profile}
+                )
+                assert status == 200 and response["result"]["kind"] == "move"
+                assert response["result"]["move"] in [0, 1, 2, 3, 5]
+                assert (
+                    response["completed_simulations"]
+                    == definition["settings"]["simulations"]
+                )
+                resolved_profile_id = response["search_profile_id"]
+                assert resolved_profile_id.startswith(f"{profile}:")
+                profile_ids[profile] = resolved_profile_id
+            assert len(set(profile_ids.values())) == len(config["profiles"])
+
             status, response = send(base, "/v1/move", ordinary)
             assert status == 200 and response["result"]["kind"] == "move"
             assert "request_id" not in response
