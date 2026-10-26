@@ -49,10 +49,12 @@ def verify(root: Path = protocol.ROOT) -> dict[str, Any]:
         if (out / "commands.jsonl").exists()
         else []
     )
+    command_indices: set[int] = set()
     for command in commands:
         index = int(command["opening_index"])
         if (
             index not in range(protocol.OPENINGS)
+            or index in command_indices
             or _relocate_command(command.get("argv", []), root)
             != protocol.command(root, index, prepare_opening=False)
             or command.get("registration_sha256")
@@ -66,6 +68,9 @@ def verify(root: Path = protocol.ROOT) -> dict[str, Any]:
             }
         ):
             raise ValueError(f"command_binding_mismatch:{index}")
+        command_indices.add(index)
+    if not committed.issubset(command_indices):
+        raise ValueError("committed_pair_missing_command")
     complete = len(committed) == protocol.OPENINGS and len(ledger) == protocol.GAMES
     if not complete:
         return {
