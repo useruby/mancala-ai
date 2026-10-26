@@ -100,27 +100,23 @@ def main() -> None:
                 "profile": "balanced@v1",
                 "seed": 17,
             }
-            expected_budgets = {
-                "easy@v1": 64,
-                "medium@v1": 256,
-                "hard@v1": 640,
-                "expert@v1": 1200,
-                "balanced@v1": 1200,
-            }
             profile_ids = {}
-            for profile, budget in expected_budgets.items():
+            for profile, definition in config["profiles"].items():
                 profile_identity = identity["profiles"][profile]
-                assert profile_identity["bundle_id"] == "policy-value-p"
+                assert profile_identity["bundle_id"] == definition["bundle_id"]
                 status, response = send(
                     base, "/v1/move", {**ordinary, "profile": profile}
                 )
                 assert status == 200 and response["result"]["kind"] == "move"
                 assert response["result"]["move"] in [0, 1, 2, 3, 5]
-                assert response["completed_simulations"] == budget
+                assert (
+                    response["completed_simulations"]
+                    == definition["settings"]["simulations"]
+                )
                 resolved_profile_id = response["search_profile_id"]
                 assert resolved_profile_id.startswith(f"{profile}:")
                 profile_ids[profile] = resolved_profile_id
-            assert len(set(profile_ids.values())) == len(expected_budgets)
+            assert len(set(profile_ids.values())) == len(config["profiles"])
 
             status, response = send(base, "/v1/move", ordinary)
             assert status == 200 and response["result"]["kind"] == "move"
