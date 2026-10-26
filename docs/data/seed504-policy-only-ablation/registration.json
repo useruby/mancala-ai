@@ -1,0 +1,97 @@
+{
+  "bindings": {
+    "development_rows": 2671,
+    "development_shards": [
+      {
+        "path": "docs/data/seed500-selfplay-512/shard-503006.jsonl",
+        "sha256": "981fa7978eb8c71aee1fba33acecb704d23d61ec629b342c776c847fee22cba4"
+      },
+      {
+        "path": "docs/data/seed500-selfplay-512/shard-503007.jsonl",
+        "sha256": "128029ce1ef0304bc3eb7d3330def5a6e6249454e8abc32bf2d4c4fdb7dff732"
+      }
+    ],
+    "environment": {
+      "device": "cpu",
+      "numpy": "2.5.3",
+      "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+      "python": "3.14.7",
+      "torch": "2.14.0+cu130"
+    },
+    "historical_checkpoints": {
+      "E1": "6187b0e702a2118579c82fc0950398babe255e95f1f64a4f695d52b3e56144c3",
+      "E2": "d1ef62ad445ad33a532a9a5efa8aadefe5657235af1706fdba4b1c1c8579d796",
+      "E3": "e049d2a7e6702b68cf4bf2d230f5966f86e4dfc8e4ed928a534b61f7d7804842",
+      "E4": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad"
+    },
+    "initializer_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "permutations_sha256": "1115b156abd646fe3ba4483c18465b9323c926427a7305a026e95309982589eb",
+    "seed504_manifest_sha256": "449506a30cbe04e2cbe34794c0647fad4aa9f74019ee480edf2c67520a9e353a",
+    "sources": {
+      "runner": "b53c7b7f5bc22aa80f3245c0f851416c729ce7d19c3f222c2cdce749622584a7",
+      "seed504_runner": "75f90cb0c03b30d9cae7e8038d8d41442c9ba65975ce4d9cf38d83d101f0d4ba",
+      "seed504_verifier": "68bb9e18cae5cfbc94e29c16f41ba45aa0aae7e1e7c5e5c94ce3b86c85099eb9",
+      "trainer": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32"
+    },
+    "split_sha256": "080b362d334dcce81bbd04a490900ec78483d6c05ad38c88ebb33fd8b8695d89",
+    "training_rows": 13724,
+    "training_shards": [
+      {
+        "path": "docs/data/seed500-selfplay-512/shard-503000.jsonl",
+        "sha256": "db48f2b944925c575261ae285758d91866d029a705db7665f80b96e23675f9cd"
+      },
+      {
+        "path": "docs/data/seed500-selfplay-512/shard-503001.jsonl",
+        "sha256": "2c707c5868013d2b91df0250001266ac84f79b72e1fad55d2ae74f10327e6cb4"
+      },
+      {
+        "path": "docs/data/seed500-selfplay-512/shard-503002.jsonl",
+        "sha256": "abecfdd3a6dd5ce0720f1ebf64b192ec36bf344a15b2942cc3af2f87f930da0c"
+      },
+      {
+        "path": "docs/data/seed500-selfplay-512/shard-503003.jsonl",
+        "sha256": "c1462711adaa5fe88e90b2d713baa08c750ea6b6450ae791e6be5881fe9dd39f"
+      },
+      {
+        "path": "docs/data/seed500-selfplay-512/shard-503004.jsonl",
+        "sha256": "d150631d5947eb22254903a93e0a8a7242ea42364eac6c99d0151ad08b2722c6"
+      },
+      {
+        "path": "docs/data/seed500-selfplay-512/shard-503005.jsonl",
+        "sha256": "fce737e9ae3c33e38a81931847ec6c9ccf58bc2df05510dd193d9203391671d2"
+      }
+    ]
+  },
+  "protocol": {
+    "architecture": "residual_v3/kalah_v3",
+    "batch_size": 512,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "checkpoint": "E4 sole candidate; E1-E3 descriptive",
+    "eligible_policy_targets": "production loader default",
+    "epochs": 4,
+    "epsilon": 1e-08,
+    "gradient_clip_norm": 1.0,
+    "hidden_sizes": [
+      96,
+      3
+    ],
+    "input_features": 27,
+    "learning_rate": 0.0001,
+    "legal_masking": "production train.train_one_epoch unchanged",
+    "minibatch_denominator": "production unchanged",
+    "objective_C": "legal policy CE + 0.5 * Huber(value, delta=1)",
+    "objective_T": "legal policy CE only",
+    "optimizer": "Adam",
+    "permutation_sha256": "1115b156abd646fe3ba4483c18465b9323c926427a7305a026e95309982589eb",
+    "policy_loss_normalization": "production weighted_policy_loss unchanged",
+    "row_order": "seed504 production loader order; each source weight 1",
+    "scheduler": "none",
+    "seed": 504,
+    "value_head": "requires_grad=False for T; frozen initializer parameters",
+    "weight_decay": 0.0
+  },
+  "status": "frozen_before_T_training"
+}
