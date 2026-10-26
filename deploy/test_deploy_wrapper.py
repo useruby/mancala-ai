@@ -28,6 +28,9 @@ esac
 """,
         "bundle": """#!/bin/sh
 printf 'bundle %s\\n' "$*" >> "$COMMAND_LOG"
+if [ -n "${EXPECT_REGISTRY_PASSWORD:-}" ] && [ "$KAMAL_REGISTRY_PASSWORD" != "$EXPECT_REGISTRY_PASSWORD" ]; then
+  echo "wrapper did not pass the validated registry credential" >&2; exit 8
+fi
 case "$*" in
   *"kamal deploy"*) exit "${DEPLOY_STATUS:-0}" ;;
   *"kamal rollback"*)
@@ -37,6 +40,11 @@ case "$*" in
     exit "${ROLLBACK_STATUS:-0}" ;;
   *"kamal app stop"*) exit "${STOP_STATUS:-0}" ;;
 esac
+""",
+        "age": """#!/bin/sh
+printf 'age %s\\n' "$*" >> "$COMMAND_LOG"
+if [ "${AGE_STATUS:-0}" -ne 0 ]; then exit "$AGE_STATUS"; fi
+printf '%s' "${AGE_OUTPUT-decrypted-test-secret}"
 """,
         "python": f"""#!/bin/sh
 case "$*" in
@@ -64,6 +72,8 @@ exec /usr/bin/mv "$@"
 
     assets = tmp_path / "remote-assets"
     assets.mkdir()
+    age_identity = tmp_path / "age-identity.txt"
+    age_identity.write_text("test identity\n", encoding="utf-8")
     config_store = tmp_path / "configs"
     previous = config_store / "release-a-config"
     previous.mkdir(parents=True)
@@ -92,6 +102,7 @@ exec /usr/bin/mv "$@"
         "KAMAL_REGISTRY_SERVER": "registry.example",
         "KAMAL_REGISTRY_USERNAME": "robot",
         "KAMAL_REGISTRY_PASSWORD": "test-secret",
+        "MANCALA_AI_AGE_IDENTITY": str(age_identity),
         "MANCALA_AI_ASSET_RELEASE": str(assets),
         "MANCALA_AI_DEPLOY_STATE": str(state),
         "MANCALA_AI_CONFIG_STORE": str(config_store),
@@ -115,6 +126,7 @@ def invoke(env: dict[str, str], *args: str) -> subprocess.CompletedProcess[str]:
 
 def test_remote_asset_preflight_uses_explicit_ssh_target(wrapper) -> None:
     env, log = wrapper
+    env["AGE_STATUS"] = "1"
     env["MANCALA_AI_ASSET_RELEASE"] = "/srv/remote assets/release-b"
     assert not Path(env["MANCALA_AI_ASSET_RELEASE"]).exists()
     result = invoke(env)
@@ -122,6 +134,54 @@ def test_remote_asset_preflight_uses_explicit_ssh_target(wrapper) -> None:
     commands = log.read_text(encoding="utf-8")
     assert "-l deploy -p 2222 target.example" in commands
     assert "/srv/remote assets/release-b" in commands
+    assert "age " not in commands
+
+
+def test_registry_decryption_failure_aborts_before_remote_preflight(wrapper) -> None:
+    env, log = wrapper
+    env.pop("KAMAL_REGISTRY_PASSWORD")
+    env["AGE_STATUS"] = "1"
+
+    result = invoke(env)
+
+    assert result.returncode != 0
+    assert "could not decrypt the GHCR registry credential" in result.stderr
+    commands = log.read_text(encoding="utf-8")
+    assert commands.startswith("age --decrypt ")
+    assert "ssh " not in commands
+    assert "bundle " not in commands
+
+
+def test_empty_decrypted_registry_credential_aborts_before_remote_preflight(
+    wrapper,
+) -> None:
+    env, log = wrapper
+    env.pop("KAMAL_REGISTRY_PASSWORD")
+    env["AGE_OUTPUT"] = ""
+
+    result = invoke(env)
+
+    assert result.returncode != 0
+    assert "decrypted GHCR registry credential is empty" in result.stderr
+    commands = log.read_text(encoding="utf-8")
+    assert "ssh " not in commands
+    assert "bundle " not in commands
+
+
+def test_decrypted_credential_is_passed_to_kamal_without_logging(wrapper) -> None:
+    env, log = wrapper
+    env.pop("KAMAL_REGISTRY_PASSWORD")
+    env["AGE_OUTPUT"] = "decrypted-test-secret"
+    env["EXPECT_REGISTRY_PASSWORD"] = "decrypted-test-secret"
+
+    result = invoke(env)
+
+    assert result.returncode == 0, result.stderr
+    commands = log.read_text(encoding="utf-8")
+    assert "age --decrypt " in commands
+    assert "decrypted-test-secret" not in commands
+    assert "decrypted-test-secret" not in result.stdout
+    assert "decrypted-test-secret" not in result.stderr
 
 
 def test_failed_preflight_does_not_stop_incumbent(wrapper) -> None:
