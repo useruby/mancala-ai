@@ -80,3 +80,29 @@ focused tests `ml/alphazero_lite/test_run_seed542_generation.py` at
 passed (5/5), and Ruff check/format passed before generation. The archived
 runner bytes are bound by that digest; dependency versions and actual invocation
 records remain explicit in the inventory.
+
+## Prospective continuation freeze
+
+After the preserved interruption, `continuation-freeze.json` was added as a
+separate machine-readable binding (SHA-256
+`0c70b483d4ca7417c92f2fa5da1f2c76913140bbc9cced8502cc320e79b01fb5`). It pins
+the exact continuation command template, seed/source partition, production
+generator/rules/loader/materializer hashes, initializer, weights, runtime
+sidecar, native probe, tablebase, dependency versions, and resource-scope
+settings. The updated runner checks that binding before writing a start record
+or launching a subprocess. A command-setting or input hash mismatch fails
+preflight. This does not alter the original freeze or execution inventory.
+
+The continuation policy classifies completed, interrupted, preserved-unverified,
+and unattempted seeds. Completed outputs are hash-checked and skipped;
+interrupted/ambiguous attempts are retained and skipped, never relaunched
+automatically; only unattempted seeds are eligible for a later explicit
+`--execute` invocation. New records use
+`continuation-inventory.jsonl`, leaving the original attempt inventory intact.
+The continuation runner SHA-256 is
+`17cebe359bb0f03320f6f87c38330c3d55da442375d8286921c5d230b59c9c85`; its
+focused test SHA-256 is
+`62998a6720ca7de7246cbf0b96a213c0dadf58c5731813b9ee73f448e994311b`. No
+continuation generation has been performed. On this checkout the tablebase is
+present as an LFS pointer rather than materialized bytes, so preflight rejects
+launch until the authenticated 709,635,072-byte runtime file is available.

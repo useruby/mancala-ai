@@ -36,6 +36,7 @@
     "source": "training",
     "requested_games": 64,
     "complete_games_in_staging": 51,
+    "capped_games_in_staging": 0,
     "incomplete_games_in_staging": 1,
     "not_started_games": 12,
     "staged_rows": 1776,
