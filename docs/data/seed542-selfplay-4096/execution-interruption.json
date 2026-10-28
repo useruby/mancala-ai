@@ -1,0 +1,30 @@
+{
+  "event": "interrupted",
+  "seed": 542001,
+  "source": "training",
+  "requested_games": 64,
+  "command_record": "execution-inventory.jsonl line 3 (started event)",
+  "started_at": "2026-10-28T16:37:49.651892+00:00",
+  "stopped_at": "2026-10-28T16:43:12+00:00",
+  "elapsed_seconds": 322.348108,
+  "exit_status": "terminated by operator via systemd stop; no normal generator exit status",
+  "resource_scope": {
+    "cpu_quota": "25%",
+    "cpu_weight": 1,
+    "memory_max_bytes": 4294967296,
+    "nice": 19,
+    "cpu_affinity": "31"
+  },
+  "staging_output": {
+    "path": "docs/data/seed542-selfplay-4096/azlite-self-play-shards-etoy6j_i/worker_0.jsonl",
+    "bytes": 6175753,
+    "sha256": "89cd9dd08f4d08d36fe79546738bba8ff20389756615712cdcd72cb2f0b3b94a",
+    "rows": 1776,
+    "completed_games": 51,
+    "incomplete_game_indices": [51],
+    "unstarted_game_indices": [52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63],
+    "complete_game_replay_rows": 1768,
+    "production_loader_accepted_rows": 1776
+  },
+  "no_regeneration_or_replacement": true
+}

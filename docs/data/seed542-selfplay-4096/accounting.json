@@ -1,0 +1,134 @@
+{
+  "status": "partial corpus; full corpus accounting not possible; training unauthorized",
+  "requested_games": 4096,
+  "game_status": {
+    "completed": 115,
+    "capped": 0,
+    "incomplete_or_not_started": 3981
+  },
+  "shard_status": {
+    "requested": 64,
+    "complete": 1,
+    "partial": 1,
+    "not_started": 62
+  },
+  "completed_shards": [
+    {
+      "seed": 542000,
+      "source": "training",
+      "requested_games": 64,
+      "completed_games": 64,
+      "capped_games": 0,
+      "incomplete_games": 0,
+      "rows": 2216,
+      "loader_accepted_rows": 2216,
+      "canonical_unique_states": 1798,
+      "canonical_duplicate_rows": 418,
+      "production_float32_unique_inputs": 1798,
+      "production_float32_duplicate_rows": 418,
+      "diversity_growth": {
+        "new_unique_inputs": 1798,
+        "cumulative_unique_inputs": 1798
+      },
+      "teacher_and_active_stone_cohorts": {
+        "PUCT_>32": {
+          "rows": 762,
+          "duplicate_rows": 352,
+          "mean_legal_policy_entropy_nats": 0.5778193810494783,
+          "one_hot_fraction": 0.12073490813648294
+        },
+        "PUCT_17-32": {
+          "rows": 714,
+          "duplicate_rows": 47,
+          "mean_legal_policy_entropy_nats": 0.08933276414148408,
+          "one_hot_fraction": 0.3585434173669468
+        },
+        "PUCT_<=16": {"rows": 0},
+        "exact-root_>32": {"rows": 0},
+        "exact-root_17-32": {"rows": 0},
+        "exact-root_<=16": {
+          "rows": 740,
+          "duplicate_rows": 19,
+          "mean_legal_policy_entropy_nats": 0.0,
+          "one_hot_fraction": 1.0
+        }
+      },
+      "target_mode_counts": {
+        "policy_target_mode": {"default": 2216},
+        "policy_target_actual_mode": {
+          "default": 1476,
+          "exact_root_one_hot": 740
+        },
+        "value_target_mode": {"default": 2216}
+      },
+      "sha256": "d32be9595d12748115e5ad2cf6ea073e063078571d00dd60965a646f83da20e4",
+      "bytes": 7710662,
+      "elapsed_seconds": 406.2980419099331,
+      "replay_validation": "passed",
+      "production_loader": "accepted"
+    }
+  ],
+  "partial_shards": [
+    {
+      "seed": 542001,
+      "source": "training",
+      "requested_games": 64,
+      "completed_games_in_staging": 51,
+      "capped_games_in_staging": 0,
+      "incomplete_games_in_staging": 1,
+      "not_started_games": 12,
+      "staged_rows": 1776,
+      "loader_accepted_staged_rows": 1776,
+      "canonical_unique_staged_inputs": 1489,
+      "canonical_duplicate_staged_rows": 287,
+      "float32_unique_staged_inputs": 1489,
+      "float32_duplicate_staged_rows": 287,
+      "complete_game_rows_replayed": 1768,
+      "canonical_unique_states_of_complete_games": 1488,
+      "float32_unique_inputs_of_complete_games": 1488,
+      "teacher_and_active_stone_cohorts_of_staged_rows": {
+        "PUCT_>32": {
+          "rows": 605,
+          "mean_legal_policy_entropy_nats": 0.5918021333621006,
+          "one_hot_fraction": 0.10743801652892562
+        },
+        "PUCT_17-32": {
+          "rows": 571,
+          "mean_legal_policy_entropy_nats": 0.09682328626419051,
+          "one_hot_fraction": 0.3327495621716287
+        },
+        "PUCT_<=16": {"rows": 0},
+        "exact-root_>32": {"rows": 0},
+        "exact-root_17-32": {"rows": 0},
+        "exact-root_<=16": {
+          "rows": 600,
+          "mean_legal_policy_entropy_nats": 0.0,
+          "one_hot_fraction": 1.0
+        }
+      },
+      "target_mode_counts_of_staged_rows": {
+        "policy_default_actual_default_value_default": 1176,
+        "policy_default_actual_exact_root_one_hot_value_default": 600
+      },
+      "staging_path": "docs/data/seed542-selfplay-4096/azlite-self-play-shards-etoy6j_i/worker_0.jsonl",
+      "staging_bytes": 6175753,
+      "staging_sha256": "89cd9dd08f4d08d36fe79546738bba8ff20389756615712cdcd72cb2f0b3b94a",
+      "normal_shard_path_created": false,
+      "no_replacement_or_regeneration": true
+    }
+  ],
+  "unattempted_seeds": [
+    542002, 542003, 542004, 542005, 542006, 542007, 542008, 542009,
+    542010, 542011, 542012, 542013, 542014, 542015, 542016, 542017,
+    542018, 542019, 542020, 542021, 542022, 542023, 542024, 542025,
+    542026, 542027, 542028, 542029, 542030, 542031, 542032, 542033,
+    542034, 542035, 542036, 542037, 542038, 542039, 542040, 542041,
+    542042, 542043, 542044, 542045, 542046, 542047, 542048, 542049,
+    542050, 542051, 542052, 542053, 542054, 542055, 542056, 542057,
+    542058, 542059, 542060, 542061, 542062, 542063
+  ],
+  "target_modes_and_cohort_metrics": "available only for completed seed 542000 in historical-validator output; full-corpus figures not computed",
+  "development_membership": "not computed because all development-source shards are unattempted",
+  "training_schedule": "not frozen because expanded loader population is incomplete",
+  "training_authorized": false
+}

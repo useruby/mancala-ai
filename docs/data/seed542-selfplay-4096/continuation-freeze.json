@@ -1,0 +1,112 @@
+{
+  "freeze_status": "prospective continuation binding; no continuation generated",
+  "behavior": {
+    "model_version": "seed48-nextgen-s455-default-value-iter1",
+    "weights": {
+      "path": "model-artifact/current/weights.json",
+      "sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+    },
+    "runtime_search_policy": {
+      "path": "model-artifact/current/search_policy.json",
+      "sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+    },
+    "initializer": {
+      "path": "docs/data/seed542-selfplay-4096/initializer.npz",
+      "sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+    },
+    "native_probe": {
+      "path": "model-artifact/runtime/kalah_v1_tablebase",
+      "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48"
+    },
+    "tablebase": {
+      "path": "model-artifact/runtime/kalah_v1_21.kvtb",
+      "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "size_bytes": 709635072
+    }
+  },
+  "source_sha256": {
+    "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/pipeline.py": "ad1c9919e13418c4af53be9856406272bdb4f8ed9a53e7424cc9364364772dfa"
+  },
+  "environment": {
+    "python": "3.14.7",
+    "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+    "numpy": "2.5.3",
+    "torch": "2.14.0+cu130"
+  },
+  "seed_plan": {
+    "first_seed": 542000,
+    "last_seed_inclusive": 542063,
+    "games_per_shard": 64,
+    "training_seed_count": 48,
+    "training_last_seed_inclusive": 542047,
+    "development_seed_count": 16,
+    "development_first_seed": 542048
+  },
+  "command_template": [
+    "/home/alex/Mancala/ai/.tmp/venv/bin/python",
+    "-m",
+    "ml.alphazero_lite.self_play",
+    "--out",
+    "{output}",
+    "--games",
+    "64",
+    "--seed",
+    "{seed}",
+    "--checkpoint",
+    "docs/data/seed542-selfplay-4096/initializer.npz",
+    "--runtime-search-policy-artifact",
+    "model-artifact/current",
+    "--input-encoding",
+    "kalah_v3",
+    "--player-mode",
+    "puct",
+    "--simulations",
+    "128",
+    "--c-puct",
+    "1.25",
+    "--temperature-threshold",
+    "10",
+    "--temperature",
+    "1.0",
+    "--temperature-late",
+    "0.1",
+    "--dirichlet-alpha",
+    "0.3",
+    "--dirichlet-epsilon",
+    "0.25",
+    "--schedule-progress-mode",
+    "none",
+    "--max-moves",
+    "200",
+    "--workers",
+    "1",
+    "--policy-target-mode",
+    "default",
+    "--exact-root-policy-target-mode",
+    "selected_one_hot",
+    "--policy-target-noise-mode",
+    "denoised",
+    "--value-target-mode",
+    "default",
+    "--start-state-mode",
+    "standard_4x6",
+    "--write-game-metadata"
+  ],
+  "resume_policy": {
+    "interrupted_or_ambiguous_attempts": "preserve and skip; never retry automatically",
+    "completed_outputs": "verify inventory hash and skip",
+    "only_unattempted_seeds_may_launch": true,
+    "new_execution_records": "docs/data/seed542-selfplay-4096/continuation-inventory.jsonl",
+    "generation_requires_explicit_execute_flag": true
+  },
+  "resource_scope": {
+    "cpu_quota": "25%",
+    "cpu_weight": 1,
+    "memory_max_bytes": 4294967296,
+    "nice": 19,
+    "cpu_affinity": "31"
+  }
+}

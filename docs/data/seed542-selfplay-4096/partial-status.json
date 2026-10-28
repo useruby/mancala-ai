@@ -1,0 +1,57 @@
+{
+  "status": "incomplete; training unauthorized",
+  "requested_games": 4096,
+  "completed_games": 115,
+  "capped_games": 0,
+  "incomplete_or_not_started_games": 3981,
+  "shards_requested": 64,
+  "shards_completed": 1,
+  "shards_partial": 1,
+  "shards_not_started": 62,
+  "training_source": {
+    "requested_games": 3072,
+    "completed_games": 115,
+    "partial_seed": 542001
+  },
+  "development_source": {
+    "requested_games": 1024,
+    "completed_games": 0
+  },
+  "completed_shard": {
+    "seed": 542000,
+    "games_requested": 64,
+    "games_complete": 64,
+    "games_capped": 0,
+    "games_incomplete": 0,
+    "rows": 2216,
+    "loader_accepted_rows": 2216,
+    "canonical_unique_states": 1798,
+    "production_float32_unique_inputs": 1798,
+    "sha256": "d32be9595d12748115e5ad2cf6ea073e063078571d00dd60965a646f83da20e4",
+    "generation_elapsed_seconds": 406.2980419099331,
+    "validation": "64 games replayed; production loader accepted"
+  },
+  "preserved_partial_attempt": {
+    "seed": 542001,
+    "source": "training",
+    "requested_games": 64,
+    "complete_games_in_staging": 51,
+    "capped_games_in_staging": 0,
+    "incomplete_games_in_staging": 1,
+    "not_started_games": 12,
+    "staged_rows": 1776,
+    "complete_game_rows_replayed": 1768,
+    "complete_game_canonical_unique_states": 1488,
+    "complete_game_float32_unique_inputs": 1488,
+    "production_loader_accepted_staged_rows": 1776,
+    "path": "docs/data/seed542-selfplay-4096/azlite-self-play-shards-etoy6j_i/worker_0.jsonl",
+    "bytes": 6175753,
+    "sha256": "89cd9dd08f4d08d36fe79546738bba8ff20389756615712cdcd72cb2f0b3b94a",
+    "termination": "operator stopped the constrained generation service; partial bytes retained and not resumed or replaced"
+  },
+  "overlap_membership": "not built; incomplete corpus",
+  "training_comparison_protocol": "not finalized; incomplete corpus",
+  "candidate_training": "not authorized",
+  "candidate_evaluation": "not authorized",
+  "promotion_or_deployment": "not authorized"
+}
