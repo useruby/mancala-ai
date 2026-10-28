@@ -1,0 +1,189 @@
+{
+  "analysis": {
+    "advance_authorizes": "proposal for a separate 1,200-simulation evaluation only; not deployment or promotion",
+    "advance_only_if": "all 2,048 games validate and lower bound > 0.50",
+    "bootstrap_resamples": 20000,
+    "bootstrap_seed": 539,
+    "cluster": "opening; mean two swapped-seat game scores, preserving sampled multiplicity",
+    "one_sided_lower_quantile": 0.05,
+    "quantile_method": "linear",
+    "score": "(challenger wins + 0.5 * draws) / completed valid games",
+    "two_sided_quantiles": [
+      0.025,
+      0.975
+    ]
+  },
+  "assignments": {
+    "challenger_T": {
+      "each_component_own_trunk": true,
+      "policy": "T-E4",
+      "value": "initializer"
+    },
+    "opponent_P": {
+      "each_component_own_trunk": true,
+      "policy": "P-E4",
+      "value": "initializer"
+    },
+    "tensor_splicing": false
+  },
+  "components": {
+    "P_policy": {
+      "artifact": "docs/data/seed504-policy-only-ablation/screen/runtime-artifacts/P-E4",
+      "checkpoint": "docs/data/seed504/seed504_epoch4.npz",
+      "checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "files": {
+        "metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+        "model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+      },
+      "trunk": "complete artifact; not tensor-spliced"
+    },
+    "T_policy": {
+      "artifact": "docs/data/seed504-policy-only-ablation/screen/runtime-artifacts/T-E4",
+      "checkpoint": "docs/data/seed504-policy-only-ablation/seed504_policy_only_epoch4.npz",
+      "checkpoint_sha256": "8b423ff1cc4e100407fc537cc94eabd4615c656e636b715d1d621d55ee62408d",
+      "files": {
+        "metadata.json": "99008826f14cddcbba3f3a388c086cfebc5e292927f21f156a009457dc1391b5",
+        "model.npz": "8b423ff1cc4e100407fc537cc94eabd4615c656e636b715d1d621d55ee62408d",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "3251890f926e886cdd60fd5021a9f688fb249559a4ff2c0c1aed4d8f1a4f1e4b"
+      },
+      "trunk": "complete artifact; not tensor-spliced"
+    },
+    "shared_value": {
+      "artifact": "docs/data/seed504-policy-only-ablation/screen/runtime-artifacts/initializer",
+      "checkpoint": "docs/data/seed508-policy-value-crossover/initializer.npz",
+      "checkpoint_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "files": {
+        "metadata.json": "7ce41fde58c219c9fd2aa7a912db1c2da357099d6f72e3f715d9a78ce500cb5d",
+        "model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+      },
+      "trunk": "complete artifact; not tensor-spliced"
+    }
+  },
+  "environment": {
+    "launch_resource_contract": {
+      "affinity_cpu": 31,
+      "api_cgroup_cpuset": "0-31",
+      "api_cgroup_observed_cpu_max": "200000 100000",
+      "location": "host, outside API container and CI",
+      "nice": 19,
+      "systemd_scope": [
+        "CPUQuota=25%",
+        "CPUWeight=1"
+      ]
+    },
+    "numpy": "2.5.3",
+    "pip_freeze": [
+      "cuda-bindings==13.4.1",
+      "cuda-pathfinder==1.8.1",
+      "cuda-toolkit==13.0.3.0",
+      "filelock==3.32.6",
+      "fsspec==2026.7.0",
+      "iniconfig==2.3.0",
+      "Jinja2==3.1.6",
+      "MarkupSafe==3.0.3",
+      "mpmath==1.3.0",
+      "networkx==3.6.1",
+      "numpy==2.5.3",
+      "nvidia-cublas==13.1.1.3",
+      "nvidia-cuda-cupti==13.0.85",
+      "nvidia-cuda-nvrtc==13.0.88",
+      "nvidia-cuda-runtime==13.0.96",
+      "nvidia-cudnn-cu13==9.24.0.43",
+      "nvidia-cufft==12.0.0.61",
+      "nvidia-cufile==1.15.1.6",
+      "nvidia-curand==10.4.0.35",
+      "nvidia-cusolver==12.0.4.66",
+      "nvidia-cusparse==12.6.3.3",
+      "nvidia-cusparselt-cu13==0.8.1",
+      "nvidia-nccl-cu13==2.30.7",
+      "nvidia-nvjitlink==13.4.52",
+      "nvidia-nvshmem-cu13==3.4.5",
+      "nvidia-nvtx==13.0.85",
+      "packaging==26.3",
+      "pip==26.2.1",
+      "pluggy==1.6.0",
+      "Pygments==2.21.0",
+      "pytest==9.1.1",
+      "setuptools==84.0.0",
+      "sympy==1.14.0",
+      "torch==2.14.0",
+      "triton==3.8.0",
+      "typing_extensions==4.16.0"
+    ],
+    "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+    "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+    "torch": "2.14.0+cu130"
+  },
+  "input_sha256": {
+    "docs/data/seed511-fixed-composition-screen-v4/execution-freeze.json": "e6476fa3f587292e41ff97d99db87b942587c211fb861f8837e37077292eb633",
+    "docs/data/seed511-fixed-composition-screen-v4/openings.jsonl": "27a003322e5469507a508010a9743b40062928140e6a4b9d5628b0290e32c21d",
+    "docs/data/seed511-fixed-composition-screen-v4/registration.json": "89f04c6e1f774d81a7866d3913dd5ffa990b9e04a58f9a7f066b8f19204445c4"
+  },
+  "interpretation": "exploratory reuse of seed511 suite; preserves disclosed seed461 historical-overlap limitation; not fresh confirmation",
+  "runtime": {
+    "base_seed": 539,
+    "c_puct": 1.25,
+    "capped_game_policy": "never count as ordinary draw; incomplete pairs stay uncommitted and require explicit adjudication",
+    "exact_leaf_solve": "disabled",
+    "exact_root_objective": "final_score_margin",
+    "exact_root_threshold": 16,
+    "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+    "game_seed": "base_seed + opening_index",
+    "games_per_opening": 2,
+    "move_cap": 200,
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "search_options": {
+      "fpu_mode": "zero",
+      "normalize_values": false,
+      "random_opening_plies": 0,
+      "reuse_subtree": false,
+      "root_policy_mode": "deterministic",
+      "root_prior_transform": null,
+      "root_temperature": 0.0,
+      "tactical_root_bias": 0.0
+    },
+    "seat_assignment": "one game for each challenger_player in {0,1}",
+    "seed_contract": "azlite_eval_seed_v2",
+    "simulations_per_side": 128,
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "workers": 1
+  },
+  "runtime_asset_sha256": {
+    "model-artifact/runtime/kalah_v1_21.kvtb": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "model-artifact/runtime/kalah_v1_tablebase": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48"
+  },
+  "schema": "seed504-policy-only-screen-v1",
+  "source_sha256": {
+    "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "ml/alphazero_lite/evaluation_seed_contract.py": "be5ed17519f86040cdac2a2380d4dd907015b927c6b80fedc85f7d668b9422c3",
+    "ml/alphazero_lite/exact_root_decision.py": "c806a7c3c3a8fd7d7be800f59fc568c670889164a46c7acbde8ff92473776905",
+    "ml/alphazero_lite/input_encodings.py": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/native_exact_root_tablebase.py": "bf241fa772efd122355b0706fff9035ee40f6cb9ac913fdd829444f359d62f15",
+    "ml/alphazero_lite/runtime_search_policy.py": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
+    "ml/alphazero_lite/seed488_strength_evaluation.py": "1091d9a0158aeb4496c24f7950b0d11a65af500bd0e4c70420c275b03895b563",
+    "ml/alphazero_lite/seed504_policy_only_screen.py": "6341e42b330fa326ac75786f7f183b6f53a27fefc2961fa28a4808b1c6ae9402",
+    "ml/alphazero_lite/seed511_fixed_composition_screen.py": "179acf44e5399400b953d0f6cd92e00a2bf2f10a21bd2eec5d93daa99a6cdc69",
+    "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
+    "ml/alphazero_lite/test_seed504_policy_only_screen.py": "32ca430817ea27892bc0b2086ace99b0ed5aa7bc0e2af09515265ed2ee901ee8",
+    "ml/alphazero_lite/verify_seed488_strength_evaluation.py": "b263667b5af8b88f66d6a85ef7d64979f11c7b7569cb5db87b41030f06a73e92",
+    "ml/alphazero_lite/verify_seed504_policy_only_screen.py": "bfd5cfc5f0cc9e84bb035ed1efa4b439fdc17837f67fbdb4adb143d1ae8b5911",
+    "ml/alphazero_lite/verify_seed511_fixed_composition_screen.py": "57d5227223e54f38efe2a72535787a209cb845bcd7ff738cdc19fcced7a31657"
+  },
+  "status": "frozen_before_arena_execution",
+  "suite": {
+    "games": 2048,
+    "openings": 1024,
+    "reuse": "exact authenticated seed511 opening suite; no replacement or outcome-based filtering",
+    "seed461_limitation": "historical overlap limitation retained; no provenance recovery or fresh-confirmation claim",
+    "seed511_freeze_sha256": "e6476fa3f587292e41ff97d99db87b942587c211fb861f8837e37077292eb633",
+    "seed511_registration_sha256": "89f04c6e1f774d81a7866d3913dd5ffa990b9e04a58f9a7f066b8f19204445c4",
+    "sha256": "27a003322e5469507a508010a9743b40062928140e6a4b9d5628b0290e32c21d",
+    "source": "docs/data/seed511-fixed-composition-screen-v4/openings.jsonl"
+  }
+}

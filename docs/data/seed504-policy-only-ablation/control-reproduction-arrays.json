@@ -1,0 +1,34 @@
+{
+  "comparison": "all serialized parameter arrays compared bitwise against authenticated seed504 C checkpoints",
+  "epochs": {
+    "E1": {
+      "bitwise_equal": true,
+      "historical_sha256": "6187b0e702a2118579c82fc0950398babe255e95f1f64a4f695d52b3e56144c3",
+      "parameter_arrays": 22,
+      "path": "docs/data/seed504-policy-only-ablation/control-reproduction-checkpoints/seed504_epoch1.npz",
+      "reproduced_sha256": "6187b0e702a2118579c82fc0950398babe255e95f1f64a4f695d52b3e56144c3"
+    },
+    "E2": {
+      "bitwise_equal": true,
+      "historical_sha256": "d1ef62ad445ad33a532a9a5efa8aadefe5657235af1706fdba4b1c1c8579d796",
+      "parameter_arrays": 22,
+      "path": "docs/data/seed504-policy-only-ablation/control-reproduction-checkpoints/seed504_epoch2.npz",
+      "reproduced_sha256": "d1ef62ad445ad33a532a9a5efa8aadefe5657235af1706fdba4b1c1c8579d796"
+    },
+    "E3": {
+      "bitwise_equal": true,
+      "historical_sha256": "e049d2a7e6702b68cf4bf2d230f5966f86e4dfc8e4ed928a534b61f7d7804842",
+      "parameter_arrays": 22,
+      "path": "docs/data/seed504-policy-only-ablation/control-reproduction-checkpoints/seed504_epoch3.npz",
+      "reproduced_sha256": "e049d2a7e6702b68cf4bf2d230f5966f86e4dfc8e4ed928a534b61f7d7804842"
+    },
+    "E4": {
+      "bitwise_equal": true,
+      "historical_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "parameter_arrays": 22,
+      "path": "docs/data/seed504-policy-only-ablation/control-reproduction-checkpoints/seed504_epoch4.npz",
+      "reproduced_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad"
+    }
+  },
+  "status": "captured_exact_control_reproduction"
+}
