@@ -1,0 +1,296 @@
+"""Controlled seed504 policy-only training ablation (arm T)."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import platform
+from pathlib import Path
+from typing import Any
+
+import numpy as np
+import torch
+
+from ml.alphazero_lite import run_seed504 as base
+from ml.alphazero_lite import train
+
+ROOT = Path(__file__).resolve().parents[2]
+OUT = ROOT / "docs/data/seed504-policy-only-ablation"
+CONTROL = ROOT / ".tmp/seed504-control-repro"
+
+
+def sha(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def canonical_json(value: Any) -> bytes:
+    return json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+
+
+def freeze(out: Path = OUT) -> dict[str, Any]:
+    """Bind all inputs and commands before the policy-only arm runs."""
+    if out.exists():
+        raise ValueError("publication_directory_exists")
+    manifest_path = ROOT / "docs/data/seed504/manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    training, development, split = base.split()
+    if sha(base.INITIALIZER) != base.EXPECTED_INITIALIZER:
+        raise ValueError("initializer_identity_mismatch")
+    for group in ("training", "development"):
+        for source in manifest["sources"][group]:
+            path = ROOT / source["path"]
+            if sha(path) != source["sha256"]:
+                raise ValueError(f"corpus_identity_mismatch:{path}")
+    if sha(manifest_path) != sha(ROOT / "docs/data/seed504/manifest.json"):
+        raise ValueError("seed504_manifest_identity_mismatch")
+    for epoch in range(1, 5):
+        path = ROOT / f"docs/data/seed504/seed504_epoch{epoch}.npz"
+        if not path.is_file():
+            raise ValueError(f"historical_checkpoint_missing:{epoch}")
+    historical_split = ROOT / "docs/data/seed504/split.json"
+    permutation_file = ROOT / "docs/data/seed504/permutations.json"
+    if sha(historical_split) != manifest["split_sha256"]:
+        raise ValueError("historical_split_identity_mismatch")
+    if sha(permutation_file) != manifest["permutations_sha256"]:
+        raise ValueError("historical_permutation_identity_mismatch")
+    if sha(Path(base.__file__)) != manifest["runner_sha256"]:
+        raise ValueError("historical_runner_identity_mismatch")
+    if sha(Path(train.__file__)) != manifest["train_source_sha256"]:
+        raise ValueError("historical_trainer_identity_mismatch")
+    out.mkdir(parents=True)
+    (out / "split.json").write_text(json.dumps(split, indent=2, sort_keys=True) + "\n")
+    permutations = json.loads(permutation_file.read_text())
+    if len(permutations) != 4 or any(
+        len(order) != len(training) for order in permutations
+    ):
+        raise ValueError("permutation_shape_invalid")
+    freeze_record = {
+        "status": "frozen_before_T_training",
+        "protocol": {
+            "architecture": "residual_v3/kalah_v3",
+            "hidden_sizes": [96, 3],
+            "input_features": 27,
+            "epochs": 4,
+            "batch_size": 512,
+            "optimizer": "Adam",
+            "learning_rate": 0.0001,
+            "betas": [0.9, 0.999],
+            "epsilon": 1e-8,
+            "weight_decay": 0.0,
+            "scheduler": "none",
+            "gradient_clip_norm": 1.0,
+            "seed": 504,
+            "objective_C": "legal policy CE + 0.5 * Huber(value, delta=1)",
+            "objective_T": "legal policy CE only",
+            "policy_loss_normalization": "production weighted_policy_loss unchanged",
+            "minibatch_denominator": "production unchanged",
+            "row_order": "seed504 production loader order; each source weight 1",
+            "permutation_sha256": sha(permutation_file),
+            "eligible_policy_targets": "production loader default",
+            "legal_masking": "production train.train_one_epoch unchanged",
+            "checkpoint": "E4 sole candidate; E1-E3 descriptive",
+            "value_head": "requires_grad=False for T; frozen initializer parameters",
+        },
+        "bindings": {
+            "seed504_manifest_sha256": sha(manifest_path),
+            "initializer_sha256": sha(base.INITIALIZER),
+            "training_shards": manifest["sources"]["training"],
+            "development_shards": manifest["sources"]["development"],
+            "split_sha256": sha(out / "split.json"),
+            "permutations_sha256": sha(permutation_file),
+            "historical_checkpoints": {
+                f"E{i}": sha(ROOT / f"docs/data/seed504/seed504_epoch{i}.npz")
+                for i in range(1, 5)
+            },
+            "sources": {
+                "runner": sha(Path(__file__)),
+                "seed504_runner": sha(Path(base.__file__)),
+                "trainer": sha(Path(train.__file__)),
+                "seed504_verifier": sha(ROOT / "ml/alphazero_lite/verify_seed504.py"),
+            },
+            "environment": {
+                "python": platform.python_version(),
+                "numpy": np.__version__,
+                "torch": torch.__version__,
+                "platform": platform.platform(),
+                "device": "cpu",
+            },
+            "training_rows": len(training),
+            "development_rows": len(development),
+        },
+    }
+    (out / "permutations.json").write_bytes(permutation_file.read_bytes())
+    (out / "registration.json").write_text(
+        json.dumps(freeze_record, indent=2, sort_keys=True) + "\n"
+    )
+    (out / "execution-freeze.json").write_text(
+        json.dumps(
+            {
+                "status": "frozen_before_T_training",
+                "registration_sha256": sha(out / "registration.json"),
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n"
+    )
+    return freeze_record
+
+
+def _parameter_arrays(path: Path) -> dict[str, np.ndarray]:
+    with np.load(path, allow_pickle=False) as archive:
+        return {name: archive[name].copy() for name in archive.files}
+
+
+def reproduce_control(control: Path = CONTROL) -> dict[str, Any]:
+    """Reproduce C and require bitwise equality for each historical state."""
+    if not control.is_dir():
+        control.mkdir(parents=True)
+        base.run(control, do_train=True)
+    comparisons: dict[str, Any] = {}
+    for epoch in range(1, 5):
+        expected = ROOT / f"docs/data/seed504/seed504_epoch{epoch}.npz"
+        actual = control / f"seed504_epoch{epoch}.npz"
+        left, right = _parameter_arrays(expected), _parameter_arrays(actual)
+        if set(left) != set(right):
+            raise ValueError(f"control_parameter_names:{epoch}")
+        unequal = [name for name in left if not np.array_equal(left[name], right[name])]
+        if unequal:
+            max_abs = max(
+                float(
+                    np.max(
+                        np.abs(left[n].astype(np.float64) - right[n].astype(np.float64))
+                    )
+                )
+                for n in unequal
+            )
+            raise ValueError(
+                f"control_parameter_mismatch:E{epoch}:{unequal}:max_abs={max_abs}"
+            )
+        comparisons[f"E{epoch}"] = {
+            "array_count": len(left),
+            "bitwise_equal": True,
+            "historical_archive_sha256": sha(expected),
+            "reproduced_archive_sha256": sha(actual),
+        }
+    return {"status": "exact", "comparisons": comparisons}
+
+
+def train_policy_only(out: Path = OUT) -> None:
+    registration_path = out / "registration.json"
+    if not registration_path.is_file() or not (out / "execution-freeze.json").is_file():
+        raise ValueError("prospective_freeze_required")
+    freeze_record = json.loads(registration_path.read_text())
+    if freeze_record.get("status") != "frozen_before_T_training":
+        raise ValueError("prospective_freeze_invalid")
+    control = reproduce_control()
+    training_rows, development_rows, _ = base.split()
+    training_paths = [base.CORPUS / f"shard-{i}.jsonl" for i in range(503000, 503006)]
+    x, p, v, replay, weights = train.load_jsonl_replay(
+        training_paths,
+        weights=[1] * 6,
+        policy_target_mode="default",
+        value_target_mode="default",
+        include_policy_loss_weights=True,
+    )
+    if len(x) != len(training_rows) or len(replay) != len(training_rows):
+        raise ValueError("training_loader_multiplicity_mismatch")
+    model = base.load_model(base.INITIALIZER, torch.device("cpu"))
+    initial_value = {
+        name: parameter.detach().clone()
+        for name, parameter in model.named_parameters()
+        if name.startswith(("value_hidden_layer.", "value_head."))
+    }
+    for name, parameter in model.named_parameters():
+        if name.startswith(("value_hidden_layer.", "value_head.")):
+            parameter.requires_grad_(False)
+    train.set_seed(504)
+    permutations: list[dict[str, Any]] = []
+    history: list[dict[str, Any]] = []
+
+    def record_permutation(epoch: int | None, order: list[int]) -> None:
+        permutations.append({"epoch": epoch, "order": order})
+
+    train.train(
+        model,
+        x,
+        p,
+        v,
+        replay,
+        policy_loss_weights=weights,
+        epochs=4,
+        batch_size=512,
+        lr=0.0001,
+        device=torch.device("cpu"),
+        value_loss_weight=0.0,
+        value_loss="huber",
+        huber_delta=1.0,
+        val_split=0.0,
+        grad_clip=1.0,
+        save_top_k=1,
+        lr_scheduler="none",
+        weight_decay=0.0,
+        save_epochs={1, 2, 3, 4},
+        save_epochs_dir=out,
+        save_epochs_base="seed504_policy_only",
+        epoch_history=history,
+        permutation_callback=record_permutation,
+        primary_order_seed=504,
+        final_checkpoint="final",
+    )
+    if [row["order"] for row in permutations] != json.loads(
+        (out / "permutations.json").read_text()
+    ):
+        raise ValueError("T_permutation_mismatch")
+    for name, old in initial_value.items():
+        if not torch.equal(dict(model.named_parameters())[name].detach(), old):
+            raise ValueError(f"value_head_changed:{name}")
+    (out / "control-reproduction.json").write_text(
+        json.dumps(control, indent=2, sort_keys=True) + "\n"
+    )
+    (out / "epochs.json").write_text(
+        json.dumps(history, indent=2, sort_keys=True) + "\n"
+    )
+    results: dict[str, Any] = {}
+    evaluation_rows = development_rows
+    for label, checkpoint in (
+        ("initializer", base.INITIALIZER),
+        ("C_E4", ROOT / "docs/data/seed504/seed504_epoch4.npz"),
+        ("T_E4", out / "seed504_policy_only_epoch4.npz"),
+    ):
+        metrics, predictions = base.evaluate(
+            base.load_model(checkpoint, torch.device("cpu")), evaluation_rows
+        )
+        results[label] = {
+            "checkpoint_sha256": sha(checkpoint),
+            "metrics": metrics,
+            "predictions": predictions,
+        }
+    results["effects_T_minus_C"] = {
+        group: {
+            weighting: results["T_E4"]["metrics"][group][weighting]["policy_ce"]
+            - results["C_E4"]["metrics"][group][weighting]["policy_ce"]
+            for weighting in ("exposure", "equal_exact_input")
+        }
+        for group in ("pooled", ">32", "17-32", "<=16")
+    }
+    (out / "development-results.json").write_text(
+        json.dumps(results, indent=2, sort_keys=True) + "\n"
+    )
+
+
+def main() -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("action", choices=("freeze", "train"))
+    parser.add_argument("--out", type=Path, default=OUT)
+    args = parser.parse_args()
+    if args.action == "freeze":
+        freeze(args.out)
+    else:
+        train_policy_only(args.out)
+
+
+if __name__ == "__main__":
+    main()
