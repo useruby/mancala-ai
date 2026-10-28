@@ -1,0 +1,43 @@
+{
+  "service_manager": "systemd --user",
+  "unit": "seed542-amended-generation.service",
+  "invocation_id": "1a7cab7b58754bc9b702c83d1ca85954",
+  "description": "Seed542 frozen continuation generation",
+  "command": [
+    "/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python",
+    "-m",
+    "ml.alphazero_lite.run_seed542_amended_generation",
+    "--execute"
+  ],
+  "started_at_systemd_local": "2026-10-28T19:34:33+01:00",
+  "finished_at_systemd_local": "2026-10-28T23:52:46+01:00",
+  "result": "success",
+  "exit_status": 0,
+  "resource_scope": {
+    "cpu_quota": "25%",
+    "cpu_quota_observed": "CPUQuotaPerSecUSec=250ms",
+    "cpu_weight": 1,
+    "memory_max_bytes": 4294967296,
+    "nice": 19,
+    "allowed_cpus": "31"
+  },
+  "service_usage": {
+    "wall_time_seconds": 15493.924,
+    "cpu_time_seconds": 3873.459,
+    "memory_peak_bytes_rounded": 2899102924
+  },
+  "finished_invocations": 63,
+  "finished_seed_range_with_exception": {
+    "from": 542002,
+    "through": 542064,
+    "excluded_seed": 542001
+  },
+  "completed_games": 3981,
+  "capped_games": 0,
+  "incomplete_or_unstarted_games": 0,
+  "preserved_skips": [
+    {"seed": 542000, "state": "completed"},
+    {"seed": 542001, "state": "interrupted"}
+  ],
+  "continuation_inventory": "continuation-inventory.jsonl"
+}

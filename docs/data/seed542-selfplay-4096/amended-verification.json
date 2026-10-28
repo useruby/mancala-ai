@@ -1,0 +1,96 @@
+{
+  "candidate_evaluation_executed": false,
+  "candidate_training_executed": false,
+  "corpus": {
+    "capped_games": 0,
+    "development_games": 1024,
+    "incomplete_or_unstarted_new_games": 0,
+    "interrupted_shard_retried": false,
+    "new_shard_invocations": 63,
+    "newly_generated_games": 3981,
+    "original_partial_accounting_preserved": true,
+    "planned_slots": 4109,
+    "recovered_seed542001_games": 51,
+    "recovered_seed542001_rows": 1768,
+    "training_games": 3072,
+    "usable_games": 4096
+  },
+  "deployment_or_serving_changes": false,
+  "development_membership": {
+    "excluded_rows": 21485,
+    "included_rows": 15359,
+    "remaining_canonical_overlap": 0,
+    "remaining_production_float32_overlap": 0,
+    "separation_scope": "original seed504 training data and amended 3,072-game training population only",
+    "source_rows": 36844
+  },
+  "independent_read_only_verification": {
+    "entrypoint": "ml/alphazero_lite/verify_seed542_amended_corpus.py",
+    "physical_copy": {
+      "bytes_unchanged": true,
+      "files_preserved": 149,
+      "modification_times_unchanged": true,
+      "repository_copy": ".tmp/seed542-physical-copy",
+      "status": "passed",
+      "working_directory": "/home/alex"
+    },
+    "verified_artifact_sha256": {
+      "amended-accounting.json": "89140844f831ec31b5bcf994d69c677d70f757abb3e18907d07b79817da8d807",
+      "continuation-amendment.json": "098a7297d7c73cc3ae8701ea285f0dff26917d8d695310edae986bda17be42e4",
+      "development-membership.json": "feeed97c7666a69603620e4e59575fdf02aa206e9e570cde937aa360bd37505b",
+      "execution-service.json": "b2fabd500ffbfea986b44506e5dd83bb9b54ea9be57c7af5473e7397b59e0af9",
+      "source-manifest.json": "63ffa566b929de4bec6fd445768e5161a53807fc2dcc1b170c8240a28be8f616",
+      "training-protocol.json": "bd708bcf3e6fc47b03988f98614c00d4e521374d5cd72cb0d2e33165e6d802f3"
+    },
+    "working_tree": {
+      "bytes_unchanged": true,
+      "files_preserved": 149,
+      "modification_times_unchanged": true,
+      "status": "passed"
+    }
+  },
+  "runtime_environment_and_all_installed_dependencies_rechecked_by_final_verifier": true,
+  "schema": "seed542-amended-verification-v1",
+  "status": "passed",
+  "tests": {
+    "focused_seed542": {
+      "checkout": "physical copy; completed continuation inventory temporarily isolated for the historical no-inventory guard test, then restored with its original modification time",
+      "passed": 39,
+      "result": "passed",
+      "test_files": [
+        "test_seed542_amendment.py",
+        "test_prepare_seed542_experiment.py",
+        "test_run_seed542_amended_generation.py",
+        "test_run_seed542_generation.py",
+        "test_verify_seed542.py",
+        "test_verify_seed542_amended_corpus.py"
+      ]
+    },
+    "git_diff_check": "passed",
+    "pre_commit_changed_python_files": "passed",
+    "ruff_check": "passed",
+    "ruff_format_check": "passed",
+    "seed500_seed504_regressions": {
+      "inputs": "only hash-authenticated checkpoint and screen fixtures restored temporarily; original untracked material was left untouched",
+      "passed": 38,
+      "result": "passed",
+      "test_files": [
+        "test_validate_seed500_pilot.py",
+        "test_run_seed504.py",
+        "test_seed504_policy_only.py",
+        "test_seed504_policy_only_screen.py"
+      ]
+    }
+  },
+  "training_schedule": {
+    "batch_sequence": "[512] * 26 + [412], repeated four times",
+    "control_schedule_sha256": "f76a085ee75853c1d227fc8fc070b860f2e799df22a536e761243169a7f53c8f",
+    "expanded_schedule_sha256": "d88055e827bcb46a169b5d2f6d5acf8ecc5c30fa17f3d6ff0d4741988bce86dd",
+    "expanded_unique_rows": 54896,
+    "expanded_without_replacement": true,
+    "exposures_per_arm": 54896,
+    "status": "frozen prospective; NOT EXECUTED",
+    "updates_per_arm": 108
+  },
+  "verifier_sha256": "4a701d503f5d46f8a22ef9b46960787cf7c309ea202b7f008fddf41cdc3a2f91"
+}
