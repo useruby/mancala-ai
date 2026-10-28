@@ -2,10 +2,15 @@ from __future__ import annotations
 
 import hashlib
 import json
+import platform
 import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
+import numpy as np
+import torch
 
 from ml.alphazero_lite import seed504_policy_only_screen as protocol
 from ml.alphazero_lite import verify_seed504_policy_only_screen as screen_verifier
@@ -132,6 +137,126 @@ def test_verifier_relocates_registered_commands_in_physical_checkout(
     ]
 
 
+def test_independent_bootstrap_preserves_duplicate_sampled_openings() -> None:
+    scores = np.asarray([0.0, 1.0])
+    lower, samples = screen_verifier.bootstrap_lower_bound(
+        scores, resamples=8, seed=17, quantile=0.05
+    )
+    indices = np.random.default_rng(17).integers(0, 2, size=(8, 2))
+    expected = scores[indices].mean(axis=1)
+    assert np.array_equal(samples, expected)
+    assert lower == np.quantile(expected, 0.05, method="linear")
+    assert np.any(np.all(indices == 0, axis=1))
+
+
+def test_advancement_boundary_is_strictly_above_half() -> None:
+    assert not screen_verifier.advance_from_lower_bound(0.50)
+    assert screen_verifier.advance_from_lower_bound(np.nextafter(0.50, 1.0))
+
+
+def _copied_screen(root: Path) -> Path:
+    source_root = protocol.ROOT
+    out_rel = protocol.OUT
+    shutil.copytree(source_root / out_rel, root / out_rel)
+    out = root / out_rel
+    registration = json.loads((out / "registration.json").read_text())
+    required = set(registration["source_sha256"])
+    required.update(registration["input_sha256"])
+    required.update(registration["runtime_asset_sha256"])
+    required.update(item["checkpoint"] for item in registration["components"].values())
+    for rel in required:
+        source = source_root / rel
+        target = root / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+    return out
+
+
+@pytest.mark.parametrize(
+    ("mutation", "error"),
+    [
+        ("outcome", "trajectory_length_or_cap"),
+        ("seat", "pair_seat_mismatch"),
+        ("report", "report_outcome_disagreement"),
+        ("exact_leaf", "pair_runtime_or_report_mismatch"),
+        ("exact_objective", "pair_runtime_or_report_mismatch"),
+        ("exact_tie_rule", "pair_runtime_or_report_mismatch"),
+        ("runtime", "runtime_identity_mismatch"),
+        ("component", "component_artifact_mismatch"),
+        ("score", "result_analysis_mismatch"),
+        ("interval", "result_analysis_mismatch"),
+        ("advance", "result_analysis_mismatch"),
+    ],
+)
+def test_real_verifier_rejects_semantic_corruption_after_receipt_rebinding(
+    tmp_path: Path, mutation: str, error: str
+) -> None:
+    root = tmp_path / "copy"
+    out = _copied_screen(root)
+    if mutation in {
+        "outcome",
+        "seat",
+        "report",
+        "exact_leaf",
+        "exact_objective",
+        "exact_tie_rule",
+    }:
+        game_path = out / "batches/games-0000.jsonl"
+        games = protocol.read_rows(game_path)
+        report_path = out / "batches/report-0000.json"
+        report = json.loads(report_path.read_text())
+        if mutation == "outcome":
+            games[0]["trajectory"] = "999"
+        elif mutation == "seat":
+            games[1]["challenger_player"] = games[0]["challenger_player"]
+        elif mutation == "exact_leaf":
+            report["notes"]["exact_leaf_solve_mode"] = "enabled"
+            protocol.atomic_json(report_path, report)
+        elif mutation == "exact_objective":
+            report["notes"]["exact_root_objective"] = "alternate_score"
+            protocol.atomic_json(report_path, report)
+        elif mutation == "exact_tie_rule":
+            report["notes"]["exact_root_tie_rule"] = "lowest_move_index"
+            protocol.atomic_json(report_path, report)
+        else:
+            report["wins"] += 1
+            protocol.atomic_json(report_path, report)
+        game_path.write_text(
+            "".join(json.dumps(x, sort_keys=True) + "\n" for x in games)
+        )
+        ledger_path = out / "outcomes.jsonl"
+        ledger = protocol.read_rows(ledger_path)
+        for receipt in ledger:
+            if receipt["opening_index"] == 0:
+                receipt["batch_game_sha256"] = protocol.sha(game_path)
+                receipt["batch_report_sha256"] = protocol.sha(report_path)
+        protocol.atomic_ledger(ledger_path, ledger)
+    elif mutation == "runtime":
+        rel = next(
+            iter(
+                json.loads((out / "registration.json").read_text())[
+                    "runtime_asset_sha256"
+                ]
+            )
+        )
+        (root / rel).write_bytes(b"corrupt runtime")
+    elif mutation == "component":
+        path = out / "runtime-artifacts/T-E4/model.npz"
+        path.write_bytes(path.read_bytes() + b"corrupt")
+    else:
+        result_path = out / "results.json"
+        result = json.loads(result_path.read_text())
+        if mutation == "score":
+            result["score"] += 0.001
+        elif mutation == "interval":
+            result["one_sided_95_lower"] += 0.001
+        else:
+            result["advance"] = True
+        protocol.atomic_json(result_path, result)
+    with pytest.raises(ValueError, match=error):
+        screen_verifier.verify(root)
+
+
 def test_capped_game_is_not_committed_as_an_ordinary_outcome(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -219,3 +344,119 @@ def test_changed_bindings_are_rejected_before_execution(
             path.write_text("after")
     with pytest.raises(ValueError):
         protocol.preflight(root, allow_started=False)
+
+
+def test_snapshot_authenticates_history_but_never_execution(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root, _ = _fixture(tmp_path, monkeypatch)
+    out = root / protocol.OUT
+    rel = "ml/alphazero_lite/frozen.py"
+    source = root / rel
+    source.parent.mkdir(parents=True)
+    source.write_text("working bytes")
+    snapshot = out / "execution-source-snapshots/frozen.py.txt"
+    snapshot.parent.mkdir()
+    snapshot.write_text("registered historical bytes")
+    registration = json.loads((out / "registration.json").read_text())
+    registration["status"] = "frozen_before_arena_execution"
+    registration["runtime_asset_sha256"] = {}
+    registration["input_sha256"] = {}
+    registration["components"] = {}
+    registration["source_sha256"] = {
+        rel: hashlib.sha256(snapshot.read_bytes()).hexdigest()
+    }
+    registration["suite"]["sha256"] = protocol.sha(out / "openings.jsonl")
+    protocol.atomic_json(out / "registration.json", registration)
+    protocol.atomic_json(
+        out / "execution-freeze.json",
+        {
+            "status": "frozen_before_arena_execution",
+            "registration_sha256": protocol.sha(out / "registration.json"),
+            "suite_sha256": protocol.sha(out / "openings.jsonl"),
+        },
+    )
+    with pytest.raises(ValueError, match="frozen_source_changed"):
+        protocol.preflight(root, allow_started=False)
+    assert protocol.preflight(root, historical=True) == registration
+
+
+def test_matching_executable_source_passes_preflight(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root, _ = _fixture(tmp_path, monkeypatch)
+    out = root / protocol.OUT
+    rel = "ml/alphazero_lite/frozen.py"
+    source = root / rel
+    source.parent.mkdir(parents=True)
+    source.write_text("registered bytes")
+    registration = json.loads((out / "registration.json").read_text())
+    registration["status"] = "frozen_before_arena_execution"
+    registration["runtime_asset_sha256"] = {}
+    registration["input_sha256"] = {}
+    registration["components"] = {}
+    registration["source_sha256"] = {rel: protocol.sha(source)}
+    registration["suite"]["sha256"] = protocol.sha(out / "openings.jsonl")
+    registration["environment"].update(
+        {
+            "python": sys.version,
+            "platform": platform.platform(),
+            "numpy": np.__version__,
+            "torch": torch.__version__,
+            "pip_freeze": subprocess.run(
+                [sys.executable, "-m", "pip", "freeze", "--all"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.splitlines(),
+        }
+    )
+    protocol.atomic_json(out / "registration.json", registration)
+    protocol.atomic_json(
+        out / "execution-freeze.json",
+        {
+            "status": "frozen_before_arena_execution",
+            "registration_sha256": protocol.sha(out / "registration.json"),
+            "suite_sha256": protocol.sha(out / "openings.jsonl"),
+        },
+    )
+    assert protocol.preflight(root, allow_started=False) == registration
+
+
+def test_changed_source_rejects_run_before_arena_subprocess(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root, _ = _fixture(tmp_path, monkeypatch)
+    out = root / protocol.OUT
+    rel = "ml/alphazero_lite/frozen.py"
+    source = root / rel
+    source.parent.mkdir(parents=True)
+    source.write_text("working bytes")
+    snapshot = out / "execution-source-snapshots/frozen.py.txt"
+    snapshot.parent.mkdir()
+    snapshot.write_text("registered bytes")
+    registration = json.loads((out / "registration.json").read_text())
+    registration.update(
+        status="frozen_before_arena_execution",
+        source_sha256={rel: protocol.sha(snapshot)},
+        input_sha256={},
+        runtime_asset_sha256={},
+        components={},
+    )
+    registration["suite"]["sha256"] = protocol.sha(out / "openings.jsonl")
+    protocol.atomic_json(out / "registration.json", registration)
+    protocol.atomic_json(
+        out / "execution-freeze.json",
+        {
+            "status": "frozen_before_arena_execution",
+            "registration_sha256": protocol.sha(out / "registration.json"),
+            "suite_sha256": protocol.sha(out / "openings.jsonl"),
+        },
+    )
+    calls = []
+    monkeypatch.setattr(
+        protocol.subprocess, "run", lambda *args, **kwargs: calls.append(args)
+    )
+    with pytest.raises(ValueError, match="frozen_source_changed"):
+        protocol.run(root, execute=True)
+    assert calls == []

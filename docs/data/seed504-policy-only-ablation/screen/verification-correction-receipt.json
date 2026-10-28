@@ -1,0 +1,72 @@
+{
+  "schema": "seed504-policy-only-verification-correction-v1",
+  "scope": "verification-only; no training or arena execution; no continuation amendment",
+  "execution_source_guard": {
+    "behavior": "execution requires registered live source bytes; archived snapshots authenticate historical verification only",
+    "tests": [
+      "changed executable plus matching snapshot rejected for launch before subprocess",
+      "matching snapshot accepted in historical mode",
+      "matching live executable passes preflight"
+    ]
+  },
+  "source_sha256": {
+    "ml/alphazero_lite/seed504_policy_only_screen.py": "3eecf560a35a5b1dfdd83d67cb4660c66288677a3d1058bd6d92892261db3902",
+    "ml/alphazero_lite/test_seed504_policy_only.py": "ca65c56d08589e9733501fb3df04ab718290bfdb28402ff88b5a6f98b91c64b4",
+    "ml/alphazero_lite/test_seed504_policy_only_screen.py": "11244df4dc6aa1b104899c421e83689bc00789a0023221b2abf625d703da6019",
+    "ml/alphazero_lite/verify_seed504_policy_only.py": "55f008a5b1616299342ae93f7fb76b30e634173e9ad0425b100004e354f25a84",
+    "ml/alphazero_lite/verify_seed504_policy_only_screen.py": "6481bc387a58cbc16c20d9689498c202be74b457675feb6f78d5c2669d4fc455"
+  },
+  "strength_reconstruction": {
+    "status": "verified_complete",
+    "validated_pairs": 1024,
+    "validated_games": 2048,
+    "wins": 931,
+    "draws": 182,
+    "losses": 935,
+    "score": 0.4990234375,
+    "bootstrap_resamples": 20000,
+    "bootstrap_seed": 539,
+    "lower_bound": 0.490478515625,
+    "descriptive_interval": [0.48876953125, 0.509033203125],
+    "advance": false,
+    "deployment_or_promotion": false,
+    "fresh_confirmation": false
+  },
+  "tests": {
+    "focused_seed504": "29 passed after exact-root contract mutation regressions",
+    "arena_regressions": "56 passed",
+    "ruff_check": "passed",
+    "ruff_format_check": "passed",
+    "pre_commit_all_files": "passed",
+    "arena_initial_attempt": "temporary-file regressions failed with /tmp Disk quota exceeded; generated test scratch was cleaned and the arena suite rerun with TMPDIR=$HOME/tmp",
+    "seed488_strength_regressions": "11 failed before assertions because the available NumPy version differs from the frozen fixture runtime; not a seed504 verifier failure"
+  },
+  "copied_checkout": {
+    "method": "physically distinct checkout path with unchanged data hard-linked and corrected verifier sources copied; commands run from .tmp unrelated directory",
+    "development_verifier": "passed; independently recomputed 2,671 development rows",
+    "screen_verifier": "passed; 1,024 pairs / 2,048 games; no advance"
+  },
+  "publication_preservation": {
+    "development-results.json": {
+      "sha256": "603bdbb3411c324eb7f6d55df6fc3c997ff8793193fa8e041bd679175b4aadd6",
+      "mtime_ns": 1793185177679272136
+    },
+    "screen/results.json": {
+      "sha256": "18342123c15a8ae10e846c550a9e9acd0fcb53ce329eb93b86968887681a7c40",
+      "mtime_ns": 1793083667532236661
+    },
+    "screen/outcomes.jsonl": {
+      "sha256": "7c8b61827702b4adc5be7b744bae1dd3a0efd21b216b60adf5481548cc10a501",
+      "mtime_ns": 1793083666920078706
+    },
+    "screen/commands.jsonl": {
+      "sha256": "2de9e747445adf52e1d490a4a527a76bfaeca3cff70ca39e18d236d2c22d9a7c",
+      "mtime_ns": 1793083627410094974
+    },
+    "screen/registration.json": {
+      "sha256": "b0f6f0d969607079293eabddfd91c2dddddac315b5373c150ac4f5158f37296f",
+      "mtime_ns": 1793185177681901485
+    },
+    "unchanged": true
+  }
+}
