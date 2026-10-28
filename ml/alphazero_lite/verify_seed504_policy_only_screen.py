@@ -208,6 +208,9 @@ def _verify_pair(
         or notes.get("workers_used") != 1
         or notes.get("seed_contract") != "azlite_eval_seed_v2"
         or notes.get("exact_root_solve_threshold") != 16
+        or notes.get("exact_leaf_solve_mode") != contract["exact_leaf_solve"]
+        or notes.get("exact_root_objective") != contract["exact_root_objective"]
+        or notes.get("exact_root_tie_rule") != contract["exact_root_tie_rule"]
         or notes.get("exact_root_native_probe_sha256")
         != contract["native_probe_sha256"]
         or notes.get("exact_root_tablebase_sha256") != contract["tablebase_sha256"]

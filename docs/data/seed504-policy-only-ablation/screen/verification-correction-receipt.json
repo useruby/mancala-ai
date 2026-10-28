@@ -12,9 +12,9 @@
   "source_sha256": {
     "ml/alphazero_lite/seed504_policy_only_screen.py": "3eecf560a35a5b1dfdd83d67cb4660c66288677a3d1058bd6d92892261db3902",
     "ml/alphazero_lite/test_seed504_policy_only.py": "ca65c56d08589e9733501fb3df04ab718290bfdb28402ff88b5a6f98b91c64b4",
-    "ml/alphazero_lite/test_seed504_policy_only_screen.py": "73f3381357520b17f3846fd3cf3998003787a8f1edc910ff5b7e796d4aac422f",
+    "ml/alphazero_lite/test_seed504_policy_only_screen.py": "11244df4dc6aa1b104899c421e83689bc00789a0023221b2abf625d703da6019",
     "ml/alphazero_lite/verify_seed504_policy_only.py": "55f008a5b1616299342ae93f7fb76b30e634173e9ad0425b100004e354f25a84",
-    "ml/alphazero_lite/verify_seed504_policy_only_screen.py": "18d6718c6791bca27ac6b70f29388a89184edfeda12b1300afc8c2b9cd7a73be"
+    "ml/alphazero_lite/verify_seed504_policy_only_screen.py": "6481bc387a58cbc16c20d9689498c202be74b457675feb6f78d5c2669d4fc455"
   },
   "strength_reconstruction": {
     "status": "verified_complete",
@@ -33,7 +33,7 @@
     "fresh_confirmation": false
   },
   "tests": {
-    "focused_seed504": "26 passed",
+    "focused_seed504": "29 passed after exact-root contract mutation regressions",
     "arena_regressions": "56 passed",
     "ruff_check": "passed",
     "ruff_format_check": "passed",

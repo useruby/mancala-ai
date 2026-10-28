@@ -178,6 +178,9 @@ def _copied_screen(root: Path) -> Path:
         ("outcome", "trajectory_length_or_cap"),
         ("seat", "pair_seat_mismatch"),
         ("report", "report_outcome_disagreement"),
+        ("exact_leaf", "pair_runtime_or_report_mismatch"),
+        ("exact_objective", "pair_runtime_or_report_mismatch"),
+        ("exact_tie_rule", "pair_runtime_or_report_mismatch"),
         ("runtime", "runtime_identity_mismatch"),
         ("component", "component_artifact_mismatch"),
         ("score", "result_analysis_mismatch"),
@@ -190,7 +193,14 @@ def test_real_verifier_rejects_semantic_corruption_after_receipt_rebinding(
 ) -> None:
     root = tmp_path / "copy"
     out = _copied_screen(root)
-    if mutation in {"outcome", "seat", "report"}:
+    if mutation in {
+        "outcome",
+        "seat",
+        "report",
+        "exact_leaf",
+        "exact_objective",
+        "exact_tie_rule",
+    }:
         game_path = out / "batches/games-0000.jsonl"
         games = protocol.read_rows(game_path)
         report_path = out / "batches/report-0000.json"
@@ -199,6 +209,15 @@ def test_real_verifier_rejects_semantic_corruption_after_receipt_rebinding(
             games[0]["trajectory"] = "999"
         elif mutation == "seat":
             games[1]["challenger_player"] = games[0]["challenger_player"]
+        elif mutation == "exact_leaf":
+            report["notes"]["exact_leaf_solve_mode"] = "enabled"
+            protocol.atomic_json(report_path, report)
+        elif mutation == "exact_objective":
+            report["notes"]["exact_root_objective"] = "alternate_score"
+            protocol.atomic_json(report_path, report)
+        elif mutation == "exact_tie_rule":
+            report["notes"]["exact_root_tie_rule"] = "lowest_move_index"
+            protocol.atomic_json(report_path, report)
         else:
             report["wins"] += 1
             protocol.atomic_json(report_path, report)
