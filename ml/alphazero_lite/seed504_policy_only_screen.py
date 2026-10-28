@@ -275,7 +275,12 @@ def prepare(root: Path = ROOT) -> dict[str, Any]:
     return registration
 
 
-def preflight(root: Path = ROOT, *, allow_started: bool = True) -> dict[str, Any]:
+def preflight(
+    root: Path = ROOT,
+    *,
+    allow_started: bool = True,
+    historical: bool = False,
+) -> dict[str, Any]:
     root = root.resolve()
     out = root / OUT
     registration_path = out / "registration.json"
@@ -291,9 +296,11 @@ def preflight(root: Path = ROOT, *, allow_started: bool = True) -> dict[str, Any
     for rel, digest in registration["source_sha256"].items():
         source = root / rel
         snapshot = out / "execution-source-snapshots" / f"{Path(rel).name}.txt"
-        if (not source.is_file() or sha(source) != digest) and (
-            not snapshot.is_file() or sha(snapshot) != digest
-        ):
+        # Archived source authenticates historical analysis only.  Execution
+        # must authenticate the bytes present in the checkout that will run.
+        source_matches = source.is_file() and sha(source) == digest
+        snapshot_matches = snapshot.is_file() and sha(snapshot) == digest
+        if not source_matches and not (historical and snapshot_matches):
             raise ValueError(f"frozen_source_changed:{rel}")
     for rel, digest in registration["runtime_asset_sha256"].items():
         if sha(root / rel) != digest:
@@ -301,6 +308,26 @@ def preflight(root: Path = ROOT, *, allow_started: bool = True) -> dict[str, Any
     for rel, digest in registration["input_sha256"].items():
         if sha(root / rel) != digest:
             raise ValueError(f"frozen_input_changed:{rel}")
+    if not historical:
+        environment = registration["environment"]
+        import torch
+
+        if (
+            sys.version != environment["python"]
+            or platform.platform() != environment["platform"]
+            or np.__version__ != environment["numpy"]
+            or torch.__version__ != environment["torch"]
+        ):
+            raise ValueError("frozen_execution_environment_changed")
+        installed = subprocess.run(
+            [sys.executable, "-m", "pip", "freeze", "--all"],
+            cwd=root,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.splitlines()
+        if installed != environment["pip_freeze"]:
+            raise ValueError("frozen_execution_dependencies_changed")
     for item in registration["components"].values():
         if sha(root / item["checkpoint"]) != item["checkpoint_sha256"]:
             raise ValueError("frozen_component_checkpoint_changed")

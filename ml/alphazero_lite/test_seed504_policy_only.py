@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import numpy as np
 import torch
+import json
+from pathlib import Path
 
 from ml.alphazero_lite import train
+from ml.alphazero_lite import verify_seed504_policy_only as verifier
 
 
 def test_policy_only_training_updates_policy_but_preserves_value_head() -> None:
@@ -89,3 +92,26 @@ def test_development_weighting_counts_duplicate_inputs_once_per_identity() -> No
         metrics["pooled"]["equal_exact_input"]["policy_ce"]
         == metrics["pooled"]["exposure"]["policy_ce"]
     )
+
+
+def test_development_effects_are_reconstructed_from_verified_metrics() -> None:
+    results = json.loads(
+        (
+            Path("docs/data/seed504-policy-only-ablation") / "development-results.json"
+        ).read_text()
+    )
+    verifier._assert_effects(results)
+
+
+def test_development_effect_mutations_are_rejected() -> None:
+    path = Path("docs/data/seed504-policy-only-ablation/development-results.json")
+    original = json.loads(path.read_text())
+    for cohort, weighting in (("pooled", "exposure"), (">32", "equal_exact_input")):
+        changed = json.loads(json.dumps(original))
+        changed["effects_T_minus_C"][cohort][weighting] += 0.001
+        try:
+            verifier._assert_effects(changed)
+        except ValueError as error:
+            assert "development_effect" in str(error)
+        else:
+            raise AssertionError(f"accepted altered effect {cohort}:{weighting}")

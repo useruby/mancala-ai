@@ -41,6 +41,39 @@ def _assert_metrics(actual: dict[str, Any], expected: dict[str, Any]) -> None:
                     )
 
 
+def _assert_effects(results: dict[str, Any]) -> None:
+    cohorts = ("pooled", ">32", "17-32", "<=16")
+    weightings = ("exposure", "equal_exact_input")
+    published = results.get("effects_T_minus_C")
+    if not isinstance(published, dict) or set(published) != set(cohorts):
+        raise ValueError("development_effects_shape_mismatch")
+    expected: dict[str, dict[str, float]] = {}
+    for cohort in cohorts:
+        if set(published[cohort]) != set(weightings):
+            raise ValueError(f"development_effects_shape_mismatch:{cohort}")
+        expected[cohort] = {}
+        for weighting in weightings:
+            try:
+                t_value = float(
+                    results["T_E4"]["metrics"][cohort][weighting]["policy_ce"]
+                )
+                c_value = float(
+                    results["C_E4"]["metrics"][cohort][weighting]["policy_ce"]
+                )
+                effect = float(published[cohort][weighting])
+            except (KeyError, TypeError, ValueError) as error:
+                raise ValueError(
+                    f"development_effects_shape_mismatch:{cohort}:{weighting}"
+                ) from error
+            if not np.isfinite(effect) or not np.isclose(
+                effect, t_value - c_value, rtol=0, atol=1e-12
+            ):
+                raise ValueError(f"development_effect_mismatch:{cohort}:{weighting}")
+            expected[cohort][weighting] = t_value - c_value
+    if set(results) != {"initializer", "C_E4", "T_E4", "effects_T_minus_C"}:
+        raise ValueError("development_effects_shape_mismatch:top_level")
+
+
 def verify(root: Path = ROOT) -> dict[str, Any]:
     root = root.resolve()
     out = root / OUT.relative_to(ROOT)
@@ -128,6 +161,7 @@ def verify(root: Path = ROOT) -> dict[str, Any]:
         raise ValueError("development_membership_binding_mismatch")
     result_path = out / "development-results.json"
     results = json.loads(result_path.read_text())
+    _assert_effects(results)
     for name, checkpoint in (
         ("initializer", initializer),
         ("C_E4", root / "docs/data/seed504/seed504_epoch4.npz"),
