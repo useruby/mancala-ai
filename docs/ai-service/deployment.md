@@ -112,3 +112,43 @@ deploy/deploy.sh rollback
 Never change assets underneath a running container or pair an image with a
 different service config/assets. Worker replacement within a running container
 continues to use the mounted immutable release.
+
+## Manual Kamal lifecycle regression
+
+The full deploy/rollback/recovery lifecycle test is intentionally not part of
+GitHub Actions because it provisions an SSH target and authenticated Docker
+registry and takes substantially longer than the regular deployment checks.
+Keep `deploy/test_kamal_lifecycle.py` for manual runs when changing the Kamal
+deployment path.
+
+Run it only against a disposable local Docker host reachable over SSH. The SSH
+user must be able to control that host's Docker daemon; an authenticated registry
+must be reachable at the configured address, and the SSH key must be loaded in
+`ssh-agent` and present in `known_hosts`. Install the pinned Ruby bundle and
+Python test requirements, then set the target and registry environment:
+
+```sh
+bundle install
+python -m pip install -r deploy/requirements-test.txt
+export KAMAL_HOST=127.0.0.1
+export KAMAL_SSH_USER=kamaltest
+export KAMAL_SSH_PORT=2222
+export KAMAL_WIREGUARD_IP=127.0.0.1
+export KAMAL_IMAGE=mancala-ai
+export KAMAL_REGISTRY_SERVER=127.0.0.1:5000
+export KAMAL_REGISTRY_USERNAME=testuser
+export KAMAL_REGISTRY_PASSWORD='<disposable-registry-password>'
+export KAMAL_BUILDER_DRIVER=docker
+mkdir -p .kamal
+printf 'KAMAL_REGISTRY_PASSWORD=%s\n' "$KAMAL_REGISTRY_PASSWORD" > .kamal/secrets.mancala-ai
+chmod 600 .kamal/secrets.mancala-ai
+python -m deploy.test_kamal_lifecycle \
+  ml/alphazero_lite/fixtures/incumbent_forensic_proxy_current
+```
+
+The test deploys, restarts, rolls back, and exercises failed-start recovery on
+the target, using port 80 by default (`MANCALA_LIFECYCLE_PORT` overrides the
+local health-check port). Clean up the disposable target's
+`~/mancala-ai-lifecycle` directory, the lifecycle-labeled containers and the
+temporary registry after the run. Do not point this test at the production
+host or registry.
