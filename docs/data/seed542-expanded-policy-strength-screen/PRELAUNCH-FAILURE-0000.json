@@ -1,0 +1,17 @@
+{
+  "attempt_path": "batches/prelaunch-failures/opening-0000/attempt.json",
+  "attempt_sha256": "da0f65a6db980a926e61d0bf07af9fe9f54e49957746005da22f6b1c675322b9",
+  "classification": "pre-game runtime asset contract failure; no inference or game began",
+  "command_path": "batches/prelaunch-failures/opening-0000/command.json",
+  "command_sha256": "d14d43bbc8b117f15580152755a52eb18ef422b1538206fda3f85b07286877be",
+  "command_log_path": "batches/prelaunch-failures/opening-0000/command-log.jsonl",
+  "command_log_sha256": "d14d43bbc8b117f15580152755a52eb18ef422b1538206fda3f85b07286877be",
+  "error": "arena_runtime_search_policy_mismatch caused by runtime_search_policy_artifact_mismatch: checked-out model-artifact/runtime/kalah_v1_21.kvtb was the registered Git LFS pointer (SHA-256 a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c), not the bound materialized tablebase (SHA-256 f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7). The exact materialized object was present separately at .tmp/seed542-screen-runtime/kalah_v1_21.kvtb.",
+  "games_path_exists": false,
+  "opening_sha256": "11ed77c47b6abdba2bf5f7de5596ffc6c8d49447ee14b5a319074d6ff7acec7d",
+  "opening_index": 0,
+  "report_path_exists": false,
+  "returncode": 1,
+  "status": "preserved_non_outcome_bearing_attempt",
+  "recovery": "The failed attempt was preserved byte-for-byte outside the active pair namespace. The authenticated runner now temporarily materializes the exact registered LFS object at the sidecar-resolved runtime path, restores the original pointer before pair commit, and recovers/restores that path after interruption. No game is retried unless independent inspection proves there is no raw outcome-bearing pair; this recorded attempt produced no games or report."
+}

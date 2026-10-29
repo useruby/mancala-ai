@@ -1,0 +1,78 @@
+{
+  "D_final": {
+    "checkpoint_sha256": "6200b04d58f65ee5fb62555c3b32faea4b34206b4c10dbefb22ae9e7ff7b2328",
+    "files": {
+      "metadata.json": "5fb713bb7c6907037ffdff4c93ea47742af836f9187e18ef79f63be96764bce6",
+      "model.npz": "6200b04d58f65ee5fb62555c3b32faea4b34206b4c10dbefb22ae9e7ff7b2328",
+      "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "weights.json": "6190bf992605400183b8e679f4cf33d103e7a26c5bf73e43906c6d875a128a52"
+    }
+  },
+  "both_value_components": "identical frozen initializer value network with initializer own trunk",
+  "challenger_policy_component": "seed542 D-final update108 policy with D-final own trunk",
+  "component_assignments": {
+    "challenger_policy": "D-final",
+    "challenger_policy_trunk": "D-final own trunk",
+    "challenger_value": "initializer",
+    "challenger_value_trunk": "initializer own trunk",
+    "opponent_policy": "E4",
+    "opponent_policy_trunk": "E4 own trunk",
+    "opponent_value": "initializer",
+    "opponent_value_trunk": "initializer own trunk"
+  },
+  "components": {
+    "E4": {
+      "artifact_identity": "ea6151620e9af849f6aa0aa90661be7db279a316a3b748b1f904a7a29ad70aa9",
+      "checkpoint": "docs/data/seed504/seed504_epoch4.npz",
+      "checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "files": {
+        "metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+        "model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+      }
+    },
+    "initializer": {
+      "artifact_identity": "07f7fd71ef9dea5480dd010c7808f6fcc1c2821c3f54da2203d17140a8bed79c",
+      "checkpoint": "initializer.npz",
+      "checkpoint_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "files": {
+        "metadata.json": "7ce41fde58c219c9fd2aa7a912db1c2da357099d6f72e3f715d9a78ce500cb5d",
+        "model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+      }
+    }
+  },
+  "current_P_component_artifact_identities": [
+    "07f7fd71ef9dea5480dd010c7808f6fcc1c2821c3f54da2203d17140a8bed79c",
+    "ea6151620e9af849f6aa0aa90661be7db279a316a3b748b1f904a7a29ad70aa9"
+  ],
+  "current_P_policy_component": "historical seed504 E4 policy with E4 own trunk",
+  "current_P_search_policy_sha256": [
+    "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+  ],
+  "current_serving_bundle": "policy-value-p",
+  "deploy_manifest_file_hashes": {
+    "components/E4/metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+    "components/E4/model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+    "components/E4/search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "components/E4/weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136",
+    "components/initializer/metadata.json": "7ce41fde58c219c9fd2aa7a912db1c2da357099d6f72e3f715d9a78ce500cb5d",
+    "components/initializer/model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "components/initializer/search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "components/initializer/weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+  },
+  "release_manifest_sha256": "bf74ec5be49f7619666cd554f6807159a759f997695fe3c4a1eb36f6ccce50ad",
+  "runtime_assets": {
+    "materialized_tablebase_path": ".tmp/seed542-screen-runtime/kalah_v1_21.kvtb",
+    "native_probe_path": "model-artifact/runtime/kalah_v1_tablebase",
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "tablebase_path": "model-artifact/runtime/kalah_v1_21.kvtb",
+    "tablebase_pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+  },
+  "serving_release_sha256": "f283e0ded25d496c7ade8c4188f4a632e443dcedbe7f5a537e2c0105e7ca4ee0",
+  "status": "runtime_components_authenticated"
+}
