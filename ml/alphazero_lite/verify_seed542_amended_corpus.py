@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.metadata
 import json
 import platform
-import subprocess
 import sys
 from collections import Counter
 from pathlib import Path
@@ -40,32 +40,58 @@ def _read_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def current_environment() -> dict[str, str]:
+    return {
+        "python": platform.python_version(),
+        "platform": platform.platform(),
+        "numpy": np.__version__,
+        "torch": torch.__version__,
+    }
+
+
+def current_installed_packages() -> list[str]:
+    packages = (
+        f"{dist.metadata['Name']}=={dist.version}"
+        for dist in importlib.metadata.distributions()
+        if dist.metadata.get("Name") and dist.metadata["Name"].lower() != "pip"
+    )
+    return sorted(packages, key=str.casefold)
+
+
 def verify_recorded_environment(
     amendment: dict[str, Any],
-    environment: dict[str, str],
-    installed_packages: list[str],
+    environment: dict[str, str] | None = None,
+    installed_packages: list[str] | None = None,
 ) -> None:
+    environment = environment or current_environment()
+    installed_packages = installed_packages or current_installed_packages()
     if environment != amendment["environment"]:
         raise ValueError("amended_runtime_environment_mismatch")
     if installed_packages != amendment["interpreter"]["installed_packages"]:
         raise ValueError("amended_runtime_dependency_set_mismatch")
 
 
-def _verify_recorded_environment(amendment: dict[str, Any]) -> None:
-    interpreter = amendment["interpreter"]["path"]
-    environment_script = (
-        "import json,platform,sys,numpy,torch; "
-        "print(json.dumps({'python':platform.python_version(),"
-        "'platform':platform.platform(),'numpy':numpy.__version__,"
-        "'torch':torch.__version__},sort_keys=True))"
-    )
-    environment = json.loads(
-        subprocess.check_output([interpreter, "-c", environment_script], text=True)
-    )
-    installed_packages = subprocess.check_output(
-        [interpreter, "-m", "pip", "freeze"], text=True
-    ).splitlines()
-    verify_recorded_environment(amendment, environment, installed_packages)
+def verify_runtime_assets(
+    root: Path,
+    amendment: dict[str, Any],
+    *,
+    tablebase_path: Path | None = None,
+) -> None:
+    for name, asset in amendment["assets"].items():
+        path = (
+            tablebase_path
+            if name == "tablebase" and tablebase_path is not None
+            else root / asset["path"]
+        )
+        if not path.is_absolute():
+            path = root / path
+        if not path.is_file() or sha256(path) != asset["sha256"]:
+            raise ValueError(f"amended_runtime_asset_sha256_mismatch:{name}")
+        if (
+            asset.get("size_bytes") is not None
+            and path.stat().st_size != asset["size_bytes"]
+        ):
+            raise ValueError(f"amended_runtime_asset_size_mismatch:{name}")
 
 
 def _read_partition_rows(
@@ -437,7 +463,9 @@ def _rebuild_artifacts_independently(
     }
 
 
-def _verify_amendment_and_inputs() -> dict[str, Any]:
+def _verify_amendment_and_inputs(
+    *, tablebase_path: Path | None = None
+) -> dict[str, Any]:
     amendment_path = CORPUS / "continuation-amendment.json"
     amendment_bytes = amendment_path.read_bytes()
     if sha256(amendment_path) != runner.AMENDMENT_SHA256:
@@ -445,22 +473,11 @@ def _verify_amendment_and_inputs() -> dict[str, Any]:
     amendment = json.loads(amendment_bytes)
     if amendment.get("status") != "frozen continuation amendment":
         raise ValueError("amended_continuation_amendment_status_mismatch")
-    _verify_recorded_environment(amendment)
+    verify_recorded_environment(amendment)
     for relative, expected in amendment["source_sha256"].items():
         if runner.bound_source_digest(relative) != expected:
             raise ValueError(f"amended_source_sha256_mismatch:{relative}")
-    for name, asset in amendment["assets"].items():
-        expected = asset["sha256"]
-        path = ROOT / asset["path"]
-        if name != "tablebase" and sha256(path) != expected:
-            raise ValueError(f"amended_runtime_asset_sha256_mismatch:{name}")
-        if name == "tablebase":
-            local_source = Path(asset["existing_local_source"])
-            if (
-                sha256(local_source) != expected
-                or local_source.stat().st_size != asset["size_bytes"]
-            ):
-                raise ValueError("amended_local_tablebase_identity_mismatch")
+    verify_runtime_assets(ROOT, amendment, tablebase_path=tablebase_path)
     preserved_files = {
         "docs/data/seed542-selfplay-4096/manifest.md": "original_manifest_sha256",
         "docs/data/seed542-selfplay-4096/continuation-freeze.json": "continuation_freeze_sha256",
@@ -563,25 +580,83 @@ def compare_published_artifacts(
     return verified
 
 
-def verify() -> dict[str, str]:
+def verify(
+    *, root: Path | None = None, tablebase_path: Path | None = None
+) -> dict[str, str]:
     """Rebuild games, loader rows, accounting, membership, and schedules read-only."""
-    amendment = _verify_amendment_and_inputs()
-    _verify_execution_events(amendment)
-    manifest_path = CORPUS / "source-manifest.json"
-    archived_manifest = _read_json(manifest_path)
-    rebuilt_manifest = seed542_amendment.build_source_manifest(ROOT, CORPUS)
-    if canonical(archived_manifest) != canonical(rebuilt_manifest):
-        raise ValueError("amended_source_manifest_mismatch")
-    rebuilt = _rebuild_artifacts_independently(archived_manifest)
-    evidence = {
-        "continuation-amendment.json": sha256(CORPUS / "continuation-amendment.json"),
-        "execution-service.json": sha256(CORPUS / "execution-service.json"),
-        "source-manifest.json": sha256(manifest_path),
-        **compare_published_artifacts(CORPUS, rebuilt),
-    }
-    return evidence
+    global ROOT, CORPUS
+    previous = (
+        ROOT,
+        CORPUS,
+        runner.ROOT,
+        partial_verifier.ROOT,
+        partial_verifier.CORPUS,
+    )
+    if root is not None:
+        ROOT = root.resolve()
+        CORPUS = ROOT / "docs/data/seed542-selfplay-4096"
+        runner.ROOT = ROOT
+        partial_verifier.ROOT = ROOT
+        partial_verifier.CORPUS = CORPUS
+    if tablebase_path is not None and not tablebase_path.is_absolute():
+        tablebase_path = ROOT / tablebase_path
+    try:
+        amendment = _verify_amendment_and_inputs(tablebase_path=tablebase_path)
+        _verify_execution_events(amendment)
+        manifest_path = CORPUS / "source-manifest.json"
+        archived_manifest = _read_json(manifest_path)
+        rebuilt_manifest = seed542_amendment.build_source_manifest(ROOT, CORPUS)
+        if canonical(archived_manifest) != canonical(rebuilt_manifest):
+            raise ValueError("amended_source_manifest_mismatch")
+        rebuilt = _rebuild_artifacts_independently(archived_manifest)
+        return {
+            "continuation-amendment.json": sha256(
+                CORPUS / "continuation-amendment.json"
+            ),
+            "execution-service.json": sha256(CORPUS / "execution-service.json"),
+            "source-manifest.json": sha256(manifest_path),
+            **compare_published_artifacts(CORPUS, rebuilt),
+        }
+    finally:
+        ROOT, CORPUS, runner.ROOT, partial_verifier.ROOT, partial_verifier.CORPUS = (
+            previous
+        )
+
+
+def main(argv: list[str] | None = None) -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--root", type=Path, default=ROOT)
+    parser.add_argument("--tablebase", type=Path)
+    parser.add_argument(
+        "--asset-check-only",
+        action="store_true",
+        help="authenticate checkout-relative runtime assets without rebuilding corpus reports",
+    )
+    arguments = parser.parse_args(argv)
+    root = arguments.root.resolve()
+    if arguments.asset_check_only:
+        amendment_path = (
+            root / "docs/data/seed542-selfplay-4096/continuation-amendment.json"
+        )
+        amendment_bytes = amendment_path.read_bytes()
+        if hashlib.sha256(amendment_bytes).hexdigest() != runner.AMENDMENT_SHA256:
+            raise ValueError("amended_continuation_amendment_sha256_mismatch")
+        amendment = json.loads(amendment_bytes)
+        verify_recorded_environment(amendment)
+        tablebase_path = arguments.tablebase
+        if tablebase_path is not None and not tablebase_path.is_absolute():
+            tablebase_path = root / tablebase_path
+        verify_runtime_assets(root, amendment, tablebase_path=tablebase_path)
+        result = {"status": "verified_runtime_assets"}
+    else:
+        result = {
+            "status": "verified_complete",
+            **verify(root=root, tablebase_path=arguments.tablebase),
+        }
+    print(json.dumps(result, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":
-    for name, digest in verify().items():
-        print(f"{name} sha256={digest}")
+    main()

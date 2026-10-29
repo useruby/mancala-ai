@@ -90,3 +90,9 @@ production loader, development membership, and schedules without writing to
 evidence. `amended-verification.json` records the actual verifier hashes,
 read-only byte/mtime checks, focused and historical test results, and quality
 check outcomes.
+
+The verifier runs under the caller's current interpreter, compares its complete
+installed package set with the recorded runtime, and authenticates the
+checkout-relative tablebase (or an explicit `--tablebase` override). Historical
+absolute interpreter and tablebase-source paths remain provenance only and are
+not opened by verification.

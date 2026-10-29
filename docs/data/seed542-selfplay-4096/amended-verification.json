@@ -49,13 +49,30 @@
       "status": "passed"
     }
   },
+  "relocation_independence": {
+    "altered_relocated_tablebase_rejected": true,
+    "altered_asset_rejection": "amended_runtime_asset_sha256_mismatch:tablebase",
+    "current_interpreter": "/usr/bin/python3.14 -S",
+    "entrypoint": "ml/alphazero_lite/verify_seed542_amended_corpus.py",
+    "full_corpus_entrypoint_passed": true,
+    "original_checkout_tree_masked": true,
+    "original_tablebase_source_path_accessed": false,
+    "physical_checkout": "/home/alex/tmp/seed542-review-copy",
+    "recorded_interpreter_path_accessed": false,
+    "recorded_site_packages": "bind-mounted at /home/alex/tmp/seed542-namespace-runtime",
+    "rejection": "amended_runtime_asset_sha256_mismatch:tablebase",
+    "relocated_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "relocated_tablebase_size_bytes": 709635072,
+    "status": "passed",
+    "working_directory": "/home/alex"
+  },
   "runtime_environment_and_all_installed_dependencies_rechecked_by_final_verifier": true,
   "schema": "seed542-amended-verification-v1",
   "status": "passed",
   "tests": {
     "focused_seed542": {
       "checkout": "physical copy; completed continuation inventory temporarily isolated for the historical no-inventory guard test, then restored with its original modification time",
-      "passed": 39,
+      "passed": 40,
       "result": "passed",
       "test_files": [
         "test_seed542_amendment.py",
@@ -92,5 +109,5 @@
     "status": "frozen prospective; NOT EXECUTED",
     "updates_per_arm": 108
   },
-  "verifier_sha256": "4a701d503f5d46f8a22ef9b46960787cf7c309ea202b7f008fddf41cdc3a2f91"
+  "verifier_sha256": "638b7e1759024a02f8537903937c054fbe0eadf00643a18df09c5a8b6aacef73"
 }
