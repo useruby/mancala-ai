@@ -1,0 +1,278 @@
+{
+  "cohort_counts": {
+    "17-32": {
+      "production_float32_input_identities": 6023,
+      "rows": 6195
+    },
+    "<=16": {
+      "production_float32_input_identities": 6422,
+      "rows": 6600
+    },
+    ">32": {
+      "production_float32_input_identities": 2458,
+      "rows": 2564
+    },
+    "pooled": {
+      "production_float32_input_identities": 14903,
+      "rows": 15359
+    }
+  },
+  "development_membership_sha256": "feeed97c7666a69603620e4e59575fdf02aa206e9e570cde937aa360bd37505b",
+  "effects": {
+    "D_minus_C": {
+      "17-32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": -0.033426135778427124,
+          "policy_ce": -0.00745004415512085
+        },
+        "exposure_weighted": {
+          "actual_value_mse": -0.033406078815460205,
+          "policy_ce": -0.007260024547576904
+        }
+      },
+      "<=16": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": -0.007814154028892517,
+          "policy_ce": 0.002279043197631836
+        },
+        "exposure_weighted": {
+          "actual_value_mse": -0.008325695991516113,
+          "policy_ce": 0.0019960403442382812
+        }
+      },
+      ">32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": -0.060220420360565186,
+          "policy_ce": -0.009032905101776123
+        },
+        "exposure_weighted": {
+          "actual_value_mse": -0.06037259101867676,
+          "policy_ce": -0.009176015853881836
+        }
+      },
+      "pooled": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": -0.026808708906173706,
+          "policy_ce": -0.0035186409950256348
+        },
+        "exposure_weighted": {
+          "actual_value_mse": -0.02713039517402649,
+          "policy_ce": -0.0036023855209350586
+        }
+      }
+    },
+    "D_minus_initializer": {
+      "17-32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": -0.021359115839004517,
+          "policy_ce": -0.09082722663879395
+        },
+        "exposure_weighted": {
+          "actual_value_mse": -0.02097347378730774,
+          "policy_ce": -0.0911911129951477
+        }
+      },
+      "<=16": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": -0.021714016795158386,
+          "policy_ce": -0.12070345878601074
+        },
+        "exposure_weighted": {
+          "actual_value_mse": -0.02140393853187561,
+          "policy_ce": -0.1213727593421936
+        }
+      },
+      ">32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.03306925296783447,
+          "policy_ce": -0.05287933349609375
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.03557741641998291,
+          "policy_ce": -0.05255550146102905
+        }
+      },
+      "pooled": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": -0.012535035610198975,
+          "policy_ce": -0.097442626953125
+        },
+        "exposure_weighted": {
+          "actual_value_mse": -0.01171797513961792,
+          "policy_ce": -0.09771084785461426
+        }
+      }
+    }
+  },
+  "endpoints": {
+    "C-final": {
+      "checkpoint_sha256": "8097083c8f8554535b2939150544ef90c7c7f1ed3ff15ffbe734ec9f9dd1a775",
+      "cohort_identity_count": 14903,
+      "cohort_row_count": 15359
+    },
+    "D-final": {
+      "checkpoint_sha256": "6200b04d58f65ee5fb62555c3b32faea4b34206b4c10dbefb22ae9e7ff7b2328",
+      "cohort_identity_count": 14903,
+      "cohort_row_count": 15359
+    },
+    "initializer": {
+      "checkpoint_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "cohort_identity_count": 14903,
+      "cohort_row_count": 15359
+    }
+  },
+  "interpretation": "Descriptive diagnostics only; no advancement threshold. Intended later runtime composition is D-final policy/trunk plus frozen initializer value/trunk; trained value metrics are diagnostic only.",
+  "metrics": {
+    "C-final": {
+      "17-32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.44983649253845215,
+          "policy_ce": 0.7550331950187683
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.45083191990852356,
+          "policy_ce": 0.7538460493087769
+        },
+        "production_float32_input_identities": 6023,
+        "rows": 6195
+      },
+      "<=16": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.15931719541549683,
+          "policy_ce": 0.5071682929992676
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.15864132344722748,
+          "policy_ce": 0.5059571266174316
+        },
+        "production_float32_input_identities": 6422,
+        "rows": 6600
+      },
+      ">32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.8411869406700134,
+          "policy_ce": 0.972821056842804
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.8498154282569885,
+          "policy_ce": 0.9761175513267517
+        },
+        "production_float32_input_identities": 2458,
+        "rows": 2564
+      },
+      "pooled": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.3891926109790802,
+          "policy_ce": 0.6841437220573425
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.391878604888916,
+          "policy_ce": 0.6844298839569092
+        },
+        "production_float32_input_identities": 14903,
+        "rows": 15359
+      }
+    },
+    "D-final": {
+      "17-32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.416410356760025,
+          "policy_ce": 0.7475831508636475
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.41742584109306335,
+          "policy_ce": 0.7465860247612
+        },
+        "production_float32_input_identities": 6023,
+        "rows": 6195
+      },
+      "<=16": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.1515030413866043,
+          "policy_ce": 0.5094473361968994
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.15031562745571136,
+          "policy_ce": 0.5079531669616699
+        },
+        "production_float32_input_identities": 6422,
+        "rows": 6600
+      },
+      ">32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.7809665203094482,
+          "policy_ce": 0.9637881517410278
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.7894428372383118,
+          "policy_ce": 0.9669415354728699
+        },
+        "production_float32_input_identities": 2458,
+        "rows": 2564
+      },
+      "pooled": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.3623839020729065,
+          "policy_ce": 0.6806250810623169
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.3647482097148895,
+          "policy_ce": 0.6808274984359741
+        },
+        "production_float32_input_identities": 14903,
+        "rows": 15359
+      }
+    },
+    "initializer": {
+      "17-32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.43776947259902954,
+          "policy_ce": 0.8384103775024414
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.4383993148803711,
+          "policy_ce": 0.8377771377563477
+        },
+        "production_float32_input_identities": 6023,
+        "rows": 6195
+      },
+      "<=16": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.1732170581817627,
+          "policy_ce": 0.6301507949829102
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.17171956598758698,
+          "policy_ce": 0.6293259263038635
+        },
+        "production_float32_input_identities": 6422,
+        "rows": 6600
+      },
+      ">32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.7478972673416138,
+          "policy_ce": 1.0166674852371216
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.7538654208183289,
+          "policy_ce": 1.019497036933899
+        },
+        "production_float32_input_identities": 2458,
+        "rows": 2564
+      },
+      "pooled": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.37491893768310547,
+          "policy_ce": 0.7780677080154419
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.37646618485450745,
+          "policy_ce": 0.7785383462905884
+        },
+        "production_float32_input_identities": 14903,
+        "rows": 15359
+      }
+    }
+  },
+  "sign_convention": "effect = first endpoint loss minus second endpoint loss; negative means improvement"
+}

@@ -1,0 +1,6 @@
+{
+  "invocation": "unmodified ml.alphazero_lite.run_seed504.run(out=production_reference_dir, do_train=True); initializer path relocated to authenticated seed542 initializer",
+  "production_runner_sha256": "75f90cb0c03b30d9cae7e8038d8d41442c9ba65975ce4d9cf38d83d101f0d4ba",
+  "trace_sha256": "73e94e1dcef983b42739abeb1bcbefc0ea98b2cda602c108f01a48e40de0658c",
+  "updates": 108
+}

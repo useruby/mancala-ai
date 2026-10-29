@@ -1,0 +1,15 @@
+{
+  "record_type": "actual v2 execution launch receipt",
+  "actual_command": "systemd-run --user --scope -p CPUQuota=25% -p CPUWeight=1 -p MemoryMax=4294967296 -p AllowedCPUs=30 -- nice -n 19 prlimit --as=17179869184 -- taskset -c 30 env OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 BLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 SEED542_CD_CPU_QUOTA=25% SEED542_CD_CPU_WEIGHT=1 SEED542_CD_MEMORY_MAX=4294967296 SEED542_CD_ALLOWED_CPUS=30 SEED542_CD_NICE=19 SEED542_CD_ADDRESS_SPACE=17179869184 .tmp/seed542-cd-runtime/bin/python -m ml.alphazero_lite.run_seed542_fixed_update_cd_v2 --execute --out docs/data/seed542-fixed-update-cd-v2 --tablebase /home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+  "actual_argv": [
+    "/home/alex/Mancala/ai/.tmp/seed542-fixed-update-cd/ml/alphazero_lite/run_seed542_fixed_update_cd_v2.py",
+    "--execute",
+    "--out",
+    "docs/data/seed542-fixed-update-cd-v2",
+    "--tablebase",
+    "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb"
+  ],
+  "execution_binding_outer_command_field": null,
+  "registered_planned_command_matches_launcher": true,
+  "status": "training and development evaluation completed; current-runtime production/C gate passed; D executed"
+}

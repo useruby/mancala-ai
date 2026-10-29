@@ -1,0 +1,658 @@
+{
+  "E1": {
+    "bitwise_equal": false,
+    "comparison_is_descriptive_only": true,
+    "current_runtime_production_checkpoint_sha256": "0af46e55368de075e69fa66b16ed91bd715443a98788262a8bd9df7f4daa29d9",
+    "different_elements": 4486,
+    "historical_checkpoint_sha256": "6187b0e702a2118579c82fc0950398babe255e95f1f64a4f695d52b3e56144c3",
+    "parameter_names_equal": true,
+    "parameters": {
+      "b_input": {
+        "bitwise_equal": false,
+        "differing_elements": 6,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_equal": true
+      },
+      "b_policy": {
+        "bitwise_equal": false,
+        "differing_elements": 1,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 1.3096723705530167e-10,
+        "shape_equal": true
+      },
+      "b_policy_hidden": {
+        "bitwise_equal": false,
+        "differing_elements": 7,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_equal": true
+      },
+      "b_residual_1_1": {
+        "bitwise_equal": false,
+        "differing_elements": 6,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 3.725290298461914e-09,
+        "shape_equal": true
+      },
+      "b_residual_1_2": {
+        "bitwise_equal": false,
+        "differing_elements": 11,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 3.725290298461914e-09,
+        "shape_equal": true
+      },
+      "b_residual_2_1": {
+        "bitwise_equal": false,
+        "differing_elements": 5,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 3.725290298461914e-09,
+        "shape_equal": true
+      },
+      "b_residual_2_2": {
+        "bitwise_equal": false,
+        "differing_elements": 14,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 7.450580596923828e-09,
+        "shape_equal": true
+      },
+      "b_residual_3_1": {
+        "bitwise_equal": false,
+        "differing_elements": 11,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 7.450580596923828e-09,
+        "shape_equal": true
+      },
+      "b_residual_3_2": {
+        "bitwise_equal": false,
+        "differing_elements": 14,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 3.725290298461914e-09,
+        "shape_equal": true
+      },
+      "b_value": {
+        "bitwise_equal": true,
+        "differing_elements": 0,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 0.0,
+        "shape_equal": true
+      },
+      "b_value_hidden": {
+        "bitwise_equal": false,
+        "differing_elements": 2,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 4.656612873077393e-10,
+        "shape_equal": true
+      },
+      "w_input": {
+        "bitwise_equal": false,
+        "differing_elements": 128,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_policy": {
+        "bitwise_equal": false,
+        "differing_elements": 20,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_equal": true
+      },
+      "w_policy_hidden": {
+        "bitwise_equal": false,
+        "differing_elements": 571,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 5.960464477539063e-08,
+        "shape_equal": true
+      },
+      "w_residual_1_1": {
+        "bitwise_equal": false,
+        "differing_elements": 556,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_residual_1_2": {
+        "bitwise_equal": false,
+        "differing_elements": 578,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_residual_2_1": {
+        "bitwise_equal": false,
+        "differing_elements": 574,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_residual_2_2": {
+        "bitwise_equal": false,
+        "differing_elements": 561,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_residual_3_1": {
+        "bitwise_equal": false,
+        "differing_elements": 568,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_equal": true
+      },
+      "w_residual_3_2": {
+        "bitwise_equal": false,
+        "differing_elements": 584,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_value": {
+        "bitwise_equal": false,
+        "differing_elements": 1,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 9.313225746154785e-10,
+        "shape_equal": true
+      },
+      "w_value_hidden": {
+        "bitwise_equal": false,
+        "differing_elements": 268,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_equal": true
+      }
+    }
+  },
+  "E2": {
+    "bitwise_equal": false,
+    "comparison_is_descriptive_only": true,
+    "current_runtime_production_checkpoint_sha256": "d0a74dc5719c382d426a3f351a18de1b953513cb691c62bad0138f75b89900cd",
+    "different_elements": 7892,
+    "historical_checkpoint_sha256": "d1ef62ad445ad33a532a9a5efa8aadefe5657235af1706fdba4b1c1c8579d796",
+    "parameter_names_equal": true,
+    "parameters": {
+      "b_input": {
+        "bitwise_equal": false,
+        "differing_elements": 19,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_equal": true
+      },
+      "b_policy": {
+        "bitwise_equal": false,
+        "differing_elements": 2,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 9.313225746154785e-10,
+        "shape_equal": true
+      },
+      "b_policy_hidden": {
+        "bitwise_equal": false,
+        "differing_elements": 10,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_equal": true
+      },
+      "b_residual_1_1": {
+        "bitwise_equal": false,
+        "differing_elements": 16,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 3.725290298461914e-09,
+        "shape_equal": true
+      },
+      "b_residual_1_2": {
+        "bitwise_equal": false,
+        "differing_elements": 17,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 3.725290298461914e-09,
+        "shape_equal": true
+      },
+      "b_residual_2_1": {
+        "bitwise_equal": false,
+        "differing_elements": 9,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 7.450580596923828e-09,
+        "shape_equal": true
+      },
+      "b_residual_2_2": {
+        "bitwise_equal": false,
+        "differing_elements": 19,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 7.450580596923828e-09,
+        "shape_equal": true
+      },
+      "b_residual_3_1": {
+        "bitwise_equal": false,
+        "differing_elements": 14,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 7.450580596923828e-09,
+        "shape_equal": true
+      },
+      "b_residual_3_2": {
+        "bitwise_equal": false,
+        "differing_elements": 25,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 3.725290298461914e-09,
+        "shape_equal": true
+      },
+      "b_value": {
+        "bitwise_equal": true,
+        "differing_elements": 0,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 0.0,
+        "shape_equal": true
+      },
+      "b_value_hidden": {
+        "bitwise_equal": false,
+        "differing_elements": 4,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 3.725290298461914e-09,
+        "shape_equal": true
+      },
+      "w_input": {
+        "bitwise_equal": false,
+        "differing_elements": 228,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 5.960464477539063e-08,
+        "shape_equal": true
+      },
+      "w_policy": {
+        "bitwise_equal": false,
+        "differing_elements": 31,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_equal": true
+      },
+      "w_policy_hidden": {
+        "bitwise_equal": false,
+        "differing_elements": 942,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 5.960464477539063e-08,
+        "shape_equal": true
+      },
+      "w_residual_1_1": {
+        "bitwise_equal": false,
+        "differing_elements": 1002,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_residual_1_2": {
+        "bitwise_equal": false,
+        "differing_elements": 1033,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_residual_2_1": {
+        "bitwise_equal": false,
+        "differing_elements": 1036,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_residual_2_2": {
+        "bitwise_equal": false,
+        "differing_elements": 994,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_residual_3_1": {
+        "bitwise_equal": false,
+        "differing_elements": 978,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_residual_3_2": {
+        "bitwise_equal": false,
+        "differing_elements": 1012,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_value": {
+        "bitwise_equal": false,
+        "differing_elements": 3,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_equal": true
+      },
+      "w_value_hidden": {
+        "bitwise_equal": false,
+        "differing_elements": 498,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      }
+    }
+  },
+  "E3": {
+    "bitwise_equal": false,
+    "comparison_is_descriptive_only": true,
+    "current_runtime_production_checkpoint_sha256": "5e906da79a3f5578a882ff92b22a2963d6e06156c1f1e0992781a4f93ba23e63",
+    "different_elements": 10723,
+    "historical_checkpoint_sha256": "e049d2a7e6702b68cf4bf2d230f5966f86e4dfc8e4ed928a534b61f7d7804842",
+    "parameter_names_equal": true,
+    "parameters": {
+      "b_input": {
+        "bitwise_equal": false,
+        "differing_elements": 22,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_equal": true
+      },
+      "b_policy": {
+        "bitwise_equal": false,
+        "differing_elements": 2,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 9.313225746154785e-10,
+        "shape_equal": true
+      },
+      "b_policy_hidden": {
+        "bitwise_equal": false,
+        "differing_elements": 13,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_equal": true
+      },
+      "b_residual_1_1": {
+        "bitwise_equal": false,
+        "differing_elements": 19,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 7.450580596923828e-09,
+        "shape_equal": true
+      },
+      "b_residual_1_2": {
+        "bitwise_equal": false,
+        "differing_elements": 20,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 7.450580596923828e-09,
+        "shape_equal": true
+      },
+      "b_residual_2_1": {
+        "bitwise_equal": false,
+        "differing_elements": 19,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 7.450580596923828e-09,
+        "shape_equal": true
+      },
+      "b_residual_2_2": {
+        "bitwise_equal": false,
+        "differing_elements": 26,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 7.450580596923828e-09,
+        "shape_equal": true
+      },
+      "b_residual_3_1": {
+        "bitwise_equal": false,
+        "differing_elements": 19,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_equal": true
+      },
+      "b_residual_3_2": {
+        "bitwise_equal": false,
+        "differing_elements": 22,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 7.450580596923828e-09,
+        "shape_equal": true
+      },
+      "b_value": {
+        "bitwise_equal": true,
+        "differing_elements": 0,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 0.0,
+        "shape_equal": true
+      },
+      "b_value_hidden": {
+        "bitwise_equal": false,
+        "differing_elements": 6,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 7.450580596923828e-09,
+        "shape_equal": true
+      },
+      "w_input": {
+        "bitwise_equal": false,
+        "differing_elements": 310,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 5.960464477539063e-08,
+        "shape_equal": true
+      },
+      "w_policy": {
+        "bitwise_equal": false,
+        "differing_elements": 50,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_policy_hidden": {
+        "bitwise_equal": false,
+        "differing_elements": 1307,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 5.960464477539063e-08,
+        "shape_equal": true
+      },
+      "w_residual_1_1": {
+        "bitwise_equal": false,
+        "differing_elements": 1377,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_residual_1_2": {
+        "bitwise_equal": false,
+        "differing_elements": 1370,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_residual_2_1": {
+        "bitwise_equal": false,
+        "differing_elements": 1456,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_residual_2_2": {
+        "bitwise_equal": false,
+        "differing_elements": 1376,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_residual_3_1": {
+        "bitwise_equal": false,
+        "differing_elements": 1315,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_residual_3_2": {
+        "bitwise_equal": false,
+        "differing_elements": 1316,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 5.960464477539063e-08,
+        "shape_equal": true
+      },
+      "w_value": {
+        "bitwise_equal": false,
+        "differing_elements": 2,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_equal": true
+      },
+      "w_value_hidden": {
+        "bitwise_equal": false,
+        "differing_elements": 676,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      }
+    }
+  },
+  "E4": {
+    "bitwise_equal": false,
+    "comparison_is_descriptive_only": true,
+    "current_runtime_production_checkpoint_sha256": "8097083c8f8554535b2939150544ef90c7c7f1ed3ff15ffbe734ec9f9dd1a775",
+    "different_elements": 13348,
+    "historical_checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+    "parameter_names_equal": true,
+    "parameters": {
+      "b_input": {
+        "bitwise_equal": false,
+        "differing_elements": 24,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_equal": true
+      },
+      "b_policy": {
+        "bitwise_equal": false,
+        "differing_elements": 2,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 9.313225746154785e-10,
+        "shape_equal": true
+      },
+      "b_policy_hidden": {
+        "bitwise_equal": false,
+        "differing_elements": 21,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_equal": true
+      },
+      "b_residual_1_1": {
+        "bitwise_equal": false,
+        "differing_elements": 24,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 7.450580596923828e-09,
+        "shape_equal": true
+      },
+      "b_residual_1_2": {
+        "bitwise_equal": false,
+        "differing_elements": 26,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 7.450580596923828e-09,
+        "shape_equal": true
+      },
+      "b_residual_2_1": {
+        "bitwise_equal": false,
+        "differing_elements": 23,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 7.450580596923828e-09,
+        "shape_equal": true
+      },
+      "b_residual_2_2": {
+        "bitwise_equal": false,
+        "differing_elements": 28,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_equal": true
+      },
+      "b_residual_3_1": {
+        "bitwise_equal": false,
+        "differing_elements": 19,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_equal": true
+      },
+      "b_residual_3_2": {
+        "bitwise_equal": false,
+        "differing_elements": 29,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 7.450580596923828e-09,
+        "shape_equal": true
+      },
+      "b_value": {
+        "bitwise_equal": true,
+        "differing_elements": 0,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 0.0,
+        "shape_equal": true
+      },
+      "b_value_hidden": {
+        "bitwise_equal": false,
+        "differing_elements": 8,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 7.450580596923828e-09,
+        "shape_equal": true
+      },
+      "w_input": {
+        "bitwise_equal": false,
+        "differing_elements": 406,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 5.960464477539063e-08,
+        "shape_equal": true
+      },
+      "w_policy": {
+        "bitwise_equal": false,
+        "differing_elements": 74,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_policy_hidden": {
+        "bitwise_equal": false,
+        "differing_elements": 1621,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 5.960464477539063e-08,
+        "shape_equal": true
+      },
+      "w_residual_1_1": {
+        "bitwise_equal": false,
+        "differing_elements": 1714,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_residual_1_2": {
+        "bitwise_equal": false,
+        "differing_elements": 1731,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 4.470348358154297e-08,
+        "shape_equal": true
+      },
+      "w_residual_2_1": {
+        "bitwise_equal": false,
+        "differing_elements": 1808,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_residual_2_2": {
+        "bitwise_equal": false,
+        "differing_elements": 1691,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_residual_3_1": {
+        "bitwise_equal": false,
+        "differing_elements": 1648,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_residual_3_2": {
+        "bitwise_equal": false,
+        "differing_elements": 1616,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 5.960464477539063e-08,
+        "shape_equal": true
+      },
+      "w_value": {
+        "bitwise_equal": false,
+        "differing_elements": 3,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      },
+      "w_value_hidden": {
+        "bitwise_equal": false,
+        "differing_elements": 832,
+        "dtype_equal": true,
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_equal": true
+      }
+    }
+  }
+}
