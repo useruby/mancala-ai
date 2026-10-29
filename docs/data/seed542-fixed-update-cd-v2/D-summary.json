@@ -1,0 +1,15 @@
+{
+  "arm": "D",
+  "boundary_production_checkpoint_checks": null,
+  "checkpoints": {
+    "108": "6200b04d58f65ee5fb62555c3b32faea4b34206b4c10dbefb22ae9e7ff7b2328",
+    "27": "fcb181f1a0e4b7f8fb4050711ef70dcf42086ded64e427c1dc5f2c3dd826677b",
+    "54": "496a916a92ea64cb73870cd07be9a22bac62f3f51c0d0859d46601173b670d6a",
+    "81": "283f2d5b0ada777efac1ee292482254edda1ffd070e315fc37220787f5559df8"
+  },
+  "exposures_completed": 54896,
+  "production_vs_C_update_checks": null,
+  "status": "training_completed",
+  "trace_sha256": "b102fe267d8b4a973af0663d4ebab2124e2e5ce2cf474dbcd11e0279d1ea35c1",
+  "updates_completed": 108
+}

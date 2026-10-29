@@ -1,0 +1,15 @@
+{
+  "initializer_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+  "planned_execution_command": "systemd-run --user --scope -p CPUQuota=25% -p CPUWeight=1 -p MemoryMax=4294967296 -p AllowedCPUs=30 -- nice -n 19 prlimit --as=17179869184 -- taskset -c 30 env OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 BLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 SEED542_CD_CPU_QUOTA=25% SEED542_CD_CPU_WEIGHT=1 SEED542_CD_MEMORY_MAX=4294967296 SEED542_CD_ALLOWED_CPUS=30 SEED542_CD_NICE=19 SEED542_CD_ADDRESS_SPACE=17179869184 /home/alex/Mancala/ai/.tmp/seed542-fixed-update-cd/.tmp/seed542-cd-runtime/bin/python -m ml.alphazero_lite.run_seed542_fixed_update_cd_v2 --execute --out /home/alex/Mancala/ai/.tmp/seed542-fixed-update-cd/docs/data/seed542-fixed-update-cd-v2 --tablebase /home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+  "prepare_command": [
+    "/home/alex/Mancala/ai/.tmp/seed542-fixed-update-cd/ml/alphazero_lite/run_seed542_fixed_update_cd_v2.py",
+    "--prepare-only",
+    "--out",
+    "docs/data/seed542-fixed-update-cd-v2",
+    "--tablebase",
+    "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb"
+  ],
+  "registration_sha256": "221116162a146b815c50e7dcea8698837ec1dada9f6022de1e36084d11fc05ce",
+  "schedule_updates": 108,
+  "status": "prospective sources and inputs frozen; no reference or training executed"
+}

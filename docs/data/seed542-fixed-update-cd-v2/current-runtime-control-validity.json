@@ -1,0 +1,565 @@
+{
+  "C_trace_sha256": "246ae5aa358466058d5d3e2961880ca18792052f4e5a92e77f9d45774a72c375",
+  "boundary_checkpoints": [
+    {
+      "production_checkpoint_bitwise_equal": true,
+      "update": 27
+    },
+    {
+      "production_checkpoint_bitwise_equal": true,
+      "update": 54
+    },
+    {
+      "production_checkpoint_bitwise_equal": true,
+      "update": 81
+    },
+    {
+      "production_checkpoint_bitwise_equal": true,
+      "update": 108
+    }
+  ],
+  "passed": true,
+  "production_trace_sha256": "73e94e1dcef983b42739abeb1bcbefc0ea98b2cda602c108f01a48e40de0658c",
+  "updates": [
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 1
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 2
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 3
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 4
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 5
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 6
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 7
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 8
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 9
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 10
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 11
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 12
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 13
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 14
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 15
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 16
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 17
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 18
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 19
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 20
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 21
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 22
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 23
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 24
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 25
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 26
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 27
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 28
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 29
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 30
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 31
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 32
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 33
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 34
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 35
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 36
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 37
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 38
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 39
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 40
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 41
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 42
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 43
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 44
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 45
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 46
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 47
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 48
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 49
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 50
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 51
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 52
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 53
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 54
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 55
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 56
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 57
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 58
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 59
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 60
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 61
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 62
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 63
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 64
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 65
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 66
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 67
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 68
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 69
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 70
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 71
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 72
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 73
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 74
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 75
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 76
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 77
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 78
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 79
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 80
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 81
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 82
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 83
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 84
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 85
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 86
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 87
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 88
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 89
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 90
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 91
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 92
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 93
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 94
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 95
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 96
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 97
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 98
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 99
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 100
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 101
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 102
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 103
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 104
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 105
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 106
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 107
+    },
+    {
+      "bitwise_equal": true,
+      "mismatched_fields": [],
+      "update": 108
+    }
+  ]
+}

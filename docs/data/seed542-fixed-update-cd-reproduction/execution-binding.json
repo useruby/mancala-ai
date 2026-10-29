@@ -1,0 +1,38 @@
+{
+  "amended_accounting_sha256": "89140844f831ec31b5bcf994d69c677d70f757abb3e18907d07b79817da8d807",
+  "command": [
+    "/home/alex/Mancala/ai/.tmp/seed542-fixed-update-cd/ml/alphazero_lite/run_seed542_fixed_update_cd.py",
+    "--arm",
+    "both",
+    "--out",
+    "docs/data/seed542-fixed-update-cd-reproduction"
+  ],
+  "cpu_affinity": [
+    31
+  ],
+  "cpu_threads": 1,
+  "development_membership_sha256": "feeed97c7666a69603620e4e59575fdf02aa206e9e570cde937aa360bd37505b",
+  "device": "cpu",
+  "initializer_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+  "numpy": "2.5.3",
+  "outer_command": "prlimit --as=17179869184 -- nice -n 19 taskset -c 31 /home/alex/Mancala/ai/.tmp/seed542-fixed-update-cd/.tmp/seed542-cd-runtime/bin/python -m ml.alphazero_lite.run_seed542_fixed_update_cd --arm both --out /home/alex/Mancala/ai/.tmp/seed542-fixed-update-cd/docs/data/seed542-fixed-update-cd-reproduction",
+  "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+  "protocol_sha256": "bd708bcf3e6fc47b03988f98614c00d4e521374d5cd72cb0d2e33165e6d802f3",
+  "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+  "registration_sha256": "fa3b401c00468979818085917291cd282ad9a47929233ea61a64ee36fcc6d3b3",
+  "runner_sha256": "375f27ec718d5e8d7b59e1319bd0c7e15efd58ee2f3a35fff89b5d1857005dda",
+  "seed504_checkpoints": {
+    "1": "6187b0e702a2118579c82fc0950398babe255e95f1f64a4f695d52b3e56144c3",
+    "2": "d1ef62ad445ad33a532a9a5efa8aadefe5657235af1706fdba4b1c1c8579d796",
+    "3": "e049d2a7e6702b68cf4bf2d230f5966f86e4dfc8e4ed928a534b61f7d7804842",
+    "4": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad"
+  },
+  "seed504_manifest_sha256": "449506a30cbe04e2cbe34794c0647fad4aa9f74019ee480edf2c67520a9e353a",
+  "seed504_permutations_sha256": "1115b156abd646fe3ba4483c18465b9323c926427a7305a026e95309982589eb",
+  "source_manifest_sha256": "63ffa566b929de4bec6fd445768e5161a53807fc2dcc1b170c8240a28be8f616",
+  "status": "prospective frozen before training",
+  "test_sha256": "99d712ce1da35b72d8792f8dbf9462930e31c6f0292f4f49f721ea7112fa5de2",
+  "torch": "2.14.0+cu130",
+  "train_source_sha256": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+  "verifier_sha256": "fc3439df1566eac18c79bd033cfca49c86eacdbd2071d55a15bf3c516811a4a7"
+}

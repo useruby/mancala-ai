@@ -1,0 +1,13 @@
+{
+  "causal_attribution": "none; no attribution to PyTorch version, threading, or hardware",
+  "corrected_runner_diagnostic": "matched production training across 108 updates; the first diagnostic's only unequal field was a diagnostic gradient-norm calculation discrepancy, not a parameter/update discrepancy",
+  "historical_seed504": "current-runtime production did not reproduce historical seed504 E1 bitwise; exact cause remains unknown",
+  "new_protocol": "current-runtime production-versus-C bitwise equality is the validity gate; historical checkpoint comparisons are descriptive",
+  "original_attempt": "had a zero-based/one-based update-indexing error and stopped at an incorrectly labeled boundary",
+  "prior_D_execution": false,
+  "prior_attempts_preserved": [
+    "docs/data/seed542-fixed-update-cd/",
+    "docs/data/seed542-fixed-update-cd-reproduction/",
+    "docs/data/seed542-fixed-update-cd-diagnostics/"
+  ]
+}

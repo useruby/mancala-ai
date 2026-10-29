@@ -1,0 +1,58 @@
+{
+  "command": [
+    "/home/alex/Mancala/ai/.tmp/seed542-fixed-update-cd/ml/alphazero_lite/diagnose_seed542_c_first_divergence.py",
+    "--out",
+    "docs/data/seed542-fixed-update-cd-diagnostics/first-divergence"
+  ],
+  "historical_checkpoints": {
+    "E1": "6187b0e702a2118579c82fc0950398babe255e95f1f64a4f695d52b3e56144c3",
+    "E2": "d1ef62ad445ad33a532a9a5efa8aadefe5657235af1706fdba4b1c1c8579d796",
+    "E3": "e049d2a7e6702b68cf4bf2d230f5966f86e4dfc8e4ed928a534b61f7d7804842",
+    "E4": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad"
+  },
+  "outer_command": "prlimit --as=17179869184 -- nice -n 19 taskset -c 31 /home/alex/Mancala/ai/.tmp/seed542-fixed-update-cd/.tmp/seed542-cd-runtime/bin/python -m ml.alphazero_lite.diagnose_seed542_c_first_divergence --out /home/alex/Mancala/ai/.tmp/seed542-fixed-update-cd/docs/data/seed542-fixed-update-cd-diagnostics/first-divergence",
+  "output": "docs/data/seed542-fixed-update-cd-diagnostics/first-divergence",
+  "protocol_sha256": "bd708bcf3e6fc47b03988f98614c00d4e521374d5cd72cb0d2e33165e6d802f3",
+  "runtime": {
+    "cpu_affinity": [
+      31
+    ],
+    "environment": {
+      "BLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null
+    },
+    "interop_threads": 1,
+    "interpreter": "/home/alex/Mancala/ai/.tmp/seed542-fixed-update-cd/.tmp/seed542-cd-runtime/bin/python",
+    "matmul_precision": "highest",
+    "mkldnn_enabled": true,
+    "numpy": "2.5.3",
+    "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+    "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+    "threads": 1,
+    "torch": "2.14.0+cu130",
+    "torch_config": "PyTorch built with:\n  - GCC 13.3\n  - C++ Version: 202002\n  - Intel(R) oneAPI Math Kernel Library Version 2024.2-Product Build 20240605 for Intel(R) 64 architecture applications\n  - Intel(R) MKL-DNN v3.12.0 (Git Hash 80afa71049cd69a3df32adcccb623b12cd7baa22)\n  - OpenMP 201511 (a.k.a. OpenMP 4.5)\n  - LAPACK is enabled (usually provided by MKL)\n  - NNPACK is enabled\n  - CPU capability usage: AVX2\n  - Build settings: BLAS_INFO=mkl, BUILD_TYPE=Release, COMMIT_SHA=08187d9e0fba026dc8217405802ab5381dc88d90, CUDA_FLAGS= -DLIBCUDACXX_ENABLE_SIMPLIFIED_COMPLEX_OPERATIONS -Xfatbin -compress-all -DONNX_NAMESPACE=onnx_torch -gencode arch=compute_75,code=sm_75 -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86 -gencode arch=compute_90,code=sm_90 -gencode arch=compute_100,code=sm_100 -gencode arch=compute_120,code=sm_120 -Xcudafe --diag_suppress=cc_clobber_ignored,--diag_suppress=field_without_dll_interface,--diag_suppress=base_class_has_different_dll_interface,--diag_suppress=dll_interface_conflict_none_assumed,--diag_suppress=dll_interface_conflict_dllexport_assumed,--diag_suppress=bad_friend_decl --expt-relaxed-constexpr --expt-extended-lambda -Xfatbin -compress-all --threads 2 -compress-mode=size -Wno-deprecated-gpu-targets --expt-extended-lambda -DCUB_WRAPPED_NAMESPACE=at_cuda_detail -DDISABLE_CUSPARSE_DEPRECATED -DCUDA_HAS_FP16=1 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -DC10_NODEPRECATED, CUDA_VERSION=13.0, CUDNN_VERSION=9.24.0, CXX_COMPILER=/opt/rh/gcc-toolset-13/root/usr/bin/c++, CXX_FLAGS= -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -DNDEBUG -DUSE_KINETO -DHAS_CUPTI -DUSE_FBGEMM -DUSE_MSLK -DUSE_PYTORCH_QNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -O2 -fPIC -DC10_NODEPRECATED -Wall -Wextra -Werror=return-type -Werror=non-virtual-dtor -Werror=range-loop-construct -Werror=bool-operation -Wnarrowing -Wno-missing-field-initializers -Wno-unknown-pragmas -Wno-unused-parameter -Wno-strict-overflow -Wno-strict-aliasing -Wno-stringop-overflow -Wsuggest-override -Wno-psabi -Wno-error=old-style-cast -faligned-new -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-dangling-reference -Wno-error=dangling-reference -Wno-stringop-overflow, LAPACK_INFO=mkl, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, TORCH_VERSION=2.14.0, USE_CUDA=1, USE_CUDNN=ON, USE_CUSPARSELT=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_GLOO=ON, USE_HIPSPARSELT=OFF, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=ON, USE_OPENMP=ON, USE_ROCM=OFF, USE_ROCM_KERNEL_ASSERT=OFF, USE_XCCL=OFF, USE_XPU=OFF, \n",
+    "torch_deterministic": false
+  },
+  "sources": {
+    "docs/data/seed504/manifest.json": "449506a30cbe04e2cbe34794c0647fad4aa9f74019ee480edf2c67520a9e353a",
+    "docs/data/seed504/permutations.json": "1115b156abd646fe3ba4483c18465b9323c926427a7305a026e95309982589eb",
+    "docs/data/seed542-selfplay-4096/initializer.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "docs/data/seed542-selfplay-4096/training-protocol.json": "bd708bcf3e6fc47b03988f98614c00d4e521374d5cd72cb0d2e33165e6d802f3",
+    "ml/alphazero_lite/diagnose_seed542_c_first_divergence.py": "d54c5f49f254037a902d3586c4d9a22c6b86b83eacd31d1a1f2c90e73b02f509",
+    "ml/alphazero_lite/run_seed504.py": "75f90cb0c03b30d9cae7e8038d8d41442c9ba65975ce4d9cf38d83d101f0d4ba",
+    "ml/alphazero_lite/run_seed542_fixed_update_cd.py": "375f27ec718d5e8d7b59e1319bd0c7e15efd58ee2f3a35fff89b5d1857005dda",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32"
+  },
+  "status": "prospective diagnostic trace binding",
+  "training_sources": {
+    "docs/data/seed500-selfplay-512/shard-503000.jsonl": "db48f2b944925c575261ae285758d91866d029a705db7665f80b96e23675f9cd",
+    "docs/data/seed500-selfplay-512/shard-503001.jsonl": "2c707c5868013d2b91df0250001266ac84f79b72e1fad55d2ae74f10327e6cb4",
+    "docs/data/seed500-selfplay-512/shard-503002.jsonl": "abecfdd3a6dd5ce0720f1ebf64b192ec36bf344a15b2942cc3af2f87f930da0c",
+    "docs/data/seed500-selfplay-512/shard-503003.jsonl": "c1462711adaa5fe88e90b2d713baa08c750ea6b6450ae791e6be5881fe9dd39f",
+    "docs/data/seed500-selfplay-512/shard-503004.jsonl": "d150631d5947eb22254903a93e0a8a7242ea42364eac6c99d0151ad08b2722c6",
+    "docs/data/seed500-selfplay-512/shard-503005.jsonl": "fce737e9ae3c33e38a81931847ec6c9ccf58bc2df05510dd193d9203391671d2"
+  }
+}

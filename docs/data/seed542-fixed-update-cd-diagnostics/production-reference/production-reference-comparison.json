@@ -1,0 +1,321 @@
+{
+  "E1_comparison": {
+    "actual_sha256": "0af46e55368de075e69fa66b16ed91bd715443a98788262a8bd9df7f4daa29d9",
+    "bitwise_equal": false,
+    "historical_sha256": "6187b0e702a2118579c82fc0950398babe255e95f1f64a4f695d52b3e56144c3",
+    "parameter_names_equal": true,
+    "per_parameter": {
+      "b_input": {
+        "bitwise_equal": false,
+        "differing_elements": 6,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_actual": [
+          96
+        ],
+        "shape_historical": [
+          96
+        ]
+      },
+      "b_policy": {
+        "bitwise_equal": false,
+        "differing_elements": 1,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 1.3096723705530167e-10,
+        "shape_actual": [
+          6
+        ],
+        "shape_historical": [
+          6
+        ]
+      },
+      "b_policy_hidden": {
+        "bitwise_equal": false,
+        "differing_elements": 7,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_actual": [
+          96
+        ],
+        "shape_historical": [
+          96
+        ]
+      },
+      "b_residual_1_1": {
+        "bitwise_equal": false,
+        "differing_elements": 6,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 3.725290298461914e-09,
+        "shape_actual": [
+          96
+        ],
+        "shape_historical": [
+          96
+        ]
+      },
+      "b_residual_1_2": {
+        "bitwise_equal": false,
+        "differing_elements": 11,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 3.725290298461914e-09,
+        "shape_actual": [
+          96
+        ],
+        "shape_historical": [
+          96
+        ]
+      },
+      "b_residual_2_1": {
+        "bitwise_equal": false,
+        "differing_elements": 5,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 3.725290298461914e-09,
+        "shape_actual": [
+          96
+        ],
+        "shape_historical": [
+          96
+        ]
+      },
+      "b_residual_2_2": {
+        "bitwise_equal": false,
+        "differing_elements": 14,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 7.450580596923828e-09,
+        "shape_actual": [
+          96
+        ],
+        "shape_historical": [
+          96
+        ]
+      },
+      "b_residual_3_1": {
+        "bitwise_equal": false,
+        "differing_elements": 11,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 7.450580596923828e-09,
+        "shape_actual": [
+          96
+        ],
+        "shape_historical": [
+          96
+        ]
+      },
+      "b_residual_3_2": {
+        "bitwise_equal": false,
+        "differing_elements": 14,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 3.725290298461914e-09,
+        "shape_actual": [
+          96
+        ],
+        "shape_historical": [
+          96
+        ]
+      },
+      "b_value": {
+        "bitwise_equal": true,
+        "differing_elements": 0,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 0.0,
+        "shape_actual": [
+          1
+        ],
+        "shape_historical": [
+          1
+        ]
+      },
+      "b_value_hidden": {
+        "bitwise_equal": false,
+        "differing_elements": 2,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 4.656612873077393e-10,
+        "shape_actual": [
+          48
+        ],
+        "shape_historical": [
+          48
+        ]
+      },
+      "w_input": {
+        "bitwise_equal": false,
+        "differing_elements": 128,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_actual": [
+          27,
+          96
+        ],
+        "shape_historical": [
+          27,
+          96
+        ]
+      },
+      "w_policy": {
+        "bitwise_equal": false,
+        "differing_elements": 20,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_actual": [
+          96,
+          6
+        ],
+        "shape_historical": [
+          96,
+          6
+        ]
+      },
+      "w_policy_hidden": {
+        "bitwise_equal": false,
+        "differing_elements": 571,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 5.960464477539063e-08,
+        "shape_actual": [
+          96,
+          96
+        ],
+        "shape_historical": [
+          96,
+          96
+        ]
+      },
+      "w_residual_1_1": {
+        "bitwise_equal": false,
+        "differing_elements": 556,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_actual": [
+          96,
+          96
+        ],
+        "shape_historical": [
+          96,
+          96
+        ]
+      },
+      "w_residual_1_2": {
+        "bitwise_equal": false,
+        "differing_elements": 578,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_actual": [
+          96,
+          96
+        ],
+        "shape_historical": [
+          96,
+          96
+        ]
+      },
+      "w_residual_2_1": {
+        "bitwise_equal": false,
+        "differing_elements": 574,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_actual": [
+          96,
+          96
+        ],
+        "shape_historical": [
+          96,
+          96
+        ]
+      },
+      "w_residual_2_2": {
+        "bitwise_equal": false,
+        "differing_elements": 561,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_actual": [
+          96,
+          96
+        ],
+        "shape_historical": [
+          96,
+          96
+        ]
+      },
+      "w_residual_3_1": {
+        "bitwise_equal": false,
+        "differing_elements": 568,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_actual": [
+          96,
+          96
+        ],
+        "shape_historical": [
+          96,
+          96
+        ]
+      },
+      "w_residual_3_2": {
+        "bitwise_equal": false,
+        "differing_elements": 584,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 2.9802322387695312e-08,
+        "shape_actual": [
+          96,
+          96
+        ],
+        "shape_historical": [
+          96,
+          96
+        ]
+      },
+      "w_value": {
+        "bitwise_equal": false,
+        "differing_elements": 1,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 9.313225746154785e-10,
+        "shape_actual": [
+          48,
+          1
+        ],
+        "shape_historical": [
+          48,
+          1
+        ]
+      },
+      "w_value_hidden": {
+        "bitwise_equal": false,
+        "differing_elements": 268,
+        "dtype_actual": "float32",
+        "dtype_historical": "float32",
+        "maximum_absolute_difference": 1.4901161193847656e-08,
+        "shape_actual": [
+          96,
+          48
+        ],
+        "shape_historical": [
+          96,
+          48
+        ]
+      }
+    }
+  },
+  "current_runtime_torch": "2.14.0+cu130",
+  "historical_runtime_torch": "2.13.0+cu130",
+  "production_runner_reproduces_historical_E1": false
+}

@@ -1,0 +1,91 @@
+{
+  "C_control_passed": true,
+  "D_executed": true,
+  "development_effects": {
+    "D_minus_C": {
+      "17-32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": -0.033426135778427124,
+          "policy_ce": -0.00745004415512085
+        },
+        "exposure_weighted": {
+          "actual_value_mse": -0.033406078815460205,
+          "policy_ce": -0.007260024547576904
+        }
+      },
+      "<=16": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": -0.007814154028892517,
+          "policy_ce": 0.002279043197631836
+        },
+        "exposure_weighted": {
+          "actual_value_mse": -0.008325695991516113,
+          "policy_ce": 0.0019960403442382812
+        }
+      },
+      ">32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": -0.060220420360565186,
+          "policy_ce": -0.009032905101776123
+        },
+        "exposure_weighted": {
+          "actual_value_mse": -0.06037259101867676,
+          "policy_ce": -0.009176015853881836
+        }
+      },
+      "pooled": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": -0.026808708906173706,
+          "policy_ce": -0.0035186409950256348
+        },
+        "exposure_weighted": {
+          "actual_value_mse": -0.02713039517402649,
+          "policy_ce": -0.0036023855209350586
+        }
+      }
+    },
+    "D_minus_initializer": {
+      "17-32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": -0.021359115839004517,
+          "policy_ce": -0.09082722663879395
+        },
+        "exposure_weighted": {
+          "actual_value_mse": -0.02097347378730774,
+          "policy_ce": -0.0911911129951477
+        }
+      },
+      "<=16": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": -0.021714016795158386,
+          "policy_ce": -0.12070345878601074
+        },
+        "exposure_weighted": {
+          "actual_value_mse": -0.02140393853187561,
+          "policy_ce": -0.1213727593421936
+        }
+      },
+      ">32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.03306925296783447,
+          "policy_ce": -0.05287933349609375
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.03557741641998291,
+          "policy_ce": -0.05255550146102905
+        }
+      },
+      "pooled": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": -0.012535035610198975,
+          "policy_ce": -0.097442626953125
+        },
+        "exposure_weighted": {
+          "actual_value_mse": -0.01171797513961792,
+          "policy_ce": -0.09771084785461426
+        }
+      }
+    }
+  },
+  "status": "training_and_development_evaluation_completed"
+}
