@@ -1,0 +1,185 @@
+{
+  "status": "frozen continuation amendment",
+  "generation_status": "preflight pending; generation not yet started",
+  "freeze_scope": "separately authenticated continuation to merged seed542 PR #542; historical manifests and attempt records remain unchanged",
+  "behavior": {
+    "model_version": "seed48-nextgen-s455-default-value-iter1",
+    "weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+    "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "initializer_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+  },
+  "amendment": {
+    "continue_original_unattempted_seeds": [542002, 542063],
+    "skip_seed542001": {
+      "policy": "preserve original interrupted attempt; never retry or overwrite",
+      "retain_complete_games": 51,
+      "exclude_incomplete_game_indices": [51],
+      "exclude_unstarted_game_indices": [52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63]
+    },
+    "supplement": {
+      "seed": 542064,
+      "games": 13,
+      "source": "training",
+      "same_behavior_and_targets_as_original": true
+    },
+    "target_usable_corpus": {
+      "games": 4096,
+      "training_games": 3072,
+      "development_games": 1024
+    },
+    "planned_slots": {
+      "original_requested_games": 4096,
+      "supplementary_requested_games": 13,
+      "total": 4109,
+      "original_incomplete_game": 1,
+      "original_unstarted_games": 12,
+      "interrupted_shard_is_completed": false
+    }
+  },
+  "accounting": {
+    "original_interrupted_attempt": {
+      "requested_games": 4096,
+      "completed_games": 115,
+      "capped_games": 0,
+      "incomplete_or_not_started_games": 3981,
+      "completed_shards": 1,
+      "interrupted_shards": 1,
+      "unattempted_shards": 62
+    },
+    "amended_expected": {
+      "original_plan_requested_games": 4096,
+      "original_plan_completed_games": 4083,
+      "original_plan_capped_games": 0,
+      "original_incomplete_games": 1,
+      "original_unstarted_games": 12,
+      "original_completed_shards": 63,
+      "original_interrupted_shards": 1,
+      "supplementary_requested_games": 13,
+      "amended_completed_games": 4096,
+      "amended_capped_games": 0,
+      "amended_incomplete_or_not_started_games": 13,
+      "training_games": 3072,
+      "development_games": 1024
+    }
+  },
+  "recovered_derivative": {
+    "path": "docs/data/seed542-selfplay-4096/recovered-seed542001-complete.jsonl",
+    "sha256": "f13804bf7f349735129dac4a303749459951e3d6639bcb89934211fe4b46f28c",
+    "rows": 1768,
+    "games": 51,
+    "original_source_path": "docs/data/seed542-selfplay-4096/azlite-self-play-shards-etoy6j_i/worker_0.jsonl",
+    "original_source_sha256": "89cd9dd08f4d08d36fe79546738bba8ff20389756615712cdcd72cb2f0b3b94a",
+    "provenance_path": "docs/data/seed542-selfplay-4096/recovered-seed542001-provenance.jsonl",
+    "provenance_sha256": "2e611a3f2f568667c128f34dc4d61f03ce1431ea0ae7bba865ec81b8185350ed",
+    "provenance_fields": ["original_path", "original_line", "source_sha256", "source_line_sha256", "derivative_line_sha256"]
+  },
+  "source_partition": {
+    "training": "seeds542000 and542002-542047 (47 complete 64-game files), recovered 51-game seed542001 derivative, and 13-game seed542064 supplement",
+    "development": "seeds542048-542063 (16 complete 64-game files)",
+    "usable_training_total": 3072,
+    "usable_development_total": 1024,
+    "source_manifest": "source-manifest.json; explicit nonuniform file/game counts and content hashes"
+  },
+  "assets": {
+    "weights": {
+      "path": "model-artifact/current/weights.json",
+      "sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c",
+      "size_bytes": 1584163
+    },
+    "runtime_search_policy": {
+      "path": "model-artifact/current/search_policy.json",
+      "sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "size_bytes": 700
+    },
+    "initializer": {
+      "path": "docs/data/seed542-selfplay-4096/initializer.npz",
+      "sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "size_bytes": 298302
+    },
+    "native_probe": {
+      "path": "model-artifact/runtime/kalah_v1_tablebase",
+      "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "size_bytes": 106776
+    },
+    "tablebase": {
+      "path": "model-artifact/runtime/kalah_v1_21.kvtb",
+      "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "size_bytes": 709635072,
+      "existing_local_source": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+      "source_description": "pre-existing materialized local file independently checked by SHA-256 and byte length; not downloaded through Git LFS",
+      "git_lfs_downloaded_for_amendment": false
+    }
+  },
+  "source_sha256": {
+    "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/pipeline.py": "ad1c9919e13418c4af53be9856406272bdb4f8ed9a53e7424cc9364364772dfa",
+    "ml/alphazero_lite/prepare_seed542_experiment.py": "bd829138f9925fc522bade806821c97bf3aaef42fca07a9dc9a8ec21520fa448",
+    "ml/alphazero_lite/verify_seed542.py": "8392187979ffa1768ab5e3ee6257513c726078350440113636f6c16d2970590b",
+    "ml/alphazero_lite/seed542_amendment.py": "722f6700d3d825794d2455025cf37eaa3aa8751f961ea6b8e3cf7156df6d8b77",
+    "ml/alphazero_lite/run_seed542_generation.py": "17cebe359bb0f03320f6f87c38330c3d55da442375d8286921c5d230b59c9c85",
+    "ml/alphazero_lite/test_run_seed542_generation.py": "62998a6720ca7de7246cbf0b96a213c0dadf58c5731813b9ee73f448e994311b",
+    "ml/alphazero_lite/test_prepare_seed542_experiment.py": "d3d3cb2ed1728877aaee9f30b787e70f0ad30e1589f1c4ec6a7a6c1d59decf68",
+    "ml/alphazero_lite/test_verify_seed542.py": "6f62ee20d7417aa2ebed4583a575959ed5d0a95022489237a3035ad8e826c158",
+    "ml/alphazero_lite/test_seed542_amendment.py": "9139b6645ea9f5b4cdca3d7c14b57575e1053592fc85883f440d96cb449c3a8e",
+    "ml/alphazero_lite/test_run_seed542_amended_generation.py": "b0f4b1d3db2d99fcacb08d9ef406196690afb3bdd14d97f89c30ddbfbc79810f",
+    "ml/alphazero_lite/run_seed542_amended_generation.py": "60376fd0697bafef98d6e07dfd4ac3f9a7c5e7896067ec60d411302d01223a24"
+  },
+  "interpreter": {
+    "path": "/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python",
+    "python": "3.14.7",
+    "numpy": "2.5.3",
+    "torch": "2.14.0+cu130",
+    "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+    "installed_packages": [
+      "cuda-bindings==13.4.4", "cuda-pathfinder==1.8.4", "cuda-toolkit==13.0.3.0", "filelock==4.2.4", "fsspec==2026.9.0", "iniconfig==2.3.1", "Jinja2==3.1.6", "MarkupSafe==3.0.4", "mpmath==1.3.0", "networkx==3.7", "numpy==2.5.3", "nvidia-cublas==13.1.1.3", "nvidia-cuda-cupti==13.0.85", "nvidia-cuda-nvrtc==13.0.88", "nvidia-cuda-runtime==13.0.96", "nvidia-cudnn-cu13==9.24.0.43", "nvidia-cufft==12.0.0.61", "nvidia-cufile==1.15.1.6", "nvidia-curand==10.4.0.35", "nvidia-cusolver==12.0.4.66", "nvidia-cusparse==12.6.3.3", "nvidia-cusparselt-cu13==0.8.1", "nvidia-nccl-cu13==2.30.7", "nvidia-nvjitlink==13.4.92", "nvidia-nvshmem-cu13==3.4.5", "nvidia-nvtx==13.0.85", "packaging==26.3", "pluggy==1.7.0", "Pygments==2.21.0", "pytest==9.1.1", "ruff==0.15.13", "setuptools==84.2.1", "sympy==1.14.0", "torch==2.14.0+cu130", "triton==3.8.0", "typing_extensions==4.16.0"
+    ]
+  },
+  "environment": {
+    "python": "3.14.7",
+    "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+    "numpy": "2.5.3",
+    "torch": "2.14.0+cu130"
+  },
+  "command_template": [
+    "/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python",
+    "-m", "ml.alphazero_lite.self_play", "--out", "{output}", "--games", "{games}", "--seed", "{seed}",
+    "--checkpoint", "docs/data/seed542-selfplay-4096/initializer.npz", "--runtime-search-policy-artifact", "model-artifact/current",
+    "--input-encoding", "kalah_v3", "--player-mode", "puct", "--simulations", "128", "--c-puct", "1.25",
+    "--temperature-threshold", "10", "--temperature", "1.0", "--temperature-late", "0.1", "--dirichlet-alpha", "0.3",
+    "--dirichlet-epsilon", "0.25", "--schedule-progress-mode", "none", "--max-moves", "200", "--workers", "1",
+    "--policy-target-mode", "default", "--exact-root-policy-target-mode", "selected_one_hot", "--policy-target-noise-mode", "denoised",
+    "--value-target-mode", "default", "--start-state-mode", "standard_4x6", "--write-game-metadata"
+  ],
+  "preserved_evidence": {
+    "original_manifest_sha256": "5b4a70d6a81cbf82bbe208cf0c2ac2f74d590330325501cc05ddcc3a9fc11c86",
+    "continuation_freeze_sha256": "0c70b483d4ca7417c92f2fa5da1f2c76913140bbc9cced8502cc320e79b01fb5",
+    "interruption_record_sha256": "398567976f2367518367c1730cd37a3f484a581ba07c299c19035e89ab03b80e",
+    "execution_inventory_sha256": "8f5e9e64a616cd7a55adbf30483353abe73181cf0e25e62609ced70946dcd6a5",
+    "original_accounting_sha256": "41a125f75000fc7a449899d38c11e3549cae16a91a60027141caf1cd76a767a4",
+    "original_partial_status_sha256": "cd9f0b803ee50d48055d67d4712534dfa12bd024a1e7fe150fb8ac805378abe5",
+    "staging_sha256": "89cd9dd08f4d08d36fe79546738bba8ff20389756615712cdcd72cb2f0b3b94a",
+    "seed542000_sha256": "d32be9595d12748115e5ad2cf6ea073e063078571d00dd60965a646f83da20e4",
+    "seed542000_log_sha256": "26614051b1be78a12b992b86098d1be61936ac512b3c04a3bc1237eb57a6d223",
+    "seed542001_log_sha256": "cb6896120810513336a6458a5eb80ccbb1c16c4c87b8095a259c2fa1e1d3ca03",
+    "seed542001_staging_path": "docs/data/seed542-selfplay-4096/azlite-self-play-shards-etoy6j_i/worker_0.jsonl"
+  },
+  "resource_scope": {
+    "cpu_quota": "25%",
+    "cpu_weight": 1,
+    "memory_max_bytes": 4294967296,
+    "nice": 19,
+    "cpu_affinity": "31"
+  },
+  "resume_policy": {
+    "completed_shards": "verify command output hash, game accounting, and skip",
+    "interrupted_or_ambiguous_attempts": "preserve and skip; never retry automatically",
+    "unattempted_original_shards": "execute exactly once into unique output and log paths",
+    "supplement": "registered exactly once as seed542064 with 13 games",
+    "new_records": "append-only continuation-inventory.jsonl",
+    "existing_execution_inventory": "read-only and hash-bound"
+  }
+}

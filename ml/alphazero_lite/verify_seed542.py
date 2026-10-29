@@ -17,6 +17,7 @@ CORPUS = ROOT / "docs/data/seed542-selfplay-4096"
 sys.path.insert(0, str(ROOT))
 
 from ml.alphazero_lite import prepare_seed542_experiment as rebuild  # noqa: E402
+from ml.alphazero_lite import run_seed542_amended_generation as amended_runner  # noqa: E402
 from ml.alphazero_lite import train, validate_seed500_pilot  # noqa: E402
 
 
@@ -35,7 +36,51 @@ def _all_inventory_events() -> list[dict[str, Any]]:
     return events
 
 
-def verify_inventory() -> list[dict[str, Any]]:
+def verify_amended_commands(
+    events: list[dict[str, Any]], amendment: dict[str, Any], *, require_complete: bool
+) -> None:
+    template = amendment["command_template"]
+    completed = [event for event in events if event.get("event") == "finished"]
+    expected_seeds = set(range(542002, 542065))
+    actual_seeds = set()
+    for event in completed:
+        seed = int(event["seed"])
+        if seed == 542000:
+            continue
+        if seed not in expected_seeds:
+            raise ValueError(f"amended_inventory_seed_not_registered:{seed}")
+        games = 13 if seed == 542064 else 64
+        expected = [
+            token.format(
+                output=f"docs/data/seed542-selfplay-4096/shard-{seed}.jsonl",
+                games=games,
+                seed=seed,
+            )
+            for token in template
+        ]
+        if event.get("command") != expected or event.get("command_text") != " ".join(
+            expected
+        ):
+            raise ValueError(f"amended_inventory_command_mismatch:{seed}")
+        expected_source = "development" if 542048 <= seed <= 542063 else "training"
+        if event.get("source") != expected_source:
+            raise ValueError(f"amended_inventory_source_mismatch:{seed}")
+        if (
+            event.get("requested_games") != games
+            or event.get("completed_games") != games
+        ):
+            raise ValueError(f"amended_inventory_accounting_mismatch:{seed}")
+        if (
+            event.get("capped_games") != 0
+            or event.get("incomplete_or_unstarted_games") != 0
+        ):
+            raise ValueError(f"amended_inventory_noncomplete_outcome:{seed}")
+        actual_seeds.add(seed)
+    if require_complete and actual_seeds != expected_seeds:
+        raise ValueError("amended_inventory_finished_seed_set_mismatch")
+
+
+def verify_inventory(*, require_complete: bool = False) -> list[dict[str, Any]]:
     events = _all_inventory_events()
     finished_events = [event for event in events if event["event"] == "finished"]
     finished: dict[int, dict[str, Any]] = {}
@@ -44,9 +89,24 @@ def verify_inventory() -> list[dict[str, Any]]:
         if seed in finished:
             raise ValueError(f"inventory_duplicate_finished_event:{seed}")
         finished[seed] = event
-    if not set(finished).issubset(set(range(542000, 542064))):
+    if not set(finished).issubset(set(range(542000, 542065))):
         raise ValueError("inventory_finished_seed_out_of_range")
+    if require_complete:
+        expected_finished = set(range(542000, 542065)) - {542001}
+        if set(finished) != expected_finished:
+            raise ValueError("inventory_amended_finished_seed_set_mismatch")
     for seed, event in finished.items():
+        expected_games = 13 if seed == 542064 else 64
+        expected_source = "development" if 542048 <= seed <= 542063 else "training"
+        if event.get("source") != expected_source:
+            raise ValueError(f"inventory_finished_source_mismatch:{seed}")
+        command = event.get("command")
+        if not isinstance(command, list):
+            raise ValueError(f"inventory_finished_command_missing:{seed}")
+        if "--games" not in command or command[command.index("--games") + 1] != str(
+            expected_games
+        ):
+            raise ValueError(f"inventory_finished_game_count_mismatch:{seed}")
         path = CORPUS / f"shard-{seed}.jsonl"
         if event.get("exit_status") != 0 or not path.is_file():
             raise ValueError(f"inventory_shard_incomplete:{seed}")
@@ -533,9 +593,31 @@ def verify() -> dict[str, str]:
     accounting = json.loads((CORPUS / "accounting.json").read_text(encoding="utf-8"))
     if accounting.get("status", "").startswith("partial corpus"):
         return verify_partial()
-    verify_inventory()
+    verify_inventory(require_complete=True)
+    amendment_path = CORPUS / "continuation-amendment.json"
+    amendment_bytes = amendment_path.read_bytes()
+    if hashlib.sha256(amendment_bytes).hexdigest() != amended_runner.AMENDMENT_SHA256:
+        raise ValueError("amended_continuation_amendment_sha256_mismatch")
+    amendment = json.loads(amendment_bytes)
+    continuation_inventory = CORPUS / "continuation-inventory.jsonl"
+    verify_amended_commands(
+        _read_jsonl(continuation_inventory), amendment, require_complete=True
+    )
     expected = rebuild.build_artifacts()
     verified = {}
+    source_manifest_path = CORPUS / "source-manifest.json"
+    if not source_manifest_path.is_file():
+        raise FileNotFoundError("amended_source_manifest_missing")
+    source_manifest = json.loads(source_manifest_path.read_text(encoding="utf-8"))
+    rebuilt_manifest = rebuild.seed542_amendment.build_source_manifest(ROOT, CORPUS)
+    if canonical_json(source_manifest) != canonical_json(rebuilt_manifest):
+        raise ValueError("archived_evidence_mismatch:source-manifest.json")
+    verified["source-manifest.json"] = hashlib.sha256(
+        source_manifest_path.read_bytes()
+    ).hexdigest()
+    verified["continuation-amendment.json"] = hashlib.sha256(
+        amendment_bytes
+    ).hexdigest()
     for name, rebuilt in expected.items():
         path = CORPUS / name
         archived = json.loads(path.read_text(encoding="utf-8"))

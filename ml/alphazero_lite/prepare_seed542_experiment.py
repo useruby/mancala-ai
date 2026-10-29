@@ -14,7 +14,7 @@ from typing import Any
 import numpy as np
 import torch
 
-from ml.alphazero_lite import train, validate_seed500_pilot
+from ml.alphazero_lite import seed542_amendment, train, validate_seed500_pilot
 
 ROOT = Path(__file__).resolve().parents[2]
 CORPUS = ROOT / "docs/data/seed542-selfplay-4096"
@@ -68,7 +68,20 @@ def active_stones(row: dict[str, Any]) -> int:
 
 def replay_and_loader(paths: list[Path]) -> dict[str, Any]:
     raw_rows = read_rows(paths)
-    report = validate_seed500_pilot.validate_shards(paths)
+    replay_rows: list[dict[str, Any]] = []
+    game_offset = 0
+    for path in paths:
+        shard_rows = read_rows([path])
+        game_ids = sorted({int(row["game_index"]) for row in shard_rows})
+        expected_ids = list(range(len(game_ids)))
+        if game_ids != expected_ids:
+            raise ValueError(f"source_game_indices_not_zero_based:{path}")
+        replay_rows.extend(
+            {**row, "game_index": int(row["game_index"]) + game_offset}
+            for row in shard_rows
+        )
+        game_offset += len(game_ids)
+    report = validate_seed500_pilot._validate_and_account(replay_rows)
     x, policies, values = train.load_jsonl_replay(
         paths,
         weights=[1] * len(paths),
@@ -103,8 +116,26 @@ def replay_and_loader(paths: list[Path]) -> dict[str, Any]:
 
 
 def shard_paths() -> tuple[list[Path], list[Path]]:
-    training = [CORPUS / f"shard-{seed}.jsonl" for seed in range(542000, 542048)]
-    development = [CORPUS / f"shard-{seed}.jsonl" for seed in range(542048, 542064)]
+    manifest = json.loads((CORPUS / "source-manifest.json").read_text())
+    training = seed542_amendment.source_paths(ROOT, manifest, "training")
+    development = seed542_amendment.source_paths(ROOT, manifest, "development")
+    recovered = next(
+        source for source in manifest["sources"] if source["source_seed"] == 542001
+    )
+    extraction = seed542_amendment.verify_extraction(
+        ROOT
+        / "docs/data/seed542-selfplay-4096/azlite-self-play-shards-etoy6j_i/worker_0.jsonl",
+        ROOT / recovered["path"],
+        ROOT / recovered["provenance_path"],
+        source_path_label=recovered["original_source_path"],
+    )
+    if (
+        extraction["source_sha256"] != recovered["original_source_sha256"]
+        or extraction["provenance_sha256"] != recovered["provenance_sha256"]
+        or extraction["complete_games"] != 51
+        or extraction["rows"] != 1768
+    ):
+        raise ValueError("recovered_source_provenance_manifest_mismatch")
     return training, development
 
 
@@ -140,7 +171,7 @@ def build_membership(
         if not reasons:
             included.append(row)
     return {
-        "scope": "separation from seed504 training and the new 48 training-source shards only",
+        "scope": "separation only from seed504 training and the amended 3,072-game training population",
         "membership": membership,
         "membership_sha256": sha_bytes(
             json.dumps(membership, sort_keys=True, separators=(",", ":")).encode()
@@ -281,9 +312,8 @@ def schedule_summary(schedule: list[dict[str, Any]]) -> dict[str, Any]:
 
 def build_artifacts() -> dict[str, dict[str, Any]]:
     train_paths, dev_paths = shard_paths()
-    missing = [str(path) for path in train_paths + dev_paths if not path.is_file()]
-    if missing:
-        raise FileNotFoundError(f"corpus_incomplete:{len(missing)} missing shards")
+    manifest = json.loads((CORPUS / "source-manifest.json").read_text())
+    seed542_amendment.validate_source_manifest(manifest)
     training = replay_and_loader(train_paths)
     development = replay_and_loader(dev_paths)
     membership = build_membership(development["rows"], training["rows"])
@@ -292,12 +322,43 @@ def build_artifacts() -> dict[str, dict[str, Any]]:
     )
     schedules_report = schedules(control_rows, training["rows"])
     report = {
-        "requested_games": 4096,
+        "requested_games": 4109,
+        "planned_slots": 4109,
+        "original_interrupted_attempt": {
+            "requested_games": 4096,
+            "completed_games": 115,
+            "capped_games": 0,
+            "incomplete_or_not_started_games": 3981,
+            "completed_shards": 1,
+            "interrupted_shards": 1,
+            "unattempted_shards": 62,
+        },
+        "original_plan": {
+            "requested_games": 4096,
+            "completed_games": 4083,
+            "capped_games": 0,
+            "incomplete_games": 1,
+            "unstarted_games": 12,
+            "completed_original_shards": 63,
+            "interrupted_original_shards": 1,
+            "interrupted_seed542001_completed_games": 51,
+            "interrupted_seed542001_incomplete_games": 1,
+            "interrupted_seed542001_unstarted_games": 12,
+            "interrupted_shard_counted_as_completed": False,
+        },
+        "supplementary_plan": {
+            "seed": 542064,
+            "requested_games": 13,
+            "completed_games": 13,
+            "source": "training",
+        },
+        "usable_corpus_games": 4096,
         "game_status": {
             "complete": training["report"]["games"] + development["report"]["games"],
             "capped": 0,
-            "incomplete": 0,
+            "incomplete_or_not_started": 13,
         },
+        "source_manifest": manifest,
         "training_corpus": training["report"],
         "development_source": development["report"],
         "development_membership": membership,
