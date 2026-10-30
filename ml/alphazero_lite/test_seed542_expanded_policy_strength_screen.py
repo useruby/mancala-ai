@@ -76,6 +76,135 @@ def test_runtime_candidate_and_serving_composition_authenticate_independently() 
         verifier._authenticate_composition(ROOT, output, altered)
 
 
+def test_saved_opening0_raw_pair_gets_separate_completion_receipt_without_rerun(
+    tmp_path: Path,
+) -> None:
+    source = ROOT / screen.OUT
+    output = tmp_path / screen.OUT
+    batch = output / "batches"
+    batch.mkdir(parents=True)
+    for name in (
+        "registration.json",
+        "execution-freeze.json",
+        "runtime-authentication.json",
+        "openings.jsonl",
+    ):
+        shutil.copy2(source / name, output / name)
+    for name in (
+        "opening-0000.jsonl",
+        "command-0000.json",
+        "games-0000.jsonl",
+        "report-0000.json",
+    ):
+        shutil.copy2(source / "batches" / name, batch / name)
+    original_command_bytes = (batch / "command-0000.json").read_bytes()
+    game_hash = runner.sha(batch / "games-0000.jsonl")
+    report_hash = runner.sha(batch / "report-0000.json")
+
+    completion = runner.write_output_completion_receipt(tmp_path, output, 0)
+
+    assert completion.is_file()
+    assert (batch / "command-0000.json").read_bytes() == original_command_bytes
+    receipt = json.loads(completion.read_text())
+    assert receipt["games_sha256"] == game_hash
+    assert receipt["report_sha256"] == report_hash
+    assert len(verifier.validate_pair(tmp_path, output, 0)) == 2
+
+
+def test_saved_opening1_pair_replays_arena_local_suite_index(tmp_path: Path) -> None:
+    source = ROOT / screen.OUT
+    output = tmp_path / screen.OUT
+    batch = output / "batches"
+    batch.mkdir(parents=True)
+    for name in (
+        "registration.json",
+        "execution-freeze.json",
+        "continuation-registration-v2.json",
+        "continuation-execution-freeze-v2.json",
+    ):
+        shutil.copy2(source / name, output / name)
+    for name in (
+        "opening-0001.jsonl",
+        "command-0001.json",
+        "games-0001.jsonl",
+        "report-0001.json",
+    ):
+        shutil.copy2(source / "batches" / name, batch / name)
+
+    pair = verifier.validate_pair(tmp_path, output, 1, require_completion_receipt=False)
+
+    assert len(pair) == 2
+    assert {row["challenger_player"] for row in pair} == {0, 1}
+    assert all(row["opening_index"] == 1 for row in pair)
+
+
+def test_training_v2_receipt_requires_absolute_authenticated_paths(
+    tmp_path: Path,
+) -> None:
+    execution_root = tmp_path.resolve()
+    modules = {
+        "verify_seed542_fixed_update_cd_v2": "verified_complete",
+        "verify_seed542_fixed_update_cd_v2_supplement": "supplement_verified",
+    }
+    receipt = {
+        "schema": "seed542_read_only_training_verification_receipt_v2",
+        "status": "both_seed542_v2_verifiers_passed",
+        "execution_root": str(execution_root),
+        "runtime_settings": {
+            "cpu_quota": "25%",
+            "cpu_weight": "1",
+            "memory_max": "4294967296",
+            "allowed_cpus": "30",
+            "nice": 19,
+            "address_space_limit": "17179869184",
+            "threads_per_numerical_library": 1,
+        },
+        "verifiers": {},
+    }
+    for module, status in modules.items():
+        receipt["verifiers"][module] = {
+            "command": [
+                "systemd-run",
+                "--scope",
+                "CPUQuota=25%",
+                "MemoryMax=4294967296",
+                "AllowedCPUs=30",
+                "nice",
+                "19",
+                "--as=17179869184",
+                "-c",
+                "30",
+                "OMP_NUM_THREADS=1",
+                "NUMEXPR_NUM_THREADS=1",
+                "-m",
+                f"ml.alphazero_lite.{module}",
+                "--root",
+                str(execution_root),
+                "--out",
+                str(execution_root / "docs/data/seed542-fixed-update-cd-v2"),
+            ],
+            "cwd": str(execution_root),
+            "returncode": 0,
+            "status": status,
+            "stdout": f'{{"status": "{status}"}}',
+        }
+    output = tmp_path / screen.OUT
+    output.mkdir(parents=True)
+    (output / "training-verification-v2.json").write_text(json.dumps(receipt))
+    registration = {"execution_root": str(execution_root)}
+    verifier._validate_training_receipt(execution_root, output, registration)
+
+    receipt["verifiers"]["verify_seed542_fixed_update_cd_v2"]["command"][
+        receipt["verifiers"]["verify_seed542_fixed_update_cd_v2"]["command"].index(
+            "--root"
+        )
+        + 1
+    ] = "."
+    (output / "training-verification-v2.json").write_text(json.dumps(receipt))
+    with pytest.raises(ValueError, match="training_root_mismatch"):
+        verifier._validate_training_receipt(execution_root, output, registration)
+
+
 def test_import_rejects_legal_prefix_state_identity_tampering(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -281,7 +410,12 @@ def _command_validation_fixture(tmp_path: Path):
         "executable": runner.sys.executable,
         "packages": ["torch==test"],
     }
-    components = {"D-final": "d", "E4": "e", "initializer": "i"}
+    components = {
+        "D-final": "d",
+        "E4": "e",
+        "initializer": "i",
+        "runtime_assets": {"tablebase_path": ".tmp/tablebase"},
+    }
     execution_sources = {"ml/source.py": "source-hash"}
     registration = {
         "component_assignments": runner.ASSIGNMENTS,

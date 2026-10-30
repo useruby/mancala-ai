@@ -146,12 +146,17 @@ def _authenticate_composition(
 def _validate_training_receipt(
     root: Path, output: Path, registration: dict[str, Any]
 ) -> None:
-    receipt = json.loads((output / "training-verification.json").read_text())
-    if receipt.get("status") != "both_seed542_v2_verifiers_passed":
+    receipt_path = output / "training-verification-v2.json"
+    receipt = json.loads(receipt_path.read_text())
+    execution_root = Path(registration["execution_root"])
+    if (
+        receipt.get("schema") != "seed542_read_only_training_verification_receipt_v2"
+        or receipt.get("status") != "both_seed542_v2_verifiers_passed"
+        or receipt.get("execution_root") != str(execution_root)
+    ):
         raise ValueError("verify_seed542_training_checks_not_complete")
     limits = receipt.get("runtime_settings", {})
     expected_limits = {
-        "systemd_scope": True,
         "cpu_quota": "25%",
         "cpu_weight": "1",
         "memory_max": "4294967296",
@@ -166,12 +171,13 @@ def _validate_training_receipt(
         "verify_seed542_fixed_update_cd_v2": "verified_complete",
         "verify_seed542_fixed_update_cd_v2_supplement": "supplement_verified",
     }
-    execution_root = Path(registration["execution_root"])
     for module, expected_status in expected_modules.items():
         record = receipt.get("verifiers", {}).get(module, {})
         argv = record.get("command", [])
         if (
             record.get("status") != expected_status
+            or record.get("returncode") != 0
+            or record.get("cwd") != str(execution_root)
             or record.get("stdout", "").find(f'"status": "{expected_status}"') < 0
             or "systemd-run" not in argv
             or "--scope" not in argv
@@ -189,10 +195,13 @@ def _validate_training_receipt(
             raise ValueError(f"verify_seed542_training_command_mismatch:{module}")
         if argv[argv.index("-m") + 1] != f"ml.alphazero_lite.{module}":
             raise ValueError(f"verify_seed542_training_entrypoint_mismatch:{module}")
-        if argv[argv.index("--root") + 1] != str(execution_root):
+        root_argument = Path(argv[argv.index("--root") + 1])
+        if not root_argument.is_absolute() or root_argument != execution_root:
             raise ValueError(f"verify_seed542_training_root_mismatch:{module}")
-        if argv[argv.index("--out") + 1] != str(
-            execution_root / "docs/data/seed542-fixed-update-cd-v2"
+        out_argument = Path(argv[argv.index("--out") + 1])
+        if (
+            not out_argument.is_absolute()
+            or out_argument != execution_root / "docs/data/seed542-fixed-update-cd-v2"
         ):
             raise ValueError(f"verify_seed542_training_output_mismatch:{module}")
 
@@ -267,6 +276,9 @@ def _validate_command_and_report(
     runtime: dict[str, Any],
     registration: dict[str, Any],
     freeze: dict[str, Any],
+    continuation_registration: dict[str, Any] | None = None,
+    continuation_freeze: dict[str, Any] | None = None,
+    continuation_freeze_path: Path | None = None,
 ) -> None:
     argv = command_record["argv"]
     if argv[0] != registration["runtime"]["executable"] or argv[1:3] != [
@@ -287,7 +299,7 @@ def _validate_command_and_report(
         "--exact-root-native-probe": execution_root
         / "model-artifact/runtime/kalah_v1_tablebase",
         "--exact-root-tablebase": execution_root
-        / registration["runtime_assets"]["tablebase_path"],
+        / registration["component_hashes"]["runtime_assets"]["tablebase_path"],
     }
     for option, path in expected_paths.items():
         if Path(_option(argv, option)).resolve() != path.resolve():
@@ -325,10 +337,12 @@ def _validate_command_and_report(
         raise ValueError(f"command_registration_binding_mismatch:{index}")
     if command_record.get("suite_sha256") != freeze["suite_sha256"]:
         raise ValueError(f"command_suite_binding_mismatch:{index}")
-    if (
-        command_record.get("runtime_source_sha256")
-        != registration["execution_source_sha256"]
-    ):
+    expected_sources = (
+        continuation_registration["execution_source_sha256"]
+        if continuation_registration is not None
+        else registration["execution_source_sha256"]
+    )
+    if command_record.get("runtime_source_sha256") != expected_sources:
         raise ValueError(f"command_source_binding_mismatch:{index}")
     if (
         command_record.get("component_assignments")
@@ -337,6 +351,17 @@ def _validate_command_and_report(
         raise ValueError(f"command_component_binding_mismatch:{index}")
     if command_record.get("component_hashes") != registration["component_hashes"]:
         raise ValueError(f"command_component_hash_mismatch:{index}")
+    if continuation_registration is not None:
+        if (
+            continuation_freeze is None
+            or continuation_freeze_path is None
+            or command_record.get("continuation_registration_sha256")
+            != continuation_freeze["registration_sha256"]
+            or command_record.get("continuation_freeze_sha256")
+            != sha256(continuation_freeze_path)
+        ):
+            raise ValueError(f"command_continuation_binding_mismatch:{index}")
+        runtime = continuation_registration["runtime"]
     if command_record.get("runtime") != runtime:
         raise ValueError(f"command_runtime_binding_mismatch:{index}")
 
@@ -389,12 +414,21 @@ def _validate_command_and_report(
         or notes.get("exact_root_native_probe")
         != str(execution_root / "model-artifact/runtime/kalah_v1_tablebase")
         or notes.get("exact_root_tablebase")
-        != str(execution_root / registration["runtime_assets"]["tablebase_path"])
+        != str(
+            execution_root
+            / registration["component_hashes"]["runtime_assets"]["tablebase_path"]
+        )
     ):
         raise ValueError(f"report_full_search_or_component_contract_mismatch:{index}")
 
 
-def validate_pair(root: Path, output: Path, index: int) -> list[dict[str, Any]]:
+def validate_pair(
+    root: Path,
+    output: Path,
+    index: int,
+    *,
+    require_completion_receipt: bool = True,
+) -> list[dict[str, Any]]:
     """Read-only validation of one raw seat-swapped pair and its bindings."""
     root, output = root.resolve(), output.resolve()
     registration = json.loads((output / "registration.json").read_text())
@@ -412,6 +446,32 @@ def validate_pair(root: Path, output: Path, index: int) -> list[dict[str, Any]]:
     games = rows(game_path)
     report = json.loads(report_path.read_text())
     command_record = json.loads(command_path.read_text())
+    continuation_registration = None
+    continuation_freeze = None
+    continuation_freeze_path: Path | None = None
+    if command_record.get("continuation_freeze_sha256"):
+        version = int(command_record.get("continuation_version", 2))
+        continuation_registration_path = (
+            output / f"continuation-registration-v{version}.json"
+        )
+        continuation_freeze_path = (
+            output / f"continuation-execution-freeze-v{version}.json"
+        )
+        continuation_registration = json.loads(
+            continuation_registration_path.read_text()
+        )
+        continuation_freeze = json.loads(continuation_freeze_path.read_text())
+        if (
+            sha256(continuation_registration_path)
+            != continuation_freeze["registration_sha256"]
+            or sha256(continuation_freeze_path)
+            != command_record["continuation_freeze_sha256"]
+            or continuation_registration["original_registration_sha256"]
+            != freeze["registration_sha256"]
+            or continuation_registration["original_freeze_sha256"]
+            != sha256(output / "execution-freeze.json")
+        ):
+            raise ValueError(f"pair_continuation_binding_mismatch:{index}")
     if len(opening_rows) != 1 or opening_rows[0]["opening_index"] != index:
         raise ValueError(f"raw_pair_opening_invalid:{index}")
     opening = opening_rows[0]
@@ -419,10 +479,32 @@ def validate_pair(root: Path, output: Path, index: int) -> list[dict[str, Any]]:
         raise ValueError(f"raw_pair_opening_receipt_mismatch:{index}")
     if len(games) != 2 or {int(game["challenger_player"]) for game in games} != {0, 1}:
         raise ValueError(f"raw_pair_seat_coverage_invalid:{index}")
-    if sha256(game_path) != command_record.get("games_sha256") or sha256(
-        report_path
-    ) != command_record.get("report_sha256"):
-        raise ValueError(f"raw_pair_report_receipt_mismatch:{index}")
+    completion_path = output / "batches" / f"completion-{index:04d}.json"
+    completion_sha = None
+    if completion_path.is_file():
+        completion = json.loads(completion_path.read_text())
+        expected_completion = {
+            "schema": "azlite_screen_pair_output_completion_v1",
+            "opening_index": index,
+            "command_sha256": sha256(command_path),
+            "suite_sha256": freeze["suite_sha256"],
+            "registration_sha256": freeze["registration_sha256"],
+            "opening_sha256": sha256(opening_path),
+            "games_sha256": sha256(game_path),
+            "report_sha256": sha256(report_path),
+        }
+        if continuation_freeze is not None:
+            assert continuation_freeze_path is not None
+            expected_completion["continuation_freeze_sha256"] = sha256(
+                continuation_freeze_path
+            )
+        if any(
+            completion.get(key) != value for key, value in expected_completion.items()
+        ):
+            raise ValueError(f"raw_pair_output_completion_receipt_mismatch:{index}")
+        completion_sha = sha256(completion_path)
+    elif require_completion_receipt:
+        raise ValueError(f"raw_pair_output_completion_receipt_missing:{index}")
     _validate_command_and_report(
         root,
         output,
@@ -433,14 +515,18 @@ def validate_pair(root: Path, output: Path, index: int) -> list[dict[str, Any]]:
         runtime,
         registration,
         freeze,
+        continuation_registration,
+        continuation_freeze,
+        continuation_freeze_path,
     )
     outcomes = []
     for position, game in enumerate(games):
         if (
-            int(game.get("opening_index", -1)) != index
+            int(game.get("opening_index", -1)) != 0
+            or int(game.get("game_index", -1)) != position
             or int(game.get("game_within_opening", -1)) != position
         ):
-            raise ValueError(f"raw_pair_game_order_mismatch:{index}:{position}")
+            raise ValueError(f"raw_pair_local_game_order_mismatch:{index}:{position}")
         winner, margin = _replay(opening, game)
         outcomes.append(
             {
@@ -452,6 +538,7 @@ def validate_pair(root: Path, output: Path, index: int) -> list[dict[str, Any]]:
                 "game_sha256": sha256(game_path),
                 "report_sha256": sha256(report_path),
                 "opening_sha256": sha256(opening_path),
+                "completion_receipt_sha256": completion_sha,
             }
         )
     winner_counts = {
@@ -560,16 +647,69 @@ def verify_published_analysis(
 
 
 def verify(root: Path, output: Path) -> dict[str, Any]:
-    """Verify the full screen without calling any runner validation/analysis."""
+    """Verify original opening 0 and the separately frozen continuation."""
     root, output = root.resolve(), output.resolve()
     registration_path = output / "registration.json"
     freeze_path = output / "execution-freeze.json"
     registration = json.loads(registration_path.read_text())
     freeze = json.loads(freeze_path.read_text())
+    v2_registration_path = output / "continuation-registration-v2.json"
+    v2_freeze_path = output / "continuation-execution-freeze-v2.json"
+    v3_registration_path = output / "continuation-registration-v3.json"
+    v3_freeze_path = output / "continuation-execution-freeze-v3.json"
+    v2_registration = json.loads(v2_registration_path.read_text())
+    v2_freeze = json.loads(v2_freeze_path.read_text())
+    continuation_registration = json.loads(v3_registration_path.read_text())
+    continuation_freeze = json.loads(v3_freeze_path.read_text())
+    if (
+        sha256(v2_registration_path) != v2_freeze["registration_sha256"]
+        or sha256(v3_registration_path) != continuation_freeze["registration_sha256"]
+    ):
+        raise ValueError("verify_continuation_registration_binding_mismatch")
+    if (
+        sha256(registration_path) != freeze["registration_sha256"]
+        or sha256(freeze_path) != v2_freeze["original_freeze_sha256"]
+        or sha256(freeze_path) != continuation_freeze["original_freeze_sha256"]
+        or sha256(registration_path)
+        != continuation_freeze["original_registration_sha256"]
+        or sha256(v2_freeze_path)
+        != continuation_freeze["parent_continuation_freeze_sha256"]
+    ):
+        raise ValueError("verify_original_or_continuation_freeze_mismatch")
+    if (
+        v2_registration.get("original_registration_sha256")
+        != freeze["registration_sha256"]
+        or v2_registration.get("original_freeze_sha256") != sha256(freeze_path)
+        or v2_registration.get("opening0_completion_receipt_sha256")
+        != sha256(output / "batches/completion-0000.json")
+        or v2_registration.get("opening0_ledger_sha256")
+        != sha256(output / "opening0-ledger.jsonl")
+        or continuation_registration.get("opening0_ledger_sha256")
+        != sha256(output / "opening0-ledger.jsonl")
+        or continuation_registration.get("opening1_ledger_sha256")
+        != sha256(output / "opening1-ledger.jsonl")
+        or continuation_registration.get("opening1_completion_receipt_sha256")
+        != sha256(output / "batches/completion-0001.json")
+    ):
+        raise ValueError("verify_continuation_parent_binding_mismatch")
     observed_paths = _observed_evidence_paths(root, output, registration)
+    observed_paths.update(
+        _observed_evidence_paths(root, output, continuation_registration)
+    )
+    observed_paths.update(
+        output / row["snapshot_path"]
+        for row in json.loads(
+            (output / "initial-source-snapshot-manifest.json").read_text()
+        )["sources"].values()
+    )
+    v2_snapshot_manifest = json.loads(
+        (output / "continuation-v2-source-snapshot-manifest.json").read_text()
+    )
+    observed_paths.update(
+        output / row["snapshot_path"]
+        for row in v2_snapshot_manifest["sources"].values()
+    )
     before_snapshot = _snapshot(observed_paths)
-    if sha256(registration_path) != freeze["registration_sha256"]:
-        raise ValueError("verify_registration_freeze_hash_mismatch")
     if sha256(output / "openings.jsonl") != freeze["suite_sha256"]:
         raise ValueError("verify_frozen_suite_hash_mismatch")
     if (
@@ -585,8 +725,14 @@ def verify(root: Path, output: Path) -> dict[str, Any]:
         != freeze["runtime_policy_preflight_sha256"]
         or sha256(output / "training-verification.json")
         != freeze["training_verification_sha256"]
+        or sha256(output / "training-verification-v2.json")
+        != continuation_registration["training_verification_v2_sha256"]
         or sha256(output / "command-preflight.jsonl")
         != freeze["command_preflight_sha256"]
+        or sha256(output / "continuation-command-preflight-v2.jsonl")
+        != v2_freeze["command_preflight_sha256"]
+        or sha256(output / "continuation-command-preflight-v3.jsonl")
+        != continuation_freeze["command_preflight_sha256"]
     ):
         raise ValueError("verify_frozen_auxiliary_binding_mismatch")
     runtime_preflight = json.loads(
@@ -596,10 +742,6 @@ def verify(root: Path, output: Path) -> dict[str, Any]:
     if (
         runtime_preflight.get("status")
         != "runtime_search_policy_contract_passed_without_inference_or_games"
-        or runtime_preflight.get(
-            "native_tablebase_temporarily_materialized_at_sidecar_path"
-        )
-        is not True
         or preflight_contract.get("exact_root_solve_threshold") != 16
         or preflight_contract.get("exact_root_objective") != "final_score_margin"
         or preflight_contract.get("exact_root_tie_rule")
@@ -609,6 +751,7 @@ def verify(root: Path, output: Path) -> dict[str, Any]:
         != registration["runtime_assets"]["tablebase_sha256"]
     ):
         raise ValueError("verify_runtime_policy_preflight_mismatch")
+
     openings, import_report = imported_suite.import_seed511_suite(root)
     if import_report["suite_sha256"] != freeze["suite_sha256"]:
         raise ValueError("verify_imported_suite_binding_mismatch")
@@ -625,15 +768,46 @@ def verify(root: Path, output: Path) -> dict[str, Any]:
         or rows(output / "overlap-per-opening.jsonl") != expected_overlap["per_opening"]
     ):
         raise ValueError("verify_overlap_report_recomputation_mismatch")
-    for relative, expected in registration["execution_source_sha256"].items():
-        if sha256(root / relative) != expected:
-            raise ValueError(f"verify_executable_source_changed:{relative}")
-    for relative, expected in registration["authenticated_file_sha256"].items():
+
+    # The first freeze is historical provenance only; its source bytes are
+    # authenticated from the registered snapshots. Continuation execution uses
+    # and rechecks the actual current sources below.
+    source_manifest = json.loads(
+        (output / "initial-source-snapshot-manifest.json").read_text()
+    )
+    if source_manifest.get("original_execution_freeze_sha256") != sha256(freeze_path):
+        raise ValueError("verify_initial_source_snapshot_freeze_binding")
+    if set(source_manifest["sources"]) != set(freeze["execution_source_sha256"]):
+        raise ValueError("verify_initial_source_snapshot_source_set")
+    for relative, digest in freeze["execution_source_sha256"].items():
+        record = source_manifest["sources"][relative]
+        if (
+            record["sha256"] != digest
+            or sha256(output / record["snapshot_path"]) != digest
+        ):
+            raise ValueError(f"verify_initial_source_snapshot_mismatch:{relative}")
+    if v2_snapshot_manifest.get("continuation_freeze_sha256") != sha256(
+        v2_freeze_path
+    ) or set(v2_snapshot_manifest.get("sources", {})) != set(
+        v2_freeze["execution_source_sha256"]
+    ):
+        raise ValueError("verify_v2_source_snapshot_manifest_binding_mismatch")
+    for relative, digest in v2_freeze["execution_source_sha256"].items():
+        record = v2_snapshot_manifest["sources"][relative]
+        if (
+            record["sha256"] != digest
+            or sha256(output / record["snapshot_path"]) != digest
+        ):
+            raise ValueError(f"verify_v2_source_snapshot_mismatch:{relative}")
+    for relative, digest in continuation_freeze["execution_source_sha256"].items():
+        if sha256(root / relative) != digest:
+            raise ValueError(f"verify_continuation_source_changed:{relative}")
+    for relative, digest in continuation_freeze["authenticated_file_sha256"].items():
         path = Path(relative)
         if not path.is_absolute():
             path = root / path
-        if sha256(path) != expected:
-            raise ValueError(f"verify_authenticated_file_changed:{relative}")
+        if sha256(path) != digest:
+            raise ValueError(f"verify_continuation_input_changed:{relative}")
     _authenticate_composition(root, output, registration)
     _validate_training_receipt(root, output, registration)
 
@@ -643,43 +817,77 @@ def verify(root: Path, output: Path) -> dict[str, Any]:
         committed.setdefault(int(row["opening_index"]), []).append(row)
     if len(ledger) != 2048 or set(committed) != set(range(1024)):
         raise ValueError("verify_ledger_coverage")
-    command_records = {
+    commands = {
         int(row["opening_index"]): row for row in rows(output / "commands.jsonl")
     }
-    if set(command_records) != set(range(1024)):
+    if set(commands) != set(range(1024)):
         raise ValueError("verify_command_coverage")
-    preflight_records = {
+    original_preflight = {
         int(row["opening_index"]): row
         for row in rows(output / "command-preflight.jsonl")
     }
-    if set(preflight_records) != set(range(1024)):
-        raise ValueError("verify_command_preflight_coverage")
+    v2_preflight = {
+        int(row["opening_index"]): row
+        for row in rows(output / "continuation-command-preflight-v2.jsonl")
+    }
+    v3_preflight = {
+        int(row["opening_index"]): row
+        for row in rows(output / "continuation-command-preflight-v3.jsonl")
+    }
+    if (
+        set(original_preflight) != set(range(1024))
+        or set(v2_preflight) != set(range(1, 1024))
+        or set(v3_preflight) != set(range(2, 1024))
+    ):
+        raise ValueError("verify_frozen_command_preflight_coverage")
     recomputed_ledger = []
     for index, opening in enumerate(openings):
-        raw_command = json.loads(
-            (output / "batches" / f"command-{index:04d}.json").read_text()
-        )
-        if command_records[index] != raw_command:
+        command_path = output / "batches" / f"command-{index:04d}.json"
+        command = json.loads(command_path.read_text())
+        if commands[index] != command:
             raise ValueError(f"verify_command_receipt_ledger_disagreement:{index}")
-        expected_command = preflight_records[index]
+        expected = (
+            original_preflight[index]
+            if index == 0
+            else v2_preflight[index]
+            if index == 1
+            else v3_preflight[index]
+        )
         for field in (
             "argv",
-            "registration_sha256",
             "suite_sha256",
             "component_assignments",
             "component_hashes",
             "runtime",
             "runtime_source_sha256",
         ):
-            if raw_command.get(field) != expected_command.get(field):
+            if command.get(field) != expected.get(field):
                 raise ValueError(f"verify_command_preflight_mismatch:{index}:{field}")
+        if index == 1:
+            expected_reg_sha = v2_freeze["registration_sha256"]
+            expected_freeze_sha = sha256(v2_freeze_path)
+            expected_version = 2
+        elif index >= 2:
+            expected_reg_sha = continuation_freeze["registration_sha256"]
+            expected_freeze_sha = sha256(v3_freeze_path)
+            expected_version = 3
+        else:
+            expected_reg_sha = expected_freeze_sha = None
+            expected_version = None
+        if index > 0 and (
+            command.get("continuation_registration_sha256") != expected_reg_sha
+            or command.get("continuation_freeze_sha256") != expected_freeze_sha
+            or int(command.get("continuation_version", expected_version))
+            != expected_version
+        ):
+            raise ValueError(f"verify_command_continuation_binding:{index}")
         pair = validate_pair(root, output, index)
         reconcile_pair_ledger(index, pair, committed[index])
         recomputed_ledger.extend(pair)
-    published_result = json.loads((output / "results.json").read_text())
-    published_openings = rows(output / "per-opening-results.jsonl")
     result = verify_published_analysis(
-        recomputed_ledger, published_result, published_openings
+        recomputed_ledger,
+        json.loads((output / "results.json").read_text()),
+        rows(output / "per-opening-results.jsonl"),
     )
     if before_snapshot != _snapshot(observed_paths):
         raise ValueError("verify_read_only_evidence_bytes_or_mtimes_changed")

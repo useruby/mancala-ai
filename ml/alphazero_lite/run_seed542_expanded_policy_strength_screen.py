@@ -803,6 +803,74 @@ def commit_pair(root: Path, output: Path, index: int) -> list[dict[str, Any]]:
     return pair
 
 
+def write_output_completion_receipt(
+    root: Path,
+    output: Path,
+    index: int,
+    *,
+    continuation_freeze_sha256: str | None = None,
+) -> Path:
+    """Bind a pre-existing raw pair to its untouched original command receipt."""
+    root, output = root.resolve(), output.resolve()
+    independent.validate_pair(root, output, index, require_completion_receipt=False)
+    command_path = output / "batches" / f"command-{index:04d}.json"
+    opening_path = output / "batches" / f"opening-{index:04d}.jsonl"
+    games_path = output / "batches" / f"games-{index:04d}.jsonl"
+    report_path = output / "batches" / f"report-{index:04d}.json"
+    original_freeze = json.loads((output / "execution-freeze.json").read_text())
+    receipt = {
+        "schema": "azlite_screen_pair_output_completion_v1",
+        "opening_index": index,
+        "command_sha256": sha(command_path),
+        "suite_sha256": original_freeze["suite_sha256"],
+        "registration_sha256": original_freeze["registration_sha256"],
+        "opening_sha256": sha(opening_path),
+        "games_sha256": sha(games_path),
+        "report_sha256": sha(report_path),
+    }
+    if continuation_freeze_sha256 is not None:
+        receipt["continuation_freeze_sha256"] = continuation_freeze_sha256
+    destination = output / "batches" / f"completion-{index:04d}.json"
+    if destination.exists():
+        if json.loads(destination.read_text()) != receipt:
+            raise ValueError(f"existing_output_completion_receipt_changed:{index}")
+    else:
+        _save_json(destination, receipt)
+    independent.validate_pair(root, output, index)
+    return destination
+
+
+def recover_opening_zero(root: Path, output: Path) -> list[dict[str, Any]]:
+    """Recover and ledger-commit saved opening 0 without rerunning its arena command."""
+    root, output = root.resolve(), output.resolve()
+    original_freeze = json.loads((output / "execution-freeze.json").read_text())
+    original_registration = json.loads((output / "registration.json").read_text())
+    if (
+        sha(output / "registration.json") != original_freeze["registration_sha256"]
+        or sha(output / "openings.jsonl") != original_freeze["suite_sha256"]
+        or original_registration["execution_root"] != str(root)
+    ):
+        raise ValueError("opening0_original_freeze_binding_mismatch")
+    ledger_path = output / "outcomes.jsonl"
+    if ledger_path.exists() and ledger_path.stat().st_size:
+        raise ValueError("opening0_recovery_ledger_not_empty")
+    write_output_completion_receipt(root, output, 0)
+    pair = independent.validate_pair(root, output, 0)
+    if len(pair) != 2 or {row["challenger_player"] for row in pair} != {0, 1}:
+        raise ValueError("opening0_recovery_requires_two_validated_seats")
+    temporary = ledger_path.with_suffix(".jsonl.pending")
+    temporary.write_text(
+        "".join(
+            json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n"
+            for row in pair
+        )
+    )
+    with temporary.open("rb") as stream:
+        os.fsync(stream.fileno())
+    os.replace(temporary, ledger_path)
+    return pair
+
+
 def run(root: Path, output: Path) -> dict[str, Any]:
     root, output = root.resolve(), output.resolve()
     _restore_interrupted_tablebase_materialization(root)

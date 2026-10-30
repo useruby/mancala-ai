@@ -82,3 +82,13 @@ the registered screen has no validated games and no advancement decision. Do
 not infer an ordinary draw or a strength regression from this incomplete
 attempt. No 1,200-simulation proposal, promotion, deployment, training, or
 serving change is authorized.
+
+## Append-only recovery update
+
+The preceding status reflects the initial opening-0 validation failure. After
+the completion-receipt and schema/path corrections, saved openings 0 and 1 were
+independently replayed and committed without rerunning either pair. The original
+registration, freeze, arena commands, games, and reports remain unchanged.
+Continuation v3 is frozen for openings 2–1023. At this update, four games are
+validated and committed; the remaining 1,022 openings have not started. There
+is still no aggregate analysis or advancement decision.
