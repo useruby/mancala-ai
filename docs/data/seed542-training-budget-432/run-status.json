@@ -1,0 +1,12 @@
+{
+  "checkpoints": {
+    "108": "6200b04d58f65ee5fb62555c3b32faea4b34206b4c10dbefb22ae9e7ff7b2328",
+    "216": "0fe04f18735e67a50175f430fb63db5f54155fbfe8799e00de5188929d1233eb",
+    "432": "4555cba73d2c908d1eca829836f361b226ccc1072be28affd816b2a240123163"
+  },
+  "control_passed": true,
+  "sole_candidate_checkpoint": 432,
+  "status": "completed",
+  "trace_sha256": "903e6f9888581646ea699a1d6ede3c156b6f560eb4afacb06891b71daffdfeb4",
+  "updates_completed": 432
+}
