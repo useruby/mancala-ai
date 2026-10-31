@@ -1,0 +1,26 @@
+{
+  "bootstrap_quantile_method": "linear",
+  "bootstrap_resamples": 20000,
+  "bootstrap_seed": 545,
+  "decision": "do_not_advance",
+  "deployment_or_promotion_authorized": false,
+  "descriptive_two_sided_95": [
+    0.474609375,
+    0.498046875
+  ],
+  "draws": 201,
+  "effect_score_vs_0_50": -0.013427734375,
+  "exploratory_reused_suite": true,
+  "fresh_confirmation": false,
+  "games": 2048,
+  "losses": 951,
+  "lower_bound_effect_vs_0_50": -0.0234375,
+  "one_sided_95_lower": 0.4765625,
+  "openings": 1024,
+  "pass": false,
+  "score": 0.486572265625,
+  "seed461_historical_overlap_limitation_unresolved": true,
+  "status": "complete",
+  "verification_status": "independent_read_only_verification_pending",
+  "wins": 896
+}

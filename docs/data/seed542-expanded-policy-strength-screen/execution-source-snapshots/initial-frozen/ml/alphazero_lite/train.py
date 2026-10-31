@@ -1,0 +1,2735 @@
+#!/usr/bin/env python3
+"""Train a policy-value MLP checkpoint from JSONL rows using PyTorch."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import random
+import sys
+from pathlib import Path
+from collections.abc import Callable
+from typing import Any
+
+import numpy as np
+import torch
+from torch import nn
+
+if __package__ in (None, ""):
+    sys.path.append(str(Path(__file__).resolve().parents[2]))
+
+from ml.alphazero_lite.checkpoint_phase_selection import (
+    BEST_HIGH_STONE_VALIDATION_V1,
+    EARLIEST_EPOCH_TIE_RULE,
+    HIGH_STONE_PHASE,
+    HIGH_STONE_THRESHOLD,
+    high_stone_validation_metrics,
+    phase_mask_for_encoded_states,
+)
+from ml.alphazero_lite.input_encodings import (
+    DEFAULT_INPUT_ENCODING,
+    SUPPORTED_INPUT_ENCODINGS,
+    feature_count_for,
+)
+from ml.alphazero_lite.kalah_rules import KalahGame
+from ml.alphazero_lite.exact_root_policy_targets import (
+    EXACT_ROOT_ONE_HOT_POLICY_TARGET_MODE,
+    EXACT_ROOT_OPTIMAL_SET_UNIFORM_POLICY_TARGET_MODE,
+    validate_exact_root_metadata,
+)
+
+
+POLICY_SIZE = 6
+MLP_MODEL_TYPES = {"mlp_v1", "mlp_deep"}
+RESIDUAL_MODEL_TYPES = {
+    "residual_v2",
+    "residual_v3",
+    "residual_v3_parent_additive_policy_adapter",
+    "residual_v4_move_factorized",
+}
+SUPPORTED_MODEL_TYPES = [
+    "mlp_v1",
+    "mlp_deep",
+    "residual_v2",
+    "residual_v3",
+    "residual_v3_parent_additive_policy_adapter",
+    "residual_v4_move_factorized",
+]
+DEFAULT_TRAINABLE_SCOPE = "all"
+SUPPORTED_TRAINABLE_SCOPES = [
+    DEFAULT_TRAINABLE_SCOPE,
+    "heads_only",
+    "joint_trunk",
+    "policy_head",
+    "policy_hidden_only",
+    "policy_readout_only",
+    "policy_adapter_only",
+    "value_head",
+    "last_block_policy",
+    "policy_detached_trunk",
+]
+DEFAULT_POLICY_TARGET_MODE = "default"
+SUPPORTED_POLICY_TARGET_MODES = [DEFAULT_POLICY_TARGET_MODE, "sharpened"]
+DEFAULT_VALUE_TARGET_MODE = "default"
+PHASE_AWARE_VALUE_TARGET_MODE = "phase_aware_sharpened"
+HYBRID_VALUE_TARGET_MODE = "hybrid"
+DEFAULT_LR_SCHEDULER = "cosine"
+SUPPORTED_LR_SCHEDULERS = ["none", DEFAULT_LR_SCHEDULER]
+SUPPORTED_VALUE_TARGET_MODES = [
+    DEFAULT_VALUE_TARGET_MODE,
+    "sharpened",
+    PHASE_AWARE_VALUE_TARGET_MODE,
+    HYBRID_VALUE_TARGET_MODE,
+]
+STATE_NORMALIZATION_DENOMINATOR = 48.0
+EXCLUDED_TRAINING_BUCKETS = {
+    "incumbent_proxy_disagreement",
+    "incumbent_proxy_residual",
+}
+DEFAULT_EXACT_ROOT_POLICY_LOSS_WEIGHT = 1.0
+
+
+def input_size_for_encoding(input_encoding: str) -> int:
+    return feature_count_for(input_encoding)
+
+
+def normalize_policy_target_mode(policy_target_mode: str) -> str:
+    normalized = str(policy_target_mode)
+    if normalized not in SUPPORTED_POLICY_TARGET_MODES:
+        raise ValueError(f"unsupported policy_target_mode: {policy_target_mode}")
+    return normalized
+
+
+def normalize_value_target_mode(value_target_mode: str) -> str:
+    normalized = str(value_target_mode)
+    if normalized not in SUPPORTED_VALUE_TARGET_MODES:
+        raise ValueError(f"unsupported value_target_mode: {value_target_mode}")
+    return normalized
+
+
+def normalize_lr_scheduler(lr_scheduler: str) -> str:
+    normalized = str(lr_scheduler)
+    if normalized not in SUPPORTED_LR_SCHEDULERS:
+        raise ValueError(f"unsupported lr_scheduler: {lr_scheduler}")
+    return normalized
+
+
+def normalize_exact_root_policy_loss_weight(weight: float) -> float:
+    normalized = float(weight)
+    if not 0.0 <= normalized <= 1.0:
+        raise ValueError("exact_root_policy_loss_weight must be within [0.0, 1.0]")
+    return normalized
+
+
+def policy_loss_weight_for_row(
+    row: dict[str, object], *, exact_root_policy_loss_weight: float
+) -> float:
+    """Return the policy-loss weight after validating exact-root provenance."""
+    exact_root_policy_loss_weight = normalize_exact_root_policy_loss_weight(
+        exact_root_policy_loss_weight
+    )
+    if row.get("teacher_source") != "exact_root_tablebase":
+        return 1.0
+
+    try:
+        validate_exact_root_metadata(row)
+        active_pit_stones = int(str(row["active_pit_stones"]))
+        puct_simulations_executed = int(str(row["puct_simulations_executed"]))
+    except (KeyError, TypeError, ValueError) as error:
+        raise ValueError("exact_root_policy_mask_metadata_inconsistent") from error
+    if (
+        active_pit_stones < 0
+        or active_pit_stones > 16
+        or puct_simulations_executed != 0
+    ):
+        raise ValueError("exact_root_policy_mask_metadata_inconsistent")
+    return exact_root_policy_loss_weight
+
+
+def validate_input_features(x: np.ndarray, *, input_encoding: str) -> None:
+    expected = input_size_for_encoding(input_encoding)
+    if x.ndim != 2:
+        raise ValueError("training data states must be a 2D matrix")
+    if x.shape[1] != expected:
+        raise ValueError(
+            f"training data feature_count must be {expected} for {input_encoding}, got {x.shape[1]}"
+        )
+
+
+def derive_legal_moves_from_encoded_state(
+    state: np.ndarray | list[float],
+) -> list[int] | None:
+    encoded_state = np.asarray(state, dtype=np.float32)
+    if encoded_state.ndim != 1:
+        return None
+    if encoded_state.shape[0] not in {
+        feature_count_for("kalah_v1"),
+        feature_count_for("kalah_v2"),
+        feature_count_for("kalah_v3"),
+    }:
+        return None
+
+    base_state = encoded_state[:15]
+    if not np.all(np.isfinite(base_state)):
+        return None
+
+    current_player = float(base_state[14])
+    if not np.isclose(current_player, round(current_player), atol=1e-6):
+        return None
+    current_player_int = int(round(current_player))
+    if current_player_int not in (0, 1):
+        return None
+
+    player_pits = [
+        int(round(value * STATE_NORMALIZATION_DENOMINATOR)) for value in base_state[:6]
+    ]
+    opponent_pits = [
+        int(round(value * STATE_NORMALIZATION_DENOMINATOR))
+        for value in base_state[6:12]
+    ]
+    player_store = int(round(float(base_state[12]) * STATE_NORMALIZATION_DENOMINATOR))
+    opponent_store = int(round(float(base_state[13]) * STATE_NORMALIZATION_DENOMINATOR))
+
+    decoded_values = np.asarray(
+        [
+            *(value / STATE_NORMALIZATION_DENOMINATOR for value in player_pits),
+            *(value / STATE_NORMALIZATION_DENOMINATOR for value in opponent_pits),
+            player_store / STATE_NORMALIZATION_DENOMINATOR,
+            opponent_store / STATE_NORMALIZATION_DENOMINATOR,
+            float(current_player_int),
+        ],
+        dtype=np.float32,
+    )
+    if not np.allclose(decoded_values, base_state, atol=1e-6):
+        return None
+    if any(
+        value < 0
+        for value in [*player_pits, *opponent_pits, player_store, opponent_store]
+    ):
+        return None
+
+    game = KalahGame.from_state(
+        {
+            "player_pits": player_pits,
+            "opponent_pits": opponent_pits,
+            "player_store": player_store,
+            "opponent_store": opponent_store,
+            "current_player": current_player_int,
+        }
+    )
+    return game.possible_moves()
+
+
+def validate_policy_target(
+    policy: np.ndarray,
+    *,
+    state: list[float] | np.ndarray,
+    path: Path,
+    row_number: int,
+    policy_target_mode: str,
+    declared_mode: str | None,
+    row: dict[str, object] | None = None,
+) -> None:
+    if policy.shape != (POLICY_SIZE,):
+        raise ValueError(f"{path}:{row_number} policy must contain {POLICY_SIZE} moves")
+    if not np.all(np.isfinite(policy)):
+        raise ValueError(f"{path}:{row_number} policy must be finite")
+    if np.any(policy < 0.0):
+        raise ValueError(
+            f"{path}:{row_number} policy must be a legal normalized policy target"
+        )
+
+    total = float(np.sum(policy, dtype=np.float64))
+    if not np.isclose(total, 1.0, atol=1e-6):
+        raise ValueError(
+            f"{path}:{row_number} policy must be a legal normalized policy target"
+        )
+
+    legal_moves = derive_legal_moves_from_encoded_state(state)
+    if legal_moves is not None:
+        if not legal_moves:
+            raise ValueError(
+                f"{path}:{row_number} policy state does not expose any legal moves"
+            )
+        illegal_moves = [
+            move
+            for move in range(POLICY_SIZE)
+            if move not in legal_moves and policy[move] > 1e-6
+        ]
+        if illegal_moves:
+            raise ValueError(
+                f"{path}:{row_number} policy assigns probability to illegal moves: {illegal_moves}"
+            )
+
+    if declared_mode is None:
+        if policy_target_mode != DEFAULT_POLICY_TARGET_MODE:
+            raise ValueError(
+                f"{path}:{row_number} must declare policy_target_mode={policy_target_mode}"
+            )
+        return
+
+    if declared_mode == EXACT_ROOT_ONE_HOT_POLICY_TARGET_MODE:
+        if (
+            not np.isclose(float(np.max(policy)), 1.0, atol=1e-6)
+            or np.count_nonzero(policy > 1e-6) != 1
+        ):
+            raise ValueError(
+                f"{path}:{row_number} exact_root_one_hot policy must select one legal move"
+            )
+        return
+
+    if declared_mode == EXACT_ROOT_OPTIMAL_SET_UNIFORM_POLICY_TARGET_MODE:
+        if row is None:
+            raise ValueError(f"{path}:{row_number} exact-root row metadata is required")
+        try:
+            _selected, optimal = validate_exact_root_metadata(row)
+        except ValueError as error:
+            raise ValueError(f"{path}:{row_number} {error}") from error
+        expected = np.zeros((POLICY_SIZE,), dtype=np.float32)
+        expected[optimal] = 1.0 / len(optimal)
+        if not np.allclose(policy, expected, atol=1e-6):
+            raise ValueError(
+                f"{path}:{row_number} exact_root_optimal_set_uniform policy must distribute mass uniformly over exact-optimal moves"
+            )
+        return
+
+    normalized_declared_mode = normalize_policy_target_mode(declared_mode)
+    if normalized_declared_mode != policy_target_mode:
+        raise ValueError(
+            f"{path}:{row_number} policy_target_mode={normalized_declared_mode} does not match requested {policy_target_mode}"
+        )
+
+
+def declared_policy_target_mode_for_row(row: dict[str, object]) -> str | None:
+    actual_mode = row.get("policy_target_actual_mode")
+    if actual_mode is not None:
+        return str(actual_mode)
+    declared_mode = row.get("policy_target_mode")
+    if declared_mode is None:
+        return None
+    return str(declared_mode)
+
+
+def validate_value_target_mode(
+    *,
+    path: Path,
+    row_number: int,
+    value_target_mode: str,
+    declared_mode: str | None,
+) -> None:
+    if declared_mode is None:
+        if value_target_mode != DEFAULT_VALUE_TARGET_MODE:
+            raise ValueError(
+                f"{path}:{row_number} must declare value_target_mode={value_target_mode}"
+            )
+        return
+
+    normalized_declared_mode = normalize_value_target_mode(declared_mode)
+    if normalized_declared_mode != value_target_mode:
+        raise ValueError(
+            f"{path}:{row_number} value_target_mode={normalized_declared_mode} does not match requested {value_target_mode}"
+        )
+
+
+def validate_value_target(value: float, *, path: Path, row_number: int) -> float:
+    normalized_value = float(value)
+    if not np.isfinite(normalized_value):
+        raise ValueError(f"{path}:{row_number} value must be finite")
+    if normalized_value < -1.0 or normalized_value > 1.0:
+        raise ValueError(f"{path}:{row_number} value must stay within [-1.0, 1.0]")
+    return normalized_value
+
+
+EXCLUDED_TRAINING_BUCKETS_SET = frozenset(EXCLUDED_TRAINING_BUCKETS)
+
+
+def _normalize_bucket_for_exclusion(bucket: str | None) -> str | None:
+    if bucket is None:
+        return None
+    bucket = str(bucket).strip()
+    if not bucket:
+        return None
+    return bucket
+
+
+def _row_in_excluded_bucket(
+    row: dict, exclude_buckets: frozenset[str] | set[str]
+) -> bool:
+    bucket = row.get("bucket") or row.get("family")
+    normalized = _normalize_bucket_for_exclusion(bucket)
+    if normalized is not None and normalized in exclude_buckets:
+        return True
+    for prefix_key in ("id", "row_id"):
+        rid = row.get(prefix_key, "")
+        if isinstance(rid, str):
+            for excluded in exclude_buckets:
+                if rid.startswith(excluded):
+                    return True
+    return False
+
+
+def load_jsonl(
+    path: Path,
+    *,
+    policy_target_mode: str = DEFAULT_POLICY_TARGET_MODE,
+    value_target_mode: str = DEFAULT_VALUE_TARGET_MODE,
+    exclude_buckets: frozenset[str] | set[str] | None = None,
+    exact_root_policy_loss_weight: float = DEFAULT_EXACT_ROOT_POLICY_LOSS_WEIGHT,
+    include_policy_loss_weights: bool = False,
+) -> (
+    tuple[np.ndarray, np.ndarray, np.ndarray]
+    | tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]
+):
+    policy_target_mode = normalize_policy_target_mode(policy_target_mode)
+    value_target_mode = normalize_value_target_mode(value_target_mode)
+    states = []
+    policies = []
+    values = []
+    policy_loss_weights = []
+
+    with path.open("r", encoding="utf-8") as handle:
+        for row_number, line in enumerate(handle, start=1):
+            row = json.loads(line)
+            if exclude_buckets and _row_in_excluded_bucket(row, exclude_buckets):
+                continue
+            policy = np.asarray(row["policy"], dtype=np.float32)
+            validate_policy_target(
+                policy,
+                state=row["state"],
+                path=path,
+                row_number=row_number,
+                policy_target_mode=policy_target_mode,
+                declared_mode=declared_policy_target_mode_for_row(row),
+                row=row,
+            )
+            validate_value_target_mode(
+                path=path,
+                row_number=row_number,
+                value_target_mode=value_target_mode,
+                declared_mode=row.get("value_target_mode"),
+            )
+            value = validate_value_target(
+                row["value"], path=path, row_number=row_number
+            )
+            states.append(row["state"])
+            policies.append(policy)
+            values.append(value)
+            policy_loss_weights.append(
+                policy_loss_weight_for_row(
+                    row,
+                    exact_root_policy_loss_weight=exact_root_policy_loss_weight,
+                )
+            )
+
+    x = np.asarray(states, dtype=np.float32)
+    p = np.asarray(policies, dtype=np.float32)
+    v = np.asarray(values, dtype=np.float32).reshape(-1, 1)
+    if include_policy_loss_weights:
+        return x, p, v, np.asarray(policy_loss_weights, dtype=np.float32)
+    return x, p, v
+
+
+def legal_mask_for_encoded_state(state: np.ndarray | list[float]) -> np.ndarray:
+    legal_moves = derive_legal_moves_from_encoded_state(state)
+    if legal_moves is None:
+        return np.ones((POLICY_SIZE,), dtype=np.float32)
+    legal_mask = np.zeros((POLICY_SIZE,), dtype=np.float32)
+    if not legal_moves:
+        raise ValueError("encoded state does not expose any legal moves")
+    legal_mask[legal_moves] = 1.0
+    return legal_mask
+
+
+def legal_mask_matrix_for_encoded_states(states: np.ndarray) -> np.ndarray:
+    if states.ndim != 2:
+        raise ValueError("encoded states must be a 2D matrix")
+    return np.asarray(
+        [legal_mask_for_encoded_state(state) for state in states], dtype=np.float32
+    )
+
+
+def load_jsonl_replay(
+    paths: list[Path],
+    weights: list[int] | None = None,
+    *,
+    policy_target_mode: str = DEFAULT_POLICY_TARGET_MODE,
+    value_target_mode: str = DEFAULT_VALUE_TARGET_MODE,
+    replay_value_target_modes: list[str] | None = None,
+    exclude_buckets: frozenset[str] | set[str] | None = None,
+    exact_root_policy_loss_weight: float = DEFAULT_EXACT_ROOT_POLICY_LOSS_WEIGHT,
+    include_policy_loss_weights: bool = False,
+) -> (
+    tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]
+    | tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]
+):
+    if not paths:
+        raise ValueError("at least one replay path is required")
+
+    policy_target_mode = normalize_policy_target_mode(policy_target_mode)
+    value_target_mode = normalize_value_target_mode(value_target_mode)
+
+    if weights is None:
+        weights = [1] * len(paths)
+    if len(weights) != len(paths):
+        raise ValueError("replay weights must match replay path count")
+    if any(weight <= 0 for weight in weights):
+        raise ValueError("replay weights must be positive integers")
+    if replay_value_target_modes is None:
+        replay_value_target_modes = [value_target_mode] * len(paths)
+    if len(replay_value_target_modes) != len(paths):
+        raise ValueError("replay value target modes must match replay paths")
+    replay_value_target_modes = [
+        normalize_value_target_mode(mode) for mode in replay_value_target_modes
+    ]
+
+    x_chunks: list[np.ndarray] = []
+    p_chunks: list[np.ndarray] = []
+    v_chunks: list[np.ndarray] = []
+    policy_loss_weight_chunks: list[np.ndarray] = []
+    replay_index_chunks: list[np.ndarray] = []
+    row_offset = 0
+
+    for path, weight, source_value_target_mode in zip(
+        paths, weights, replay_value_target_modes
+    ):
+        x, p, v, policy_loss_weights = load_jsonl(
+            path,
+            policy_target_mode=policy_target_mode,
+            value_target_mode=source_value_target_mode,
+            exclude_buckets=exclude_buckets,
+            exact_root_policy_loss_weight=exact_root_policy_loss_weight,
+            include_policy_loss_weights=True,
+        )
+        x_chunks.append(x)
+        p_chunks.append(p)
+        v_chunks.append(v)
+        policy_loss_weight_chunks.append(policy_loss_weights)
+        compact_indexes = np.arange(row_offset, row_offset + x.shape[0], dtype=np.int64)
+        replay_index_chunks.append(np.tile(compact_indexes, weight))
+        row_offset += x.shape[0]
+
+    result = (
+        np.concatenate(x_chunks, axis=0),
+        np.concatenate(p_chunks, axis=0),
+        np.concatenate(v_chunks, axis=0),
+        np.concatenate(replay_index_chunks, axis=0),
+    )
+    if include_policy_loss_weights:
+        return (*result, np.concatenate(policy_loss_weight_chunks, axis=0))
+    return result
+
+
+def _pairwise_moves_for_row(
+    row: dict[str, Any], *, path: Path, row_number: int
+) -> tuple[int, int]:
+    preferred_move = row.get("puct_move", row.get("preferred_move"))
+    baseline_move = row.get("raw_move", row.get("baseline_move"))
+    if preferred_move is None or baseline_move is None:
+        raise ValueError(
+            f"{path}:{row_number} pairwise row must include puct_move/raw_move"
+        )
+    preferred_move = int(preferred_move)
+    baseline_move = int(baseline_move)
+    if preferred_move == baseline_move:
+        raise ValueError(
+            f"{path}:{row_number} pairwise preferred and baseline moves must differ"
+        )
+    if not (0 <= preferred_move < POLICY_SIZE) or not (
+        0 <= baseline_move < POLICY_SIZE
+    ):
+        raise ValueError(
+            f"{path}:{row_number} pairwise moves must stay within [0, {POLICY_SIZE - 1}]"
+        )
+    return preferred_move, baseline_move
+
+
+def load_pairwise_jsonl(
+    path: Path,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    states = []
+    preferred_moves = []
+    baseline_moves = []
+
+    with path.open("r", encoding="utf-8") as handle:
+        for row_number, line in enumerate(handle, start=1):
+            row = json.loads(line)
+            preferred_move, baseline_move = _pairwise_moves_for_row(
+                row, path=path, row_number=row_number
+            )
+            legal_moves = derive_legal_moves_from_encoded_state(row["state"])
+            if legal_moves is not None:
+                if (
+                    preferred_move not in legal_moves
+                    or baseline_move not in legal_moves
+                ):
+                    raise ValueError(
+                        f"{path}:{row_number} pairwise moves must be legal for the encoded state"
+                    )
+            states.append(row["state"])
+            preferred_moves.append(preferred_move)
+            baseline_moves.append(baseline_move)
+
+    x = np.asarray(states, dtype=np.float32)
+    preferred = np.asarray(preferred_moves, dtype=np.int64)
+    baseline = np.asarray(baseline_moves, dtype=np.int64)
+    return x, preferred, baseline
+
+
+def load_pairwise_jsonl_replay(
+    paths: list[Path], weights: list[int] | None = None
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    if not paths:
+        raise ValueError("at least one pairwise replay path is required")
+    if weights is None:
+        weights = [1] * len(paths)
+    if len(weights) != len(paths):
+        raise ValueError("pairwise replay weights must match replay path count")
+    if any(weight <= 0 for weight in weights):
+        raise ValueError("pairwise replay weights must be positive integers")
+
+    x_chunks: list[np.ndarray] = []
+    preferred_chunks: list[np.ndarray] = []
+    baseline_chunks: list[np.ndarray] = []
+    replay_index_chunks: list[np.ndarray] = []
+    row_offset = 0
+
+    for path, weight in zip(paths, weights):
+        x, preferred, baseline = load_pairwise_jsonl(path)
+        x_chunks.append(x)
+        preferred_chunks.append(preferred)
+        baseline_chunks.append(baseline)
+        compact_indexes = np.arange(row_offset, row_offset + x.shape[0], dtype=np.int64)
+        replay_index_chunks.append(np.tile(compact_indexes, weight))
+        row_offset += x.shape[0]
+
+    return (
+        np.concatenate(x_chunks, axis=0),
+        np.concatenate(preferred_chunks, axis=0),
+        np.concatenate(baseline_chunks, axis=0),
+        np.concatenate(replay_index_chunks, axis=0),
+    )
+
+
+def parse_replay_paths(text: str | None) -> list[Path]:
+    if not text:
+        return []
+    return [Path(item.strip()) for item in text.split(",") if item.strip()]
+
+
+def parse_replay_weights(text: str | None) -> list[int] | None:
+    if not text:
+        return None
+    return [int(item.strip()) for item in text.split(",") if item.strip()]
+
+
+def compute_policy_cross_entropy(
+    logits: torch.Tensor, targets: torch.Tensor
+) -> torch.Tensor:
+    log_probs = torch.log_softmax(logits, dim=1)
+    return -(targets * log_probs).sum(dim=1)
+
+
+def weighted_policy_loss(
+    policy_losses: torch.Tensor, policy_loss_weights: torch.Tensor
+) -> torch.Tensor:
+    """Average policy loss over active rows without changing its loss scale."""
+    denominator = policy_loss_weights.sum()
+    if float(denominator.detach().cpu().item()) == 0.0:
+        return torch.zeros((), device=policy_losses.device, dtype=policy_losses.dtype)
+    return (policy_losses * policy_loss_weights).sum() / denominator
+
+
+def compute_pairwise_ranking_loss(
+    logits: torch.Tensor,
+    preferred_moves: torch.Tensor,
+    baseline_moves: torch.Tensor,
+    *,
+    margin: float,
+) -> torch.Tensor:
+    preferred_logits = logits.gather(1, preferred_moves.reshape(-1, 1)).reshape(-1)
+    baseline_logits = logits.gather(1, baseline_moves.reshape(-1, 1)).reshape(-1)
+    return torch.nn.functional.softplus(
+        float(margin) - (preferred_logits - baseline_logits)
+    )
+
+
+def compute_value_loss_vector(
+    predictions: torch.Tensor,
+    targets: torch.Tensor,
+    *,
+    value_loss: str,
+    huber_delta: float,
+) -> torch.Tensor:
+    if value_loss == "huber":
+        return torch.nn.functional.smooth_l1_loss(
+            predictions,
+            targets,
+            beta=huber_delta,
+            reduction="none",
+        ).reshape(-1)
+    return torch.square(predictions - targets).reshape(-1)
+
+
+def train_one_epoch(
+    *,
+    model: nn.Module,
+    optimizer: torch.optim.Optimizer,
+    compact_x: np.ndarray,
+    compact_p: np.ndarray,
+    compact_v: np.ndarray,
+    compact_policy_loss_weights: np.ndarray | None = None,
+    replay_indexes: np.ndarray,
+    batch_size: int,
+    device: torch.device,
+    value_loss_weight: float,
+    value_loss: str,
+    huber_delta: float,
+    grad_clip: float | None,
+    pairwise_x: np.ndarray | None = None,
+    pairwise_preferred_moves: np.ndarray | None = None,
+    pairwise_baseline_moves: np.ndarray | None = None,
+    pairwise_replay_indexes: np.ndarray | None = None,
+    pairwise_loss_weight: float = 0.0,
+    pairwise_margin: float = 0.0,
+    behavior_anchor_x: np.ndarray | None = None,
+    behavior_anchor_p: np.ndarray | None = None,
+    behavior_anchor_replay_indexes: np.ndarray | None = None,
+    behavior_loss_weight: float = 0.0,
+    compact_legal_masks: np.ndarray | None = None,
+    behavior_anchor_legal_masks: np.ndarray | None = None,
+    audit_source_indexes: set[int] | None = None,
+    step_callback: Callable[[str, dict[str, Any]], None] | None = None,
+    step_callback_needs_raw_gradients: bool = True,
+    step_observer: Callable[[str, dict[str, Any]], None] | None = None,
+    loss_observer: Callable[[dict[str, Any]], None] | None = None,
+    permutation_callback: Callable[[int | None, list[int]], None] | None = None,
+    primary_order_generator: torch.Generator | None = None,
+    epoch: int | None = None,
+    max_optimizer_updates: int | None = None,
+) -> dict[str, float | None]:
+    model.train()
+    if compact_policy_loss_weights is None:
+        compact_policy_loss_weights = np.ones((compact_x.shape[0],), dtype=np.float32)
+    use_supervised = compact_x.shape[0] > 0 and replay_indexes.size > 0
+    use_pairwise = (
+        pairwise_loss_weight > 0.0
+        and pairwise_x is not None
+        and pairwise_preferred_moves is not None
+        and pairwise_baseline_moves is not None
+        and pairwise_replay_indexes is not None
+        and pairwise_replay_indexes.size > 0
+    )
+    if not use_supervised and not use_pairwise:
+        raise ValueError(
+            "train_one_epoch requires supervised or pairwise training rows"
+        )
+
+    x_all = torch.from_numpy(compact_x).to(device) if compact_x.shape[0] > 0 else None
+    p_all = torch.from_numpy(compact_p).to(device) if compact_p.shape[0] > 0 else None
+    v_all = torch.from_numpy(compact_v).to(device) if compact_v.shape[0] > 0 else None
+    policy_loss_weight_all = (
+        torch.from_numpy(compact_policy_loss_weights).to(device)
+        if compact_x.shape[0] > 0
+        else None
+    )
+    legal_mask_all = None
+    if compact_legal_masks is not None:
+        legal_mask_all = torch.from_numpy(compact_legal_masks).to(device)
+    elif compact_x.shape[0] > 0:
+        legal_mask_all = torch.from_numpy(
+            legal_mask_matrix_for_encoded_states(compact_x)
+        ).to(device)
+    replay_tensor = (
+        torch.from_numpy(replay_indexes).to(device) if use_supervised else None
+    )
+    pairwise_x_all = (
+        torch.from_numpy(pairwise_x).to(device) if pairwise_x is not None else None
+    )
+    pairwise_preferred_tensor = (
+        torch.from_numpy(pairwise_preferred_moves).to(device)
+        if pairwise_preferred_moves is not None
+        else None
+    )
+    pairwise_baseline_tensor = (
+        torch.from_numpy(pairwise_baseline_moves).to(device)
+        if pairwise_baseline_moves is not None
+        else None
+    )
+    pairwise_replay_tensor = (
+        torch.from_numpy(pairwise_replay_indexes).to(device)
+        if pairwise_replay_indexes is not None
+        else None
+    )
+    pairwise_permutation = None
+    pairwise_generator = None
+    pairwise_position = 0
+    behavior_anchor_x_all = None
+    behavior_anchor_p_all = None
+    behavior_anchor_legal_mask_all = None
+    behavior_anchor_replay_tensor = None
+    behavior_anchor_permutation = None
+    behavior_anchor_generator = None
+    behavior_anchor_position = 0
+    use_behavior_anchors = (
+        behavior_loss_weight > 0.0
+        and behavior_anchor_x is not None
+        and behavior_anchor_p is not None
+        and behavior_anchor_replay_indexes is not None
+        and behavior_anchor_replay_indexes.size > 0
+    )
+    if use_pairwise:
+        assert pairwise_replay_tensor is not None
+        pairwise_generator = auxiliary_rng(device, seed=0x50414952)
+        pairwise_permutation = torch.randperm(
+            pairwise_replay_tensor.size(0), device=device, generator=pairwise_generator
+        )
+    if use_behavior_anchors:
+        behavior_anchor_x_all = torch.from_numpy(behavior_anchor_x).to(device)
+        behavior_anchor_p_all = torch.from_numpy(behavior_anchor_p).to(device)
+        if behavior_anchor_legal_masks is not None:
+            behavior_anchor_legal_mask_all = torch.from_numpy(
+                behavior_anchor_legal_masks
+            ).to(device)
+        else:
+            behavior_anchor_legal_mask_all = torch.from_numpy(
+                legal_mask_matrix_for_encoded_states(behavior_anchor_x)
+            ).to(device)
+        behavior_anchor_replay_tensor = torch.from_numpy(
+            behavior_anchor_replay_indexes
+        ).to(device)
+        behavior_anchor_generator = auxiliary_rng(device, seed=0x414E4348)
+        behavior_anchor_permutation = torch.randperm(
+            behavior_anchor_replay_tensor.size(0),
+            device=device,
+            generator=behavior_anchor_generator,
+        )
+    if use_supervised:
+        assert replay_tensor is not None
+        permutation = torch.randperm(
+            replay_tensor.size(0), device=device, generator=primary_order_generator
+        )
+    else:
+        assert pairwise_replay_tensor is not None
+        permutation = torch.randperm(pairwise_replay_tensor.size(0), device=device)
+    if permutation_callback is not None:
+        permutation_callback(epoch, permutation.detach().cpu().tolist())
+    policy_losses: list[float] = []
+    value_losses: list[float] = []
+    pairwise_losses: list[float] = []
+    behavior_anchor_losses: list[float] = []
+    total_losses: list[float] = []
+    grad_norms: list[float] = []
+    audit_samples = 0
+    examples_sampled = 0
+    policy_active_examples_sampled = 0
+    exact_root_masked_examples_sampled = 0
+    total_primary_rows = int(permutation.size(0))
+    for start in range(0, total_primary_rows, batch_size):
+        if (
+            max_optimizer_updates is not None
+            and len(policy_losses) >= max_optimizer_updates
+        ):
+            break
+        indexes = permutation[start : start + batch_size]
+        primary_replay_tensor = (
+            replay_tensor if use_supervised else pairwise_replay_tensor
+        )
+        assert primary_replay_tensor is not None
+        batch_primary_replay_indexes = primary_replay_tensor[indexes]
+        if audit_source_indexes:
+            audit_samples += sum(
+                int(index) in audit_source_indexes
+                for index in batch_primary_replay_indexes.detach().cpu().tolist()
+            )
+        batch_size_actual = int(batch_primary_replay_indexes.size(0))
+        examples_sampled += batch_size_actual
+
+        policy_loss = torch.zeros((), device=device)
+        value_component = torch.zeros((), device=device)
+        if use_supervised:
+            assert x_all is not None
+            assert p_all is not None
+            assert v_all is not None
+            assert policy_loss_weight_all is not None
+            assert legal_mask_all is not None
+            batch_x = x_all[batch_primary_replay_indexes]
+            batch_p = p_all[batch_primary_replay_indexes]
+            batch_v = v_all[batch_primary_replay_indexes]
+            batch_legal_mask = legal_mask_all[batch_primary_replay_indexes]
+            batch_policy_loss_weights = policy_loss_weight_all[
+                batch_primary_replay_indexes
+            ]
+            policy_active_examples_sampled += int(
+                (batch_policy_loss_weights > 0.0).sum().item()
+            )
+            exact_root_masked_examples_sampled += int(
+                (batch_policy_loss_weights == 0.0).sum().item()
+            )
+            logits, value_pred = model(batch_x)
+            policy_loss = weighted_policy_loss(
+                compute_policy_cross_entropy(
+                    logits.masked_fill(batch_legal_mask <= 0.0, -1e9), batch_p
+                ),
+                batch_policy_loss_weights,
+            )
+            value_component = compute_value_loss_vector(
+                value_pred,
+                batch_v,
+                value_loss=value_loss,
+                huber_delta=huber_delta,
+            ).mean()
+
+        pairwise_loss = torch.zeros((), device=device)
+        if use_pairwise:
+            assert pairwise_x_all is not None
+            assert pairwise_preferred_tensor is not None
+            assert pairwise_baseline_tensor is not None
+            assert pairwise_replay_tensor is not None
+            assert pairwise_permutation is not None
+            assert pairwise_generator is not None
+            if use_supervised:
+                if pairwise_position + batch_size_actual > pairwise_permutation.size(0):
+                    pairwise_permutation = torch.randperm(
+                        pairwise_replay_tensor.size(0),
+                        device=device,
+                        generator=pairwise_generator,
+                    )
+                    pairwise_position = 0
+                pairwise_indexes = pairwise_permutation[
+                    pairwise_position : pairwise_position + batch_size_actual
+                ]
+                pairwise_position += batch_size_actual
+                batch_pairwise_replay_indexes = pairwise_replay_tensor[pairwise_indexes]
+            else:
+                batch_pairwise_replay_indexes = batch_primary_replay_indexes
+            pairwise_batch_x = pairwise_x_all[batch_pairwise_replay_indexes]
+            pairwise_logits, _pairwise_value_pred = model(pairwise_batch_x)
+            pairwise_loss = compute_pairwise_ranking_loss(
+                pairwise_logits,
+                pairwise_preferred_tensor[batch_pairwise_replay_indexes],
+                pairwise_baseline_tensor[batch_pairwise_replay_indexes],
+                margin=pairwise_margin,
+            ).mean()
+        behavior_anchor_loss = torch.zeros((), device=device)
+        if use_behavior_anchors:
+            assert behavior_anchor_x_all is not None
+            assert behavior_anchor_p_all is not None
+            assert behavior_anchor_legal_mask_all is not None
+            assert behavior_anchor_replay_tensor is not None
+            assert behavior_anchor_permutation is not None
+            assert behavior_anchor_generator is not None
+            anchor_count = batch_size_actual
+            if (
+                behavior_anchor_position + anchor_count
+                > behavior_anchor_permutation.size(0)
+            ):
+                behavior_anchor_permutation = torch.randperm(
+                    behavior_anchor_replay_tensor.size(0),
+                    device=device,
+                    generator=behavior_anchor_generator,
+                )
+                behavior_anchor_position = 0
+            anchor_indexes = behavior_anchor_permutation[
+                behavior_anchor_position : behavior_anchor_position + anchor_count
+            ]
+            behavior_anchor_position += anchor_count
+            batch_anchor_replay_indexes = behavior_anchor_replay_tensor[anchor_indexes]
+            anchor_x = behavior_anchor_x_all[batch_anchor_replay_indexes]
+            anchor_p = behavior_anchor_p_all[batch_anchor_replay_indexes]
+            anchor_legal_mask = behavior_anchor_legal_mask_all[
+                batch_anchor_replay_indexes
+            ]
+            anchor_logits, _anchor_value_pred = model(anchor_x)
+            behavior_anchor_loss = compute_policy_cross_entropy(
+                anchor_logits.masked_fill(anchor_legal_mask <= 0.0, -1e9), anchor_p
+            ).mean()
+        total_loss = (
+            policy_loss
+            + (value_loss_weight * value_component)
+            + (pairwise_loss_weight * pairwise_loss)
+            + (behavior_loss_weight * behavior_anchor_loss)
+        )
+        if loss_observer is not None:
+            # The observer is strictly pre-backward: it may use autograd.grad on
+            # these scalars without changing .grad, the optimizer, or RNG state.
+            loss_observer(
+                {
+                    "epoch": epoch,
+                    "batch_indexes": batch_primary_replay_indexes.detach()
+                    .cpu()
+                    .tolist(),
+                    "policy_loss_tensor": policy_loss,
+                    "value_loss_tensor": value_component,
+                    "pairwise_loss_tensor": pairwise_loss,
+                    "behavior_anchor_loss_tensor": behavior_anchor_loss,
+                    "total_loss_tensor": total_loss,
+                    "value_loss_weight": float(value_loss_weight),
+                    "pairwise_loss_weight": float(pairwise_loss_weight),
+                    "behavior_loss_weight": float(behavior_loss_weight),
+                }
+            )
+        optimizer.zero_grad(set_to_none=True)
+        total_loss.backward()
+        grad_squared = 0.0
+        for parameter in model.parameters():
+            if parameter.grad is not None:
+                grad_squared += float(torch.sum(parameter.grad.detach() ** 2).item())
+        grad_norms.append(float(np.sqrt(grad_squared)))
+        step_context = {
+            "epoch": epoch,
+            "batch_indexes": batch_primary_replay_indexes.detach().cpu().tolist(),
+            "lr": float(optimizer.param_groups[0]["lr"]),
+            "policy_loss": float(policy_loss.detach().cpu().item()),
+            "value_loss": float(value_component.detach().cpu().item()),
+            "gradient_norm": float(np.sqrt(grad_squared)),
+            "grad_clip": float(grad_clip)
+            if grad_clip is not None and grad_clip > 0.0
+            else None,
+            "clip_active": bool(
+                grad_clip is not None
+                and grad_clip > 0.0
+                and np.sqrt(grad_squared) > grad_clip
+            ),
+            "clip_scale": min(1.0, float(grad_clip) / np.sqrt(grad_squared))
+            if grad_clip is not None and grad_clip > 0.0 and grad_squared > 0.0
+            else 1.0,
+            "post_clip_gradient_norm": min(
+                float(np.sqrt(grad_squared)), float(grad_clip)
+            )
+            if grad_clip is not None and grad_clip > 0.0
+            else float(np.sqrt(grad_squared)),
+        }
+        if step_callback is not None:
+            # Diagnostic callbacks need the actual per-parameter pre-clip values;
+            # cloning here is observational and occurs only when explicitly asked.
+            if step_callback_needs_raw_gradients:
+                step_context["raw_gradients"] = {
+                    name: torch.zeros_like(parameter).cpu()
+                    if parameter.grad is None
+                    else parameter.grad.detach().cpu().clone()
+                    for name, parameter in model.named_parameters()
+                }
+            step_context["optimizer"] = optimizer
+            step_callback("before", step_context)
+        if step_observer is not None:
+            step_observer("before", step_context)
+        if grad_clip is not None and grad_clip > 0.0:
+            torch.nn.utils.clip_grad_norm_(
+                (p for p in model.parameters() if p.requires_grad), grad_clip
+            )
+        optimizer.step()
+        if step_callback is not None:
+            step_callback("after", step_context)
+        if step_observer is not None:
+            step_observer("after", step_context)
+        policy_losses.append(float(policy_loss.detach().cpu().item()))
+        value_losses.append(float(value_component.detach().cpu().item()))
+        pairwise_losses.append(float(pairwise_loss.detach().cpu().item()))
+        behavior_anchor_losses.append(float(behavior_anchor_loss.detach().cpu().item()))
+        total_losses.append(float(total_loss.detach().cpu().item()))
+    return {
+        "policy_loss": float(np.mean(policy_losses)) if policy_losses else 0.0,
+        "value_loss": float(np.mean(value_losses)) if value_losses else 0.0,
+        "pairwise_loss": float(np.mean(pairwise_losses)) if pairwise_losses else 0.0,
+        "behavior_anchor_loss": float(np.mean(behavior_anchor_losses))
+        if behavior_anchor_losses
+        else 0.0,
+        "total_loss": float(np.mean(total_losses)) if total_losses else 0.0,
+        "gradient_norm": float(np.mean(grad_norms)) if grad_norms else None,
+        "audit_source_samples": float(audit_samples),
+        "optimizer_updates": len(policy_losses),
+        "examples_sampled": examples_sampled,
+        "policy_active_examples_sampled": policy_active_examples_sampled,
+        "exact_root_masked_examples_sampled": exact_root_masked_examples_sampled,
+    }
+
+
+class PolicyValueNet(nn.Module):
+    def __init__(self, hidden_sizes: tuple[int, ...], model_type: str, input_size: int):
+        super().__init__()
+        self.hidden_sizes = hidden_sizes
+        self.model_type = model_type
+        self.input_size = input_size
+        self.hidden_layers = nn.ModuleList()
+        self.residual_layers = nn.ModuleList()
+        self.move_projections: nn.ModuleList | None = None
+        self.input_layer: nn.Linear | None = None
+        self.policy_hidden_layer: nn.Linear | None = None
+        self.policy_adapter: nn.Linear | None = None
+        self.value_hidden_layer: nn.Linear | None = None
+        policy_head_input_size: int | None = None
+        value_head_input_size: int | None = None
+
+        if model_type in MLP_MODEL_TYPES:
+            if len(hidden_sizes) < 2:
+                raise ValueError("hidden_sizes must include at least two layers")
+
+            layer_sizes = [input_size, *hidden_sizes]
+            self.hidden_layers = nn.ModuleList(
+                nn.Linear(layer_sizes[i], layer_sizes[i + 1])
+                for i in range(len(layer_sizes) - 1)
+            )
+            policy_head_input_size = hidden_sizes[-1]
+            value_head_input_size = hidden_sizes[-1]
+        elif model_type in RESIDUAL_MODEL_TYPES:
+            trunk_size, residual_block_count = hidden_sizes
+            self.input_layer = nn.Linear(input_size, trunk_size)
+            self.residual_layers = nn.ModuleList(
+                nn.ModuleList(
+                    [
+                        nn.Linear(trunk_size, trunk_size),
+                        nn.Linear(trunk_size, trunk_size),
+                    ]
+                )
+                for _ in range(residual_block_count)
+            )
+            if model_type in {
+                "residual_v3",
+                "residual_v3_parent_additive_policy_adapter",
+            }:
+                self.policy_hidden_layer = nn.Linear(trunk_size, trunk_size)
+                self.value_hidden_layer = nn.Linear(trunk_size, max(trunk_size // 2, 8))
+                if model_type == "residual_v3_parent_additive_policy_adapter":
+                    self.policy_adapter = nn.Linear(trunk_size, POLICY_SIZE)
+                    nn.init.zeros_(self.policy_adapter.weight)
+                    nn.init.zeros_(self.policy_adapter.bias)
+                policy_head_input_size = trunk_size
+                value_head_input_size = max(trunk_size // 2, 8)
+            elif model_type == "residual_v4_move_factorized":
+                self.policy_hidden_layer = nn.Linear(trunk_size, trunk_size)
+                self.value_hidden_layer = nn.Linear(trunk_size, max(trunk_size // 2, 8))
+                self.move_projections = nn.ModuleList(
+                    nn.Linear(trunk_size, 1) for _ in range(POLICY_SIZE)
+                )
+                policy_head_input_size = trunk_size
+                value_head_input_size = max(trunk_size // 2, 8)
+            else:
+                policy_head_input_size = trunk_size
+                value_head_input_size = trunk_size
+        else:
+            raise ValueError(f"unsupported model_type: {model_type}")
+
+        assert policy_head_input_size is not None
+        assert value_head_input_size is not None
+        if model_type != "residual_v4_move_factorized":
+            self.policy_head = nn.Linear(policy_head_input_size, POLICY_SIZE)
+        self.value_head = nn.Linear(value_head_input_size, 1)
+
+    def trunk_features(self, x: torch.Tensor) -> torch.Tensor:
+        """Return the final shared trunk feature used by both output heads."""
+        if self.model_type in MLP_MODEL_TYPES:
+            h = x
+            for layer in self.hidden_layers:
+                h = torch.relu(layer(h))
+            return h
+
+        assert self.input_layer is not None
+        h = torch.relu(self.input_layer(x))
+        for first_layer, second_layer in self.residual_layers:
+            residual = h
+            h = torch.relu(first_layer(h))
+            h = torch.relu(second_layer(h) + residual)
+        return h
+
+    def policy_logits_components(
+        self, x: torch.Tensor
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Return the inherited, adapter, and combined logits for diagnostics.
+
+        This is intentionally limited to the additive-adapter architecture so
+        callers cannot mistake an ordinary policy head for a decomposed one.
+        """
+        if self.model_type != "residual_v3_parent_additive_policy_adapter":
+            raise ValueError("policy components require the additive-adapter model")
+        assert self.policy_hidden_layer is not None
+        assert self.policy_adapter is not None
+        h = self.trunk_features(x)
+        policy_features = torch.relu(self.policy_hidden_layer(h))
+        base_policy_logits = self.policy_head(policy_features)
+        adapter_logits = self.policy_adapter(h.detach())
+        return base_policy_logits, adapter_logits, base_policy_logits + adapter_logits
+
+    def forward(
+        self,
+        x: torch.Tensor,
+        *,
+        detach_policy_trunk: bool = False,
+        detach_value_trunk: bool = False,
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        """Return policy logits and value, optionally isolating a head from the trunk."""
+        h = self.trunk_features(x)
+        if self.model_type in {
+            "residual_v3",
+            "residual_v3_parent_additive_policy_adapter",
+        }:
+            assert self.policy_hidden_layer is not None
+            assert self.value_hidden_layer is not None
+            policy_features = torch.relu(
+                self.policy_hidden_layer(h.detach() if detach_policy_trunk else h)
+            )
+            value_features = torch.relu(
+                self.value_hidden_layer(h.detach() if detach_value_trunk else h)
+            )
+            policy_logits = self.policy_head(policy_features)
+            if self.policy_adapter is not None:
+                policy_logits = policy_logits + self.policy_adapter(h.detach())
+            value = torch.tanh(self.value_head(value_features))
+        elif self.model_type == "residual_v4_move_factorized":
+            assert self.policy_hidden_layer is not None
+            assert self.value_hidden_layer is not None
+            assert self.move_projections is not None
+            policy_features = torch.relu(
+                self.policy_hidden_layer(h.detach() if detach_policy_trunk else h)
+            )
+            value_features = torch.relu(
+                self.value_hidden_layer(h.detach() if detach_value_trunk else h)
+            )
+            policy_logits = torch.cat(
+                [proj(policy_features) for proj in self.move_projections], dim=1
+            )
+            value = torch.tanh(self.value_head(value_features))
+        else:
+            policy_logits = self.policy_head(h)
+            value = torch.tanh(self.value_head(h))
+        return policy_logits, value
+
+
+def select_device(requested: str) -> torch.device:
+    if requested == "auto":
+        return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if requested == "cuda" and not torch.cuda.is_available():
+        raise RuntimeError("CUDA requested but not available")
+    return torch.device(requested)
+
+
+def set_seed(seed: int):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+
+def auxiliary_rng(device: torch.device, seed: int) -> torch.Generator:
+    """Create an auxiliary-only deterministic stream without advancing global RNG."""
+    generator = torch.Generator(device=device)
+    generator.manual_seed(seed)
+    return generator
+
+
+def split_replay_positions_by_source_row(
+    replay_indexes: np.ndarray,
+    *,
+    val_split: float,
+) -> tuple[np.ndarray, np.ndarray]:
+    normalized_val_split = max(0.0, min(val_split, 0.5))
+    source_rows = np.unique(replay_indexes)
+    source_row_count = int(source_rows.shape[0])
+
+    if source_row_count <= 0:
+        raise ValueError("replay set is empty")
+
+    if normalized_val_split <= 0.0 or source_row_count < 2:
+        val_source_count = 0
+    else:
+        val_source_count = max(1, int(source_row_count * normalized_val_split))
+        val_source_count = min(val_source_count, source_row_count - 1)
+
+    train_source_count = source_rows.shape[0] - val_source_count
+    if train_source_count <= 0:
+        raise ValueError("training set is empty; decrease --val-split")
+
+    shuffled_source_rows = np.random.permutation(source_rows)
+    val_source_rows = shuffled_source_rows[train_source_count:]
+
+    is_val = np.isin(replay_indexes, val_source_rows)
+    train_positions = np.flatnonzero(~is_val)
+    val_positions = np.flatnonzero(is_val)
+    return train_positions, val_positions
+
+
+def train(
+    model: PolicyValueNet,
+    x: np.ndarray,
+    p_target: np.ndarray,
+    v_target: np.ndarray,
+    replay_indexes: np.ndarray | None = None,
+    *,
+    policy_loss_weights: np.ndarray | None = None,
+    epochs: int,
+    batch_size: int,
+    lr: float,
+    device: torch.device,
+    value_loss_weight: float,
+    value_loss: str,
+    huber_delta: float,
+    val_split: float,
+    grad_clip: float | None,
+    save_top_k: int,
+    lr_scheduler: str = DEFAULT_LR_SCHEDULER,
+    weight_decay: float = 0.0,
+    save_epochs: set[int] | None = None,
+    save_epochs_dir: Path | None = None,
+    save_epochs_base: str | None = None,
+    epoch_history: list[dict[str, float | int | None]] | None = None,
+    audit_source_indexes: set[int] | None = None,
+    pairwise_x: np.ndarray | None = None,
+    pairwise_preferred_moves: np.ndarray | None = None,
+    pairwise_baseline_moves: np.ndarray | None = None,
+    pairwise_replay_indexes: np.ndarray | None = None,
+    pairwise_loss_weight: float = 0.0,
+    pairwise_margin: float = 0.0,
+    behavior_anchor_x: np.ndarray | None = None,
+    behavior_anchor_p: np.ndarray | None = None,
+    behavior_anchor_v: np.ndarray | None = None,
+    behavior_anchor_replay_indexes: np.ndarray | None = None,
+    behavior_loss_weight: float = 0.0,
+    step_callback: Callable[[str, dict[str, Any]], None] | None = None,
+    step_callback_needs_raw_gradients: bool = True,
+    step_observer: Callable[[str, dict[str, Any]], None] | None = None,
+    loss_observer: Callable[[dict[str, Any]], None] | None = None,
+    permutation_callback: Callable[[int | None, list[int]], None] | None = None,
+    primary_order_seed: int | None = None,
+    epoch_callback: Callable[[int, torch.optim.Optimizer, nn.Module], None]
+    | None = None,
+    max_optimizer_updates: int | None = None,
+    final_checkpoint: str = "best_validation",
+    checkpoint_selection_phase: str = HIGH_STONE_PHASE,
+) -> tuple[float, float, float]:
+    if max_optimizer_updates is not None and max_optimizer_updates <= 0:
+        raise ValueError("max_optimizer_updates must be positive")
+    if final_checkpoint not in {"best_validation", "best_phase_validation", "final"}:
+        raise ValueError(
+            "final_checkpoint must be best_validation, best_phase_validation, or final"
+        )
+    if checkpoint_selection_phase != HIGH_STONE_PHASE:
+        raise ValueError("checkpoint_phase_selection_phase_invalid")
+    model.to(device)
+    model.train()
+
+    use_supervised = x.shape[0] > 0
+    if use_supervised:
+        compact_size = x.shape[0]
+        if policy_loss_weights is None:
+            policy_loss_weights = np.ones((compact_size,), dtype=np.float32)
+        if policy_loss_weights.shape != (compact_size,):
+            raise ValueError("policy loss weights must match supervised rows")
+        if replay_indexes is None:
+            replay_indexes_array = np.arange(compact_size, dtype=np.int64)
+        elif np.any((replay_indexes < 0) | (replay_indexes >= compact_size)):
+            raise ValueError("replay indexes must point to valid samples")
+        else:
+            replay_indexes_array = replay_indexes.astype(np.int64, copy=False)
+        train_positions, val_positions = split_replay_positions_by_source_row(
+            replay_indexes_array, val_split=val_split
+        )
+        train_replay_indexes = replay_indexes_array[train_positions]
+        val_replay_indexes = (
+            torch.from_numpy(replay_indexes_array[val_positions]).to(device)
+            if val_positions.shape[0] > 0
+            else None
+        )
+        val_count = int(val_positions.shape[0])
+        phase_validation_mask = (
+            torch.from_numpy(
+                phase_mask_for_encoded_states(x[replay_indexes_array[val_positions]])
+            ).to(device)
+            if final_checkpoint == "best_phase_validation" and val_count > 0
+            else None
+        )
+    else:
+        replay_indexes_array = np.zeros((0,), dtype=np.int64)
+        train_replay_indexes = replay_indexes_array
+        val_replay_indexes = None
+        val_count = 0
+        phase_validation_mask = None
+
+    if final_checkpoint == "best_phase_validation" and (
+        not use_supervised or val_count == 0
+    ):
+        raise ValueError("checkpoint_phase_validation_empty")
+    phase_validation_count = (
+        int(phase_validation_mask.sum().item())
+        if phase_validation_mask is not None
+        else None
+    )
+
+    pairwise_val_count = 0
+    pairwise_x_all = None
+    pairwise_preferred_all = None
+    pairwise_baseline_all = None
+    pairwise_train_replay_indexes = None
+    pairwise_val_replay_indexes = None
+    use_pairwise = (
+        pairwise_loss_weight > 0.0
+        and pairwise_x is not None
+        and pairwise_preferred_moves is not None
+        and pairwise_baseline_moves is not None
+        and pairwise_replay_indexes is not None
+        and pairwise_replay_indexes.size > 0
+    )
+    if use_pairwise:
+        assert pairwise_x is not None
+        assert pairwise_preferred_moves is not None
+        assert pairwise_baseline_moves is not None
+        assert pairwise_replay_indexes is not None
+        compact_pairwise_size = pairwise_x.shape[0]
+        if np.any(
+            (pairwise_replay_indexes < 0)
+            | (pairwise_replay_indexes >= compact_pairwise_size)
+        ):
+            raise ValueError("pairwise replay indexes must point to valid samples")
+        pairwise_train_positions, pairwise_val_positions = (
+            split_replay_positions_by_source_row(
+                pairwise_replay_indexes, val_split=val_split
+            )
+        )
+        pairwise_val_count = int(pairwise_val_positions.shape[0])
+        pairwise_x_all = torch.from_numpy(pairwise_x).to(device)
+        pairwise_preferred_all = torch.from_numpy(pairwise_preferred_moves).to(device)
+        pairwise_baseline_all = torch.from_numpy(pairwise_baseline_moves).to(device)
+        pairwise_train_replay_indexes = pairwise_replay_indexes[
+            pairwise_train_positions
+        ]
+        if pairwise_val_count > 0:
+            pairwise_val_replay_indexes = torch.from_numpy(
+                pairwise_replay_indexes[pairwise_val_positions]
+            ).to(device)
+
+    if not use_supervised and not use_pairwise:
+        raise ValueError("train requires supervised or pairwise training rows")
+
+    behavior_anchor_val_count = 0
+    behavior_anchor_x_all = None
+    behavior_anchor_p_all = None
+    behavior_anchor_legal_mask_all = None
+    behavior_anchor_legal_masks = None
+    behavior_anchor_train_replay_indexes = None
+    behavior_anchor_val_replay_indexes = None
+    use_behavior_anchors = (
+        behavior_loss_weight > 0.0
+        and behavior_anchor_x is not None
+        and behavior_anchor_p is not None
+        and behavior_anchor_replay_indexes is not None
+        and behavior_anchor_replay_indexes.size > 0
+    )
+    if use_behavior_anchors:
+        assert behavior_anchor_x is not None
+        assert behavior_anchor_p is not None
+        assert behavior_anchor_replay_indexes is not None
+        compact_behavior_anchor_size = behavior_anchor_x.shape[0]
+        if np.any(
+            (behavior_anchor_replay_indexes < 0)
+            | (behavior_anchor_replay_indexes >= compact_behavior_anchor_size)
+        ):
+            raise ValueError(
+                "behavior anchor replay indexes must point to valid samples"
+            )
+        behavior_anchor_train_positions, behavior_anchor_val_positions = (
+            split_replay_positions_by_source_row(
+                behavior_anchor_replay_indexes, val_split=val_split
+            )
+        )
+        behavior_anchor_val_count = int(behavior_anchor_val_positions.shape[0])
+        behavior_anchor_x_all = torch.from_numpy(behavior_anchor_x).to(device)
+        behavior_anchor_p_all = torch.from_numpy(behavior_anchor_p).to(device)
+        behavior_anchor_legal_masks = legal_mask_matrix_for_encoded_states(
+            behavior_anchor_x
+        )
+        behavior_anchor_legal_mask_all = torch.from_numpy(
+            behavior_anchor_legal_masks
+        ).to(device)
+        behavior_anchor_train_replay_indexes = behavior_anchor_replay_indexes[
+            behavior_anchor_train_positions
+        ]
+        if behavior_anchor_val_count > 0:
+            behavior_anchor_val_replay_indexes = torch.from_numpy(
+                behavior_anchor_replay_indexes[behavior_anchor_val_positions]
+            ).to(device)
+
+    x_all = torch.from_numpy(x).to(device) if use_supervised else None
+    p_all = torch.from_numpy(p_target).to(device) if use_supervised else None
+    v_all = torch.from_numpy(v_target).to(device) if use_supervised else None
+    compact_legal_masks = None
+    legal_mask_all = None
+    val_policy_loss_weights = torch.zeros((), device=device)
+    if use_supervised:
+        compact_legal_masks = legal_mask_matrix_for_encoded_states(x)
+        legal_mask_all = torch.from_numpy(compact_legal_masks).to(device)
+
+    optimizer = torch.optim.Adam(
+        (p for p in model.parameters() if p.requires_grad),
+        lr=lr,
+        weight_decay=weight_decay,
+    )
+    primary_order_generator = None
+    if primary_order_seed is not None:
+        # This stream owns only primary minibatch order. It deliberately does
+        # not participate in split formation, initialization, or auxiliaries.
+        primary_order_generator = torch.Generator(device=device.type)
+        primary_order_generator.manual_seed(primary_order_seed)
+    normalized_lr_scheduler = normalize_lr_scheduler(lr_scheduler)
+    scheduler = None
+    if normalized_lr_scheduler == DEFAULT_LR_SCHEDULER:
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+            optimizer, T_max=max(1, epochs)
+        )
+
+    policy_loss_value = 0.0
+    value_loss_value = 0.0
+    pairwise_loss_value = 0.0
+    behavior_anchor_loss_value = 0.0
+    total_loss_value = 0.0
+    best_val_loss = float("inf")
+    best_state = None
+    best_phase_validation_score = float("inf")
+    best_phase_validation_state = None
+    selected_epoch: int | None = None
+    top_states: list[tuple[float, dict[str, torch.Tensor]]] = []
+    optimizer_updates = 0
+    examples_sampled = 0
+    full_epochs_completed = 0
+    partial_final_epoch_batches = 0
+
+    def maybe_record_top_state(loss_value: float):
+        nonlocal top_states
+        if save_top_k <= 0:
+            return
+        snapshot = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
+        top_states.append((loss_value, snapshot))
+        top_states.sort(key=lambda item: item[0])
+        top_states = top_states[:save_top_k]
+
+    for epoch_idx in range(1, epochs + 1):
+        if (
+            max_optimizer_updates is not None
+            and optimizer_updates >= max_optimizer_updates
+        ):
+            break
+        epoch_metrics = train_one_epoch(
+            model=model,
+            optimizer=optimizer,
+            compact_x=x,
+            compact_p=p_target,
+            compact_v=v_target,
+            compact_policy_loss_weights=policy_loss_weights,
+            replay_indexes=train_replay_indexes,
+            batch_size=batch_size,
+            device=device,
+            value_loss_weight=value_loss_weight,
+            value_loss=value_loss,
+            huber_delta=huber_delta,
+            grad_clip=grad_clip,
+            pairwise_x=pairwise_x,
+            pairwise_preferred_moves=pairwise_preferred_moves,
+            pairwise_baseline_moves=pairwise_baseline_moves,
+            pairwise_replay_indexes=pairwise_train_replay_indexes,
+            pairwise_loss_weight=pairwise_loss_weight,
+            pairwise_margin=pairwise_margin,
+            behavior_anchor_x=behavior_anchor_x,
+            behavior_anchor_p=behavior_anchor_p,
+            behavior_anchor_replay_indexes=behavior_anchor_train_replay_indexes,
+            behavior_loss_weight=behavior_loss_weight,
+            compact_legal_masks=compact_legal_masks,
+            behavior_anchor_legal_masks=behavior_anchor_legal_masks,
+            audit_source_indexes=audit_source_indexes,
+            step_callback=step_callback,
+            step_callback_needs_raw_gradients=step_callback_needs_raw_gradients,
+            step_observer=step_observer,
+            loss_observer=loss_observer,
+            permutation_callback=permutation_callback,
+            primary_order_generator=primary_order_generator,
+            epoch=epoch_idx,
+            max_optimizer_updates=(
+                None
+                if max_optimizer_updates is None
+                else max_optimizer_updates - optimizer_updates
+            ),
+        )
+        epoch_updates = int(epoch_metrics["optimizer_updates"] or 0)
+        epoch_lr = float(optimizer.param_groups[0]["lr"])
+        optimizer_updates += epoch_updates
+        examples_sampled += int(epoch_metrics["examples_sampled"] or 0)
+        batches_per_epoch = (len(train_replay_indexes) + batch_size - 1) // batch_size
+        partial_epoch = epoch_updates < batches_per_epoch
+        if partial_epoch:
+            partial_final_epoch_batches = epoch_updates
+            break
+        full_epochs_completed += 1
+        policy_loss_value = float(epoch_metrics["policy_loss"] or 0.0)
+        value_loss_value = float(epoch_metrics["value_loss"] or 0.0)
+        pairwise_loss_value = float(epoch_metrics["pairwise_loss"] or 0.0)
+        behavior_anchor_loss_value = float(epoch_metrics["behavior_anchor_loss"] or 0.0)
+        total_loss_value = float(epoch_metrics["total_loss"] or 0.0)
+        if scheduler is not None:
+            scheduler.step()
+
+        validation_metrics: dict[str, float] = {}
+        if val_count > 0 or pairwise_val_count > 0:
+            model.eval()
+            with torch.no_grad():
+                val_policy_loss = torch.zeros((), device=device)
+                val_value_loss = torch.zeros((), device=device)
+                if (
+                    use_supervised
+                    and val_count > 0
+                    and x_all is not None
+                    and p_all is not None
+                    and v_all is not None
+                    and legal_mask_all is not None
+                    and val_replay_indexes is not None
+                ):
+                    x_val = x_all[val_replay_indexes]
+                    p_val = p_all[val_replay_indexes]
+                    v_val = v_all[val_replay_indexes]
+                    legal_mask_val = legal_mask_all[val_replay_indexes]
+                    val_logits, val_value_pred = model(x_val)
+                    assert policy_loss_weights is not None
+                    val_policy_loss_weights = torch.from_numpy(policy_loss_weights).to(
+                        device
+                    )[val_replay_indexes]
+                    val_policy_loss = weighted_policy_loss(
+                        compute_policy_cross_entropy(
+                            val_logits.masked_fill(legal_mask_val <= 0.0, -1e9), p_val
+                        ),
+                        val_policy_loss_weights,
+                    )
+                    val_value_loss = compute_value_loss_vector(
+                        val_value_pred,
+                        v_val,
+                        value_loss=value_loss,
+                        huber_delta=huber_delta,
+                    ).mean()
+                val_pairwise_loss = torch.zeros((), device=device)
+                if (
+                    use_pairwise
+                    and pairwise_val_count > 0
+                    and pairwise_x_all is not None
+                    and pairwise_preferred_all is not None
+                    and pairwise_baseline_all is not None
+                    and pairwise_val_replay_indexes is not None
+                ):
+                    pairwise_val_x = pairwise_x_all[pairwise_val_replay_indexes]
+                    pairwise_val_logits, _pairwise_val_value_pred = model(
+                        pairwise_val_x
+                    )
+                    val_pairwise_loss = compute_pairwise_ranking_loss(
+                        pairwise_val_logits,
+                        pairwise_preferred_all[pairwise_val_replay_indexes],
+                        pairwise_baseline_all[pairwise_val_replay_indexes],
+                        margin=pairwise_margin,
+                    ).mean()
+                val_behavior_anchor_loss = torch.zeros((), device=device)
+                if (
+                    use_behavior_anchors
+                    and behavior_anchor_val_count > 0
+                    and behavior_anchor_x_all is not None
+                    and behavior_anchor_p_all is not None
+                    and behavior_anchor_legal_mask_all is not None
+                    and behavior_anchor_val_replay_indexes is not None
+                ):
+                    anchor_val_x = behavior_anchor_x_all[
+                        behavior_anchor_val_replay_indexes
+                    ]
+                    anchor_val_p = behavior_anchor_p_all[
+                        behavior_anchor_val_replay_indexes
+                    ]
+                    anchor_val_legal_mask = behavior_anchor_legal_mask_all[
+                        behavior_anchor_val_replay_indexes
+                    ]
+                    anchor_val_logits, _anchor_val_value_pred = model(anchor_val_x)
+                    val_behavior_anchor_loss = compute_policy_cross_entropy(
+                        anchor_val_logits.masked_fill(
+                            anchor_val_legal_mask <= 0.0, -1e9
+                        ),
+                        anchor_val_p,
+                    ).mean()
+                val_total = float(
+                    (
+                        val_policy_loss
+                        + (value_loss_weight * val_value_loss)
+                        + (pairwise_loss_weight * val_pairwise_loss)
+                        + (behavior_loss_weight * val_behavior_anchor_loss)
+                    )
+                    .cpu()
+                    .item()
+                )
+                validation_metrics = {
+                    "validation_policy_loss": float(val_policy_loss.cpu().item()),
+                    "validation_value_loss": float(val_value_loss.cpu().item()),
+                    "validation_total_loss": val_total,
+                    "validation_policy_active_rows": float(
+                        (val_policy_loss_weights > 0.0).sum().item()
+                    )
+                    if use_supervised and val_count > 0
+                    else 0.0,
+                    "validation_exact_root_masked_rows": float(
+                        (val_policy_loss_weights == 0.0).sum().item()
+                    )
+                    if use_supervised and val_count > 0
+                    else 0.0,
+                }
+                if final_checkpoint == "best_phase_validation":
+                    if phase_validation_mask is None:
+                        raise ValueError("checkpoint_phase_validation_empty")
+                    phase_metrics = high_stone_validation_metrics(
+                        logits=val_logits,
+                        value_predictions=val_value_pred,
+                        policy_targets=p_val,
+                        value_targets=v_val,
+                        legal_mask=legal_mask_val,
+                        policy_loss_weights=val_policy_loss_weights,
+                        phase_mask=phase_validation_mask,
+                        value_loss_weight=value_loss_weight,
+                        value_loss=value_loss,
+                        huber_delta=huber_delta,
+                        policy_cross_entropy=compute_policy_cross_entropy,
+                        weighted_policy_loss=weighted_policy_loss,
+                        value_loss_vector=compute_value_loss_vector,
+                    )
+                    validation_metrics.update(
+                        {
+                            "checkpoint_selector": BEST_HIGH_STONE_VALIDATION_V1,
+                            "checkpoint_selection_phase": HIGH_STONE_PHASE,
+                            "checkpoint_phase_threshold": HIGH_STONE_THRESHOLD,
+                            "checkpoint_phase_tie_rule": EARLIEST_EPOCH_TIE_RULE,
+                            **phase_metrics,
+                        }
+                    )
+                    # Strict comparison preserves the preregistered earliest-epoch tie rule.
+                    if (
+                        phase_metrics["phase_validation_score"]
+                        < best_phase_validation_score
+                    ):
+                        best_phase_validation_score = phase_metrics[
+                            "phase_validation_score"
+                        ]
+                        best_phase_validation_state = {
+                            k: v.detach().cpu().clone()
+                            for k, v in model.state_dict().items()
+                        }
+                        selected_epoch = epoch_idx
+                if val_total < best_val_loss:
+                    best_val_loss = val_total
+                    best_state = {
+                        k: v.detach().cpu().clone()
+                        for k, v in model.state_dict().items()
+                    }
+                maybe_record_top_state(val_total)
+            model.train()
+
+        if epoch_history is not None:
+            history_metrics = {
+                "epoch": epoch_idx,
+                "learning_rate": epoch_lr,
+                **epoch_metrics,
+                **validation_metrics,
+            }
+            if max_optimizer_updates is not None:
+                history_metrics["cumulative_optimizer_updates"] = optimizer_updates
+            epoch_history.append(history_metrics)
+
+        if epoch_callback is not None:
+            epoch_callback(epoch_idx, optimizer, model)
+
+        if val_count == 0:
+            maybe_record_top_state(total_loss_value)
+
+        if (
+            save_epochs is not None
+            and epoch_idx in save_epochs
+            and save_epochs_dir is not None
+        ):
+            epoch_checkpoint = checkpoint_from_model(model)
+            epoch_path = (
+                save_epochs_dir
+                / f"{save_epochs_base or 'checkpoint'}_epoch{epoch_idx}.npz"
+            )
+            np.savez(epoch_path, **epoch_checkpoint)
+            print(f"saved_epoch_checkpoint_epoch={epoch_idx} path={epoch_path}")
+
+    if final_checkpoint == "best_validation" and best_state is not None:
+        model.load_state_dict(best_state)
+    elif final_checkpoint == "best_phase_validation":
+        if best_phase_validation_state is None:
+            raise ValueError("checkpoint_phase_validation_empty")
+        model.load_state_dict(best_phase_validation_state)
+
+    if best_val_loss == float("inf"):
+        best_val_loss = policy_loss_value + (value_loss_weight * value_loss_value)
+
+    model.top_states = top_states
+    model.last_train_metrics = {
+        "policy_loss": policy_loss_value,
+        "value_loss": value_loss_value,
+        "pairwise_loss": pairwise_loss_value,
+        "behavior_anchor_loss": behavior_anchor_loss_value,
+        "total_loss": total_loss_value,
+        "pairwise_loss_weight": float(pairwise_loss_weight),
+        "pairwise_margin": float(pairwise_margin),
+        "behavior_loss_weight": float(behavior_loss_weight),
+        "optimizer_updates": optimizer_updates,
+        "examples_sampled": examples_sampled,
+        "full_epochs_completed": full_epochs_completed,
+        "partial_final_epoch_batches": partial_final_epoch_batches,
+        "max_optimizer_updates": max_optimizer_updates,
+        "train_split_count": int(len(train_replay_indexes)),
+        "validation_count": val_count,
+        "train_split_sha256": hashlib.sha256(
+            np.sort(np.unique(replay_indexes_array[train_positions])).tobytes()
+        ).hexdigest(),
+        "validation_split_sha256": hashlib.sha256(
+            np.sort(np.unique(replay_indexes_array[val_positions])).tobytes()
+        ).hexdigest(),
+        "policy_active_rows": int(np.count_nonzero(policy_loss_weights))
+        if policy_loss_weights is not None
+        else 0,
+        "policy_masked_rows": int(np.count_nonzero(policy_loss_weights == 0.0))
+        if policy_loss_weights is not None
+        else 0,
+        "final_checkpoint": final_checkpoint,
+        "checkpoint_selector": (
+            BEST_HIGH_STONE_VALIDATION_V1
+            if final_checkpoint == "best_phase_validation"
+            else final_checkpoint
+        ),
+        "checkpoint_selection_phase": (
+            HIGH_STONE_PHASE if final_checkpoint == "best_phase_validation" else None
+        ),
+        "checkpoint_phase_threshold": (
+            HIGH_STONE_THRESHOLD
+            if final_checkpoint == "best_phase_validation"
+            else None
+        ),
+        "checkpoint_phase_tie_rule": (
+            EARLIEST_EPOCH_TIE_RULE
+            if final_checkpoint == "best_phase_validation"
+            else None
+        ),
+        "checkpoint_phase_selected_epoch": selected_epoch,
+        "checkpoint_phase_validation_count": phase_validation_count,
+        "checkpoint_phase_best_score": (
+            best_phase_validation_score
+            if final_checkpoint == "best_phase_validation"
+            else None
+        ),
+    }
+
+    return policy_loss_value, value_loss_value, best_val_loss
+
+
+def checkpoint_from_model(model: PolicyValueNet) -> dict[str, np.ndarray]:
+    state = model.state_dict()
+    return checkpoint_from_state_dict(state)
+
+
+def checkpoint_from_state_dict(state: dict[str, torch.Tensor]) -> dict[str, np.ndarray]:
+    is_v4 = "move_projections.0.weight" in state
+
+    checkpoint: dict[str, np.ndarray] = {}
+    if not is_v4:
+        checkpoint["w_policy"] = (
+            state["policy_head.weight"].detach().cpu().numpy().T.astype(np.float32)
+        )
+        checkpoint["b_policy"] = (
+            state["policy_head.bias"].detach().cpu().numpy().astype(np.float32)
+        )
+    checkpoint["w_value"] = (
+        state["value_head.weight"].detach().cpu().numpy().T.astype(np.float32)
+    )
+    checkpoint["b_value"] = (
+        state["value_head.bias"].detach().cpu().numpy().astype(np.float32)
+    )
+
+    if "policy_hidden_layer.weight" in state:
+        checkpoint["w_policy_hidden"] = (
+            state["policy_hidden_layer.weight"]
+            .detach()
+            .cpu()
+            .numpy()
+            .T.astype(np.float32)
+        )
+        checkpoint["b_policy_hidden"] = (
+            state["policy_hidden_layer.bias"].detach().cpu().numpy().astype(np.float32)
+        )
+    if "policy_adapter.weight" in state:
+        checkpoint["w_policy_adapter"] = (
+            state["policy_adapter.weight"].detach().cpu().numpy().T.astype(np.float32)
+        )
+        checkpoint["b_policy_adapter"] = (
+            state["policy_adapter.bias"].detach().cpu().numpy().astype(np.float32)
+        )
+    if "value_hidden_layer.weight" in state:
+        checkpoint["w_value_hidden"] = (
+            state["value_hidden_layer.weight"]
+            .detach()
+            .cpu()
+            .numpy()
+            .T.astype(np.float32)
+        )
+        checkpoint["b_value_hidden"] = (
+            state["value_hidden_layer.bias"].detach().cpu().numpy().astype(np.float32)
+        )
+
+    if is_v4:
+        for move_idx in range(POLICY_SIZE):
+            weight_key = f"move_projections.{move_idx}.weight"
+            bias_key = f"move_projections.{move_idx}.bias"
+            if weight_key in state:
+                checkpoint[f"w_policy_move_{move_idx}"] = (
+                    state[weight_key].detach().cpu().numpy().T.astype(np.float32)
+                )
+                checkpoint[f"b_policy_move_{move_idx}"] = (
+                    state[bias_key].detach().cpu().numpy().astype(np.float32)
+                )
+
+    if "input_layer.weight" in state:
+        checkpoint["w_input"] = (
+            state["input_layer.weight"].detach().cpu().numpy().T.astype(np.float32)
+        )
+        checkpoint["b_input"] = (
+            state["input_layer.bias"].detach().cpu().numpy().astype(np.float32)
+        )
+
+        block_index = 1
+        while f"residual_layers.{block_index - 1}.0.weight" in state:
+            first_weight_key = f"residual_layers.{block_index - 1}.0.weight"
+            first_bias_key = f"residual_layers.{block_index - 1}.0.bias"
+            second_weight_key = f"residual_layers.{block_index - 1}.1.weight"
+            second_bias_key = f"residual_layers.{block_index - 1}.1.bias"
+            checkpoint[f"w_residual_{block_index}_1"] = (
+                state[first_weight_key].detach().cpu().numpy().T.astype(np.float32)
+            )
+            checkpoint[f"b_residual_{block_index}_1"] = (
+                state[first_bias_key].detach().cpu().numpy().astype(np.float32)
+            )
+            checkpoint[f"w_residual_{block_index}_2"] = (
+                state[second_weight_key].detach().cpu().numpy().T.astype(np.float32)
+            )
+            checkpoint[f"b_residual_{block_index}_2"] = (
+                state[second_bias_key].detach().cpu().numpy().astype(np.float32)
+            )
+            block_index += 1
+        return checkpoint
+
+    hidden_index = 1
+    while f"hidden_layers.{hidden_index - 1}.weight" in state:
+        weight_key = f"hidden_layers.{hidden_index - 1}.weight"
+        bias_key = f"hidden_layers.{hidden_index - 1}.bias"
+        checkpoint[f"w_hidden_{hidden_index}"] = (
+            state[weight_key].detach().cpu().numpy().T.astype(np.float32)
+        )
+        checkpoint[f"b_hidden_{hidden_index}"] = (
+            state[bias_key].detach().cpu().numpy().astype(np.float32)
+        )
+        hidden_index += 1
+
+    # Backward-compatible aliases for legacy 2-layer Ruby evaluator paths.
+    if "w_hidden_1" in checkpoint and "w_hidden_2" in checkpoint:
+        checkpoint["w1"] = checkpoint["w_hidden_1"]
+        checkpoint["b1"] = checkpoint["b_hidden_1"]
+        checkpoint["w2"] = checkpoint["w_hidden_2"]
+        checkpoint["b2"] = checkpoint["b_hidden_2"]
+
+    return checkpoint
+
+
+def load_checkpoint_into_model(
+    model: PolicyValueNet,
+    checkpoint_path: Path,
+    *,
+    report_skipped: bool = False,
+) -> list[str]:
+    checkpoint = np.load(checkpoint_path)
+    state_dict = model.state_dict()
+    skipped_keys: list[str] = []
+    is_v4_target = "move_projections.0.weight" in state_dict
+    is_v4_source = "w_policy_move_0" in checkpoint
+
+    if "w_input" in checkpoint and "b_input" in checkpoint:
+        state_dict["input_layer.weight"] = torch.from_numpy(
+            checkpoint["w_input"].T.copy()
+        )
+        state_dict["input_layer.bias"] = torch.from_numpy(checkpoint["b_input"].copy())
+
+        block_index = 1
+        while (
+            f"w_residual_{block_index}_1" in checkpoint
+            and f"b_residual_{block_index}_1" in checkpoint
+        ):
+            first_weight_key = f"residual_layers.{block_index - 1}.0.weight"
+            first_bias_key = f"residual_layers.{block_index - 1}.0.bias"
+            second_weight_key = f"residual_layers.{block_index - 1}.1.weight"
+            second_bias_key = f"residual_layers.{block_index - 1}.1.bias"
+            state_dict[first_weight_key] = torch.from_numpy(
+                checkpoint[f"w_residual_{block_index}_1"].T.copy()
+            )
+            state_dict[first_bias_key] = torch.from_numpy(
+                checkpoint[f"b_residual_{block_index}_1"].copy()
+            )
+            state_dict[second_weight_key] = torch.from_numpy(
+                checkpoint[f"w_residual_{block_index}_2"].T.copy()
+            )
+            state_dict[second_bias_key] = torch.from_numpy(
+                checkpoint[f"b_residual_{block_index}_2"].copy()
+            )
+            block_index += 1
+
+        if (
+            "policy_hidden_layer.weight" in state_dict
+            and "w_policy_hidden" in checkpoint
+        ):
+            state_dict["policy_hidden_layer.weight"] = torch.from_numpy(
+                checkpoint["w_policy_hidden"].T.copy()
+            )
+            state_dict["policy_hidden_layer.bias"] = torch.from_numpy(
+                checkpoint["b_policy_hidden"].copy()
+            )
+        if "value_hidden_layer.weight" in state_dict and "w_value_hidden" in checkpoint:
+            state_dict["value_hidden_layer.weight"] = torch.from_numpy(
+                checkpoint["w_value_hidden"].T.copy()
+            )
+            state_dict["value_hidden_layer.bias"] = torch.from_numpy(
+                checkpoint["b_value_hidden"].copy()
+            )
+        if "policy_adapter.weight" in state_dict and "w_policy_adapter" in checkpoint:
+            state_dict["policy_adapter.weight"] = torch.from_numpy(
+                checkpoint["w_policy_adapter"].T.copy()
+            )
+            state_dict["policy_adapter.bias"] = torch.from_numpy(
+                checkpoint["b_policy_adapter"].copy()
+            )
+
+        if is_v4_target and not is_v4_source:
+            if "w_policy" in checkpoint:
+                skipped_keys.append("w_policy")
+            if "b_policy" in checkpoint:
+                skipped_keys.append("b_policy")
+            if report_skipped and skipped_keys:
+                print(
+                    f"load_checkpoint_into_model: skipped v3 policy keys "
+                    f"(move_projections will retain random init): {skipped_keys}",
+                    file=sys.stderr,
+                )
+        elif is_v4_target and is_v4_source:
+            for move_idx in range(POLICY_SIZE):
+                wkey = f"w_policy_move_{move_idx}"
+                bkey = f"b_policy_move_{move_idx}"
+                target_w = f"move_projections.{move_idx}.weight"
+                target_b = f"move_projections.{move_idx}.bias"
+                if wkey in checkpoint and target_w in state_dict:
+                    state_dict[target_w] = torch.from_numpy(checkpoint[wkey].T.copy())
+                elif wkey in checkpoint:
+                    skipped_keys.append(wkey)
+                if bkey in checkpoint and target_b in state_dict:
+                    state_dict[target_b] = torch.from_numpy(checkpoint[bkey].copy())
+                elif bkey in checkpoint:
+                    skipped_keys.append(bkey)
+        else:
+            if "w_policy" in checkpoint and "policy_head.weight" in state_dict:
+                state_dict["policy_head.weight"] = torch.from_numpy(
+                    checkpoint["w_policy"].T.copy()
+                )
+                state_dict["policy_head.bias"] = torch.from_numpy(
+                    checkpoint["b_policy"].copy()
+                )
+            elif is_v4_source:
+                for move_idx in range(POLICY_SIZE):
+                    wkey = f"w_policy_move_{move_idx}"
+                    bkey = f"b_policy_move_{move_idx}"
+                    if wkey in checkpoint:
+                        skipped_keys.append(wkey)
+                    if bkey in checkpoint:
+                        skipped_keys.append(bkey)
+                if report_skipped and skipped_keys:
+                    print(
+                        f"load_checkpoint_into_model: skipped v4 move-factorized keys "
+                        f"(target model lacks move_projections): {skipped_keys}",
+                        file=sys.stderr,
+                    )
+
+        state_dict["value_head.weight"] = torch.from_numpy(
+            checkpoint["w_value"].T.copy()
+        )
+        state_dict["value_head.bias"] = torch.from_numpy(checkpoint["b_value"].copy())
+        model.load_state_dict(state_dict, strict=False)
+        return skipped_keys
+
+    hidden_index = 1
+    while (
+        f"w_hidden_{hidden_index}" in checkpoint
+        and f"b_hidden_{hidden_index}" in checkpoint
+    ):
+        weight_key = f"hidden_layers.{hidden_index - 1}.weight"
+        bias_key = f"hidden_layers.{hidden_index - 1}.bias"
+        state_dict[weight_key] = torch.from_numpy(
+            checkpoint[f"w_hidden_{hidden_index}"].T.copy()
+        )
+        state_dict[bias_key] = torch.from_numpy(
+            checkpoint[f"b_hidden_{hidden_index}"].copy()
+        )
+        hidden_index += 1
+
+    state_dict["policy_head.weight"] = torch.from_numpy(checkpoint["w_policy"].T.copy())
+    state_dict["policy_head.bias"] = torch.from_numpy(checkpoint["b_policy"].copy())
+    state_dict["value_head.weight"] = torch.from_numpy(checkpoint["w_value"].T.copy())
+    state_dict["value_head.bias"] = torch.from_numpy(checkpoint["b_value"].copy())
+    model.load_state_dict(state_dict)
+    return []
+
+
+def _is_residual_with_selective_heads(model: PolicyValueNet) -> bool:
+    return getattr(model, "model_type", "") in {
+        "residual_v3",
+        "residual_v3_parent_additive_policy_adapter",
+        "residual_v4_move_factorized",
+    }
+
+
+def _count_parameters(model: PolicyValueNet) -> tuple[int, int]:
+    total = 0
+    trainable = 0
+    for param in model.parameters():
+        num = int(param.numel())
+        total += num
+        if param.requires_grad:
+            trainable += num
+    return total, trainable
+
+
+def apply_trainable_scope(model: PolicyValueNet, scope: str) -> None:
+    scope = str(scope).strip()
+    if scope not in SUPPORTED_TRAINABLE_SCOPES:
+        raise ValueError(
+            f"unsupported trainable_scope: {scope}, must be one of {SUPPORTED_TRAINABLE_SCOPES}"
+        )
+
+    if scope == DEFAULT_TRAINABLE_SCOPE:
+        for param in model.parameters():
+            param.requires_grad = True
+        return
+
+    for param in model.parameters():
+        param.requires_grad = False
+
+    if not _is_residual_with_selective_heads(model):
+        raise ValueError(
+            f"trainable_scope={scope} is only supported for residual_v3 or residual_v4_move_factorized models"
+        )
+
+    if scope in {"heads_only", "joint_trunk"}:
+        prefixes = (
+            "input_layer.",
+            "residual_layers.",
+            "policy_hidden_layer.",
+            "policy_head.",
+            "value_hidden_layer.",
+            "value_head.",
+        )
+        allowed_prefixes = prefixes if scope == "joint_trunk" else prefixes[2:]
+        if model.move_projections is not None:
+            allowed_prefixes = (*allowed_prefixes, "move_projections.")
+        for name, parameter in model.named_parameters():
+            parameter.requires_grad = name.startswith(allowed_prefixes)
+        return
+
+    if scope == "policy_detached_trunk":
+        # This scope is enforced by forward(detach_policy_trunk=True): every
+        # parameter remains trainable because the value path owns the trunk.
+        for parameter in model.parameters():
+            parameter.requires_grad = True
+        return
+
+    if scope == "policy_head":
+        assert model.policy_hidden_layer is not None
+        model.policy_hidden_layer.weight.requires_grad = True
+        model.policy_hidden_layer.bias.requires_grad = True
+        if model.move_projections is not None:
+            for proj in model.move_projections:
+                proj.weight.requires_grad = True
+                proj.bias.requires_grad = True
+        else:
+            model.policy_head.weight.requires_grad = True
+            model.policy_head.bias.requires_grad = True
+        return
+
+    if scope == "policy_adapter_only":
+        if model.model_type != "residual_v3_parent_additive_policy_adapter":
+            raise ValueError(
+                "trainable_scope=policy_adapter_only requires residual_v3_parent_additive_policy_adapter"
+            )
+        assert model.policy_adapter is not None
+        model.policy_adapter.weight.requires_grad = True
+        model.policy_adapter.bias.requires_grad = True
+        return
+
+    if scope in {"policy_hidden_only", "policy_readout_only"}:
+        supported_model_types = {
+            "residual_v3",
+            "residual_v3_parent_additive_policy_adapter",
+        }
+        if model.model_type not in supported_model_types:
+            raise ValueError(
+                f"trainable_scope={scope} is not supported for {model.model_type}"
+            )
+        assert model.policy_hidden_layer is not None
+        if scope == "policy_hidden_only":
+            model.policy_hidden_layer.weight.requires_grad = True
+            model.policy_hidden_layer.bias.requires_grad = True
+        else:
+            model.policy_head.weight.requires_grad = True
+            model.policy_head.bias.requires_grad = True
+        return
+
+    if scope == "value_head":
+        assert model.value_hidden_layer is not None
+        model.value_hidden_layer.weight.requires_grad = True
+        model.value_hidden_layer.bias.requires_grad = True
+        model.value_head.weight.requires_grad = True
+        model.value_head.bias.requires_grad = True
+        return
+
+    if scope == "last_block_policy":
+        block_count = len(model.residual_layers)
+        if block_count == 0:
+            raise ValueError(
+                "last_block_policy scope requires at least one residual block"
+            )
+        last_block = model.residual_layers[-1]
+        for layer in last_block:
+            for param in layer.parameters():
+                param.requires_grad = True
+        assert model.policy_hidden_layer is not None
+        model.policy_hidden_layer.weight.requires_grad = True
+        model.policy_hidden_layer.bias.requires_grad = True
+        if model.move_projections is not None:
+            for proj in model.move_projections:
+                proj.weight.requires_grad = True
+                proj.bias.requires_grad = True
+        else:
+            model.policy_head.weight.requires_grad = True
+            model.policy_head.bias.requires_grad = True
+        return
+
+    raise ValueError(f"unreachable scope: {scope}")
+
+
+def parse_hidden_sizes(text: str) -> tuple[int, ...]:
+    parts = [part.strip() for part in text.split(",") if part.strip()]
+    if len(parts) < 2:
+        raise ValueError(
+            "--hidden-sizes must provide at least two comma-separated integers"
+        )
+    hidden_sizes = tuple(int(part) for part in parts)
+    if any(size <= 0 for size in hidden_sizes):
+        raise ValueError("hidden sizes must be positive")
+    return hidden_sizes
+
+
+def resolve_hidden_sizes(
+    model_type: str, hidden_sizes: tuple[int, ...]
+) -> tuple[int, ...]:
+    if model_type in RESIDUAL_MODEL_TYPES:
+        if len(hidden_sizes) != 2:
+            raise ValueError(
+                f"--hidden-sizes for {model_type} must provide trunk_size,residual_block_count"
+            )
+        trunk_size, residual_block_count = hidden_sizes
+        if residual_block_count <= 0:
+            raise ValueError("residual_block_count must be positive")
+        return trunk_size, residual_block_count
+    if model_type == "mlp_deep" and len(hidden_sizes) < 3:
+        return (*hidden_sizes, 64)
+    return hidden_sizes
+
+
+def build_argument_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data", required=False, help="JSONL training data path")
+    parser.add_argument(
+        "--data-files", default=None, help="Comma-separated JSONL training data paths"
+    )
+    parser.add_argument(
+        "--replay-weights", default=None, help="Comma-separated integer replay weights"
+    )
+    parser.add_argument("--out", required=True, help="Checkpoint .npz output path")
+    parser.add_argument("--epochs", type=int, default=8)
+    parser.add_argument(
+        "--max-optimizer-updates",
+        type=int,
+        default=None,
+        help="Optional exact cap on successful optimizer.step() calls",
+    )
+    parser.add_argument(
+        "--final-checkpoint",
+        choices=["best_validation", "best_phase_validation", "final"],
+        default="best_validation",
+        help="Choose final, global best validation, or opt-in high-stone validation",
+    )
+    parser.add_argument(
+        "--checkpoint-selection-phase",
+        choices=[HIGH_STONE_PHASE],
+        default=HIGH_STONE_PHASE,
+        help="Phase used by --final-checkpoint best_phase_validation",
+    )
+    parser.add_argument(
+        "--steps", type=int, default=None, help="Deprecated alias for --epochs"
+    )
+    parser.add_argument("--batch-size", type=int, default=512)
+    parser.add_argument("--lr", type=float, default=1e-3)
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--primary-order-seed",
+        type=int,
+        default=None,
+        help="Optional dedicated RNG seed for primary minibatch order only",
+    )
+    parser.add_argument("--device", choices=["auto", "cpu", "cuda"], default="auto")
+    parser.add_argument("--value-loss-weight", type=float, default=0.5)
+    parser.add_argument(
+        "--exact-root-policy-loss-weight",
+        type=float,
+        default=DEFAULT_EXACT_ROOT_POLICY_LOSS_WEIGHT,
+        help="Policy-loss weight for rows marked teacher_source=exact_root_tablebase",
+    )
+    parser.add_argument("--value-loss", choices=["mse", "huber"], default="huber")
+    parser.add_argument("--huber-delta", type=float, default=1.0)
+    parser.add_argument("--val-split", type=float, default=0.1)
+    parser.add_argument("--grad-clip", type=float, default=1.0)
+    parser.add_argument("--weight-decay", type=float, default=0.0)
+    parser.add_argument(
+        "--hidden-sizes", default="64,64", help="Two comma-separated hidden layer sizes"
+    )
+    parser.add_argument("--model-type", choices=SUPPORTED_MODEL_TYPES, default="mlp_v1")
+    parser.add_argument(
+        "--input-encoding",
+        choices=SUPPORTED_INPUT_ENCODINGS,
+        default=DEFAULT_INPUT_ENCODING,
+    )
+    parser.add_argument(
+        "--policy-target-mode",
+        choices=SUPPORTED_POLICY_TARGET_MODES,
+        default=DEFAULT_POLICY_TARGET_MODE,
+    )
+    parser.add_argument(
+        "--value-target-mode",
+        choices=SUPPORTED_VALUE_TARGET_MODES,
+        default=DEFAULT_VALUE_TARGET_MODE,
+    )
+    parser.add_argument(
+        "--replay-value-target-modes",
+        default=None,
+        help="Optional comma-separated target modes, one for each --data-files source",
+    )
+    parser.add_argument("--save-top-k", type=int, default=0)
+    parser.add_argument(
+        "--save-epochs",
+        default=None,
+        help="Comma-separated epoch numbers (1-indexed) to save checkpoints at",
+    )
+    parser.add_argument("--top-k-dir", default=None)
+    parser.add_argument(
+        "--lr-scheduler",
+        choices=SUPPORTED_LR_SCHEDULERS,
+        default=DEFAULT_LR_SCHEDULER,
+    )
+    parser.add_argument(
+        "--trainable-scope",
+        choices=SUPPORTED_TRAINABLE_SCOPES,
+        default=DEFAULT_TRAINABLE_SCOPE,
+        help="Which parameters to train: all, policy_head, last_block_policy",
+    )
+    parser.add_argument(
+        "--init-checkpoint",
+        default=None,
+        help="Optional checkpoint to load before training",
+    )
+    parser.add_argument(
+        "--exclude-buckets",
+        default=None,
+        help="Comma-separated bucket/family names to exclude from training (e.g. incumbent_proxy_disagreement)",
+    )
+    parser.add_argument(
+        "--behavior-anchor-files",
+        default=None,
+        help="Comma-separated JSONL behavior-anchor files with policy targets to preserve",
+    )
+    parser.add_argument(
+        "--pairwise-target-files",
+        default=None,
+        help="Comma-separated JSONL pairwise target files with puct_move/raw_move rows",
+    )
+    parser.add_argument(
+        "--pairwise-loss-weight",
+        type=float,
+        default=0.0,
+        help="Weight for pairwise policy-head ranking loss",
+    )
+    parser.add_argument(
+        "--pairwise-margin",
+        type=float,
+        default=0.0,
+        help="Required preferred-minus-baseline logit margin for pairwise loss",
+    )
+    parser.add_argument(
+        "--behavior-loss-weight",
+        type=float,
+        default=0.0,
+        help="Weight for behavior-anchor policy cross-entropy",
+    )
+    parser.add_argument(
+        "--epoch-metrics-out",
+        default=None,
+        help="Optional JSON output for per-epoch training metrics",
+    )
+    parser.add_argument(
+        "--training-metrics-out",
+        default=None,
+        help="Optional JSON output for final machine-readable training metrics",
+    )
+    parser.add_argument(
+        "--audit-source-indexes",
+        default=None,
+        help="Optional comma-separated compact replay indexes to count without changing sampling",
+    )
+    parser.add_argument(
+        "--primary-sampling-audit-out",
+        default=None,
+        help="Optional JSON output hashing the supervised replay split and epoch permutations",
+    )
+    return parser
+
+
+def main() -> None:
+    parser = build_argument_parser()
+    args = parser.parse_args()
+    policy_target_mode = normalize_policy_target_mode(args.policy_target_mode)
+    value_target_mode = normalize_value_target_mode(args.value_target_mode)
+    exact_root_policy_loss_weight = normalize_exact_root_policy_loss_weight(
+        args.exact_root_policy_loss_weight
+    )
+
+    data_path = Path(args.data) if args.data else None
+    out_path = Path(args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    set_seed(args.seed)
+    device = select_device(args.device)
+    hidden_sizes = resolve_hidden_sizes(
+        args.model_type, parse_hidden_sizes(args.hidden_sizes)
+    )
+
+    replay_paths = parse_replay_paths(args.data_files)
+    replay_weights = parse_replay_weights(args.replay_weights)
+    replay_value_target_modes = (
+        None
+        if args.replay_value_target_modes is None
+        else [mode.strip() for mode in args.replay_value_target_modes.split(",")]
+    )
+    replay_indexes = None
+    pairwise_target_paths = parse_replay_paths(args.pairwise_target_files)
+    pairwise_target_replay_indexes = None
+    pairwise_x = None
+    pairwise_preferred_moves = None
+    pairwise_baseline_moves = None
+    behavior_anchor_paths = parse_replay_paths(args.behavior_anchor_files)
+    behavior_anchor_replay_indexes = None
+    behavior_anchor_x = None
+    behavior_anchor_p = None
+    behavior_anchor_v = None
+
+    exclude_buckets: frozenset[str] | set[str] | None = None
+    if args.exclude_buckets:
+        exclude_buckets = {
+            b.strip() for b in args.exclude_buckets.split(",") if b.strip()
+        }
+        print(
+            f"excluding buckets from training: {sorted(exclude_buckets)}",
+            file=sys.stderr,
+        )
+    elif EXCLUDED_TRAINING_BUCKETS:
+        exclude_buckets = EXCLUDED_TRAINING_BUCKETS_SET
+
+    input_size = input_size_for_encoding(args.input_encoding)
+    empty_x = np.zeros((0, input_size), dtype=np.float32)
+    empty_p = np.zeros((0, POLICY_SIZE), dtype=np.float32)
+    empty_v = np.zeros((0, 1), dtype=np.float32)
+    empty_policy_loss_weights = np.zeros((0,), dtype=np.float32)
+
+    if replay_paths:
+        x, p_target, v_target, replay_indexes, policy_loss_weights = load_jsonl_replay(
+            replay_paths,
+            replay_weights,
+            policy_target_mode=policy_target_mode,
+            value_target_mode=value_target_mode,
+            replay_value_target_modes=replay_value_target_modes,
+            exclude_buckets=exclude_buckets,
+            exact_root_policy_loss_weight=exact_root_policy_loss_weight,
+            include_policy_loss_weights=True,
+        )
+    else:
+        if data_path is not None:
+            x, p_target, v_target, policy_loss_weights = load_jsonl(
+                data_path,
+                policy_target_mode=policy_target_mode,
+                value_target_mode=value_target_mode,
+                exclude_buckets=exclude_buckets,
+                exact_root_policy_loss_weight=exact_root_policy_loss_weight,
+                include_policy_loss_weights=True,
+            )
+        else:
+            x, p_target, v_target, policy_loss_weights = (
+                empty_x,
+                empty_p,
+                empty_v,
+                empty_policy_loss_weights,
+            )
+    if pairwise_target_paths:
+        (
+            pairwise_x,
+            pairwise_preferred_moves,
+            pairwise_baseline_moves,
+            pairwise_target_replay_indexes,
+        ) = load_pairwise_jsonl_replay(pairwise_target_paths, replay_weights)
+        validate_input_features(pairwise_x, input_encoding=args.input_encoding)
+    if behavior_anchor_paths:
+        (
+            behavior_anchor_x,
+            behavior_anchor_p,
+            behavior_anchor_v,
+            behavior_anchor_replay_indexes,
+        ) = load_jsonl_replay(
+            behavior_anchor_paths,
+            policy_target_mode=policy_target_mode,
+            value_target_mode=value_target_mode,
+            exclude_buckets=exclude_buckets,
+        )
+        validate_input_features(behavior_anchor_x, input_encoding=args.input_encoding)
+    if x.shape[0] > 0:
+        validate_input_features(x, input_encoding=args.input_encoding)
+    if x.shape[0] == 0 and pairwise_x is None:
+        raise SystemExit(
+            "training requires --data/--data-files or --pairwise-target-files"
+        )
+    model = PolicyValueNet(
+        hidden_sizes=hidden_sizes,
+        model_type=args.model_type,
+        input_size=input_size,
+    )
+    if args.init_checkpoint:
+        load_checkpoint_into_model(model, Path(args.init_checkpoint))
+    apply_trainable_scope(model, args.trainable_scope)
+    total_params, trainable_params = _count_parameters(model)
+    frozen_params = total_params - trainable_params
+    print(
+        f"trainable_scope={args.trainable_scope} "
+        f"trainable_params={trainable_params} "
+        f"frozen_params={frozen_params} "
+        f"total_params={total_params}",
+        file=sys.stderr,
+    )
+    epochs = args.steps if args.steps is not None else args.epochs
+
+    save_epochs_set: set[int] | None = None
+    save_epochs_dir: Path | None = None
+    save_epochs_base: str | None = None
+    if args.save_epochs:
+        save_epochs_set = {
+            int(e.strip()) for e in args.save_epochs.split(",") if e.strip()
+        }
+        save_epochs_dir = Path(args.top_k_dir) if args.top_k_dir else out_path.parent
+        save_epochs_dir.mkdir(parents=True, exist_ok=True)
+        save_epochs_base = out_path.stem
+
+    epoch_history: list[dict[str, float | int | None]] = []
+    audit_source_indexes = (
+        {int(index) for index in args.audit_source_indexes.split(",") if index.strip()}
+        if args.audit_source_indexes
+        else None
+    )
+    primary_permutations: list[dict[str, int | str]] = []
+    primary_replay_indexes = (
+        replay_indexes
+        if replay_indexes is not None
+        else np.arange(x.shape[0], dtype=np.int64)
+    )
+    # Auditing must not consume the NumPy stream used by train() to form its split.
+    numpy_rng_state = np.random.get_state()
+    primary_train_positions, primary_validation_positions = (
+        split_replay_positions_by_source_row(
+            primary_replay_indexes, val_split=args.val_split
+        )
+    )
+    np.random.set_state(numpy_rng_state)
+    primary_train_replay_indexes = primary_replay_indexes[primary_train_positions]
+
+    def primary_permutation_audit(epoch: int | None, permutation: list[int]) -> None:
+        if epoch is None:
+            return
+        permutation_array = np.asarray(permutation, dtype=np.int64)
+        ordered_indexes = primary_train_replay_indexes[permutation_array]
+        primary_permutations.append(
+            {
+                "epoch": epoch,
+                "permutation_sha256": hashlib.sha256(
+                    permutation_array.tobytes()
+                ).hexdigest(),
+                "ordered_primary_indexes_sha256": hashlib.sha256(
+                    ordered_indexes.tobytes()
+                ).hexdigest(),
+            }
+        )
+
+    policy_loss, value_loss, best_val_loss = train(
+        model,
+        x,
+        p_target,
+        v_target,
+        replay_indexes,
+        epochs=epochs,
+        policy_loss_weights=policy_loss_weights,
+        batch_size=args.batch_size,
+        lr=args.lr,
+        device=device,
+        value_loss_weight=args.value_loss_weight,
+        value_loss=args.value_loss,
+        huber_delta=args.huber_delta,
+        val_split=args.val_split,
+        grad_clip=args.grad_clip,
+        save_top_k=args.save_top_k,
+        lr_scheduler=args.lr_scheduler,
+        weight_decay=args.weight_decay,
+        save_epochs=save_epochs_set,
+        save_epochs_dir=save_epochs_dir,
+        save_epochs_base=save_epochs_base,
+        epoch_history=epoch_history,
+        audit_source_indexes=audit_source_indexes,
+        permutation_callback=(
+            primary_permutation_audit if args.primary_sampling_audit_out else None
+        ),
+        primary_order_seed=args.primary_order_seed,
+        pairwise_x=pairwise_x,
+        pairwise_preferred_moves=pairwise_preferred_moves,
+        pairwise_baseline_moves=pairwise_baseline_moves,
+        pairwise_replay_indexes=pairwise_target_replay_indexes,
+        pairwise_loss_weight=args.pairwise_loss_weight,
+        pairwise_margin=args.pairwise_margin,
+        behavior_anchor_x=behavior_anchor_x,
+        behavior_anchor_p=behavior_anchor_p,
+        behavior_anchor_v=behavior_anchor_v,
+        behavior_anchor_replay_indexes=behavior_anchor_replay_indexes,
+        behavior_loss_weight=args.behavior_loss_weight,
+        max_optimizer_updates=args.max_optimizer_updates,
+        final_checkpoint=args.final_checkpoint,
+        checkpoint_selection_phase=args.checkpoint_selection_phase,
+    )
+    model.last_train_metrics["exact_root_policy_loss_weight"] = (
+        exact_root_policy_loss_weight
+    )
+    model.last_train_metrics["total_supervised_rows"] = int(x.shape[0])
+    model.last_train_metrics["policy_active_fraction"] = (
+        float(np.count_nonzero(policy_loss_weights) / policy_loss_weights.size)
+        if policy_loss_weights.size
+        else 0.0
+    )
+
+    checkpoint = checkpoint_from_model(model)
+    np.savez(out_path, **checkpoint)
+    print(f"saved checkpoint to {out_path}")
+    print(f"device={device.type}")
+    print(f"input_encoding={args.input_encoding}")
+    print(f"policy_target_mode={policy_target_mode}")
+    print(f"value_target_mode={value_target_mode}")
+    print(f"exact_root_policy_loss_weight={exact_root_policy_loss_weight:.6f}")
+    print(f"model_type={args.model_type}")
+    print(f"policy_loss={policy_loss:.6f}")
+    print(f"value_loss={value_loss:.6f}")
+    last_train_metrics = getattr(model, "last_train_metrics", {})
+    print(f"pairwise_loss={float(last_train_metrics.get('pairwise_loss', 0.0)):.6f}")
+    print(
+        "behavior_anchor_loss="
+        f"{float(last_train_metrics.get('behavior_anchor_loss', 0.0)):.6f}"
+    )
+    print(f"total_loss={float(last_train_metrics.get('total_loss', 0.0)):.6f}")
+    print(f"best_val_loss={best_val_loss:.6f}")
+    print(f"policy_active_rows={int(np.count_nonzero(policy_loss_weights))}")
+    print(f"policy_masked_rows={int(np.count_nonzero(policy_loss_weights == 0.0))}")
+    if args.max_optimizer_updates is not None:
+        print(
+            f"optimizer_updates={int(last_train_metrics.get('optimizer_updates', 0))}"
+        )
+    if args.epoch_metrics_out:
+        epoch_metrics_path = Path(args.epoch_metrics_out)
+        epoch_metrics_path.parent.mkdir(parents=True, exist_ok=True)
+        epoch_metrics_path.write_text(
+            json.dumps(epoch_history, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+    if args.training_metrics_out:
+        training_metrics_path = Path(args.training_metrics_out)
+        training_metrics_path.parent.mkdir(parents=True, exist_ok=True)
+        training_metrics_path.write_text(
+            json.dumps(last_train_metrics, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+    if args.primary_sampling_audit_out:
+
+        def digest(values: np.ndarray) -> str:
+            return hashlib.sha256(
+                values.astype(np.int64, copy=False).tobytes()
+            ).hexdigest()
+
+        primary_sampling_audit_path = Path(args.primary_sampling_audit_out)
+        primary_sampling_audit_path.parent.mkdir(parents=True, exist_ok=True)
+        primary_sampling_audit_path.write_text(
+            json.dumps(
+                {
+                    "primary_replay_indexes": {
+                        "count": int(primary_replay_indexes.size),
+                        "sha256": digest(primary_replay_indexes),
+                    },
+                    "train_positions": {
+                        "count": int(primary_train_positions.size),
+                        "sha256": digest(primary_train_positions),
+                    },
+                    "validation_positions": {
+                        "count": int(primary_validation_positions.size),
+                        "sha256": digest(primary_validation_positions),
+                    },
+                    "train_replay_indexes": {
+                        "count": int(primary_train_positions.size),
+                        "sha256": digest(primary_train_replay_indexes),
+                    },
+                    "validation_replay_indexes": {
+                        "count": int(primary_validation_positions.size),
+                        "sha256": digest(
+                            primary_replay_indexes[primary_validation_positions]
+                        ),
+                    },
+                    "epoch_permutations": primary_permutations,
+                    "primary_order_seed": args.primary_order_seed,
+                    "optimizer_updates": int(last_train_metrics["optimizer_updates"]),
+                    "lr_scheduler": args.lr_scheduler,
+                    "behavior_stream_active": bool(args.behavior_loss_weight > 0.0),
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+    if args.save_top_k > 0:
+        topk_dir = Path(args.top_k_dir) if args.top_k_dir else out_path.parent
+        topk_dir.mkdir(parents=True, exist_ok=True)
+        base = out_path.stem
+        top_states = getattr(model, "top_states", [])[: args.save_top_k]
+        for idx, (val_loss, state) in enumerate(top_states, start=1):
+            target = topk_dir / f"{base}.top{idx}.npz"
+            np.savez(target, **checkpoint_from_state_dict(state))
+            print(f"saved_top_checkpoint_{idx}={target} val_loss={val_loss:.6f}")
+        print(f"saved_top_k={len(top_states)}")
+
+
+if __name__ == "__main__":
+    main()
