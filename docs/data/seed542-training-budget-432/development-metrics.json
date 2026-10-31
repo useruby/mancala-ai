@@ -1,0 +1,234 @@
+{
+  "checkpoint_identity": {
+    "initializer": {
+      "input_identities": 14903,
+      "rows": 15359,
+      "sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+    },
+    "update-108": {
+      "input_identities": 14903,
+      "rows": 15359,
+      "sha256": "6200b04d58f65ee5fb62555c3b32faea4b34206b4c10dbefb22ae9e7ff7b2328"
+    },
+    "update-216": {
+      "input_identities": 14903,
+      "rows": 15359,
+      "sha256": "0fe04f18735e67a50175f430fb63db5f54155fbfe8799e00de5188929d1233eb"
+    },
+    "update-432": {
+      "input_identities": 14903,
+      "rows": 15359,
+      "sha256": "4555cba73d2c908d1eca829836f361b226ccc1072be28affd816b2a240123163"
+    }
+  },
+  "development_membership_sha256": "feeed97c7666a69603620e4e59575fdf02aa206e9e570cde937aa360bd37505b",
+  "interpretation": "Intermediate checkpoints are diagnostic. Update 432 is the sole candidate. Development loss alone does not authorize advancement; strength requires a separate arena screen.",
+  "metrics": {
+    "initializer": {
+      "17-32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.43776947259902954,
+          "policy_ce": 0.8384103775024414
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.4383993148803711,
+          "policy_ce": 0.8377771377563477
+        },
+        "production_float32_input_identities": 6023,
+        "rows": 6195
+      },
+      "<=16": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.1732170581817627,
+          "policy_ce": 0.6301507949829102
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.17171956598758698,
+          "policy_ce": 0.6293259263038635
+        },
+        "production_float32_input_identities": 6422,
+        "rows": 6600
+      },
+      ">32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.7478972673416138,
+          "policy_ce": 1.0166674852371216
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.7538654208183289,
+          "policy_ce": 1.019497036933899
+        },
+        "production_float32_input_identities": 2458,
+        "rows": 2564
+      },
+      "pooled": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.37491893768310547,
+          "policy_ce": 0.7780677080154419
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.37646618485450745,
+          "policy_ce": 0.7785383462905884
+        },
+        "production_float32_input_identities": 14903,
+        "rows": 15359
+      }
+    },
+    "update-108": {
+      "17-32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.416410356760025,
+          "policy_ce": 0.7475831508636475
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.41742584109306335,
+          "policy_ce": 0.7465860247612
+        },
+        "production_float32_input_identities": 6023,
+        "rows": 6195
+      },
+      "<=16": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.1515030413866043,
+          "policy_ce": 0.5094473361968994
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.15031562745571136,
+          "policy_ce": 0.5079531669616699
+        },
+        "production_float32_input_identities": 6422,
+        "rows": 6600
+      },
+      ">32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.7809665203094482,
+          "policy_ce": 0.9637881517410278
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.7894428372383118,
+          "policy_ce": 0.9669415354728699
+        },
+        "production_float32_input_identities": 2458,
+        "rows": 2564
+      },
+      "pooled": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.3623839020729065,
+          "policy_ce": 0.6806250810623169
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.3647482097148895,
+          "policy_ce": 0.6808274984359741
+        },
+        "production_float32_input_identities": 14903,
+        "rows": 15359
+      }
+    },
+    "update-216": {
+      "17-32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.39909082651138306,
+          "policy_ce": 0.7408193945884705
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.3998161852359772,
+          "policy_ce": 0.7396551370620728
+        },
+        "production_float32_input_identities": 6023,
+        "rows": 6195
+      },
+      "<=16": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.14682380855083466,
+          "policy_ce": 0.48662400245666504
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.14514398574829102,
+          "policy_ce": 0.4857816696166992
+        },
+        "production_float32_input_identities": 6422,
+        "rows": 6600
+      },
+      ">32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.7733995318412781,
+          "policy_ce": 0.9616045951843262
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.782523512840271,
+          "policy_ce": 0.9640544056892395
+        },
+        "production_float32_input_identities": 2458,
+        "rows": 2564
+      },
+      "pooled": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.35211989283561707,
+          "policy_ce": 0.6676962971687317
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.354267954826355,
+          "policy_ce": 0.6680225133895874
+        },
+        "production_float32_input_identities": 14903,
+        "rows": 15359
+      }
+    },
+    "update-432": {
+      "17-32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.392327219247818,
+          "policy_ce": 0.7351934909820557
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.3931337296962738,
+          "policy_ce": 0.7339993715286255
+        },
+        "production_float32_input_identities": 6023,
+        "rows": 6195
+      },
+      "<=16": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.14389319717884064,
+          "policy_ce": 0.4779495894908905
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.14174126088619232,
+          "policy_ce": 0.4770725965499878
+        },
+        "production_float32_input_identities": 6422,
+        "rows": 6600
+      },
+      ">32": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.7641476392745972,
+          "policy_ce": 0.9624977111816406
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.7738234400749207,
+          "policy_ce": 0.9651033878326416
+        },
+        "production_float32_input_identities": 2458,
+        "rows": 2564
+      },
+      "pooled": {
+        "equal_production_float32_input_weighted": {
+          "actual_value_mse": 0.3465975821018219,
+          "policy_ce": 0.6618319749832153
+        },
+        "exposure_weighted": {
+          "actual_value_mse": 0.3486580550670624,
+          "policy_ce": 0.6621740460395813
+        },
+        "production_float32_input_identities": 14903,
+        "rows": 15359
+      }
+    }
+  },
+  "sole_candidate_checkpoint": 432,
+  "status": "descriptive development evaluation; update 432 is sole candidate",
+  "weightings": {
+    "equal_production_float32_input_weighted": "mean loss within each unique production float32 input, then mean equally over unique inputs",
+    "exposure_weighted": "mean over included development exposures"
+  }
+}
