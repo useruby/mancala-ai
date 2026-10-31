@@ -58,6 +58,27 @@ def _evidence_paths(
     return paths
 
 
+def _verify_frozen_command_preflights(
+    output: Path,
+    original_freeze: dict[str, Any],
+    v2_freeze: dict[str, Any],
+    v3_freeze: dict[str, Any],
+) -> None:
+    """Require every command-preflight file to match its frozen digest."""
+    bindings = (
+        ("original", "command-preflight.jsonl", original_freeze),
+        ("v2", "continuation-command-preflight-v2.jsonl", v2_freeze),
+        ("v3", "continuation-command-preflight-v3.jsonl", v3_freeze),
+    )
+    for label, filename, freeze in bindings:
+        path = output / filename
+        expected_sha256 = freeze.get("command_preflight_sha256")
+        if not expected_sha256 or sha(path) != expected_sha256:
+            raise ValueError(
+                f"completeness_frozen_command_preflight_hash_mismatch:{label}"
+            )
+
+
 def verify_completeness(root: Path, output: Path) -> dict[str, Any]:
     """Replay all 2,048 games and reconcile every frozen binding, without analysis."""
     root, output = root.resolve(), output.resolve()
@@ -87,6 +108,7 @@ def verify_completeness(root: Path, output: Path) -> dict[str, Any]:
         != v3_registration["opening1_completion_receipt_sha256"]
     ):
         raise ValueError("completeness_freeze_or_suite_binding_mismatch")
+    _verify_frozen_command_preflights(output, original_freeze, v2_freeze, v3_freeze)
     if (
         v2_registration.get("original_registration_sha256")
         != original_freeze["registration_sha256"]

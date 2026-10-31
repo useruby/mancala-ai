@@ -75,3 +75,26 @@ The runner-only outputs remain separately named
 `runner-provisional-analysis.json` and
 `runner-provisional-per-opening.jsonl`; they were not used to calculate the
 registered result.
+
+## Append-only verifier correction
+
+Review identified that the original, v2, and v3 command-preflight files needed
+direct SHA-256 checks against their respective frozen
+`command_preflight_sha256` values before their rows were used. The completeness
+verifier now checks all three files explicitly; this also covers the v3 file,
+which is not listed in the v3 authenticated-file map. The registration and
+freeze files themselves remain unchanged.
+
+The corrected verifier SHA-256 is
+`7af938402a096fc9c81d747efc99f42a2d58abc8339b40e385710e0d3df43b6c`. Its
+negative test alters each preflight file while keeping the freeze object intact;
+all three tampering cases are rejected. Focused test result: **3 passed**.
+
+The corrected verifier then passed the full 1,024-pair / 2,048-game read-only
+replay against the original evidence and from a physical copy with the original
+worktree path inaccessible. Both runs reported
+`all_1024_pairs_and_2048_games_independently_verified` and confirmed unchanged
+evidence bytes and mtimes. No games were rerun, and frozen execution sources,
+registrations, freezes, preflight files, ledger rows, and raw game evidence were
+left unchanged. The authenticated execution-status documents were restored to
+their freeze-bound bytes before these runs.
