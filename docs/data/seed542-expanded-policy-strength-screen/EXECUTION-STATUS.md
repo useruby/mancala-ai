@@ -1,4 +1,20 @@
-# Execution status — incomplete, no decision
+# Execution status — complete, do not advance
+
+**Final status:** all 1,024 opening pairs / 2,048 games completed and passed
+independent read-only completeness verification. A physically separate copy
+also passed while the original worktree pathname was inaccessible; all 6,269
+pre-analysis screen files matched the original copy byte-for-byte and by
+modification time.
+The registered one-sided 95% cluster-bootstrap lower bound is **0.4765625**,
+below the strict `> 0.50` advancement threshold. Decision: **do not advance**.
+No follow-up evaluation was launched. Detailed gates and output hashes are in
+`POSTRUN-VERIFICATION-RESULTS.md`.
+
+## Historical initial failure and recovery record
+
+The original opening-0 attempt stopped before ledger commit. The history below
+is retained to preserve the exact failure and recovery chronology; later
+sections supersede its earlier incomplete status.
 
 **Status: stopped at opening 0 before the first ledger commit.** No complete
 screen decision, score, bootstrap interval, or advancement result is available.
@@ -83,12 +99,37 @@ not infer an ordinary draw or a strength regression from this incomplete
 attempt. No 1,200-simulation proposal, promotion, deployment, training, or
 serving change is authorized.
 
-## Append-only recovery update
+## Historical recovery update before continuation completion
 
 The preceding status reflects the initial opening-0 validation failure. After
 the completion-receipt and schema/path corrections, saved openings 0 and 1 were
 independently replayed and committed without rerunning either pair. The original
 registration, freeze, arena commands, games, and reports remain unchanged.
-Continuation v3 is frozen for openings 2–1023. At this update, four games are
-validated and committed; the remaining 1,022 openings have not started. There
-is still no aggregate analysis or advancement decision.
+Continuation v3 was frozen for openings 2–1023. At this intermediate update,
+four games were validated and committed; the remaining 1,022 openings had not
+started. The later final completion and verification status is recorded below.
+
+## Final continuation and verification
+
+Continuation v3 completed openings 2–1023, bringing the complete ledger to
+1,024 pairs / 2,048 games. The read-only completeness verifier authenticated the
+original/v2/v3 freezes and sources, suite import and overlap disclosure, model
+and tablebase identity, receipts and command coverage, then independently
+replayed every raw pair and reconciled every ledger row. It reported
+`all_1024_pairs_and_2048_games_independently_verified`, with analysis disabled
+and all snapshotted evidence bytes and mtimes unchanged.
+
+The same verifier passed from a physical copy while the original worktree path
+was renamed out of reach. Its 6,433 authenticated evidence files and the copied
+screen's 6,269 files were unchanged during verification; a post-run comparison
+confirmed all screen-file bytes and mtimes matched the original. The materialized
+tablebase was copied separately into the physical copy's runtime path.
+
+Only after those gates, the registered analysis was calculated from the
+independently reconciled ledger and checked against its published result and
+per-opening matrix. The candidate scored 896 wins, 201 draws, and 951 losses;
+score `0.486572265625`, one-sided 95% lower bound `0.4765625`, and descriptive
+95% interval `[0.474609375, 0.498046875]`. Under the registered strict threshold,
+the decision is **do not advance**. The screen remains exploratory on a reused
+suite; it is not fresh confirmation, and the seed461 historical-overlap
+limitation remains unresolved.

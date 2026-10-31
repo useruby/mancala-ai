@@ -61,6 +61,19 @@ Continuation v2 is preserved as historical execution binding for opening 1.
 Continuation v3 was frozen before further games, covering openings 2–1023 and
 binding the corrected current executable bytes, v2 source snapshots, both
 validated pair ledgers, and all remaining parser-validated commands. At this
-point four games (two complete seat-swapped pairs) are validated and committed;
-the remaining 1,022 openings have not started. There is still no aggregate
-score, interval, or advancement decision.
+point four games (two complete seat-swapped pairs) were validated and committed;
+the remaining 1,022 openings had not started. The later final status follows.
+
+## Final continuation, independent verification, and decision
+
+The service subsequently completed all openings 2–1023. All 1,024 pairs / 2,048
+games passed the independent no-analysis completeness verifier, first from the
+original output and then from a physical copy with the original worktree path
+inaccessible. The pre-analysis screen files matched byte-for-byte and by mtime
+after the physical-copy run. See `POSTRUN-VERIFICATION-RESULTS.md` for verifier
+identity, frozen hashes, and command details.
+
+After both gates passed, the registered result was calculated: score
+`0.486572265625`, one-sided 95% lower bound `0.4765625`, and decision **do not
+advance** under the strict `> 0.50` rule. No separate evaluation or training was
+started.
