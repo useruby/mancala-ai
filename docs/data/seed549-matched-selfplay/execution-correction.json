@@ -1,0 +1,17 @@
+{
+  "corrected_sha256": "825771ecf28483210c08bb082fb8858a89dbc7884c3854fa3d381bfe5b45f456",
+  "failed_attempt": {
+    "arm": "control",
+    "exit_status": 2,
+    "log_sha256": "c5c8c7aa04e9ed95ae4e5d1fc147317eb69a771d2f337054cff22d97399aa5e8",
+    "output_bytes": 0,
+    "seed": 549000,
+    "shard": 0
+  },
+  "previous_sha256": "e64365b2853f88960fb9707b0769c547ca251194217f0bb3ea4a46d025687211",
+  "reason": "worker adapter omitted --out and production self_play argparse exited 2 before writing a row",
+  "registration_sha256": "250d0e2bf3286b7635463123d02a51f83ff41bfaf63cf432b7ff722588f1cb83",
+  "retry_policy": "explicit retry of the same planned shard/seed only when prior output is zero bytes; partial or interrupted outputs are terminal",
+  "schema": "seed549-execution-correction-v1",
+  "source_path": "ml/alphazero_lite/seed549_corpus.py"
+}
