@@ -1,0 +1,22 @@
+{
+  "schema": "seed549-physical-copy-verification-v3",
+  "status": "passed",
+  "copy_verification_command": "/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python -m ml.alphazero_lite.seed549_derivatives verify --root /home/alex/Mancala/ai-seed549-copy",
+  "original_worktree_path_renamed_and_inaccessible": true,
+  "verifier_result": {
+    "status": "verified",
+    "games_per_arm": 512,
+    "accepted_rows": {
+      "control": 18474,
+      "treatment": 18510
+    },
+    "products": 10,
+    "evidence_preserved": true
+  },
+  "physical_evidence_comparison": {
+    "files": 58,
+    "bytes": 157249426,
+    "hash_mtime_ns_and_distinct_inode_checks_passed": true,
+    "inventory_sha256": "158479e0c8717974e14452a620e7a70b8924f4251b80d2dbc215d1b4a26605f7"
+  }
+}
