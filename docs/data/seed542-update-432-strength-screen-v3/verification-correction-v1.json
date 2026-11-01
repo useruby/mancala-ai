@@ -1,0 +1,53 @@
+{
+  "continuation_chain": {
+    "parent_links_valid": true,
+    "recovery_pairs_and_ledger_prefixes_bound": true,
+    "registration_freeze_source_maps_match": true,
+    "v6_active_sources_match": true,
+    "versions": [
+      4,
+      5,
+      6
+    ]
+  },
+  "game_replay_and_bootstrap": {
+    "published_analysis_matches_registered_bootstrap": true,
+    "result": {
+      "bootstrap_quantile_method": "linear",
+      "bootstrap_resamples": 20000,
+      "bootstrap_seed": 545,
+      "decision": "do_not_advance",
+      "deployment_or_promotion_authorized": false,
+      "descriptive_two_sided_95": [
+        0.4677734375,
+        0.4951171875
+      ],
+      "draws": 195,
+      "effect_score_vs_0_50": -0.018310546875,
+      "exploratory_reused_suite": true,
+      "fresh_confirmation": false,
+      "games": 2048,
+      "losses": 964,
+      "lower_bound_effect_vs_0_50": -0.02978515625,
+      "one_sided_95_lower": 0.47021484375,
+      "openings": 1024,
+      "pass": false,
+      "score": 0.481689453125,
+      "seed461_historical_overlap_limitation_unresolved": true,
+      "status": "complete",
+      "verification_status": "independent_read_only_verification_pending",
+      "wins": 889
+    },
+    "status": "all_1024_pairs_and_2048_games_independently_verified",
+    "validated_games": 2048,
+    "validated_openings": 1024
+  },
+  "original_execution_freeze_sha256": "65286df075d662232a439e7288285fd31d34a9cfc5f4d5d5aa2b6b4006cd60ab",
+  "original_registration_sha256": "8541fef485ac915cbf2b32ac7b46f49e43e9fa867fb8411822594eaa824059f6",
+  "pair_bindings_file": "continuation-pair-bindings-v6.jsonl",
+  "pair_bindings_sha256": "e8cdb731c25a50ea7d808ab7b838e2719ac25eddc8fd6c8125d38844069e3266",
+  "per_opening_continuation_bindings_verified": 1024,
+  "per_opening_suite_and_command_bindings_verified": 1024,
+  "schema": "seed542_update432_strength_screen_verification_correction_v1",
+  "status": "append_only_verification_correction_passed"
+}
