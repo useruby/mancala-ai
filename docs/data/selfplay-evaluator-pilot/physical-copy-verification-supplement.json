@@ -1,0 +1,28 @@
+{
+  "schema": "selfplay-evaluator-pilot-physical-copy-verification-supplement-v1",
+  "status": "verified",
+  "frozen_registration_sha256": "a893a718c70a7ef4691b0959acc6c228487852fb9c8ce976af4aeb1932d3b375",
+  "parent_verification_supplement_sha256": "6eb1f39f9c50126078d1e486bb920d8b9ea137466bc5b50c7d93796b6adf8a4f",
+  "copy_type": "physical file copy; not a git worktree",
+  "original_worktree_path_accessible": false,
+  "commands": [
+    ["/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python", "-m", "ml.alphazero_lite.selfplay_evaluator_pilot", "verify-pilot"],
+    ["/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python", "-m", "ml.alphazero_lite.verify_selfplay_evaluator_pilot", "--root", "."],
+    ["/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python", "-m", "ml.alphazero_lite.selfplay_evaluator_pilot", "verify-attempts"]
+  ],
+  "evidence_byte_and_mtime_preservation": true,
+  "evidence_paths_checked": [
+    "control.jsonl", "control.log", "treatment.jsonl", "treatment.log",
+    "attempts.jsonl", "registration.json", "execution-freeze.json",
+    "verification-correction.json", "verification-supplement.json",
+    "results.json", "README.md", "VERIFICATION-SUPPLEMENT.md",
+    "physical-copy-verification.json",
+    "physical-copy-verification-supplement.json"
+  ],
+  "evidence_file_count": 14,
+  "results_sha256": "d8e8170956db2cdfc45c0b2f5f70ca09f6706306944b9b89df73c721ce1f8205",
+  "arms": {
+    "control": {"completed": 64, "capped": 0, "incomplete": 0, "loader_accepted_rows": 2226, "sha256": "34f7fca49b2efa5129693c19ecd2d5de3c5acf5ba017ec950e7563ed2dd1d86d"},
+    "treatment": {"completed": 64, "capped": 0, "incomplete": 0, "loader_accepted_rows": 2383, "sha256": "cef5913fbda716a610141462a2a60013192f7e2ddd69ad4018733495776c6321"}
+  }
+}

@@ -22,12 +22,74 @@ def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def verify_shard(path: Path, *, arm: str, expected_seed: int) -> dict[str, Any]:
+def expected_search_profile(
+    registration: dict[str, Any], runtime_policy: dict[str, Any]
+) -> dict[str, Any]:
+    """Reconstruct the complete search profile from frozen generation and runtime."""
+    generation = registration["generation"]
+    threshold = int(generation["exact_root_threshold"])
+    if (
+        runtime_policy.get("exact_root_enabled") is not True
+        or runtime_policy.get("exact_root_threshold") != threshold
+        or runtime_policy.get("exact_root_objective") != "final_score_margin"
+        or runtime_policy.get("exact_root_tie_rule")
+        != "highest_legal_network_prior_then_lowest_move_index"
+        or runtime_policy.get("exact_leaf_solve") != generation["exact_leaf_solve"]
+    ):
+        raise ValueError("frozen_runtime_exact_root_contract_mismatch")
+    probe = runtime_policy["native_probe"]
+    tablebase = runtime_policy["tablebase"]
+    asset_hashes = registration["runtime_asset_sha256"]
+    if (
+        asset_hashes.get(probe["path"]) != probe["sha256"]
+        or asset_hashes.get(tablebase["path"]) != tablebase["sha256"]
+    ):
+        raise ValueError("frozen_runtime_asset_identity_mismatch")
+    profile: dict[str, Any] = {
+        "version": "v1",
+        "kind": "self_play",
+        "player_mode": "puct",
+        "simulations": int(generation["simulations"]),
+        "c_puct": float(generation["c_puct"]),
+        "search_options": generation["search_options"],
+        "exact_root_solve_enabled": True,
+        "exact_root_solve_threshold": threshold,
+        "exact_root_solver": runtime_policy["solver_implementation_identity"],
+        "exact_root_solver_max_solved_seeds": threshold,
+        "exact_root_objective": runtime_policy["exact_root_objective"],
+        "exact_root_tie_rule": runtime_policy["exact_root_tie_rule"],
+        "exact_leaf_solve_mode": runtime_policy["exact_leaf_solve"],
+        "runtime_search_policy_mode": runtime_policy["mode"],
+        "runtime_search_policy_native_probe_sha256": probe["sha256"],
+        "runtime_search_policy_tablebase_sha256": tablebase["sha256"],
+    }
+    encoded = json.dumps(
+        profile, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    )
+    profile["hash"] = hashlib.sha256(encoded.encode()).hexdigest()
+    return profile
+
+
+def verify_shard(
+    path: Path,
+    *,
+    arm: str,
+    expected_seed: int,
+    expected_game_count: int = 64,
+    expected_profile: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     rows = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
     grouped: dict[int, list[dict[str, Any]]] = defaultdict(list)
     for row in rows:
         grouped[int(row["game_index"])].append(row)
+    requested_ids = set(range(expected_game_count))
+    unexpected_ids = set(grouped) - requested_ids
+    if unexpected_ids:
+        raise ValueError(
+            f"game_ids_outside_registered_population:{arm}:{sorted(unexpected_ids)}"
+        )
     completed = capped = incomplete = 0
+    replayed_rows = capped_rows = incomplete_rows = 0
     lengths: list[int] = []
     outcomes: Counter[str] = Counter()
     buckets: dict[str, dict[str, Any]] = {
@@ -43,7 +105,7 @@ def verify_shard(path: Path, *, arm: str, expected_seed: int) -> dict[str, Any]:
     identities: set[tuple[Any, ...]] = set()
     consumed_canonical: set[str] = set()
     consumed_encoded: set[str] = set()
-    for game_index in range(64):
+    for game_index in range(expected_game_count):
         game_rows = grouped.get(game_index, [])
         if not game_rows:
             incomplete += 1
@@ -53,6 +115,7 @@ def verify_shard(path: Path, *, arm: str, expected_seed: int) -> dict[str, Any]:
         expected_moves = first.get("game_moves") or []
         if any(row.get("game_capped") is True for row in sequence):
             capped += 1
+            capped_rows += len(sequence)
             continue
         game = KalahGame.from_state(first["game_start_state"])
         if int(first["game_seed"]) != expected_seed:
@@ -61,6 +124,7 @@ def verify_shard(path: Path, *, arm: str, expected_seed: int) -> dict[str, Any]:
             row.get("game_completed") is True for row in sequence
         ):
             incomplete += 1
+            incomplete_rows += len(sequence)
             continue
         if [int(row["move_index"]) for row in sequence] != list(range(len(sequence))):
             raise ValueError(f"move_index_mismatch:{arm}:{game_index}")
@@ -176,6 +240,37 @@ def verify_shard(path: Path, *, arm: str, expected_seed: int) -> dict[str, Any]:
                 raise ValueError(
                     f"search_profile_hash_mismatch:{arm}:{game_index}:{ply}"
                 )
+            if expected_profile is not None and profile != expected_profile:
+                raise ValueError(
+                    f"action_search_profile_contract_mismatch:{arm}:{game_index}:{ply}"
+                )
+            teacher_profile = row.get("teacher_search_profile")
+            teacher_hash = row.get("teacher_search_profile_hash")
+            if not isinstance(
+                teacher_profile, dict
+            ) or teacher_hash != teacher_profile.get("hash"):
+                raise ValueError(
+                    f"teacher_search_profile_hash_mismatch:{arm}:{game_index}:{ply}"
+                )
+            teacher_body = {
+                key: value for key, value in teacher_profile.items() if key != "hash"
+            }
+            computed_teacher_hash = hashlib.sha256(
+                json.dumps(
+                    teacher_body,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    ensure_ascii=True,
+                ).encode()
+            ).hexdigest()
+            if computed_teacher_hash != teacher_hash:
+                raise ValueError(
+                    f"teacher_search_profile_hash_mismatch:{arm}:{game_index}:{ply}"
+                )
+            if expected_profile is not None and teacher_profile != expected_profile:
+                raise ValueError(
+                    f"teacher_search_profile_contract_mismatch:{arm}:{game_index}:{ply}"
+                )
             canonical_state = tuple(
                 state["player_pits"]
                 + state["opponent_pits"]
@@ -226,8 +321,13 @@ def verify_shard(path: Path, *, arm: str, expected_seed: int) -> dict[str, Any]:
             ):
                 raise ValueError(f"value_or_outcome_mismatch:{arm}:{game_index}")
         completed += 1
+        replayed_rows += len(sequence)
     if sorted(grouped) != list(range(max(grouped, default=-1) + 1)):
         raise ValueError(f"noncontiguous_game_ids:{arm}")
+    if replayed_rows + capped_rows + incomplete_rows != len(rows):
+        raise ValueError(f"row_accounting_mismatch:{arm}")
+    if sum(bucket["rows"] for bucket in buckets.values()) != replayed_rows:
+        raise ValueError(f"replayed_row_bucket_accounting_mismatch:{arm}")
     loaded = train.load_jsonl(
         path, policy_target_mode="default", value_target_mode="default"
     )
@@ -255,6 +355,12 @@ def verify_shard(path: Path, *, arm: str, expected_seed: int) -> dict[str, Any]:
         "arm": arm,
         "sha256": digest(path),
         "rows": len(rows),
+        "row_accounting": {
+            "total": len(rows),
+            "replayed": replayed_rows,
+            "capped": capped_rows,
+            "incomplete": incomplete_rows,
+        },
         "games": {"completed": completed, "capped": capped, "incomplete": incomplete},
         "game_lengths": {
             "per_completed_game": lengths,
@@ -269,7 +375,7 @@ def verify_shard(path: Path, *, arm: str, expected_seed: int) -> dict[str, Any]:
                 "recorded_game_seed": expected_seed,
                 "worker_rng_seed": (expected_seed * 1_000_003) + index,
             }
-            for index in range(64)
+            for index in range(expected_game_count)
         ],
         "canonical_unique": len(identities),
         "stone_buckets": report_buckets,
@@ -287,11 +393,23 @@ def main() -> None:
     parser.add_argument("--root", type=Path, default=Path.cwd())
     args = parser.parse_args()
     root = args.root.resolve()
+    from ml.alphazero_lite.selfplay_evaluator_pilot import preflight
+
+    registration = preflight(root)
+    runtime_policy = json.loads(
+        (root / "model-artifact/current/search_policy.json").read_text()
+    )
+    search_profile = expected_search_profile(registration, runtime_policy)
+    command_template = registration["generation"]["command_template"]
+    expected_seed = int(command_template[command_template.index("--seed") + 1])
+    expected_games = int(registration["generation"]["games_per_arm"])
     result = {
         arm: verify_shard(
             root / "docs/data/selfplay-evaluator-pilot" / f"{arm}.jsonl",
             arm=arm,
-            expected_seed=542500,
+            expected_seed=expected_seed,
+            expected_game_count=expected_games,
+            expected_profile=search_profile,
         )
         for arm in ("control", "treatment")
     }

@@ -110,6 +110,17 @@ verifier, runner, and test hashes, documents the actual shared seed schedule, an
 output/log hashes. The original registration, freeze, commands, attempt
 records, and outcome-bearing game bytes were preserved; neither arm was rerun.
 
+Review follow-up #548 adds `VERIFICATION-SUPPLEMENT.md` and
+`verification-supplement.json`. The combined read-only command is:
+
+```bash
+python -m ml.alphazero_lite.selfplay_evaluator_pilot verify-pilot
+```
+
+It reconciles the reconstructed attempts and shard reports against the existing
+published `results.json`, rejects extra game IDs and rehashed search-profile
+mutations, and confirms evidence hashes and mtimes remain unchanged.
+
 Validation ran in the working tree and a physical copy while the original
 worktree path was inaccessible. Both arms independently replayed and loader
 validated in the copy. Verification preserved bytes and nanosecond modification

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import hashlib
+import copy
 from pathlib import Path
 
 import numpy as np
@@ -8,7 +10,10 @@ import pytest
 
 from ml.alphazero_lite import arena, self_play, selfplay_evaluator_pilot as pilot
 from ml.alphazero_lite.kalah_rules import KalahGame
-from ml.alphazero_lite.verify_selfplay_evaluator_pilot import verify_shard
+from ml.alphazero_lite.verify_selfplay_evaluator_pilot import (
+    expected_search_profile,
+    verify_shard,
+)
 
 
 def test_composed_serving_evaluator_routes_policy_and_value_for_orientations() -> None:
@@ -177,6 +182,84 @@ def test_verifier_rejects_wrong_seed_association(tmp_path: Path) -> None:
         verify_shard(seed_path, arm="control", expected_seed=int(row["game_seed"]) + 1)
 
 
+def test_verifier_rejects_game_outside_registered_population(tmp_path: Path) -> None:
+    source = pilot.ROOT / "docs/data/selfplay-evaluator-pilot/control.jsonl"
+    row = json.loads(source.read_text().splitlines()[0])
+    row["game_index"] = 64
+    target = tmp_path / "game-64.jsonl"
+    target.write_text(json.dumps(row) + "\n")
+    with pytest.raises(ValueError, match="game_ids_outside_registered_population"):
+        verify_shard(target, arm="control", expected_seed=542500)
+
+
+@pytest.mark.parametrize(
+    ("profile_name", "field", "replacement", "error"),
+    [
+        (
+            "search_profile",
+            "exact_root_objective",
+            "bad_objective",
+            "action_search_profile_contract_mismatch",
+        ),
+        (
+            "search_profile",
+            "exact_root_tie_rule",
+            "bad_tie_rule",
+            "action_search_profile_contract_mismatch",
+        ),
+        (
+            "search_profile",
+            "runtime_search_policy_tablebase_sha256",
+            "0" * 64,
+            "action_search_profile_contract_mismatch",
+        ),
+        (
+            "teacher_search_profile",
+            "exact_root_objective",
+            "bad_objective",
+            "teacher_search_profile_contract_mismatch",
+        ),
+    ],
+)
+def test_verifier_rejects_rehashed_search_profile_mutations(
+    tmp_path: Path, profile_name: str, field: str, replacement: str, error: str
+) -> None:
+    registration = pilot.preflight()
+    runtime = json.loads(
+        (pilot.ROOT / "model-artifact/current/search_policy.json").read_text()
+    )
+    expected = expected_search_profile(registration, runtime)
+    source = pilot.ROOT / "docs/data/selfplay-evaluator-pilot/control.jsonl"
+    rows = [
+        json.loads(line)
+        for line in source.read_text().splitlines()
+        if json.loads(line)["game_index"] == 0
+    ]
+    for row in rows:
+        profile = dict(row[profile_name])
+        profile[field] = replacement
+        profile.pop("hash", None)
+        profile["hash"] = hashlib.sha256(
+            json.dumps(
+                profile, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+            ).encode()
+        ).hexdigest()
+        row[profile_name] = profile
+        if profile_name == "search_profile":
+            row["search_profile_hash"] = profile["hash"]
+        else:
+            row["teacher_search_profile_hash"] = profile["hash"]
+    target = tmp_path / "rehash-mutated-profile.jsonl"
+    target.write_text("".join(json.dumps(row) + "\n" for row in rows))
+    with pytest.raises(ValueError, match=error):
+        verify_shard(
+            target,
+            arm="control",
+            expected_seed=542500,
+            expected_profile=expected,
+        )
+
+
 def test_verifier_rejects_illegal_target_and_wrong_terminal_value(
     tmp_path: Path,
 ) -> None:
@@ -321,3 +404,51 @@ def test_attempt_verifier_rejects_altered_command_or_evidence(
         evidence.write_bytes(b"changed output")
     with pytest.raises(ValueError):
         pilot.verify_attempts(tmp_path)
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda report: report["arms"]["control"]["games"].__setitem__("completed", 63),
+        lambda report: report["arms"]["control"]["stone_buckets"][">32"].__setitem__(
+            "mean_target_entropy_nats", 0.0
+        ),
+        lambda report: report["arms"]["control"].__setitem__(
+            "throughput_games_per_second", 0.0
+        ),
+        lambda report: report.__setitem__("success_criteria_met", False),
+    ],
+)
+def test_report_reconciliation_rejects_published_metric_mutations(mutate) -> None:
+    expected = {
+        "success_criteria_met": True,
+        "arms": {
+            "control": {
+                "games": {"completed": 64},
+                "stone_buckets": {">32": {"mean_target_entropy_nats": 0.5}},
+                "throughput_games_per_second": 0.15,
+            }
+        },
+    }
+    altered = copy.deepcopy(expected)
+    mutate(altered)
+    with pytest.raises(ValueError, match="published_results_mismatch"):
+        pilot.reconcile_published_report(expected, altered)
+
+
+def test_combined_verifier_reconciles_results_without_rewriting_evidence() -> None:
+    out = pilot.ROOT / pilot.OUT
+    paths = [
+        out / name
+        for name in (
+            "results.json",
+            "control.jsonl",
+            "treatment.jsonl",
+            "attempts.jsonl",
+        )
+    ]
+    before = {path: (pilot.sha(path), path.stat().st_mtime_ns) for path in paths}
+    report = pilot.verify_published_report()
+    after = {path: (pilot.sha(path), path.stat().st_mtime_ns) for path in paths}
+    assert report["status"] == "published_pilot_verified"
+    assert before == after

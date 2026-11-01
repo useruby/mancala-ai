@@ -1,0 +1,35 @@
+{
+  "schema": "selfplay-evaluator-pilot-verifier-supplement-v1",
+  "status": "append_only_verifier_supplement",
+  "frozen_registration_sha256": "a893a718c70a7ef4691b0959acc6c228487852fb9c8ce976af4aeb1932d3b375",
+  "parent_correction_sha256": "541a7f90191017220150cc89275c3b9403f82ca239fa57ba368432ea75930d15",
+  "generation_changed": false,
+  "games_rerun": false,
+  "changes": [
+    "Add the read-only verify-pilot command to authenticate attempts, reconstruct both reports, reconcile every published result field, and verify evidence hashes and modification times remain unchanged.",
+    "Reject game IDs outside the frozen 0..63 population; reconcile each source row as replayed, capped, or incomplete and require bucket row totals to equal replayed rows.",
+    "Reconstruct the full action-search and teacher-search profile from the frozen generation registration and authenticated serving runtime sidecar, including exact-root objective, tie rule, exact-leaf setting, native probe identity, and tablebase identity.",
+    "Add mutation tests that rehash altered action and teacher profiles, inject game 64, and alter published completed-game counts, target entropy, throughput, and success status."
+  ],
+  "source_corrections": {
+    "ml/alphazero_lite/selfplay_evaluator_pilot.py": {
+      "frozen_sha256": "e42c5a857a1b745ee1cf15de87079f7e29298f03fe2ca64260ce70a7a041be04",
+      "corrected_sha256": "8014c7c67127b6b8eb2db03b5e93d23fa94b334b722e863b72baa3079d483566"
+    },
+    "ml/alphazero_lite/verify_selfplay_evaluator_pilot.py": {
+      "frozen_sha256": "8b85081bc818ac2b60cdf1d32dbad472a288c3bf5d0715417f5c7aa8ea790443",
+      "corrected_sha256": "e4d36fd3793e59cf88208a5692128b7fb68a266fbcea6f0bc83b787d28e19a7c"
+    },
+    "ml/alphazero_lite/test_selfplay_evaluator_pilot.py": {
+      "frozen_sha256": "f166f182ed70170cd31d1d77afb95cd9a0d2b1a55883627107916de01105de78",
+      "corrected_sha256": "8a24b7d261acb186366f671a376670d20afe80c21456fd8a47b2da84f408d39e"
+    }
+  },
+  "preserved_evidence": {
+    "control_sha256": "34f7fca49b2efa5129693c19ecd2d5de3c5acf5ba017ec950e7563ed2dd1d86d",
+    "control_log_sha256": "0087c4868f30ca14555d049aea3bda552ef1bfdb3489ad4bea3d3cf777369470",
+    "treatment_sha256": "cef5913fbda716a610141462a2a60013192f7e2ddd69ad4018733495776c6321",
+    "treatment_log_sha256": "c6c50e6c74aae7e51ba51b46a16b9f7ca9ffdfa7cebb4fdcb5ac70a0e953987e",
+    "results_sha256": "d8e8170956db2cdfc45c0b2f5f70ca09f6706306944b9b89df73c721ce1f8205"
+  }
+}

@@ -363,22 +363,35 @@ def preflight(root: Path = ROOT) -> dict[str, Any]:
     if freeze.get("registration_sha256") != sha(reg_path):
         raise ValueError("pilot_freeze_registration_mismatch")
     correction_path = out / "verification-correction.json"
-    correction = (
-        json.loads(correction_path.read_text()) if correction_path.is_file() else None
-    )
-    if correction is not None and (
-        correction.get("status") != "append_only_verification_correction"
-        or correction.get("frozen_registration_sha256") != sha(reg_path)
-    ):
-        raise ValueError("pilot_verification_correction_binding_mismatch")
-    for relative, digest in registration["source_sha256"].items():
-        actual = sha(root / relative)
-        corrected = (correction or {}).get("source_corrections", {}).get(relative)
-        correction_matches = corrected == {
-            "frozen_sha256": digest,
-            "corrected_sha256": actual,
-        }
-        if actual != digest and not correction_matches:
+    supplement_path = out / "verification-supplement.json"
+    correction_documents = []
+    if correction_path.is_file():
+        correction = json.loads(correction_path.read_text())
+        if correction.get(
+            "status"
+        ) != "append_only_verification_correction" or correction.get(
+            "frozen_registration_sha256"
+        ) != sha(reg_path):
+            raise ValueError("pilot_verification_correction_binding_mismatch")
+        correction_documents.append(correction)
+    if supplement_path.is_file():
+        supplement = json.loads(supplement_path.read_text())
+        if (
+            supplement.get("status") != "append_only_verifier_supplement"
+            or supplement.get("frozen_registration_sha256") != sha(reg_path)
+            or not correction_documents
+            or supplement.get("parent_correction_sha256") != sha(correction_path)
+        ):
+            raise ValueError("pilot_verification_supplement_binding_mismatch")
+        correction_documents.append(supplement)
+    expected_sources = dict(registration["source_sha256"])
+    for document in correction_documents:
+        for relative, correction in document.get("source_corrections", {}).items():
+            if correction.get("frozen_sha256") != expected_sources.get(relative):
+                raise ValueError(f"pilot_source_correction_chain_mismatch:{relative}")
+            expected_sources[relative] = correction["corrected_sha256"]
+    for relative, expected in expected_sources.items():
+        if sha(root / relative) != expected:
             raise ValueError(f"pilot_source_changed:{relative}")
     for relative, digest in registration["runtime_asset_sha256"].items():
         if sha(root / relative) != digest:
@@ -663,13 +676,24 @@ def verify_attempts(root: Path = ROOT) -> dict[str, Any]:
     return {"attempts": result, "registration_sha256": sha(out / "registration.json")}
 
 
-def analyze(root: Path = ROOT) -> dict[str, Any]:
-    """Produce bounded descriptive generation findings from verified evidence."""
-    from ml.alphazero_lite.verify_selfplay_evaluator_pilot import verify_shard
+def build_analysis_report(root: Path = ROOT) -> dict[str, Any]:
+    """Reconstruct the complete published report without writing any evidence."""
+    from ml.alphazero_lite.verify_selfplay_evaluator_pilot import (
+        expected_search_profile,
+        verify_shard,
+    )
 
     root = root.resolve()
+    registration = preflight(root)
     attempts = verify_attempts(root)
     out = root / OUT
+    runtime_policy = json.loads(
+        (root / "model-artifact/current/search_policy.json").read_text()
+    )
+    search_profile = expected_search_profile(registration, runtime_policy)
+    command_template = registration["generation"]["command_template"]
+    expected_seed = int(command_template[command_template.index("--seed") + 1])
+    expected_games = int(registration["generation"]["games_per_arm"])
     ledger = [
         json.loads(line)
         for line in (out / "attempts.jsonl").read_text().splitlines()
@@ -679,7 +703,17 @@ def analyze(root: Path = ROOT) -> dict[str, Any]:
     for arm in ("control", "treatment"):
         path = out / f"{arm}.jsonl"
         if path.is_file():
-            reports[arm] = verify_shard(path, arm=arm, expected_seed=SEED)
+            report = verify_shard(
+                path,
+                arm=arm,
+                expected_seed=expected_seed,
+                expected_game_count=expected_games,
+                expected_profile=search_profile,
+            )
+            # Row reconciliation is a verifier diagnostic added after the
+            # original report was published; keep the publication schema stable.
+            report.pop("row_accounting")
+            reports[arm] = report
     by_arm = {}
     for arm, report in reports.items():
         terminal = [
@@ -726,8 +760,91 @@ def analyze(root: Path = ROOT) -> dict[str, Any]:
         "future_use": "success authorizes proposing a larger controlled corpus experiment only; no training, promotion, or strength claim",
         "seed461_provenance": "unresolved; not recovered for this pilot",
     }
-    atomic_json(out / "results.json", result)
     return result
+
+
+def analyze(root: Path = ROOT) -> dict[str, Any]:
+    """Write a newly generated descriptive report during pilot publication."""
+    result = build_analysis_report(root)
+    atomic_json(root.resolve() / OUT / "results.json", result)
+    return result
+
+
+def _first_report_difference(expected: Any, actual: Any, path: str = "$") -> str | None:
+    if isinstance(expected, dict) and isinstance(actual, dict):
+        if expected.keys() != actual.keys():
+            return path
+        for key in expected:
+            difference = _first_report_difference(
+                expected[key], actual[key], f"{path}.{key}"
+            )
+            if difference is not None:
+                return difference
+        return None
+    if isinstance(expected, list) and isinstance(actual, list):
+        if len(expected) != len(actual):
+            return path
+        for index, (left, right) in enumerate(zip(expected, actual, strict=True)):
+            difference = _first_report_difference(left, right, f"{path}[{index}]")
+            if difference is not None:
+                return difference
+        return None
+    return None if expected == actual else path
+
+
+def reconcile_published_report(
+    expected: dict[str, Any], actual: dict[str, Any]
+) -> None:
+    """Reject any change to a published count, metric, identity, or conclusion."""
+    difference = _first_report_difference(expected, actual)
+    if difference is not None:
+        raise ValueError(f"published_results_mismatch:{difference}")
+
+
+def verify_published_report(root: Path = ROOT) -> dict[str, Any]:
+    """Read-only end-to-end verification of attempts, shards, and published results."""
+    root = root.resolve()
+    out = root / OUT
+    evidence_paths = [
+        out / name
+        for name in (
+            "control.jsonl",
+            "control.log",
+            "treatment.jsonl",
+            "treatment.log",
+            "attempts.jsonl",
+            "registration.json",
+            "execution-freeze.json",
+            "verification-correction.json",
+            "results.json",
+        )
+    ]
+    supplement_path = out / "verification-supplement.json"
+    if supplement_path.is_file():
+        evidence_paths.append(supplement_path)
+    before = {path: (sha(path), path.stat().st_mtime_ns) for path in evidence_paths}
+    expected = build_analysis_report(root)
+    actual = json.loads((out / "results.json").read_text(encoding="utf-8"))
+    reconcile_published_report(expected, actual)
+    after = {path: (sha(path), path.stat().st_mtime_ns) for path in evidence_paths}
+    if after != before:
+        raise RuntimeError("pilot_evidence_changed_during_verification")
+    return {
+        "status": "published_pilot_verified",
+        "results_sha256": before[out / "results.json"][0],
+        "results_mtime_ns": before[out / "results.json"][1],
+        "evidence_preserved": True,
+        "evidence_files_checked": len(evidence_paths),
+        "attempts": expected["attempt_accounting"],
+        "arms": {
+            arm: {
+                "games": report["games"],
+                "rows": report["rows"],
+                "sha256": report["sha256"],
+            }
+            for arm, report in expected["arms"].items()
+        },
+    }
 
 
 def main() -> None:
@@ -740,6 +857,7 @@ def main() -> None:
             "execute-arm",
             "execute",
             "verify-attempts",
+            "verify-pilot",
             "analyze",
         ),
     )
@@ -756,6 +874,8 @@ def main() -> None:
         print(json.dumps(verify_attempts(args.root), indent=2, sort_keys=True))
     elif args.action == "analyze":
         print(json.dumps(analyze(args.root), indent=2, sort_keys=True))
+    elif args.action == "verify-pilot":
+        print(json.dumps(verify_published_report(args.root), indent=2, sort_keys=True))
     else:
         execute_arm(["--arm", str(args.arm), *unknown])
 
