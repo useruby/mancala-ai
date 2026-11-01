@@ -1,0 +1,31 @@
+{
+  "analysis_matches_registered_bootstrap": true,
+  "decision": "do_not_advance",
+  "evidence_bytes_and_mtimes_unchanged": true,
+  "game_trajectories_independently_replayed": 2048,
+  "ledger_pairs_independently_reconciled": 1024,
+  "physical_copy": {
+    "output_directory_byte_identical": true,
+    "sample_game_file_separate_inode": true,
+    "status": "all_1024_pairs_and_2048_games_independently_verified"
+  },
+  "result": {
+    "bootstrap_resamples": 20000,
+    "bootstrap_seed": 545,
+    "decision": "do_not_advance",
+    "descriptive_two_sided_95": [
+      0.4677734375,
+      0.4951171875
+    ],
+    "draws": 195,
+    "games": 2048,
+    "losses": 964,
+    "one_sided_95_lower": 0.47021484375,
+    "openings": 1024,
+    "pass": false,
+    "score": 0.481689453125,
+    "wins": 889
+  },
+  "status": "all_1024_pairs_and_2048_games_independently_verified",
+  "suite_sha256": "27a003322e5469507a508010a9743b40062928140e6a4b9d5628b0290e32c21d"
+}
