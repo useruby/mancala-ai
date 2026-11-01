@@ -1,0 +1,9 @@
+{
+  "first_108_control_passed": true,
+  "schema": "seed542_update432_training_evidence_v1",
+  "status": "both_seed542_v2_verifiers_passed",
+  "training_budget_432_status": "verified_complete",
+  "training_checkpoint_sha256": "4555cba73d2c908d1eca829836f361b226ccc1072be28affd816b2a240123163",
+  "training_registration_sha256": "2e71c6ee51fb34996d6ae8144724be03562f8e16fbc724108671a5659de4c4e2",
+  "training_run_status_sha256": "e01b72b5821428a053faadad9b07442d78a9daebe697638c77f5c4fa464cf53f"
+}

@@ -1,0 +1,10 @@
+{
+  "command_sha256": "8b332256bfb118316b024b005ff7db07cb532db68728f7abdc543188ab1a640f",
+  "games_sha256": "3f8bf3ddfafaf15ae595131c02c76716becebecfdec418d237716b29526be33e",
+  "opening_index": 653,
+  "opening_sha256": "27cd16d339de11c9121b9015fb5aa521e715f402a8c7550a7d4f337b71668b5f",
+  "registration_sha256": "8541fef485ac915cbf2b32ac7b46f49e43e9fa867fb8411822594eaa824059f6",
+  "report_sha256": "c6d587983adf1fb05126f3d8ec76fff09afd18daf2ce21a15c5a07d0ffdd9ee6",
+  "schema": "azlite_screen_pair_output_completion_v1",
+  "suite_sha256": "27a003322e5469507a508010a9743b40062928140e6a4b9d5628b0290e32c21d"
+}
