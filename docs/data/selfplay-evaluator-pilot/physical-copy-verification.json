@@ -1,0 +1,30 @@
+{
+  "schema": "selfplay-evaluator-pilot-physical-copy-verification-v1",
+  "status": "verified",
+  "copy_type": "physical file copy; not a git worktree",
+  "copy_location_during_verification": ".tmp/physical-pilot-copy",
+  "original_worktree_path_accessible": false,
+  "interpreter": "/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python",
+  "project_module_imported_from_copy": "ml/alphazero_lite/self_play.py",
+  "commands": [
+    ["/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python", "-m", "ml.alphazero_lite.selfplay_evaluator_pilot", "verify-attempts"],
+    ["/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python", "-m", "ml.alphazero_lite.verify_selfplay_evaluator_pilot", "--root", "."]
+  ],
+  "evidence_files_checked_for_byte_and_mtime_preservation": [
+    "control.jsonl",
+    "control.log",
+    "treatment.jsonl",
+    "treatment.log",
+    "attempts.jsonl",
+    "registration.json",
+    "execution-freeze.json",
+    "verification-correction.json",
+    "results.json"
+  ],
+  "evidence_bytes_preserved": true,
+  "evidence_mtime_ns_preserved": true,
+  "verified_arms": {
+    "control": {"games_completed": 64, "games_capped": 0, "games_incomplete": 0, "loader_accepted_rows": 2226, "sha256": "34f7fca49b2efa5129693c19ecd2d5de3c5acf5ba017ec950e7563ed2dd1d86d"},
+    "treatment": {"games_completed": 64, "games_capped": 0, "games_incomplete": 0, "loader_accepted_rows": 2383, "sha256": "cef5913fbda716a610141462a2a60013192f7e2ddd69ad4018733495776c6321"}
+  }
+}
