@@ -598,21 +598,24 @@ def verify(root: Path = ROOT) -> dict[str, Any]:
         raise ValueError("post_generation_correction_mismatch")
     if correction_paths:
         known_hashes = {sha_file(receipt_path)}
-        ordered_corrections = sorted(
-            correction_paths, key=lambda path: path.stat().st_mtime_ns
-        )
+        pending = {path: json.loads(path.read_text()) for path in correction_paths}
         last_correction = None
-        for correction_path in ordered_corrections:
-            correction = json.loads(correction_path.read_text())
-            parent_hash = correction.get("parent_receipt_sha256") or correction.get(
-                "parent_correction_sha256"
+        while pending:
+            selected = next(
+                (
+                    path
+                    for path, correction in pending.items()
+                    if correction.get("parent_receipt_sha256") in known_hashes
+                    or correction.get("parent_correction_sha256") in known_hashes
+                ),
+                None,
             )
-            if parent_hash not in known_hashes:
+            if selected is None:
                 raise ValueError(
                     "post_generation_verification_correction_parent_mismatch"
                 )
-            last_correction = correction
-            known_hashes.add(sha_file(correction_path))
+            last_correction = pending.pop(selected)
+            known_hashes.add(sha_file(selected))
         if last_correction["corrected_algorithm_sha256"] != sha_file(Path(__file__)):
             raise ValueError("corrected_derivative_algorithm_changed")
         if last_correction["corrected_test_sha256"] != sha_file(
@@ -676,14 +679,19 @@ def bind_verification_correction(root: Path = ROOT) -> dict[str, Any]:
     root = root.resolve()
     out = root / OUT
     receipt = out / "post-generation-receipt.json"
-    existing = sorted(
-        out.glob("post-generation-verification-correction*.json"),
-        key=lambda path: path.stat().st_mtime_ns,
-    )
+    existing = list(out.glob("post-generation-verification-correction*.json"))
     target = (
         out / f"post-generation-verification-correction-{len(existing) + 1:02d}.json"
     )
-    parent = existing[-1] if existing else receipt
+    if existing:
+
+        def correction_index(path: Path) -> int:
+            suffix = path.stem.rsplit("-", 1)[-1]
+            return int(suffix) if suffix.isdigit() else 1
+
+        parent = max(existing, key=correction_index)
+    else:
+        parent = receipt
     correction = {
         "schema": "seed549-post-generation-verification-correction-v1",
         ("parent_correction_sha256" if existing else "parent_receipt_sha256"): sha_file(
