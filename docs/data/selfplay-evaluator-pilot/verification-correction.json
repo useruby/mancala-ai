@@ -1,0 +1,36 @@
+{
+  "schema": "selfplay-evaluator-pilot-verification-correction-v1",
+  "status": "append_only_verification_correction",
+  "frozen_registration_sha256": "a893a718c70a7ef4691b0959acc6c228487852fb9c8ce976af4aeb1932d3b375",
+  "reason": "Two verifier/reporting corrections: production action-sampling Dirichlet noise turns off at move index 10, and the worker records the same shard base seed on each row while deriving each game's RNG seed from global_index. The corrected verifier validates first-10-ply noise telemetry and the frozen per-game seed derivation. Denoised policy targets and the generation commands are unchanged.",
+  "generation_changed": false,
+  "generation_rerun": false,
+  "source_corrections": {
+    "ml/alphazero_lite/selfplay_evaluator_pilot.py": {
+      "frozen_sha256": "8f7e33a18ff550f8e74f7d3aba259f137afe8ca68f75a438a726938d7533b0a1",
+      "corrected_sha256": "e42c5a857a1b745ee1cf15de87079f7e29298f03fe2ca64260ce70a7a041be04"
+    },
+    "ml/alphazero_lite/verify_selfplay_evaluator_pilot.py": {
+      "frozen_sha256": "daf388b68262d73c696d54fbba2d7bdf87595ce064a1ea7cd37aeffd93306174",
+      "corrected_sha256": "8b85081bc818ac2b60cdf1d32dbad472a288c3bf5d0715417f5c7aa8ea790443"
+    },
+    "ml/alphazero_lite/test_selfplay_evaluator_pilot.py": {
+      "frozen_sha256": "1705d2363659d2be47f9d8e452cabed19c6109bf802a65694050b85b4b0ff864",
+      "corrected_sha256": "f166f182ed70170cd31d1d77afb95cd9a0d2b1a55883627107916de01105de78"
+    }
+  },
+  "seed_schedule_correction": {
+    "frozen_command_seed": 542500,
+    "recorded_game_seed": "542500 for each of game_index 0 through 63",
+    "worker_rng_seed": "(542500 * 1000003) + game_index; worker_id=0",
+    "both_arms_used_identical_schedule": true,
+    "original_registration_seed_schedule_field": "542500 through 542563",
+    "corrected_interpretation": "the frozen --seed command and production worker's global-index derivation define the paired schedule; the range field was an inaccurate description"
+  },
+  "preserved_evidence": {
+    "control_sha256": "34f7fca49b2efa5129693c19ecd2d5de3c5acf5ba017ec950e7563ed2dd1d86d",
+    "control_log_sha256": "0087c4868f30ca14555d049aea3bda552ef1bfdb3489ad4bea3d3cf777369470",
+    "treatment_sha256": "cef5913fbda716a610141462a2a60013192f7e2ddd69ad4018733495776c6321",
+    "treatment_log_sha256": "c6c50e6c74aae7e51ba51b46a16b9f7ca9ffdfa7cebb4fdcb5ac70a0e953987e"
+  }
+}
