@@ -1,0 +1,43 @@
+{
+  "pre_game_preparation_attempts": [
+    {
+      "attempt": 0,
+      "failure": "registered tablebase materialization source path was absent",
+      "arena_games_completed": 0,
+      "arena_execution_started": false
+    },
+    {
+      "attempt": 1,
+      "failure": "parser-validated commands resolved through the default output path instead of the selected v2 preparation path",
+      "arena_games_completed": 0,
+      "arena_execution_started": false
+    }
+  ],
+  "outcome_bearing_attempts": [
+    {
+      "opening_index": 0,
+      "failure": "completion receipt was missing at pair commit",
+      "raw_pair_preserved": true,
+      "independently_replayed": true,
+      "rerun": false,
+      "continuation": "v4 receipt-bound recovery"
+    },
+    {
+      "opening_index": 1,
+      "failure": "completion receipt was missing at pair commit",
+      "raw_pair_preserved": true,
+      "independently_replayed": true,
+      "rerun": false,
+      "continuation": "v5 receipt-bound recovery"
+    },
+    {
+      "opening_index": 2,
+      "failure": "continuation ledger-prefix guard compared the full ledger after its committed prefix grew",
+      "raw_pair_preserved": true,
+      "independently_replayed": true,
+      "rerun": false,
+      "continuation": "v6 prefix-bound recovery"
+    }
+  ],
+  "final_continuation_status": "all remaining openings completed; all 1,024 pairs and 2,048 games independently verified"
+}

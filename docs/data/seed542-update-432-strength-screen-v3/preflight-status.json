@@ -1,0 +1,25 @@
+{
+  "candidate_checkpoint_sha256": "4555cba73d2c908d1eca829836f361b226ccc1072be28affd816b2a240123163",
+  "commands_parser_validated": 1024,
+  "freeze_sha256": "65286df075d662232a439e7288285fd31d34a9cfc5f4d5d5aa2b6b4006cd60ab",
+  "openings": 1024,
+  "overlap_aggregates": {
+    "seed504_original_training": {
+      "canonical_opening_overlaps": 0,
+      "production_float32_opening_overlaps": 0,
+      "training_rows": 13724,
+      "unique_canonical_identities": 9281,
+      "unique_production_float32_identities": 9281
+    },
+    "seed542_expanded_training": {
+      "canonical_opening_overlaps": 12,
+      "production_float32_opening_overlaps": 12,
+      "training_rows": 109504,
+      "unique_canonical_identities": 55445,
+      "unique_production_float32_identities": 55445
+    }
+  },
+  "registration_sha256": "8541fef485ac915cbf2b32ac7b46f49e43e9fa867fb8411822594eaa824059f6",
+  "status": "prepared_frozen",
+  "suite_sha256": "27a003322e5469507a508010a9743b40062928140e6a4b9d5628b0290e32c21d"
+}
