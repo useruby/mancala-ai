@@ -1,0 +1,9 @@
+{
+  "corrected_sha256": "0091ca02a26e2f53084ac2683b94af829e1d003e42eef0e0d699e7f78d592cbe",
+  "parent_correction_sha256": "410d65dbb0b56cd5b0cd664d94193dd68234e2b2515d65117a449d50d1e8dc80",
+  "previous_sha256": "93ed4c141918dd72702fc1ac4e937f714b3e6eb5f94cd08c9f6b35997a790477",
+  "reason": "add a fresh-process test of the documented verifier CLI that distinguishes successful Torch thread initialization from a later resource mismatch; remove test-time inter-op preconfiguration",
+  "registration_sha256": "dc088d45685a1ea5101464e23d5f6bdbd9570b27eb11f44cd5dee16e3bbacadc",
+  "schema": "seed549-training-verifier-source-correction-v1",
+  "source_path": "ml/alphazero_lite/test_seed549_training.py"
+}

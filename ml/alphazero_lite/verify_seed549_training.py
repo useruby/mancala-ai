@@ -21,6 +21,17 @@ from ml.alphazero_lite import train
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "docs/data/seed549-controlled-training"
 CORPUS = ROOT / "docs/data/seed549-matched-selfplay"
+_TORCH_THREADS_CONFIGURED = False
+
+
+def configure_torch_threads() -> None:
+    """Configure one intra-op and one inter-op thread once per process."""
+    global _TORCH_THREADS_CONFIGURED
+    if _TORCH_THREADS_CONFIGURED:
+        return
+    torch.set_num_threads(1)
+    torch.set_num_interop_threads(1)
+    _TORCH_THREADS_CONFIGURED = True
 
 
 def sha(path: Path) -> str:
@@ -674,6 +685,7 @@ def _verify_authenticated(root: Path, output: Path) -> dict[str, Any]:
 
 def verify(root: Path = ROOT, output: Path = OUT) -> dict[str, Any]:
     """Verify evidence read-only, checking bytes and mtimes even on rejection."""
+    configure_torch_threads()
     global ROOT, OUT, CORPUS
     ROOT, OUT = root.resolve(), output.resolve()
     CORPUS = ROOT / "docs/data/seed549-matched-selfplay"
@@ -699,6 +711,7 @@ def verify(root: Path = ROOT, output: Path = OUT) -> dict[str, Any]:
 
 
 def main() -> None:
+    configure_torch_threads()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=ROOT)
     parser.add_argument("--out", type=Path, default=OUT)

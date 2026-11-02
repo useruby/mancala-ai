@@ -6,5 +6,10 @@
   "development_occurrences": 4738,
   "predictions": 14214,
   "read_only_bytes_and_mtimes_unchanged": true,
+  "torch_threads_initialized_by_cli": {
+    "intra_op": 1,
+    "inter_op": 1,
+    "setter_call_count_per_process": 1
+  },
   "rejected_check_read_only_test": "the real verifier entry point rejected a mismatched execution-freeze receipt; the freeze bytes and nanosecond mtime were unchanged"
 }

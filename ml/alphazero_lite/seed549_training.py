@@ -27,6 +27,17 @@ INITIALIZER = ROOT / "docs/data/seed542-selfplay-4096/initializer.npz"
 BOUNDARIES = {27, 54, 81, 108}
 ARMS = ("control", "treatment")
 BUCKETS = (">32", "17-32", "<=16")
+_TORCH_THREADS_CONFIGURED = False
+
+
+def configure_torch_threads() -> None:
+    """Set numeric thread counts once, before any frozen runtime checks."""
+    global _TORCH_THREADS_CONFIGURED
+    if _TORCH_THREADS_CONFIGURED:
+        return
+    torch.set_num_threads(1)
+    torch.set_num_interop_threads(1)
+    _TORCH_THREADS_CONFIGURED = True
 
 
 def sha(path: Path) -> str:
@@ -465,11 +476,10 @@ def publish() -> None:
 
 
 def freeze() -> None:
+    configure_torch_threads()
     if OUT.exists() and any(path.name != "README.md" for path in OUT.iterdir()):
         raise FileExistsError("training_freeze_output_not_empty")
     OUT.mkdir(parents=True, exist_ok=True)
-    torch.set_num_threads(1)
-    torch.set_num_interop_threads(1)
     source_names = (
         "ml/alphazero_lite/seed549_training.py",
         "ml/alphazero_lite/verify_seed549_training.py",
@@ -634,6 +644,7 @@ def preflight() -> None:
 
 
 def execute() -> None:
+    configure_torch_threads()
     preflight()
     unexpected = [
         p.name
@@ -644,8 +655,6 @@ def execute() -> None:
         raise FileExistsError(
             "seed549_training_attempt_already_exists:" + ",".join(unexpected)
         )
-    torch.set_num_threads(1)
-    torch.set_num_interop_threads(1)
     c = run_arm("control")
     # C/T use identical runtime; control output is the explicit gate to continue.
     t = run_arm("treatment")
@@ -661,6 +670,7 @@ def execute() -> None:
 
 
 def main() -> None:
+    configure_torch_threads()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("freeze", "execute", "publish"))
     args = parser.parse_args()

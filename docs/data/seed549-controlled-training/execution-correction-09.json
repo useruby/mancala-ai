@@ -1,0 +1,9 @@
+{
+  "corrected_sha256": "93ed4c141918dd72702fc1ac4e937f714b3e6eb5f94cd08c9f6b35997a790477",
+  "parent_correction_sha256": "1be844c2f6d62a29b297a9d99b22faf51504cdb5f7acfd15bbbab025c9a377e5",
+  "previous_sha256": "c33438f66a0569d4c61f08d8373b0c02d667b448c7162e814153dcc93291f6f3",
+  "reason": "configure the read-only verifier before authentication and make the inter-op setter once-per-process; no training evidence or trajectory was changed",
+  "registration_sha256": "dc088d45685a1ea5101464e23d5f6bdbd9570b27eb11f44cd5dee16e3bbacadc",
+  "schema": "seed549-training-verifier-source-correction-v1",
+  "source_path": "ml/alphazero_lite/verify_seed549_training.py"
+}

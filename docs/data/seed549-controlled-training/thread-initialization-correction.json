@@ -1,0 +1,18 @@
+{
+  "schema": "seed549-training-thread-initialization-correction-v1",
+  "issue": "PR #550 P2: documented runner/verifier commands could reject fresh processes whose PyTorch inter-op default was not one",
+  "correction": "configure torch intra-op and inter-op thread counts once at each CLI entry point, before runner preflight and verifier authentication; use a process-local guard so the inter-op setter is called at most once",
+  "files": {
+    "ml/alphazero_lite/seed549_training.py": "execution-correction-08.json",
+    "ml/alphazero_lite/verify_seed549_training.py": "execution-correction-09.json",
+    "ml/alphazero_lite/test_seed549_training.py": "execution-correction-10.json"
+  },
+  "training_reexecuted": false,
+  "training_evidence_sha256": {
+    "control_trace": "a7de81fa9f6bc569708213e4f092c7704681972e5795cd1eecca07abd699e949",
+    "treatment_trace": "1c7bf8996b80e044ae78dc2f052e655ae06e7b7a2a51a37af5261fd01fde56d3",
+    "control_final_checkpoint": "5339fcc06b1284515181352b47414ef82ff326d22b6848aa1cd7f445e47852ad",
+    "treatment_final_checkpoint": "5006ec04a09c3b286753c23bd34d7216387f5cca65e8d5705b0432b0ad2efe00"
+  },
+  "disposition": "Only CLI runtime initialization and regression tests changed. The already-frozen C/T training traces, checkpoints, predictions, metrics, schedules, and initializer remain byte-identical."
+}

@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import json
+import hashlib
+import os
+import subprocess
 import sys
 
 import torch
@@ -12,7 +15,6 @@ from ml.alphazero_lite import seed549_training as runner
 from ml.alphazero_lite import verify_seed549_training as verifier
 
 torch.set_num_threads(1)
-torch.set_num_interop_threads(1)
 
 
 def _schedule(arm: str) -> dict:
@@ -53,23 +55,95 @@ def test_schedule_shape_mutation_is_rejected(tmp_path, monkeypatch) -> None:
         runner.load_schedule("control")
 
 
-def test_real_verifier_entrypoint_rejects_tampered_freeze_read_only(
-    tmp_path, monkeypatch
-) -> None:
-    (tmp_path / "registration.json").write_text(
-        json.dumps({"source_sha256": {"AGENTS.md": "wrong"}, "input_sha256": {}})
+def test_documented_verifier_cli_initializes_interop_in_fresh_process(tmp_path) -> None:
+    output = tmp_path / "publication"
+    output.mkdir()
+    readme = output / "README.md"
+    readme.write_text("runtime thread fixture\n")
+    registration = {
+        "schema": "seed549-controlled-training-v1",
+        "source_sha256": {},
+        "input_sha256": {},
+        "readme_sha256": hashlib.sha256(readme.read_bytes()).hexdigest(),
+        "development": {
+            "membership_sha256": runner.sha(
+                runner.CORPUS / "shared-development-membership.jsonl"
+            )
+        },
+        "runtime": {
+            "python": sys.version,
+            "numpy": runner.np.__version__,
+            "torch": runner.torch.__version__,
+            "device": "cpu",
+            "dtype": "float32",
+            "cpu_affinity": [30],
+            "nice": 19,
+            "address_space_rlimit": [17_179_869_184, 17_179_869_184],
+            "environment": {
+                key: "1"
+                for key in (
+                    "OMP_NUM_THREADS",
+                    "MKL_NUM_THREADS",
+                    "OPENBLAS_NUM_THREADS",
+                    "BLAS_NUM_THREADS",
+                    "NUMEXPR_NUM_THREADS",
+                )
+            },
+            "cgroup_limits": {
+                "cpu.max": "25000 100000",
+                "cpu.weight": "1",
+                "memory.max": "4294967296",
+                "cpuset.cpus.effective": None,
+            },
+            "torch_threads": 1,
+            "interop_threads": 1,
+        },
+    }
+    registration_path = output / "registration.json"
+    registration_path.write_text(json.dumps(registration))
+    freeze = output / "execution-freeze.json"
+    freeze.write_text(
+        json.dumps({"registration_sha256": runner.sha(registration_path)})
     )
-    freeze_path = tmp_path / "execution-freeze.json"
-    freeze_path.write_text(json.dumps({"registration_sha256": "wrong"}))
-    before = (freeze_path.read_bytes(), freeze_path.stat().st_mtime_ns)
-    monkeypatch.setattr(
-        sys,
-        "argv",
-        ["verify_seed549_training", "--root", str(runner.ROOT), "--out", str(tmp_path)],
+    before = {
+        path: (path.read_bytes(), path.stat().st_mtime_ns)
+        for path in (readme, registration_path, freeze)
+    }
+    environment = os.environ.copy()
+    environment.update(
+        {
+            key: "1"
+            for key in (
+                "OMP_NUM_THREADS",
+                "MKL_NUM_THREADS",
+                "OPENBLAS_NUM_THREADS",
+                "BLAS_NUM_THREADS",
+                "NUMEXPR_NUM_THREADS",
+            )
+        }
     )
-    with pytest.raises(ValueError, match="registration_freeze_mismatch"):
-        verifier.main()
-    assert (freeze_path.read_bytes(), freeze_path.stat().st_mtime_ns) == before
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "ml.alphazero_lite.verify_seed549_training",
+            "--root",
+            str(runner.ROOT),
+            "--out",
+            str(output),
+        ],
+        cwd=runner.ROOT,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode != 0
+    assert "resource_affinity_or_nice_mismatch" in result.stderr
+    assert "torch_thread_mismatch" not in result.stderr
+    assert before == {
+        path: (path.read_bytes(), path.stat().st_mtime_ns) for path in before
+    }
 
 
 def test_objective_is_policy_ce_plus_half_huber() -> None:
