@@ -1,0 +1,117 @@
+{
+  "arm": "treatment",
+  "development_games": 128,
+  "development_identity_sha256": "790d6a7b8e42acd845f90c520d96b578ab23011c67bd4e05fc660a10b271f81c",
+  "development_rows": 4661,
+  "games": 512,
+  "schema": "seed549-arm-source-manifest-v1",
+  "shards": [
+    {
+      "games": {
+        "capped": 0,
+        "completed": 64,
+        "incomplete": 0
+      },
+      "partition": "training",
+      "path": "docs/data/seed549-matched-selfplay/treatment/shard-000.jsonl",
+      "rows": 2213,
+      "seed": 549000,
+      "sha256": "870cfcd0829c36c8d1e4d9c77925b56544a2d281921c79740d7e3ee3029b32dc",
+      "shard": 0
+    },
+    {
+      "games": {
+        "capped": 0,
+        "completed": 64,
+        "incomplete": 0
+      },
+      "partition": "training",
+      "path": "docs/data/seed549-matched-selfplay/treatment/shard-001.jsonl",
+      "rows": 2326,
+      "seed": 549001,
+      "sha256": "7f9660edc56e8778e0ff39d5f29aa5ecac4b3f66c91ed7421c1ae7f3572050c0",
+      "shard": 1
+    },
+    {
+      "games": {
+        "capped": 0,
+        "completed": 64,
+        "incomplete": 0
+      },
+      "partition": "training",
+      "path": "docs/data/seed549-matched-selfplay/treatment/shard-002.jsonl",
+      "rows": 2411,
+      "seed": 549002,
+      "sha256": "2ab0032b9d16e9ad33fce2f4fcbcde0591645898f893db04ab6465d4fb71f595",
+      "shard": 2
+    },
+    {
+      "games": {
+        "capped": 0,
+        "completed": 64,
+        "incomplete": 0
+      },
+      "partition": "training",
+      "path": "docs/data/seed549-matched-selfplay/treatment/shard-003.jsonl",
+      "rows": 2268,
+      "seed": 549003,
+      "sha256": "387b59937814411b1dbebf1e6b6ec5b9efc6f1eb479fd273d1f78a6d46d29a34",
+      "shard": 3
+    },
+    {
+      "games": {
+        "capped": 0,
+        "completed": 64,
+        "incomplete": 0
+      },
+      "partition": "training",
+      "path": "docs/data/seed549-matched-selfplay/treatment/shard-004.jsonl",
+      "rows": 2373,
+      "seed": 549004,
+      "sha256": "af933b7f9a7e79533003c3fe429387e670d831fb519d9f21628e1d62fca43b88",
+      "shard": 4
+    },
+    {
+      "games": {
+        "capped": 0,
+        "completed": 64,
+        "incomplete": 0
+      },
+      "partition": "training",
+      "path": "docs/data/seed549-matched-selfplay/treatment/shard-005.jsonl",
+      "rows": 2258,
+      "seed": 549005,
+      "sha256": "ad3abea4e1b021920237cf9b24d8a2f969f4c3b38f2ebc92d7accc6b18f653bf",
+      "shard": 5
+    },
+    {
+      "games": {
+        "capped": 0,
+        "completed": 64,
+        "incomplete": 0
+      },
+      "partition": "development",
+      "path": "docs/data/seed549-matched-selfplay/treatment/shard-006.jsonl",
+      "rows": 2399,
+      "seed": 549006,
+      "sha256": "6d7fc900f0452e4763ca436b288e80aebd8c2cdf51d1baf7efe2d0edd77dc27a",
+      "shard": 6
+    },
+    {
+      "games": {
+        "capped": 0,
+        "completed": 64,
+        "incomplete": 0
+      },
+      "partition": "development",
+      "path": "docs/data/seed549-matched-selfplay/treatment/shard-007.jsonl",
+      "rows": 2262,
+      "seed": 549007,
+      "sha256": "7054bf46e44d4cd4d0377700bb23f5ac46b77b89b44960c71359696967081ce6",
+      "shard": 7
+    }
+  ],
+  "training_games": 384,
+  "training_identity_sha256": "277ddd5446548732171b5bacaebee5a41a46ff263bb4ddb6619188a4b32547bd",
+  "training_rows": 13849
+}

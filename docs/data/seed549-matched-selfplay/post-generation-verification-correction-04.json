@@ -1,0 +1,8 @@
+{
+  "corrected_algorithm_sha256": "4e4d6980d936adb8d6890561ce333f6bd89a5f0f6ee625dd17326b8ea9bf06d4",
+  "corrected_test_sha256": "c24b7dff65b13db3de58903de202bcd2dde78ba815dbf273c0a4bfcaf78f0c1b",
+  "failed_attempt_log_sha256": "c5c8c7aa04e9ed95ae4e5d1fc147317eb69a771d2f337054cff22d97399aa5e8",
+  "parent_correction_sha256": "4ab3d8a319d27d388e7c75be9d5ce21d8cc940d771d10c13609b02bb9e699a9e",
+  "reason": "attempt verifier recognizes the explicitly bound zero-output CLI recovery; raw corpus and derivative bytes are unchanged",
+  "schema": "seed549-post-generation-verification-correction-v1"
+}

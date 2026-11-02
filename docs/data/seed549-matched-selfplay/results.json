@@ -1,0 +1,6425 @@
+{
+  "arms": {
+    "control": {
+      "accepted_rows": 18474,
+      "attempts": [
+        {
+          "elapsed_seconds": 452.59311119280756,
+          "output_sha256": "83ea51e45b36c717f3a1a3785130a820fb0c76e8880db6a71ed70938358a004a",
+          "peak_sampled_process_tree_rss_bytes": 2326315008,
+          "shard": 0
+        },
+        {
+          "elapsed_seconds": 443.4106886018999,
+          "output_sha256": "b69b28ef271fb8fee1f1ec9ea89a92824c732116f65c2ac04ec018bfa5335947",
+          "peak_sampled_process_tree_rss_bytes": 2326339584,
+          "shard": 1
+        },
+        {
+          "elapsed_seconds": 431.36129199014977,
+          "output_sha256": "bb3295a9ec19871eac63a37b304ad7f4a873afb5b7f8f752e839930b96df7867",
+          "peak_sampled_process_tree_rss_bytes": 2326417408,
+          "shard": 2
+        },
+        {
+          "elapsed_seconds": 433.3721872200258,
+          "output_sha256": "7cdbbd419e7d24aafb20c8270f3f15929130347421e074c23330f3a1d6c098be",
+          "peak_sampled_process_tree_rss_bytes": 2326294528,
+          "shard": 3
+        },
+        {
+          "elapsed_seconds": 435.4258491648361,
+          "output_sha256": "ffe13e0d02afa237651cb78950cbdf44d0fed8c87222736ef79a11f33062e2d5",
+          "peak_sampled_process_tree_rss_bytes": 2326237184,
+          "shard": 4
+        },
+        {
+          "elapsed_seconds": 447.55440315324813,
+          "output_sha256": "f15bbd1a450bf4e900d94994e84dbfec7a4f79f4ddc5f050cf239cfe8258a9e1",
+          "peak_sampled_process_tree_rss_bytes": 2326171648,
+          "shard": 5
+        },
+        {
+          "elapsed_seconds": 447.7624911419116,
+          "output_sha256": "72171abb67920a12ea5bb700038ec105f3e6550901b8db734819b0465e70fbc6",
+          "peak_sampled_process_tree_rss_bytes": 2326216704,
+          "shard": 6
+        },
+        {
+          "elapsed_seconds": 444.44306389801204,
+          "output_sha256": "72b1f9786a4887fc64437eff390d128fca9663563904ddd9023658f91a1471e3",
+          "peak_sampled_process_tree_rss_bytes": 2326274048,
+          "shard": 7
+        }
+      ],
+      "canonical_unique": 12739,
+      "completed_games": 512,
+      "elapsed_seconds": 3535.923086362891,
+      "exact_root_rows": 6431,
+      "game_lengths": {
+        "max": 60,
+        "mean": 36.08203125,
+        "min": 13,
+        "per_game": [
+          {
+            "game_index": 0,
+            "length": 27,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 1,
+            "length": 45,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 2,
+            "length": 34,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 3,
+            "length": 35,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 4,
+            "length": 32,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 5,
+            "length": 17,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 6,
+            "length": 45,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 7,
+            "length": 40,
+            "shard": 0,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 8,
+            "length": 51,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 9,
+            "length": 38,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 10,
+            "length": 48,
+            "shard": 0,
+            "unique_over_32_stone_identities": 8
+          },
+          {
+            "game_index": 11,
+            "length": 41,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 12,
+            "length": 51,
+            "shard": 0,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 13,
+            "length": 26,
+            "shard": 0,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 14,
+            "length": 46,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 15,
+            "length": 36,
+            "shard": 0,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 16,
+            "length": 16,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 17,
+            "length": 36,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 18,
+            "length": 14,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 19,
+            "length": 37,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 20,
+            "length": 33,
+            "shard": 0,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 21,
+            "length": 35,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 22,
+            "length": 32,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 23,
+            "length": 25,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 24,
+            "length": 44,
+            "shard": 0,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 25,
+            "length": 42,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 26,
+            "length": 41,
+            "shard": 0,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 27,
+            "length": 44,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 28,
+            "length": 29,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 29,
+            "length": 40,
+            "shard": 0,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 30,
+            "length": 26,
+            "shard": 0,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 31,
+            "length": 46,
+            "shard": 0,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 32,
+            "length": 42,
+            "shard": 0,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 33,
+            "length": 35,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 34,
+            "length": 31,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 35,
+            "length": 34,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 36,
+            "length": 36,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 37,
+            "length": 46,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 38,
+            "length": 39,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 39,
+            "length": 22,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 40,
+            "length": 40,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 41,
+            "length": 44,
+            "shard": 0,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 42,
+            "length": 45,
+            "shard": 0,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 43,
+            "length": 41,
+            "shard": 0,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 44,
+            "length": 28,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 45,
+            "length": 41,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 46,
+            "length": 35,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 47,
+            "length": 47,
+            "shard": 0,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 48,
+            "length": 32,
+            "shard": 0,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 49,
+            "length": 42,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 50,
+            "length": 40,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 51,
+            "length": 43,
+            "shard": 0,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 52,
+            "length": 32,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 53,
+            "length": 36,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 54,
+            "length": 30,
+            "shard": 0,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 55,
+            "length": 44,
+            "shard": 0,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 56,
+            "length": 42,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 57,
+            "length": 41,
+            "shard": 0,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 58,
+            "length": 30,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 59,
+            "length": 34,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 60,
+            "length": 44,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 61,
+            "length": 28,
+            "shard": 0,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 62,
+            "length": 49,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 63,
+            "length": 40,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 0,
+            "length": 42,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 1,
+            "length": 34,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 2,
+            "length": 45,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 3,
+            "length": 40,
+            "shard": 1,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 4,
+            "length": 38,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 5,
+            "length": 39,
+            "shard": 1,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 6,
+            "length": 43,
+            "shard": 1,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 7,
+            "length": 34,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 8,
+            "length": 49,
+            "shard": 1,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 9,
+            "length": 19,
+            "shard": 1,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 10,
+            "length": 38,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 11,
+            "length": 36,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 12,
+            "length": 35,
+            "shard": 1,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 13,
+            "length": 40,
+            "shard": 1,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 14,
+            "length": 48,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 15,
+            "length": 51,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 16,
+            "length": 39,
+            "shard": 1,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 17,
+            "length": 37,
+            "shard": 1,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 18,
+            "length": 37,
+            "shard": 1,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 19,
+            "length": 44,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 20,
+            "length": 42,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 21,
+            "length": 36,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 22,
+            "length": 43,
+            "shard": 1,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 23,
+            "length": 43,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 24,
+            "length": 28,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 25,
+            "length": 34,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 26,
+            "length": 31,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 27,
+            "length": 16,
+            "shard": 1,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 28,
+            "length": 13,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 29,
+            "length": 34,
+            "shard": 1,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 30,
+            "length": 36,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 31,
+            "length": 49,
+            "shard": 1,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 32,
+            "length": 52,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 33,
+            "length": 35,
+            "shard": 1,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 34,
+            "length": 36,
+            "shard": 1,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 35,
+            "length": 38,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 36,
+            "length": 41,
+            "shard": 1,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 37,
+            "length": 37,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 38,
+            "length": 46,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 39,
+            "length": 24,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 40,
+            "length": 28,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 41,
+            "length": 28,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 42,
+            "length": 14,
+            "shard": 1,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 43,
+            "length": 41,
+            "shard": 1,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 44,
+            "length": 39,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 45,
+            "length": 35,
+            "shard": 1,
+            "unique_over_32_stone_identities": 8
+          },
+          {
+            "game_index": 46,
+            "length": 43,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 47,
+            "length": 19,
+            "shard": 1,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 48,
+            "length": 32,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 49,
+            "length": 43,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 50,
+            "length": 22,
+            "shard": 1,
+            "unique_over_32_stone_identities": 8
+          },
+          {
+            "game_index": 51,
+            "length": 31,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 52,
+            "length": 52,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 53,
+            "length": 43,
+            "shard": 1,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 54,
+            "length": 36,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 55,
+            "length": 27,
+            "shard": 1,
+            "unique_over_32_stone_identities": 8
+          },
+          {
+            "game_index": 56,
+            "length": 36,
+            "shard": 1,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 57,
+            "length": 38,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 58,
+            "length": 38,
+            "shard": 1,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 59,
+            "length": 24,
+            "shard": 1,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 60,
+            "length": 37,
+            "shard": 1,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 61,
+            "length": 37,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 62,
+            "length": 30,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 63,
+            "length": 37,
+            "shard": 1,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 0,
+            "length": 26,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 1,
+            "length": 40,
+            "shard": 2,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 2,
+            "length": 26,
+            "shard": 2,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 3,
+            "length": 41,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 4,
+            "length": 38,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 5,
+            "length": 16,
+            "shard": 2,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 6,
+            "length": 41,
+            "shard": 2,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 7,
+            "length": 41,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 8,
+            "length": 46,
+            "shard": 2,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 9,
+            "length": 34,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 10,
+            "length": 40,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 11,
+            "length": 31,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 12,
+            "length": 35,
+            "shard": 2,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 13,
+            "length": 43,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 14,
+            "length": 41,
+            "shard": 2,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 15,
+            "length": 14,
+            "shard": 2,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 16,
+            "length": 29,
+            "shard": 2,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 17,
+            "length": 27,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 18,
+            "length": 34,
+            "shard": 2,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 19,
+            "length": 37,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 20,
+            "length": 39,
+            "shard": 2,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 21,
+            "length": 41,
+            "shard": 2,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 22,
+            "length": 14,
+            "shard": 2,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 23,
+            "length": 36,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 24,
+            "length": 34,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 25,
+            "length": 34,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 26,
+            "length": 50,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 27,
+            "length": 25,
+            "shard": 2,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 28,
+            "length": 44,
+            "shard": 2,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 29,
+            "length": 38,
+            "shard": 2,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 30,
+            "length": 13,
+            "shard": 2,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 31,
+            "length": 37,
+            "shard": 2,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 32,
+            "length": 38,
+            "shard": 2,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 33,
+            "length": 33,
+            "shard": 2,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 34,
+            "length": 37,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 35,
+            "length": 42,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 36,
+            "length": 31,
+            "shard": 2,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 37,
+            "length": 38,
+            "shard": 2,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 38,
+            "length": 38,
+            "shard": 2,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 39,
+            "length": 28,
+            "shard": 2,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 40,
+            "length": 51,
+            "shard": 2,
+            "unique_over_32_stone_identities": 20
+          },
+          {
+            "game_index": 41,
+            "length": 59,
+            "shard": 2,
+            "unique_over_32_stone_identities": 19
+          },
+          {
+            "game_index": 42,
+            "length": 29,
+            "shard": 2,
+            "unique_over_32_stone_identities": 21
+          },
+          {
+            "game_index": 43,
+            "length": 31,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 44,
+            "length": 40,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 45,
+            "length": 31,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 46,
+            "length": 31,
+            "shard": 2,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 47,
+            "length": 38,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 48,
+            "length": 26,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 49,
+            "length": 43,
+            "shard": 2,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 50,
+            "length": 35,
+            "shard": 2,
+            "unique_over_32_stone_identities": 20
+          },
+          {
+            "game_index": 51,
+            "length": 41,
+            "shard": 2,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 52,
+            "length": 39,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 53,
+            "length": 33,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 54,
+            "length": 32,
+            "shard": 2,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 55,
+            "length": 39,
+            "shard": 2,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 56,
+            "length": 36,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 57,
+            "length": 26,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 58,
+            "length": 32,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 59,
+            "length": 37,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 60,
+            "length": 36,
+            "shard": 2,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 61,
+            "length": 47,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 62,
+            "length": 31,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 63,
+            "length": 22,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 0,
+            "length": 34,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 1,
+            "length": 18,
+            "shard": 3,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 2,
+            "length": 48,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 3,
+            "length": 42,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 4,
+            "length": 36,
+            "shard": 3,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 5,
+            "length": 29,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 6,
+            "length": 49,
+            "shard": 3,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 7,
+            "length": 35,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 8,
+            "length": 34,
+            "shard": 3,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 9,
+            "length": 49,
+            "shard": 3,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 10,
+            "length": 41,
+            "shard": 3,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 11,
+            "length": 47,
+            "shard": 3,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 12,
+            "length": 37,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 13,
+            "length": 30,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 14,
+            "length": 31,
+            "shard": 3,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 15,
+            "length": 30,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 16,
+            "length": 37,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 17,
+            "length": 40,
+            "shard": 3,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 18,
+            "length": 26,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 19,
+            "length": 41,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 20,
+            "length": 28,
+            "shard": 3,
+            "unique_over_32_stone_identities": 8
+          },
+          {
+            "game_index": 21,
+            "length": 44,
+            "shard": 3,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 22,
+            "length": 36,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 23,
+            "length": 33,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 24,
+            "length": 40,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 25,
+            "length": 26,
+            "shard": 3,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 26,
+            "length": 39,
+            "shard": 3,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 27,
+            "length": 43,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 28,
+            "length": 42,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 29,
+            "length": 34,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 30,
+            "length": 34,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 31,
+            "length": 44,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 32,
+            "length": 22,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 33,
+            "length": 19,
+            "shard": 3,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 34,
+            "length": 37,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 35,
+            "length": 37,
+            "shard": 3,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 36,
+            "length": 40,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 37,
+            "length": 34,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 38,
+            "length": 29,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 39,
+            "length": 43,
+            "shard": 3,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 40,
+            "length": 45,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 41,
+            "length": 48,
+            "shard": 3,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 42,
+            "length": 42,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 43,
+            "length": 39,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 44,
+            "length": 26,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 45,
+            "length": 48,
+            "shard": 3,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 46,
+            "length": 50,
+            "shard": 3,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 47,
+            "length": 44,
+            "shard": 3,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 48,
+            "length": 32,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 49,
+            "length": 15,
+            "shard": 3,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 50,
+            "length": 32,
+            "shard": 3,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 51,
+            "length": 26,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 52,
+            "length": 38,
+            "shard": 3,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 53,
+            "length": 56,
+            "shard": 3,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 54,
+            "length": 43,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 55,
+            "length": 20,
+            "shard": 3,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 56,
+            "length": 41,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 57,
+            "length": 36,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 58,
+            "length": 32,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 59,
+            "length": 31,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 60,
+            "length": 41,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 61,
+            "length": 27,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 62,
+            "length": 28,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 63,
+            "length": 33,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 0,
+            "length": 44,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 1,
+            "length": 20,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 2,
+            "length": 41,
+            "shard": 4,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 3,
+            "length": 38,
+            "shard": 4,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 4,
+            "length": 24,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 5,
+            "length": 45,
+            "shard": 4,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 6,
+            "length": 31,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 7,
+            "length": 23,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 8,
+            "length": 39,
+            "shard": 4,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 9,
+            "length": 44,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 10,
+            "length": 27,
+            "shard": 4,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 11,
+            "length": 38,
+            "shard": 4,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 12,
+            "length": 28,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 13,
+            "length": 45,
+            "shard": 4,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 14,
+            "length": 27,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 15,
+            "length": 40,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 16,
+            "length": 37,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 17,
+            "length": 35,
+            "shard": 4,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 18,
+            "length": 40,
+            "shard": 4,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 19,
+            "length": 44,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 20,
+            "length": 26,
+            "shard": 4,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 21,
+            "length": 37,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 22,
+            "length": 47,
+            "shard": 4,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 23,
+            "length": 33,
+            "shard": 4,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 24,
+            "length": 30,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 25,
+            "length": 41,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 26,
+            "length": 35,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 27,
+            "length": 22,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 28,
+            "length": 41,
+            "shard": 4,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 29,
+            "length": 28,
+            "shard": 4,
+            "unique_over_32_stone_identities": 8
+          },
+          {
+            "game_index": 30,
+            "length": 43,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 31,
+            "length": 28,
+            "shard": 4,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 32,
+            "length": 28,
+            "shard": 4,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 33,
+            "length": 35,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 34,
+            "length": 43,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 35,
+            "length": 38,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 36,
+            "length": 29,
+            "shard": 4,
+            "unique_over_32_stone_identities": 8
+          },
+          {
+            "game_index": 37,
+            "length": 28,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 38,
+            "length": 39,
+            "shard": 4,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 39,
+            "length": 32,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 40,
+            "length": 39,
+            "shard": 4,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 41,
+            "length": 38,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 42,
+            "length": 34,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 43,
+            "length": 58,
+            "shard": 4,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 44,
+            "length": 40,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 45,
+            "length": 53,
+            "shard": 4,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 46,
+            "length": 35,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 47,
+            "length": 23,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 48,
+            "length": 26,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 49,
+            "length": 32,
+            "shard": 4,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 50,
+            "length": 14,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 51,
+            "length": 48,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 52,
+            "length": 13,
+            "shard": 4,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 53,
+            "length": 35,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 54,
+            "length": 40,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 55,
+            "length": 39,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 56,
+            "length": 33,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 57,
+            "length": 20,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 58,
+            "length": 22,
+            "shard": 4,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 59,
+            "length": 18,
+            "shard": 4,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 60,
+            "length": 39,
+            "shard": 4,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 61,
+            "length": 39,
+            "shard": 4,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 62,
+            "length": 37,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 63,
+            "length": 42,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 0,
+            "length": 48,
+            "shard": 5,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 1,
+            "length": 38,
+            "shard": 5,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 2,
+            "length": 38,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 3,
+            "length": 18,
+            "shard": 5,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 4,
+            "length": 42,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 5,
+            "length": 42,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 6,
+            "length": 32,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 7,
+            "length": 32,
+            "shard": 5,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 8,
+            "length": 30,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 9,
+            "length": 32,
+            "shard": 5,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 10,
+            "length": 52,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 11,
+            "length": 41,
+            "shard": 5,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 12,
+            "length": 37,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 13,
+            "length": 26,
+            "shard": 5,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 14,
+            "length": 40,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 15,
+            "length": 39,
+            "shard": 5,
+            "unique_over_32_stone_identities": 8
+          },
+          {
+            "game_index": 16,
+            "length": 40,
+            "shard": 5,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 17,
+            "length": 29,
+            "shard": 5,
+            "unique_over_32_stone_identities": 8
+          },
+          {
+            "game_index": 18,
+            "length": 37,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 19,
+            "length": 50,
+            "shard": 5,
+            "unique_over_32_stone_identities": 19
+          },
+          {
+            "game_index": 20,
+            "length": 34,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 21,
+            "length": 40,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 22,
+            "length": 42,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 23,
+            "length": 46,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 24,
+            "length": 36,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 25,
+            "length": 40,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 26,
+            "length": 35,
+            "shard": 5,
+            "unique_over_32_stone_identities": 8
+          },
+          {
+            "game_index": 27,
+            "length": 22,
+            "shard": 5,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 28,
+            "length": 28,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 29,
+            "length": 33,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 30,
+            "length": 31,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 31,
+            "length": 20,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 32,
+            "length": 33,
+            "shard": 5,
+            "unique_over_32_stone_identities": 8
+          },
+          {
+            "game_index": 33,
+            "length": 47,
+            "shard": 5,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 34,
+            "length": 48,
+            "shard": 5,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 35,
+            "length": 37,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 36,
+            "length": 34,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 37,
+            "length": 29,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 38,
+            "length": 34,
+            "shard": 5,
+            "unique_over_32_stone_identities": 8
+          },
+          {
+            "game_index": 39,
+            "length": 39,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 40,
+            "length": 50,
+            "shard": 5,
+            "unique_over_32_stone_identities": 20
+          },
+          {
+            "game_index": 41,
+            "length": 34,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 42,
+            "length": 32,
+            "shard": 5,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 43,
+            "length": 34,
+            "shard": 5,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 44,
+            "length": 40,
+            "shard": 5,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 45,
+            "length": 42,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 46,
+            "length": 31,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 47,
+            "length": 28,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 48,
+            "length": 43,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 49,
+            "length": 40,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 50,
+            "length": 38,
+            "shard": 5,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 51,
+            "length": 50,
+            "shard": 5,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 52,
+            "length": 33,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 53,
+            "length": 49,
+            "shard": 5,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 54,
+            "length": 25,
+            "shard": 5,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 55,
+            "length": 35,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 56,
+            "length": 42,
+            "shard": 5,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 57,
+            "length": 45,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 58,
+            "length": 45,
+            "shard": 5,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 59,
+            "length": 36,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 60,
+            "length": 41,
+            "shard": 5,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 61,
+            "length": 48,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 62,
+            "length": 47,
+            "shard": 5,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 63,
+            "length": 26,
+            "shard": 5,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 0,
+            "length": 37,
+            "shard": 6,
+            "unique_over_32_stone_identities": 8
+          },
+          {
+            "game_index": 1,
+            "length": 36,
+            "shard": 6,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 2,
+            "length": 34,
+            "shard": 6,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 3,
+            "length": 34,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 4,
+            "length": 28,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 5,
+            "length": 39,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 6,
+            "length": 20,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 7,
+            "length": 22,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 8,
+            "length": 43,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 9,
+            "length": 36,
+            "shard": 6,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 10,
+            "length": 37,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 11,
+            "length": 34,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 12,
+            "length": 36,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 13,
+            "length": 52,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 14,
+            "length": 45,
+            "shard": 6,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 15,
+            "length": 35,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 16,
+            "length": 44,
+            "shard": 6,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 17,
+            "length": 47,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 18,
+            "length": 36,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 19,
+            "length": 44,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 20,
+            "length": 39,
+            "shard": 6,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 21,
+            "length": 26,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 22,
+            "length": 43,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 23,
+            "length": 40,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 24,
+            "length": 40,
+            "shard": 6,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 25,
+            "length": 38,
+            "shard": 6,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 26,
+            "length": 41,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 27,
+            "length": 25,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 28,
+            "length": 36,
+            "shard": 6,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 29,
+            "length": 37,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 30,
+            "length": 39,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 31,
+            "length": 42,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 32,
+            "length": 46,
+            "shard": 6,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 33,
+            "length": 36,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 34,
+            "length": 27,
+            "shard": 6,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 35,
+            "length": 26,
+            "shard": 6,
+            "unique_over_32_stone_identities": 7
+          },
+          {
+            "game_index": 36,
+            "length": 53,
+            "shard": 6,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 37,
+            "length": 41,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 38,
+            "length": 22,
+            "shard": 6,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 39,
+            "length": 40,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 40,
+            "length": 43,
+            "shard": 6,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 41,
+            "length": 50,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 42,
+            "length": 33,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 43,
+            "length": 35,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 44,
+            "length": 14,
+            "shard": 6,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 45,
+            "length": 29,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 46,
+            "length": 40,
+            "shard": 6,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 47,
+            "length": 33,
+            "shard": 6,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 48,
+            "length": 40,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 49,
+            "length": 36,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 50,
+            "length": 42,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 51,
+            "length": 36,
+            "shard": 6,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 52,
+            "length": 31,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 53,
+            "length": 13,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 54,
+            "length": 39,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 55,
+            "length": 35,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 56,
+            "length": 43,
+            "shard": 6,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 57,
+            "length": 17,
+            "shard": 6,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 58,
+            "length": 34,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 59,
+            "length": 48,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 60,
+            "length": 44,
+            "shard": 6,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 61,
+            "length": 26,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 62,
+            "length": 27,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 63,
+            "length": 39,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 0,
+            "length": 14,
+            "shard": 7,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 1,
+            "length": 35,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 2,
+            "length": 35,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 3,
+            "length": 37,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 4,
+            "length": 45,
+            "shard": 7,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 5,
+            "length": 50,
+            "shard": 7,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 6,
+            "length": 29,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 7,
+            "length": 42,
+            "shard": 7,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 8,
+            "length": 29,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 9,
+            "length": 38,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 10,
+            "length": 48,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 11,
+            "length": 46,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 12,
+            "length": 24,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 13,
+            "length": 35,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 14,
+            "length": 36,
+            "shard": 7,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 15,
+            "length": 38,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 16,
+            "length": 42,
+            "shard": 7,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 17,
+            "length": 35,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 18,
+            "length": 41,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 19,
+            "length": 26,
+            "shard": 7,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 20,
+            "length": 40,
+            "shard": 7,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 21,
+            "length": 23,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 22,
+            "length": 60,
+            "shard": 7,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 23,
+            "length": 35,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 24,
+            "length": 30,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 25,
+            "length": 29,
+            "shard": 7,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 26,
+            "length": 33,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 27,
+            "length": 45,
+            "shard": 7,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 28,
+            "length": 41,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 29,
+            "length": 25,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 30,
+            "length": 34,
+            "shard": 7,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 31,
+            "length": 36,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 32,
+            "length": 37,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 33,
+            "length": 44,
+            "shard": 7,
+            "unique_over_32_stone_identities": 20
+          },
+          {
+            "game_index": 34,
+            "length": 42,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 35,
+            "length": 47,
+            "shard": 7,
+            "unique_over_32_stone_identities": 19
+          },
+          {
+            "game_index": 36,
+            "length": 22,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 37,
+            "length": 35,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 38,
+            "length": 33,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 39,
+            "length": 33,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 40,
+            "length": 46,
+            "shard": 7,
+            "unique_over_32_stone_identities": 20
+          },
+          {
+            "game_index": 41,
+            "length": 52,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 42,
+            "length": 51,
+            "shard": 7,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 43,
+            "length": 35,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 44,
+            "length": 25,
+            "shard": 7,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 45,
+            "length": 36,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 46,
+            "length": 47,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 47,
+            "length": 26,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 48,
+            "length": 41,
+            "shard": 7,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 49,
+            "length": 36,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 50,
+            "length": 23,
+            "shard": 7,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 51,
+            "length": 39,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 52,
+            "length": 35,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 53,
+            "length": 18,
+            "shard": 7,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 54,
+            "length": 37,
+            "shard": 7,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 55,
+            "length": 32,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 56,
+            "length": 46,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 57,
+            "length": 34,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 58,
+            "length": 30,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 59,
+            "length": 44,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 60,
+            "length": 50,
+            "shard": 7,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 61,
+            "length": 42,
+            "shard": 7,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 62,
+            "length": 31,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 63,
+            "length": 48,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          }
+        ]
+      },
+      "games_per_second": 0.1447995297111091,
+      "memory_limit_bytes": 4294967296,
+      "peak_sampled_memory_bytes": 2326417408,
+      "production_float32_unique": 12739,
+      "puct_rows": 12043,
+      "stone_bucket_diagnostics": {
+        "17-32": {
+          "canonical_unique": 4791,
+          "duplicate_target_disagreement_states": 0,
+          "duplicate_target_groups": 548,
+          "mean_target_entropy_nats": 0.0894488916721547,
+          "one_hot_rows": 182,
+          "production_float32_unique": 4791,
+          "rows": 5719
+        },
+        "<=16": {
+          "canonical_unique": 5540,
+          "duplicate_target_disagreement_states": 0,
+          "duplicate_target_groups": 586,
+          "mean_target_entropy_nats": 0.0,
+          "one_hot_rows": 6431,
+          "production_float32_unique": 5540,
+          "rows": 6431
+        },
+        ">32": {
+          "canonical_unique": 2408,
+          "duplicate_target_disagreement_states": 0,
+          "duplicate_target_groups": 493,
+          "mean_target_entropy_nats": 0.5607437232352894,
+          "one_hot_rows": 43,
+          "production_float32_unique": 2408,
+          "rows": 6324
+        }
+      },
+      "unique_over_32_stone_identities": 2408,
+      "unique_over_32_stone_identities_per_game": 4.703125,
+      "unique_over_32_stone_identities_per_generation_second": 0.6810102881725599
+    },
+    "treatment": {
+      "accepted_rows": 18510,
+      "attempts": [
+        {
+          "elapsed_seconds": 723.6076444056816,
+          "output_sha256": "870cfcd0829c36c8d1e4d9c77925b56544a2d281921c79740d7e3ee3029b32dc",
+          "peak_sampled_process_tree_rss_bytes": 2326839296,
+          "shard": 0
+        },
+        {
+          "elapsed_seconds": 727.2832603068091,
+          "output_sha256": "7f9660edc56e8778e0ff39d5f29aa5ecac4b3f66c91ed7421c1ae7f3572050c0",
+          "peak_sampled_process_tree_rss_bytes": 2326769664,
+          "shard": 1
+        },
+        {
+          "elapsed_seconds": 748.5558998920023,
+          "output_sha256": "2ab0032b9d16e9ad33fce2f4fcbcde0591645898f893db04ab6465d4fb71f595",
+          "peak_sampled_process_tree_rss_bytes": 2326847488,
+          "shard": 2
+        },
+        {
+          "elapsed_seconds": 726.2888684631325,
+          "output_sha256": "387b59937814411b1dbebf1e6b6ec5b9efc6f1eb479fd273d1f78a6d46d29a34",
+          "peak_sampled_process_tree_rss_bytes": 2326781952,
+          "shard": 3
+        },
+        {
+          "elapsed_seconds": 741.7180161941797,
+          "output_sha256": "af933b7f9a7e79533003c3fe429387e670d831fb519d9f21628e1d62fca43b88",
+          "peak_sampled_process_tree_rss_bytes": 2326794240,
+          "shard": 4
+        },
+        {
+          "elapsed_seconds": 708.9531230758876,
+          "output_sha256": "ad3abea4e1b021920237cf9b24d8a2f969f4c3b38f2ebc92d7accc6b18f653bf",
+          "peak_sampled_process_tree_rss_bytes": 2326847488,
+          "shard": 5
+        },
+        {
+          "elapsed_seconds": 743.5265151401982,
+          "output_sha256": "6d7fc900f0452e4763ca436b288e80aebd8c2cdf51d1baf7efe2d0edd77dc27a",
+          "peak_sampled_process_tree_rss_bytes": 2326851584,
+          "shard": 6
+        },
+        {
+          "elapsed_seconds": 721.3543125297874,
+          "output_sha256": "7054bf46e44d4cd4d0377700bb23f5ac46b77b89b44960c71359696967081ce6",
+          "peak_sampled_process_tree_rss_bytes": 2326822912,
+          "shard": 7
+        }
+      ],
+      "canonical_unique": 9122,
+      "completed_games": 512,
+      "elapsed_seconds": 5841.287640007678,
+      "exact_root_rows": 6594,
+      "game_lengths": {
+        "max": 63,
+        "mean": 36.15234375,
+        "min": 12,
+        "per_game": [
+          {
+            "game_index": 0,
+            "length": 44,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 1,
+            "length": 31,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 2,
+            "length": 35,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 3,
+            "length": 35,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 4,
+            "length": 26,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 5,
+            "length": 17,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 6,
+            "length": 37,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 7,
+            "length": 33,
+            "shard": 0,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 8,
+            "length": 41,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 9,
+            "length": 48,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 10,
+            "length": 47,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 11,
+            "length": 38,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 12,
+            "length": 29,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 13,
+            "length": 13,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 14,
+            "length": 26,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 15,
+            "length": 30,
+            "shard": 0,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 16,
+            "length": 42,
+            "shard": 0,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 17,
+            "length": 27,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 18,
+            "length": 34,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 19,
+            "length": 33,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 20,
+            "length": 44,
+            "shard": 0,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 21,
+            "length": 23,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 22,
+            "length": 41,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 23,
+            "length": 25,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 24,
+            "length": 33,
+            "shard": 0,
+            "unique_over_32_stone_identities": 19
+          },
+          {
+            "game_index": 25,
+            "length": 35,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 26,
+            "length": 42,
+            "shard": 0,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 27,
+            "length": 29,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 28,
+            "length": 38,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 29,
+            "length": 42,
+            "shard": 0,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 30,
+            "length": 14,
+            "shard": 0,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 31,
+            "length": 35,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 32,
+            "length": 32,
+            "shard": 0,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 33,
+            "length": 37,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 34,
+            "length": 39,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 35,
+            "length": 36,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 36,
+            "length": 31,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 37,
+            "length": 34,
+            "shard": 0,
+            "unique_over_32_stone_identities": 7
+          },
+          {
+            "game_index": 38,
+            "length": 35,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 39,
+            "length": 27,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 40,
+            "length": 37,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 41,
+            "length": 46,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 42,
+            "length": 42,
+            "shard": 0,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 43,
+            "length": 29,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 44,
+            "length": 26,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 45,
+            "length": 48,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 46,
+            "length": 23,
+            "shard": 0,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 47,
+            "length": 36,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 48,
+            "length": 31,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 49,
+            "length": 31,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 50,
+            "length": 48,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 51,
+            "length": 36,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 52,
+            "length": 36,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 53,
+            "length": 48,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 54,
+            "length": 41,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 55,
+            "length": 48,
+            "shard": 0,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 56,
+            "length": 32,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 57,
+            "length": 43,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 58,
+            "length": 33,
+            "shard": 0,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 59,
+            "length": 34,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 60,
+            "length": 29,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 61,
+            "length": 23,
+            "shard": 0,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 62,
+            "length": 34,
+            "shard": 0,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 63,
+            "length": 41,
+            "shard": 0,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 0,
+            "length": 18,
+            "shard": 1,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 1,
+            "length": 42,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 2,
+            "length": 48,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 3,
+            "length": 42,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 4,
+            "length": 47,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 5,
+            "length": 38,
+            "shard": 1,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 6,
+            "length": 36,
+            "shard": 1,
+            "unique_over_32_stone_identities": 8
+          },
+          {
+            "game_index": 7,
+            "length": 30,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 8,
+            "length": 53,
+            "shard": 1,
+            "unique_over_32_stone_identities": 19
+          },
+          {
+            "game_index": 9,
+            "length": 44,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 10,
+            "length": 36,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 11,
+            "length": 33,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 12,
+            "length": 44,
+            "shard": 1,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 13,
+            "length": 45,
+            "shard": 1,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 14,
+            "length": 55,
+            "shard": 1,
+            "unique_over_32_stone_identities": 19
+          },
+          {
+            "game_index": 15,
+            "length": 48,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 16,
+            "length": 36,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 17,
+            "length": 24,
+            "shard": 1,
+            "unique_over_32_stone_identities": 8
+          },
+          {
+            "game_index": 18,
+            "length": 41,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 19,
+            "length": 38,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 20,
+            "length": 44,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 21,
+            "length": 33,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 22,
+            "length": 33,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 23,
+            "length": 40,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 24,
+            "length": 31,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 25,
+            "length": 37,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 26,
+            "length": 35,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 27,
+            "length": 44,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 28,
+            "length": 13,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 29,
+            "length": 34,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 30,
+            "length": 38,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 31,
+            "length": 13,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 32,
+            "length": 31,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 33,
+            "length": 39,
+            "shard": 1,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 34,
+            "length": 35,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 35,
+            "length": 23,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 36,
+            "length": 26,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 37,
+            "length": 15,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 38,
+            "length": 41,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 39,
+            "length": 32,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 40,
+            "length": 48,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 41,
+            "length": 33,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 42,
+            "length": 38,
+            "shard": 1,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 43,
+            "length": 42,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 44,
+            "length": 45,
+            "shard": 1,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 45,
+            "length": 14,
+            "shard": 1,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 46,
+            "length": 37,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 47,
+            "length": 29,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 48,
+            "length": 38,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 49,
+            "length": 40,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 50,
+            "length": 48,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 51,
+            "length": 47,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 52,
+            "length": 41,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 53,
+            "length": 47,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 54,
+            "length": 37,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 55,
+            "length": 48,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 56,
+            "length": 15,
+            "shard": 1,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 57,
+            "length": 44,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 58,
+            "length": 44,
+            "shard": 1,
+            "unique_over_32_stone_identities": 20
+          },
+          {
+            "game_index": 59,
+            "length": 17,
+            "shard": 1,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 60,
+            "length": 36,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 61,
+            "length": 45,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 62,
+            "length": 34,
+            "shard": 1,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 63,
+            "length": 24,
+            "shard": 1,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 0,
+            "length": 44,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 1,
+            "length": 50,
+            "shard": 2,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 2,
+            "length": 39,
+            "shard": 2,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 3,
+            "length": 36,
+            "shard": 2,
+            "unique_over_32_stone_identities": 8
+          },
+          {
+            "game_index": 4,
+            "length": 29,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 5,
+            "length": 15,
+            "shard": 2,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 6,
+            "length": 44,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 7,
+            "length": 33,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 8,
+            "length": 43,
+            "shard": 2,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 9,
+            "length": 25,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 10,
+            "length": 29,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 11,
+            "length": 30,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 12,
+            "length": 48,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 13,
+            "length": 42,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 14,
+            "length": 41,
+            "shard": 2,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 15,
+            "length": 31,
+            "shard": 2,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 16,
+            "length": 34,
+            "shard": 2,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 17,
+            "length": 44,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 18,
+            "length": 41,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 19,
+            "length": 50,
+            "shard": 2,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 20,
+            "length": 48,
+            "shard": 2,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 21,
+            "length": 47,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 22,
+            "length": 29,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 23,
+            "length": 37,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 24,
+            "length": 32,
+            "shard": 2,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 25,
+            "length": 33,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 26,
+            "length": 33,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 27,
+            "length": 31,
+            "shard": 2,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 28,
+            "length": 43,
+            "shard": 2,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 29,
+            "length": 38,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 30,
+            "length": 44,
+            "shard": 2,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 31,
+            "length": 34,
+            "shard": 2,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 32,
+            "length": 46,
+            "shard": 2,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 33,
+            "length": 41,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 34,
+            "length": 36,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 35,
+            "length": 35,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 36,
+            "length": 40,
+            "shard": 2,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 37,
+            "length": 33,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 38,
+            "length": 39,
+            "shard": 2,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 39,
+            "length": 29,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 40,
+            "length": 40,
+            "shard": 2,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 41,
+            "length": 31,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 42,
+            "length": 42,
+            "shard": 2,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 43,
+            "length": 36,
+            "shard": 2,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 44,
+            "length": 40,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 45,
+            "length": 44,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 46,
+            "length": 41,
+            "shard": 2,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 47,
+            "length": 35,
+            "shard": 2,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 48,
+            "length": 38,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 49,
+            "length": 31,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 50,
+            "length": 49,
+            "shard": 2,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 51,
+            "length": 33,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 52,
+            "length": 41,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 53,
+            "length": 39,
+            "shard": 2,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 54,
+            "length": 55,
+            "shard": 2,
+            "unique_over_32_stone_identities": 22
+          },
+          {
+            "game_index": 55,
+            "length": 37,
+            "shard": 2,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 56,
+            "length": 43,
+            "shard": 2,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 57,
+            "length": 33,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 58,
+            "length": 44,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 59,
+            "length": 29,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 60,
+            "length": 42,
+            "shard": 2,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 61,
+            "length": 34,
+            "shard": 2,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 62,
+            "length": 43,
+            "shard": 2,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 63,
+            "length": 15,
+            "shard": 2,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 0,
+            "length": 33,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 1,
+            "length": 44,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 2,
+            "length": 38,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 3,
+            "length": 41,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 4,
+            "length": 46,
+            "shard": 3,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 5,
+            "length": 40,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 6,
+            "length": 42,
+            "shard": 3,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 7,
+            "length": 38,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 8,
+            "length": 36,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 9,
+            "length": 40,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 10,
+            "length": 30,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 11,
+            "length": 35,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 12,
+            "length": 31,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 13,
+            "length": 34,
+            "shard": 3,
+            "unique_over_32_stone_identities": 7
+          },
+          {
+            "game_index": 14,
+            "length": 33,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 15,
+            "length": 15,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 16,
+            "length": 36,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 17,
+            "length": 23,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 18,
+            "length": 57,
+            "shard": 3,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 19,
+            "length": 35,
+            "shard": 3,
+            "unique_over_32_stone_identities": 8
+          },
+          {
+            "game_index": 20,
+            "length": 36,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 21,
+            "length": 30,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 22,
+            "length": 29,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 23,
+            "length": 35,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 24,
+            "length": 33,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 25,
+            "length": 48,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 26,
+            "length": 22,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 27,
+            "length": 39,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 28,
+            "length": 48,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 29,
+            "length": 40,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 30,
+            "length": 33,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 31,
+            "length": 33,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 32,
+            "length": 33,
+            "shard": 3,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 33,
+            "length": 40,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 34,
+            "length": 48,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 35,
+            "length": 38,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 36,
+            "length": 15,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 37,
+            "length": 33,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 38,
+            "length": 38,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 39,
+            "length": 41,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 40,
+            "length": 47,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 41,
+            "length": 29,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 42,
+            "length": 29,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 43,
+            "length": 35,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 44,
+            "length": 39,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 45,
+            "length": 43,
+            "shard": 3,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 46,
+            "length": 29,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 47,
+            "length": 47,
+            "shard": 3,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 48,
+            "length": 33,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 49,
+            "length": 37,
+            "shard": 3,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 50,
+            "length": 34,
+            "shard": 3,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 51,
+            "length": 13,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 52,
+            "length": 29,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 53,
+            "length": 41,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 54,
+            "length": 25,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 55,
+            "length": 35,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 56,
+            "length": 27,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 57,
+            "length": 41,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 58,
+            "length": 43,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 59,
+            "length": 33,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 60,
+            "length": 40,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 61,
+            "length": 29,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 62,
+            "length": 40,
+            "shard": 3,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 63,
+            "length": 31,
+            "shard": 3,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 0,
+            "length": 29,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 1,
+            "length": 39,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 2,
+            "length": 38,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 3,
+            "length": 41,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 4,
+            "length": 37,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 5,
+            "length": 45,
+            "shard": 4,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 6,
+            "length": 39,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 7,
+            "length": 36,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 8,
+            "length": 48,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 9,
+            "length": 43,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 10,
+            "length": 33,
+            "shard": 4,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 11,
+            "length": 39,
+            "shard": 4,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 12,
+            "length": 35,
+            "shard": 4,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 13,
+            "length": 34,
+            "shard": 4,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 14,
+            "length": 43,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 15,
+            "length": 44,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 16,
+            "length": 31,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 17,
+            "length": 36,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 18,
+            "length": 44,
+            "shard": 4,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 19,
+            "length": 32,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 20,
+            "length": 43,
+            "shard": 4,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 21,
+            "length": 32,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 22,
+            "length": 44,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 23,
+            "length": 29,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 24,
+            "length": 37,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 25,
+            "length": 33,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 26,
+            "length": 23,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 27,
+            "length": 23,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 28,
+            "length": 44,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 29,
+            "length": 30,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 30,
+            "length": 39,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 31,
+            "length": 36,
+            "shard": 4,
+            "unique_over_32_stone_identities": 8
+          },
+          {
+            "game_index": 32,
+            "length": 40,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 33,
+            "length": 44,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 34,
+            "length": 38,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 35,
+            "length": 41,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 36,
+            "length": 48,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 37,
+            "length": 37,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 38,
+            "length": 37,
+            "shard": 4,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 39,
+            "length": 49,
+            "shard": 4,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 40,
+            "length": 34,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 41,
+            "length": 33,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 42,
+            "length": 15,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 43,
+            "length": 48,
+            "shard": 4,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 44,
+            "length": 45,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 45,
+            "length": 40,
+            "shard": 4,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 46,
+            "length": 49,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 47,
+            "length": 22,
+            "shard": 4,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 48,
+            "length": 47,
+            "shard": 4,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 49,
+            "length": 33,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 50,
+            "length": 15,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 51,
+            "length": 33,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 52,
+            "length": 37,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 53,
+            "length": 49,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 54,
+            "length": 16,
+            "shard": 4,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 55,
+            "length": 42,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 56,
+            "length": 32,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 57,
+            "length": 43,
+            "shard": 4,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 58,
+            "length": 34,
+            "shard": 4,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 59,
+            "length": 44,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 60,
+            "length": 34,
+            "shard": 4,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 61,
+            "length": 36,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 62,
+            "length": 38,
+            "shard": 4,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 63,
+            "length": 41,
+            "shard": 4,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 0,
+            "length": 12,
+            "shard": 5,
+            "unique_over_32_stone_identities": 7
+          },
+          {
+            "game_index": 1,
+            "length": 50,
+            "shard": 5,
+            "unique_over_32_stone_identities": 15
+          },
+          {
+            "game_index": 2,
+            "length": 29,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 3,
+            "length": 22,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 4,
+            "length": 33,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 5,
+            "length": 40,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 6,
+            "length": 15,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 7,
+            "length": 30,
+            "shard": 5,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 8,
+            "length": 30,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 9,
+            "length": 55,
+            "shard": 5,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 10,
+            "length": 38,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 11,
+            "length": 35,
+            "shard": 5,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 12,
+            "length": 29,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 13,
+            "length": 37,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 14,
+            "length": 40,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 15,
+            "length": 43,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 16,
+            "length": 41,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 17,
+            "length": 38,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 18,
+            "length": 25,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 19,
+            "length": 35,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 20,
+            "length": 34,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 21,
+            "length": 15,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 22,
+            "length": 39,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 23,
+            "length": 48,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 24,
+            "length": 41,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 25,
+            "length": 43,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 26,
+            "length": 24,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 27,
+            "length": 42,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 28,
+            "length": 13,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 29,
+            "length": 44,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 30,
+            "length": 36,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 31,
+            "length": 41,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 32,
+            "length": 23,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 33,
+            "length": 40,
+            "shard": 5,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 34,
+            "length": 34,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 35,
+            "length": 27,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 36,
+            "length": 42,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 37,
+            "length": 42,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 38,
+            "length": 37,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 39,
+            "length": 44,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 40,
+            "length": 44,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 41,
+            "length": 33,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 42,
+            "length": 44,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 43,
+            "length": 49,
+            "shard": 5,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 44,
+            "length": 35,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 45,
+            "length": 35,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 46,
+            "length": 34,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 47,
+            "length": 35,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 48,
+            "length": 41,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 49,
+            "length": 20,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 50,
+            "length": 31,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 51,
+            "length": 37,
+            "shard": 5,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 52,
+            "length": 35,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 53,
+            "length": 30,
+            "shard": 5,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 54,
+            "length": 36,
+            "shard": 5,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 55,
+            "length": 30,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 56,
+            "length": 38,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 57,
+            "length": 45,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 58,
+            "length": 48,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 59,
+            "length": 33,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 60,
+            "length": 18,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 61,
+            "length": 37,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 62,
+            "length": 39,
+            "shard": 5,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 63,
+            "length": 45,
+            "shard": 5,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 0,
+            "length": 44,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 1,
+            "length": 49,
+            "shard": 6,
+            "unique_over_32_stone_identities": 20
+          },
+          {
+            "game_index": 2,
+            "length": 47,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 3,
+            "length": 13,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 4,
+            "length": 36,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 5,
+            "length": 36,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 6,
+            "length": 41,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 7,
+            "length": 42,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 8,
+            "length": 35,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 9,
+            "length": 40,
+            "shard": 6,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 10,
+            "length": 38,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 11,
+            "length": 37,
+            "shard": 6,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 12,
+            "length": 22,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 13,
+            "length": 36,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 14,
+            "length": 38,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 15,
+            "length": 35,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 16,
+            "length": 36,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 17,
+            "length": 38,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 18,
+            "length": 36,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 19,
+            "length": 34,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 20,
+            "length": 32,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 21,
+            "length": 38,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 22,
+            "length": 37,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 23,
+            "length": 23,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 24,
+            "length": 33,
+            "shard": 6,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 25,
+            "length": 33,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 26,
+            "length": 38,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 27,
+            "length": 25,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 28,
+            "length": 23,
+            "shard": 6,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 29,
+            "length": 45,
+            "shard": 6,
+            "unique_over_32_stone_identities": 17
+          },
+          {
+            "game_index": 30,
+            "length": 33,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 31,
+            "length": 34,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 32,
+            "length": 42,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 33,
+            "length": 29,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 34,
+            "length": 44,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 35,
+            "length": 34,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 36,
+            "length": 42,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 37,
+            "length": 47,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 38,
+            "length": 39,
+            "shard": 6,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 39,
+            "length": 44,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 40,
+            "length": 43,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 41,
+            "length": 45,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 42,
+            "length": 44,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 43,
+            "length": 50,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 44,
+            "length": 31,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 45,
+            "length": 28,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 46,
+            "length": 29,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 47,
+            "length": 50,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 48,
+            "length": 30,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 49,
+            "length": 47,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 50,
+            "length": 36,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 51,
+            "length": 33,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 52,
+            "length": 48,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 53,
+            "length": 30,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 54,
+            "length": 27,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 55,
+            "length": 44,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 56,
+            "length": 49,
+            "shard": 6,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 57,
+            "length": 41,
+            "shard": 6,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 58,
+            "length": 37,
+            "shard": 6,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 59,
+            "length": 26,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 60,
+            "length": 55,
+            "shard": 6,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 61,
+            "length": 40,
+            "shard": 6,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 62,
+            "length": 36,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 63,
+            "length": 52,
+            "shard": 6,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 0,
+            "length": 39,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 1,
+            "length": 33,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 2,
+            "length": 44,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 3,
+            "length": 33,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 4,
+            "length": 36,
+            "shard": 7,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 5,
+            "length": 48,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 6,
+            "length": 47,
+            "shard": 7,
+            "unique_over_32_stone_identities": 13
+          },
+          {
+            "game_index": 7,
+            "length": 33,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 8,
+            "length": 27,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 9,
+            "length": 33,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 10,
+            "length": 48,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 11,
+            "length": 23,
+            "shard": 7,
+            "unique_over_32_stone_identities": 18
+          },
+          {
+            "game_index": 12,
+            "length": 43,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 13,
+            "length": 48,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 14,
+            "length": 18,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 15,
+            "length": 44,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 16,
+            "length": 58,
+            "shard": 7,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 17,
+            "length": 40,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 18,
+            "length": 43,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 19,
+            "length": 26,
+            "shard": 7,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 20,
+            "length": 35,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 21,
+            "length": 37,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 22,
+            "length": 36,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 23,
+            "length": 25,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 24,
+            "length": 29,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 25,
+            "length": 23,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 26,
+            "length": 41,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 27,
+            "length": 17,
+            "shard": 7,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 28,
+            "length": 41,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 29,
+            "length": 25,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 30,
+            "length": 15,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 31,
+            "length": 42,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 32,
+            "length": 39,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 33,
+            "length": 39,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 34,
+            "length": 13,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 35,
+            "length": 48,
+            "shard": 7,
+            "unique_over_32_stone_identities": 19
+          },
+          {
+            "game_index": 36,
+            "length": 40,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 37,
+            "length": 44,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 38,
+            "length": 41,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 39,
+            "length": 15,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 40,
+            "length": 42,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 41,
+            "length": 44,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 42,
+            "length": 63,
+            "shard": 7,
+            "unique_over_32_stone_identities": 19
+          },
+          {
+            "game_index": 43,
+            "length": 32,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 44,
+            "length": 17,
+            "shard": 7,
+            "unique_over_32_stone_identities": 14
+          },
+          {
+            "game_index": 45,
+            "length": 38,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 46,
+            "length": 41,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 47,
+            "length": 30,
+            "shard": 7,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 48,
+            "length": 27,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 49,
+            "length": 15,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 50,
+            "length": 20,
+            "shard": 7,
+            "unique_over_32_stone_identities": 9
+          },
+          {
+            "game_index": 51,
+            "length": 44,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 52,
+            "length": 35,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 53,
+            "length": 44,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 54,
+            "length": 39,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 55,
+            "length": 42,
+            "shard": 7,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 56,
+            "length": 33,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 57,
+            "length": 35,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 58,
+            "length": 13,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 59,
+            "length": 42,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          },
+          {
+            "game_index": 60,
+            "length": 46,
+            "shard": 7,
+            "unique_over_32_stone_identities": 16
+          },
+          {
+            "game_index": 61,
+            "length": 38,
+            "shard": 7,
+            "unique_over_32_stone_identities": 10
+          },
+          {
+            "game_index": 62,
+            "length": 37,
+            "shard": 7,
+            "unique_over_32_stone_identities": 12
+          },
+          {
+            "game_index": 63,
+            "length": 36,
+            "shard": 7,
+            "unique_over_32_stone_identities": 11
+          }
+        ]
+      },
+      "games_per_second": 0.08765190683185171,
+      "memory_limit_bytes": 4294967296,
+      "peak_sampled_memory_bytes": 2326851584,
+      "production_float32_unique": 9122,
+      "puct_rows": 11916,
+      "stone_bucket_diagnostics": {
+        "17-32": {
+          "canonical_unique": 3385,
+          "duplicate_target_disagreement_states": 0,
+          "duplicate_target_groups": 673,
+          "mean_target_entropy_nats": 0.06706420637615619,
+          "one_hot_rows": 825,
+          "production_float32_unique": 3385,
+          "rows": 5841
+        },
+        "<=16": {
+          "canonical_unique": 4159,
+          "duplicate_target_disagreement_states": 0,
+          "duplicate_target_groups": 801,
+          "mean_target_entropy_nats": 0.0,
+          "one_hot_rows": 6594,
+          "production_float32_unique": 4159,
+          "rows": 6594
+        },
+        ">32": {
+          "canonical_unique": 1578,
+          "duplicate_target_disagreement_states": 1,
+          "duplicate_target_groups": 366,
+          "mean_target_entropy_nats": 0.4528837247123135,
+          "one_hot_rows": 128,
+          "production_float32_unique": 1578,
+          "rows": 6075
+        }
+      },
+      "unique_over_32_stone_identities": 1578,
+      "unique_over_32_stone_identities_per_game": 3.08203125,
+      "unique_over_32_stone_identities_per_generation_second": 0.2701459159778555
+    }
+  },
+  "common_development": {
+    "cohort_sizes_by_source_evaluator_and_stone_bucket": {
+      "control": {
+        "17-32": {
+          "included_rows": 1071,
+          "source_rows": 1442
+        },
+        "<=16": {
+          "included_rows": 1265,
+          "source_rows": 1633
+        },
+        ">32": {
+          "included_rows": 448,
+          "source_rows": 1581
+        }
+      },
+      "treatment": {
+        "17-32": {
+          "included_rows": 737,
+          "source_rows": 1494
+        },
+        "<=16": {
+          "included_rows": 954,
+          "source_rows": 1649
+        },
+        ">32": {
+          "included_rows": 263,
+          "source_rows": 1518
+        }
+      }
+    },
+    "excluded_rows": 4579,
+    "included_rows": 4738,
+    "known_evaluation_root_overlap": {
+      "control": {
+        "seed511-fixed-composition-screen-v4": {
+          "canonical_rows": 1,
+          "float32_rows": 1,
+          "scope": "registered evaluation opening roots only"
+        },
+        "seed512-fixed-composition-evaluation": {
+          "canonical_rows": 1,
+          "float32_rows": 1,
+          "scope": "registered evaluation opening roots only"
+        }
+      },
+      "treatment": {
+        "seed511-fixed-composition-screen-v4": {
+          "canonical_rows": 0,
+          "float32_rows": 0,
+          "scope": "registered evaluation opening roots only"
+        },
+        "seed512-fixed-composition-evaluation": {
+          "canonical_rows": 0,
+          "float32_rows": 0,
+          "scope": "registered evaluation opening roots only"
+        }
+      }
+    },
+    "known_pilot_overlap": {
+      "control": {
+        "canonical_rows": 1141,
+        "float32_rows": 1141
+      },
+      "treatment": {
+        "canonical_rows": 1890,
+        "float32_rows": 1890
+      }
+    },
+    "source_rows": 9317
+  },
+  "interpretation": "exploratory generation characteristics and valid input preparation only; concentration or entropy differences are not evidence of improved quality or stronger play",
+  "schema": "seed549-descriptive-results-v1",
+  "seed461_overlap": "unresolved; recovery outside this task",
+  "status": "complete"
+}

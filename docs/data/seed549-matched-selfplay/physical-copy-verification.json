@@ -1,0 +1,32 @@
+{
+  "schema": "seed549-physical-copy-verification-v1",
+  "status": "passed",
+  "original_worktree": "/home/alex/Mancala/ai-seed549",
+  "physical_copy": "/home/alex/Mancala/ai-seed549-copy",
+  "original_worktree_inaccessible_during_verification": true,
+  "verification_command": [
+    "/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python",
+    "-m",
+    "ml.alphazero_lite.seed549_derivatives",
+    "verify",
+    "--root",
+    "/home/alex/Mancala/ai-seed549-copy"
+  ],
+  "verifier_result": {
+    "status": "verified",
+    "games_per_arm": 512,
+    "accepted_rows": {
+      "control": 18474,
+      "treatment": 18510
+    },
+    "products": 10,
+    "evidence_preserved": true
+  },
+  "physical_file_comparison": {
+    "evidence_files": 54,
+    "total_bytes": 157246431,
+    "sha256_mtime_and_inode_checks_passed": true,
+    "all_copied_inodes_differ": true,
+    "canonical_inventory_sha256": "ad1634964b332fa1671a7afa8022afe27ddf889e7dac0f3788d08e85a992a206"
+  }
+}
