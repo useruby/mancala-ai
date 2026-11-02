@@ -1,0 +1,9 @@
+{
+  "corrected_sha256": "481e18112cc310599872117f2bc50f5aac1788a9150b95dd365fc9a8b9ea9005",
+  "failed_verification": "control update 1 parameter_state_before_sha256 digest-label mismatch",
+  "previous_sha256": "23de126f99e6beb69e2ff4e6173a35045d4c477d8bf39c436d7b0ed2c75c900d",
+  "reason": "independent replay state digest initially tagged NumPy float32 as '<f4' while the runner's frozen production digest tags it 'float32'; no training evidence was changed",
+  "registration_sha256": "dc088d45685a1ea5101464e23d5f6bdbd9570b27eb11f44cd5dee16e3bbacadc",
+  "schema": "seed549-training-verifier-source-correction-v1",
+  "source_path": "ml/alphazero_lite/verify_seed549_training.py"
+}

@@ -1,0 +1,9 @@
+{
+  "corrected_sha256": "e30beda0249c19263a600229a6f9b9c5f22db94fad212dc9a2b142240ae416f3",
+  "parent_correction_sha256": "ecf0d385bcf73360616b34c8382ca42833fd033f6f707f19d6d14e3ccdb54d17",
+  "previous_sha256": "e92bc1dadd226db9895d7f16efb3ccdef89d51724d3fdc290c4aaccc23af426b",
+  "reason": "allow source corrections to advance different originally registered dependency paths while preserving a single append-only correction/freeze parent chain",
+  "registration_sha256": "dc088d45685a1ea5101464e23d5f6bdbd9570b27eb11f44cd5dee16e3bbacadc",
+  "schema": "seed549-training-verifier-source-correction-v1",
+  "source_path": "ml/alphazero_lite/verify_seed549_training.py"
+}

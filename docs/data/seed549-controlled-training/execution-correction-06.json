@@ -1,0 +1,9 @@
+{
+  "corrected_sha256": "e92bc1dadd226db9895d7f16efb3ccdef89d51724d3fdc290c4aaccc23af426b",
+  "parent_correction_sha256": "24de22b7fa5a1c05468518b824e0fb172e10b9ddf447c1d8094ca199593aab75",
+  "previous_sha256": "a98ea13a6359d26faeafe19355e5bbe4a9c39b5970036a294e27297a348b6b8b",
+  "reason": "add mutation tests exercising the real independent training replay and checks for targets, objective, optimizer/parameter states, checkpoints, predictions, weighting/group membership, metrics, and effects",
+  "registration_sha256": "dc088d45685a1ea5101464e23d5f6bdbd9570b27eb11f44cd5dee16e3bbacadc",
+  "schema": "seed549-training-verifier-source-correction-v1",
+  "source_path": "ml/alphazero_lite/test_seed549_training.py"
+}

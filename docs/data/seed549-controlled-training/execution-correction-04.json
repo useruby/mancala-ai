@@ -1,0 +1,9 @@
+{
+  "corrected_sha256": "c75eff19589bb8632d40334368399731c42b206d248886d660324e1dbe0085ab",
+  "parent_correction_sha256": "b95acc44af5a993977612c34d004a697e063f71429c3eee100aceb7dc514c012",
+  "previous_sha256": "1b1ba397c67538753239cdd62312430dd5ae792ec1cd81fbe33cbd425363fffa",
+  "reason": "extend float32 norm roundoff tolerance to the derived clip_scale field; gradient arrays, clip gradients, parameter states, and Adam states remain independently replayed and byte-identified",
+  "registration_sha256": "dc088d45685a1ea5101464e23d5f6bdbd9570b27eb11f44cd5dee16e3bbacadc",
+  "schema": "seed549-training-verifier-source-correction-v1",
+  "source_path": "ml/alphazero_lite/verify_seed549_training.py"
+}
