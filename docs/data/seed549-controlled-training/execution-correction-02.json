@@ -1,0 +1,9 @@
+{
+  "corrected_sha256": "0151774b625575e6a23f21b7f7856e276bfd2e2c4ab3ae0effb1af427cdcf3ba",
+  "parent_correction_sha256": "c1c095dd5447869d5c1730751d7b31c3c55475725b20bd95c957a9b917b3ac6f",
+  "previous_sha256": "481e18112cc310599872117f2bc50f5aac1788a9150b95dd365fc9a8b9ea9005",
+  "reason": "make the independent replay's post-clip norm compare tolerate float32 norm accumulation roundoff (1e-7 absolute / 1e-6 relative); raw/clipped gradient hashes, clip scale, parameter transitions, and Adam transitions remain checked",
+  "registration_sha256": "dc088d45685a1ea5101464e23d5f6bdbd9570b27eb11f44cd5dee16e3bbacadc",
+  "schema": "seed549-training-verifier-source-correction-v1",
+  "source_path": "ml/alphazero_lite/verify_seed549_training.py"
+}

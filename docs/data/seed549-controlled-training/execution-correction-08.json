@@ -1,0 +1,9 @@
+{
+  "corrected_sha256": "c33438f66a0569d4c61f08d8373b0c02d667b448c7162e814153dcc93291f6f3",
+  "parent_correction_sha256": "a4f0a9a7dee65b79aa19354c7160c4fe7236c8445f0b8baee87b3deda2983d4f",
+  "previous_sha256": "e30beda0249c19263a600229a6f9b9c5f22db94fad212dc9a2b142240ae416f3",
+  "reason": "configure intra-op and inter-op Torch threads once in the CLI before runner preflight; no training evidence or trajectory was changed",
+  "registration_sha256": "dc088d45685a1ea5101464e23d5f6bdbd9570b27eb11f44cd5dee16e3bbacadc",
+  "schema": "seed549-training-verifier-source-correction-v1",
+  "source_path": "ml/alphazero_lite/seed549_training.py"
+}

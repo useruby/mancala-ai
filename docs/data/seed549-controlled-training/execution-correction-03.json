@@ -1,0 +1,9 @@
+{
+  "corrected_sha256": "1b1ba397c67538753239cdd62312430dd5ae792ec1cd81fbe33cbd425363fffa",
+  "parent_correction_sha256": "c24bd82ec01401be2f17bdcb1d8931c6cdc7eb9821288832f9cb4e319617c125",
+  "previous_sha256": "0151774b625575e6a23f21b7f7856e276bfd2e2c4ab3ae0effb1af427cdcf3ba",
+  "reason": "compare independently accumulated raw gradient norms within the same float32 roundoff tolerance as post-clip norms; gradient byte identities and optimizer/parameter updates remain exact",
+  "registration_sha256": "dc088d45685a1ea5101464e23d5f6bdbd9570b27eb11f44cd5dee16e3bbacadc",
+  "schema": "seed549-training-verifier-source-correction-v1",
+  "source_path": "ml/alphazero_lite/verify_seed549_training.py"
+}

@@ -1,0 +1,15 @@
+{
+  "status": "verified_complete",
+  "verification": "read-only verifier passed from a separate physical copy while /home/alex/Mancala/ai-seed549-training was renamed and inaccessible",
+  "command": "systemd-run --user --scope -p CPUQuota=25% -p CPUWeight=1 -p MemoryMax=4294967296 -p AllowedCPUs=30 -- nice -n 19 prlimit --as=17179869184 -- taskset -c 30 env OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 BLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 <recorded-python> -m ml.alphazero_lite.verify_seed549_training --root <physical-copy> --out <physical-copy>/docs/data/seed549-controlled-training",
+  "training_updates_per_arm": 108,
+  "development_occurrences": 4738,
+  "predictions": 14214,
+  "read_only_bytes_and_mtimes_unchanged": true,
+  "torch_threads_initialized_by_cli": {
+    "intra_op": 1,
+    "inter_op": 1,
+    "setter_call_count_per_process": 1
+  },
+  "rejected_check_read_only_test": "the real verifier entry point rejected a mismatched execution-freeze receipt; the freeze bytes and nanosecond mtime were unchanged"
+}

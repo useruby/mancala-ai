@@ -1,0 +1,9 @@
+{
+  "corrected_sha256": "a98ea13a6359d26faeafe19355e5bbe4a9c39b5970036a294e27297a348b6b8b",
+  "parent_correction_sha256": "e713ddbbaac7216ddd94576dac60023bac95d81c1191dca5b246999d2c819bbd",
+  "previous_sha256": "c75eff19589bb8632d40334368399731c42b206d248886d660324e1dbe0085ab",
+  "reason": "verify loader tensor identities and expose reusable membership/metric mutation assertions; retain independent reconstruction of metrics and predictions",
+  "registration_sha256": "dc088d45685a1ea5101464e23d5f6bdbd9570b27eb11f44cd5dee16e3bbacadc",
+  "schema": "seed549-training-verifier-source-correction-v1",
+  "source_path": "ml/alphazero_lite/verify_seed549_training.py"
+}

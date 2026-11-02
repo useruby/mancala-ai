@@ -1,0 +1,29 @@
+{
+  "candidate": "T-final at update 108 only",
+  "control": {
+    "arm": "control",
+    "checkpoints": {
+      "108": "5339fcc06b1284515181352b47414ef82ff326d22b6848aa1cd7f445e47852ad",
+      "27": "157fc85cb3c75a420bc3585d43b682788b53d86002c4e99edbbc9318d248b80f",
+      "54": "ebf1695f8ede7aa0dc4cd754f427c2ea44fe6a1db5c511ef2557ce846baf0682",
+      "81": "43e8ca47b0d6478e2d671eb397f84b6589b2e933315082491b24a2dd8eb2f866"
+    },
+    "exposures": 54896,
+    "rows": 13818,
+    "trace_sha256": "a7de81fa9f6bc569708213e4f092c7704681972e5795cd1eecca07abd699e949",
+    "updates": 108
+  },
+  "treatment": {
+    "arm": "treatment",
+    "checkpoints": {
+      "108": "5006ec04a09c3b286753c23bd34d7216387f5cca65e8d5705b0432b0ad2efe00",
+      "27": "e0789d8352b134d34a27892705f4a14b5049de09d625322c8ced09a2a56a2d73",
+      "54": "df639b13df8ea7b13505c1578b3f1e8bddb8424270cfe4b1b5035a34ab73cc1f",
+      "81": "2b8864c2dc13111c34aec05be4f0e0b8d96b45b47c0d262471bf9c7315d2a082"
+    },
+    "exposures": 54896,
+    "rows": 13849,
+    "trace_sha256": "1c7bf8996b80e044ae78dc2f052e655ae06e7b7a2a51a37af5261fd01fde56d3",
+    "updates": 108
+  }
+}
