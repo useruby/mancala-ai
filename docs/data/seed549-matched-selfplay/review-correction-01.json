@@ -1,0 +1,47 @@
+{
+  "schema": "seed549-pr-review-correction-v1",
+  "issues": [
+    {
+      "priority": "P1",
+      "finding": "An outcome-bearing failed shard could fall through to another launch.",
+      "resolution": "execute() now refuses partial outputs, unregistered zero-output failures, interrupted attempts, and consumed retry authorizations before Popen. It appends an authorization receipt and allows only the exact correction-bound zero-byte shard-0 failure. Completed legacy shard-0 evidence is receipt-checked and skipped."
+    },
+    {
+      "priority": "P2",
+      "finding": "Legacy derivative CLI actions could overwrite the publication and used an incompatible verifier schema.",
+      "resolution": "build-derivatives delegates to seed549_derivatives.build only when no derivative outputs exist; verify delegates to seed549_derivatives.verify. Regression tests cover both CLI paths and preservation of existing manifest, schedule, and receipt bytes/mtimes."
+    }
+  ],
+  "execution_source_corrections": [
+    "execution-correction-02.json",
+    "execution-correction-03.json",
+    "execution-correction-04.json"
+  ],
+  "raw_generation_and_derivative_evidence_unchanged": true,
+  "sha256": {
+    "registration.json": "250d0e2bf3286b7635463123d02a51f83ff41bfaf63cf432b7ff722588f1cb83",
+    "attempts.jsonl": "7a890a42d7474be17817127edf559b6fceb17fead0b7cef86e7494c0b5fc938f",
+    "post-generation-receipt.json": "f8e0ecf83cc01a56f258413c445b173f7ebe466506c08a40c1f2c045d050a9ee",
+    "results.json": "7c340ef869c40740220408ffd21ebe8083bebf58131f414ae052813c95efe5f1",
+    "control-source-manifest.json": "d552f55fc51d2016cd02c779750ed535e62779abf540fd00c26832526b31e3bf",
+    "treatment-source-manifest.json": "19d3d51bfaaab69cfd3cbb5e8dfed22258a668ed690f9bc002d18a9f08f14a39",
+    "control-training-schedule.json": "0c32a632f5cedf2905e8171507293bfb89a84207d2d846046632779534ec1637",
+    "treatment-training-schedule.json": "73606fc369eff802ccfed1d5aece42670f8af677d2087e97da5bc7988f77120a"
+  },
+  "source_sha256": {
+    "ml/alphazero_lite/seed549_corpus.py": "07f586aae5f3d389c1c90224f7aff9d0a0cd15e47ed914da9087183101d0d6de",
+    "ml/alphazero_lite/test_seed549_corpus.py": "2e4cf30b10a3291f925478a95937ab2903e5036b1c97d1fda1b54c21a73ec8b6",
+    "ml/alphazero_lite/seed549_derivatives.py": "786d8aa37c743f32d01c9cacb9a536a25b4c449e3b1f55e2a9da0d653b745c57",
+    "ml/alphazero_lite/test_seed549_derivatives.py": "2880e63c5f9dcdcf0e19646b85305cb5b6da1b4bfdc69a9a3e7f97219eb875b2"
+  },
+  "verification": {
+    "seed549_tests": "18 passed",
+    "focused_corpus_evaluator_tests": "51 passed",
+    "self_play_runtime_regressions": "145 passed, 11 subtests passed",
+    "ruff": "passed",
+    "repository_python_quality_gate": "passed",
+    "read_only_corpus_verifier": "passed; 512 games/arm and 36,984 accepted rows",
+    "training_executed": false,
+    "arena_evaluation_executed": false
+  }
+}

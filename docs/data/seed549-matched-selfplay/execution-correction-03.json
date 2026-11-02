@@ -1,0 +1,16 @@
+{
+  "parent_correction_sha256": "f25bb588d32e2b0b5d966a3a4d2ac257f5a7993fa8a6bb6d551a44879247985a",
+  "reason": "fix outcome-bearing retry rejection and delegate legacy derivative CLI actions without changing raw games or prior receipts",
+  "registration_sha256": "250d0e2bf3286b7635463123d02a51f83ff41bfaf63cf432b7ff722588f1cb83",
+  "schema": "seed549-execution-correction-v2",
+  "source_corrections": {
+    "ml/alphazero_lite/seed549_corpus.py": {
+      "corrected_sha256": "5375729b9ece0825373d0d439bc362781eb279dbfa4e11b8725eaf7d7624f298",
+      "previous_sha256": "8613476145ad759819a7bf4a528f0ee8d3ef301013b36bca0011674e9a8e03ee"
+    },
+    "ml/alphazero_lite/test_seed549_corpus.py": {
+      "corrected_sha256": "2e4cf30b10a3291f925478a95937ab2903e5036b1c97d1fda1b54c21a73ec8b6",
+      "previous_sha256": "6db0c8054444eaa6ff23966de54640f40b0a272630457cb40b69b332dc0e9339"
+    }
+  }
+}

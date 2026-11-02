@@ -639,6 +639,8 @@ def verify(root: Path = ROOT) -> dict[str, Any]:
         root / "docs/data/selfplay-evaluator-pilot/registration.json",
         root / "model-artifact/current/search_policy.json",
     ]
+    paths.extend(sorted(out.glob("execution-correction-*.json")))
+    paths.extend(sorted(out.glob("execution-freeze-correction-*.json")))
     paths.extend(correction_paths)
     for arm in ARMS:
         for shard in range(generation.SHARDS):

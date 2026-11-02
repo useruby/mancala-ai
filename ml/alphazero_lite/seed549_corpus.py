@@ -84,6 +84,188 @@ def completed_receipt_verified(events: list[dict[str, Any]], final: Path) -> boo
     )
 
 
+DERIVATIVE_OUTPUTS = tuple(
+    [
+        "control-training-row-identities.jsonl",
+        "control-development-row-identities.jsonl",
+        "control-source-manifest.json",
+        "control-training-rows.jsonl",
+        "control-development-rows.jsonl",
+        "control-training-schedule.json",
+        "treatment-training-row-identities.jsonl",
+        "treatment-development-row-identities.jsonl",
+        "treatment-source-manifest.json",
+        "treatment-training-rows.jsonl",
+        "treatment-development-rows.jsonl",
+        "treatment-training-schedule.json",
+        "shared-development-membership.jsonl",
+        "results.json",
+        "post-generation-receipt.json",
+    ]
+)
+
+
+def _matches_zero_output_retry_correction(
+    root: Path, arm: str, shard: int, failure: dict[str, Any]
+) -> bool:
+    out = root / OUT
+    correction_path = out / "execution-correction.json"
+    registration_path = out / "registration.json"
+    if not correction_path.is_file():
+        return False
+    correction = json.loads(correction_path.read_text())
+    registered_failure = correction.get("failed_attempt", {})
+    expected_output = (
+        OUT / "attempts" / f"{arm}-{shard:03d}-attempt-00.jsonl"
+    ).as_posix()
+    expected_log = Path(expected_output).with_suffix(".log").as_posix()
+    return (
+        correction.get("registration_sha256") == digest(registration_path)
+        and correction.get("source_path") == "ml/alphazero_lite/seed549_corpus.py"
+        and failure.get("event") == "finished"
+        and failure.get("registration_sha256") == digest(registration_path)
+        and failure.get("argv")
+        == make_command(root, arm, shard, Path(failure.get("output", "")))
+        and failure.get("output") == expected_output
+        and failure.get("log") == expected_log
+        and arm == registered_failure.get("arm")
+        and shard == registered_failure.get("shard")
+        and BASE_SEED + shard == registered_failure.get("seed")
+        and failure.get("exit_status") == registered_failure.get("exit_status")
+        and failure.get("output_bytes") == registered_failure.get("output_bytes") == 0
+        and failure.get("output_sha256") is None
+        and failure.get("log_sha256") == registered_failure.get("log_sha256")
+    )
+
+
+def _retry_authorization_matches(
+    root: Path,
+    arm: str,
+    shard: int,
+    prior_failure: dict[str, Any],
+    authorization: dict[str, Any],
+    prior_events: list[dict[str, Any]],
+) -> bool:
+    correction_path = root / OUT / "execution-correction.json"
+    return (
+        _matches_zero_output_retry_correction(root, arm, shard, prior_failure)
+        and authorization.get("event") == "retry_authorized"
+        and authorization.get("arm") == arm
+        and authorization.get("shard") == shard
+        and authorization.get("attempt_number")
+        == sum(event.get("event") == "started" for event in prior_events)
+        and authorization.get("prior_attempt_output_bytes") == 0
+        and authorization.get("prior_attempt_exit_status")
+        == prior_failure.get("exit_status")
+        and authorization.get("prior_attempt_log_sha256")
+        == prior_failure.get("log_sha256")
+        and authorization.get("correction_sha256") == digest(correction_path)
+    )
+
+
+def _verify_published_attempts(
+    root: Path, arm: str, shard: int, events: list[dict[str, Any]], final: Path
+) -> bool:
+    """Authenticate a complete shard, including the historical zero-output retry."""
+    if not events or events[-1].get("event") != "published":
+        return False
+    names = [event.get("event") for event in events]
+    legacy_zero_output_retry = (
+        arm == "control"
+        and shard == 0
+        and names == ["started", "finished", "started", "finished", "published"]
+        and _matches_zero_output_retry_correction(root, arm, shard, events[1])
+    )
+    explicit_zero_output_retry = (
+        arm == "control"
+        and shard == 0
+        and names
+        == [
+            "started",
+            "finished",
+            "retry_authorized",
+            "started",
+            "finished",
+            "published",
+        ]
+        and _retry_authorization_matches(
+            root, arm, shard, events[1], events[2], events[:2]
+        )
+    )
+    if not (
+        completed_receipt_verified(events, final)
+        or legacy_zero_output_retry
+        or explicit_zero_output_retry
+    ):
+        raise RuntimeError(f"seed549_preserving_ambiguous_attempt:{arm}:{shard}")
+    for event in events:
+        if event.get("event") == "finished":
+            log_path = root / event["log"]
+            if not log_path.is_file() or digest(log_path) != event.get("log_sha256"):
+                raise ValueError(
+                    f"seed549_completed_log_receipt_mismatch:{arm}:{shard}"
+                )
+    completed = [
+        event
+        for event in events
+        if event.get("event") == "finished" and event.get("exit_status") == 0
+    ]
+    if len(completed) != 1:
+        raise ValueError(f"seed549_completed_attempt_count_mismatch:{arm}:{shard}")
+    published = events[-1]
+    receipt = completed[0]
+    if (
+        not final.is_file()
+        or digest(final) != receipt.get("output_sha256")
+        or digest(final) != published.get("output_sha256")
+        or published.get("output")
+        != (OUT / arm / f"shard-{shard:03d}.jsonl").as_posix()
+    ):
+        raise ValueError(f"seed549_completed_shard_receipt_mismatch:{arm}:{shard}")
+    return True
+
+
+def _authorize_retry_or_reject_attempt(
+    root: Path,
+    ledger: Path,
+    arm: str,
+    shard: int,
+    events: list[dict[str, Any]],
+) -> None:
+    """Authorize exactly the registered zero-output retry; fail closed otherwise."""
+    if not events:
+        return
+    if events[-1].get("event") == "retry_authorized":
+        if len(events) < 3 or not _retry_authorization_matches(
+            root, arm, shard, events[-2], events[-1], events[:-1]
+        ):
+            raise RuntimeError(f"seed549_retry_authorization_invalid:{arm}:{shard}")
+        return
+    if events[-1].get("event") != "finished":
+        raise RuntimeError(f"seed549_preserving_ambiguous_attempt:{arm}:{shard}")
+    failure = events[-1]
+    if failure.get("exit_status") == 0 or failure.get("output_bytes") != 0:
+        raise RuntimeError(f"seed549_refuses_failed_or_partial_retry:{arm}:{shard}")
+    if any(event.get("event") == "retry_authorized" for event in events):
+        raise RuntimeError(f"seed549_retry_already_consumed:{arm}:{shard}")
+    if not _matches_zero_output_retry_correction(root, arm, shard, failure):
+        raise RuntimeError(f"seed549_zero_output_retry_not_registered:{arm}:{shard}")
+    append_jsonl(
+        ledger,
+        {
+            "event": "retry_authorized",
+            "arm": arm,
+            "shard": shard,
+            "attempt_number": sum(event.get("event") == "started" for event in events),
+            "prior_attempt_output_bytes": 0,
+            "prior_attempt_exit_status": failure.get("exit_status"),
+            "prior_attempt_log_sha256": failure.get("log_sha256"),
+            "correction_sha256": digest(root / OUT / "execution-correction.json"),
+            "disposition": "single explicit retry of the same registered shard/seed; prior attempt wrote zero bytes",
+        },
+    )
+
+
 def make_command(root: Path, arm: str, shard: int, output: Path) -> list[str]:
     seed = BASE_SEED + shard
     output_arg = (
@@ -274,6 +456,49 @@ def preflight(root: Path = ROOT) -> dict[str, Any]:
             registration_path
         ) or correction_freeze.get("correction_sha256") != digest(correction_path):
             raise ValueError("execution_correction_freeze_mismatch")
+    if correction_path.is_file():
+        parent_correction = correction_path
+        parent_freeze = correction_freeze_path
+        correction_number = 2
+        while True:
+            correction_next = out / f"execution-correction-{correction_number:02d}.json"
+            if not correction_next.is_file():
+                break
+            freeze_next = (
+                out / f"execution-freeze-correction-{correction_number:02d}.json"
+            )
+            correction_value = json.loads(correction_next.read_text())
+            if correction_value.get("registration_sha256") != digest(
+                registration_path
+            ) or correction_value.get("parent_correction_sha256") != digest(
+                parent_correction
+            ):
+                raise ValueError(
+                    f"execution_correction_{correction_number}_parent_mismatch"
+                )
+            for relative, source_correction in correction_value.get(
+                "source_corrections", {}
+            ).items():
+                if source_correction.get("previous_sha256") != expected_sources.get(
+                    relative
+                ):
+                    raise ValueError(
+                        f"execution_correction_{correction_number}_source_parent_mismatch:{relative}"
+                    )
+                expected_sources[relative] = source_correction["corrected_sha256"]
+            freeze_value = json.loads(freeze_next.read_text())
+            if (
+                freeze_value.get("registration_sha256") != digest(registration_path)
+                or freeze_value.get("parent_freeze_correction_sha256")
+                != digest(parent_freeze)
+                or freeze_value.get("correction_sha256") != digest(correction_next)
+            ):
+                raise ValueError(
+                    f"execution_correction_{correction_number}_freeze_mismatch"
+                )
+            parent_correction = correction_next
+            parent_freeze = freeze_next
+            correction_number += 1
     for p, expected in expected_sources.items():
         if digest(root / p) != expected:
             raise ValueError(f"frozen_source_changed:{p}")
@@ -331,6 +556,74 @@ def record_zero_output_retry_correction(root: Path = ROOT) -> dict[str, Any]:
     write_json(
         out / "execution-freeze-correction.json",
         {"registration_sha256": digest(reg_path), "correction_sha256": digest(path)},
+    )
+    return correction
+
+
+def record_execution_source_correction(root: Path = ROOT) -> dict[str, Any]:
+    """Append source/test hash updates while preserving the original freeze."""
+    root = root.resolve()
+    out = root / OUT
+    registration_path = out / "registration.json"
+    correction_path = out / "execution-correction.json"
+    freeze_correction_path = out / "execution-freeze-correction.json"
+    registration = json.loads(registration_path.read_text())
+    previous_sources = dict(registration["source_sha256"])
+    first = json.loads(correction_path.read_text())
+    previous_sources[first["source_path"]] = first["corrected_sha256"]
+    parent_correction = correction_path
+    parent_freeze = freeze_correction_path
+    correction_number = 2
+    while True:
+        candidate = out / f"execution-correction-{correction_number:02d}.json"
+        if not candidate.is_file():
+            break
+        current = json.loads(candidate.read_text())
+        for relative, source_correction in current.get(
+            "source_corrections", {}
+        ).items():
+            previous_sources[relative] = source_correction["corrected_sha256"]
+        parent_correction = candidate
+        parent_freeze = (
+            out / f"execution-freeze-correction-{correction_number:02d}.json"
+        )
+        correction_number += 1
+    target = out / f"execution-correction-{correction_number:02d}.json"
+    freeze_target = out / f"execution-freeze-correction-{correction_number:02d}.json"
+    if target.exists() or freeze_target.exists():
+        raise FileExistsError(
+            f"execution_correction_{correction_number}_already_exists"
+        )
+    changed_paths = (
+        "ml/alphazero_lite/seed549_corpus.py",
+        "ml/alphazero_lite/test_seed549_corpus.py",
+    )
+    corrections = {}
+    for relative in changed_paths:
+        current = digest(root / relative)
+        previous = previous_sources[relative]
+        if current != previous:
+            corrections[relative] = {
+                "previous_sha256": previous,
+                "corrected_sha256": current,
+            }
+    if not corrections:
+        raise ValueError("execution_correction_02_has_no_source_changes")
+    correction = {
+        "schema": "seed549-execution-correction-v2",
+        "registration_sha256": digest(registration_path),
+        "parent_correction_sha256": digest(parent_correction),
+        "source_corrections": corrections,
+        "reason": "fix outcome-bearing retry rejection and delegate legacy derivative CLI actions without changing raw games or prior receipts",
+    }
+    write_json(target, correction)
+    write_json(
+        freeze_target,
+        {
+            "registration_sha256": digest(registration_path),
+            "parent_freeze_correction_sha256": digest(parent_freeze),
+            "correction_sha256": digest(target),
+        },
     )
     return correction
 
@@ -397,82 +690,28 @@ def execute(root: Path = ROOT) -> dict[str, Any]:
                 for e in (read_jsonl(ledger) if ledger.exists() else [])
                 if e.get("arm") == arm and e.get("shard") == shard
             ]
-            retry_indices = [
-                i
-                for i, event in enumerate(events)
-                if event["event"] == "retry_authorized"
-            ]
-            attempt_events = (
-                events[retry_indices[-1] + 1 :] if retry_indices else events
-            )
-            if attempt_events:
-                if [e["event"] for e in attempt_events] not in (
-                    ["started", "finished", "published"],
-                    ["started", "finished"],
-                    ["started", "interrupted"],
-                ):
-                    raise RuntimeError(
-                        f"seed549_preserving_ambiguous_attempt:{arm}:{shard}"
-                    )
-                if (
-                    attempt_events[-1].get("event") in {"finished", "published"}
-                    and attempt_events[-1].get("exit_status", 0) == 0
-                ):
-                    if not completed_receipt_verified(attempt_events, final):
-                        if attempt_events[-1]["event"] != "finished":
-                            raise RuntimeError(
-                                f"seed549_preserving_ambiguous_attempt:{arm}:{shard}"
-                            )
-                        raise ValueError(
-                            f"completed_shard_receipt_mismatch:{arm}:{shard}"
-                        )
-                    report = verify_shard(
-                        final,
-                        arm=f"{arm}/{shard}",
-                        expected_seed=seed,
-                        expected_game_count=GAMES_PER_SHARD,
-                    )
-                    if report["games"] != {
-                        "completed": GAMES_PER_SHARD,
-                        "capped": 0,
-                        "incomplete": 0,
-                    }:
-                        raise ValueError(f"completed_shard_invalid:{arm}:{shard}")
-                    continue
-                if attempt_events[-1].get("event") in {"started", "interrupted"}:
-                    raise RuntimeError(
-                        f"seed549_preserving_ambiguous_attempt:{arm}:{shard}"
-                    )
-            elif events and events[-1].get("event") == "finished":
-                if (
-                    events[-1].get("exit_status") == 0
-                    or events[-1].get("output_bytes") != 0
-                ):
-                    raise RuntimeError(
-                        f"seed549_refuses_failed_or_partial_retry:{arm}:{shard}"
-                    )
-                if not (out / "execution-correction.json").is_file():
-                    raise RuntimeError("seed549_retry_requires_execution_correction")
-                append_jsonl(
-                    ledger,
-                    {
-                        "event": "retry_authorized",
-                        "arm": arm,
-                        "shard": shard,
-                        "prior_attempt_output_bytes": 0,
-                        "prior_attempt_exit_status": events[-1].get("exit_status"),
-                        "correction_sha256": digest(out / "execution-correction.json"),
-                        "disposition": "retry same planned shard/seed; prior attempt produced no game rows",
-                    },
+            if events and events[-1].get("event") == "published":
+                if not _verify_published_attempts(root, arm, shard, events, final):
+                    raise ValueError(f"completed_shard_receipt_mismatch:{arm}:{shard}")
+                report = verify_shard(
+                    final,
+                    arm=f"{arm}/{shard}",
+                    expected_seed=seed,
+                    expected_game_count=GAMES_PER_SHARD,
                 )
+                if report["games"] != {
+                    "completed": GAMES_PER_SHARD,
+                    "capped": 0,
+                    "incomplete": 0,
+                }:
+                    raise ValueError(f"completed_shard_invalid:{arm}:{shard}")
+                continue
+            _authorize_retry_or_reject_attempt(root, ledger, arm, shard, events)
+            if events and events[-1].get("event") == "finished":
                 events = read_jsonl(ledger)
                 events = [
                     e for e in events if e.get("arm") == arm and e.get("shard") == shard
                 ]
-            elif events and events[-1].get("event") != "retry_authorized":
-                raise RuntimeError(
-                    f"seed549_preserving_ambiguous_attempt:{arm}:{shard}"
-                )
             if final.exists():
                 raise FileExistsError(f"unreceipted_output_preserved:{final}")
             attempt = sum(e.get("event") == "started" for e in events)
@@ -663,7 +902,7 @@ def development_exclusion_reasons(
     return reasons
 
 
-def build_derivatives(root: Path = ROOT) -> dict[str, Any]:
+def _legacy_build_derivatives(root: Path = ROOT) -> dict[str, Any]:
     root = root.resolve()
     preflight(root)
     out = root / OUT
@@ -787,7 +1026,7 @@ def build_derivatives(root: Path = ROOT) -> dict[str, Any]:
     return receipt
 
 
-def verify(root: Path = ROOT) -> dict[str, Any]:
+def _legacy_verify(root: Path = ROOT) -> dict[str, Any]:
     root = root.resolve()
     reg = preflight(root)
     out = root / OUT
@@ -846,6 +1085,26 @@ def verify(root: Path = ROOT) -> dict[str, Any]:
     }
 
 
+def build_derivatives(root: Path = ROOT) -> dict[str, Any]:
+    """Delegate derivative creation to the frozen published builder, fail closed."""
+    out = root.resolve() / OUT
+    existing = [name for name in DERIVATIVE_OUTPUTS if (out / name).exists()]
+    if existing:
+        raise FileExistsError(
+            "seed549_derivatives_already_published:" + ",".join(existing)
+        )
+    from ml.alphazero_lite.seed549_derivatives import build
+
+    return build(root)
+
+
+def verify(root: Path = ROOT) -> dict[str, Any]:
+    """Use the sole read-only verifier for both CLI entry points."""
+    from ml.alphazero_lite.seed549_derivatives import verify as verify_publication
+
+    return verify_publication(root)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -854,6 +1113,7 @@ def main() -> None:
             "prepare",
             "preflight",
             "authorize-retry",
+            "bind-source-correction",
             "execute",
             "worker",
             "build-derivatives",
@@ -869,6 +1129,8 @@ def main() -> None:
         result = preflight(args.root)
     elif args.action == "authorize-retry":
         result = record_zero_output_retry_correction(args.root)
+    elif args.action == "bind-source-correction":
+        result = record_execution_source_correction(args.root)
     elif args.action == "execute":
         result = execute(args.root)
     elif args.action == "build-derivatives":

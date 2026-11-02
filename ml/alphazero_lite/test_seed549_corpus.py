@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import sys
+from unittest.mock import Mock
 
 import numpy as np
 import pytest
@@ -152,3 +154,224 @@ def test_passes_are_deterministic_and_do_not_repeat_within_each_pass() -> None:
             ]
         ),
     )
+
+
+def _write_prior_attempt(
+    root,
+    *,
+    status: int,
+    output_bytes: bytes,
+    log_bytes: bytes = b"prior attempt log\n",
+):
+    out = root / corpus.OUT
+    (out / "control").mkdir(parents=True)
+    attempts = out / "attempts"
+    attempts.mkdir()
+    registration_path = out / "registration.json"
+    registration_path.write_text("{}\n")
+    output = attempts / "control-000-attempt-00.jsonl"
+    log = attempts / "control-000-attempt-00.log"
+    if output_bytes:
+        output.write_bytes(output_bytes)
+    log.write_bytes(log_bytes)
+    command = corpus.make_command(root, "control", 0, output.relative_to(root))
+    common = {
+        "arm": "control",
+        "shard": 0,
+        "seed": corpus.BASE_SEED,
+        "argv": command,
+        "registration_sha256": corpus.digest(registration_path),
+        "output": output.relative_to(root).as_posix(),
+        "log": log.relative_to(root).as_posix(),
+    }
+    started = {**common, "event": "started", "started_at": 1.0}
+    finished = {
+        **common,
+        "event": "finished",
+        "exit_status": status,
+        "output_bytes": len(output_bytes),
+        "output_sha256": corpus.digest(output) if output_bytes else None,
+        "log_sha256": corpus.digest(log),
+        "elapsed_seconds": 0.1,
+        "peak_sampled_process_tree_rss_bytes": 1024,
+    }
+    (out / "attempts.jsonl").write_text(
+        json.dumps(started) + "\n" + json.dumps(finished) + "\n"
+    )
+    return out, output, log, started, finished
+
+
+@pytest.mark.parametrize(
+    ("status", "output_bytes"),
+    [(1, b'{"partial":true}\n'), (1, b""), (2, b'{"partial":true}\n')],
+)
+def test_execute_rejects_failed_attempt_without_retry_authority_and_preserves_evidence(
+    tmp_path, monkeypatch: pytest.MonkeyPatch, status: int, output_bytes: bytes
+) -> None:
+    out, output, log, _started, _finished = _write_prior_attempt(
+        tmp_path, status=status, output_bytes=output_bytes
+    )
+    monkeypatch.setattr(corpus, "preflight", lambda _root: {"resource_launcher": []})
+    launcher = Mock(side_effect=AssertionError("must not launch a replacement shard"))
+    monkeypatch.setattr(corpus.subprocess, "Popen", launcher)
+    evidence = [out / "attempts.jsonl", out / "registration.json", log]
+    if output.exists():
+        evidence.append(output)
+    before = {path: (path.read_bytes(), path.stat().st_mtime_ns) for path in evidence}
+
+    with pytest.raises(
+        RuntimeError,
+        match="seed549_(refuses_failed_or_partial_retry|zero_output_retry_not_registered)",
+    ):
+        corpus.execute(tmp_path)
+
+    launcher.assert_not_called()
+    assert before == {
+        path: (path.read_bytes(), path.stat().st_mtime_ns) for path in evidence
+    }
+
+
+def test_execute_authorizes_only_exact_registered_zero_output_retry(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    out, _output, log, _started, finished = _write_prior_attempt(
+        tmp_path, status=2, output_bytes=b""
+    )
+    registration_path = out / "registration.json"
+    correction = {
+        "registration_sha256": corpus.digest(registration_path),
+        "source_path": "ml/alphazero_lite/seed549_corpus.py",
+        "failed_attempt": {
+            "arm": "control",
+            "shard": 0,
+            "seed": corpus.BASE_SEED,
+            "exit_status": 2,
+            "output_bytes": 0,
+            "log_sha256": finished["log_sha256"],
+        },
+    }
+    corpus.write_json(out / "execution-correction.json", correction)
+    monkeypatch.setattr(corpus, "preflight", lambda _root: {"resource_launcher": []})
+
+    class ExitedProcess:
+        returncode = 1
+
+        @staticmethod
+        def poll():
+            return 1
+
+    launcher = Mock(return_value=ExitedProcess())
+    monkeypatch.setattr(corpus.subprocess, "Popen", launcher)
+    with pytest.raises(corpus.subprocess.CalledProcessError):
+        corpus.execute(tmp_path)
+
+    launcher.assert_called_once()
+    events = corpus.read_jsonl(out / "attempts.jsonl")
+    assert [event["event"] for event in events] == [
+        "started",
+        "finished",
+        "retry_authorized",
+        "started",
+        "finished",
+    ]
+    assert events[2]["prior_attempt_log_sha256"] == finished["log_sha256"]
+    assert events[2]["correction_sha256"] == corpus.digest(
+        out / "execution-correction.json"
+    )
+
+
+def test_execute_rejects_tampered_retry_authorization_without_launch(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    out, _output, log, _started, finished = _write_prior_attempt(
+        tmp_path, status=2, output_bytes=b""
+    )
+    corpus.write_json(
+        out / "execution-correction.json",
+        {
+            "registration_sha256": corpus.digest(out / "registration.json"),
+            "source_path": "ml/alphazero_lite/seed549_corpus.py",
+            "failed_attempt": {
+                "arm": "control",
+                "shard": 0,
+                "seed": corpus.BASE_SEED,
+                "exit_status": 2,
+                "output_bytes": 0,
+                "log_sha256": finished["log_sha256"],
+            },
+        },
+    )
+    events = corpus.read_jsonl(out / "attempts.jsonl")
+    events.append(
+        {
+            "event": "retry_authorized",
+            "arm": "control",
+            "shard": 0,
+            "attempt_number": 1,
+            "prior_attempt_output_bytes": 0,
+            "prior_attempt_exit_status": 2,
+            "prior_attempt_log_sha256": finished["log_sha256"],
+            "correction_sha256": "tampered",
+        }
+    )
+    (out / "attempts.jsonl").write_text(
+        "".join(json.dumps(event) + "\n" for event in events)
+    )
+    monkeypatch.setattr(corpus, "preflight", lambda _root: {"resource_launcher": []})
+    launcher = Mock(side_effect=AssertionError("invalid authorization must not launch"))
+    monkeypatch.setattr(corpus.subprocess, "Popen", launcher)
+    evidence = [out / "attempts.jsonl", out / "registration.json", log]
+    before = {path: (path.read_bytes(), path.stat().st_mtime_ns) for path in evidence}
+
+    with pytest.raises(RuntimeError, match="seed549_retry_authorization_invalid"):
+        corpus.execute(tmp_path)
+
+    launcher.assert_not_called()
+    assert before == {
+        path: (path.read_bytes(), path.stat().st_mtime_ns) for path in evidence
+    }
+
+
+def test_legacy_derivative_cli_refuses_to_overwrite_existing_publication(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    out = tmp_path / corpus.OUT
+    out.mkdir(parents=True)
+    protected = out / "control-source-manifest.json"
+    protected.write_bytes(b"published manifest bytes\n")
+    before = (protected.read_bytes(), protected.stat().st_mtime_ns)
+    derivative_builder = Mock(
+        side_effect=AssertionError("published data must not rebuild")
+    )
+    monkeypatch.setattr(
+        "ml.alphazero_lite.seed549_derivatives.build", derivative_builder
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["seed549_corpus", "build-derivatives", "--root", str(tmp_path)],
+    )
+
+    with pytest.raises(FileExistsError, match="seed549_derivatives_already_published"):
+        corpus.main()
+
+    derivative_builder.assert_not_called()
+    assert (protected.read_bytes(), protected.stat().st_mtime_ns) == before
+
+
+@pytest.mark.parametrize("action", ["build-derivatives", "verify"])
+def test_legacy_derivative_cli_delegates_to_published_implementation(
+    tmp_path, monkeypatch: pytest.MonkeyPatch, capsys, action: str
+) -> None:
+    sentinel = {"action": action, "delegated": True}
+    delegated = Mock(return_value=sentinel)
+    target = "build" if action == "build-derivatives" else "verify"
+    monkeypatch.setattr(f"ml.alphazero_lite.seed549_derivatives.{target}", delegated)
+    monkeypatch.setattr(
+        sys, "argv", ["seed549_corpus", action, "--root", str(tmp_path)]
+    )
+
+    corpus.main()
+
+    delegated.assert_called_once_with(tmp_path)
+    assert json.loads(capsys.readouterr().out) == sentinel

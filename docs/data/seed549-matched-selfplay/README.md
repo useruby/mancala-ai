@@ -122,3 +122,20 @@ schedules. It verifies evidence bytes and nanosecond mtimes remain unchanged.
 
 No model advancement is authorized by this corpus publication. A later controlled
 training comparison is a separate task.
+
+## Pre-merge implementation correction
+
+PR review identified a resume-path issue and obsolete derivative CLI behavior.
+The append-only source correction chain is recorded in
+`execution-correction-02.json` through `execution-correction-04.json` and their
+freeze receipts. Failed attempts with partial output, nonzero status without the exact
+registered zero-output failure, interrupted attempts, and reused retry
+authorizations now stop before another worker launch. Only the narrowly bound
+zero-output control shard-0 failure may be retried, and the historical attempt
+remains preserved. The existing corpus CLI delegates derivative building to
+the published builder with an upfront overwrite guard and delegates verification
+to the read-only publication verifier.
+
+No games were generated again. Raw shard bytes, the prospective registration,
+generation receipt, derivative products, and post-generation receipt remain
+unchanged. `review-correction-01.json` records the source and evidence bindings.
