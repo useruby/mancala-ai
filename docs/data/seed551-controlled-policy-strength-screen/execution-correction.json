@@ -1,0 +1,16 @@
+{
+  "schema": "seed551_execution_source_correction_v1",
+  "registration_sha256": "ea0a95409fee37bf91d967b1842c6dd65574c5cccb814f6ec623c3c4549d55a0",
+  "source_corrections": {
+    "ml/alphazero_lite/test_seed551_controlled_policy_strength.py": {
+      "previous_sha256": "186da2adafaabe2893fa0c6603da091e883da106624d52b0a3791df8deb9be9b",
+      "corrected_sha256": "dcb4fbb298941b26550a8caf1432ca6c2142f7b2913a8d2bead3de8f57b2f64f",
+      "reason": "add regression coverage for arena-local opening index zero in one-row suites"
+    },
+    "ml/alphazero_lite/verify_seed551_controlled_policy_strength.py": {
+      "previous_sha256": "5cac8235491dc69fd05bd08619f3e35c374d6ea4c1051715c2b3600a65c29ff3",
+      "corrected_sha256": "6888f7429ed78639a6f2f113bba65341687eb6d8e1a3c7b049b05fadb364ce04",
+      "reason": "validate the arena-local opening index separately from the command-bound global suite row so complete saved raw pair 1 can be recovered without rerunning games"
+    }
+  }
+}

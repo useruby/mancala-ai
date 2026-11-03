@@ -1,0 +1,17 @@
+{
+  "schema": "seed551_execution_source_correction_v1",
+  "registration_sha256": "ea0a95409fee37bf91d967b1842c6dd65574c5cccb814f6ec623c3c4549d55a0",
+  "parent_correction_sha256": "9cb28910954c85768b84133376294c4e6b3b6468e025a42ccfee793d8a8c4031",
+  "source_corrections": {
+    "ml/alphazero_lite/test_seed551_controlled_policy_strength.py": {
+      "previous_sha256": "8ddcb4ac0203d68b577d8a4db408e68ce1974f1d010cc8c8dddd1c37c55c93a7",
+      "corrected_sha256": "5e770555af18599a511a5955f46c70aa20c1e610791f8f6310b82bf8e918def8",
+      "reason": "add full-verifier, completion-receipt-rebound semantic corruption tests for raw-report native-probe, tablebase, and runtime-policy identities in both notes and search_profile"
+    },
+    "ml/alphazero_lite/verify_seed551_controlled_policy_strength.py": {
+      "previous_sha256": "9b39dcb6e79588585c237830ac557843fd530bf3e5bb27e343dc86a0798cc094",
+      "corrected_sha256": "16e8b3c90ab5cb4c3584f4834aba4d26dbbdeff6a0f5e41591454b79713214b3",
+      "reason": "validate raw-report native-probe SHA256, tablebase SHA256, and runtime search-policy mode against frozen authenticated runtime identities in both notes and search_profile"
+    }
+  }
+}

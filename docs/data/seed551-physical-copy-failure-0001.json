@@ -1,0 +1,13 @@
+{
+  "schema": "seed551_physical_copy_failure_v1",
+  "status": "physical_copy_attempt_failed_preserved",
+  "unit": "seed551-physical-copy-verification.service",
+  "exit_status": 1,
+  "failing_check": "seed551_command_component_mismatch:0:--challenger",
+  "physical_copy_path": "/home/alex/Mancala/seed551-physical-copy",
+  "original_worktree_hidden_during_attempt": true,
+  "cause": "independent preflight resolved the registered expected artifact path against the verifier process CWD instead of the relocated root",
+  "correction": "resolve relative command paths against the explicit root argument",
+  "original_worktree_restored": true,
+  "no_arena_games_launched": true
+}

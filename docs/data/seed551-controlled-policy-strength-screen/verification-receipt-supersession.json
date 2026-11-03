@@ -1,0 +1,10 @@
+{
+  "schema": "seed551_verification_receipt_supersession_v1",
+  "status": "prior_read_only_verification_receipt_preserved_after_append_only_verifier_correction",
+  "prior_receipt_path": "verification-receipt-superseded-v1.json",
+  "prior_receipt_sha256": "2be3bd06ced822a500d8d85d3e8c8271ef45c23287a9de8cf0969e31332f092e",
+  "prior_verifier_source_sha256": "6888f7429ed78639a6f2f113bba65341687eb6d8e1a3c7b049b05fadb364ce04",
+  "correction_path": "execution-correction-02.json",
+  "corrected_verifier_source_sha256": "9b39dcb6e79588585c237830ac557843fd530bf3e5bb27e343dc86a0798cc094",
+  "reason": "corrected physical-copy resolution for relative command artifact paths; the corrected verifier independently reverified the same complete 2,048-game evidence"
+}

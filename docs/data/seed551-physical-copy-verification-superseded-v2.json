@@ -1,0 +1,42 @@
+{
+  "capped_nonterminal_games": 0,
+  "command": [
+    "/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python",
+    "-m",
+    "ml.alphazero_lite.verify_seed551_controlled_policy_strength",
+    "--root",
+    "/home/alex/Mancala/seed551-physical-copy-corrected",
+    "--out",
+    "/home/alex/Mancala/seed551-physical-copy-corrected/docs/data/seed551-controlled-policy-strength-screen",
+    "--tablebase",
+    "/home/alex/Mancala/ai/.tmp/seed542-screen-runtime/kalah_v1_21.kvtb",
+    "--allow-relocated-copy"
+  ],
+  "copied_evidence_files": 9602,
+  "evidence_bytes_and_mtimes_unchanged": true,
+  "exit_status": 0,
+  "outside_working_directory": "/home/alex/Mancala",
+  "physical_copy_root": "/home/alex/Mancala/seed551-physical-copy-corrected",
+  "preserved_previous_attempt_failure": {
+    "cause": "independent preflight resolved the registered expected artifact path against the verifier process CWD instead of the relocated root",
+    "correction": "resolve relative command paths against the explicit root argument",
+    "exit_status": 1,
+    "failing_check": "seed551_command_component_mismatch:0:--challenger",
+    "no_arena_games_launched": true,
+    "original_worktree_hidden_during_attempt": true,
+    "original_worktree_restored": true,
+    "physical_copy_path": "/home/alex/Mancala/seed551-physical-copy",
+    "schema": "seed551_physical_copy_failure_v1",
+    "status": "physical_copy_attempt_failed_preserved",
+    "unit": "seed551-physical-copy-verification.service"
+  },
+  "schema": "seed551_physical_copy_verification_v1",
+  "source_worktree_hidden_during_verification": true,
+  "source_worktree_restored": true,
+  "status": "physical_copy_verified_read_only",
+  "stderr": "",
+  "stdout": "{\n  \"analysis\": {\n    \"bootstrap_resamples\": 20000,\n    \"bootstrap_seed\": 545,\n    \"capped_nonterminal_games\": 0,\n    \"capped_nonterminal_results_by_current_store_margin\": {\n      \"C\": 0,\n      \"T\": 0,\n      \"draw\": 0\n    },\n    \"capped_points_policy\": \"use the arena's current store-margin winner at ply 200, ties 0.5, and report capped results separately from terminal outcomes\",\n    \"decision\": \"do_not_advance_source_evaluator_branch\",\n    \"descriptive_two_sided_95\": [\n      0.468505859375,\n      0.49609375\n    ],\n    \"draws\": 195,\n    \"fresh_holdout\": false,\n    \"games\": 2048,\n    \"losses\": 963,\n    \"non_advancement_does_not_establish_universal_source_evaluator_inferiority\": true,\n    \"one_sided_95_lower\": 0.470703125,\n    \"opening_pairs\": 1024,\n    \"preserved_cluster_multiplicity\": true,\n    \"promotion_or_deployment_authorized\": false,\n    \"quantile_method\": \"linear\",\n    \"replacement\": true,\n    \"score\": 0.482177734375,\n    \"seed461_continuation_overlap_unresolved\": true,\n    \"status\": \"complete\",\n    \"strength_decision_valid\": true,\n    \"wins\": 890\n  },\n  \"capped_nonterminal_games\": 0,\n  \"preflight\": {\n    \"commands\": 1024,\n    \"openings\": 1024,\n    \"status\": \"preflight_verified\"\n  },\n  \"read_only_bytes_and_mtimes_unchanged\": true,\n  \"status\": \"verified_complete\",\n  \"verified_games\": 2048,\n  \"verified_pairs\": 1024\n}\n",
+  "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+  "verified_games": 2048,
+  "verified_pairs": 1024
+}

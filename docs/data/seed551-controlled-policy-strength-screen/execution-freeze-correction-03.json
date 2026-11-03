@@ -1,0 +1,6 @@
+{
+  "schema": "seed551_execution_source_freeze_correction_v1",
+  "registration_sha256": "ea0a95409fee37bf91d967b1842c6dd65574c5cccb814f6ec623c3c4549d55a0",
+  "parent_freeze_correction_sha256": "9983dae064402c8ff1d85e951dd61751b697eac2198bb0a6bd080d3e3b504df6",
+  "correction_sha256": "814add118b0715cdc399580bd7ef3f7022bcc39b33cf16e9c59a6c88986814ae"
+}

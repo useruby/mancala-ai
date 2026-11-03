@@ -1,0 +1,50 @@
+{
+  "schema": "seed551_pre_execution_independent_verification_v1",
+  "status": "preflight_verified_no_games_started",
+  "registration_sha256": "ea0a95409fee37bf91d967b1842c6dd65574c5cccb814f6ec623c3c4549d55a0",
+  "execution_freeze_sha256": "fc8ab0a7a9a1441417b8ad83efd203ab79adc76a877bd9f388e394776e3fdbe9",
+  "command": [
+    "systemd-run", "--user", "--unit=seed551-pre-execution-verification", "--collect",
+    "--property=WorkingDirectory=/home/alex/Mancala/ai/.tmp/seed551-worktree",
+    "--property=CPUQuota=25%", "--property=CPUWeight=1",
+    "--property=MemoryMax=4294967296", "--property=AllowedCPUs=30",
+    "--property=Nice=19", "--property=LimitAS=17179869184",
+    "--setenv=PYTHONPATH=/home/alex/Mancala/ai/.tmp/seed551-worktree",
+    "--setenv=OMP_NUM_THREADS=1", "--setenv=MKL_NUM_THREADS=1",
+    "--setenv=OPENBLAS_NUM_THREADS=1", "--setenv=BLAS_NUM_THREADS=1",
+    "--setenv=NUMEXPR_NUM_THREADS=1", "--",
+    "/usr/bin/nice", "-n", "19", "/usr/bin/prlimit", "--as=17179869184", "--",
+    "/usr/bin/taskset", "-c", "30", "/usr/bin/env",
+    "OMP_NUM_THREADS=1", "MKL_NUM_THREADS=1", "OPENBLAS_NUM_THREADS=1",
+    "BLAS_NUM_THREADS=1", "NUMEXPR_NUM_THREADS=1",
+    "/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python",
+    "-m", "ml.alphazero_lite.verify_seed551_controlled_policy_strength",
+    "--root", "/home/alex/Mancala/ai/.tmp/seed551-worktree",
+    "--out", "/home/alex/Mancala/ai/.tmp/seed551-worktree/docs/data/seed551-controlled-policy-strength-screen",
+    "--tablebase", "/home/alex/Mancala/ai/.tmp/seed542-screen-runtime/kalah_v1_21.kvtb"
+  ],
+  "exit_status": 0,
+  "verifier_output": {
+    "status": "incomplete",
+    "verified_games": 0,
+    "verified_pairs": 0,
+    "capped_nonterminal_games": 0,
+    "preflight": {
+      "status": "preflight_verified",
+      "openings": 1024,
+      "commands": 1024
+    },
+    "read_only_bytes_and_mtimes_unchanged": true
+  },
+  "games_started": false,
+  "resource_settings": {
+    "cpu_quota": "25%",
+    "cpu_weight": "1",
+    "memory_max": "4294967296",
+    "allowed_cpus": "30",
+    "cpu_affinity": [30],
+    "nice": 19,
+    "address_space_limit": "17179869184",
+    "numerical_library_threads": 1
+  }
+}

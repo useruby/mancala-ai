@@ -1,0 +1,9 @@
+{
+  "schema": "seed551_physical_copy_verification_supersession_v1",
+  "status": "prior_physical_copy_receipt_preserved_after_append_only_verifier_correction",
+  "prior_receipt_path": "seed551-physical-copy-verification-superseded-v1.json",
+  "prior_receipt_sha256": "34f626720d204895c7ed1df5380b42dc281fb2d52858bbd688b5a6595dee7ef1",
+  "prior_verifier_source_sha256": "9b39dcb6e79588585c237830ac557843fd530bf3e5bb27e343dc86a0798cc094",
+  "correction_path": "docs/data/seed551-controlled-policy-strength-screen/execution-correction-03.json",
+  "reason": "the physical-copy receipt predates the P2 raw-report runtime-identity checks and is retained alongside a corrected copy verification"
+}

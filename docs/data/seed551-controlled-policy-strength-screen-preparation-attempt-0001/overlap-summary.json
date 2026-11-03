@@ -1,0 +1,26 @@
+{
+  "exploratory_reused_suite": true,
+  "historical_suite_outcomes_imported": false,
+  "overlap_opening_counts": {
+    "control": {
+      "canonical": 0,
+      "production_float32": 0
+    },
+    "shared_development": {
+      "canonical": 1,
+      "production_float32": 1
+    },
+    "treatment": {
+      "canonical": 0,
+      "production_float32": 0
+    }
+  },
+  "schema": "seed551_training_population_overlap_v1",
+  "seed461_continuation_overlap_unresolved": true,
+  "shared_development_members": 4738,
+  "suite_openings_retained": 1024,
+  "training_rows": {
+    "control": 13818,
+    "treatment": 13849
+  }
+}

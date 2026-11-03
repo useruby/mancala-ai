@@ -1,0 +1,9 @@
+{
+  "schema": "seed551_verification_attempt_failure_v1",
+  "status": "read_only_verification_failed_without_evidence_mutation",
+  "unit": "seed551-p2-verifier-diagnostic.service",
+  "exit_status": 1,
+  "failing_check": "seed551_execution_source_correction_parent_mismatch:ml/alphazero_lite/test_seed551_controlled_policy_strength.py",
+  "cause": "the third append-only correction recorded a mistyped previous test-source SHA256",
+  "correction": "the previous_sha256 was corrected to the SHA256 appended by correction 02; no game data was changed or rerun"
+}

@@ -1,0 +1,9 @@
+{
+  "schema": "seed551_verification_receipt_supersession_v1",
+  "status": "prior_read_only_verification_receipt_preserved_after_append_only_verifier_correction",
+  "prior_receipt_path": "verification-receipt-superseded-v2.json",
+  "prior_receipt_sha256": "4604f3dc4191123bb4a4ffedd467537edfa2c226f34e7d7bf145e219e6dd2ee2",
+  "prior_verifier_source_sha256": "9b39dcb6e79588585c237830ac557843fd530bf3e5bb27e343dc86a0798cc094",
+  "correction_path": "execution-correction-03.json",
+  "corrected_verifier_source_sha256": "16e8b3c90ab5cb4c3584f4834aba4d26dbbdeff6a0f5e41591454b79713214b3"
+}

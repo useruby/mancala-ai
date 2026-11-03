@@ -1,0 +1,9 @@
+{
+  "command_sha256": "b9394f4478bfe50dec72f39ccad0cc5ef3b22f664ac42df79cb9e6d0fc0520a4",
+  "games_sha256": "33ab2b53abf3fb17cce168bf686becba518633f97be76d25da6a491527ff4f7a",
+  "opening_index": 963,
+  "opening_sha256": "f527fd0bc6a2421e2dc402a5c01a0141a97399c5654b78cdce528c815baabb1f",
+  "registration_sha256": "ea0a95409fee37bf91d967b1842c6dd65574c5cccb814f6ec623c3c4549d55a0",
+  "report_sha256": "005a9bc99eda1c064aec2f4f8d94beed1a084b0d7626040a941fe2cd37a15844",
+  "suite_sha256": "27a003322e5469507a508010a9743b40062928140e6a4b9d5628b0290e32c21d"
+}

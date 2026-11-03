@@ -1,0 +1,16 @@
+{
+  "schema": "seed551_pair_validation_failure_v1",
+  "status": "complete_raw_pair_preserved_validation_failed",
+  "opening_index": 1,
+  "arena_command_exit_status": 0,
+  "failing_check": "seed551_pair_seat_order_mismatch:1:0",
+  "cause": "arena emits opening_index=0 within each one-row opening-prefix file; the verifier incorrectly compared this local index with the suite index",
+  "games_started": true,
+  "pair_ledger_committed": false,
+  "games_sha256": "6266667a4497acfc7ec23f9a6a00655309f3ed8ad42d6c1df6ba73d0b924408f",
+  "report_sha256": "21f2bb397c0e4abb021c331919e1d07e755862847261836ba524605c5210561a",
+  "command_sha256": "5d8ddb55edc54b99b002cfa9c81f8d1b32c4782ef5128eb019453bb664cde8f1",
+  "attempt_sha256": "19abe38877cfa6bba9a02e847388b3f713d304f9304a3f00d7adb4db7751a6c7",
+  "attempt_archive_sha256": "36b564bf3e25385e9762c0bc9145396611f2e0c0353397f2a7b8f510fee8b900",
+  "recovery_action": "retain raw pair and attempt; correct verifier with append-only source correction, then independently validate and commit this pair without rerunning games"
+}
