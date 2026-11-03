@@ -143,6 +143,15 @@ def verify_copy(
         "preserved_previous_attempt_failure": json.loads(
             (source / "docs/data/seed551-physical-copy-failure-0001.json").read_text()
         ),
+        "preserved_previous_physical_copy_verification": {
+            "path": "docs/data/seed551-physical-copy-verification-superseded-v2.json",
+            "sha256": sha(
+                source
+                / "docs/data/seed551-physical-copy-verification-superseded-v2.json"
+            ),
+            "status": "physical_copy_verified_read_only",
+            "superseded_by": "P2 raw-report runtime identity correction",
+        },
     }
     if not result["source_worktree_restored"]:
         raise RuntimeError("original_worktree_restore_failed")

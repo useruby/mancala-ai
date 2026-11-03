@@ -815,6 +815,23 @@ def validate_pair(
             raise ValueError(f"seed551_pair_completion_receipt_mismatch:{index}")
     notes = report.get("notes", {})
     profile = notes.get("search_profile", {})
+    runtime_auth = json.loads((out / "runtime-authentication.json").read_text())
+    runtime_preflight = json.loads((out / "runtime-policy-preflight.json").read_text())
+    runtime_assets = runtime_auth["runtime_assets"]
+    registered_mode = runtime_preflight["runtime_search_policy_mode"]
+    registered_policy_sha = sha(out / "runtime-artifacts/T/search_policy.json")
+    identity_contract = {
+        "exact_root_native_probe_sha256": runtime_assets["native_probe_sha256"],
+        "exact_root_tablebase_sha256": runtime_assets["tablebase_sha256"],
+        "runtime_search_policy_mode": registered_mode,
+        "runtime_search_policy_sha256": registered_policy_sha,
+        "challenger_runtime_policy_inherited": False,
+    }
+    if any(
+        notes.get(key) != expected or profile.get(key) != expected
+        for key, expected in identity_contract.items()
+    ):
+        raise ValueError(f"seed551_pair_runtime_report_identity_mismatch:{index}")
     if (
         profile.get("simulations") != 128
         or profile.get("c_puct") != 1.25
@@ -828,13 +845,23 @@ def validate_pair(
         != "highest_legal_network_prior_then_lowest_move_index"
         or profile.get("exact_leaf_solve_mode") != "disabled"
         or profile.get("search_options") != protocol.SEARCH_OPTIONS
+        or notes.get("search_options") != protocol.SEARCH_OPTIONS
+        or notes.get("exact_root_solve_threshold") != 16
+        or notes.get("exact_root_objective") != "final_score_margin"
+        or notes.get("exact_root_tie_rule")
+        != "highest_legal_network_prior_then_lowest_move_index"
+        or notes.get("exact_leaf_solve_mode") != "disabled"
+        or notes.get("exact_root_native_probe_sha256")
+        != runtime_assets["native_probe_sha256"]
+        or notes.get("exact_root_tablebase_sha256")
+        != runtime_assets["tablebase_sha256"]
+        or notes.get("runtime_search_policy_mode") != registered_mode
+        or notes.get("runtime_search_policy_sha256") != registered_policy_sha
         or notes.get("workers_requested") != 1
         or notes.get("workers_used") != 1
         or notes.get("random_opening_plies") != 0
         or notes.get("seed_contract") != protocol.SEED_CONTRACT
         or notes.get("base_seed") != 545 + index
-        or notes.get("runtime_search_policy_sha256")
-        != sha(out / "runtime-artifacts/T/search_policy.json")
     ):
         raise ValueError(f"seed551_pair_runtime_report_mismatch:{index}")
     return outcomes

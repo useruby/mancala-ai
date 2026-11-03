@@ -282,6 +282,25 @@ def _pair_evidence(tmp_path: Path) -> tuple[Path, dict[str, Any]]:
     sidecar = out / "runtime-artifacts/T/search_policy.json"
     sidecar.parent.mkdir(parents=True)
     sidecar.write_text("{}\n")
+    native_probe_hash = protocol.sha256(
+        ROOT / "model-artifact/runtime/kalah_v1_tablebase"
+    )
+    tablebase_hash = "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+    runtime_policy_hash = protocol.sha256(sidecar)
+    runtime_policy_mode = "puct_exact_root_hybrid"
+    (out / "runtime-authentication.json").write_text(
+        json.dumps(
+            {
+                "runtime_assets": {
+                    "native_probe_sha256": native_probe_hash,
+                    "tablebase_sha256": tablebase_hash,
+                }
+            }
+        )
+    )
+    (out / "runtime-policy-preflight.json").write_text(
+        json.dumps({"runtime_search_policy_mode": runtime_policy_mode})
+    )
     winners = [row["winner"] for row in game_rows]
     report = {
         "schema": "arena_v1",
@@ -295,7 +314,16 @@ def _pair_evidence(tmp_path: Path) -> tuple[Path, dict[str, Any]]:
             "random_opening_plies": 0,
             "workers_requested": 1,
             "workers_used": 1,
-            "runtime_search_policy_sha256": protocol.sha256(sidecar),
+            "search_options": protocol.SEARCH_OPTIONS,
+            "exact_root_solve_threshold": 16,
+            "exact_root_objective": "final_score_margin",
+            "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+            "exact_leaf_solve_mode": "disabled",
+            "exact_root_native_probe_sha256": native_probe_hash,
+            "exact_root_tablebase_sha256": tablebase_hash,
+            "runtime_search_policy_mode": runtime_policy_mode,
+            "runtime_search_policy_sha256": runtime_policy_hash,
+            "challenger_runtime_policy_inherited": False,
             "search_profile": {
                 "simulations": 128,
                 "challenger_simulations": 128,
@@ -309,6 +337,11 @@ def _pair_evidence(tmp_path: Path) -> tuple[Path, dict[str, Any]]:
                 "exact_root_objective": "final_score_margin",
                 "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
                 "exact_leaf_solve_mode": "disabled",
+                "exact_root_native_probe_sha256": native_probe_hash,
+                "exact_root_tablebase_sha256": tablebase_hash,
+                "runtime_search_policy_mode": runtime_policy_mode,
+                "runtime_search_policy_sha256": runtime_policy_hash,
+                "challenger_runtime_policy_inherited": False,
                 "search_options": protocol.SEARCH_OPTIONS,
             },
         },
@@ -451,6 +484,60 @@ def test_receipt_rebound_ledger_and_analysis_corruption_are_reconstructed(
     results["score"] = 0.75
     (out / "results.json").write_text(json.dumps(results))
     with pytest.raises(ValueError, match="analysis_reconstruction_mismatch"):
+        verifier.verify(ROOT, out)
+
+
+@pytest.mark.parametrize(
+    ("report_section", "field", "replacement"),
+    [
+        (section, field, bad)
+        for section in ("notes", "search_profile")
+        for field, bad in (
+            ("exact_root_native_probe_sha256", "0" * 64),
+            ("exact_root_tablebase_sha256", "1" * 64),
+            ("runtime_search_policy_mode", "different_runtime_policy"),
+        )
+    ],
+)
+def test_full_verifier_rejects_receipt_rebound_raw_runtime_identity_mutations(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    report_section: str,
+    field: str,
+    replacement: str,
+) -> None:
+    out, completion = _pair_evidence(tmp_path)
+    monkeypatch.setattr(protocol, "OPENINGS", 1)
+    monkeypatch.setattr(protocol, "GAMES", 2)
+    monkeypatch.setattr(protocol, "BOOTSTRAP_RESAMPLES", 32)
+    monkeypatch.setattr(verifier, "OPENINGS", 1)
+    monkeypatch.setattr(verifier, "GAMES", 2)
+    monkeypatch.setattr(verifier, "BOOTSTRAP_RESAMPLES", 32)
+    monkeypatch.setattr(verifier, "verify_preflight", lambda *_args, **_kwargs: {})
+
+    pair = verifier.validate_pair(ROOT, out, 0)
+    ledger_path = out / "outcomes.jsonl"
+    ledger_path.write_text("".join(json.dumps(row) + "\n" for row in pair))
+    results, per_opening = protocol.analyze(pair)
+    (out / "results.json").write_text(json.dumps(results))
+    (out / "per-opening-results.jsonl").write_text(
+        "".join(json.dumps(row) + "\n" for row in per_opening)
+    )
+
+    report_path = out / "batches/report-0000.json"
+    report = json.loads(report_path.read_text())
+    if report_section == "search_profile":
+        report["notes"]["search_profile"][field] = replacement
+    else:
+        report["notes"][field] = replacement
+    report_path.write_text(json.dumps(report) + "\n")
+    _rebind_completion(out, completion, "report_sha256", report_path)
+    rebound_ledger = [dict(row) for row in pair]
+    for row in rebound_ledger:
+        row["report_sha256"] = protocol.sha256(report_path)
+    ledger_path.write_text("".join(json.dumps(row) + "\n" for row in rebound_ledger))
+
+    with pytest.raises(ValueError, match="runtime_report_identity_mismatch"):
         verifier.verify(ROOT, out)
 
 

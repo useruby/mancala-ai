@@ -5,18 +5,18 @@
     "-m",
     "ml.alphazero_lite.verify_seed551_controlled_policy_strength",
     "--root",
-    "/home/alex/Mancala/seed551-physical-copy-corrected",
+    "/home/alex/Mancala/seed551-physical-copy-p2",
     "--out",
-    "/home/alex/Mancala/seed551-physical-copy-corrected/docs/data/seed551-controlled-policy-strength-screen",
+    "/home/alex/Mancala/seed551-physical-copy-p2/docs/data/seed551-controlled-policy-strength-screen",
     "--tablebase",
     "/home/alex/Mancala/ai/.tmp/seed542-screen-runtime/kalah_v1_21.kvtb",
     "--allow-relocated-copy"
   ],
-  "copied_evidence_files": 9602,
+  "copied_evidence_files": 9607,
   "evidence_bytes_and_mtimes_unchanged": true,
   "exit_status": 0,
   "outside_working_directory": "/home/alex/Mancala",
-  "physical_copy_root": "/home/alex/Mancala/seed551-physical-copy-corrected",
+  "physical_copy_root": "/home/alex/Mancala/seed551-physical-copy-p2",
   "preserved_previous_attempt_failure": {
     "cause": "independent preflight resolved the registered expected artifact path against the verifier process CWD instead of the relocated root",
     "correction": "resolve relative command paths against the explicit root argument",
@@ -29,6 +29,12 @@
     "schema": "seed551_physical_copy_failure_v1",
     "status": "physical_copy_attempt_failed_preserved",
     "unit": "seed551-physical-copy-verification.service"
+  },
+  "preserved_previous_physical_copy_verification": {
+    "path": "docs/data/seed551-physical-copy-verification-superseded-v2.json",
+    "sha256": "34f626720d204895c7ed1df5380b42dc281fb2d52858bbd688b5a6595dee7ef1",
+    "status": "physical_copy_verified_read_only",
+    "superseded_by": "P2 raw-report runtime identity correction"
   },
   "schema": "seed551_physical_copy_verification_v1",
   "source_worktree_hidden_during_verification": true,

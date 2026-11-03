@@ -7185,8 +7185,10 @@
     "command-preflight.jsonl": "d49ff584e2d7255b355da602527a37b64f8d1a3d381d4f6bcf059f3217012e6c",
     "commands.jsonl": "d49ff584e2d7255b355da602527a37b64f8d1a3d381d4f6bcf059f3217012e6c",
     "execution-correction-02.json": "9cb28910954c85768b84133376294c4e6b3b6468e025a42ccfee793d8a8c4031",
+    "execution-correction-03.json": "814add118b0715cdc399580bd7ef3f7022bcc39b33cf16e9c59a6c88986814ae",
     "execution-correction.json": "57ab48d4a3f4d824584875f28f612f7bf71aeefe5d330d3b4ef815da9e402487",
     "execution-freeze-correction-02.json": "9983dae064402c8ff1d85e951dd61751b697eac2198bb0a6bd080d3e3b504df6",
+    "execution-freeze-correction-03.json": "199c639c133998756e5f21ad18f23e4a623d96f22027dea32943498f1c3cbc09",
     "execution-freeze-correction.json": "61eb546574063ead41582983dad7b3dd7028c2c633dc5af8835eb4d938858335",
     "execution-freeze.json": "fc8ab0a7a9a1441417b8ad83efd203ab79adc76a877bd9f388e394776e3fdbe9",
     "input-verification.json": "c6596d22ad23565193eee7315a78d249f8a84eaf2740508925023c008b9462de",
@@ -7214,7 +7216,10 @@
     "runtime-authentication.json": "0d1ba81a94cc4361f0d27fb18780b0c4e3a697a7843c25b5e27eecd2572e5928",
     "runtime-policy-preflight.json": "2dc1a38d46bd35b56727c6307d6a14d548dffb0a333c2cf428cf939dd0ce475e",
     "suite-import-report.json": "1b476d620fe5f1af7652e5c0caa9ce85b7eff8975ce820142908c76f868d84e0",
+    "verification-failure-0001.json": "732ec73ef27acc294596066106c1422d8ff772b65f20d31bb360f7b826bd2957",
     "verification-receipt-superseded-v1.json": "2be3bd06ced822a500d8d85d3e8c8271ef45c23287a9de8cf0969e31332f092e",
+    "verification-receipt-superseded-v2.json": "4604f3dc4191123bb4a4ffedd467537edfa2c226f34e7d7bf145e219e6dd2ee2",
+    "verification-receipt-supersession-02.json": "e58ded417510e3b059be2c00574dfb13eab99ee76a7d8b2d45a85474b72458ca",
     "verification-receipt-supersession.json": "0e8dababf6eedad76bf0f361b9784050f2c5a31f88de634add89350a58f32e3f"
   },
   "exit_status": 0,
@@ -7269,5 +7274,5 @@
   },
   "verified_games": 2048,
   "verified_pairs": 1024,
-  "verifier_source_sha256": "9b39dcb6e79588585c237830ac557843fd530bf3e5bb27e343dc86a0798cc094"
+  "verifier_source_sha256": "16e8b3c90ab5cb4c3584f4834aba4d26dbbdeff6a0f5e41591454b79713214b3"
 }
