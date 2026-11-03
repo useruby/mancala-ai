@@ -1,0 +1,53 @@
+{
+  "component_assignments": {
+    "C_policy": "C update-108 policy",
+    "C_policy_trunk": "C update-108 own trunk",
+    "C_value": "frozen initializer value network",
+    "C_value_trunk": "frozen initializer own trunk",
+    "T_policy": "T update-108 policy",
+    "T_policy_trunk": "T update-108 own trunk",
+    "T_value": "frozen initializer value network",
+    "T_value_trunk": "frozen initializer own trunk"
+  },
+  "components": {
+    "C": {
+      "checkpoint_path": "docs/data/seed549-controlled-training/control-update-108.npz",
+      "checkpoint_sha256": "5339fcc06b1284515181352b47414ef82ff326d22b6848aa1cd7f445e47852ad",
+      "files": {
+        "metadata.json": "ef1889435e0d3ae27b8727885fd00c510ef91f465302b1905a1e88a6f44433a6",
+        "model.npz": "5339fcc06b1284515181352b47414ef82ff326d22b6848aa1cd7f445e47852ad",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "f85b3853260052c81a7de1bc3c089dbb99e54cbd21eb80ca7dfe2d5cd562a2f4"
+      }
+    },
+    "T": {
+      "checkpoint_path": "docs/data/seed549-controlled-training/treatment-update-108.npz",
+      "checkpoint_sha256": "5006ec04a09c3b286753c23bd34d7216387f5cca65e8d5705b0432b0ad2efe00",
+      "files": {
+        "metadata.json": "3b21bd9c2e88b4dbb29ee50f8b94d817206aa8da8f151f3ebd7117d7d3131c36",
+        "model.npz": "5006ec04a09c3b286753c23bd34d7216387f5cca65e8d5705b0432b0ad2efe00",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "a2be32ceda705fc0bc2f3e8d554f0e9f0204220ae5626c5eafa35525e34c7f82"
+      }
+    },
+    "initializer": {
+      "checkpoint_path": "docs/data/seed542-selfplay-4096/initializer.npz",
+      "checkpoint_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "files": {
+        "metadata.json": "80bfed445a4f2450ca87ca68b5c2e7717df1e52e19e14a1226178869f61a3062",
+        "model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+      }
+    }
+  },
+  "runtime_assets": {
+    "materialized_tablebase_path": "/home/alex/Mancala/ai/.tmp/seed542-screen-runtime/kalah_v1_21.kvtb",
+    "native_probe_path": "model-artifact/runtime/kalah_v1_tablebase",
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "tablebase_path": "model-artifact/runtime/kalah_v1_21.kvtb",
+    "tablebase_pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+  },
+  "status": "components_authenticated"
+}

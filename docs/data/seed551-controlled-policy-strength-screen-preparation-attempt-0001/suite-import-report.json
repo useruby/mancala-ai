@@ -1,0 +1,27 @@
+{
+  "authenticated_rules_encoding_sources": {
+    "ml/alphazero_lite/build_opening_suite.py": "5c15d541574905ff9d7c75bc8daf8813311e22f22f220563e18cb9b85fb8bd87",
+    "ml/alphazero_lite/input_encodings.py": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/seed482_fresh_confirmation.py": "81460b8fedd4df15c5614fdb76ce32a7bcd77864782bfe0cc0e07316b1c23952",
+    "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c"
+  },
+  "canonical_unique": 1024,
+  "historical_full_seed511_publication_verifier": {
+    "current_native_source_sha256": "bf241fa772efd122355b0706fff9035ee40f6cb9ac913fdd829444f359d62f15",
+    "historical_games_or_outcomes_reused": false,
+    "registered_native_source_sha256": "49fe76e8dc0e827db3181397dee7bfbcf3b1b35234757be1ac441ea09eefab6a",
+    "status": "historical_publication_check_stopped_at_native_source_mismatch"
+  },
+  "historical_games_or_outcomes_imported": false,
+  "openings": 1024,
+  "original_opening_order_and_bytes_preserved": true,
+  "production_float32_unique": 1024,
+  "registration_sha256": "89f04c6e1f774d81a7866d3913dd5ffa990b9e04a58f9a7f066b8f19204445c4",
+  "root_player_orientations": {
+    "0": 524,
+    "1": 500
+  },
+  "status": "suite_import_replay_passed",
+  "suite_sha256": "27a003322e5469507a508010a9743b40062928140e6a4b9d5628b0290e32c21d"
+}

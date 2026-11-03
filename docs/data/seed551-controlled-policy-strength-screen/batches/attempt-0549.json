@@ -1,0 +1,31 @@
+{
+  "command_sha256": "07d44ff45e0a201b3030477cdc453695933d71d8a76ffcaa18e1f58d7cf84fe6",
+  "observed_runtime": {
+    "address_space_rlimit": [
+      17179869184,
+      17179869184
+    ],
+    "cgroup_limits": {
+      "cpu.max": "25000 100000",
+      "cpu.weight": "1",
+      "cpuset.cpus.effective": null,
+      "memory.max": "4294967296"
+    },
+    "cpu_affinity": [
+      30
+    ],
+    "environment": {
+      "BLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    },
+    "nice": 19,
+    "torch_interop_threads": 1,
+    "torch_threads": 1
+  },
+  "opening_index": 549,
+  "returncode": 0,
+  "started": true
+}

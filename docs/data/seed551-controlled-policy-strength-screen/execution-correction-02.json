@@ -1,0 +1,17 @@
+{
+  "schema": "seed551_execution_source_correction_v1",
+  "registration_sha256": "ea0a95409fee37bf91d967b1842c6dd65574c5cccb814f6ec623c3c4549d55a0",
+  "parent_correction_sha256": "57ab48d4a3f4d824584875f28f612f7bf71aeefe5d330d3b4ef815da9e402487",
+  "source_corrections": {
+    "ml/alphazero_lite/test_seed551_controlled_policy_strength.py": {
+      "previous_sha256": "dcb4fbb298941b26550a8caf1432ca6c2142f7b2913a8d2bead3de8f57b2f64f",
+      "corrected_sha256": "8ddcb4ac0203d68b577d8a4db408e68ce1974f1d010cc8c8dddd1c37c55c93a7",
+      "reason": "test command-path relocation resolution for physical-copy verification"
+    },
+    "ml/alphazero_lite/verify_seed551_controlled_policy_strength.py": {
+      "previous_sha256": "6888f7429ed78639a6f2f113bba65341687eb6d8e1a3c7b049b05fadb364ce04",
+      "corrected_sha256": "9b39dcb6e79588585c237830ac557843fd530bf3e5bb27e343dc86a0798cc094",
+      "reason": "resolve relative arena command artifact paths against explicit physical-copy root rather than verifier CWD"
+    }
+  }
+}

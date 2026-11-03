@@ -1,0 +1,10 @@
+{
+  "attempt_sha256": "19abe38877cfa6bba9a02e847388b3f713d304f9304a3f00d7adb4db7751a6c7",
+  "command_sha256": "5d8ddb55edc54b99b002cfa9c81f8d1b32c4782ef5128eb019453bb664cde8f1",
+  "games_sha256": "6266667a4497acfc7ec23f9a6a00655309f3ed8ad42d6c1df6ba73d0b924408f",
+  "opening_index": 1,
+  "recovery_reran_games": false,
+  "report_sha256": "21f2bb397c0e4abb021c331919e1d07e755862847261836ba524605c5210561a",
+  "status": "complete_raw_pair_recovered_after_validation",
+  "validated_game_records": 2
+}
