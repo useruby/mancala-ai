@@ -1,0 +1,9 @@
+{
+  "latest_receipt": "physical-copy-verification.json",
+  "latest_receipt_sha256": "722456524d55c225ab4d32c22759ea939aaa20190670167543d8f96ecc6d3292",
+  "prior_receipt": "physical-copy-verification-02.json",
+  "prior_receipt_sha256": "94dc350402bd360bac8f6bdf384fbcb700ebaaa88b048cada0ac792aa5d09f40",
+  "reason": "This final physical-copy verification includes the published README, correction-02 receipt, and prior physical-copy receipt chain. The original worktree path was hidden while the independent verifier reran all registered searches from the copied bundle.",
+  "schema": "seed553-physical-copy-verification-supersession-v1",
+  "status": "append_only_physical_copy_receipt_supersession"
+}

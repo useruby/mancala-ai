@@ -1,0 +1,96 @@
+{
+  "by_bucket": {
+    "17-32": {
+      "bitwise_identical_targets": 3,
+      "highest_visit_action_disagreements": 8,
+      "mean_total_variation": 0.09851074218894959,
+      "median_total_variation": 0.06835937502441405,
+      "n": 128,
+      "target": {
+        "128": {
+          "actual_root_visits": 16384,
+          "configured_simulations": 16384,
+          "evaluator_calls": 15787,
+          "mean_entropy_nats": 0.7589328009284597,
+          "mean_support_size": 4.21875,
+          "total_search_seconds": 12.454946297220886
+        },
+        "512": {
+          "actual_root_visits": 65536,
+          "configured_simulations": 65536,
+          "evaluator_calls": 60481,
+          "mean_entropy_nats": 0.6548172456830933,
+          "mean_support_size": 4.21875,
+          "total_search_seconds": 55.27983738388866
+        }
+      }
+    },
+    ">32": {
+      "bitwise_identical_targets": 3,
+      "highest_visit_action_disagreements": 23,
+      "mean_total_variation": 0.1635894775405884,
+      "median_total_variation": 0.1201171875,
+      "n": 128,
+      "target": {
+        "128": {
+          "actual_root_visits": 16384,
+          "configured_simulations": 16384,
+          "evaluator_calls": 15879,
+          "mean_entropy_nats": 0.7551469476232437,
+          "mean_support_size": 4.71875,
+          "total_search_seconds": 12.398967238608748
+        },
+        "512": {
+          "actual_root_visits": 65536,
+          "configured_simulations": 65536,
+          "evaluator_calls": 62572,
+          "mean_entropy_nats": 0.6137293344952857,
+          "mean_support_size": 4.71875,
+          "total_search_seconds": 66.43982251081616
+        }
+      }
+    }
+  },
+  "classification": "propose_fixed_state_budget_training_ablation",
+  "full_control_training_population_rows": 13818,
+  "full_control_training_relabel_cost_estimate_seconds": {
+    "128": 1341.5288173363042,
+    "512": 6570.008829785278
+  },
+  "interpretation": "planning gate only; target changes and cost do not establish target quality or playing strength",
+  "overall": {
+    "bitwise_identical_targets": 6,
+    "highest_visit_action_disagreements": 31,
+    "mean_total_variation": 0.131050109864769,
+    "median_total_variation": 0.09082031252929687,
+    "n": 256,
+    "target": {
+      "128": {
+        "actual_root_visits": 32768,
+        "configured_simulations": 32768,
+        "evaluator_calls": 31666,
+        "mean_entropy_nats": 0.7570398742758517,
+        "mean_support_size": 4.46875,
+        "total_search_seconds": 24.853913535829633
+      },
+      "512": {
+        "actual_root_visits": 131072,
+        "configured_simulations": 131072,
+        "evaluator_calls": 123053,
+        "mean_entropy_nats": 0.6342732900891894,
+        "mean_support_size": 4.46875,
+        "total_search_seconds": 121.71965989470482
+      }
+    }
+  },
+  "resource_observation": {
+    "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/run-p2505307-i40294462.scope",
+    "cpu_affinity": [
+      31
+    ],
+    "cpu_quota": "25000/100000",
+    "cpu_weight": 1,
+    "memory_max_bytes": 4294967296,
+    "nice": 19
+  }
+}

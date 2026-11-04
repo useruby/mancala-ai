@@ -1,0 +1,17 @@
+{
+  "freeze_sha256": "babeedfd21098c7f8a246ada8ec07e78a941a5df9b41a99c9e339f255a4d2f03",
+  "reason": "The first independent verifier replayed all searches but rejected the report because it included structurally validated resource_observation alongside aggregate fields reconstructed from paired searches. The comparison now excludes only that separately validated execution-environment object. Runner preflight accepts only the append-only code hash chain below; search configuration, cohort, output rows, and classification are unchanged.",
+  "registration_sha256": "ba6753da0bc8e88486facee160627e32ce7ec5d8b840cd92b155ba43c257192b",
+  "schema": "seed553-verification-correction-v1",
+  "source_corrections": {
+    "ml/alphazero_lite/seed553_fixed_state_budget.py": {
+      "corrected_sha256": "38019da4ea023ce99ab223245af52fa8c0eb1783debed33cd77be1022d7e935d",
+      "frozen_sha256": "33c7626cefaa05654d6b7905073848243e70b862dc64fb1bb0d3148cab6f6126"
+    },
+    "ml/alphazero_lite/verify_seed553_fixed_state_budget.py": {
+      "corrected_sha256": "901ae205c3e879cf2ef08c4bf585f34af477a3352677ec51c19db48b2b1785b1",
+      "frozen_sha256": "8803c0e76fb494d2130de91b9a8e627a0207b39bb3b79a0e64bfa14e09826c40"
+    }
+  },
+  "status": "append_only_verification_correction"
+}
