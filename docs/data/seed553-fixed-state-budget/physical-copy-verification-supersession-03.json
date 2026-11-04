@@ -1,0 +1,9 @@
+{
+  "latest_receipt": "physical-copy-verification.json",
+  "latest_receipt_sha256": "1bb1d347f2a44bd4bfb2be6aebd460d3bb6a722b85f30792c4211891fb1c952b",
+  "prior_receipt": "physical-copy-verification-03.json",
+  "prior_receipt_sha256": "722456524d55c225ab4d32c22759ea939aaa20190670167543d8f96ecc6d3292",
+  "reason": "Final physical-copy verification after the resume semantic fix and verification-correction-04. The copied bundle strict-replayed all 512 searches with the original worktree path absent.",
+  "schema": "seed553-physical-copy-verification-supersession-v1",
+  "status": "append_only_physical_copy_receipt_supersession"
+}

@@ -1,0 +1,21 @@
+{
+  "parent_correction_sha256": "36d86a1d6453e8cadcf5b5a28d1a70fae695e3fd38f31af81220c4bd157fe6b6",
+  "reason": "Correction-chain validators now accept the registered append-only correction source subsets and then apply each correction in parent order. This enables independent resume-semantic rejection of receipt-rebound completed-row mutations without changing frozen protocol or search evidence.",
+  "registration_sha256": "ba6753da0bc8e88486facee160627e32ce7ec5d8b840cd92b155ba43c257192b",
+  "schema": "seed553-verification-correction-v1",
+  "source_corrections": {
+    "ml/alphazero_lite/seed553_fixed_state_budget.py": {
+      "corrected_sha256": "4e3f67c20f973966db73f60a5fdbae289c0b7c2fe146432ecd6456ccaa7f179e",
+      "frozen_sha256": "7e28a670c7b0fd93c3e8e48b59ba1eefc85b38cf010f702d3a9cd6265c6a1e10"
+    },
+    "ml/alphazero_lite/test_seed553_fixed_state_budget.py": {
+      "corrected_sha256": "9c224e68e15b5004f689f1ca1287fc5c1bff74e77b8e8595e9fb02fef77f2b56",
+      "frozen_sha256": "9c224e68e15b5004f689f1ca1287fc5c1bff74e77b8e8595e9fb02fef77f2b56"
+    },
+    "ml/alphazero_lite/verify_seed553_fixed_state_budget.py": {
+      "corrected_sha256": "5dbf61d9306a759ed0271ef130f6292147b25b2cd87608e5f813842f138cd593",
+      "frozen_sha256": "dc0b1bbf64e85bf233b6de29c0d1c202f6ffefabbf5987817ac9e22bdd273c0e"
+    }
+  },
+  "status": "append_only_verification_correction"
+}

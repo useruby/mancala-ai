@@ -1,0 +1,9 @@
+{
+  "latest_receipt": "physical-copy-verification.json",
+  "latest_receipt_sha256": "94dc350402bd360bac8f6bdf384fbcb700ebaaa88b048cada0ac792aa5d09f40",
+  "prior_receipt": "physical-copy-verification-01.json",
+  "prior_receipt_sha256": "b1bd27235af1fab388674a534992a8c5bb783cf54bcca9663b22ddf7807be9df",
+  "reason": "A second physical-copy verification was run after append-only verification-correction-02 to bind the final alternating-budget ledger verifier. The original passing physical-copy receipt bytes remain preserved as physical-copy-verification-01.json.",
+  "schema": "seed553-physical-copy-verification-supersession-v1",
+  "status": "append_only_physical_copy_receipt_supersession"
+}

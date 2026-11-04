@@ -1,0 +1,9 @@
+{
+  "schema": "seed553-prerequisite-failure-v1",
+  "command": "/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python -m ml.alphazero_lite.seed549_derivatives verify",
+  "failing_check": "seed549_corpus.preflight runtime_asset_changed:model-artifact/runtime/kalah_v1_21.kvtb",
+  "expected_identity": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+  "observed_identity": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+  "observed_path": "model-artifact/runtime/kalah_v1_21.kvtb",
+  "interpretation": "The published seed549 verifier rejects the current tablebase pointer/object identity after the earlier source checks; this pilot's selected roots exceed 16 active stones and exact-leaf solving is disabled. The mismatch is retained without altering seed549 evidence."
+}

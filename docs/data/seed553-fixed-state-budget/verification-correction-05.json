@@ -1,0 +1,13 @@
+{
+  "parent_correction_sha256": "288ef34a4247899551275156c6cff80340a44cbf91a13fe05ac62a721726a79f",
+  "reason": "Actual-resume rejection tests now snapshot all output files, including results.json, and assert unchanged bytes and mtimes alongside zero evaluator constructions and zero searches after receipt-rebound target/root-visit mutations.",
+  "registration_sha256": "ba6753da0bc8e88486facee160627e32ce7ec5d8b840cd92b155ba43c257192b",
+  "schema": "seed553-verification-correction-v1",
+  "source_corrections": {
+    "ml/alphazero_lite/test_seed553_fixed_state_budget.py": {
+      "corrected_sha256": "4fcd52a65933422529007d70d82278ef9e936f7813e375c3aeeb453b5cec3969",
+      "frozen_sha256": "9c224e68e15b5004f689f1ca1287fc5c1bff74e77b8e8595e9fb02fef77f2b56"
+    }
+  },
+  "status": "append_only_verification_correction"
+}
