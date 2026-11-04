@@ -21,10 +21,10 @@
     "-m",
     "ml.alphazero_lite.verify_seed553_fixed_state_budget",
     "--root",
-    "/home/alex/tmp/seed553-physical-copy-03"
+    "/home/alex/tmp/seed553-physical-copy-07"
   ],
   "copy_bytes_and_mtimes_preserved": true,
-  "copy_root": "/home/alex/tmp/seed553-physical-copy-03",
+  "copy_root": "/home/alex/tmp/seed553-physical-copy-07",
   "evidence_files": {
     "docs/data/seed542-selfplay-4096/initializer.npz": {
       "bytes": 298302,
@@ -122,9 +122,9 @@
       "sha256": "73606fc369eff802ccfed1d5aece42670f8af677d2087e97da5bc7988f77120a"
     },
     "docs/data/seed553-fixed-state-budget/README.md": {
-      "bytes": 7944,
-      "mtime_ns": 1793822570317453827,
-      "sha256": "549b2971705790b1182e47abbf10ddc25a63aeeea07ef665132bfdaa846bd0cf"
+      "bytes": 7909,
+      "mtime_ns": 1793825513386714116,
+      "sha256": "714b6d14092a53bc736a195bac39f0553e02cbbae8975f91bcdd64f2cb4c88b3"
     },
     "docs/data/seed553-fixed-state-budget/attempts.jsonl": {
       "bytes": 306760,
@@ -156,15 +156,40 @@
       "mtime_ns": 1793822265883826657,
       "sha256": "94dc350402bd360bac8f6bdf384fbcb700ebaaa88b048cada0ac792aa5d09f40"
     },
+    "docs/data/seed553-fixed-state-budget/physical-copy-verification-03.json": {
+      "bytes": 278144,
+      "mtime_ns": 1793822788841378370,
+      "sha256": "722456524d55c225ab4d32c22759ea939aaa20190670167543d8f96ecc6d3292"
+    },
+    "docs/data/seed553-fixed-state-budget/physical-copy-verification-04.json": {
+      "bytes": 279076,
+      "mtime_ns": 1793824923448024998,
+      "sha256": "ea708c3a57e34970cc334524a9aaad795e66d74fc6fa9fd1963432da9d09d48b"
+    },
+    "docs/data/seed553-fixed-state-budget/physical-copy-verification-06.json": {
+      "bytes": 279309,
+      "mtime_ns": 1793825383175274707,
+      "sha256": "1bb1d347f2a44bd4bfb2be6aebd460d3bb6a722b85f30792c4211891fb1c952b"
+    },
     "docs/data/seed553-fixed-state-budget/physical-copy-verification-supersession-01.json": {
       "bytes": 695,
       "mtime_ns": 1793822280114888948,
       "sha256": "c89bc34f00c593a6e66d258dc321a12ead7754b5fbeaa8cfac8c1b7ad8815e51"
     },
+    "docs/data/seed553-fixed-state-budget/physical-copy-verification-supersession-02.json": {
+      "bytes": 701,
+      "mtime_ns": 1793822801053386166,
+      "sha256": "4dfc602b22ae6d9aba4307e0dc6ffff5c149827874f7199112d4b1b7c3d3fb56"
+    },
+    "docs/data/seed553-fixed-state-budget/physical-copy-verification-supersession-03.json": {
+      "bytes": 633,
+      "mtime_ns": 1793825393804076208,
+      "sha256": "11e233b056e351b82c3ca8866160c3ddcfef0c1cde7e3afc4dd0474622ab269b"
+    },
     "docs/data/seed553-fixed-state-budget/physical-copy-verification.json": {
-      "bytes": 277668,
-      "mtime_ns": 1793822265883826657,
-      "sha256": "94dc350402bd360bac8f6bdf384fbcb700ebaaa88b048cada0ac792aa5d09f40"
+      "bytes": 279309,
+      "mtime_ns": 1793825383175274707,
+      "sha256": "1bb1d347f2a44bd4bfb2be6aebd460d3bb6a722b85f30792c4211891fb1c952b"
     },
     "docs/data/seed553-fixed-state-budget/registration.json": {
       "bytes": 169201,
@@ -185,6 +210,21 @@
       "bytes": 1121,
       "mtime_ns": 1793821801216220798,
       "sha256": "98630be1f18a14dcd235f6d0aace3026646569b4bbabd64489629c7630b7e8c8"
+    },
+    "docs/data/seed553-fixed-state-budget/verification-correction-03.json": {
+      "bytes": 1493,
+      "mtime_ns": 1793824386351568707,
+      "sha256": "36d86a1d6453e8cadcf5b5a28d1a70fae695e3fd38f31af81220c4bd157fe6b6"
+    },
+    "docs/data/seed553-fixed-state-budget/verification-correction-04.json": {
+      "bytes": 1383,
+      "mtime_ns": 1793824454085917410,
+      "sha256": "288ef34a4247899551275156c6cff80340a44cbf91a13fe05ac62a721726a79f"
+    },
+    "docs/data/seed553-fixed-state-budget/verification-correction-05.json": {
+      "bytes": 824,
+      "mtime_ns": 1793825503633478628,
+      "sha256": "275950b2e5b6ba676a498f7e0210ab6d4faf69202f670d7d49f65e547045a4c9"
     },
     "docs/data/seed553-fixed-state-budget/verification-correction.json": {
       "bytes": 1271,
@@ -3602,9 +3642,9 @@
       "sha256": "1192d4974b660c861a2233e1ade6efebc9e8fbdca5c1c79d7002400608bda345"
     },
     "ml/alphazero_lite/seed553_fixed_state_budget.py": {
-      "bytes": 51067,
-      "mtime_ns": 1793821729520357264,
-      "sha256": "9ad48ab8af2cfd5fdade4ab59eb40e21c9cc75b2ec380ba0bb3ab9120ca8c7c3"
+      "bytes": 50846,
+      "mtime_ns": 1793824418931972774,
+      "sha256": "4e3f67c20f973966db73f60a5fdbae289c0b7c2fe146432ecd6456ccaa7f179e"
     },
     "ml/alphazero_lite/selective_head_evaluator.py": {
       "bytes": 2687,
@@ -5557,9 +5597,9 @@
       "sha256": "8f6d77ebc290a01ff4326b0655234ade0f7f55eefa9d38202eef68edf26587ac"
     },
     "ml/alphazero_lite/test_seed553_fixed_state_budget.py": {
-      "bytes": 16875,
-      "mtime_ns": 1793820115695211894,
-      "sha256": "006843790c01742f1e41188585166bcba627bdf53e2fe12be17f31afcb05b58a"
+      "bytes": 19629,
+      "mtime_ns": 1793825470509605857,
+      "sha256": "4fcd52a65933422529007d70d82278ef9e936f7813e375c3aeeb453b5cec3969"
     },
     "ml/alphazero_lite/test_selective_head_evaluator.py": {
       "bytes": 3741,
@@ -6437,9 +6477,9 @@
       "sha256": "0d3db403aeac3e16db11d0f76f212a4c5372f30318219dfa00ba061c14808901"
     },
     "ml/alphazero_lite/verify_seed553_fixed_state_budget.py": {
-      "bytes": 40862,
-      "mtime_ns": 1793821764449445204,
-      "sha256": "50782b8f0d61289b9b3288879ff1645a4ba367c68347c5df4b4ce803a72ec101"
+      "bytes": 41930,
+      "mtime_ns": 1793824418932972777,
+      "sha256": "5dbf61d9306a759ed0271ef130f6292147b25b2cd87608e5f813842f138cd593"
     },
     "ml/alphazero_lite/verify_seed553_physical_copy.py": {
       "bytes": 6057,
@@ -6485,5 +6525,5 @@
   "status": "passed",
   "verifier_cwd": "/home/alex/tmp",
   "verifier_stderr": "",
-  "verifier_stdout": "{\n  \"attempt_accounting\": {\n    \"attempts\": 512,\n    \"retried_searches\": 0\n  },\n  \"classification\": \"propose_fixed_state_budget_training_ablation\",\n  \"cohort\": 256,\n  \"evidence_files_checked\": 1282,\n  \"evidence_preserved\": true,\n  \"recomputed\": true,\n  \"searches\": 512,\n  \"status\": \"verified\"\n}\n"
+  "verifier_stdout": "{\n  \"attempt_accounting\": {\n    \"attempts\": 512,\n    \"retried_searches\": 0\n  },\n  \"classification\": \"propose_fixed_state_budget_training_ablation\",\n  \"cohort\": 256,\n  \"evidence_files_checked\": 1290,\n  \"evidence_preserved\": true,\n  \"recomputed\": true,\n  \"searches\": 512,\n  \"status\": \"verified\"\n}\n"
 }

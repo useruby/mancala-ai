@@ -429,6 +429,82 @@ def test_resume_preserves_completed_search_without_rerunning(
     assert (out / "searches.jsonl").read_text().startswith(search_line)
 
 
+@pytest.mark.parametrize(
+    ("mutate_result", "expected_error"),
+    [
+        (
+            lambda result: result["target"].__setitem__(0, 0.5),
+            "target_does_not_match_visits",
+        ),
+        (
+            lambda result: result.update(root_visit_count=127),
+            "root_visit_count_mismatch",
+        ),
+    ],
+)
+def test_resume_rejects_receipt_rebound_search_semantics_before_writes_or_searches(
+    tmp_path, monkeypatch, mutate_result, expected_error
+) -> None:
+    pilot, out, cohort = _execution_fixture(tmp_path, monkeypatch)
+    registration_sha = pilot.sha_bytes((out / "registration.json").read_bytes())
+    result = _fake_search_result(128, 553000)
+    mutate_result(result)
+    row = {
+        "cohort_index": 0,
+        "bucket": cohort[0]["bucket"],
+        "canonical_state_sha256": cohort[0]["canonical_state_sha256"],
+        "production_float32_sha256": cohort[0]["production_float32_sha256"],
+        "simulations": 128,
+        "seed": 553000,
+        "registration_sha256": registration_sha,
+        "result": result,
+    }
+    row["record_sha256"] = pilot._record_hash(row)
+    searches_path = out / "searches.jsonl"
+    searches_path.write_text(
+        json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n"
+    )
+    started = {
+        "event": "started",
+        "cohort_index": 0,
+        "simulations": 128,
+        "seed": 553000,
+        "attempt_number": 1,
+        "registration_sha256": registration_sha,
+    }
+    finished = {**started, "event": "finished", "record_sha256": row["record_sha256"]}
+    attempts_path = out / "attempts.jsonl"
+    attempts_path.write_text(json.dumps(started) + "\n" + json.dumps(finished) + "\n")
+    (out / "results.json").write_text('{"untouched":true}\n')
+    before = {
+        path: (path.read_bytes(), path.stat().st_mtime_ns)
+        for path in out.iterdir()
+        if path.is_file()
+    }
+    constructed_evaluators = []
+    launched_searches = []
+
+    def forbidden_evaluator(*_args, **_kwargs):
+        constructed_evaluators.append(True)
+        raise AssertionError("evaluator_constructed_before_saved_row_validation")
+
+    def forbidden_search(*_args, **_kwargs):
+        launched_searches.append(True)
+        raise AssertionError("search_launched_before_saved_row_validation")
+
+    monkeypatch.setattr(pilot.self_play, "CheckpointEvaluator", forbidden_evaluator)
+    monkeypatch.setattr(pilot, "run_search", forbidden_search)
+    with pytest.raises(ValueError, match=expected_error):
+        pilot.execute(tmp_path)
+    assert constructed_evaluators == []
+    assert launched_searches == []
+    assert {
+        path: (path.read_bytes(), path.stat().st_mtime_ns)
+        for path in out.iterdir()
+        if path.is_file()
+    } == before
+
+
 def test_conflicting_partial_search_is_rejected_before_any_new_search(
     tmp_path, monkeypatch
 ) -> None:

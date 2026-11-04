@@ -741,9 +741,11 @@ def preflight(root: Path = ROOT) -> dict[str, Any]:
             raise ValueError("seed553_verification_correction_chain_mismatch")
         allowed = {
             "ml/alphazero_lite/seed553_fixed_state_budget.py",
+            "ml/alphazero_lite/test_seed553_fixed_state_budget.py",
             "ml/alphazero_lite/verify_seed553_fixed_state_budget.py",
         }
-        if set(correction.get("source_corrections", {})) != allowed:
+        correction_sources = set(correction.get("source_corrections", {}))
+        if not correction_sources or not correction_sources.issubset(allowed):
             raise ValueError("seed553_verification_correction_source_set_mismatch")
         for relative, correction_item in correction["source_corrections"].items():
             if correction_item.get("frozen_sha256") != expected_sources.get(relative):
@@ -955,6 +957,10 @@ def execute(root: Path = ROOT) -> dict[str, Any]:
     registration_sha = sha_bytes((out / "registration.json").read_bytes())
     cohort_by_index = {int(item["cohort_index"]): item for item in cohort}
     completed: dict[tuple[int, int], dict[str, Any]] = {}
+    from ml.alphazero_lite.verify_seed553_fixed_state_budget import (
+        validate_search_row,
+    )
+
     if searches_path.exists():
         for line in searches_path.read_text().splitlines():
             row = json.loads(line)
@@ -968,19 +974,13 @@ def execute(root: Path = ROOT) -> dict[str, Any]:
             ):
                 raise ValueError("seed553_partial_search_registration_mismatch")
             item = cohort_by_index[key[0]]
-            result = row.get("result", {})
-            if (
-                row.get("seed") != 553000 + key[0]
-                or result.get("seed") != 553000 + key[0]
-                or result.get("simulations") != key[1]
-                or row.get("bucket") != item["bucket"]
-                or row.get("canonical_state_sha256") != item["canonical_state_sha256"]
-                or row.get("production_float32_sha256")
-                != item["production_float32_sha256"]
-                or result.get("legal_moves") != item["legal_moves"]
-                or sum(result.get("visits", [])) != key[1]
-            ):
-                raise ValueError("seed553_partial_search_semantic_conflict")
+            validate_search_row(
+                row,
+                item,
+                budget=key[1],
+                seed=553000 + key[0],
+                registration_sha256=registration_sha,
+            )
             completed[key] = row
     prior_attempts = (
         [

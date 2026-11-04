@@ -478,9 +478,11 @@ def verify_inputs(
             raise ValueError("seed553_verification_correction_chain_mismatch")
         allowed = {
             "ml/alphazero_lite/seed553_fixed_state_budget.py",
+            "ml/alphazero_lite/test_seed553_fixed_state_budget.py",
             "ml/alphazero_lite/verify_seed553_fixed_state_budget.py",
         }
-        if set(correction.get("source_corrections", {})) != allowed:
+        correction_sources = set(correction.get("source_corrections", {}))
+        if not correction_sources or not correction_sources.issubset(allowed):
             raise ValueError("seed553_verification_correction_source_set_mismatch")
         for relative, correction_item in correction["source_corrections"].items():
             if correction_item.get("frozen_sha256") != expected_sources.get(relative):
@@ -633,8 +635,18 @@ def validate_search_row(
     legal = item["legal_moves"]
     if result.get("legal_moves") != legal:
         raise ValueError("seed553_search_legal_action_mapping_mismatch")
-    visits = np.asarray(result.get("visits"), dtype=np.int64)
-    if visits.shape != (6,) or np.any(visits < 0) or int(visits.sum()) != budget:
+    raw_visits = result.get("visits")
+    if (
+        not isinstance(raw_visits, list)
+        or len(raw_visits) != 6
+        or any(
+            not isinstance(value, int) or isinstance(value, bool)
+            for value in raw_visits
+        )
+    ):
+        raise ValueError("seed553_search_visits_invalid")
+    visits = np.asarray(raw_visits, dtype=np.int64)
+    if np.any(visits < 0) or int(visits.sum()) != budget:
         raise ValueError("seed553_search_visits_invalid")
     if any(visits[action] != 0 for action in range(6) if action not in legal):
         raise ValueError("seed553_illegal_action_visit")
@@ -654,19 +666,33 @@ def validate_search_row(
         raise ValueError("seed553_selected_action_tie_rule_mismatch")
     if result.get("root_visit_count") != budget:
         raise ValueError("seed553_root_visit_count_mismatch")
+    root_q = result.get("root_q_value")
+    if not isinstance(root_q, (int, float)) or not math.isfinite(root_q):
+        raise ValueError("seed553_root_q_statistic_invalid")
+    if result.get("root_evaluation_value") is not None:
+        raise ValueError("seed553_root_evaluation_statistic_invalid")
     children = result.get("root_children")
     if not isinstance(children, dict) or set(children) != {
         str(action) for action in legal
     }:
         raise ValueError("seed553_root_child_mapping_mismatch")
+    prior_sum = 0.0
     for action in legal:
         child = children[str(action)]
+        prior = child.get("prior")
+        q_value = child.get("q_value")
         if (
             child.get("visits") != int(visits[action])
-            or not math.isfinite(float(child.get("prior")))
-            or not math.isfinite(float(child.get("q_value")))
+            or not isinstance(prior, (int, float))
+            or not math.isfinite(prior)
+            or prior < 0
+            or not isinstance(q_value, (int, float))
+            or not math.isfinite(q_value)
         ):
             raise ValueError("seed553_root_child_statistics_mismatch")
+        prior_sum += prior
+    if not math.isclose(prior_sum, 1.0, abs_tol=1e-5):
+        raise ValueError("seed553_root_prior_normalization_mismatch")
     elapsed = result.get("elapsed_seconds")
     if (
         not isinstance(elapsed, (int, float))

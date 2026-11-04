@@ -1,0 +1,21 @@
+{
+  "parent_correction_sha256": "98630be1f18a14dcd235f6d0aace3026646569b4bbabd64489629c7630b7e8c8",
+  "reason": "Before constructing the initializer evaluator or writing attempts, resume now routes every hash-authenticated saved search record through the independent verifier semantic row validator. This rejects rebound visit/target/root-stat mutations before skipping completed searches. Actual-resume tests confirm zero evaluator constructions/search launches and unchanged attempt/search bytes and mtimes.",
+  "registration_sha256": "ba6753da0bc8e88486facee160627e32ce7ec5d8b840cd92b155ba43c257192b",
+  "schema": "seed553-verification-correction-v1",
+  "source_corrections": {
+    "ml/alphazero_lite/seed553_fixed_state_budget.py": {
+      "corrected_sha256": "7e28a670c7b0fd93c3e8e48b59ba1eefc85b38cf010f702d3a9cd6265c6a1e10",
+      "frozen_sha256": "9ad48ab8af2cfd5fdade4ab59eb40e21c9cc75b2ec380ba0bb3ab9120ca8c7c3"
+    },
+    "ml/alphazero_lite/test_seed553_fixed_state_budget.py": {
+      "corrected_sha256": "9c224e68e15b5004f689f1ca1287fc5c1bff74e77b8e8595e9fb02fef77f2b56",
+      "frozen_sha256": "006843790c01742f1e41188585166bcba627bdf53e2fe12be17f31afcb05b58a"
+    },
+    "ml/alphazero_lite/verify_seed553_fixed_state_budget.py": {
+      "corrected_sha256": "dc0b1bbf64e85bf233b6de29c0d1c202f6ffefabbf5987817ac9e22bdd273c0e",
+      "frozen_sha256": "50782b8f0d61289b9b3288879ff1645a4ba367c68347c5df4b4ce803a72ec101"
+    }
+  },
+  "status": "append_only_verification_correction"
+}

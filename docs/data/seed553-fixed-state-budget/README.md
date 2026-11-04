@@ -118,11 +118,13 @@ The independent read-only verifier reconstructs the selected cohort directly
 from #549 training shards, replays all 512 searches from the frozen initializer,
 rebuilds targets and metrics, authenticates attempt and execution bindings, and
 checks that evidence bytes and nanosecond mtimes are unchanged. It does not call
-publisher analysis functions. `verification-correction.json` and
-`verification-correction-02.json` are append-only verifier corrections: the
-first fixes aggregate reconciliation of the separate resource observation; the
-second checks alternating budget-first order in the durable attempt ledger. The
-original registration, cohort, search rows, timings, and results are unchanged.
+publisher analysis functions. Append-only verifier corrections preserve the
+original registration, cohort, search rows, timings, and results. Correction 01
+fixes aggregate reconciliation of the separate resource observation; correction
+02 checks alternating budget-first order; correction 03 makes resume validate
+each saved row semantically before skipping it; correction 04 validates the
+ordered correction chain; correction 05 extends rebound-mutation resume tests to
+assert unchanged bytes and mtimes for all output files.
 
 Run with the recorded environment:
 
@@ -133,8 +135,5 @@ Run with the recorded environment:
 
 The physical-copy verifier checks a copied evidence and source bundle from an
 unrelated working directory while the original worktree path is hidden. The
-latest receipt is `physical-copy-verification.json`; the initial passing receipt
-and its successor are retained at `physical-copy-verification-01.json` and
-`physical-copy-verification-02.json`. Append-only supersession bindings are
-`physical-copy-verification-supersession-01.json` and
-`physical-copy-verification-supersession-02.json`.
+latest receipt is `physical-copy-verification.json`. Previous passing receipts
+and append-only supersession bindings are preserved with numbered suffixes.
