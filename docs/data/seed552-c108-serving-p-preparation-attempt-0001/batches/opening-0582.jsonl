@@ -1,0 +1,1 @@
+{"opening_contract":"arena_player_relative_v2","opening_index":582,"prefix_moves":[0,3,5,1,2,4,5,2,2,5,4],"source_prefix_moves_absolute":[0,9,5,7,8,4,11,2,8,5,10],"state":{"current_player":0,"opponent_pits":[8,3,0,3,0,1],"opponent_store":5,"player_pits":[4,8,1,8,3,0],"player_store":4},"state_hash":"d66c4ec878d72ab407fb7f3c75eb8c96acacfb0dd66c97d1646ac02f545d2443"}

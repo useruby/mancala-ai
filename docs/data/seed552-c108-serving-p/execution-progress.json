@@ -1,0 +1,8 @@
+{
+  "committed_games": 2048,
+  "committed_opening_pairs": 1024,
+  "last_committed_opening_index": 1023,
+  "schema": "seed552_durable_execution_progress_v1",
+  "status": "complete_verified",
+  "verification_status": "verified_complete"
+}

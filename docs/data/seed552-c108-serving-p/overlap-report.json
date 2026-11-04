@@ -1,0 +1,51 @@
+{
+  "P_policy_training_registration_sha256": "72d5597b144bbf8768920afa871ee85ed908d9867599ae28fdf8c0d993ea84f7",
+  "P_policy_training_shards": [
+    {
+      "path": "docs/data/seed500-selfplay-512/shard-503000.jsonl",
+      "sha256": "db48f2b944925c575261ae285758d91866d029a705db7665f80b96e23675f9cd"
+    },
+    {
+      "path": "docs/data/seed500-selfplay-512/shard-503001.jsonl",
+      "sha256": "2c707c5868013d2b91df0250001266ac84f79b72e1fad55d2ae74f10327e6cb4"
+    },
+    {
+      "path": "docs/data/seed500-selfplay-512/shard-503002.jsonl",
+      "sha256": "abecfdd3a6dd5ce0720f1ebf64b192ec36bf344a15b2942cc3af2f87f930da0c"
+    },
+    {
+      "path": "docs/data/seed500-selfplay-512/shard-503003.jsonl",
+      "sha256": "c1462711adaa5fe88e90b2d713baa08c750ea6b6450ae791e6be5881fe9dd39f"
+    },
+    {
+      "path": "docs/data/seed500-selfplay-512/shard-503004.jsonl",
+      "sha256": "d150631d5947eb22254903a93e0a8a7242ea42364eac6c99d0151ad08b2722c6"
+    },
+    {
+      "path": "docs/data/seed500-selfplay-512/shard-503005.jsonl",
+      "sha256": "fce737e9ae3c33e38a81931847ec6c9ccf58bc2df05510dd193d9203391671d2"
+    }
+  ],
+  "opening_count": 1024,
+  "overlap_opening_counts": {
+    "C_development": {
+      "canonical": 1,
+      "production_float32": 1
+    },
+    "C_training": {
+      "canonical": 0,
+      "production_float32": 0
+    },
+    "P_policy_training": {
+      "canonical": 0,
+      "production_float32": 0
+    }
+  },
+  "population_rows": {
+    "C_development": 4738,
+    "C_training": 13818,
+    "P_policy_training": 13724
+  },
+  "schema": "seed552_training_population_overlap_v1",
+  "seed461_continuation_overlap_unresolved": true
+}

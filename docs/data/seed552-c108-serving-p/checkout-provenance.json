@@ -1,0 +1,24 @@
+{
+  "schema": "seed552_checkout_provenance_v1",
+  "execution_checkout_commit": "1cdd67955590e4b86117242e69a4676a070584e2",
+  "execution_checkout_parent": "ff0805ea6572dcf297a2f13db66abab28ad915e8",
+  "execution_checkout_subject": "Update Kalah v1 tier 21 tablebase",
+  "remote_main_at_preflight": "ff0805ea6572dcf297a2f13db66abab28ad915e8",
+  "execution_checkout_is_descendant_of_remote_main": true,
+  "merged_seed551_commit": "ff0805ea6572dcf297a2f13db66abab28ad915e8",
+  "seed551_correction_03_in_merged_history": true,
+  "local_execution_commit_resolves_on_github": false,
+  "github_resolution": "GitHub API returned HTTP 422: No commit found for SHA 1cdd67955590e4b86117242e69a4676a070584e2.",
+  "remote_main_ref": "origin/main",
+  "remote_main_sha": "ff0805ea6572dcf297a2f13db66abab28ad915e8",
+  "worktree_reset_or_rewrite": false,
+  "tablebase": {
+    "execution_checkout_path": "model-artifact/runtime/kalah_v1_21.kvtb",
+    "execution_checkout_representation": "materialized Git blob",
+    "execution_object_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "execution_object_size_bytes": 709635072,
+    "historical_seed551_representation": "Git LFS pointer",
+    "historical_seed551_pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+    "historical_seed551_pointer_git_blob": "27beb8c0bc8ce2351957ab9792971535cb4517ae"
+  }
+}

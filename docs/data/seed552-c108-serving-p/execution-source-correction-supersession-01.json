@@ -1,0 +1,8 @@
+{
+  "corrected_correction_sha256": "3594b60be96b3198738bb989f0048fc94f05ebaa0935d3e09f65932107576f59",
+  "parent_correction_sha256": "3227ea5e4ade3e4e89a2693058b326186e483a9d03eff81e223a3287120a8f88",
+  "prior_receipt_path": "execution-source-correction-prior-01.json",
+  "prior_receipt_sha256": "3227ea5e4ade3e4e89a2693058b326186e483a9d03eff81e223a3287120a8f88",
+  "reason": "Updated corrected verifier source hash after adding exact LFS-pointer repository representation support; arena protocol, games, outcomes, analysis unchanged.",
+  "schema": "seed552_execution_source_correction_supersession_v1"
+}

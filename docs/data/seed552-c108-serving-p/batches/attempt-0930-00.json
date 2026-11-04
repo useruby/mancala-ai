@@ -1,0 +1,5 @@
+{
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "wrote arena report to /home/alex/Mancala/seed552-worktree/docs/data/seed552-c108-serving-p/batches/report-0930.json\nscore=0.5000 passed=False\n"
+}

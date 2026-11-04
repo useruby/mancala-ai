@@ -1,0 +1,66 @@
+{
+  "attempts": [
+    {
+      "arena_games_started": false,
+      "attempt": 1,
+      "command": [
+        "systemd-run",
+        "--user",
+        "--unit=seed552-c108-serving-p",
+        "--collect",
+        "--property=WorkingDirectory=/home/alex/Mancala/seed552-worktree",
+        "--property=CPUQuota=25%",
+        "--property=CPUWeight=1",
+        "--property=MemoryMax=4294967296",
+        "--property=AllowedCPUs=30",
+        "--property=Nice=19",
+        "--property=LimitAS=17179869184",
+        "--setenv=PYTHONPATH=/home/alex/Mancala/seed552-worktree",
+        "--setenv=OMP_NUM_THREADS=1",
+        "--setenv=MKL_NUM_THREADS=1",
+        "--setenv=OPENBLAS_NUM_THREADS=1",
+        "--setenv=BLAS_NUM_THREADS=1",
+        "--setenv=NUMEXPR_NUM_THREADS=1",
+        "/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python",
+        "-m",
+        "ml.alphazero_lite.run_seed552_c108_serving_p",
+        "--root",
+        "/home/alex/Mancala/seed552-worktree",
+        "--out",
+        "/home/alex/Mancala/seed552-worktree/docs/data/seed552-c108-serving-p",
+        "--execute"
+      ],
+      "exit_status": 1,
+      "failure": "seed551_registered_runtime_contract_mismatch",
+      "failure_detail": "The frozen runtime profile expected cpuset.cpus.effective=30; the registered systemd scope correctly reported null while CPU affinity was [30].",
+      "observed_runtime": {
+        "address_space_rlimit": [
+          17179869184,
+          17179869184
+        ],
+        "cgroup_limits": {
+          "cpu.max": "25000 100000",
+          "cpu.weight": "1",
+          "cpuset.cpus.effective": null,
+          "memory.max": "4294967296"
+        },
+        "cpu_affinity": [
+          30
+        ],
+        "environment": {
+          "BLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1"
+        },
+        "nice": 19,
+        "torch_interop_threads": 1,
+        "torch_threads": 1
+      },
+      "systemd_invocation_id": "35221521edd14e5aaf9f374ba05fb57f",
+      "systemd_unit_result": "failed"
+    }
+  ],
+  "schema": "seed552_pre_game_execution_attempts_v1"
+}

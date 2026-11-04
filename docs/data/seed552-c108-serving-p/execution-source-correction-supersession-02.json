@@ -1,0 +1,8 @@
+{
+  "corrected_correction_sha256": "fcf5e79ceacaeca5bb890b0b01d55eb03b46c58fca67d497d965274e7c1a4895",
+  "parent_correction_sha256": "dde44e6d34d7a79643d8608124f7e0ed992f252aac48ff1380fa36010ae747d1",
+  "prior_receipt_path": "execution-source-correction-prior-03.json",
+  "prior_receipt_sha256": "dde44e6d34d7a79643d8608124f7e0ed992f252aac48ff1380fa36010ae747d1",
+  "reason": "Added append-only verification for the exact historical LFS-pointer repository representation paired with the separately authenticated materialized tablebase object.",
+  "schema": "seed552_execution_source_correction_supersession_v1"
+}
