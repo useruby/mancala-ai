@@ -1,0 +1,8 @@
+{
+  "corrected_correction_sha256": "08b9782e9735be0c1b589d50a51fc8286d2fa774347293f457a5329c97eda38d",
+  "parent_correction_sha256": "eef9bb548bed9fa7aad9cbcfe8cf51555a162bfdc11d5a68a9a42dafde72c2b8",
+  "prior_receipt_path": "execution-source-correction-prior-04.json",
+  "prior_receipt_sha256": "eef9bb548bed9fa7aad9cbcfe8cf51555a162bfdc11d5a68a9a42dafde72c2b8",
+  "reason": "Post-execution runner safety corrections; completed trajectories, raw reports, outcomes, and analysis are unchanged.",
+  "schema": "seed552_execution_source_correction_supersession_v1"
+}

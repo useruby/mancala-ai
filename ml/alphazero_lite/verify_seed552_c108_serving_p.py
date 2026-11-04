@@ -329,6 +329,7 @@ def verify_preflight(
             or correction.get("reason")
             not in {
                 "post_execution_verifier_correction",
+                "post_execution_execution_safety_correction",
                 "post_execution_formatting_correction",
                 "post_execution_relocation_support",
             }

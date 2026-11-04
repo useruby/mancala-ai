@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import shutil
@@ -856,10 +857,208 @@ def recovery_action(batch: Path, index: int, committed: set[int]) -> str:
     return "execute"
 
 
+def _ledger_rows(path: Path) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for line_number, line in enumerate(path.read_text().splitlines(), start=1):
+        if not line:
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError as error:
+            raise ValueError(
+                f"seed552_existing_ledger_invalid_preserved:{line_number}"
+            ) from error
+        if not isinstance(row, dict):
+            raise ValueError(
+                f"seed552_existing_ledger_row_invalid_preserved:{line_number}"
+            )
+        rows.append(row)
+    return rows
+
+
+def _atomic_ledger_replace(ledger_path: Path, payload: bytes) -> None:
+    pending = ledger_path.with_name(".outcomes.pending")
+    if pending.exists():
+        raise ValueError("seed552_pending_ledger_preserved_for_manual_validation")
+    with pending.open("xb") as stream:
+        stream.write(payload)
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(pending, ledger_path)
+    directory_fd = os.open(
+        ledger_path.parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+    )
+    try:
+        os.fsync(directory_fd)
+    finally:
+        os.close(directory_fd)
+
+
+def reconcile_ledger(
+    output: Path,
+    ledger_path: Path,
+    committed_rows: list[dict[str, Any]],
+    completion_receipt_sha256: dict[int, str],
+    *,
+    recovery_allowed: bool = True,
+) -> dict[str, Any] | None:
+    """Preserve conflicts; rebuild only an exact complete-pair prefix with a receipt."""
+    expected_rows = sorted(
+        committed_rows,
+        key=lambda row: (int(row["opening_index"]), int(row["game_position"])),
+    )
+    expected_bytes = b"".join(
+        protocol.stable_json(row) + b"\n" for row in expected_rows
+    )
+    pending = ledger_path.with_name(".outcomes.pending")
+
+    if pending.exists():
+        pending_rows = _ledger_rows(pending)
+        if pending_rows != expected_rows:
+            raise ValueError("seed552_pending_ledger_conflicts_preserved")
+        existing_rows = _ledger_rows(ledger_path) if ledger_path.exists() else []
+        if (
+            len(existing_rows) > len(expected_rows)
+            or len(existing_rows) % 2
+            or existing_rows != expected_rows[: len(existing_rows)]
+        ):
+            raise ValueError("seed552_existing_ledger_conflicts_preserved")
+        if not recovery_allowed:
+            raise ValueError("seed552_unexpected_pending_ledger_preserved")
+        prior_pending_sha = protocol.sha256(pending)
+        receipt = _write_ledger_recovery_record(
+            output,
+            ledger_path,
+            expected_rows,
+            completion_receipt_sha256,
+            recovery_kind="complete_pending_ledger_replace",
+            prior_ledger_sha256=protocol.sha256(ledger_path)
+            if ledger_path.exists()
+            else None,
+            prior_pending_sha256=prior_pending_sha,
+        )
+        os.replace(pending, ledger_path)
+        _fsync_directory(ledger_path.parent)
+        return receipt
+
+    if ledger_path.exists():
+        previous_bytes = ledger_path.read_bytes()
+        existing_rows = _ledger_rows(ledger_path)
+        if existing_rows == expected_rows:
+            return None
+        is_complete_prefix = (
+            len(existing_rows) <= len(expected_rows)
+            and len(existing_rows) % 2 == 0
+            and existing_rows == expected_rows[: len(existing_rows)]
+        )
+        if not is_complete_prefix:
+            raise ValueError("seed552_existing_ledger_conflicts_preserved")
+        if not recovery_allowed:
+            _atomic_ledger_replace(ledger_path, expected_bytes)
+            return None
+        recovery_kind = "committed_pair_ledger_projection_recovery"
+    else:
+        previous_bytes = None
+        if not expected_rows:
+            _atomic_ledger_replace(ledger_path, b"")
+            return None
+        if not recovery_allowed:
+            _atomic_ledger_replace(ledger_path, expected_bytes)
+            return None
+        recovery_kind = "missing_ledger_after_validated_pair_commits"
+
+    prior_ledger_sha = (
+        hashlib.sha256(previous_bytes).hexdigest()
+        if previous_bytes is not None
+        else None
+    )
+    receipt = _write_ledger_recovery_record(
+        output,
+        ledger_path,
+        expected_rows,
+        completion_receipt_sha256,
+        recovery_kind=recovery_kind,
+        prior_ledger_sha256=prior_ledger_sha,
+        prior_pending_sha256=None,
+    )
+    if previous_bytes is not None:
+        backup_path = receipt["preserved_ledger_path"]
+        backup = output / backup_path
+        if backup.read_bytes() != previous_bytes:
+            raise ValueError("seed552_prior_ledger_backup_mismatch")
+    _atomic_ledger_replace(ledger_path, expected_bytes)
+    return receipt
+
+
+def _write_ledger_recovery_record(
+    output: Path,
+    ledger_path: Path,
+    expected_rows: list[dict[str, Any]],
+    completion_receipt_sha256: dict[int, str],
+    *,
+    recovery_kind: str,
+    prior_ledger_sha256: str | None,
+    prior_pending_sha256: str | None,
+) -> dict[str, Any]:
+    recovery_dir = output / "ledger-recovery"
+    recovery_dir.mkdir(exist_ok=True)
+    sequence = 1
+    while (recovery_dir / f"recovery-{sequence:04d}.json").exists() or (
+        recovery_dir / f"ledger-before-recovery-{sequence:04d}.jsonl"
+    ).exists():
+        sequence += 1
+    record_path = recovery_dir / f"recovery-{sequence:04d}.json"
+    prior_path: Path | None = None
+    if ledger_path.exists():
+        prior_path = recovery_dir / f"ledger-before-recovery-{sequence:04d}.jsonl"
+        shutil.copy2(ledger_path, prior_path)
+        if protocol.sha256(prior_path) != prior_ledger_sha256:
+            raise ValueError("seed552_prior_ledger_backup_sha_mismatch")
+    record = {
+        "schema": "seed552_ledger_recovery_v1",
+        "status": "reconstructed_from_independently_validated_complete_pairs",
+        "recovery_kind": recovery_kind,
+        "prior_ledger_path": str(ledger_path.relative_to(output))
+        if ledger_path.exists()
+        else None,
+        "prior_ledger_sha256": prior_ledger_sha256,
+        "preserved_ledger_path": str(prior_path.relative_to(output))
+        if prior_path
+        else None,
+        "prior_pending_sha256": prior_pending_sha256,
+        "rebuilt_ledger_sha256": hashlib.sha256(
+            b"".join(protocol.stable_json(row) + b"\n" for row in expected_rows)
+        ).hexdigest(),
+        "validated_completion_receipt_sha256": {
+            str(index): digest
+            for index, digest in sorted(completion_receipt_sha256.items())
+        },
+        "validated_opening_pairs": len(completion_receipt_sha256),
+        "validated_games": len(expected_rows),
+    }
+    write_json(record_path, record)
+    return record
+
+
+def _fsync_directory(path: Path) -> None:
+    directory_fd = os.open(path, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+    try:
+        os.fsync(directory_fd)
+    finally:
+        os.close(directory_fd)
+
+
 def execute(root: Path, output: Path) -> None:
     root, output = root.resolve(), output.resolve()
-    base_runner.assert_runtime_contract(registered_runtime()["observed"])
     from ml.alphazero_lite import verify_seed552_c108_serving_p as verify
+
+    # Authenticate the complete frozen plan and actual registered runtime before
+    # touching progress/ledger files or invoking any arena process.
+    preflight = verify.verify_preflight(root, output)
+    expected_runtime = preflight["registration"]["runtime"]
+    base_runner.assert_runtime_contract(expected_runtime["observed"])
+    if registered_runtime() != expected_runtime:
+        raise ValueError("seed552_registered_numerical_environment_mismatch")
 
     ledger_path = output / "outcomes.jsonl"
     batch = output / "batches"
@@ -870,6 +1069,7 @@ def execute(root: Path, output: Path) -> None:
     ]
     committed = set()
     committed_rows: list[dict[str, Any]] = []
+    completion_receipt_sha256: dict[int, str] = {}
     for index in range(protocol.OPENINGS):
         completion = batch / f"completion-{index:04d}.json"
         if completion.is_file():
@@ -887,16 +1087,8 @@ def execute(root: Path, output: Path) -> None:
                 raise ValueError(f"seed552_committed_pair_receipt_mismatch:{index}")
             committed.add(index)
             committed_rows.extend(expected_rows)
-
-    def rebuild_ledger(rows: list[dict[str, Any]]) -> None:
-        rows.sort(key=lambda row: (row["opening_index"], row["game_position"]))
-        pending = ledger_path.with_name(".outcomes.pending")
-        pending.write_bytes(b"".join(protocol.stable_json(row) + b"\n" for row in rows))
-        with pending.open("rb") as stream:
-            os.fsync(stream.fileno())
-        os.replace(pending, ledger_path)
-
-    rebuild_ledger(committed_rows)
+            completion_receipt_sha256[index] = protocol.sha256(completion)
+    reconcile_ledger(output, ledger_path, committed_rows, completion_receipt_sha256)
     write_json(
         output / "execution-progress.json",
         {
@@ -946,7 +1138,16 @@ def execute(root: Path, output: Path) -> None:
             },
         )
         committed_rows.extend(pair)
-        rebuild_ledger(committed_rows)
+        completion_receipt_sha256[index] = protocol.sha256(
+            batch / f"completion-{index:04d}.json"
+        )
+        reconcile_ledger(
+            output,
+            ledger_path,
+            committed_rows,
+            completion_receipt_sha256,
+            recovery_allowed=False,
+        )
         write_json(
             output / "execution-progress.json",
             {

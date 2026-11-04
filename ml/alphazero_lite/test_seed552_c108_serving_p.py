@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 
@@ -153,6 +155,177 @@ def test_recovery_preserves_partial_or_conflicting_attempts(tmp_path: Path) -> N
     (batch / "report-0000.json").write_text("{}\n")
     assert runner.recovery_action(batch, 0, set()) == "recover"
     assert runner.recovery_action(batch, 0, {0}) == "skip"
+
+
+def _resume_fixture(
+    tmp_path: Path, *, ledger_bytes: bytes | None
+) -> tuple[Path, Path, list[dict], dict]:
+    output = tmp_path / "resume-screen"
+    batch = output / "batches"
+    batch.mkdir(parents=True)
+    runtime = {"observed": {"cpu_affinity": [30]}, "executable": runner.sys.executable}
+    (output / "registration.json").write_text(json.dumps({"runtime": runtime}))
+    for index in (0, 1):
+        (batch / f"opening-{index:04d}.jsonl").write_text(f"opening-{index}\n")
+    (batch / "command-0000.json").write_text('{"frozen":true}\n')
+    (batch / "games-0000.jsonl").write_text('{"game":0}\n{"game":1}\n')
+    (batch / "report-0000.json").write_text('{"report":true}\n')
+    expected = [
+        {
+            "opening_index": 0,
+            "game_position": seat,
+            "outcome": "C" if seat == 0 else "P",
+            "capped_nonterminal": False,
+        }
+        for seat in (0, 1)
+    ]
+    from ml.alphazero_lite.seed552_c108_serving_p import sha256
+
+    evidence = {
+        "command_sha256": sha256(batch / "command-0000.json"),
+        "games_sha256": sha256(batch / "games-0000.jsonl"),
+        "report_sha256": sha256(batch / "report-0000.json"),
+        "opening_sha256": sha256(batch / "opening-0000.jsonl"),
+        "registration_sha256": sha256(output / "registration.json"),
+    }
+    (batch / "completion-0000.json").write_text(
+        json.dumps({**evidence, "outcomes": expected}) + "\n"
+    )
+    commands = [
+        {"opening_index": index, "argv": ["fake-arena", str(index)]}
+        for index in range(protocol.OPENINGS)
+    ]
+    (output / "command-preflight.jsonl").write_text(
+        "".join(json.dumps(row) + "\n" for row in commands)
+    )
+    ledger = output / "outcomes.jsonl"
+    if ledger_bytes is not None:
+        ledger.write_bytes(ledger_bytes)
+    return output, ledger, expected, runtime
+
+
+def _stub_resume_preflight(monkeypatch, runtime: dict) -> Mock:
+    preflight = Mock(return_value={"registration": {"runtime": runtime}})
+    monkeypatch.setattr(verify, "verify_preflight", preflight)
+    monkeypatch.setattr(
+        runner.base_runner, "assert_runtime_contract", lambda _expected: None
+    )
+    monkeypatch.setattr(runner, "registered_runtime", lambda: runtime)
+    return preflight
+
+
+def _file_inventory(root: Path) -> dict[str, tuple[bytes, int]]:
+    return {
+        str(path.relative_to(root)): (path.read_bytes(), path.stat().st_mtime_ns)
+        for path in root.rglob("*")
+        if path.is_file()
+    }
+
+
+def test_execute_rejects_invalid_freeze_before_any_write_or_launch(
+    tmp_path: Path, monkeypatch
+) -> None:
+    root = tmp_path / "invalid-root"
+    output = root / protocol.OUT
+    output.mkdir(parents=True)
+    (output / "registration.json").write_text(
+        json.dumps({"execution_root": str(root)}) + "\n"
+    )
+    (output / "execution-freeze.json").write_text("{}\n")
+    before = _file_inventory(output)
+    launch = Mock()
+    monkeypatch.setattr(runner.subprocess, "run", launch)
+    runtime_check = Mock()
+    monkeypatch.setattr(runner.base_runner, "assert_runtime_contract", runtime_check)
+
+    with pytest.raises(ValueError, match="seed552_freeze_or_suite_binding_mismatch"):
+        runner.execute(root, output)
+
+    runtime_check.assert_not_called()
+    launch.assert_not_called()
+    assert _file_inventory(output) == before
+
+
+def test_execute_rejects_runtime_identity_before_any_write_or_launch(
+    tmp_path: Path, monkeypatch
+) -> None:
+    root = tmp_path / "runtime-root"
+    output = root / protocol.OUT
+    output.mkdir(parents=True)
+    before = _file_inventory(output)
+    runtime_expected = {"observed": {"cpu_affinity": [30]}}
+    preflight = Mock(return_value={"registration": {"runtime": runtime_expected}})
+    monkeypatch.setattr(verify, "verify_preflight", preflight)
+    runtime_check = Mock(side_effect=ValueError("runtime_identity_invalid"))
+    monkeypatch.setattr(runner.base_runner, "assert_runtime_contract", runtime_check)
+    monkeypatch.setattr(runner, "registered_runtime", lambda: runtime_expected)
+    launch = Mock()
+    monkeypatch.setattr(runner.subprocess, "run", launch)
+
+    with pytest.raises(ValueError, match="runtime_identity_invalid"):
+        runner.execute(root, output)
+
+    preflight.assert_called_once()
+    runtime_check.assert_called_once_with(runtime_expected["observed"])
+    launch.assert_not_called()
+    assert _file_inventory(output) == before
+
+
+def test_resume_rejects_conflicting_ledger_without_overwrite_or_launch(
+    tmp_path: Path, monkeypatch
+) -> None:
+    contradictory = (
+        json.dumps({"opening_index": 0, "game_position": 0, "outcome": "P"}).encode()
+        + b"\n"
+    )
+    output, ledger, expected, runtime = _resume_fixture(
+        tmp_path, ledger_bytes=contradictory
+    )
+    before = _file_inventory(output)
+    preflight = _stub_resume_preflight(monkeypatch, runtime)
+    monkeypatch.setattr(verify, "validate_pair", lambda *_args, **_kwargs: expected)
+    launch = Mock()
+    monkeypatch.setattr(runner.subprocess, "run", launch)
+
+    with pytest.raises(ValueError, match="existing_ledger_conflicts_preserved"):
+        runner.execute(protocol.ROOT, output)
+
+    preflight.assert_called_once()
+    launch.assert_not_called()
+    assert ledger.read_bytes() == contradictory
+    assert _file_inventory(output) == before
+    assert not (output / "ledger-recovery").exists()
+
+
+def test_resume_records_validated_pair_recovery_before_next_launch(
+    tmp_path: Path, monkeypatch
+) -> None:
+    output, ledger, expected, runtime = _resume_fixture(tmp_path, ledger_bytes=b"")
+    _stub_resume_preflight(monkeypatch, runtime)
+    validate_pair = Mock(return_value=expected)
+    monkeypatch.setattr(verify, "validate_pair", validate_pair)
+
+    class StopBeforeNextArena(RuntimeError):
+        pass
+
+    launch = Mock(side_effect=StopBeforeNextArena("stop after resume gate"))
+    monkeypatch.setattr(runner.subprocess, "run", launch)
+    with pytest.raises(StopBeforeNextArena):
+        runner.execute(protocol.ROOT, output)
+
+    validate_pair.assert_called_once_with(protocol.ROOT.resolve(), output.resolve(), 0)
+    launch.assert_called_once()
+    assert ledger.read_text().splitlines() == [
+        protocol.stable_json(row).decode() for row in expected
+    ]
+    recovery_records = list((output / "ledger-recovery").glob("recovery-*.json"))
+    assert len(recovery_records) == 1
+    recovery = json.loads(recovery_records[0].read_text())
+    assert recovery["recovery_kind"] == "committed_pair_ledger_projection_recovery"
+    assert recovery["validated_opening_pairs"] == 1
+    assert recovery["validated_games"] == 2
+    assert (output / recovery["preserved_ledger_path"]).read_bytes() == b""
+    assert (output / "batches/command-0001.json").is_file()
 
 
 def test_receipt_rebound_semantic_corruptions_are_rejected(tmp_path: Path) -> None:
