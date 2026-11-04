@@ -1,0 +1,28 @@
+{
+  "capped_nonterminal_games": 0,
+  "decision": "do_not_advance_C108",
+  "descriptive_95_interval": [
+    0.472894287109375,
+    0.497314453125
+  ],
+  "frozen_execution_evidence_bytes_and_mtimes_unchanged": true,
+  "frozen_execution_root": "/home/alex/Mancala/seed552-worktree",
+  "frozen_execution_root_inaccessible_during_verification": true,
+  "one_sided_95_lower": 0.474853515625,
+  "physical_copy": "/home/alex/tmp/seed552-physical-copy-final2",
+  "physical_copy_evidence_bytes_and_mtimes_unchanged": true,
+  "schema": "seed552_physical_copy_verification_v1",
+  "score": 0.485107421875,
+  "source_evidence_bytes_and_mtimes_unchanged": true,
+  "source_evidence_inventory_sha256": "cbaf32a763ce76f4791c85e3f010d69fbcaceea6bcf6cf0a763d9c4da9462996",
+  "source_worktree": "/home/alex/Mancala/seed552-pr-worktree",
+  "source_worktree_inaccessible_during_verification": true,
+  "status": "verified_complete",
+  "tablebase_override_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+  "terminal_draws": 199,
+  "terminal_losses": 955,
+  "terminal_wins": 894,
+  "verified_games": 2048,
+  "verified_pairs": 1024,
+  "verifier_cwd": "/home/alex"
+}

@@ -1,0 +1,17 @@
+{
+  "evidence_sha256": {
+    "analysis.json": "62b5b1b225753ff8090afa6e159b5c073fa2a24b378fd4b21e109d1a9d91a89a",
+    "command-preflight.jsonl": "b81f1426fa1e125eb2f8396f289a90bce2048dc48bb1a8dfd9589b0699b6af45",
+    "execution-freeze.json": "1b8d78f7c8adda0a526f7ddf3925c6f3e1b70a3f07d2c616675d887e64bebcaf",
+    "openings.jsonl": "27a003322e5469507a508010a9743b40062928140e6a4b9d5628b0290e32c21d",
+    "outcomes.jsonl": "6b0e2bb6fcfaea4e81b1b5261ac72fbe6406ab878cc08d4da01a18c28b206e8a",
+    "per-opening-scores.jsonl": "07b9c93fafda369946b51d718e4163191e7987f5f6ec424812dfc47955561659",
+    "registration.json": "4fb54a802af1d0fc137d25c89a30d2450ee2274f89847c51a9d4923b5ebf8013",
+    "runtime-authentication.json": "17c2f0201e2c5c8278bcc6423ee6240af46c36b39c838b2701418794d7bd2d42"
+  },
+  "result_sha256": "fc05452daa137005699a40fcf7bbbd8663980aa070d8cfeebc77c103fb3d1394",
+  "schema": "seed552_read_only_verification_receipt_v1",
+  "status": "verified_complete",
+  "verified_games": 2048,
+  "verified_pairs": 1024
+}

@@ -1,0 +1,450 @@
+{
+  "budget_summary": {
+    "mean_final_simulations": 128.0,
+    "p95_root_latency_ms": 246.92,
+    "trigger_counts": {
+      "fixed_budget": 2
+    }
+  },
+  "confidence_interval_95": {
+    "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+    "lower": 0.09452865480086611,
+    "method": "wilson_score",
+    "upper": 0.905471345199134
+  },
+  "draws": 0,
+  "games": 2,
+  "games_played": 2,
+  "hard_suite_buckets": {
+    "late": {
+      "games": 2,
+      "score": null
+    },
+    "midgame": {
+      "games": 0,
+      "score": null
+    },
+    "opening": {
+      "games": 0,
+      "score": null
+    }
+  },
+  "losses": 1,
+  "notes": {
+    "base_seed": 1283,
+    "challenger_path": "/home/alex/Mancala/seed552-worktree/docs/data/seed552-c108-serving-p/runtime-artifacts/C108",
+    "challenger_root_prior_transform": null,
+    "challenger_runtime_policy_inherited": false,
+    "challenger_simulations": 128,
+    "current_path": "/home/alex/Mancala/seed552-worktree/docs/data/seed552-c108-serving-p/runtime-artifacts/P-E4",
+    "current_root_prior_transform": null,
+    "current_simulations": 128,
+    "exact_leaf_solve_mode": "disabled",
+    "exact_root_native_probe": "/home/alex/Mancala/seed552-worktree/model-artifact/runtime/kalah_v1_tablebase",
+    "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "exact_root_objective": "final_score_margin",
+    "exact_root_solve_threshold": 16,
+    "exact_root_solver": "native_kvtb_root_action_probe_v1",
+    "exact_root_tablebase": "/home/alex/Mancala/seed552-worktree/model-artifact/runtime/kalah_v1_21.kvtb",
+    "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+    "exact_solve_semantics": "network_priors_exact_leaf_value",
+    "exact_solve_stone_threshold": null,
+    "exact_solve_value_mode": "wdl",
+    "move_time_mean_ms": 132.34,
+    "move_time_p95_ms": 246.92,
+    "random_opening_plies": 0,
+    "root_prior_transform": null,
+    "runtime_search_policy_mode": "puct_exact_root_hybrid",
+    "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "search_configuration_ledger_output": null,
+    "search_configuration_ledger_sha256": "4a3c34134585f32284b99ba924fcab8b3cded8eb66c42fe942500fa24ab78274",
+    "search_options": {
+      "fpu_mode": "zero",
+      "normalize_values": false,
+      "reuse_subtree": false,
+      "root_policy_mode": "deterministic",
+      "root_temperature": 0.0,
+      "tactical_root_bias": 0.0
+    },
+    "search_outcome_ledger_output": null,
+    "search_outcome_ledger_sha256": "28bb9d83a23eda72628bda16a47a7bbc07db2904e358e7d4cda5d0184c95a0f3",
+    "search_profile": {
+      "c_puct": 1.25,
+      "challenger_runtime_policy_inherited": false,
+      "challenger_simulations": 128,
+      "current_simulations": 128,
+      "exact_leaf_solve_mode": "disabled",
+      "exact_root_native_probe": "/home/alex/Mancala/seed552-worktree/model-artifact/runtime/kalah_v1_tablebase",
+      "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "exact_root_objective": "final_score_margin",
+      "exact_root_solve_enabled": true,
+      "exact_root_solve_threshold": 16,
+      "exact_root_solver": "native_kvtb_root_action_probe_v1",
+      "exact_root_solver_max_solved_seeds": 16,
+      "exact_root_tablebase": "/home/alex/Mancala/seed552-worktree/model-artifact/runtime/kalah_v1_21.kvtb",
+      "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+      "exact_solve_semantics": "network_priors_exact_leaf_value",
+      "exact_solve_stone_threshold": null,
+      "exact_solve_value_mode": "wdl",
+      "hash": "b1281c70b41f220b4da46b0cf2034356690a827ec5901a6ca3a33960e5b391e3",
+      "kind": "arena_eval",
+      "player_mode": "puct",
+      "runtime_search_policy_mode": "puct_exact_root_hybrid",
+      "runtime_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "search_options": {
+        "fpu_mode": "zero",
+        "normalize_values": false,
+        "reuse_subtree": false,
+        "root_policy_mode": "deterministic",
+        "root_temperature": 0.0,
+        "tactical_root_bias": 0.0
+      },
+      "seed552_execution_identity": {
+        "command_preflight_entry_sha256": "fb699b30374a5b48ad379786863045ea9b911f92e5e4a81e216e66cc3942a512",
+        "component_assignments": {
+          "challenger": "C update-108 control policy and its own trunk",
+          "challenger_policy_artifact": "C108",
+          "challenger_policy_trunk": "C108",
+          "challenger_value_artifact": "initializer",
+          "challenger_value_trunk": "initializer",
+          "opponent": "P historical seed504 E4 policy and its own trunk",
+          "opponent_policy_artifact": "P-E4",
+          "opponent_policy_trunk": "P-E4",
+          "opponent_value_artifact": "initializer",
+          "opponent_value_trunk": "initializer"
+        },
+        "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "observed_runtime": {
+          "address_space_rlimit": [
+            17179869184,
+            17179869184
+          ],
+          "cgroup_limits": {
+            "cpu.max": "25000 100000",
+            "cpu.weight": "1",
+            "cpuset.cpus.effective": null,
+            "memory.max": "4294967296"
+          },
+          "cpu_affinity": [
+            30
+          ],
+          "environment": {
+            "BLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "NUMEXPR_NUM_THREADS": "1",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1"
+          },
+          "nice": 19,
+          "torch_interop_threads": 1,
+          "torch_threads": 1
+        },
+        "opening_index": 738,
+        "registered_runtime": {
+          "device": "cpu",
+          "dtype": "float32",
+          "environment": {
+            "BLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "NUMEXPR_NUM_THREADS": "1",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1"
+          },
+          "executable": "/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python",
+          "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+          "numpy": "2.5.3",
+          "observed": {
+            "address_space_rlimit": [
+              17179869184,
+              17179869184
+            ],
+            "cgroup_limits": {
+              "cpu.max": "25000 100000",
+              "cpu.weight": "1",
+              "cpuset.cpus.effective": null,
+              "memory.max": "4294967296"
+            },
+            "cpu_affinity": [
+              30
+            ],
+            "environment": {
+              "BLAS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": "1"
+            },
+            "nice": 19,
+            "torch_interop_threads": 1,
+            "torch_threads": 1
+          },
+          "packages": [
+            "cuda-bindings==13.4.4",
+            "cuda-pathfinder==1.8.4",
+            "cuda-toolkit==13.0.3.0",
+            "filelock==4.2.4",
+            "fsspec==2026.9.0",
+            "iniconfig==2.3.1",
+            "Jinja2==3.1.6",
+            "MarkupSafe==3.0.4",
+            "mpmath==1.3.0",
+            "networkx==3.7",
+            "numpy==2.5.3",
+            "nvidia-cublas==13.1.1.3",
+            "nvidia-cuda-cupti==13.0.85",
+            "nvidia-cuda-nvrtc==13.0.88",
+            "nvidia-cuda-runtime==13.0.96",
+            "nvidia-cudnn-cu13==9.24.0.43",
+            "nvidia-cufft==12.0.0.61",
+            "nvidia-cufile==1.15.1.6",
+            "nvidia-curand==10.4.0.35",
+            "nvidia-cusolver==12.0.4.66",
+            "nvidia-cusparse==12.6.3.3",
+            "nvidia-cusparselt-cu13==0.8.1",
+            "nvidia-nccl-cu13==2.30.7",
+            "nvidia-nvjitlink==13.4.92",
+            "nvidia-nvshmem-cu13==3.4.5",
+            "nvidia-nvtx==13.0.85",
+            "packaging==26.3",
+            "pip==26.2.1",
+            "pluggy==1.7.0",
+            "Pygments==2.21.0",
+            "pytest==9.1.1",
+            "ruff==0.15.13",
+            "setuptools==84.2.1",
+            "sympy==1.14.0",
+            "torch==2.14.0+cu130",
+            "triton==3.8.0",
+            "typing_extensions==4.16.0"
+          ],
+          "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+          "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+          "resource_limits": {
+            "address_space_limit": "17179869184",
+            "allowed_cpus": "30",
+            "cpu_quota": "25%",
+            "cpu_weight": "1",
+            "memory_max": "4294967296",
+            "nice": 19,
+            "workers": 1
+          },
+          "tablebase_path": "/home/alex/Mancala/seed552-worktree/model-artifact/runtime/kalah_v1_21.kvtb",
+          "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+          "tablebase_size_bytes": 709635072,
+          "torch": "2.14.0+cu130",
+          "torch_interop_threads": 1,
+          "torch_threads": 1
+        },
+        "runtime_authentication_sha256": "17c2f0201e2c5c8278bcc6423ee6240af46c36b39c838b2701418794d7bd2d42",
+        "seed": 1283,
+        "tablebase_object_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "tablebase_object_size_bytes": 709635072,
+        "tablebase_resolved_runtime_path": "/home/alex/Mancala/seed552-worktree/model-artifact/runtime/kalah_v1_21.kvtb"
+      },
+      "simulations": 128,
+      "version": "v1"
+    },
+    "search_profile_hash": "b1281c70b41f220b4da46b0cf2034356690a827ec5901a6ca3a33960e5b391e3",
+    "seed": 1283,
+    "seed552_execution_identity": {
+      "command_preflight_entry_sha256": "fb699b30374a5b48ad379786863045ea9b911f92e5e4a81e216e66cc3942a512",
+      "component_assignments": {
+        "challenger": "C update-108 control policy and its own trunk",
+        "challenger_policy_artifact": "C108",
+        "challenger_policy_trunk": "C108",
+        "challenger_value_artifact": "initializer",
+        "challenger_value_trunk": "initializer",
+        "opponent": "P historical seed504 E4 policy and its own trunk",
+        "opponent_policy_artifact": "P-E4",
+        "opponent_policy_trunk": "P-E4",
+        "opponent_value_artifact": "initializer",
+        "opponent_value_trunk": "initializer"
+      },
+      "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "observed_runtime": {
+        "address_space_rlimit": [
+          17179869184,
+          17179869184
+        ],
+        "cgroup_limits": {
+          "cpu.max": "25000 100000",
+          "cpu.weight": "1",
+          "cpuset.cpus.effective": null,
+          "memory.max": "4294967296"
+        },
+        "cpu_affinity": [
+          30
+        ],
+        "environment": {
+          "BLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1"
+        },
+        "nice": 19,
+        "torch_interop_threads": 1,
+        "torch_threads": 1
+      },
+      "opening_index": 738,
+      "registered_runtime": {
+        "device": "cpu",
+        "dtype": "float32",
+        "environment": {
+          "BLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1"
+        },
+        "executable": "/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python",
+        "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "numpy": "2.5.3",
+        "observed": {
+          "address_space_rlimit": [
+            17179869184,
+            17179869184
+          ],
+          "cgroup_limits": {
+            "cpu.max": "25000 100000",
+            "cpu.weight": "1",
+            "cpuset.cpus.effective": null,
+            "memory.max": "4294967296"
+          },
+          "cpu_affinity": [
+            30
+          ],
+          "environment": {
+            "BLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "NUMEXPR_NUM_THREADS": "1",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1"
+          },
+          "nice": 19,
+          "torch_interop_threads": 1,
+          "torch_threads": 1
+        },
+        "packages": [
+          "cuda-bindings==13.4.4",
+          "cuda-pathfinder==1.8.4",
+          "cuda-toolkit==13.0.3.0",
+          "filelock==4.2.4",
+          "fsspec==2026.9.0",
+          "iniconfig==2.3.1",
+          "Jinja2==3.1.6",
+          "MarkupSafe==3.0.4",
+          "mpmath==1.3.0",
+          "networkx==3.7",
+          "numpy==2.5.3",
+          "nvidia-cublas==13.1.1.3",
+          "nvidia-cuda-cupti==13.0.85",
+          "nvidia-cuda-nvrtc==13.0.88",
+          "nvidia-cuda-runtime==13.0.96",
+          "nvidia-cudnn-cu13==9.24.0.43",
+          "nvidia-cufft==12.0.0.61",
+          "nvidia-cufile==1.15.1.6",
+          "nvidia-curand==10.4.0.35",
+          "nvidia-cusolver==12.0.4.66",
+          "nvidia-cusparse==12.6.3.3",
+          "nvidia-cusparselt-cu13==0.8.1",
+          "nvidia-nccl-cu13==2.30.7",
+          "nvidia-nvjitlink==13.4.92",
+          "nvidia-nvshmem-cu13==3.4.5",
+          "nvidia-nvtx==13.0.85",
+          "packaging==26.3",
+          "pip==26.2.1",
+          "pluggy==1.7.0",
+          "Pygments==2.21.0",
+          "pytest==9.1.1",
+          "ruff==0.15.13",
+          "setuptools==84.2.1",
+          "sympy==1.14.0",
+          "torch==2.14.0+cu130",
+          "triton==3.8.0",
+          "typing_extensions==4.16.0"
+        ],
+        "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+        "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+        "resource_limits": {
+          "address_space_limit": "17179869184",
+          "allowed_cpus": "30",
+          "cpu_quota": "25%",
+          "cpu_weight": "1",
+          "memory_max": "4294967296",
+          "nice": 19,
+          "workers": 1
+        },
+        "tablebase_path": "/home/alex/Mancala/seed552-worktree/model-artifact/runtime/kalah_v1_21.kvtb",
+        "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "tablebase_size_bytes": 709635072,
+        "torch": "2.14.0+cu130",
+        "torch_interop_threads": 1,
+        "torch_threads": 1
+      },
+      "runtime_authentication_sha256": "17c2f0201e2c5c8278bcc6423ee6240af46c36b39c838b2701418794d7bd2d42",
+      "seed": 1283,
+      "tablebase_object_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "tablebase_object_size_bytes": 709635072,
+      "tablebase_resolved_runtime_path": "/home/alex/Mancala/seed552-worktree/model-artifact/runtime/kalah_v1_21.kvtb"
+    },
+    "seed_contract": "azlite_eval_seed_v2",
+    "seed_identity_ledger_sha256": "98f22b0ca5b8c690ea667fe17543ec3344866de60896efd6e44dbdf432cf9281",
+    "seed_ledger_hash": "98f22b0ca5b8c690ea667fe17543ec3344866de60896efd6e44dbdf432cf9281",
+    "seed_ledger_output": null,
+    "seed_ledger_records": 50,
+    "suite_sha256": "ece2f0231304af3dde714e0e6192a796f4cbbc4b7e2b6d8c159c9e6d08edd0b9",
+    "value_transform_hash": null,
+    "value_transform_summary": null,
+    "worker_game_counts": [
+      2
+    ],
+    "workers_requested": 1,
+    "workers_used": 1
+  },
+  "opening_cache_summary": {
+    "latency_delta_ms": null,
+    "opening_bucket_quality_delta": null,
+    "runtime_hit_rate": null,
+    "training_hit_rate": null
+  },
+  "promotion_decision": {
+    "passed": false
+  },
+  "root_prior_telemetry": {
+    "challenger": {
+      "activation_count": 0,
+      "activation_rate": 0.0,
+      "average_mass_shift": null,
+      "legal_move_context_counts": {
+        "legal_move_count": 0,
+        "no_extra_turn_capture_count": 0,
+        "no_extra_turn_noncapture_seed5_count": 0,
+        "seed4_extra_turn_count": 0
+      },
+      "root_states_evaluated": 16,
+      "top_changed_move_feature_patterns": []
+    },
+    "current": {
+      "activation_count": 0,
+      "activation_rate": 0.0,
+      "average_mass_shift": null,
+      "legal_move_context_counts": {
+        "legal_move_count": 0,
+        "no_extra_turn_capture_count": 0,
+        "no_extra_turn_noncapture_seed5_count": 0,
+        "seed4_extra_turn_count": 0
+      },
+      "root_states_evaluated": 16,
+      "top_changed_move_feature_patterns": []
+    }
+  },
+  "schema": "arena_v1",
+  "score": 0.5,
+  "threshold": 0.55,
+  "threshold_margin": -0.050000000000000044,
+  "unstable_decision": true,
+  "wins": 1
+}

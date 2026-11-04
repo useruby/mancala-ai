@@ -1,0 +1,27 @@
+{
+  "bound_sha256": {
+    "analysis.json": "62b5b1b225753ff8090afa6e159b5c073fa2a24b378fd4b21e109d1a9d91a89a",
+    "checkout-provenance.json": "e9288c3b999983055ca2911ac7d590ce86009c59f176c91b547db6f0356aaaca",
+    "execution-freeze.json": "1b8d78f7c8adda0a526f7ddf3925c6f3e1b70a3f07d2c616675d887e64bebcaf",
+    "execution-source-correction-prior-01.json": "3227ea5e4ade3e4e89a2693058b326186e483a9d03eff81e223a3287120a8f88",
+    "execution-source-correction-prior-02.json": "3594b60be96b3198738bb989f0048fc94f05ebaa0935d3e09f65932107576f59",
+    "execution-source-correction-prior-03.json": "dde44e6d34d7a79643d8608124f7e0ed992f252aac48ff1380fa36010ae747d1",
+    "execution-source-correction-supersession-01.json": "532d3f791c9331be1412f2c5db58ed19a7439572342faadaa2d96ddbd91d520b",
+    "execution-source-correction-supersession-02.json": "97589d00326984945ed9f6b198a1e5605a8ecd36f24aa73b9d22a2e36157c36c",
+    "execution-source-correction.json": "fcf5e79ceacaeca5bb890b0b01d55eb03b46c58fca67d497d965274e7c1a4895",
+    "per-opening-scores.jsonl": "07b9c93fafda369946b51d718e4163191e7987f5f6ec424812dfc47955561659",
+    "physical-copy-verification-supersession-01.json": "bbcfbfbb2be4662b2e0675542c0f89a9fe3b30a6d194a9a9cf194285f5f70c99",
+    "physical-copy-verification-supersession-02.json": "03ffa315b05246bfd99725ec5695f1dc361d76823748f4dd024faac3b87752ad",
+    "physical-copy-verification-supersession-03.json": "6ed79ae707e010154406d75179797ae41c879964d2823fd25f8e5dcdf1b6a002",
+    "physical-copy-verification-supersession-04.json": "835654559349337bb99b0037a28d9b5e03ececa26f88bf8aab107f8b4f7f6dd6",
+    "physical-copy-verification.json": "8e8d07230b1efb130b787459178d2fa63b1f4c07bb13c86cb73e579c2451aceb",
+    "registration.json": "4fb54a802af1d0fc137d25c89a30d2450ee2274f89847c51a9d4923b5ebf8013",
+    "results.md": "bb1756d26b17c2ddf18dae6fa06fd807cef0439c583a899658de6af75b7f8e00",
+    "runtime-authentication.json": "17c2f0201e2c5c8278bcc6423ee6240af46c36b39c838b2701418794d7bd2d42",
+    "verification-receipt.json": "e538490a04eafac5d34df0ccc479e7a44828117ad01e8bfc8654395cec168c3d",
+    "verification.json": "fc05452daa137005699a40fcf7bbbd8663980aa070d8cfeebc77c103fb3d1394"
+  },
+  "schema": "seed552_publication_receipt_supersession_v1",
+  "status": "complete",
+  "supersedes_sha256": "212784e4ec2e72efad6a65608ba92dafa5ae70a8fe429106d111301b3dedaad2"
+}

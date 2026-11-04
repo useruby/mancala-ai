@@ -1,0 +1,44 @@
+{
+  "analysis": {
+    "bootstrap_resamples": 20000,
+    "bootstrap_seed": 545,
+    "capped_nonterminal_games": 0,
+    "capped_nonterminal_results_by_current_store_margin": {
+      "C": 0,
+      "T": 0,
+      "draw": 0
+    },
+    "capped_points_policy": "use the arena's current store-margin winner at ply 200, ties 0.5, and report capped results separately from terminal outcomes",
+    "decision": "do_not_advance_source_evaluator_branch",
+    "descriptive_two_sided_95": [
+      0.468505859375,
+      0.49609375
+    ],
+    "draws": 195,
+    "fresh_holdout": false,
+    "games": 2048,
+    "losses": 963,
+    "non_advancement_does_not_establish_universal_source_evaluator_inferiority": true,
+    "one_sided_95_lower": 0.470703125,
+    "opening_pairs": 1024,
+    "preserved_cluster_multiplicity": true,
+    "promotion_or_deployment_authorized": false,
+    "quantile_method": "linear",
+    "replacement": true,
+    "score": 0.482177734375,
+    "seed461_continuation_overlap_unresolved": true,
+    "status": "complete",
+    "strength_decision_valid": true,
+    "wins": 890
+  },
+  "capped_nonterminal_games": 0,
+  "preflight": {
+    "commands": 1024,
+    "openings": 1024,
+    "status": "preflight_verified"
+  },
+  "read_only_bytes_and_mtimes_unchanged": true,
+  "status": "verified_complete",
+  "verified_games": 2048,
+  "verified_pairs": 1024
+}

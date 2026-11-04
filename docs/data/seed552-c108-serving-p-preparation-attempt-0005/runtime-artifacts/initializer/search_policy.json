@@ -1,0 +1,18 @@
+{
+  "schema": "azlite_runtime_search_policy_v1",
+  "mode": "puct_exact_root_hybrid",
+  "exact_root_enabled": true,
+  "exact_root_threshold": 16,
+  "exact_root_objective": "final_score_margin",
+  "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+  "exact_leaf_solve": "disabled",
+  "solver_implementation_identity": "native_kvtb_root_action_probe_v1",
+  "native_probe": {
+    "path": "model-artifact/runtime/kalah_v1_tablebase",
+    "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48"
+  },
+  "tablebase": {
+    "path": "model-artifact/runtime/kalah_v1_21.kvtb",
+    "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "bootstrap_resamples": 20000,
+  "bootstrap_seed": 545,
+  "capped_nonterminal_games": 0,
+  "capped_nonterminal_prevents_valid_decision": false,
+  "decision": "do_not_advance_C108",
+  "descriptive_95_interval": [
+    0.472894287109375,
+    0.497314453125
+  ],
+  "games": 2048,
+  "one_sided_95_lower": 0.474853515625,
+  "opening_pairs": 1024,
+  "promotion_or_deployment_authorized": false,
+  "quantile_method": "NumPy linear",
+  "sampling": "opening clusters with replacement; duplicate selections retained",
+  "score": 0.485107421875,
+  "status": "complete",
+  "strength_decision_valid": true,
+  "terminal_draws": 199,
+  "terminal_losses": 955,
+  "terminal_wins": 894
+}

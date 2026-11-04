@@ -1,0 +1,26 @@
+{
+  "bound_sha256": {
+    "analysis.json": "62b5b1b225753ff8090afa6e159b5c073fa2a24b378fd4b21e109d1a9d91a89a",
+    "checkout-provenance.json": "e9288c3b999983055ca2911ac7d590ce86009c59f176c91b547db6f0356aaaca",
+    "execution-freeze.json": "1b8d78f7c8adda0a526f7ddf3925c6f3e1b70a3f07d2c616675d887e64bebcaf",
+    "execution-safety-correction-01.json": "46ecb9c0120afdd546f20734a970ae822bf13e4abf12962ecaef9d9896a07505",
+    "execution-source-correction-prior-01.json": "3227ea5e4ade3e4e89a2693058b326186e483a9d03eff81e223a3287120a8f88",
+    "execution-source-correction-prior-02.json": "3594b60be96b3198738bb989f0048fc94f05ebaa0935d3e09f65932107576f59",
+    "execution-source-correction-prior-03.json": "dde44e6d34d7a79643d8608124f7e0ed992f252aac48ff1380fa36010ae747d1",
+    "execution-source-correction-prior-04.json": "eef9bb548bed9fa7aad9cbcfe8cf51555a162bfdc11d5a68a9a42dafde72c2b8",
+    "execution-source-correction-supersession-01.json": "532d3f791c9331be1412f2c5db58ed19a7439572342faadaa2d96ddbd91d520b",
+    "execution-source-correction-supersession-02.json": "97589d00326984945ed9f6b198a1e5605a8ecd36f24aa73b9d22a2e36157c36c",
+    "execution-source-correction-supersession-03.json": "69a950753646ed4228557a5bbc6222ffc2ea01d55b8ed068bc9360524d8191e6",
+    "execution-source-correction.json": "08b9782e9735be0c1b589d50a51fc8286d2fa774347293f457a5329c97eda38d",
+    "per-opening-scores.jsonl": "07b9c93fafda369946b51d718e4163191e7987f5f6ec424812dfc47955561659",
+    "physical-copy-verification-supersession-07.json": "d09a0174387713d8871725268757ad59be4e3c46e626a79366bd157aba10e2b0",
+    "registration.json": "4fb54a802af1d0fc137d25c89a30d2450ee2274f89847c51a9d4923b5ebf8013",
+    "results.md": "a7d8d40359bf56ec8a05027a1e2321be8d51aea1d02c3b40ee5a263a3170c51f",
+    "runtime-authentication.json": "17c2f0201e2c5c8278bcc6423ee6240af46c36b39c838b2701418794d7bd2d42",
+    "verification-receipt.json": "e538490a04eafac5d34df0ccc479e7a44828117ad01e8bfc8654395cec168c3d",
+    "verification.json": "fc05452daa137005699a40fcf7bbbd8663980aa070d8cfeebc77c103fb3d1394"
+  },
+  "schema": "seed552_publication_receipt_supersession_v1",
+  "status": "complete",
+  "supersedes_sha256": "082002229fedacc5e8852263de2efa5c1f10bd61430cac581a1aa5e898d5d186"
+}

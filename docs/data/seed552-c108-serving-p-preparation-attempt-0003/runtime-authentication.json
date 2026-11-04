@@ -1,0 +1,67 @@
+{
+  "component_assignments": {
+    "challenger": "C update-108 control policy and its own trunk",
+    "challenger_policy_artifact": "C108",
+    "challenger_policy_trunk": "C108",
+    "challenger_value_artifact": "initializer",
+    "challenger_value_trunk": "initializer",
+    "opponent": "P historical seed504 E4 policy and its own trunk",
+    "opponent_policy_artifact": "P-E4",
+    "opponent_policy_trunk": "P-E4",
+    "opponent_value_artifact": "initializer",
+    "opponent_value_trunk": "initializer"
+  },
+  "components": {
+    "C108": {
+      "artifact_dir": "docs/data/seed552-c108-serving-p/runtime-artifacts/C108",
+      "checkpoint_sha256": "5339fcc06b1284515181352b47414ef82ff326d22b6848aa1cd7f445e47852ad",
+      "files": {
+        "metadata.json": "54bf022df19fac36461b1c45d5a0656fb86900bb25bac9ee393c03571a1ca62b",
+        "model.npz": "5339fcc06b1284515181352b47414ef82ff326d22b6848aa1cd7f445e47852ad",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "f85b3853260052c81a7de1bc3c089dbb99e54cbd21eb80ca7dfe2d5cd562a2f4"
+      },
+      "source": "docs/data/seed551-controlled-policy-strength-screen/runtime-artifacts/C/model.npz"
+    },
+    "P-E4": {
+      "artifact_dir": "docs/data/seed552-c108-serving-p/runtime-artifacts/P-E4",
+      "checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "files": {
+        "metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+        "model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+      },
+      "source": "docs/data/seed504-policy-only-ablation/screen/runtime-artifacts/P-E4/model.npz"
+    },
+    "initializer": {
+      "artifact_dir": "docs/data/seed552-c108-serving-p/runtime-artifacts/initializer",
+      "checkpoint_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "files": {
+        "metadata.json": "7ce41fde58c219c9fd2aa7a912db1c2da357099d6f72e3f715d9a78ce500cb5d",
+        "model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+        "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+      },
+      "source": "docs/data/seed504-policy-only-ablation/screen/runtime-artifacts/initializer/model.npz"
+    }
+  },
+  "native_probe": {
+    "path": "model-artifact/runtime/kalah_v1_tablebase",
+    "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48"
+  },
+  "serving_release_sha256": "f283e0ded25d496c7ade8c4188f4a632e443dcedbe7f5a537e2c0105e7ca4ee0",
+  "tablebase": {
+    "historical_pointer_git_blob": "27beb8c0bc8ce2351957ab9792971535cb4517ae",
+    "historical_pointer_git_commit": "ff0805ea6572dcf297a2f13db66abab28ad915e8",
+    "historical_pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+    "historical_seed551_representation": "Git LFS pointer",
+    "materialized_object_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "materialized_object_size_bytes": 709635072,
+    "repository_object_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "repository_object_size_bytes": 709635072,
+    "repository_path": "model-artifact/runtime/kalah_v1_21.kvtb",
+    "repository_representation": "materialized Git blob in seed552 checkout",
+    "resolved_runtime_path": "/home/alex/Mancala/seed552-worktree/model-artifact/runtime/kalah_v1_21.kvtb"
+  }
+}

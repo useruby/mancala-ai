@@ -1,0 +1,41 @@
+{
+  "freeze_sha256": "1b8d78f7c8adda0a526f7ddf3925c6f3e1b70a3f07d2c616675d887e64bebcaf",
+  "schema": "seed552_execution_source_correction_v1",
+  "source_corrections": {
+    "ml/alphazero_lite/run_seed552_c108_serving_p.py": {
+      "corrected_sha256": "ceef09e1406ba838be75ab4b73773397902e42c6531ee43ba37669c1caead74d",
+      "previous_sha256": "e8e892f3d44e1f3f757ab95b7d8658ae94f2a69925f3562750d0b8c5a73562d4",
+      "reason": "post_execution_formatting_correction",
+      "snapshot_path": "execution-source-snapshots/ml/alphazero_lite/run_seed552_c108_serving_p.py",
+      "snapshot_sha256": "e8e892f3d44e1f3f757ab95b7d8658ae94f2a69925f3562750d0b8c5a73562d4"
+    },
+    "ml/alphazero_lite/seed552_arena_entrypoint.py": {
+      "corrected_sha256": "3196fd86a37f81f9caed5732a6624a30ae8248142a2e18bf32c51caed932f3c2",
+      "previous_sha256": "cb81f36f7c0c7c3ff35deb6917c75523570c35be868f67c460ed15638b26ba40",
+      "reason": "post_execution_formatting_correction",
+      "snapshot_path": "execution-source-snapshots/ml/alphazero_lite/seed552_arena_entrypoint.py",
+      "snapshot_sha256": "cb81f36f7c0c7c3ff35deb6917c75523570c35be868f67c460ed15638b26ba40"
+    },
+    "ml/alphazero_lite/seed552_c108_serving_p.py": {
+      "corrected_sha256": "27eed21d269d4105ad62defa41092e47fdd60684a594a2045fec2efc22a59f0a",
+      "previous_sha256": "6afc00c1f500106d37cf68bd502a6d444a6c04413f537f53e7e1a953d775d330",
+      "reason": "post_execution_formatting_correction",
+      "snapshot_path": "execution-source-snapshots/ml/alphazero_lite/seed552_c108_serving_p.py",
+      "snapshot_sha256": "6afc00c1f500106d37cf68bd502a6d444a6c04413f537f53e7e1a953d775d330"
+    },
+    "ml/alphazero_lite/test_seed552_c108_serving_p.py": {
+      "corrected_sha256": "e8a1cf5e478adfc139b4f352619a8f5acbeee54fb40e11e4d24a00533770afea",
+      "previous_sha256": "f95f566db06a95feb97c4ad822bbf91f6d73ce2e685d82abb5e6bcbdb9af2508",
+      "reason": "post_execution_formatting_correction",
+      "snapshot_path": "execution-source-snapshots/ml/alphazero_lite/test_seed552_c108_serving_p.py",
+      "snapshot_sha256": "f95f566db06a95feb97c4ad822bbf91f6d73ce2e685d82abb5e6bcbdb9af2508"
+    },
+    "ml/alphazero_lite/verify_seed552_c108_serving_p.py": {
+      "corrected_sha256": "bbb736c83dd44e6fcee42b8d5ea8f1cadf6ddce9341a4a039520af0dea3685be",
+      "previous_sha256": "027da82feffb45b5f1e34e5146d077f72b23c79ea10f684c54cc6be5ed0bcd2f",
+      "reason": "post_execution_verifier_correction",
+      "snapshot_path": "execution-source-snapshots/ml/alphazero_lite/verify_seed552_c108_serving_p.py",
+      "snapshot_sha256": "027da82feffb45b5f1e34e5146d077f72b23c79ea10f684c54cc6be5ed0bcd2f"
+    }
+  }
+}

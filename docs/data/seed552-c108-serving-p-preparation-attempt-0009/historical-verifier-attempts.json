@@ -1,0 +1,42 @@
+{
+  "attempts": [
+    {
+      "argv": [
+        "--root",
+        "docs/data/seed551-controlled-policy-strength-screen"
+      ],
+      "explanation": "The evidence directory was mistakenly passed as repository root.",
+      "result": "failed_seed551_freeze_binding_mismatch",
+      "verifier": "ml.alphazero_lite.verify_seed551_controlled_policy_strength"
+    },
+    {
+      "argv": [
+        "--root",
+        "/home/alex/Mancala/seed552-worktree",
+        "--out",
+        "/home/alex/Mancala/seed552-worktree/docs/data/seed551-controlled-policy-strength-screen",
+        "--tablebase",
+        "/home/alex/Mancala/seed552-worktree/model-artifact/runtime/kalah_v1_21.kvtb",
+        "--allow-relocated-copy"
+      ],
+      "explanation": "The current checkout contains the materialized tablebase object; the frozen #551 root expected the historical Git LFS pointer representation.",
+      "result": "failed_seed551_authenticated_input_changed:model-artifact/runtime/kalah_v1_21.kvtb",
+      "verifier": "ml.alphazero_lite.verify_seed551_controlled_policy_strength"
+    },
+    {
+      "argv": [
+        "--root",
+        "/home/alex/Mancala/ai/.tmp/seed551-worktree",
+        "--out",
+        "/home/alex/Mancala/ai/.tmp/seed551-worktree/docs/data/seed551-controlled-policy-strength-screen",
+        "--tablebase",
+        "/home/alex/Mancala/seed552-worktree/model-artifact/runtime/kalah_v1_21.kvtb",
+        "--allow-relocated-copy"
+      ],
+      "explanation": "Verified in retained historical worktree, with separate authenticated materialized tablebase; historical evidence bytes and mtimes unchanged.",
+      "result": "verified_complete",
+      "verifier": "ml.alphazero_lite.verify_seed551_controlled_policy_strength"
+    }
+  ],
+  "schema": "seed552_historical_verifier_attempts_v1"
+}

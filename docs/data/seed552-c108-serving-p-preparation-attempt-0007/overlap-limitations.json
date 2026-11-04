@@ -1,0 +1,6 @@
+{
+  "historical_games_or_outcomes_imported": false,
+  "known": "reused indexed seed511 suite; exploratory candidate examined after #550-551",
+  "seed461_continuation_overlap_unresolved": true,
+  "training_population_overlap_analysis": "canonical-state and production-float32 against C training/development and P policy training; every suite row retained"
+}

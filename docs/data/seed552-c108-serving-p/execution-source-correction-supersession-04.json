@@ -1,0 +1,8 @@
+{
+  "corrected_correction_sha256": "a9405d6b963857b066005f0b005a5932a711d07353b1a0cac7131481acd24f92",
+  "parent_correction_sha256": "08b9782e9735be0c1b589d50a51fc8286d2fa774347293f457a5329c97eda38d",
+  "prior_receipt_path": "execution-source-correction-prior-05.json",
+  "prior_receipt_sha256": "08b9782e9735be0c1b589d50a51fc8286d2fa774347293f457a5329c97eda38d",
+  "reason": "Append-only preflight-before-side-effects and ledger-conflict/recovery correction; completed arena evidence and analysis remain unchanged.",
+  "schema": "seed552_execution_source_correction_supersession_v1"
+}
