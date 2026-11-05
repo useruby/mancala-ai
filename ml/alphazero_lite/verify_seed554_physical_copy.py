@@ -148,6 +148,16 @@ def run_copy(source_root: Path, copy_root: Path, hidden_root: Path) -> dict[str,
         "source_bytes_and_mtimes_unchanged": original_after == original_before,
     }
     destination = source_root / OUT / "physical-copy-verification.json"
+    if destination.exists():
+        correction = 2
+        while True:
+            candidate = (
+                source_root / OUT / f"physical-copy-verification-{correction:02d}.json"
+            )
+            if not candidate.exists():
+                destination = candidate
+                break
+            correction += 1
     temporary = destination.with_suffix(".json.pending")
     temporary.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n")
     temporary.replace(destination)

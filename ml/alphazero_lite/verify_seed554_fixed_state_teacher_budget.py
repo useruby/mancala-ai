@@ -43,6 +43,23 @@ def require_nonpolicy_source_row(
         raise ValueError(f"verifier_nonpolicy_source_row_mutation:{arm}:{index}")
 
 
+def resolve_search_state(
+    row: dict[str, Any], state_map: dict[str, dict[str, Any]]
+) -> tuple[dict[str, Any], int]:
+    """Bind archived index and seed to the reconstructed canonical ordering."""
+    canonical_id = row.get("canonical_state_sha256")
+    if not isinstance(canonical_id, str):
+        raise ValueError("verifier_search_state_identity_missing")
+    item = state_map.get(canonical_id)
+    if item is None:
+        raise ValueError("verifier_search_state_not_in_population")
+    if row.get("state_index") != item["state_index"]:
+        raise ValueError("verifier_search_state_index_mismatch")
+    if row.get("production_float32_sha256") != item["float32"]:
+        raise ValueError("verifier_search_float32_identity_mismatch")
+    return item, 554_000 + item["state_index"]
+
+
 def reconstruct_source_population() -> tuple[
     list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]
 ]:
@@ -213,6 +230,8 @@ def validate_search_evidence(
 
 
 def verify(*, rerun_searches: bool = False) -> dict[str, Any]:
+    if rerun_searches:
+        protocol.live_generation_preflight()
     protocol.preflight()
     environment_binding = json.loads(
         (OUT / "execution-environment-binding.json").read_text()
@@ -251,13 +270,9 @@ def verify(*, rerun_searches: bool = False) -> dict[str, Any]:
     for line in evidence_path.read_text().splitlines():
         row = json.loads(line)
         canonical_id = row["canonical_state_sha256"]
-        if canonical_id not in state_map:
-            raise ValueError("verifier_search_state_not_in_population")
-        state = state_map[canonical_id]["state"]
-        if row.get("production_float32_sha256") != state_map[canonical_id]["float32"]:
-            raise ValueError("verifier_search_float32_identity_mismatch")
+        item, seed = resolve_search_state(row, state_map)
+        state = item["state"]
         budget = int(row["simulations"])
-        seed = 554_000 + int(row["state_index"])
         validate_search_evidence(row["search"], state, budget, seed)
         key = canonical_id, budget
         if key in searches:
@@ -485,19 +500,30 @@ def verify(*, rerun_searches: bool = False) -> dict[str, Any]:
         ):
             raise ValueError("verifier_training_source_environment_binding_mismatch")
         corrections_sha = protocol.file_sha(OUT / "source-corrections.jsonl")
-        if training_binding.get("source_corrections_sha256") != corrections_sha:
-            correction_path = OUT / "training-input-binding-correction-01.json"
+        correction_parent = None
+        corrected_source_hash = training_binding.get("source_corrections_sha256")
+        for number in range(1, 10):
+            correction_path = (
+                OUT / f"training-input-binding-correction-{number:02d}.json"
+            )
             if not correction_path.is_file():
-                raise ValueError("verifier_execution_correction_binding_mismatch")
+                break
             correction = json.loads(correction_path.read_text())
             if (
                 correction.get("training_input_binding_sha256")
                 != protocol.file_sha(binding_path)
                 or correction.get("previous_source_corrections_sha256")
-                != training_binding.get("source_corrections_sha256")
-                or correction.get("source_corrections_sha256") != corrections_sha
+                != corrected_source_hash
+                or (
+                    correction_parent is not None
+                    and correction.get("parent_correction_sha256") != correction_parent
+                )
             ):
                 raise ValueError("verifier_training_input_correction_chain_mismatch")
+            corrected_source_hash = correction.get("source_corrections_sha256")
+            correction_parent = protocol.file_sha(correction_path)
+        if corrected_source_hash != corrections_sha:
+            raise ValueError("verifier_execution_correction_binding_mismatch")
         if training_binding.get("attempt_ledger_sha256") != protocol.file_sha(
             OUT / "attempts.jsonl"
         ):
@@ -565,6 +591,71 @@ def verify(*, rerun_searches: bool = False) -> dict[str, Any]:
                 raise ValueError(
                     f"verifier_control_production_equivalence_mismatch:{number}"
                 )
+        gate_path = OUT / "control-production-equivalence.jsonl"
+        if gate_path.exists():
+            gate_rows = [
+                json.loads(line) for line in gate_path.read_text().splitlines()
+            ]
+            if len(gate_rows) != 108:
+                raise ValueError("verifier_control_production_gate_row_count_mismatch")
+            for number, (gate, record) in enumerate(
+                zip(gate_rows, control_updates, strict=True), start=1
+            ):
+                expected_comparisons = {
+                    "parameter_before_matches": gate.get(
+                        "production_parameter_state_before_sha256"
+                    )
+                    == record.get("parameter_state_before_sha256"),
+                    "parameter_after_matches": gate.get(
+                        "production_parameter_state_after_sha256"
+                    )
+                    == record.get("parameter_state_after_sha256"),
+                    "optimizer_before_matches": gate.get(
+                        "production_optimizer_state_before_sha256"
+                    )
+                    == record.get("optimizer_state_before_sha256"),
+                    "optimizer_after_matches": gate.get(
+                        "production_optimizer_state_after_sha256"
+                    )
+                    == record.get("optimizer_state_after_sha256"),
+                }
+                if (
+                    gate.get("update") != number
+                    or gate.get("comparisons") != expected_comparisons
+                    or gate.get("production_equivalent") is not True
+                    or not all(expected_comparisons.values())
+                    or gate.get("direct_parameter_state_before_sha256")
+                    != record.get("parameter_state_before_sha256")
+                    or gate.get("direct_parameter_state_after_sha256")
+                    != record.get("parameter_state_after_sha256")
+                    or gate.get("direct_optimizer_state_before_sha256")
+                    != record.get("optimizer_state_before_sha256")
+                    or gate.get("direct_optimizer_state_after_sha256")
+                    != record.get("optimizer_state_after_sha256")
+                ):
+                    raise ValueError(
+                        f"verifier_control_production_gate_mismatch:{number}"
+                    )
+            derivation_path = OUT / "control-production-gate-derivation-01.json"
+            if derivation_path.exists():
+                derivation = json.loads(derivation_path.read_text())
+                if (
+                    derivation.get("production_gate_sha256")
+                    != protocol.file_sha(gate_path)
+                    or derivation.get("source_control_trace_sha256")
+                    != protocol.file_sha(OUT / "control-updates.jsonl")
+                    or derivation.get("production_gate_rows") != len(gate_rows)
+                    or derivation.get("status") != "all_108_updates_passed"
+                    or protocol.file_sha(
+                        ROOT / derivation["seed549_training_executed_source_snapshot"]
+                    )
+                    != derivation.get("seed549_training_executed_source_sha256")
+                    or protocol.file_sha(ROOT / "ml/alphazero_lite/seed549_training.py")
+                    != derivation.get("seed549_training_restored_source_sha256")
+                ):
+                    raise ValueError(
+                        "verifier_control_production_gate_derivation_mismatch"
+                    )
         training_summary = {
             "control_updates": 108,
             "treatment_updates": 108,

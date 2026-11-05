@@ -272,25 +272,6 @@ def run_arm(arm: str, *, production: bool = False) -> dict[str, Any]:
             record["update"] = batch["update"]
             record["row_occurrence_ids"] = [ids[i] for i in idx]
             if production_model is not None and production_optimizer is not None:
-                production_parameter_before = reference.state_digest(production_model)
-                production_optimizer_before = optimizer_state_id(
-                    production_optimizer, production_model
-                )
-                record["production_parameter_state_before_sha256"] = (
-                    production_parameter_before
-                )
-                record["production_optimizer_state_before_sha256"] = (
-                    production_optimizer_before
-                )
-                if (
-                    production_parameter_before
-                    != record["parameter_state_before_sha256"]
-                    or production_optimizer_before
-                    != record["optimizer_state_before_sha256"]
-                ):
-                    raise RuntimeError(
-                        f"control_production_state_before_mismatch:{batch['update']}"
-                    )
                 # Exercise the production epoch/update primitive on precisely the
                 # registered batch. Identity ordering is forced only for this
                 # one-batch invocation; no target or loss implementation is copied.
@@ -320,17 +301,9 @@ def run_arm(arm: str, *, production: bool = False) -> dict[str, Any]:
                 finally:
                     torch.randperm = original_randperm
                 production_digest = reference.state_digest(production_model)
-                production_optimizer_after = optimizer_state_id(
-                    production_optimizer, production_model
-                )
                 record["production_parameter_state_after_sha256"] = production_digest
-                record["production_optimizer_state_after_sha256"] = (
-                    production_optimizer_after
-                )
                 record["production_equivalent"] = (
                     production_digest == record["parameter_state_after_sha256"]
-                    and production_optimizer_after
-                    == record["optimizer_state_after_sha256"]
                 )
                 if not record["production_equivalent"]:
                     raise RuntimeError(

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.metadata
 import json
 import os
 import platform
@@ -350,6 +351,103 @@ def preflight() -> dict[str, Any]:
     return freeze
 
 
+def _live_cgroup_limits() -> dict[str, str | None]:
+    try:
+        memberships = Path("/proc/self/cgroup").read_text().splitlines()
+        relative = next(
+            line.split("::", 1)[1] for line in memberships if line.startswith("0::")
+        )
+        directory = Path("/sys/fs/cgroup") / relative.lstrip("/")
+    except (OSError, StopIteration):
+        raise ValueError("generation_cgroup_scope_unavailable") from None
+    values = {}
+    for filename in ("cpu.max", "cpu.weight", "memory.max"):
+        try:
+            values[filename] = (directory / filename).read_text().strip()
+        except OSError as error:
+            raise ValueError(
+                f"generation_cgroup_limit_unavailable:{filename}"
+            ) from error
+    return values
+
+
+def validate_live_generation_contract(
+    binding: dict[str, Any],
+    registration: dict[str, Any],
+    observed: dict[str, Any],
+) -> None:
+    expected_runtime = binding["runtime"]
+    expected_packages = registration["runtime"]["pip_freeze"]
+    if any(
+        observed.get(key) != expected_runtime.get(key)
+        for key in ("python", "platform", "numpy", "torch")
+    ):
+        raise ValueError("generation_numerical_runtime_mismatch")
+    if observed.get("packages") != expected_packages:
+        raise ValueError("generation_dependency_set_mismatch")
+    if (
+        observed.get("torch_threads") != expected_runtime["torch_threads"]
+        or observed.get("torch_interop_threads")
+        != expected_runtime["torch_interop_threads"]
+    ):
+        raise ValueError("generation_torch_thread_mismatch")
+    limits = binding["resource_limits"]
+    if (
+        observed.get("cpu_affinity") != [int(limits["cpu_affinity"])]
+        or observed.get("nice") != limits["nice"]
+    ):
+        raise ValueError("generation_affinity_or_nice_mismatch")
+    cgroup = observed.get("cgroup_limits", {})
+    if (
+        cgroup.get("cpu.max") != "25000 100000"
+        or cgroup.get("cpu.weight") != str(limits["cpu_weight"])
+        or cgroup.get("memory.max") != str(limits["memory_max_bytes"])
+    ):
+        raise ValueError("generation_cgroup_resource_contract_mismatch")
+
+
+def live_generation_preflight() -> None:
+    """Fail before state loading, evaluator construction, writes, or search."""
+    binding_path = OUT / "execution-environment-binding.json"
+    binding = json.loads(binding_path.read_text())
+    registration_path = ROOT / binding["recorded_numerical_environment_source"]
+    if (
+        file_sha(registration_path)
+        != binding["recorded_numerical_environment_source_sha256"]
+    ):
+        raise ValueError("generation_recorded_environment_source_hash_mismatch")
+    registration = json.loads(registration_path.read_text())
+    runtime = binding["runtime"]
+    if (sys.version, platform.platform(), np.__version__, torch.__version__) != (
+        runtime["python"],
+        runtime["platform"],
+        runtime["numpy"],
+        runtime["torch"],
+    ):
+        raise ValueError("generation_numerical_runtime_mismatch")
+    packages = sorted(
+        (
+            f"{distribution.metadata['Name']}=={distribution.version}"
+            for distribution in importlib.metadata.distributions()
+            if distribution.metadata.get("Name")
+        ),
+        key=str.casefold,
+    )
+    observed = {
+        "python": sys.version,
+        "platform": platform.platform(),
+        "numpy": np.__version__,
+        "torch": torch.__version__,
+        "packages": packages,
+        "torch_threads": torch.get_num_threads(),
+        "torch_interop_threads": torch.get_num_interop_threads(),
+        "cpu_affinity": sorted(os.sched_getaffinity(0)),
+        "nice": os.nice(0),
+        "cgroup_limits": _live_cgroup_limits(),
+    }
+    validate_live_generation_contract(binding, registration, observed)
+
+
 def _validate_search(
     record: dict[str, Any], state: dict[str, Any], budget: int, seed: int
 ) -> None:
@@ -414,6 +512,7 @@ def train_policy_target(visits: list[int], legal: list[int]) -> list[float]:
 
 
 def generate() -> None:
+    live_generation_preflight()
     freeze = preflight()
     records, states, _ = _states_by_occurrence()
     search_path = OUT / "searches.jsonl"
@@ -649,6 +748,7 @@ def _build_derivatives(
 def bind_training_inputs() -> None:
     from ml.alphazero_lite import verify_seed554_fixed_state_teacher_budget as verifier
 
+    live_generation_preflight()
     preflight()
     verification = verifier.verify(rerun_searches=True)
     write_json(OUT / "derivative-verification.json", verification)
@@ -705,6 +805,9 @@ def reject_existing_training_evidence(output: Path) -> None:
             for update in (27, 54, 81, 108)
         ]
         + [
+            output / "control-production-equivalence.jsonl",
+        ]
+        + [
             output / name
             for name in (
                 "run-summary.json",
@@ -718,6 +821,153 @@ def reject_existing_training_evidence(output: Path) -> None:
         raise FileExistsError(
             "seed554_training_evidence_already_exists:" + ",".join(conflicts)
         )
+
+
+def run_seed554_arm(training: Any, arm: str, load_arm: Any) -> dict[str, Any]:
+    """Run an arm; the C128 production/Adam gate lives only in seed554."""
+    x, p, v, weights, identities = load_arm(arm)
+    batches = training.load_schedule(arm)
+    arrays = (x, p, v, weights)
+    model = training.model()
+    optimizer = torch.optim.Adam(
+        model.parameters(), lr=1e-4, betas=(0.9, 0.999), eps=1e-8, weight_decay=0.0
+    )
+    production_model = training.model() if arm == "control" else None
+    production_optimizer = (
+        torch.optim.Adam(
+            production_model.parameters(),
+            lr=1e-4,
+            betas=(0.9, 0.999),
+            eps=1e-8,
+            weight_decay=0.0,
+        )
+        if production_model is not None
+        else None
+    )
+    trace_path = OUT / f"{arm}-updates.jsonl"
+    gate_path = OUT / "control-production-equivalence.jsonl"
+    gate_stream = gate_path.open("x", encoding="utf-8") if arm == "control" else None
+    checkpoints: dict[str, str] = {}
+    try:
+        with trace_path.open("x", encoding="utf-8") as trace:
+            for batch in batches:
+                indices = batch["row_occurrence_indices"]
+                production_parameter_before: str | None = None
+                production_optimizer_before: str | None = None
+                if production_model is not None and production_optimizer is not None:
+                    production_parameter_before = training.reference.state_digest(
+                        production_model
+                    )
+                    production_optimizer_before = training.optimizer_state_id(
+                        production_optimizer, production_model
+                    )
+                record = training.update(model, optimizer, arrays, indices)
+                record["update"] = batch["update"]
+                record["row_occurrence_ids"] = [identities[index] for index in indices]
+                if production_model is not None and production_optimizer is not None:
+                    assert gate_stream is not None
+                    assert production_parameter_before is not None
+                    assert production_optimizer_before is not None
+                    index_array = np.asarray(indices, dtype=np.int64)
+                    previous_randperm = torch.randperm
+                    torch.randperm = lambda n, *a, **kw: torch.arange(
+                        n, device=kw.get("device", "cpu")
+                    )
+                    try:
+                        train.train_one_epoch(
+                            model=production_model,
+                            optimizer=production_optimizer,
+                            compact_x=x[index_array],
+                            compact_p=p[index_array],
+                            compact_v=v[index_array],
+                            compact_policy_loss_weights=weights[index_array],
+                            replay_indexes=np.arange(len(index_array), dtype=np.int64),
+                            batch_size=len(index_array),
+                            device=torch.device("cpu"),
+                            value_loss_weight=0.5,
+                            value_loss="huber",
+                            huber_delta=1.0,
+                            grad_clip=1.0,
+                            epoch=batch["update"],
+                            max_optimizer_updates=1,
+                        )
+                    finally:
+                        torch.randperm = previous_randperm
+                    production_parameter_after = training.reference.state_digest(
+                        production_model
+                    )
+                    production_optimizer_after = training.optimizer_state_id(
+                        production_optimizer, production_model
+                    )
+                    comparisons = {
+                        "parameter_before_matches": production_parameter_before
+                        == record["parameter_state_before_sha256"],
+                        "parameter_after_matches": production_parameter_after
+                        == record["parameter_state_after_sha256"],
+                        "optimizer_before_matches": production_optimizer_before
+                        == record["optimizer_state_before_sha256"],
+                        "optimizer_after_matches": production_optimizer_after
+                        == record["optimizer_state_after_sha256"],
+                    }
+                    record.update(
+                        {
+                            "production_parameter_state_before_sha256": production_parameter_before,
+                            "production_parameter_state_after_sha256": production_parameter_after,
+                            "production_optimizer_state_before_sha256": production_optimizer_before,
+                            "production_optimizer_state_after_sha256": production_optimizer_after,
+                            "production_equivalent": all(comparisons.values()),
+                        }
+                    )
+                    gate_record = {
+                        "update": batch["update"],
+                        "comparisons": comparisons,
+                        "production_parameter_state_before_sha256": production_parameter_before,
+                        "production_parameter_state_after_sha256": production_parameter_after,
+                        "production_optimizer_state_before_sha256": production_optimizer_before,
+                        "production_optimizer_state_after_sha256": production_optimizer_after,
+                        "direct_parameter_state_before_sha256": record[
+                            "parameter_state_before_sha256"
+                        ],
+                        "direct_parameter_state_after_sha256": record[
+                            "parameter_state_after_sha256"
+                        ],
+                        "direct_optimizer_state_before_sha256": record[
+                            "optimizer_state_before_sha256"
+                        ],
+                        "direct_optimizer_state_after_sha256": record[
+                            "optimizer_state_after_sha256"
+                        ],
+                        "production_equivalent": record["production_equivalent"],
+                    }
+                    gate_stream.write(
+                        json.dumps(gate_record, sort_keys=True, separators=(",", ":"))
+                        + "\n"
+                    )
+                    gate_stream.flush()
+                    os.fsync(gate_stream.fileno())
+                trace.write(json.dumps(record, sort_keys=True) + "\n")
+                trace.flush()
+                os.fsync(trace.fileno())
+                if record.get("production_equivalent") is False:
+                    raise RuntimeError(
+                        f"seed554_control_production_equivalence_failed:{batch['update']}"
+                    )
+                if batch["update"] in {27, 54, 81, 108}:
+                    checkpoint = OUT / f"{arm}-update-{batch['update']:03d}.npz"
+                    np.savez(checkpoint, **train.checkpoint_from_model(model))
+                    checkpoints[str(batch["update"])] = training.sha(checkpoint)
+    finally:
+        if gate_stream is not None:
+            gate_stream.close()
+    return {
+        "arm": arm,
+        "rows": len(x),
+        "updates": len(batches),
+        "exposures": sum(len(batch["row_occurrence_indices"]) for batch in batches),
+        "trace_sha256": training.sha(trace_path),
+        "checkpoints": checkpoints,
+        "production_gate_sha256": training.sha(gate_path) if arm == "control" else None,
+    }
 
 
 def train_arms() -> None:
@@ -815,11 +1065,8 @@ def train_arms() -> None:
         training.CORPUS = OUT
         training.OUT = OUT
         training.ARMS = ARMS
-        training.load_arm = load_seed554_arm
-        # Existing API expects control/treatment names and filenames, so aliases
-        # are established without touching the registered derivatives.
-        control_summary = training.run_arm("control")
-        treatment_summary = training.run_arm("treatment")
+        control_summary = run_seed554_arm(training, "control", load_seed554_arm)
+        treatment_summary = run_seed554_arm(training, "treatment", load_seed554_arm)
         write_json(
             OUT / "run-summary.json",
             {

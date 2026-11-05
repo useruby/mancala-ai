@@ -3,6 +3,10 @@
 from __future__ import annotations
 
 import json
+import hashlib
+import shutil
+from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 
@@ -56,6 +60,13 @@ def test_bounded_authentication_accepts_committed_source_contracts() -> None:
     assert (
         "full historical runtime verifier not claimed"
         in result["historical_verifier_scope"]
+    )
+
+
+def test_shared_seed549_training_source_remains_prerequisite_bound() -> None:
+    source = protocol.ROOT / "ml/alphazero_lite/seed549_training.py"
+    assert hashlib.sha256(source.read_bytes()).hexdigest() == (
+        "c33438f66a0569d4c61f08d8373b0c02d667b448c7162e814153dcc93291f6f3"
     )
 
 
@@ -127,6 +138,90 @@ def test_completed_search_is_loaded_and_skipped_without_search(tmp_path) -> None
     assert completed[(canonical, 128)] == row
     assert encoded.shape == (27,)
     assert game.possible_moves() == evidence["legal_moves"]
+
+
+def _prepare_generation_rejection(
+    tmp_path, monkeypatch
+) -> tuple[Path, dict[str, bytes]]:
+    output = tmp_path / "seed554"
+    output.mkdir()
+    shutil.copy2(protocol.OUT / "execution-environment-binding.json", output)
+    sentinel = output / "preserve.json"
+    sentinel.write_text('{"sentinel":true}\n')
+    before = {path.name: path.read_bytes() for path in output.iterdir()}
+    monkeypatch.setattr(protocol, "OUT", output)
+    monkeypatch.setattr(protocol.os, "sched_getaffinity", lambda _pid: {31})
+    monkeypatch.setattr(protocol.os, "nice", lambda _increment: 19)
+    monkeypatch.setattr(protocol.torch, "get_num_threads", lambda: 1)
+    monkeypatch.setattr(protocol.torch, "get_num_interop_threads", lambda: 1)
+    monkeypatch.setattr(protocol.torch, "get_num_threads", lambda: 1)
+    monkeypatch.setattr(protocol.torch, "get_num_interop_threads", lambda: 1)
+    monkeypatch.setattr(
+        protocol,
+        "_live_cgroup_limits",
+        lambda: {
+            "cpu.max": "25000 100000",
+            "cpu.weight": "1",
+            "memory.max": "4294967296",
+        },
+    )
+    monkeypatch.setattr(
+        protocol, "preflight", Mock(side_effect=AssertionError("preflight reached"))
+    )
+    monkeypatch.setattr(
+        protocol,
+        "_states_by_occurrence",
+        Mock(side_effect=AssertionError("population loaded")),
+    )
+    monkeypatch.setattr(
+        protocol.teacher,
+        "run_search",
+        Mock(side_effect=AssertionError("search launched")),
+    )
+    monkeypatch.setattr(
+        protocol.teacher.self_play,
+        "CheckpointEvaluator",
+        Mock(side_effect=AssertionError("evaluator constructed")),
+    )
+    return output, before
+
+
+def test_generate_rejects_python_312_before_evaluator_or_writes(
+    tmp_path, monkeypatch
+) -> None:
+    output, before = _prepare_generation_rejection(tmp_path, monkeypatch)
+    monkeypatch.setattr(protocol.sys, "version", "3.12.0")
+    with pytest.raises(ValueError, match="generation_numerical_runtime_mismatch"):
+        protocol.generate()
+    assert {path.name: path.read_bytes() for path in output.iterdir()} == before
+    protocol.teacher.self_play.CheckpointEvaluator.assert_not_called()
+    protocol.teacher.run_search.assert_not_called()
+    protocol.preflight.assert_not_called()
+
+
+def test_generate_rejects_unbounded_cgroup_before_evaluator_or_writes(
+    tmp_path, monkeypatch
+) -> None:
+    output, before = _prepare_generation_rejection(tmp_path, monkeypatch)
+    monkeypatch.setattr(protocol.os, "sched_getaffinity", lambda _pid: {31})
+    monkeypatch.setattr(protocol.os, "nice", lambda _increment: 19)
+    monkeypatch.setattr(
+        protocol,
+        "_live_cgroup_limits",
+        lambda: {
+            "cpu.max": "max 100000",
+            "cpu.weight": "1",
+            "memory.max": "4294967296",
+        },
+    )
+    with pytest.raises(
+        ValueError, match="generation_cgroup_resource_contract_mismatch"
+    ):
+        protocol.generate()
+    assert {path.name: path.read_bytes() for path in output.iterdir()} == before
+    protocol.teacher.self_play.CheckpointEvaluator.assert_not_called()
+    protocol.teacher.run_search.assert_not_called()
+    protocol.preflight.assert_not_called()
 
 
 def test_freeze_refuses_existing_evidence_without_overwriting(
@@ -202,3 +297,95 @@ def test_occurrence_multiplicity_mutation_is_rejected() -> None:
         verifier.require_unique_occurrences(
             [{"row_id": "same"}, {"row_id": "same"}], expected=2
         )
+
+
+def test_rebound_search_receipt_cannot_change_reconstructed_state_index_and_seed() -> (
+    None
+):
+    canonical = "canonical-state"
+    state_map = {
+        canonical: {"state_index": 1, "float32": "production-input", "state": {}}
+    }
+    row = {
+        "canonical_state_sha256": canonical,
+        "production_float32_sha256": "production-input",
+        "state_index": 2,
+        "simulations": 128,
+        "search": {"seed": 554_002},
+    }
+    # Rebind a receipt around the co-mutated archived index and seed.
+    row["receipt_sha256"] = hashlib.sha256(
+        json.dumps(row, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    with pytest.raises(ValueError, match="verifier_search_state_index_mismatch"):
+        verifier.resolve_search_state(row, state_map)
+
+
+def _prepare_live_gate_test(tmp_path, monkeypatch):
+    output = tmp_path / "seed554"
+    output.mkdir()
+    shutil.copy2(protocol.OUT / "execution-environment-binding.json", output)
+    sentinel = output / "preserve.json"
+    sentinel.write_text('{"preserve":true}\n')
+    before = {
+        path.name: (path.read_bytes(), path.stat().st_mtime_ns)
+        for path in output.iterdir()
+    }
+    binding = json.loads((output / "execution-environment-binding.json").read_text())
+    monkeypatch.setattr(protocol, "OUT", output)
+    monkeypatch.setattr(protocol.os, "sched_getaffinity", lambda _pid: {31})
+    monkeypatch.setattr(protocol.os, "nice", lambda _increment: 19)
+    monkeypatch.setattr(protocol.torch, "get_num_threads", lambda: 1)
+    monkeypatch.setattr(protocol.torch, "get_num_interop_threads", lambda: 1)
+    monkeypatch.setattr(
+        protocol,
+        "_live_cgroup_limits",
+        lambda: {
+            "cpu.max": "25000 100000",
+            "cpu.weight": "1",
+            "memory.max": "4294967296",
+        },
+    )
+    preflight = Mock(side_effect=AssertionError("frozen input preflight reached"))
+    states = Mock(side_effect=AssertionError("source state loading reached"))
+    evaluator = Mock(side_effect=AssertionError("evaluator constructed"))
+    search = Mock(side_effect=AssertionError("teacher search launched"))
+    monkeypatch.setattr(protocol, "preflight", preflight)
+    monkeypatch.setattr(protocol, "_states_by_occurrence", states)
+    monkeypatch.setattr(protocol.teacher, "run_search", search)
+    monkeypatch.setattr(protocol.teacher.self_play, "CheckpointEvaluator", evaluator)
+    return output, before, binding, (preflight, states, evaluator, search)
+
+
+@pytest.mark.parametrize(
+    ("mismatch", "message"),
+    (
+        ("python", "generation_numerical_runtime_mismatch"),
+        ("cgroup", "generation_cgroup_resource_contract_mismatch"),
+    ),
+)
+def test_generate_rejects_unregistered_runtime_or_scope_before_launch_or_write(
+    tmp_path, monkeypatch, mismatch, message
+) -> None:
+    output, before, _binding, spies = _prepare_live_gate_test(tmp_path, monkeypatch)
+    if mismatch == "python":
+        monkeypatch.setattr(protocol.sys, "version", "3.12.0")
+    else:
+        monkeypatch.setattr(
+            protocol,
+            "_live_cgroup_limits",
+            lambda: {
+                "cpu.max": "max 100000",
+                "cpu.weight": "1",
+                "memory.max": "4294967296",
+            },
+        )
+    with pytest.raises(ValueError, match=message):
+        protocol.generate()
+    after = {
+        path.name: (path.read_bytes(), path.stat().st_mtime_ns)
+        for path in output.iterdir()
+    }
+    assert after == before
+    for spy in spies:
+        spy.assert_not_called()
