@@ -1,0 +1,29 @@
+{
+  "candidate": "T512 update 108 only",
+  "control": {
+    "arm": "control",
+    "checkpoints": {
+      "108": "6957ac4a9db529f51ec184a04c01304c2a6453de300c69f7c53de16634626205",
+      "27": "93f847e567d0fca767e0b8304fd340d5f8862e30ab91db87ba385f1ddfceb297",
+      "54": "f709dbbcef7eab78799017f1af0f8bcb8492597c3e96579e6e183afe717bed1d",
+      "81": "4b71125388a43f4ba18b2558a758c34d95ca5cce33f0a4474e5e4f68eedb0449"
+    },
+    "exposures": 54896,
+    "rows": 13818,
+    "trace_sha256": "90c75620ec3d2f6d414f7557d84d9b8d2ed4a99de804acb121cde56aafb1ed8f",
+    "updates": 108
+  },
+  "treatment": {
+    "arm": "treatment",
+    "checkpoints": {
+      "108": "8940cbff36976801e74542f5ee2d6c5caffe0cafd57c7e787cdb375f3bbe485e",
+      "27": "1a36067faf0fa853f9d3ae3e82bd6e44e86b67621e52f4cc391416d8dcb09d8e",
+      "54": "db49bc55e4d1318f74499d088833526b72711d9f422894675159f74624173c4d",
+      "81": "721d1b088727ab304ed73a14b6509a91d3b9e87326f2503cb9735c1ba5172063"
+    },
+    "exposures": 54896,
+    "rows": 13818,
+    "trace_sha256": "c064b7bace5bd24ef21028ab04d354d1df28e849b77169c7715820381adae0a6",
+    "updates": 108
+  }
+}

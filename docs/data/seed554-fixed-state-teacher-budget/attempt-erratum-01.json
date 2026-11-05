@@ -1,0 +1,5 @@
+{
+  "supersedes": "attempts.jsonl#1.failing_check.diagnostic_interpretation",
+  "correction": "The failed validator condition combined visit-total mismatch with missing visits on legal actions. The original attempt did not save its search row, so the precise subcondition is not recoverable. A subsequent deterministic diagnostic for the first eligible state produced sum(visits)=128 and visited every legal action; therefore the earlier statement that the failure was caused by an unvisited legal action was unsupported. The actual root cause remains ambiguous between those two checks. The code correction now isolates the required total-visits invariant and removes the unnecessary all-actions-visited condition.",
+  "protocol_change": false
+}

@@ -1,0 +1,55 @@
+{
+  "schema": "seed554-training-execution-receipt-v1",
+  "status": "completed",
+  "systemd_invocation_id": "44d83edfbfcb4a64b0d033e6c99be34e",
+  "argv": [
+    "systemd-run",
+    "--user",
+    "--unit=seed554-training",
+    "--collect",
+    "--property=CPUQuota=25%",
+    "--property=CPUWeight=1",
+    "--property=MemoryMax=4294967296",
+    "--working-directory=/home/alex/Mancala/ai/.tmp/seed554-worktree",
+    "--setenv=PYTHONPATH=.",
+    "--setenv=OMP_NUM_THREADS=1",
+    "--setenv=MKL_NUM_THREADS=1",
+    "--setenv=OPENBLAS_NUM_THREADS=1",
+    "--setenv=BLAS_NUM_THREADS=1",
+    "--setenv=NUMEXPR_NUM_THREADS=1",
+    "--",
+    "taskset",
+    "-c",
+    "31",
+    "nice",
+    "-n",
+    "19",
+    "/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python",
+    "-m",
+    "ml.alphazero_lite.seed554_fixed_state_teacher_budget",
+    "train"
+  ],
+  "resource_observation": {
+    "cpu_quota": "25%",
+    "cpu_weight": 1,
+    "memory_max_bytes": 4294967296,
+    "cpu_affinity": [31],
+    "nice": 19,
+    "cpu_time": "1min 3.273s",
+    "wall_time": "4min 12.948s",
+    "memory_peak_bytes": 933462016
+  },
+  "control": {
+    "label": "C128",
+    "updates": 108,
+    "exposures": 54896,
+    "production_parameter_and_adam_state_gate": "passed for all 108 updates before T512 began"
+  },
+  "treatment": {
+    "label": "T512",
+    "updates": 108,
+    "exposures": 54896,
+    "candidate": "update 108 only"
+  },
+  "development_results_sha256": "cf14d33d8b35c7e9aafd71bf0f6471e0d978ca4b138b6b7f7c653edb63fd3bd2"
+}

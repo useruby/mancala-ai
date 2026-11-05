@@ -1,0 +1,7 @@
+{
+  "schema": "seed554-training-input-binding-correction-v1",
+  "training_input_binding_sha256": "9c5fce89446ec18a83f8d287394e81b288d63b439d781b111cc4faaf0e8f6422",
+  "previous_source_corrections_sha256": "4d047399808e37f3cd6d5d0d2bc3dc4b728032a92a723a6e3705c73584508a26",
+  "source_corrections_sha256": "6a3edbb9903520b5f5c6133746768cd2f5e29dade792b92f47b929a14fbea9fc",
+  "reason": "Append-only verifier correction after training: endpoint predictions must be recomputed with the same ordered 4,738-row batch shape used by the registered analysis, avoiding small GEMM rounding differences from per-row inference. No training inputs, trajectories, checkpoints, predictions, metrics, or protocol settings changed. The original training-input binding remains byte-for-byte unchanged."
+}

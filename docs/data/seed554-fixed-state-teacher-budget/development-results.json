@@ -1,0 +1,859 @@
+{
+  "effects": {
+    "C-final_minus_initializer": {
+      "combined": {
+        "17-32": {
+          "equal_input": {
+            "actual_value_mse": -0.022795586578948757,
+            "policy_ce": -0.0999539488254898
+          },
+          "exposure": {
+            "actual_value_mse": -0.029943298693154874,
+            "policy_ce": -0.10386997972243117
+          }
+        },
+        "<=16": {
+          "equal_input": {
+            "actual_value_mse": -0.017930640006924625,
+            "policy_ce": -0.13796166276123867
+          },
+          "exposure": {
+            "actual_value_mse": -0.018742914800438687,
+            "policy_ce": -0.13696183943310514
+          }
+        },
+        ">32": {
+          "equal_input": {
+            "actual_value_mse": -0.08816644195455847,
+            "policy_ce": -0.084046904843046
+          },
+          "exposure": {
+            "actual_value_mse": -0.08996605766554788,
+            "policy_ce": -0.08987644991341737
+          }
+        },
+        "pooled": {
+          "equal_input": {
+            "actual_value_mse": -0.029709438838490587,
+            "policy_ce": -0.11584282351566588
+          },
+          "exposure": {
+            "actual_value_mse": -0.033704913250232615,
+            "policy_ce": -0.11726834126818408
+          }
+        }
+      },
+      "control": {
+        "17-32": {
+          "equal_input": {
+            "actual_value_mse": -0.026537095409666256,
+            "policy_ce": -0.07593446641975299
+          },
+          "exposure": {
+            "actual_value_mse": -0.032016524472988916,
+            "policy_ce": -0.07702340549564235
+          }
+        },
+        "<=16": {
+          "equal_input": {
+            "actual_value_mse": -0.026122549739151096,
+            "policy_ce": -0.1245771280718842
+          },
+          "exposure": {
+            "actual_value_mse": -0.02798868874996474,
+            "policy_ce": -0.12389048231610567
+          }
+        },
+        ">32": {
+          "equal_input": {
+            "actual_value_mse": -0.055089371875715054,
+            "policy_ce": -0.05132658076331831
+          },
+          "exposure": {
+            "actual_value_mse": -0.06291971137431951,
+            "policy_ce": -0.05155222384381242
+          }
+        },
+        "pooled": {
+          "equal_input": {
+            "actual_value_mse": -0.030831490280099294,
+            "policy_ce": -0.09433032625096305
+          },
+          "exposure": {
+            "actual_value_mse": -0.03515927430853866,
+            "policy_ce": -0.09422015937418637
+          }
+        }
+      },
+      "treatment": {
+        "17-32": {
+          "equal_input": {
+            "actual_value_mse": -0.02381662550596808,
+            "policy_ce": -0.13596519409900532
+          },
+          "exposure": {
+            "actual_value_mse": -0.026930510619610548,
+            "policy_ce": -0.14288311540342258
+          }
+        },
+        "<=16": {
+          "equal_input": {
+            "actual_value_mse": -0.006204983879445791,
+            "policy_ce": -0.15592664338090506
+          },
+          "exposure": {
+            "actual_value_mse": -0.006483057309715004,
+            "policy_ce": -0.1542944041637181
+          }
+        },
+        ">32": {
+          "equal_input": {
+            "actual_value_mse": -0.1446203905493626,
+            "policy_ce": -0.15431506058256006
+          },
+          "exposure": {
+            "actual_value_mse": -0.13603740039737333,
+            "policy_ce": -0.15515878177342968
+          }
+        },
+        "pooled": {
+          "equal_input": {
+            "actual_value_mse": -0.03150081438442792,
+            "policy_ce": -0.14826867326430337
+          },
+          "exposure": {
+            "actual_value_mse": -0.03163278367688355,
+            "policy_ce": -0.15010669254397202
+          }
+        }
+      }
+    },
+    "T-final_minus_C-final": {
+      "combined": {
+        "17-32": {
+          "equal_input": {
+            "actual_value_mse": 0.00031028699537477555,
+            "policy_ce": 0.004259823036463883
+          },
+          "exposure": {
+            "actual_value_mse": 0.0003502116257922405,
+            "policy_ce": 0.003946441569042891
+          }
+        },
+        "<=16": {
+          "equal_input": {
+            "actual_value_mse": -0.000173189381218658,
+            "policy_ce": 0.0008953002940766952
+          },
+          "exposure": {
+            "actual_value_mse": -0.00019667927645189431,
+            "policy_ce": 0.0006879261148400873
+          }
+        },
+        ">32": {
+          "equal_input": {
+            "actual_value_mse": -1.837502829837856e-05,
+            "policy_ce": 0.005648224236379229
+          },
+          "exposure": {
+            "actual_value_mse": 0.0002254923655007346,
+            "policy_ce": 0.005890761764277275
+          }
+        },
+        "pooled": {
+          "equal_input": {
+            "actual_value_mse": 3.315489867850019e-05,
+            "policy_ce": 0.002850519971537957
+          },
+          "exposure": {
+            "actual_value_mse": 7.536436826860449e-05,
+            "policy_ce": 0.0027121160869693073
+          }
+        }
+      },
+      "control": {
+        "17-32": {
+          "equal_input": {
+            "actual_value_mse": 0.0014669889829877492,
+            "policy_ce": 0.008695913005066003
+          },
+          "exposure": {
+            "actual_value_mse": 0.001481073142230116,
+            "policy_ce": 0.008414347024175206
+          }
+        },
+        "<=16": {
+          "equal_input": {
+            "actual_value_mse": -0.000334141281344541,
+            "policy_ce": 0.0004106417780549432
+          },
+          "exposure": {
+            "actual_value_mse": -0.0003394190297454913,
+            "policy_ce": 0.0005526142921353783
+          }
+        },
+        ">32": {
+          "equal_input": {
+            "actual_value_mse": -2.4688886768098328e-05,
+            "policy_ce": 0.011136457505703246
+          },
+          "exposure": {
+            "actual_value_mse": -0.00027313028201358946,
+            "policy_ce": 0.011197868091245788
+          }
+        },
+        "pooled": {
+          "equal_input": {
+            "actual_value_mse": 0.0004084653507002156,
+            "policy_ce": 0.005287581846493694
+          },
+          "exposure": {
+            "actual_value_mse": 0.0003715883248414098,
+            "policy_ce": 0.005290038666422747
+          }
+        }
+      },
+      "treatment": {
+        "17-32": {
+          "equal_input": {
+            "actual_value_mse": -0.001468082936832149,
+            "policy_ce": -0.001964635303205009
+          },
+          "exposure": {
+            "actual_value_mse": -0.0012931434408358644,
+            "policy_ce": -0.002546267715145545
+          }
+        },
+        "<=16": {
+          "equal_input": {
+            "actual_value_mse": 7.619399799907445e-05,
+            "policy_ce": 0.0014631116205507388
+          },
+          "exposure": {
+            "actual_value_mse": -7.406962074074652e-06,
+            "policy_ce": 0.0008673490244017756
+          }
+        },
+        ">32": {
+          "equal_input": {
+            "actual_value_mse": 0.0028910047944969985,
+            "policy_ce": -0.0016507600382961174
+          },
+          "exposure": {
+            "actual_value_mse": 0.0010748571795173856,
+            "policy_ce": -0.0031494801919277338
+          }
+        },
+        "pooled": {
+          "equal_input": {
+            "actual_value_mse": -0.0001184484123509244,
+            "policy_ce": -0.00023585156165795151
+          },
+          "exposure": {
+            "actual_value_mse": -0.0003466865504102301,
+            "policy_ce": -0.0009608299013613708
+          }
+        }
+      }
+    },
+    "T-final_minus_initializer": {
+      "combined": {
+        "17-32": {
+          "equal_input": {
+            "actual_value_mse": -0.02248529958357398,
+            "policy_ce": -0.09569412578902592
+          },
+          "exposure": {
+            "actual_value_mse": -0.029593087067362633,
+            "policy_ce": -0.09992353815338828
+          }
+        },
+        "<=16": {
+          "equal_input": {
+            "actual_value_mse": -0.018103829388143283,
+            "policy_ce": -0.13706636246716197
+          },
+          "exposure": {
+            "actual_value_mse": -0.01893959407689058,
+            "policy_ce": -0.13627391331826505
+          }
+        },
+        ">32": {
+          "equal_input": {
+            "actual_value_mse": -0.08818481698285685,
+            "policy_ce": -0.07839868060666677
+          },
+          "exposure": {
+            "actual_value_mse": -0.08974056530004715,
+            "policy_ce": -0.08398568814914009
+          }
+        },
+        "pooled": {
+          "equal_input": {
+            "actual_value_mse": -0.029676283939812087,
+            "policy_ce": -0.11299230354412793
+          },
+          "exposure": {
+            "actual_value_mse": -0.03362954888196401,
+            "policy_ce": -0.11455622518121478
+          }
+        }
+      },
+      "control": {
+        "17-32": {
+          "equal_input": {
+            "actual_value_mse": -0.025070106426678507,
+            "policy_ce": -0.06723855341468699
+          },
+          "exposure": {
+            "actual_value_mse": -0.0305354513307588,
+            "policy_ce": -0.06860905847146714
+          }
+        },
+        "<=16": {
+          "equal_input": {
+            "actual_value_mse": -0.026456691020495637,
+            "policy_ce": -0.12416648629382926
+          },
+          "exposure": {
+            "actual_value_mse": -0.028328107779710232,
+            "policy_ce": -0.12333786802397029
+          }
+        },
+        ">32": {
+          "equal_input": {
+            "actual_value_mse": -0.05511406076248315,
+            "policy_ce": -0.04019012325761506
+          },
+          "exposure": {
+            "actual_value_mse": -0.0631928416563331,
+            "policy_ce": -0.04035435575256663
+          }
+        },
+        "pooled": {
+          "equal_input": {
+            "actual_value_mse": -0.03042302492939908,
+            "policy_ce": -0.08904274440446935
+          },
+          "exposure": {
+            "actual_value_mse": -0.03478768598369725,
+            "policy_ce": -0.08893012070776363
+          }
+        }
+      },
+      "treatment": {
+        "17-32": {
+          "equal_input": {
+            "actual_value_mse": -0.02528470844280023,
+            "policy_ce": -0.13792982940221032
+          },
+          "exposure": {
+            "actual_value_mse": -0.028223654060446413,
+            "policy_ce": -0.14542938311856812
+          }
+        },
+        "<=16": {
+          "equal_input": {
+            "actual_value_mse": -0.006128789881446717,
+            "policy_ce": -0.15446353176035432
+          },
+          "exposure": {
+            "actual_value_mse": -0.006490464271789079,
+            "policy_ce": -0.15342705513931632
+          }
+        },
+        ">32": {
+          "equal_input": {
+            "actual_value_mse": -0.1417293857548656,
+            "policy_ce": -0.15596582062085618
+          },
+          "exposure": {
+            "actual_value_mse": -0.13496254321785595,
+            "policy_ce": -0.1583082619653574
+          }
+        },
+        "pooled": {
+          "equal_input": {
+            "actual_value_mse": -0.031619262796778846,
+            "policy_ce": -0.14850452482596133
+          },
+          "exposure": {
+            "actual_value_mse": -0.03197947022729378,
+            "policy_ce": -0.1510675224453334
+          }
+        }
+      }
+    }
+  },
+  "metrics": {
+    "C-final": {
+      "checkpoint_sha256": "6957ac4a9db529f51ec184a04c01304c2a6453de300c69f7c53de16634626205",
+      "cohorts": {
+        "combined": {
+          "17-32": {
+            "distinct_float32_inputs": 1688,
+            "equal_input": {
+              "actual_value_mse": 0.40429495910502855,
+              "policy_ce": 0.7074661456371982
+            },
+            "exposure": {
+              "actual_value_mse": 0.38089260273037023,
+              "policy_ce": 0.7052498990511676
+            },
+            "occurrences": 1808
+          },
+          "<=16": {
+            "distinct_float32_inputs": 2111,
+            "equal_input": {
+              "actual_value_mse": 0.13701990942197967,
+              "policy_ce": 0.48202969783052485
+            },
+            "exposure": {
+              "actual_value_mse": 0.13607708364771634,
+              "policy_ce": 0.48965028072606476
+            },
+            "occurrences": 2219
+          },
+          ">32": {
+            "distinct_float32_inputs": 625,
+            "equal_input": {
+              "actual_value_mse": 0.6590270851732123,
+              "policy_ce": 0.888054770737261
+            },
+            "exposure": {
+              "actual_value_mse": 0.6312430390863499,
+              "policy_ce": 0.8657144568586175
+            },
+            "occurrences": 711
+          },
+          "pooled": {
+            "distinct_float32_inputs": 4424,
+            "equal_input": {
+              "actual_value_mse": 0.3127465750434776,
+              "policy_ce": 0.6254072734327795
+            },
+            "exposure": {
+              "actual_value_mse": 0.3038038571425046,
+              "policy_ce": 0.6283555865855057
+            },
+            "occurrences": 4738
+          }
+        },
+        "control": {
+          "17-32": {
+            "distinct_float32_inputs": 1055,
+            "equal_input": {
+              "actual_value_mse": 0.4350671024409522,
+              "policy_ce": 0.7360365949451161
+            },
+            "exposure": {
+              "actual_value_mse": 0.4327667588380734,
+              "policy_ce": 0.7355390776646155
+            },
+            "occurrences": 1071
+          },
+          "<=16": {
+            "distinct_float32_inputs": 1253,
+            "equal_input": {
+              "actual_value_mse": 0.1566650316619958,
+              "policy_ce": 0.47880659271905607
+            },
+            "exposure": {
+              "actual_value_mse": 0.16483036621195138,
+              "policy_ce": 0.4802502446624318
+            },
+            "occurrences": 1265
+          },
+          ">32": {
+            "distinct_float32_inputs": 430,
+            "equal_input": {
+              "actual_value_mse": 0.6861346832458821,
+              "policy_ce": 0.9322435692929876
+            },
+            "exposure": {
+              "actual_value_mse": 0.671825129739637,
+              "policy_ce": 0.9330907212666583
+            },
+            "occurrences": 448
+          },
+          "pooled": {
+            "distinct_float32_inputs": 2738,
+            "equal_input": {
+              "actual_value_mse": 0.34709093920504547,
+              "policy_ce": 0.6491336753615995
+            },
+            "exposure": {
+              "actual_value_mse": 0.34949039874175736,
+              "policy_ce": 0.6513302998578456
+            },
+            "occurrences": 2784
+          }
+        },
+        "treatment": {
+          "17-32": {
+            "distinct_float32_inputs": 672,
+            "equal_input": {
+              "actual_value_mse": 0.3343341301907249,
+              "policy_ce": 0.6649623380172918
+            },
+            "exposure": {
+              "actual_value_mse": 0.3055096703133414,
+              "policy_ce": 0.6612340099127654
+            },
+            "occurrences": 737
+          },
+          "<=16": {
+            "distinct_float32_inputs": 887,
+            "equal_input": {
+              "actual_value_mse": 0.104906359522868,
+              "policy_ce": 0.48620545652586006
+            },
+            "exposure": {
+              "actual_value_mse": 0.09795035152637738,
+              "policy_ce": 0.5021146891332928
+            },
+            "occurrences": 954
+          },
+          ">32": {
+            "distinct_float32_inputs": 244,
+            "equal_input": {
+              "actual_value_mse": 0.5815674955206454,
+              "policy_ce": 0.7750670285056236
+            },
+            "exposure": {
+              "actual_value_mse": 0.5621146109012831,
+              "policy_ce": 0.7509442422015744
+            },
+            "occurrences": 263
+          },
+          "pooled": {
+            "distinct_float32_inputs": 1803,
+            "equal_input": {
+              "actual_value_mse": 0.254923430555734,
+              "policy_ce": 0.5919219556524847
+            },
+            "exposure": {
+              "actual_value_mse": 0.23871105682913718,
+              "policy_ce": 0.5956219111759896
+            },
+            "occurrences": 1954
+          }
+        }
+      }
+    },
+    "T-final": {
+      "checkpoint_sha256": "8940cbff36976801e74542f5ee2d6c5caffe0cafd57c7e787cdb375f3bbe485e",
+      "cohorts": {
+        "combined": {
+          "17-32": {
+            "distinct_float32_inputs": 1688,
+            "equal_input": {
+              "actual_value_mse": 0.4046052461004033,
+              "policy_ce": 0.7117259686736621
+            },
+            "exposure": {
+              "actual_value_mse": 0.3812428143561625,
+              "policy_ce": 0.7091963406202105
+            },
+            "occurrences": 1808
+          },
+          "<=16": {
+            "distinct_float32_inputs": 2111,
+            "equal_input": {
+              "actual_value_mse": 0.136846720040761,
+              "policy_ce": 0.48292499812460155
+            },
+            "exposure": {
+              "actual_value_mse": 0.13588040437126445,
+              "policy_ce": 0.49033820684090484
+            },
+            "occurrences": 2219
+          },
+          ">32": {
+            "distinct_float32_inputs": 625,
+            "equal_input": {
+              "actual_value_mse": 0.6590087101449139,
+              "policy_ce": 0.8937029949736403
+            },
+            "exposure": {
+              "actual_value_mse": 0.6314685314518507,
+              "policy_ce": 0.8716052186228948
+            },
+            "occurrences": 711
+          },
+          "pooled": {
+            "distinct_float32_inputs": 4424,
+            "equal_input": {
+              "actual_value_mse": 0.3127797299421561,
+              "policy_ce": 0.6282577934043174
+            },
+            "exposure": {
+              "actual_value_mse": 0.3038792215107732,
+              "policy_ce": 0.631067702672475
+            },
+            "occurrences": 4738
+          }
+        },
+        "control": {
+          "17-32": {
+            "distinct_float32_inputs": 1055,
+            "equal_input": {
+              "actual_value_mse": 0.43653409142393995,
+              "policy_ce": 0.7447325079501821
+            },
+            "exposure": {
+              "actual_value_mse": 0.43424783198030353,
+              "policy_ce": 0.7439534246887907
+            },
+            "occurrences": 1071
+          },
+          "<=16": {
+            "distinct_float32_inputs": 1253,
+            "equal_input": {
+              "actual_value_mse": 0.15633089038065126,
+              "policy_ce": 0.479217234497111
+            },
+            "exposure": {
+              "actual_value_mse": 0.1644909471822059,
+              "policy_ce": 0.4808028589545672
+            },
+            "occurrences": 1265
+          },
+          ">32": {
+            "distinct_float32_inputs": 430,
+            "equal_input": {
+              "actual_value_mse": 0.686109994359114,
+              "policy_ce": 0.9433800267986908
+            },
+            "exposure": {
+              "actual_value_mse": 0.6715519994576234,
+              "policy_ce": 0.944288589357904
+            },
+            "occurrences": 448
+          },
+          "pooled": {
+            "distinct_float32_inputs": 2738,
+            "equal_input": {
+              "actual_value_mse": 0.3474994045557457,
+              "policy_ce": 0.6544212572080932
+            },
+            "exposure": {
+              "actual_value_mse": 0.34986198706659877,
+              "policy_ce": 0.6566203385242684
+            },
+            "occurrences": 2784
+          }
+        },
+        "treatment": {
+          "17-32": {
+            "distinct_float32_inputs": 672,
+            "equal_input": {
+              "actual_value_mse": 0.33286604725389274,
+              "policy_ce": 0.6629977027140868
+            },
+            "exposure": {
+              "actual_value_mse": 0.30421652687250555,
+              "policy_ce": 0.6586877421976198
+            },
+            "occurrences": 737
+          },
+          "<=16": {
+            "distinct_float32_inputs": 887,
+            "equal_input": {
+              "actual_value_mse": 0.10498255352086708,
+              "policy_ce": 0.4876685681464108
+            },
+            "exposure": {
+              "actual_value_mse": 0.0979429445643033,
+              "policy_ce": 0.5029820381576946
+            },
+            "occurrences": 954
+          },
+          ">32": {
+            "distinct_float32_inputs": 244,
+            "equal_input": {
+              "actual_value_mse": 0.5844585003151423,
+              "policy_ce": 0.7734162684673275
+            },
+            "exposure": {
+              "actual_value_mse": 0.5631894680808005,
+              "policy_ce": 0.7477947620096467
+            },
+            "occurrences": 263
+          },
+          "pooled": {
+            "distinct_float32_inputs": 1803,
+            "equal_input": {
+              "actual_value_mse": 0.2548049821433831,
+              "policy_ce": 0.5916861040908268
+            },
+            "exposure": {
+              "actual_value_mse": 0.23836437027872695,
+              "policy_ce": 0.5946610812746282
+            },
+            "occurrences": 1954
+          }
+        }
+      }
+    },
+    "initializer": {
+      "checkpoint_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "cohorts": {
+        "combined": {
+          "17-32": {
+            "distinct_float32_inputs": 1688,
+            "equal_input": {
+              "actual_value_mse": 0.4270905456839773,
+              "policy_ce": 0.807420094462688
+            },
+            "exposure": {
+              "actual_value_mse": 0.4108359014235251,
+              "policy_ce": 0.8091198787735988
+            },
+            "occurrences": 1808
+          },
+          "<=16": {
+            "distinct_float32_inputs": 2111,
+            "equal_input": {
+              "actual_value_mse": 0.1549505494289043,
+              "policy_ce": 0.6199913605917635
+            },
+            "exposure": {
+              "actual_value_mse": 0.15481999844815503,
+              "policy_ce": 0.6266121201591699
+            },
+            "occurrences": 2219
+          },
+          ">32": {
+            "distinct_float32_inputs": 625,
+            "equal_input": {
+              "actual_value_mse": 0.7471935271277708,
+              "policy_ce": 0.972101675580307
+            },
+            "exposure": {
+              "actual_value_mse": 0.7212090967518978,
+              "policy_ce": 0.9555909067720348
+            },
+            "occurrences": 711
+          },
+          "pooled": {
+            "distinct_float32_inputs": 4424,
+            "equal_input": {
+              "actual_value_mse": 0.34245601388196817,
+              "policy_ce": 0.7412500969484453
+            },
+            "exposure": {
+              "actual_value_mse": 0.3375087703927372,
+              "policy_ce": 0.7456239278536898
+            },
+            "occurrences": 4738
+          }
+        },
+        "control": {
+          "17-32": {
+            "distinct_float32_inputs": 1055,
+            "equal_input": {
+              "actual_value_mse": 0.46160419785061846,
+              "policy_ce": 0.8119710613648691
+            },
+            "exposure": {
+              "actual_value_mse": 0.46478328331106233,
+              "policy_ce": 0.8125624831602578
+            },
+            "occurrences": 1071
+          },
+          "<=16": {
+            "distinct_float32_inputs": 1253,
+            "equal_input": {
+              "actual_value_mse": 0.1827875814011469,
+              "policy_ce": 0.6033837207909403
+            },
+            "exposure": {
+              "actual_value_mse": 0.19281905496191612,
+              "policy_ce": 0.6041407269785375
+            },
+            "occurrences": 1265
+          },
+          ">32": {
+            "distinct_float32_inputs": 430,
+            "equal_input": {
+              "actual_value_mse": 0.7412240551215972,
+              "policy_ce": 0.9835701500563059
+            },
+            "exposure": {
+              "actual_value_mse": 0.7347448411139565,
+              "policy_ce": 0.9846429451104707
+            },
+            "occurrences": 448
+          },
+          "pooled": {
+            "distinct_float32_inputs": 2738,
+            "equal_input": {
+              "actual_value_mse": 0.37792242948514476,
+              "policy_ce": 0.7434640016125625
+            },
+            "exposure": {
+              "actual_value_mse": 0.384649673050296,
+              "policy_ce": 0.745550459232032
+            },
+            "occurrences": 2784
+          }
+        },
+        "treatment": {
+          "17-32": {
+            "distinct_float32_inputs": 672,
+            "equal_input": {
+              "actual_value_mse": 0.35815075569669297,
+              "policy_ce": 0.8009275321162971
+            },
+            "exposure": {
+              "actual_value_mse": 0.33244018093295197,
+              "policy_ce": 0.804117125316188
+            },
+            "occurrences": 737
+          },
+          "<=16": {
+            "distinct_float32_inputs": 887,
+            "equal_input": {
+              "actual_value_mse": 0.1111113434023138,
+              "policy_ce": 0.6421320999067651
+            },
+            "exposure": {
+              "actual_value_mse": 0.10443340883609238,
+              "policy_ce": 0.6564090932970109
+            },
+            "occurrences": 954
+          },
+          ">32": {
+            "distinct_float32_inputs": 244,
+            "equal_input": {
+              "actual_value_mse": 0.726187886070008,
+              "policy_ce": 0.9293820890881836
+            },
+            "exposure": {
+              "actual_value_mse": 0.6981520112986564,
+              "policy_ce": 0.9061030239750041
+            },
+            "occurrences": 263
+          },
+          "pooled": {
+            "distinct_float32_inputs": 1803,
+            "equal_input": {
+              "actual_value_mse": 0.28642424494016194,
+              "policy_ce": 0.7401906289167881
+            },
+            "exposure": {
+              "actual_value_mse": 0.2703438405060207,
+              "policy_ce": 0.7457286037199616
+            },
+            "occurrences": 1954
+          }
+        }
+      }
+    }
+  },
+  "weighting_definitions": {
+    "equal_input": "mean occurrence loss within each exact float32 input group, then mean equally across groups",
+    "exposure": "mean loss over retained occurrences"
+  }
+}
