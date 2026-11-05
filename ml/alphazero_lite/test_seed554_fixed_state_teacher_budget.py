@@ -146,6 +146,7 @@ def _prepare_generation_rejection(
     output = tmp_path / "seed554"
     output.mkdir()
     shutil.copy2(protocol.OUT / "execution-environment-binding.json", output)
+    shutil.copy2(protocol.OUT / "training-input-binding.json", output)
     sentinel = output / "preserve.json"
     sentinel.write_text('{"sentinel":true}\n')
     before = {path.name: path.read_bytes() for path in output.iterdir()}
@@ -239,6 +240,25 @@ def test_freeze_refuses_existing_evidence_without_overwriting(
     assert sorted(path.name for path in output.iterdir()) == ["preserve.json"]
 
 
+def test_freeze_creates_and_binds_environment_before_registration(
+    tmp_path, monkeypatch
+):
+    output = tmp_path / "seed554"
+    output.mkdir()
+    shutil.copy2(protocol.OUT / "README.md", output)
+    monkeypatch.setattr(protocol, "OUT", output)
+    protocol.freeze()
+    environment_path = output / "execution-environment-binding.json"
+    environment_hash = protocol.file_sha(environment_path)
+    freeze = json.loads((output / "label-generation-freeze.json").read_text())
+    registration = json.loads((output / "registration.json").read_text())
+    assert freeze["execution_environment_binding_sha256"] == environment_hash
+    assert registration["execution_environment_binding_sha256"] == environment_hash
+    assert (
+        protocol.preflight()["execution_environment_binding_sha256"] == environment_hash
+    )
+
+
 def test_corrupt_registration_rejected_before_any_computation_or_write(
     tmp_path, monkeypatch
 ) -> None:
@@ -325,6 +345,7 @@ def _prepare_live_gate_test(tmp_path, monkeypatch):
     output = tmp_path / "seed554"
     output.mkdir()
     shutil.copy2(protocol.OUT / "execution-environment-binding.json", output)
+    shutil.copy2(protocol.OUT / "training-input-binding.json", output)
     sentinel = output / "preserve.json"
     sentinel.write_text('{"preserve":true}\n')
     before = {
@@ -381,6 +402,30 @@ def test_generate_rejects_unregistered_runtime_or_scope_before_launch_or_write(
             },
         )
     with pytest.raises(ValueError, match=message):
+        protocol.generate()
+    after = {
+        path.name: (path.read_bytes(), path.stat().st_mtime_ns)
+        for path in output.iterdir()
+    }
+    assert after == before
+    for spy in spies:
+        spy.assert_not_called()
+
+
+def test_edited_environment_binding_rejected_by_published_hash_before_launch(
+    tmp_path, monkeypatch
+) -> None:
+    output, _before, binding, spies = _prepare_live_gate_test(tmp_path, monkeypatch)
+    binding["resource_limits"]["cpu_affinity"] = "30"
+    binding["resource_limits"]["memory_max_bytes"] = 8_589_934_592
+    (output / "execution-environment-binding.json").write_text(
+        json.dumps(binding, indent=2, sort_keys=True) + "\n"
+    )
+    before = {
+        path.name: (path.read_bytes(), path.stat().st_mtime_ns)
+        for path in output.iterdir()
+    }
+    with pytest.raises(ValueError, match="execution_environment_binding_hash_mismatch"):
         protocol.generate()
     after = {
         path.name: (path.read_bytes(), path.stat().st_mtime_ns)

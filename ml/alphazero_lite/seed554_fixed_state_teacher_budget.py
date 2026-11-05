@@ -257,10 +257,14 @@ def _states_by_occurrence() -> tuple[
 
 
 def freeze() -> None:
-    auth = authenticate_inputs()
     if OUT.exists() and any(path.name != "README.md" for path in OUT.iterdir()):
         raise FileExistsError("seed554_output_directory_not_empty")
     OUT.mkdir(parents=True, exist_ok=True)
+    auth = authenticate_inputs()
+    environment_binding = build_execution_environment_binding()
+    write_json(OUT / "input-authentication.json", auth)
+    write_json(OUT / "execution-environment-binding.json", environment_binding)
+    environment_binding_sha256 = file_sha(OUT / "execution-environment-binding.json")
     source_files = [
         "ml/alphazero_lite/seed554_fixed_state_teacher_budget.py",
         "ml/alphazero_lite/verify_seed554_fixed_state_teacher_budget.py",
@@ -276,6 +280,7 @@ def freeze() -> None:
         "schema": "seed554-label-generation-freeze-v1",
         "sources": {name: file_sha(ROOT / name) for name in source_files},
         "inputs": auth,
+        "execution_environment_binding_sha256": environment_binding_sha256,
         "label_protocol": {
             "roots": "all unique canonical training states with >16 active stones",
             "budgets": [128, 512],
@@ -297,7 +302,6 @@ def freeze() -> None:
         "resource_limits": teacher.RESOURCE_LIMITS,
         "bounded_authentication_note": auth["historical_verifier_scope"],
     }
-    write_json(OUT / "input-authentication.json", auth)
     write_json(OUT / "label-generation-freeze.json", freeze)
     write_json(
         OUT / "registration.json",
@@ -306,8 +310,58 @@ def freeze() -> None:
                 OUT / "label-generation-freeze.json"
             ),
             "input_authentication_sha256": file_sha(OUT / "input-authentication.json"),
+            "execution_environment_binding_sha256": environment_binding_sha256,
         },
     )
+
+
+def build_execution_environment_binding() -> dict[str, Any]:
+    """Build the prospective environment contract from the supported #553 runtime."""
+    registration_path = ROOT / "docs/data/seed553-fixed-state-budget/registration.json"
+    registration_sha256 = file_sha(registration_path)
+    recorded = json.loads(registration_path.read_text())
+    runtime = recorded["runtime"]
+    return {
+        "schema": "seed554-execution-environment-binding-v2",
+        "recorded_numerical_environment_source": "docs/data/seed553-fixed-state-budget/registration.json",
+        "recorded_numerical_environment_source_sha256": registration_sha256,
+        "runtime": {
+            "python": runtime["python"],
+            "platform": runtime["platform"],
+            "numpy": runtime["numpy"],
+            "torch": runtime["torch"],
+            "device": "cpu",
+            "dtype": "float32",
+            "torch_threads": 1,
+            "torch_interop_threads": 1,
+        },
+        "resource_limits": teacher.RESOURCE_LIMITS,
+        "label_generation_launcher": teacher.RESOURCE_LAUNCHER,
+        "training_launcher_requirement": "same systemd resource bounds and affinity/nice; OMP_NUM_THREADS=MKL_NUM_THREADS=OPENBLAS_NUM_THREADS=BLAS_NUM_THREADS=NUMEXPR_NUM_THREADS=1",
+        "scope": "source authentication and CPU PUCT only; no exact solver/native queries",
+    }
+
+
+def verify_published_environment_binding() -> str:
+    binding_path = OUT / "execution-environment-binding.json"
+    if not binding_path.is_file():
+        raise ValueError("execution_environment_binding_missing")
+    observed_sha = file_sha(binding_path)
+    published_hashes = []
+    for path, field in (
+        (OUT / "label-generation-freeze.json", "execution_environment_binding_sha256"),
+        (OUT / "registration.json", "execution_environment_binding_sha256"),
+        (OUT / "training-input-binding.json", "execution_environment_binding_sha256"),
+    ):
+        if path.is_file():
+            digest = json.loads(path.read_text()).get(field)
+            if digest is not None:
+                published_hashes.append(digest)
+    if not published_hashes or any(
+        digest != observed_sha for digest in published_hashes
+    ):
+        raise ValueError("execution_environment_binding_hash_mismatch")
+    return observed_sha
 
 
 def preflight() -> dict[str, Any]:
@@ -322,6 +376,7 @@ def preflight() -> dict[str, Any]:
         OUT / "input-authentication.json"
     ):
         raise ValueError("input_authentication_binding_mismatch")
+    verify_published_environment_binding()
     current = authenticate_inputs()
     if current != freeze["inputs"]:
         raise ValueError("frozen_input_authentication_changed")
@@ -408,6 +463,7 @@ def validate_live_generation_contract(
 
 def live_generation_preflight() -> None:
     """Fail before state loading, evaluator construction, writes, or search."""
+    verify_published_environment_binding()
     binding_path = OUT / "execution-environment-binding.json"
     binding = json.loads(binding_path.read_text())
     registration_path = ROOT / binding["recorded_numerical_environment_source"]
