@@ -1,0 +1,12 @@
+{
+  "schema": "seed554-control-production-gate-derivation-v1",
+  "status": "all_108_updates_passed",
+  "production_gate_sha256": "1a1ef77d0896c6eca133f026c90bce821d127a6ebfe5b7ee2b3bbef23061f861",
+  "production_gate_rows": 108,
+  "source_control_trace_sha256": "90c75620ec3d2f6d414f7557d84d9b8d2ed4a99de804acb121cde56aafb1ed8f",
+  "seed549_training_executed_source_sha256": "298709e6d12ba1b08596141d7fb03c148e5e5ffd4cfcdad8688e9ffb8d827dfc",
+  "seed549_training_executed_source_snapshot": "docs/data/seed554-fixed-state-teacher-budget/execution-source-snapshots/seed549_training.executed.py",
+  "seed549_training_restored_source_sha256": "c33438f66a0569d4c61f08d8373b0c02d667b448c7162e814153dcc93291f6f3",
+  "execution_commit": "9ddd60472575eb73ca0ad79f5dc4dd3999f7150b",
+  "note": "The completed seed554 C128 training used the snapshotted seed549_training.py bytes. The separate gate ledger is a lossless projection of the immutable control-updates trace, preserving the executed per-update production-vs-direct parameter and Adam comparisons after restoring the shared #550/#553 module. No training was rerun."
+}

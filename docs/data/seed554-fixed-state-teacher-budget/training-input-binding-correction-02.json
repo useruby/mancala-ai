@@ -1,0 +1,8 @@
+{
+  "schema": "seed554-training-input-binding-correction-v1",
+  "training_input_binding_sha256": "9c5fce89446ec18a83f8d287394e81b288d63b439d781b111cc4faaf0e8f6422",
+  "parent_correction_sha256": "f050f9f547b3148ce36d36be73d31a66a030510a8ad9184c241587750290a260",
+  "previous_source_corrections_sha256": "6a3edbb9903520b5f5c6133746768cd2f5e29dade792b92f47b929a14fbea9fc",
+  "source_corrections_sha256": "70591016946b514249c76d0e05f8b3a110f81ff973bb892ae7a046a0bafa0267",
+  "reason": "Append-only correction for pre-merge review fixes: restore the byte-identical #550/#553-bound seed549_training.py, preserve the exact executed module snapshot, and update seed554-only runtime, production-optimizer-gate, and reconstructed-search-index verification. Completed training, search, derivative, checkpoint, prediction, metric, and effect evidence is unchanged; no training was rerun."
+}

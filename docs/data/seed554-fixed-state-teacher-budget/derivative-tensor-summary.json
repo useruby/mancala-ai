@@ -1,0 +1,20 @@
+{
+  "ordered_occurrences": 13818,
+  "policy_target_occurrences_differing": 8928,
+  "tensors": {
+    "control": {
+      "input": "b15449bf80cebeb34782ea0087866390bcb8916bd434cf4a271fa232c5268da2",
+      "legal_mask": "99d9175bf45d31b79930570bd1c33ed461d5daebd0e8ea7faf27080867fbaf04",
+      "policy": "1b264a3023fb04f6033208a3745c7d84383968e931d6028294f7ee47b0a87c5f",
+      "value": "3bed13e285e77450dfa7ddc11f1246671c8e2ffc2acf9f3f75578ebd1daeed1e",
+      "weight": "1d128376fedcc388789a1e5769fbf1ed1f397e9e4d662862cde25d9699ec7c67"
+    },
+    "treatment": {
+      "input": "b15449bf80cebeb34782ea0087866390bcb8916bd434cf4a271fa232c5268da2",
+      "legal_mask": "99d9175bf45d31b79930570bd1c33ed461d5daebd0e8ea7faf27080867fbaf04",
+      "policy": "7270ba81d755b87cd7bd543fcee2e063d4a226129af101ce978d603e83295167",
+      "value": "3bed13e285e77450dfa7ddc11f1246671c8e2ffc2acf9f3f75578ebd1daeed1e",
+      "weight": "1d128376fedcc388789a1e5769fbf1ed1f397e9e4d662862cde25d9699ec7c67"
+    }
+  }
+}

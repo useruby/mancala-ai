@@ -1,0 +1,10 @@
+{
+  "schema": "seed554-live-generation-gate-verification-v1",
+  "status": "passed",
+  "unit_invocation_id": "092890b17d1944a78fc3b70127cc919c",
+  "published_environment_binding_sha256": "bba21d28b9dd16cb211e362d36e9c0ee9479a61ae8546f9fe6910a537340def6",
+  "published_binding_source": "training-input-binding.json",
+  "exit_status": 0,
+  "searches_launched": 0,
+  "evidence_writes": 0
+}

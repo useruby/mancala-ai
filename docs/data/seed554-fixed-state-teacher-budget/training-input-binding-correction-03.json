@@ -1,0 +1,8 @@
+{
+  "schema": "seed554-training-input-binding-correction-v1",
+  "training_input_binding_sha256": "9c5fce89446ec18a83f8d287394e81b288d63b439d781b111cc4faaf0e8f6422",
+  "parent_correction_sha256": "02d91ab593e8fed31652d251fe1dc5f1abf92c1881f04342769d18e3ab0f6b21",
+  "previous_source_corrections_sha256": "70591016946b514249c76d0e05f8b3a110f81ff973bb892ae7a046a0bafa0267",
+  "source_corrections_sha256": "bb30966dd2a6f772dad2d0279622335e4f239c5ca729b48f7ccb2a333ced449c",
+  "reason": "Append-only correction for P2: authenticate the completed run's execution-environment binding via its already-published training-input hash. New freezes now create the environment file before registration and bind its hash in both registration and freeze. No labels or training were regenerated."
+}

@@ -1,0 +1,42 @@
+{
+  "17-32": {
+    "highest_target_action_differences": 578,
+    "occurrences": 4277,
+    "policy_targets_bitwise_different": 4198,
+    "total_variation": {
+      "maximum": 0.6953125,
+      "mean": 0.12911996580526106,
+      "median": 0.087890625
+    }
+  },
+  "<=16": {
+    "highest_target_action_differences": 0,
+    "occurrences": 4798,
+    "policy_targets_bitwise_different": 0,
+    "total_variation": {
+      "maximum": 0.0,
+      "mean": 0.0,
+      "median": 0.0
+    }
+  },
+  ">32": {
+    "highest_target_action_differences": 637,
+    "occurrences": 4743,
+    "policy_targets_bitwise_different": 4730,
+    "total_variation": {
+      "maximum": 0.7246093749902345,
+      "mean": 0.14942415139003573,
+      "median": 0.10351562502929687
+    }
+  },
+  "pooled": {
+    "highest_target_action_differences": 1215,
+    "occurrences": 13818,
+    "policy_targets_bitwise_different": 8928,
+    "total_variation": {
+      "maximum": 0.7246093749902345,
+      "mean": 0.09125523547489078,
+      "median": 0.03710937502929687
+    }
+  }
+}
