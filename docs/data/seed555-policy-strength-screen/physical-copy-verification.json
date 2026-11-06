@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python",
+    "-c",
+    "import hashlib,json; from pathlib import Path; from ml.alphazero_lite.verify_seed555_policy_strength_screen import verify; blocked=[Path('/home/alex/Mancala/seed555-worktree'),Path('/home/alex/Mancala/ai/.tmp/seed542-screen-runtime/kalah_v1_21.kvtb')]; assert all(not path.exists() for path in blocked), 'original_path_accessible'; root=Path('/home/alex/tmp/seed555-physical-copy-final'); out=root/'docs/data/seed555-policy-strength-screen'; result=verify(root,out,tablebase_path=Path('/home/alex/tmp/seed555-tablebase-copy'),allow_relocated_copy=True); summary={key:result[key] for key in ('status','validated_games','validated_pairs','read_only_bytes_and_mtimes_unchanged')}; summary['decision']=result['analysis']['decision']; summary['evidence_snapshot_sha256']=hashlib.sha256(json.dumps(result['evidence_snapshot'],sort_keys=True,separators=(',',':')).encode()).hexdigest(); summary['original_paths_inaccessible']=True; print(json.dumps(summary,sort_keys=True))"
+  ],
+  "copied_materialized_tablebase": "/home/alex/tmp/seed555-tablebase-copy",
+  "copy_bytes_and_mtimes_unchanged": true,
+  "copy_output": "/home/alex/tmp/seed555-physical-copy-final/docs/data/seed555-policy-strength-screen",
+  "copy_root": "/home/alex/tmp/seed555-physical-copy-final",
+  "exit_status": 0,
+  "original_execution_root_hidden_as": "/home/alex/Mancala/seed555-worktree.physical-verification-hidden",
+  "original_materialized_tablebase_hidden_as": "/home/alex/Mancala/ai/.tmp/seed542-screen-runtime/kalah_v1_21.kvtb.physical-verification-hidden",
+  "schema": "seed555_physical_copy_verification_v1",
+  "status": "passed",
+  "stderr": "",
+  "stdout": "{\"decision\": \"propose_T512_vs_serving_P_screen\", \"evidence_snapshot_sha256\": \"fc5400ddc1e1cf5c9d58972f94d4ff2f2b3106b72fe46752b3013c5fb09868fc\", \"original_paths_inaccessible\": true, \"read_only_bytes_and_mtimes_unchanged\": true, \"status\": \"verified_complete\", \"validated_games\": 2048, \"validated_pairs\": 1024}\n",
+  "stdout_sha256": "bd97a3c2d01246415b05c006a939ebfb335648f3613e28a63ad270a698fdc900",
+  "tracked_runtime_assets_modified": false,
+  "verification": {
+    "decision": "propose_T512_vs_serving_P_screen",
+    "evidence_snapshot_sha256": "fc5400ddc1e1cf5c9d58972f94d4ff2f2b3106b72fe46752b3013c5fb09868fc",
+    "original_paths_inaccessible": true,
+    "read_only_bytes_and_mtimes_unchanged": true,
+    "status": "verified_complete",
+    "validated_games": 2048,
+    "validated_pairs": 1024
+  },
+  "working_directory": "/home/alex/tmp/seed555-independent-cwd"
+}

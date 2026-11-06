@@ -1,0 +1,30 @@
+{
+  "command_sha256": "5b47c135b35c2761ba3a3b9878ec5dac517f3ed85b4693b0c2fe104bcfcec686",
+  "games_sha256": "2b5e38baedc803eb3c98f41fa14f361a2e4255459096974c76e56d7bb47f7d32",
+  "opening_index": 112,
+  "outcomes": [
+    {
+      "capped_nonterminal": false,
+      "challenger_player": 0,
+      "command_sha256": "5b47c135b35c2761ba3a3b9878ec5dac517f3ed85b4693b0c2fe104bcfcec686",
+      "game_position": 0,
+      "game_sha256": "2b5e38baedc803eb3c98f41fa14f361a2e4255459096974c76e56d7bb47f7d32",
+      "margin": 2,
+      "opening_index": 112,
+      "outcome": "T512",
+      "report_sha256": "b76695ae187856dfb166599ef757b22ab4dc6d493d8a564fc6eef77ab0648589"
+    },
+    {
+      "capped_nonterminal": false,
+      "challenger_player": 1,
+      "command_sha256": "5b47c135b35c2761ba3a3b9878ec5dac517f3ed85b4693b0c2fe104bcfcec686",
+      "game_position": 1,
+      "game_sha256": "2b5e38baedc803eb3c98f41fa14f361a2e4255459096974c76e56d7bb47f7d32",
+      "margin": 0,
+      "opening_index": 112,
+      "outcome": "draw",
+      "report_sha256": "b76695ae187856dfb166599ef757b22ab4dc6d493d8a564fc6eef77ab0648589"
+    }
+  ],
+  "report_sha256": "b76695ae187856dfb166599ef757b22ab4dc6d493d8a564fc6eef77ab0648589"
+}

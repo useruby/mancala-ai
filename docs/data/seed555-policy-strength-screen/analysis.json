@@ -1,0 +1,28 @@
+{
+  "bootstrap_resamples": 20000,
+  "bootstrap_seed": 545,
+  "capped_nonterminal_games": 0,
+  "capped_nonterminal_prevents_valid_decision": false,
+  "capped_outcomes_by_winner": {
+    "C128": 0,
+    "T512": 0,
+    "draw": 0
+  },
+  "decision": "propose_T512_vs_serving_P_screen",
+  "descriptive_95_interval": [
+    0.4990234375,
+    0.52197265625
+  ],
+  "games": 2048,
+  "one_sided_95_lower": 0.5009765625,
+  "opening_pairs": 1024,
+  "promotion_or_deployment_authorized": false,
+  "quantile_method": "NumPy linear",
+  "sampling": "opening clusters with replacement; duplicate selections retained",
+  "score": 0.510498046875,
+  "status": "complete",
+  "strength_decision_valid": true,
+  "terminal_draws": 175,
+  "terminal_losses": 915,
+  "terminal_wins": 958
+}

@@ -1,0 +1,30 @@
+{
+  "command_sha256": "2e3e8d3fd08e99208f7eae614a2e9466893da90fb3fbae8cb70d7e1894857dab",
+  "games_sha256": "9edab49775234906cb61dbeb6b7d58f9fd6241c89b7e3847948508ca96f5e86a",
+  "opening_index": 181,
+  "outcomes": [
+    {
+      "capped_nonterminal": false,
+      "challenger_player": 0,
+      "command_sha256": "2e3e8d3fd08e99208f7eae614a2e9466893da90fb3fbae8cb70d7e1894857dab",
+      "game_position": 0,
+      "game_sha256": "9edab49775234906cb61dbeb6b7d58f9fd6241c89b7e3847948508ca96f5e86a",
+      "margin": 12,
+      "opening_index": 181,
+      "outcome": "T512",
+      "report_sha256": "3a48f75475b7a56474d9fe0c275f83ea282758d87b6dacbcedafa9a509d8ad69"
+    },
+    {
+      "capped_nonterminal": false,
+      "challenger_player": 1,
+      "command_sha256": "2e3e8d3fd08e99208f7eae614a2e9466893da90fb3fbae8cb70d7e1894857dab",
+      "game_position": 1,
+      "game_sha256": "9edab49775234906cb61dbeb6b7d58f9fd6241c89b7e3847948508ca96f5e86a",
+      "margin": -12,
+      "opening_index": 181,
+      "outcome": "C128",
+      "report_sha256": "3a48f75475b7a56474d9fe0c275f83ea282758d87b6dacbcedafa9a509d8ad69"
+    }
+  ],
+  "report_sha256": "3a48f75475b7a56474d9fe0c275f83ea282758d87b6dacbcedafa9a509d8ad69"
+}
