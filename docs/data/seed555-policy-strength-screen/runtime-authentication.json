@@ -1,0 +1,165 @@
+{
+  "cgroup_scope_diagnostic": {
+    "cpu.max_path": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/seed555-policy-strength-prepare-final.service/cpu.max",
+    "limits": {
+      "cpu.max": "25000 100000",
+      "cpu.weight": "1",
+      "cpuset.cpus.effective": null,
+      "memory.max": "4294967296"
+    },
+    "membership": "/user.slice/user-1000.slice/user@1000.service/app.slice/seed555-policy-strength-prepare-final.service"
+  },
+  "component_assignments": {
+    "challenger": "T512 update-108 policy and its own trunk",
+    "challenger_policy_artifact": "T512",
+    "challenger_policy_trunk": "T512",
+    "challenger_value_artifact": "initializer",
+    "challenger_value_trunk": "initializer",
+    "opponent": "C128 update-108 policy and its own trunk",
+    "opponent_policy_artifact": "C128",
+    "opponent_policy_trunk": "C128",
+    "opponent_value_artifact": "initializer",
+    "opponent_value_trunk": "initializer"
+  },
+  "components": {
+    "C128": {
+      "artifact_dir": "docs/data/seed555-policy-strength-screen/runtime-artifacts/C128",
+      "checkpoint_sha256": "6957ac4a9db529f51ec184a04c01304c2a6453de300c69f7c53de16634626205",
+      "files": {
+        "metadata.json": "658ee3036424272d30be984dfb9febf16d266f3fe263947155acc2ecc72d183b",
+        "model.npz": "6957ac4a9db529f51ec184a04c01304c2a6453de300c69f7c53de16634626205",
+        "search_policy.json": "9d16cb37491c023c2a44ad8dcad047755162991602165b3b0eb6a51460ec355a",
+        "weights.json": "e6330530b7ec8731eebace9e1c0f23f66ef83a9fa69e3b05192151d0728e40d7"
+      },
+      "source": "docs/data/seed554-fixed-state-teacher-budget/control-update-108.npz",
+      "source_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+    },
+    "T512": {
+      "artifact_dir": "docs/data/seed555-policy-strength-screen/runtime-artifacts/T512",
+      "checkpoint_sha256": "8940cbff36976801e74542f5ee2d6c5caffe0cafd57c7e787cdb375f3bbe485e",
+      "files": {
+        "metadata.json": "b37f3aa75d828b9b9a0743930c73c8e168b159f6b37434eba1d9871e769af1b8",
+        "model.npz": "8940cbff36976801e74542f5ee2d6c5caffe0cafd57c7e787cdb375f3bbe485e",
+        "search_policy.json": "9d16cb37491c023c2a44ad8dcad047755162991602165b3b0eb6a51460ec355a",
+        "weights.json": "70af73e6f8ee3f4fb76981584c1f2068a4b669300be90bd71cfdd8f71b369997"
+      },
+      "source": "docs/data/seed554-fixed-state-teacher-budget/treatment-update-108.npz",
+      "source_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+    },
+    "initializer": {
+      "artifact_dir": "docs/data/seed555-policy-strength-screen/runtime-artifacts/initializer",
+      "checkpoint_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "files": {
+        "metadata.json": "f3b9a7d665be7b1219b4a3412bf4a499e5bafd525905b50d93deac4e6ad9ccef",
+        "model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+        "search_policy.json": "9d16cb37491c023c2a44ad8dcad047755162991602165b3b0eb6a51460ec355a",
+        "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+      },
+      "source": "docs/data/seed542-selfplay-4096/initializer.npz",
+      "source_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+    }
+  },
+  "device": "cpu",
+  "dtype": "float32",
+  "environment": {
+    "BLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1"
+  },
+  "executable": "/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python",
+  "numpy": "2.5.3",
+  "observed": {
+    "address_space_rlimit": [
+      17179869184,
+      17179869184
+    ],
+    "cgroup_limits": {
+      "cpu.max": "25000 100000",
+      "cpu.weight": "1",
+      "cpuset.cpus.effective": null,
+      "memory.max": "4294967296"
+    },
+    "cpu_affinity": [
+      30
+    ],
+    "environment": {
+      "BLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    },
+    "nice": 19,
+    "torch_interop_threads": 1,
+    "torch_threads": 1
+  },
+  "packages": [
+    "cuda-bindings==13.4.4",
+    "cuda-pathfinder==1.8.4",
+    "cuda-toolkit==13.0.3.0",
+    "filelock==4.2.4",
+    "fsspec==2026.9.0",
+    "iniconfig==2.3.1",
+    "Jinja2==3.1.6",
+    "MarkupSafe==3.0.4",
+    "mpmath==1.3.0",
+    "networkx==3.7",
+    "numpy==2.5.3",
+    "nvidia-cublas==13.1.1.3",
+    "nvidia-cuda-cupti==13.0.85",
+    "nvidia-cuda-nvrtc==13.0.88",
+    "nvidia-cuda-runtime==13.0.96",
+    "nvidia-cudnn-cu13==9.24.0.43",
+    "nvidia-cufft==12.0.0.61",
+    "nvidia-cufile==1.15.1.6",
+    "nvidia-curand==10.4.0.35",
+    "nvidia-cusolver==12.0.4.66",
+    "nvidia-cusparse==12.6.3.3",
+    "nvidia-cusparselt-cu13==0.8.1",
+    "nvidia-nccl-cu13==2.30.7",
+    "nvidia-nvjitlink==13.4.92",
+    "nvidia-nvshmem-cu13==3.4.5",
+    "nvidia-nvtx==13.0.85",
+    "packaging==26.3",
+    "pip==26.2.1",
+    "pluggy==1.7.0",
+    "Pygments==2.21.0",
+    "pytest==9.1.1",
+    "ruff==0.15.13",
+    "setuptools==84.2.1",
+    "sympy==1.14.0",
+    "torch==2.14.0+cu130",
+    "triton==3.8.0",
+    "typing_extensions==4.16.0"
+  ],
+  "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+  "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+  "resource_limits": {
+    "address_space_limit": "17179869184",
+    "allowed_cpus": "30",
+    "cpu_quota": "25%",
+    "cpu_weight": "1",
+    "memory_max": "4294967296",
+    "nice": 19,
+    "workers": 1
+  },
+  "runtime_assets": {
+    "historical_lfs_pointer_commit": "ff0805ea6572dcf297a2f13db66abab28ad915e8",
+    "historical_lfs_pointer_git_blob": "27beb8c0bc8ce2351957ab9792971535cb4517ae",
+    "historical_lfs_pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+    "historical_lfs_pointer_size_bytes": 134,
+    "native_probe_path": "model-artifact/runtime/kalah_v1_tablebase",
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "tablebase_materialized_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "tablebase_materialized_size_bytes": 709635072,
+    "tablebase_repository_path": "model-artifact/runtime/kalah_v1_21.kvtb",
+    "tablebase_repository_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+    "tablebase_repository_size_bytes": 134,
+    "tablebase_runtime_path": "/home/alex/Mancala/ai/.tmp/seed542-screen-runtime/kalah_v1_21.kvtb"
+  },
+  "torch": "2.14.0+cu130",
+  "torch_interop_threads": 1,
+  "torch_threads": 1
+}

@@ -1,0 +1,7 @@
+{
+  "command_sha256": "6b9024d16a8fc73624fb13fd227a6b2b2515b8519e61b3db0c12add17f51533c",
+  "opening_index": 368,
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "wrote arena report to /home/alex/Mancala/seed555-worktree/docs/data/seed555-policy-strength-screen/batches/report-0368.json\nscore=0.5000 passed=False\n"
+}
