@@ -14,23 +14,29 @@ from ml.alphazero_lite import run_seed556_exploratory_arena as runner
 from ml.alphazero_lite import seed556_exploratory_arena as protocol
 
 
-def _execution_fixture(tmp_path: Path, monkeypatch):
+def _execution_fixture(tmp_path: Path, monkeypatch, opening_count: int = 1):
     root = tmp_path / "repo"
     output = root / "screen"
     batch = output / "batches"
     batch.mkdir(parents=True)
-    raw_opening = b'{"opening_index":0}\n'
-    (root / "suite.jsonl").write_bytes(raw_opening)
+    raw_openings = b"".join(
+        protocol.stable_json({"opening_index": index}) + b"\n"
+        for index in range(opening_count)
+    )
+    (root / "suite.jsonl").write_bytes(raw_openings)
     frozen_source = root / "frozen_source.py"
     frozen_source.write_text("FROZEN = True\n")
     source_hashes = {"frozen_source.py": protocol.sha256(frozen_source)}
-    (output / "openings.jsonl").write_bytes(raw_opening)
-    (batch / "opening-0000.jsonl").write_bytes(raw_opening)
-    monkeypatch.setattr(protocol, "OPENINGS", 1)
-    monkeypatch.setattr(protocol, "GAMES", 2)
+    (output / "openings.jsonl").write_bytes(raw_openings)
+    for index, row in enumerate(raw_openings.splitlines(keepends=True)):
+        (batch / f"opening-{index:04d}.jsonl").write_bytes(row)
+    monkeypatch.setattr(protocol, "OPENINGS", opening_count)
+    monkeypatch.setattr(protocol, "GAMES", 2 * opening_count)
+    monkeypatch.setattr(protocol.seed555, "OPENINGS", opening_count)
+    monkeypatch.setattr(protocol.seed555, "GAMES", 2 * opening_count)
     monkeypatch.setattr(protocol, "OPENINGS_PATH", "suite.jsonl")
     monkeypatch.setattr(
-        protocol, "OPENINGS_SHA256", hashlib.sha256(raw_opening).hexdigest()
+        protocol, "OPENINGS_SHA256", hashlib.sha256(raw_openings).hexdigest()
     )
 
     sources = {
@@ -114,15 +120,18 @@ def _execution_fixture(tmp_path: Path, monkeypatch):
         "component_assignments": protocol.ASSIGNMENTS,
         "source_sha256": source_hashes,
     }
-    command = runner.build_command(root, output, 0, freeze)
+    commands = [
+        runner.build_command(root, output, index, freeze)
+        for index in range(opening_count)
+    ]
     (output / "command-preflight.jsonl").write_bytes(
-        protocol.stable_json(command) + b"\n"
+        b"".join(protocol.stable_json(command) + b"\n" for command in commands)
     )
     freeze["command_preflight_sha256"] = protocol.sha256(
         output / "command-preflight.jsonl"
     )
     runner.write_json(output / "execution-freeze.json", freeze)
-    return root, output, command
+    return root, output, commands[0]
 
 
 def _evidence_snapshot(path: Path):
@@ -225,7 +234,13 @@ def test_first_time_finalization_does_not_require_publication_receipts(
     (output / "outcomes.jsonl").write_text(
         "".join(json.dumps(row) + "\n" for row in rows)
     )
-    verifier = Mock(return_value={"status": "verified_complete"})
+    verifier = Mock(
+        return_value={
+            "status": "verified_complete",
+            "validated_games": 2,
+            "validated_pairs": 1,
+        }
+    )
     result = runner.finalize(output, verifier)
     verifier.assert_called_once_with(output)
     assert result["status"] == "verified_complete"
@@ -328,3 +343,80 @@ def test_resume_ledger_rejects_rebound_conflicting_row() -> None:
     )
     with pytest.raises(ValueError, match="existing_ledger_conflict"):
         runner.missing_committed_ledger_rows(prior, validated)
+
+
+def test_automatic_finalization_reconciles_completion_order_without_receipts(
+    tmp_path: Path, monkeypatch
+) -> None:
+    root, output, _ = _execution_fixture(tmp_path, monkeypatch, opening_count=2)
+    batch = output / "batches"
+    committed_rows = []
+    for opening in range(2):
+        command_path = batch / f"command-{opening:04d}.json"
+        command = json.loads(
+            (output / "command-preflight.jsonl").read_text().splitlines()[opening]
+        )
+        runner.write_json(command_path, command)
+        (batch / f"games-{opening:04d}.jsonl").write_text("saved games\n")
+        (batch / f"report-{opening:04d}.json").write_text("saved report\n")
+        pair = [
+            {
+                "opening_index": opening,
+                "game_position": seat,
+                "outcome": outcome,
+                "capped_nonterminal": False,
+            }
+            for seat, outcome in enumerate(("T512", "P"))
+        ]
+        committed_rows.extend(pair)
+        runner.write_json(
+            batch / f"completion-{opening:04d}.json",
+            {
+                "opening_index": opening,
+                "command_sha256": protocol.sha256(command_path),
+                "outcomes": pair,
+            },
+        )
+    (output / "outcomes.jsonl").write_bytes(
+        b"".join(
+            protocol.stable_json(row) + b"\n"
+            for row in (
+                committed_rows[3],
+                committed_rows[0],
+                committed_rows[2],
+                committed_rows[1],
+            )
+        )
+    )
+    monkeypatch.setattr(
+        runner, "assert_multicore_runtime", lambda expected=None: expected
+    )
+    monkeypatch.setattr(
+        runner,
+        "validate_pair",
+        lambda _root, _output, index: committed_rows[index * 2 : index * 2 + 2],
+    )
+    verifier = Mock(
+        return_value={
+            "status": "verified_complete",
+            "validated_games": 4,
+            "validated_pairs": 2,
+        }
+    )
+    monkeypatch.setattr(
+        "ml.alphazero_lite.verify_seed556_completion_order_correction.verify",
+        verifier,
+    )
+    launch = Mock()
+    monkeypatch.setattr(runner.subprocess, "run", launch)
+    assert not (output / "verification-receipt.json").exists()
+    runner.execute(root, output)
+    launch.assert_not_called()
+    verifier.assert_called_once_with(
+        root.resolve(), output.resolve(), require_published_receipt=False
+    )
+    assert (
+        json.loads((output / "execution-progress.json").read_text())["status"]
+        == "complete_verified"
+    )
+    assert (output / "verification-receipt.json").is_file()

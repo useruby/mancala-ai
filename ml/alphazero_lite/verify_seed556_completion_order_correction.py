@@ -50,6 +50,7 @@ def validate_report_profile(
     registration: dict[str, Any],
     policy_preflight: dict[str, Any],
     component_files: dict[str, dict[str, str]],
+    output: Path,
     opening_index: int,
 ) -> None:
     """Bind reported search semantics and runtime asset identities to launch."""
@@ -117,10 +118,7 @@ def validate_report_profile(
     expected_tablebase = policy_preflight["exact_root_tablebase_sha256"]
     expected_sidecar = component_files["P-E4"]["search_policy.json"]
     policy_sidecar = json.loads(
-        (
-            Path(registration["execution_output"])
-            / "runtime-artifacts/P-E4/search_policy.json"
-        ).read_text()
+        (output / "runtime-artifacts/P-E4/search_policy.json").read_text()
     )
     expected_profile_tablebase = str(
         Path(registration["execution_root"]) / policy_sidecar["tablebase"]["path"]
@@ -191,6 +189,7 @@ def verify(
     *,
     materialized_tablebase: Path | None = None,
     native_probe: Path | None = None,
+    require_published_receipt: bool = True,
 ) -> dict[str, Any]:
     root, output = root.resolve(), output.resolve()
     registration = json.loads((output / "registration.json").read_text())
@@ -204,30 +203,33 @@ def verify(
         or protocol.sha256(output / "openings.jsonl") != protocol.OPENINGS_SHA256
     ):
         raise ValueError("seed556_completion_order_freeze_mismatch")
-    published_receipt = json.loads((output / "verification-receipt.json").read_text())
+    published_hashes: dict[str, str] = {}
+    published_receipt_path = output / "verification-receipt.json"
     published_verification = output / "verification.json"
-    published_hashes = published_receipt.get("evidence_sha256", {})
-    if (
-        published_receipt.get("verification_sha256")
-        != protocol.sha256(published_verification)
-        or published_receipt.get("verified_games") != protocol.GAMES
-        or published_receipt.get("verified_pairs") != protocol.OPENINGS
-    ):
-        raise ValueError("seed556_published_verification_receipt_mismatch")
-    # The executor's final progress marker is written after the initial
-    # verification receipt. Every underlying command/game/report/input asset,
-    # including the search preflight, remains bound by the receipt.
-    for relative, expected_sha256 in published_hashes.items():
-        if relative in {
-            "execution-progress.json",
-            "physical-copy-verification.json",
-            "verification.json",
-            "verification-receipt.json",
-        }:
-            continue
-        path = (output / relative).resolve()
-        if output not in path.parents or protocol.sha256(path) != expected_sha256:
-            raise ValueError(f"seed556_published_evidence_hash_mismatch:{relative}")
+    if require_published_receipt:
+        published_receipt = json.loads(published_receipt_path.read_text())
+        published_hashes = published_receipt.get("evidence_sha256", {})
+        if (
+            published_receipt.get("verification_sha256")
+            != protocol.sha256(published_verification)
+            or published_receipt.get("verified_games") != protocol.GAMES
+            or published_receipt.get("verified_pairs") != protocol.OPENINGS
+        ):
+            raise ValueError("seed556_published_verification_receipt_mismatch")
+        # The executor's final progress marker is written after the initial
+        # verification receipt. Every underlying command/game/report/input asset,
+        # including the search preflight, remains bound by the receipt.
+        for relative, expected_sha256 in published_hashes.items():
+            if relative in {
+                "execution-progress.json",
+                "physical-copy-verification.json",
+                "verification.json",
+                "verification-receipt.json",
+            }:
+                continue
+            path = (output / relative).resolve()
+            if output not in path.parents or protocol.sha256(path) != expected_sha256:
+                raise ValueError(f"seed556_published_evidence_hash_mismatch:{relative}")
     for relative, expected_sha256 in registration.get("source_sha256", {}).items():
         snapshot = output / "execution-source-snapshots" / relative
         source = snapshot if snapshot.is_file() else root / relative
@@ -251,11 +253,11 @@ def verify(
     )
     registered_preflight_sha = registration.get("runtime_policy_preflight_sha256")
     receipt_preflight_sha = published_hashes.get("runtime-policy-preflight.json")
-    if protocol.sha256(output / "runtime-policy-preflight.json") != (
-        registered_preflight_sha or receipt_preflight_sha
-    ) or receipt_preflight_sha != protocol.sha256(
-        output / "runtime-policy-preflight.json"
-    ):
+    actual_preflight_sha = protocol.sha256(output / "runtime-policy-preflight.json")
+    if (
+        registered_preflight_sha is not None
+        and registered_preflight_sha != actual_preflight_sha
+    ) or (require_published_receipt and receipt_preflight_sha != actual_preflight_sha):
         raise ValueError("seed556_runtime_policy_preflight_binding_mismatch")
     component_files = registration["components"]
     materialized_tablebase = materialized_tablebase or Path(
@@ -350,6 +352,7 @@ def verify(
             registration,
             policy_preflight,
             component_files,
+            output,
             index,
         )
         if (

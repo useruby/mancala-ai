@@ -203,6 +203,7 @@ def prepare(root: Path = ROOT, output: Path = OUT) -> dict:
                 "ml/alphazero_lite/test_seed556_exploratory_arena.py",
                 "ml/alphazero_lite/verify_seed552_c108_serving_p.py",
                 "ml/alphazero_lite/verify_seed555_attempt_ledger.py",
+                "ml/alphazero_lite/verify_seed556_completion_order_correction.py",
             )
         },
         "tablebase_lfs_pointer_sha256": protocol.sha256(root / protocol.TABLEBASE_PATH),
@@ -239,6 +240,7 @@ def prepare(root: Path = ROOT, output: Path = OUT) -> dict:
                 "ml/alphazero_lite/test_seed556_exploratory_arena.py",
                 "ml/alphazero_lite/verify_seed552_c108_serving_p.py",
                 "ml/alphazero_lite/verify_seed555_attempt_ledger.py",
+                "ml/alphazero_lite/verify_seed556_completion_order_correction.py",
             )
         },
     }
@@ -461,15 +463,14 @@ def execute(root: Path = ROOT, output: Path = OUT) -> None:
         )
         == protocol.OPENINGS
     ):
-        from ml.alphazero_lite import verify_seed556_exploratory_arena as verifier
-
-        all_rows = [json.loads(line) for line in outcomes_path.read_text().splitlines()]
-        analysis, scores = protocol.analyze(all_rows)
-        write_json(output / "analysis.json", analysis)
-        (output / "per-opening-scores.jsonl").write_bytes(
-            b"".join(protocol.stable_json(row) + b"\n" for row in scores)
+        from ml.alphazero_lite import (
+            verify_seed556_completion_order_correction as verifier,
         )
-        verified = verifier.verify(root, output)
+
+        verified = finalize(
+            output,
+            lambda out: verifier.verify(root, out, require_published_receipt=False),
+        )
         write_json(output / "verification.json", verified)
         write_json(
             output / "verification-receipt.json",
@@ -756,11 +757,16 @@ def recovery_action(batch: Path, index: int, committed: set[int]) -> str:
 
 def finalize(output: Path, verifier) -> dict:
     """Finalize reconstructed evidence without requiring publication receipts."""
+    from ml.alphazero_lite.verify_seed556_completion_order_correction import (
+        normalize_completion_order_ledger,
+    )
+
     ledger = [
         json.loads(line)
         for line in (output / "outcomes.jsonl").read_text().splitlines()
         if line
     ]
+    ledger = normalize_completion_order_ledger(ledger)
     analysis, scores = protocol.analyze(ledger)
     write_json(output / "analysis.json", analysis)
     (output / "per-opening-scores.jsonl").write_text(

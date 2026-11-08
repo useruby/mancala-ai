@@ -39,9 +39,10 @@ def test_completion_order_rejects_receipt_rebound_duplicate_and_missing_seats() 
 
 
 def _report_fixture(tmp_path: Path):
-    root = tmp_path / "root"
-    output = root / "screen"
-    artifact_root = output / "runtime-artifacts"
+    root = tmp_path / "original-root"
+    output = tmp_path / "physical-copy" / "screen"
+    registered_output = root / "screen"
+    artifact_root = registered_output / "runtime-artifacts"
     assignments = {
         "T512": artifact_root / "T512",
         "P-E4": artifact_root / "P-E4",
@@ -97,7 +98,7 @@ def _report_fixture(tmp_path: Path):
     ]
     registration = {
         "execution_root": str(root),
-        "execution_output": str(output),
+        "execution_output": str(registered_output),
         "runtime": {"executable": sys.executable},
     }
     p_sidecar = output / "runtime-artifacts/P-E4/search_policy.json"
@@ -154,7 +155,8 @@ def _report_fixture(tmp_path: Path):
     }
     report = {"notes": notes}
     command = {"argv": argv}
-    return report, command, registration, preflight, component_files
+    assert not registered_output.exists()
+    return report, command, registration, preflight, component_files, output
 
 
 def _rebind_report_profile(report: dict) -> None:
