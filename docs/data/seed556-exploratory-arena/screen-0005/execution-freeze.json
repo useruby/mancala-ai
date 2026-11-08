@@ -1,0 +1,26 @@
+{
+  "command_preflight_sha256": "ecd9fe576428cfabb715014f83c42e063c3fc4dc436ef2285d5133ff53acee5e",
+  "component_assignments": {
+    "challenger": "#554 T512 update-108 policy and own trunk",
+    "challenger_policy_artifact": "T512",
+    "challenger_policy_trunk": "T512",
+    "challenger_value_artifact": "initializer",
+    "challenger_value_trunk": "initializer",
+    "opponent": "#552 frozen serving-P seed504 E4 policy and own trunk",
+    "opponent_policy_artifact": "P-E4",
+    "opponent_policy_trunk": "P-E4",
+    "opponent_value_artifact": "initializer",
+    "opponent_value_trunk": "initializer"
+  },
+  "registration_sha256": "fba951d1c30971d86cfb2e546c996a74569c9027a4dabd30303fa2247375b9de",
+  "source_sha256": {
+    "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "ml/alphazero_lite/run_seed556_exploratory_arena.py": "de9b43faf1a95b1a8f32f2955f0d5e5fbd856b2d7e734095e29d25c2b38daae7",
+    "ml/alphazero_lite/seed556_arena_entrypoint.py": "7aac03270e4aac2ccfa8c70420ac309ff3324faedf6cfddd73f690c85d7a99d7",
+    "ml/alphazero_lite/seed556_exploratory_arena.py": "a6850d488de41ae5094965be81d4a972f5d0601fc72bdbf4cde6bb5ff8b469fe",
+    "ml/alphazero_lite/test_seed556_exploratory_arena.py": "f1d98434854c67d36b7fb0ee1d37f764e050b0091c08e01ac3cea6ca255d76dd",
+    "ml/alphazero_lite/verify_seed552_c108_serving_p.py": "6f8bad4f03110d3dcba2bb05162a123b2160ed4c7963692ccef3d468ef4a7be9",
+    "ml/alphazero_lite/verify_seed555_attempt_ledger.py": "d3835464f41d9152499d2d97c133c965defdc27d64a4371f8c8d1c7acc6ee77a",
+    "ml/alphazero_lite/verify_seed556_exploratory_arena.py": "8b30fd311cdcfd10744ab319f8888ef293a91f8b680b91768a3bf8e9f8793acb"
+  }
+}

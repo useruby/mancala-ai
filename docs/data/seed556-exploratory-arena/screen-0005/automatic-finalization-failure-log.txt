@@ -1,0 +1,18 @@
+Nov 08 14:45:23.662930 mancala-ai systemd[151470]: Started [systemd-run] /usr/bin/taskset -c 14-31 /home/alex/azlite-venv/bin/python -m ml.alphazero_lite.run_seed556_exploratory_arena --execute --root /home/alex/Mancala/ai/.tmp/seed556-exploratory-arena --out /home/alex/Mancala/ai/.tmp/seed556-exploratory-arena/docs/data/seed556-exploratory-arena/screen-0005.
+Nov 08 15:01:05.843988 mancala-ai taskset[1652229]: Traceback (most recent call last):
+Nov 08 15:01:05.847236 mancala-ai taskset[1652229]:   File "<frozen runpy>", line 203, in _run_module_as_main
+Nov 08 15:01:05.847236 mancala-ai taskset[1652229]:   File "<frozen runpy>", line 88, in _run_code
+Nov 08 15:01:05.847236 mancala-ai taskset[1652229]:   File "/home/alex/Mancala/ai/.tmp/seed556-exploratory-arena/ml/alphazero_lite/run_seed556_exploratory_arena.py", line 458, in <module>
+Nov 08 15:01:05.847236 mancala-ai taskset[1652229]:     main()
+Nov 08 15:01:05.847236 mancala-ai taskset[1652229]:     ~~~~^^
+Nov 08 15:01:05.847236 mancala-ai taskset[1652229]:   File "/home/alex/Mancala/ai/.tmp/seed556-exploratory-arena/ml/alphazero_lite/run_seed556_exploratory_arena.py", line 454, in main
+Nov 08 15:01:05.847236 mancala-ai taskset[1652229]:     execute(root, output)
+Nov 08 15:01:05.847236 mancala-ai taskset[1652229]:     ~~~~~~~^^^^^^^^^^^^^^
+Nov 08 15:01:05.847236 mancala-ai taskset[1652229]:   File "/home/alex/Mancala/ai/.tmp/seed556-exploratory-arena/ml/alphazero_lite/run_seed556_exploratory_arena.py", line 321, in execute
+Nov 08 15:01:05.847236 mancala-ai taskset[1652229]:     verified = verifier.verify(root, output)
+Nov 08 15:01:05.847236 mancala-ai taskset[1652229]:   File "/home/alex/Mancala/ai/.tmp/seed556-exploratory-arena/ml/alphazero_lite/verify_seed556_exploratory_arena.py", line 35, in verify
+Nov 08 15:01:05.847236 mancala-ai taskset[1652229]:     raise ValueError("seed556_outcome_ledger_reconstruction_mismatch")
+Nov 08 15:01:05.847236 mancala-ai taskset[1652229]: ValueError: seed556_outcome_ledger_reconstruction_mismatch
+Nov 08 15:01:05.992667 mancala-ai systemd[151470]: seed556-exploratory-arena-18way.service: Main process exited, code=exited, status=1/FAILURE
+Nov 08 15:01:05.992725 mancala-ai systemd[151470]: seed556-exploratory-arena-18way.service: Failed with result 'exit-code'.
+Nov 08 15:01:05.992979 mancala-ai systemd[151470]: seed556-exploratory-arena-18way.service: Consumed 4h 16min 48.895s CPU time over 15min 42.329s wall clock time, 29.7G memory peak.

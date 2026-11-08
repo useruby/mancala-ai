@@ -1,5 +1,10 @@
 # AGENTS
 
+## Arena Execution
+
+- Run arena opening pairs with 18-way pair-level parallelism by default, using the registered CPU and memory limits for the experiment. Keep the search worker count inside each game at the preregistered value (normally one); pair-level concurrency must not silently change per-game search semantics.
+- Bind the concurrency level and runtime limits into the execution freeze before launching games. Do not change the concurrency of an active frozen run; stop and preserve it, then prepare a new frozen run if resource settings must change.
+
 ## PR Creation
 
 - When a user asks to create a PR, first inspect `git status --short`, `git diff` for intended files, and `git log --oneline -10`.

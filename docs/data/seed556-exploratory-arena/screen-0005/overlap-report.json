@@ -1,0 +1,22 @@
+{
+  "P_policy_training_rows": 13724,
+  "T512_training_rows": 13818,
+  "opening_count": 1024,
+  "overlap_opening_counts": {
+    "P_policy_training": {
+      "canonical": 0,
+      "production_float32": 0
+    },
+    "T512_training": {
+      "canonical": 0,
+      "production_float32": 0
+    },
+    "unchanged_development": {
+      "canonical": 1,
+      "production_float32": 1
+    }
+  },
+  "schema": "seed556_training_population_overlap_v1",
+  "seed461_continuation_overlap_unresolved": true,
+  "unchanged_development_members": 4738
+}

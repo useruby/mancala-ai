@@ -1,0 +1,159 @@
+{
+  "component_assignments": {
+    "challenger": "#554 T512 update-108 policy and own trunk",
+    "challenger_policy_artifact": "T512",
+    "challenger_policy_trunk": "T512",
+    "challenger_value_artifact": "initializer",
+    "challenger_value_trunk": "initializer",
+    "opponent": "#552 frozen serving-P seed504 E4 policy and own trunk",
+    "opponent_policy_artifact": "P-E4",
+    "opponent_policy_trunk": "P-E4",
+    "opponent_value_artifact": "initializer",
+    "opponent_value_trunk": "initializer"
+  },
+  "components": {
+    "P-E4": {
+      "metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+      "model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+      "weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+    },
+    "T512": {
+      "metadata.json": "b37f3aa75d828b9b9a0743930c73c8e168b159f6b37434eba1d9871e769af1b8",
+      "model.npz": "8940cbff36976801e74542f5ee2d6c5caffe0cafd57c7e787cdb375f3bbe485e",
+      "search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+      "weights.json": "70af73e6f8ee3f4fb76981584c1f2068a4b669300be90bd71cfdd8f71b369997"
+    },
+    "initializer": {
+      "metadata.json": "f3b9a7d665be7b1219b4a3412bf4a499e5bafd525905b50d93deac4e6ad9ccef",
+      "model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+      "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+    }
+  },
+  "execution_output": "/home/alex/Mancala/ai/.tmp/seed556-exploratory-arena/docs/data/seed556-exploratory-arena/screen-0005",
+  "execution_root": "/home/alex/Mancala/ai/.tmp/seed556-exploratory-arena",
+  "new_games": 2048,
+  "overlap_rows_sha256": "c7b21e0e0eefd2d18c08ad7b8f39cd09a09475b73e3c8fd2289220cd80f1174d",
+  "overlap_sha256": "84c89ea44b6abe41825c7195dc120f3676996df8304c0f899dbde6b2e39eb6e7",
+  "prerequisite_publications": {
+    "seed552_verification_sha256": "fc05452daa137005699a40fcf7bbbd8663980aa070d8cfeebc77c103fb3d1394",
+    "seed555_corrected_attempt_verifier_sha256": "d3835464f41d9152499d2d97c133c965defdc27d64a4371f8c8d1c7acc6ee77a",
+    "seed555_verification_sha256": "da7444ee037074e9870cc5f4d26af186654b563ffa119a633e6500c9843f4e07"
+  },
+  "runtime": {
+    "device": "cpu",
+    "dtype": "float32",
+    "environment": {
+      "BLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    },
+    "executable": "/home/alex/azlite-venv/bin/python",
+    "numpy": "2.5.2",
+    "observed": {
+      "address_space_rlimit": [
+        68719476736,
+        68719476736
+      ],
+      "cgroup_limits": {
+        "cpu.max": "1800000 100000",
+        "cpu.weight": "100",
+        "cpuset.cpus.effective": null,
+        "memory.max": "38654705664"
+      },
+      "cpu_affinity": [
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "environment": {
+        "BLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1"
+      },
+      "nice": 19,
+      "torch_interop_threads": 1,
+      "torch_threads": 1
+    },
+    "packages": [
+      "cfgv==3.5.0",
+      "distlib==0.4.3",
+      "filelock==3.32.3",
+      "fsspec==2026.7.0",
+      "identify==2.6.20",
+      "iniconfig==2.3.0",
+      "Jinja2==3.1.6",
+      "MarkupSafe==3.0.3",
+      "mpmath==1.3.0",
+      "networkx==3.6.1",
+      "nodeenv==1.11.0",
+      "numpy==2.5.2",
+      "packaging==26.3",
+      "pip==26.1.1",
+      "platformdirs==4.12.3",
+      "pluggy==1.6.0",
+      "pre_commit==4.6.0",
+      "Pygments==2.21.0",
+      "pytest==9.1.1",
+      "python-discovery==1.6.1",
+      "PyYAML==6.0.3",
+      "ruff==0.15.13",
+      "setuptools==78.1.0",
+      "sympy==1.14.0",
+      "torch==2.13.0+cpu",
+      "typing_extensions==4.16.0",
+      "virtualenv==21.14.5"
+    ],
+    "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+    "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+    "resource_limits": {
+      "address_space_limit": "68719476736",
+      "allowed_cpus": "14-31",
+      "cpu_quota": "1800%",
+      "cpu_weight": "100",
+      "memory_max": "38654705664",
+      "nice": 19,
+      "parallel_opening_pairs": 18,
+      "workers_per_game": 1
+    },
+    "torch": "2.13.0+cpu",
+    "torch_interop_threads": 1,
+    "torch_threads": 1
+  },
+  "schema": "seed556_t512_vs_serving_p_v1",
+  "source_sha256": {
+    "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "ml/alphazero_lite/run_seed556_exploratory_arena.py": "de9b43faf1a95b1a8f32f2955f0d5e5fbd856b2d7e734095e29d25c2b38daae7",
+    "ml/alphazero_lite/seed556_arena_entrypoint.py": "7aac03270e4aac2ccfa8c70420ac309ff3324faedf6cfddd73f690c85d7a99d7",
+    "ml/alphazero_lite/seed556_exploratory_arena.py": "a6850d488de41ae5094965be81d4a972f5d0601fc72bdbf4cde6bb5ff8b469fe",
+    "ml/alphazero_lite/test_seed556_exploratory_arena.py": "f1d98434854c67d36b7fb0ee1d37f764e050b0091c08e01ac3cea6ca255d76dd",
+    "ml/alphazero_lite/verify_seed552_c108_serving_p.py": "6f8bad4f03110d3dcba2bb05162a123b2160ed4c7963692ccef3d468ef4a7be9",
+    "ml/alphazero_lite/verify_seed555_attempt_ledger.py": "d3835464f41d9152499d2d97c133c965defdc27d64a4371f8c8d1c7acc6ee77a",
+    "ml/alphazero_lite/verify_seed556_exploratory_arena.py": "8b30fd311cdcfd10744ab319f8888ef293a91f8b680b91768a3bf8e9f8793acb"
+  },
+  "status": "prospective_rules_frozen_before_games",
+  "suite_sha256": "27a003322e5469507a508010a9743b40062928140e6a4b9d5628b0290e32c21d",
+  "tablebase_lfs_pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+  "tablebase_materialized_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+  "tablebase_materialized_size": 709635072
+}
