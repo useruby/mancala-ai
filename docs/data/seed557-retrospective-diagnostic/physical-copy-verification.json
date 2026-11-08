@@ -1,0 +1,21 @@
+{
+  "schema": "seed557-physical-copy-verification-v1",
+  "physical_copy": ".tmp/seed557-physical-copy",
+  "original_execution_paths_available": false,
+  "native_probe_path_available_during_verification": false,
+  "materialized_tablebase_path_available_during_verification": false,
+  "command": "PYTHONPATH=. /home/alex/Mancala/ai/.venv-azlite/bin/python -m ml.alphazero_lite.verify_seed557_retrospective",
+  "result": {
+    "status": "verified",
+    "selected_roots": 256,
+    "search_records": 768,
+    "oracle_roots_with_full_coverage": 256,
+    "verified_game_batches": 1024,
+    "receipt_games": 2048,
+    "selected_by_source_side": {
+      "T512": 128,
+      "P": 128
+    }
+  },
+  "note": "The verifier reconstructed the cohort and metrics from the committed archive while the physical copy's native probe and materialized tablebase filenames were temporarily unavailable. Neither the original execution directory nor the original asset paths are referenced by the verifier."
+}

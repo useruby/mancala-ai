@@ -1,0 +1,29 @@
+{
+  "schema": "seed557-physical-copy-verification-correction-v1",
+  "physical_copy": ".tmp/seed557-physical-copy",
+  "command": "PYTHONPATH=. /home/alex/Mancala/ai/.venv-azlite/bin/python -m ml.alphazero_lite.verify_seed557_retrospective",
+  "native_probe_and_materialized_tablebase_unavailable": true,
+  "original_execution_and_asset_paths_opened": false,
+  "result": {
+    "status": "verified",
+    "selected_roots": 256,
+    "search_records": 768,
+    "oracle_roots_with_full_coverage": 256,
+    "verified_game_batches": 1024,
+    "receipt_games": 2048
+  },
+  "checks_added_since_initial_physical_copy": [
+    "PUCT visits sum to the frozen 128-simulation budget",
+    "PUCT action is a maximum-visit legal action, including deterministic child-Q tie-break validation",
+    "search seed is recomputed from the frozen state hash",
+    "frozen native probe and tablebase identities and materialized size match receipt-authenticated #556 registration/preflight data"
+  ],
+  "preserved_records": [
+    "cohort.json",
+    "search-records.jsonl",
+    "oracle-records.jsonl",
+    "root-metrics.jsonl",
+    "analysis.json",
+    "execution-freeze.json"
+  ]
+}
