@@ -6,6 +6,7 @@ import shutil
 import pytest
 
 import ml.alphazero_lite.seed557_retrospective as diagnostic
+from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.seed557_retrospective import (
     DATA,
     action_result,
@@ -156,3 +157,61 @@ def test_prelaunch_oracle_authentication_checks_both_hashes_and_tablebase_size(
     tablebase.write_bytes(b"truncated tablebase")
     with pytest.raises(ValueError, match="do not match authenticated #556 identities"):
         authenticate_oracle_assets(native, tablebase)
+
+
+def test_fresh_runner_output_verifies_with_empty_tie_file(
+    tmp_path, monkeypatch
+) -> None:
+    output = tmp_path / "fresh-output"
+    monkeypatch.setattr(diagnostic, "DATA", output)
+
+    def stub_searches(cohort, _artifact_dirs, _native, _tablebase):
+        searches = []
+        oracles = []
+        for item in cohort:
+            game = KalahGame.from_state(item["state"])
+            legal = game.possible_moves()
+            priors = [0.0] * 6
+            for move in legal:
+                priors[move] = 1.0 / len(legal)
+            action = min(legal)
+            visits = [0.0] * 6
+            visits[action] = 128.0
+            oracles.append(
+                {
+                    "state_hash": item["state_hash"],
+                    "legal_moves": legal,
+                    "action_margins": {
+                        str(move): (1 if move == action else -1) for move in legal
+                    },
+                    "coverage_complete": True,
+                }
+            )
+            for policy in diagnostic.POLICIES:
+                searches.append(
+                    {
+                        "state_hash": item["state_hash"],
+                        "policy": policy,
+                        "seed": diagnostic.search_seed(item["state_hash"]),
+                        "highest_prior_action": action,
+                        "puct_action": action,
+                        "legal_moves": legal,
+                        "priors": priors,
+                        "visits": visits,
+                    }
+                )
+        return searches, oracles, []
+
+    monkeypatch.setattr(diagnostic, "run_searches", stub_searches)
+    monkeypatch.setattr(
+        diagnostic,
+        "authenticate_oracle_assets",
+        lambda _native, _tablebase: diagnostic.expected_oracle_identities()[0],
+    )
+    monkeypatch.setattr("sys.argv", ["seed557-retrospective"])
+    diagnostic.main()
+
+    tie_path = output / "puct-selection-tie-verification.jsonl"
+    assert tie_path.is_file()
+    assert tie_path.read_text() == ""
+    assert verify(output)["status"] == "verified"

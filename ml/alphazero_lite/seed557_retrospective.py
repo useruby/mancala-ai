@@ -205,7 +205,7 @@ def action_result(margins: dict[int, int], move: int) -> tuple[int, bool]:
 
 def run_searches(
     cohort: list[dict], artifact_dirs: dict[str, Path], native: Path, tablebase: Path
-) -> tuple[list[dict], list[dict]]:
+) -> tuple[list[dict], list[dict], list[dict]]:
     evaluators = {
         name: arena.ArtifactEvaluator(path) for name, path in artifact_dirs.items()
     }
@@ -221,6 +221,7 @@ def run_searches(
     }
     searches: list[dict] = []
     oracles: list[dict] = []
+    tie_records: list[dict] = []
     with NativeExactRootTablebase(native, tablebase) as oracle:
         for item in cohort:
             game = KalahGame.from_state(item["state"])
@@ -253,6 +254,25 @@ def run_searches(
                     search_options=OPTIONS,
                     exact_root_solve_threshold=None,
                 )
+                visits = [float(value) for value in result["visits"]]
+                max_visits = max(visits[move] for move in legal)
+                tied_moves = [move for move in legal if visits[move] == max_visits]
+                if len(tied_moves) > 1:
+                    tie_records.append(
+                        {
+                            "state_hash": item["state_hash"],
+                            "policy": policy,
+                            "seed": seed,
+                            "visits": result["visits"],
+                            "puct_action": int(result["selected_move"]),
+                            "child_stats": result["child_stats"],
+                            "replay": {
+                                "same_frozen_state": True,
+                                "simulations": 128,
+                                "c_puct": 1.25,
+                            },
+                        }
+                    )
                 searches.append(
                     {
                         "state_hash": item["state_hash"],
@@ -265,7 +285,7 @@ def run_searches(
                         "visits": result["visits"],
                     }
                 )
-    return searches, oracles
+    return searches, oracles, tie_records
 
 
 def analyze(cohort: list[dict], searches: list[dict], oracles: list[dict]) -> dict:
@@ -684,7 +704,7 @@ def main() -> None:
     if len(sys.argv) > 1 and sys.argv[1] == "freeze-only":
         print(json.dumps(selection, indent=2))
         return
-    searches, oracles = run_searches(
+    searches, oracles, tie_records = run_searches(
         cohort,
         artifact_dirs,
         native_path,
@@ -696,6 +716,9 @@ def main() -> None:
     )
     (DATA / "oracle-records.jsonl").write_text(
         "".join(json.dumps(row, sort_keys=True) + "\n" for row in oracles)
+    )
+    (DATA / "puct-selection-tie-verification.jsonl").write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in tie_records)
     )
     (DATA / "root-metrics.jsonl").write_text(
         "".join(
