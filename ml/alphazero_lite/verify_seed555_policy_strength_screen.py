@@ -464,7 +464,8 @@ def _verify_attempt_verifier_correction(
         correction.get("attempts_summary_sha256")
         != attempts.get("attempts_summary_sha256")
         or correction.get("committed_pairs_checked") != protocol.OPENINGS
-        or correction.get("attempt_records_checked") != protocol.OPENINGS
+        or correction.get("attempt_records_checked")
+        != attempts.get("attempt_records_checked")
         or correction.get("failed_attempts") != 0
         or correction.get("unexplained_missing_attempts") != 0
     ):

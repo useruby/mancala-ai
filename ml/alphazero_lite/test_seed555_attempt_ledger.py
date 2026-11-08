@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 from ml.alphazero_lite import seed555_policy_strength_screen as protocol
+from ml.alphazero_lite import verify_seed555_attempt_ledger as attempt_correction
 from ml.alphazero_lite import verify_seed555_policy_strength_screen as verifier
 
 
@@ -52,6 +53,20 @@ def test_verifier_entrypoint_rejects_rebound_failed_attempt_record(
         "outcomes": pair,
     }
     (batch / "completion-0000.json").write_text(json.dumps(completion) + "\n")
+    (batch / "recovery-0000.json").write_text(
+        json.dumps(
+            {
+                "opening_index": 0,
+                "status": "complete_raw_pair_recovered_after_validation",
+                "validated_game_records": 2,
+                "command_sha256": protocol.sha256(command_path),
+                "games_sha256": protocol.sha256(games_path),
+                "report_sha256": protocol.sha256(report_path),
+                "recovery_reran_games": False,
+            }
+        )
+        + "\n"
+    )
     attempt_path = batch / "attempt-0000-00.json"
     attempt = {
         "opening_index": 0,
@@ -67,23 +82,6 @@ def test_verifier_entrypoint_rejects_rebound_failed_attempt_record(
     (output / "per-opening-scores.jsonl").write_bytes(
         b"".join(protocol.stable_json(row) + b"\n" for row in scores)
     )
-    verification_path = output / "verification.json"
-    verification_path.write_text('{"status":"verified_complete"}\n')
-    receipt_path = output / "verification-receipt.json"
-    receipt = {
-        "schema": "seed555_read_only_verification_receipt_v1",
-        "status": "independent_read_only_verified_complete",
-        "verification_result": {
-            "status": "verified_complete",
-            "validated_games": 2,
-            "validated_pairs": 1,
-        },
-        "verification_sha256": protocol.sha256(verification_path),
-        "evidence_sha256": {
-            "batches/attempt-0000-00.json": protocol.sha256(attempt_path)
-        },
-    }
-    receipt_path.write_text(json.dumps(receipt) + "\n")
     monkeypatch.setattr(verifier, "verify_preflight", lambda *_args, **_kwargs: {})
     monkeypatch.setattr(verifier, "validate_pair", lambda *_args, **_kwargs: pair)
     monkeypatch.setattr(
@@ -102,12 +100,39 @@ def test_verifier_entrypoint_rejects_rebound_failed_attempt_record(
     )
 
     verifier.main()
-    assert json.loads(capsys.readouterr().out)["attempt_verification"]["status"] == (
+    first_result = json.loads(capsys.readouterr().out)
+    assert first_result["attempt_verification"]["status"] == (
         "committed_attempts_semantically_verified"
     )
+    assert first_result["attempt_verification"]["successful_attempt_records"] == 1
+    assert first_result["attempt_verification"]["validated_saved_pair_recoveries"] == 1
+    assert not (output / "verification-receipt.json").exists()
+    assert not (output / "verification.json").exists()
+    with pytest.raises(FileNotFoundError):
+        attempt_correction.verify_published_receipt(output)
 
     # Rebind the receipt hash to altered attempt bytes. The entrypoint must
     # reject their failed exit and unrelated command hash despite re-binding.
+    verification_path = output / "verification.json"
+    verification_path.write_text("{}\n")
+    receipt_path = output / "verification-receipt.json"
+    receipt = {
+        "status": "independent_read_only_verified_complete",
+        "verification_result": {
+            "status": "verified_complete",
+            "validated_games": 2,
+            "validated_pairs": 1,
+        },
+        "verification_sha256": protocol.sha256(verification_path),
+        "evidence_sha256": {
+            "batches/attempt-0000-00.json": protocol.sha256(attempt_path)
+        },
+    }
+    receipt_path.write_text(json.dumps(receipt) + "\n")
+    assert (
+        attempt_correction.verify_published_receipt(output)["evidence_entries_checked"]
+        == 1
+    )
     attempt["returncode"] = 1
     attempt["command_sha256"] = "f" * 64
     attempt_path.write_text(json.dumps(attempt) + "\n")

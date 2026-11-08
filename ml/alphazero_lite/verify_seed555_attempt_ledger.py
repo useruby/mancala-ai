@@ -27,6 +27,7 @@ def verify_attempts(output: Path) -> dict[str, Any]:
         raise ValueError("seed555_attempt_correction_command_count_mismatch")
     attempts_summary = []
     recovery_count = 0
+    attempt_count = 0
     for index in range(protocol.OPENINGS):
         batch = output / "batches"
         completion_path = batch / f"completion-{index:04d}.json"
@@ -73,20 +74,18 @@ def verify_attempts(output: Path) -> dict[str, Any]:
                 raise ValueError(
                     f"seed555_attempt_correction_failed_or_rebound_attempt:{index}"
                 )
-            if recovery_path.exists():
-                raise ValueError(
-                    f"seed555_attempt_correction_attempt_and_recovery_conflict:{index}"
-                )
+            attempt_count += 1
             attempt_binding = {
                 "kind": "successful_arena_attempt",
                 "attempt_sha256": protocol.sha256(attempt_path),
                 "command_sha256": command_sha,
             }
         else:
-            if not recovery_path.is_file():
-                raise ValueError(
-                    f"seed555_attempt_correction_unexplained_missing_attempt:{index}"
-                )
+            attempt_binding = {
+                "kind": "validated_saved_pair_recovery",
+                "command_sha256": command_sha,
+            }
+        if recovery_path.is_file():
             recovery = json.loads(recovery_path.read_text())
             expected_recovery = {
                 "opening_index": index,
@@ -102,15 +101,47 @@ def verify_attempts(output: Path) -> dict[str, Any]:
                     f"seed555_attempt_correction_recovery_mismatch:{index}"
                 )
             recovery_count += 1
-            attempt_binding = {
-                "kind": "validated_saved_pair_recovery",
-                "recovery_sha256": protocol.sha256(recovery_path),
-                "command_sha256": command_sha,
-            }
+            attempt_binding["recovery_sha256"] = protocol.sha256(recovery_path)
+            attempt_binding["recovery_reran_games"] = False
+            if attempt_paths:
+                attempt_binding["kind"] = "successful_attempt_with_validated_recovery"
+            else:
+                attempt_binding["kind"] = "validated_saved_pair_recovery"
+        elif not attempt_paths:
+            raise ValueError(
+                f"seed555_attempt_correction_unexplained_missing_attempt:{index}"
+            )
         attempts_summary.append({"opening_index": index, **attempt_binding})
 
-    verification_receipt_path = output / "verification-receipt.json"
-    receipt = json.loads(verification_receipt_path.read_text())
+    original_verifier = "ml/alphazero_lite/verify_seed555_policy_strength_screen.py"
+    return {
+        "status": "committed_attempts_semantically_verified",
+        "opening_pairs": protocol.OPENINGS,
+        "successful_attempt_records": attempt_count,
+        "validated_saved_pair_recoveries": recovery_count,
+        "attempts_summary_sha256": hashlib.sha256(
+            b"".join(protocol.stable_json(row) + b"\n" for row in attempts_summary)
+        ).hexdigest(),
+        "registration_sha256": protocol.sha256(output / "registration.json"),
+        "execution_freeze_sha256": protocol.sha256(output / "execution-freeze.json"),
+        "frozen_original_verifier_sha256": freeze["source_sha256"][original_verifier],
+        "current_original_verifier_sha256": protocol.sha256(
+            protocol.ROOT / original_verifier
+        ),
+        "correction_verifier_source_sha256": protocol.sha256(Path(__file__)),
+        "attempt_records_checked": attempt_count,
+        "failed_attempts": 0,
+        "unexplained_missing_attempts": 0,
+        "receipt_rebound_semantic_check": "attempt returncode, opening index, and frozen command hash independently validated",
+        "attempts_summary": attempts_summary,
+    }
+
+
+def verify_published_receipt(output: Path) -> dict[str, Any]:
+    """Check the separate publication receipt after it has been created."""
+    output = output.resolve()
+    receipt_path = output / "verification-receipt.json"
+    receipt = json.loads(receipt_path.read_text())
     if (
         receipt.get("status") != "independent_read_only_verified_complete"
         or receipt.get("verification_result", {}).get("status") != "verified_complete"
@@ -128,29 +159,10 @@ def verify_attempts(output: Path) -> dict[str, Any]:
             raise ValueError(
                 f"seed555_attempt_correction_evidence_receipt_mismatch:{relative}"
             )
-
-    original_verifier = "ml/alphazero_lite/verify_seed555_policy_strength_screen.py"
     return {
-        "status": "committed_attempts_semantically_verified",
-        "opening_pairs": protocol.OPENINGS,
-        "successful_attempt_records": protocol.OPENINGS - recovery_count,
-        "validated_saved_pair_recoveries": recovery_count,
-        "attempts_summary_sha256": hashlib.sha256(
-            b"".join(protocol.stable_json(row) + b"\n" for row in attempts_summary)
-        ).hexdigest(),
-        "base_verification_receipt_sha256": protocol.sha256(verification_receipt_path),
-        "registration_sha256": protocol.sha256(output / "registration.json"),
-        "execution_freeze_sha256": protocol.sha256(output / "execution-freeze.json"),
-        "frozen_original_verifier_sha256": freeze["source_sha256"][original_verifier],
-        "current_original_verifier_sha256": protocol.sha256(
-            protocol.ROOT / original_verifier
-        ),
-        "correction_verifier_source_sha256": protocol.sha256(Path(__file__)),
-        "rebound_receipt_attempt_entries_checked": protocol.OPENINGS,
-        "failed_attempts": 0,
-        "unexplained_missing_attempts": 0,
-        "receipt_rebound_semantic_check": "attempt returncode, opening index, and frozen command hash independently validated",
-        "attempts_summary": attempts_summary,
+        "verification_receipt_sha256": protocol.sha256(receipt_path),
+        "verification_sha256": protocol.sha256(output / "verification.json"),
+        "evidence_entries_checked": len(receipt.get("evidence_sha256", {})),
     }
 
 
@@ -160,6 +172,7 @@ def verify(root: Path, output: Path) -> dict[str, Any]:
     if base.get("status") != "verified_complete":
         raise ValueError("seed555_attempt_correction_requires_complete_screen")
     attempts = verify_attempts(output)
+    published_receipt = verify_published_receipt(output)
     return {
         "status": "verified_complete_with_attempt_correction",
         "base_verification": {
@@ -169,6 +182,7 @@ def verify(root: Path, output: Path) -> dict[str, Any]:
             "analysis": base["analysis"],
         },
         "attempt_verification": attempts,
+        "published_receipt_verification": published_receipt,
     }
 
 
@@ -223,6 +237,7 @@ def write_source_correction_record(root: Path, output: Path) -> Path:
     if hashlib.sha256(previous_bytes).hexdigest() != previous_sha:
         raise ValueError("seed555_previous_verifier_snapshot_mismatch")
     attempts = verify_attempts(output)
+    published_receipt = verify_published_receipt(output)
     source_sha = protocol.sha256(root / correction_source)
     record = {
         "schema": "seed555_verifier_attempt_correction_v1",
@@ -239,12 +254,15 @@ def write_source_correction_record(root: Path, output: Path) -> Path:
         "verification_receipt_sha256": protocol.sha256(
             output / "verification-receipt.json"
         ),
+        "published_receipt_entries_checked": published_receipt[
+            "evidence_entries_checked"
+        ],
         "published_outcomes_sha256": protocol.sha256(output / "outcomes.jsonl"),
         "published_analysis_sha256": protocol.sha256(output / "analysis.json"),
         "published_verification_sha256": protocol.sha256(output / "verification.json"),
         "attempts_summary_sha256": attempts["attempts_summary_sha256"],
         "committed_pairs_checked": attempts["opening_pairs"],
-        "attempt_records_checked": attempts["rebound_receipt_attempt_entries_checked"],
+        "attempt_records_checked": attempts["attempt_records_checked"],
         "failed_attempts": attempts["failed_attempts"],
         "unexplained_missing_attempts": attempts["unexplained_missing_attempts"],
         "saved_pair_recoveries": attempts["validated_saved_pair_recoveries"],

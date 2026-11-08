@@ -48,9 +48,7 @@ def publish(root: Path, output: Path) -> Path:
                 "validated_saved_pair_recoveries"
             ],
             "attempts_summary_sha256": attempt["attempts_summary_sha256"],
-            "rebound_receipt_attempt_entries_checked": attempt[
-                "rebound_receipt_attempt_entries_checked"
-            ],
+            "attempt_records_checked": attempt["attempt_records_checked"],
             "failed_attempts": attempt["failed_attempts"],
             "unexplained_missing_attempts": attempt["unexplained_missing_attempts"],
         },
