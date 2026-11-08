@@ -65,7 +65,8 @@ def prepare(root: Path = ROOT, output: Path = OUT) -> dict:
 
     root, output = root.resolve(), output.resolve()
     torch.set_num_threads(1)
-    torch.set_num_interop_threads(1)
+    if torch.get_num_interop_threads() != 1:
+        torch.set_num_interop_threads(1)
     observed = assert_multicore_runtime()
     if output.exists() and any(output.iterdir()):
         raise FileExistsError("seed556_output_must_be_empty")
@@ -172,6 +173,9 @@ def prepare(root: Path = ROOT, output: Path = OUT) -> dict:
         "new_games": protocol.GAMES,
         "component_assignments": protocol.ASSIGNMENTS,
         "components": component_files,
+        "runtime_policy_preflight_sha256": protocol.sha256(
+            output / "runtime-policy-preflight.json"
+        ),
         "runtime": {
             **runtime.runtime_settings(),
             "observed": observed,
@@ -329,7 +333,8 @@ def execute(root: Path = ROOT, output: Path = OUT) -> None:
 
     root, output = root.resolve(), output.resolve()
     torch.set_num_threads(1)
-    torch.set_num_interop_threads(1)
+    if torch.get_num_interop_threads() != 1:
+        torch.set_num_interop_threads(1)
     registration = json.loads((output / "registration.json").read_text())
     freeze = json.loads((output / "execution-freeze.json").read_text())
     if freeze.get("registration_sha256") != protocol.sha256(
@@ -338,14 +343,15 @@ def execute(root: Path = ROOT, output: Path = OUT) -> None:
         output / "command-preflight.jsonl"
     ):
         raise ValueError("seed556_freeze_or_command_binding_mismatch")
-    observed = assert_multicore_runtime(registration["runtime"]["observed"])
-    if observed != registration["runtime"]["observed"]:
-        raise ValueError("seed556_live_runtime_mismatch")
     batch = output / "batches"
     commands = [
         json.loads(line)
         for line in (output / "command-preflight.jsonl").read_text().splitlines()
     ]
+    verify_frozen_launch_inputs(root, output, registration, freeze, commands)
+    observed = assert_multicore_runtime(registration["runtime"]["observed"])
+    if observed != registration["runtime"]["observed"]:
+        raise ValueError("seed556_live_runtime_mismatch")
     # Validate all prior evidence before the first mutation or subprocess launch.
     committed: dict[int, list[dict]] = {}
     recovered: set[int] = set()
@@ -363,10 +369,12 @@ def execute(root: Path = ROOT, output: Path = OUT) -> None:
                     raise ValueError(f"seed556_completion_receipt_mismatch:{index}")
                 committed[index] = rows
     outcomes_path = output / "outcomes.jsonl"
-    ledger_rows = [committed[i][seat] for i in sorted(committed) for seat in (0, 1)]
-    tmp = outcomes_path.with_name(".outcomes.reconcile")
-    tmp.write_bytes(b"".join(protocol.stable_json(row) + b"\n" for row in ledger_rows))
-    os.replace(tmp, outcomes_path)
+    existing_ledger = outcomes_path.read_bytes() if outcomes_path.exists() else b""
+    committed_rows = [
+        committed[index][seat] for index in sorted(committed) for seat in (0, 1)
+    ]
+    missing_ledger_rows = missing_committed_ledger_rows(existing_ledger, committed_rows)
+    _append_ledger_rows(outcomes_path, existing_ledger, missing_ledger_rows)
     for index in sorted(committed):
         if not (batch / f"completion-{index:04d}.json").exists():
             pair = committed[index]
@@ -600,6 +608,119 @@ def build_command(root: Path, output: Path, index: int, freeze: dict) -> dict:
         "component_assignments": protocol.ASSIGNMENTS,
         "registration_sha256": freeze["registration_sha256"],
     }
+
+
+def verify_frozen_launch_inputs(
+    root: Path,
+    output: Path,
+    registration: dict,
+    freeze: dict,
+    commands: list[dict],
+) -> None:
+    """Read-only authenticate every input and command before resume writes/launches."""
+    root, output = root.resolve(), output.resolve()
+    if (
+        freeze.get("registration_sha256")
+        != protocol.sha256(output / "registration.json")
+        or freeze.get("source_sha256") != registration.get("source_sha256")
+        or freeze.get("command_preflight_sha256")
+        != protocol.sha256(output / "command-preflight.jsonl")
+        or registration.get("component_assignments") != protocol.ASSIGNMENTS
+        or protocol.sha256(output / "runtime-policy-preflight.json")
+        != registration.get("runtime_policy_preflight_sha256")
+    ):
+        raise ValueError("seed556_frozen_launch_inputs_binding_mismatch")
+    for relative, expected_sha256 in registration.get("source_sha256", {}).items():
+        if protocol.sha256(root / relative) != expected_sha256:
+            raise ValueError(f"seed556_frozen_execution_source_mismatch:{relative}")
+    for path, expected_sha256 in (
+        (protocol.T512_CHECKPOINT, protocol.T512_SHA256),
+        (protocol.P_CHECKPOINT, protocol.P_SHA256),
+        (protocol.INITIALIZER, protocol.INITIALIZER_SHA256),
+    ):
+        if protocol.sha256(root / path) != expected_sha256:
+            raise ValueError(f"seed556_frozen_checkpoint_mismatch:{path}")
+    for name, expected_files in registration.get("components", {}).items():
+        component_dir = output / "runtime-artifacts" / name
+        actual_files = {
+            path.name: protocol.sha256(path)
+            for path in sorted(component_dir.iterdir())
+            if path.is_file()
+        }
+        if actual_files != expected_files:
+            raise ValueError(f"seed556_frozen_component_bytes_mismatch:{name}")
+    raw_openings = (root / protocol.OPENINGS_PATH).read_bytes()
+    if (
+        protocol.sha256(root / protocol.OPENINGS_PATH) != protocol.OPENINGS_SHA256
+        or protocol.sha256(output / "openings.jsonl") != protocol.OPENINGS_SHA256
+        or raw_openings != (output / "openings.jsonl").read_bytes()
+        or len(commands) != protocol.OPENINGS
+    ):
+        raise ValueError("seed556_frozen_opening_suite_mismatch")
+    rows = raw_openings.splitlines(keepends=True)
+    batch = output / "batches"
+    for index, command in enumerate(commands):
+        opening_path = batch / f"opening-{index:04d}.jsonl"
+        if opening_path.read_bytes() != rows[index]:
+            raise ValueError(f"seed556_frozen_opening_row_mismatch:{index}")
+        expected_command = build_command(root, output, index, freeze)
+        if command != expected_command or command.get("opening_index") != index:
+            raise ValueError(f"seed556_frozen_launch_command_mismatch:{index}")
+    if (
+        protocol.sha256(root / protocol.TABLEBASE_PATH)
+        != registration.get("tablebase_lfs_pointer_sha256")
+        or protocol.sha256(MATERIALIZED_TABLEBASE)
+        != registration.get("tablebase_materialized_sha256")
+        or MATERIALIZED_TABLEBASE.stat().st_size
+        != registration.get("tablebase_materialized_size")
+        or protocol.sha256(root / protocol.NATIVE_PROBE)
+        != json.loads((output / "runtime-policy-preflight.json").read_text()).get(
+            "exact_root_native_probe_sha256"
+        )
+    ):
+        raise ValueError("seed556_frozen_native_runtime_asset_mismatch")
+
+
+def missing_committed_ledger_rows(
+    previous_bytes: bytes, validated_rows: list[dict]
+) -> list[dict]:
+    """Validate prior rows by opening/seat and return only absent committed rows."""
+    existing: dict[tuple[int, int], dict] = {}
+    try:
+        rows = [json.loads(line) for line in previous_bytes.splitlines() if line]
+    except json.JSONDecodeError as error:
+        raise ValueError("seed556_existing_ledger_invalid_json") from error
+    for row in rows:
+        key = (int(row["opening_index"]), int(row["game_position"]))
+        if key in existing:
+            raise ValueError(f"seed556_existing_ledger_duplicate_opening_seat:{key}")
+        existing[key] = row
+    validated = {
+        (int(row["opening_index"]), int(row["game_position"])): row
+        for row in validated_rows
+    }
+    for key, row in existing.items():
+        if key not in validated:
+            raise ValueError(f"seed556_existing_ledger_uncommitted_pair:{key}")
+        if row != validated[key]:
+            raise ValueError(f"seed556_existing_ledger_conflict:{key}")
+    return [validated[key] for key in sorted(validated) if key not in existing]
+
+
+def _append_ledger_rows(
+    path: Path, previous_bytes: bytes, missing_rows: list[dict]
+) -> None:
+    """Append missing valid rows without replacing or reordering existing bytes."""
+    if path.exists() and path.read_bytes() != previous_bytes:
+        raise ValueError("seed556_ledger_changed_during_reconciliation")
+    if not missing_rows and path.exists():
+        return
+    suffix = b"".join(protocol.stable_json(row) + b"\n" for row in missing_rows)
+    separator = b"\n" if previous_bytes and not previous_bytes.endswith(b"\n") else b""
+    with path.open("ab") as stream:
+        stream.write(separator + suffix)
+        stream.flush()
+        os.fsync(stream.fileno())
 
 
 def invoke(command: dict, *, root: Path, output: Path, subprocess_run=None):

@@ -8,6 +8,7 @@ checks raw ledger bytes without sorting or rewriting them.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -43,6 +44,147 @@ def normalize_completion_order_ledger(
     ]
 
 
+def validate_report_profile(
+    report: dict[str, Any],
+    command: dict[str, Any],
+    registration: dict[str, Any],
+    policy_preflight: dict[str, Any],
+    component_files: dict[str, dict[str, str]],
+    opening_index: int,
+) -> None:
+    """Bind reported search semantics and runtime asset identities to launch."""
+    argv = command.get("argv", [])
+    if (
+        len(argv) < 3
+        or argv[0] != registration.get("runtime", {}).get("executable")
+        or argv[1:3] != ["-m", "ml.alphazero_lite.seed556_arena_entrypoint"]
+    ):
+        raise ValueError(f"seed556_report_runtime_command_mismatch:{opening_index}")
+
+    def arg(flag: str) -> str:
+        if flag not in argv or argv.index(flag) + 1 >= len(argv):
+            raise ValueError(
+                f"seed556_report_command_argument_missing:{opening_index}:{flag}"
+            )
+        return argv[argv.index(flag) + 1]
+
+    challenger = Path(arg("--challenger-policy-artifact"))
+    opponent = Path(arg("--current-policy-artifact"))
+    challenger_evaluator = Path(arg("--challenger"))
+    opponent_evaluator = Path(arg("--current"))
+    challenger_value = Path(arg("--challenger-value-artifact"))
+    opponent_value = Path(arg("--current-value-artifact"))
+    seed = int(arg("--seed"))
+    sims_t = int(arg("--challenger-simulations"))
+    sims_p = int(arg("--current-simulations"))
+    c_puct = float(arg("--c-puct"))
+    options_t = json.loads(arg("--challenger-search-options-json"))
+    options_p = json.loads(arg("--current-search-options-json"))
+    probe = Path(arg("--exact-root-native-probe"))
+    tablebase = Path(arg("--exact-root-tablebase"))
+    threshold = int(arg("--exact-root-solve-threshold"))
+    if (
+        seed != protocol.SEED + opening_index
+        or sims_t != protocol.SIMULATIONS
+        or sims_p != protocol.SIMULATIONS
+        or c_puct != 1.25
+        or options_t != protocol.SEARCH_OPTIONS
+        or options_p != protocol.SEARCH_OPTIONS
+        or arg("--workers") != "1"
+        or arg("--games") != "2"
+        or arg("--max-moves") != "200"
+        or arg("--random-opening-plies") != "0"
+        or arg("--seed-contract") != "azlite_eval_seed_v2"
+        or threshold != 16
+        or challenger
+        != Path(registration["execution_output"]) / "runtime-artifacts/T512"
+        or opponent != Path(registration["execution_output"]) / "runtime-artifacts/P-E4"
+        or challenger_evaluator != challenger
+        or opponent_evaluator != opponent
+        or challenger_value
+        != Path(registration["execution_output"]) / "runtime-artifacts/initializer"
+        or opponent_value != challenger_value
+    ):
+        raise ValueError(
+            f"seed556_report_frozen_command_semantics_mismatch:{opening_index}"
+        )
+
+    profile = report.get("notes", {}).get("search_profile")
+    notes = report.get("notes", {})
+    if not isinstance(profile, dict):
+        raise ValueError(f"seed556_report_search_profile_missing:{opening_index}")
+    expected_probe = policy_preflight["exact_root_native_probe_sha256"]
+    expected_tablebase = policy_preflight["exact_root_tablebase_sha256"]
+    expected_sidecar = component_files["P-E4"]["search_policy.json"]
+    policy_sidecar = json.loads(
+        (
+            Path(registration["execution_output"])
+            / "runtime-artifacts/P-E4/search_policy.json"
+        ).read_text()
+    )
+    expected_profile_tablebase = str(
+        Path(registration["execution_root"]) / policy_sidecar["tablebase"]["path"]
+    )
+    if (Path(registration["execution_root"]) / probe).resolve() != Path(
+        policy_preflight["exact_root_native_probe"]
+    ).resolve() or tablebase.resolve() != Path(
+        policy_preflight["exact_root_tablebase"]
+    ).resolve():
+        raise ValueError(f"seed556_report_command_asset_path_mismatch:{opening_index}")
+    profile_fields = {
+        "version": "v1",
+        "kind": "arena_eval",
+        "player_mode": "puct",
+        "simulations": protocol.SIMULATIONS,
+        "c_puct": 1.25,
+        "search_options": protocol.SEARCH_OPTIONS,
+        "challenger_simulations": protocol.SIMULATIONS,
+        "current_simulations": protocol.SIMULATIONS,
+        "exact_root_solve_enabled": True,
+        "exact_root_solve_threshold": 16,
+        "exact_root_solver": "native_kvtb_root_action_probe_v1",
+        "exact_root_solver_max_solved_seeds": 16,
+        "exact_root_objective": "final_score_margin",
+        "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+        "exact_leaf_solve_mode": "disabled",
+        "runtime_search_policy_mode": "puct_exact_root_hybrid",
+        "exact_root_native_probe": str(
+            (Path(registration["execution_root"]) / probe).resolve()
+        ),
+        "exact_root_native_probe_sha256": expected_probe,
+        "exact_root_tablebase": expected_profile_tablebase,
+        "exact_root_tablebase_sha256": expected_tablebase,
+        "runtime_search_policy_sha256": expected_sidecar,
+        "challenger_runtime_policy_inherited": False,
+    }
+    for key, expected in profile_fields.items():
+        if profile.get(key) != expected:
+            raise ValueError(f"seed556_report_profile_mismatch:{opening_index}:{key}")
+    if (
+        notes.get("challenger_path") != str(challenger)
+        or notes.get("current_path") != str(opponent)
+        or notes.get("challenger_simulations") != protocol.SIMULATIONS
+        or notes.get("current_simulations") != protocol.SIMULATIONS
+        or notes.get("workers_requested") != 1
+        or notes.get("workers_used") != 1
+        or notes.get("seed") != seed
+        or notes.get("search_options") != protocol.SEARCH_OPTIONS
+        or notes.get("exact_root_native_probe_sha256") != expected_probe
+        or notes.get("exact_root_tablebase_sha256") != expected_tablebase
+        or notes.get("runtime_search_policy_sha256") != expected_sidecar
+    ):
+        raise ValueError(f"seed556_report_runtime_identity_mismatch:{opening_index}")
+    unsigned = {key: value for key, value in profile.items() if key != "hash"}
+    expected_profile_hash = hashlib.sha256(
+        json.dumps(unsigned, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    if (
+        profile.get("hash") != expected_profile_hash
+        or notes.get("search_profile_hash") != expected_profile_hash
+    ):
+        raise ValueError(f"seed556_report_profile_hash_mismatch:{opening_index}")
+
+
 def verify(
     root: Path,
     output: Path,
@@ -62,6 +204,30 @@ def verify(
         or protocol.sha256(output / "openings.jsonl") != protocol.OPENINGS_SHA256
     ):
         raise ValueError("seed556_completion_order_freeze_mismatch")
+    published_receipt = json.loads((output / "verification-receipt.json").read_text())
+    published_verification = output / "verification.json"
+    published_hashes = published_receipt.get("evidence_sha256", {})
+    if (
+        published_receipt.get("verification_sha256")
+        != protocol.sha256(published_verification)
+        or published_receipt.get("verified_games") != protocol.GAMES
+        or published_receipt.get("verified_pairs") != protocol.OPENINGS
+    ):
+        raise ValueError("seed556_published_verification_receipt_mismatch")
+    # The executor's final progress marker is written after the initial
+    # verification receipt. Every underlying command/game/report/input asset,
+    # including the search preflight, remains bound by the receipt.
+    for relative, expected_sha256 in published_hashes.items():
+        if relative in {
+            "execution-progress.json",
+            "physical-copy-verification.json",
+            "verification.json",
+            "verification-receipt.json",
+        }:
+            continue
+        path = (output / relative).resolve()
+        if output not in path.parents or protocol.sha256(path) != expected_sha256:
+            raise ValueError(f"seed556_published_evidence_hash_mismatch:{relative}")
     for relative, expected_sha256 in registration.get("source_sha256", {}).items():
         snapshot = output / "execution-source-snapshots" / relative
         source = snapshot if snapshot.is_file() else root / relative
@@ -83,6 +249,15 @@ def verify(
     policy_preflight = json.loads(
         (output / "runtime-policy-preflight.json").read_text()
     )
+    registered_preflight_sha = registration.get("runtime_policy_preflight_sha256")
+    receipt_preflight_sha = published_hashes.get("runtime-policy-preflight.json")
+    if protocol.sha256(output / "runtime-policy-preflight.json") != (
+        registered_preflight_sha or receipt_preflight_sha
+    ) or receipt_preflight_sha != protocol.sha256(
+        output / "runtime-policy-preflight.json"
+    ):
+        raise ValueError("seed556_runtime_policy_preflight_binding_mismatch")
+    component_files = registration["components"]
     materialized_tablebase = materialized_tablebase or Path(
         policy_preflight["exact_root_tablebase"]
     )
@@ -169,6 +344,14 @@ def verify(
                 }
             )
         report = json.loads(report_path.read_text())
+        validate_report_profile(
+            report,
+            command,
+            registration,
+            policy_preflight,
+            component_files,
+            index,
+        )
         if (
             report.get("schema") != "arena_v1"
             or report.get("games_played") != 2
