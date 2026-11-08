@@ -39,6 +39,10 @@ def canonical_hash(state: dict[str, Any]) -> str:
     return sha256(json.dumps(state, sort_keys=True, separators=(",", ":")).encode())
 
 
+def search_seed(state_hash: str) -> int:
+    return int(sha256(f"seed557:{state_hash}".encode())[:8], 16) % (2**31)
+
+
 def git_blob(path: str, commit: str = COMMIT) -> bytes:
     return subprocess.check_output(["git", "show", f"{commit}:{path}"], cwd=ROOT)
 
@@ -239,9 +243,7 @@ def run_searches(
             for policy in POLICIES:
                 priors, _ = composed[policy].evaluate(game)
                 prior_action = max(legal, key=lambda move: (float(priors[move]), -move))
-                seed = int(sha256(f"seed557:{item['state_hash']}".encode())[:8], 16) % (
-                    2**31
-                )
+                seed = search_seed(item["state_hash"])
                 result = arena.evaluate_artifact_position(
                     evaluator=composed[policy],
                     state=item["state"],
@@ -499,8 +501,98 @@ def authentication_receipts() -> dict[str, str]:
     }
 
 
+def expected_oracle_identities() -> tuple[dict[str, Any], dict[str, str]]:
+    receipt = json.loads(git_blob(ARCHIVE + "verification-receipt.json"))
+    sources = {
+        "registration.json": git_blob(ARCHIVE + "registration.json"),
+        "runtime-policy-preflight.json": git_blob(
+            ARCHIVE + "runtime-policy-preflight.json"
+        ),
+    }
+    source_hashes: dict[str, str] = {}
+    for name, contents in sources.items():
+        digest = sha256(contents)
+        if digest != receipt["evidence_sha256"].get(name):
+            raise ValueError(f"#556 oracle identity source hash mismatch:{name}")
+        source_hashes[name] = digest
+    registration = json.loads(sources["registration.json"])
+    preflight = json.loads(sources["runtime-policy-preflight.json"])
+    expected = {
+        "native_probe_sha256": preflight["exact_root_native_probe_sha256"],
+        "tablebase_sha256": registration["tablebase_materialized_sha256"],
+        "tablebase_size_bytes": int(registration["tablebase_materialized_size"]),
+    }
+    return expected, source_hashes
+
+
+def observe_oracle_identities(native: Path, tablebase: Path) -> dict[str, Any]:
+    if not native.is_file() or not tablebase.is_file():
+        raise FileNotFoundError(
+            "native exact-root probe or materialized tablebase missing"
+        )
+    return {
+        "native_probe_sha256": sha256(native.read_bytes()),
+        "tablebase_sha256": sha256(tablebase.read_bytes()),
+        "tablebase_size_bytes": tablebase.stat().st_size,
+    }
+
+
+def authenticate_oracle_assets(native: Path, tablebase: Path) -> dict[str, Any]:
+    expected, _source_hashes = expected_oracle_identities()
+    observed = observe_oracle_identities(native, tablebase)
+    if observed != expected:
+        raise ValueError(
+            f"native oracle assets do not match authenticated #556 identities: "
+            f"observed={observed}, expected={expected}"
+        )
+    return observed
+
+
+def validate_existing_freeze(existing: dict, proposed: dict) -> None:
+    if existing != proposed:
+        raise ValueError("conflicting existing execution freeze")
+
+
+def oracle_identity_evidence(freeze_bytes: bytes, frozen_oracle: dict) -> dict:
+    expected, source_hashes = expected_oracle_identities()
+    frozen_identities = {
+        "native_probe_sha256": frozen_oracle["native_probe_sha256"],
+        "tablebase_sha256": frozen_oracle["tablebase_sha256"],
+        "tablebase_size_bytes": expected["tablebase_size_bytes"],
+    }
+    if frozen_identities != expected:
+        raise ValueError(
+            "existing execution freeze conflicts with authenticated #556 oracle"
+        )
+    return {
+        "schema": "seed557-authenticated-oracle-identities-v1",
+        "source_commit": COMMIT,
+        "authenticated_source_sha256": source_hashes,
+        "expected_from_seed556": expected,
+        "oracle_identities_in_frozen_execution": frozen_identities,
+        "execution_freeze_sha256": sha256(freeze_bytes),
+    }
+
+
 def main() -> None:
     DATA.mkdir(parents=True, exist_ok=True)
+    if len(sys.argv) > 1 and sys.argv[1] == "bind-preserved-freeze":
+        freeze_path = DATA / "execution-freeze.json"
+        identity_path = DATA / "oracle-identity-verification.json"
+        freeze_bytes = freeze_path.read_bytes()
+        freeze = json.loads(freeze_bytes)
+        evidence = oracle_identity_evidence(freeze_bytes, freeze["oracle"])
+        if identity_path.exists():
+            if json.loads(identity_path.read_text()) != evidence:
+                raise ValueError(
+                    "conflicting existing authenticated oracle identity record"
+                )
+        else:
+            identity_path.write_text(
+                json.dumps(evidence, indent=2, sort_keys=True) + "\n"
+            )
+        print(json.dumps(evidence, indent=2, sort_keys=True))
+        return
     openings, records, receipt = load_authenticated_archive()
     cohort, selection = reconstruct_cohort(openings, records)
     cohort_path = DATA / "cohort.json"
@@ -526,6 +618,9 @@ def main() -> None:
             + "\n"
         )
     authenticated = authenticate_runtime()
+    native_path = ROOT / "model-artifact/runtime/kalah_v1_tablebase"
+    tablebase_path = ROOT / "model-artifact/runtime/kalah_v1_21.kvtb"
+    oracle_identities = authenticate_oracle_assets(native_path, tablebase_path)
     freeze = {
         "schema": "seed557-execution-freeze-v1",
         "source_commit": COMMIT,
@@ -553,17 +648,29 @@ def main() -> None:
             "search_options": OPTIONS,
         },
         "oracle": {
-            "native_probe_sha256": sha256(
-                (ROOT / "model-artifact/runtime/kalah_v1_tablebase").read_bytes()
-            ),
-            "tablebase_sha256": sha256(
-                (ROOT / "model-artifact/runtime/kalah_v1_21.kvtb").read_bytes()
-            ),
+            "native_probe_sha256": oracle_identities["native_probe_sha256"],
+            "tablebase_sha256": oracle_identities["tablebase_sha256"],
             "coverage": "every legal action at every frozen root",
         },
     }
     freeze_path = DATA / "execution-freeze.json"
-    freeze_path.write_text(json.dumps(freeze, indent=2, sort_keys=True) + "\n")
+    identity_path = DATA / "oracle-identity-verification.json"
+    freeze_bytes = (json.dumps(freeze, indent=2, sort_keys=True) + "\n").encode()
+    if freeze_path.exists():
+        freeze_bytes = freeze_path.read_bytes()
+        validate_existing_freeze(json.loads(freeze_bytes), freeze)
+    identity_evidence = oracle_identity_evidence(freeze_bytes, freeze["oracle"])
+    if identity_path.exists():
+        if json.loads(identity_path.read_text()) != identity_evidence:
+            raise ValueError(
+                "conflicting existing authenticated oracle identity record"
+            )
+    else:
+        identity_path.write_text(
+            json.dumps(identity_evidence, indent=2, sort_keys=True) + "\n"
+        )
+    if not freeze_path.exists():
+        freeze_path.write_bytes(freeze_bytes)
     artifact_dirs = {
         "T512": ROOT
         / "docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts/T512",
@@ -580,8 +687,8 @@ def main() -> None:
     searches, oracles = run_searches(
         cohort,
         artifact_dirs,
-        ROOT / "model-artifact/runtime/kalah_v1_tablebase",
-        ROOT / "model-artifact/runtime/kalah_v1_21.kvtb",
+        native_path,
+        tablebase_path,
     )
     analysis = analyze(cohort, searches, oracles)
     (DATA / "search-records.jsonl").write_text(

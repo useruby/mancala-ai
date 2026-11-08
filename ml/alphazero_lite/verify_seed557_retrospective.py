@@ -12,7 +12,9 @@ from ml.alphazero_lite.seed557_retrospective import (
     analyze,
     authentication_receipts,
     authenticate_runtime,
+    expected_oracle_identities,
     load_authenticated_archive,
+    search_seed,
     reconstruct_cohort,
     sha256,
 )
@@ -38,6 +40,48 @@ def verify(data: Path = DATA) -> dict:
         raise ValueError("authenticated policy artifact hash mismatch")
     if freeze["authentication_receipts"] != authentication_receipts():
         raise ValueError("policy publication receipt binding mismatch")
+    identity_record_path = data / "oracle-identity-verification.json"
+    if not identity_record_path.is_file():
+        raise ValueError("authenticated oracle identity record missing")
+    oracle_identity_record = json.loads(identity_record_path.read_text())
+    expected_oracle, oracle_source_hashes = expected_oracle_identities()
+    if (
+        oracle_identity_record.get("schema")
+        != "seed557-authenticated-oracle-identities-v1"
+    ):
+        raise ValueError("authenticated oracle identity schema mismatch")
+    if oracle_identity_record.get("source_commit") != freeze["source_commit"]:
+        raise ValueError("oracle identity source commit mismatch")
+    if (
+        oracle_identity_record.get("authenticated_source_sha256")
+        != oracle_source_hashes
+    ):
+        raise ValueError("oracle identity source evidence mismatch")
+    if oracle_identity_record.get("expected_from_seed556") != expected_oracle:
+        raise ValueError("oracle identity differs from authenticated #556")
+    frozen_oracle_identities = {
+        "native_probe_sha256": freeze["oracle"]["native_probe_sha256"],
+        "tablebase_sha256": freeze["oracle"]["tablebase_sha256"],
+        "tablebase_size_bytes": expected_oracle["tablebase_size_bytes"],
+    }
+    if (
+        oracle_identity_record.get("oracle_identities_in_frozen_execution")
+        != frozen_oracle_identities
+    ):
+        raise ValueError("frozen oracle identities differ from authenticated #556")
+    if frozen_oracle_identities != expected_oracle:
+        raise ValueError("frozen oracle identities differ from authenticated #556")
+    if (
+        freeze["oracle"]["native_probe_sha256"]
+        != expected_oracle["native_probe_sha256"]
+    ):
+        raise ValueError("frozen native probe identity mismatch")
+    if freeze["oracle"]["tablebase_sha256"] != expected_oracle["tablebase_sha256"]:
+        raise ValueError("frozen tablebase identity mismatch")
+    if oracle_identity_record.get("execution_freeze_sha256") != sha256(
+        (data / "execution-freeze.json").read_bytes()
+    ):
+        raise ValueError("oracle identity record is not bound to execution freeze")
     expected_batches = {
         f"games-{index:04d}.jsonl": receipt["evidence_sha256"][
             f"batches/games-{index:04d}.jsonl"
@@ -58,6 +102,10 @@ def verify(data: Path = DATA) -> dict:
         raise ValueError("#556 receipt binding mismatch")
     searches = _jsonl(data / "search-records.jsonl")
     oracles = _jsonl(data / "oracle-records.jsonl")
+    selection_ties = _jsonl(data / "puct-selection-tie-verification.jsonl")
+    tie_by_key = {(row["state_hash"], row["policy"]): row for row in selection_ties}
+    if len(tie_by_key) != len(selection_ties):
+        raise ValueError("duplicate PUCT tie-selection evidence")
     if len(searches) != len(frozen_states) * 3 or len(oracles) != len(frozen_states):
         raise ValueError("incomplete root evidence")
     by_hash = {item["state_hash"]: item for item in frozen_states}
@@ -89,6 +137,8 @@ def verify(data: Path = DATA) -> dict:
             raise ValueError("duplicate or out-of-cohort search record")
         if search["policy"] not in {"T512", "C128", "P"}:
             raise ValueError("unknown policy in search evidence")
+        if int(search["seed"]) != search_seed(search["state_hash"]):
+            raise ValueError("search seed does not derive from frozen state hash")
         seen.add(key)
         seeds_by_root.setdefault(search["state_hash"], set()).add(int(search["seed"]))
         item = by_hash[search["state_hash"]]
@@ -107,6 +157,70 @@ def verify(data: Path = DATA) -> dict:
             legal, key=lambda move: (priors[move], -move)
         ):
             raise ValueError("highest-prior action does not match recorded priors")
+        visits = [float(value) for value in search["visits"]]
+        if len(visits) != 6 or any(
+            value < 0 or not value.is_integer() for value in visits
+        ):
+            raise ValueError("invalid PUCT root visit vector")
+        if any(visits[move] != 0 for move in range(6) if move not in legal):
+            raise ValueError("PUCT assigned visits to an illegal action")
+        if sum(visits) != int(freeze["search"]["simulations"]):
+            raise ValueError("PUCT root visits do not match frozen simulation budget")
+        max_visit_moves = [
+            move for move in legal if visits[move] == max(visits[m] for m in legal)
+        ]
+        if search["puct_action"] not in max_visit_moves:
+            raise ValueError("PUCT action violates maximum-visit selection rule")
+        tie_key = (search["state_hash"], search["policy"])
+        if len(max_visit_moves) == 1:
+            if tie_key in tie_by_key:
+                raise ValueError("unexpected PUCT tie evidence for unique maximum")
+        else:
+            tie = tie_by_key.get(tie_key)
+            if tie is None:
+                raise ValueError(
+                    "PUCT tied visits lack deterministic tie-break evidence"
+                )
+            if int(tie["seed"]) != int(search["seed"]):
+                raise ValueError("PUCT tie evidence seed mismatch")
+            if tie["replay"].get("same_frozen_state") is not True:
+                raise ValueError("PUCT tie evidence is not bound to the frozen root")
+            if int(tie["replay"].get("simulations", -1)) != int(
+                freeze["search"]["simulations"]
+            ):
+                raise ValueError("PUCT tie evidence simulation budget mismatch")
+            if float(tie["replay"].get("c_puct", -1)) != float(
+                freeze["search"]["c_puct"]
+            ):
+                raise ValueError("PUCT tie evidence c_puct mismatch")
+            if tie["visits"] != search["visits"]:
+                raise ValueError("PUCT tie evidence visit vector mismatch")
+            q_values = {
+                int(row["move"]): float(row["q_value"]) for row in tie["child_stats"]
+            }
+            tie_visits = {
+                int(row["move"]): int(row["visits"]) for row in tie["child_stats"]
+            }
+            if set(q_values) != set(legal) or set(tie_visits) != set(legal):
+                raise ValueError("PUCT tie evidence legal-child coverage mismatch")
+            if any(tie_visits.get(move) != visits[move] for move in max_visit_moves):
+                raise ValueError("PUCT tie child visit evidence mismatch")
+            expected_tie_action = max(
+                max_visit_moves,
+                key=lambda move: (
+                    visits[move],
+                    q_values[move],
+                    priors[move],
+                    -move,
+                ),
+            )
+            if (
+                tie["puct_action"] != search["puct_action"]
+                or search["puct_action"] != expected_tie_action
+            ):
+                raise ValueError(
+                    "PUCT action violates deterministic visit/Q/prior/index tie-break"
+                )
     expected_search_keys = {
         (state["state_hash"], policy)
         for state in frozen_states
@@ -114,6 +228,20 @@ def verify(data: Path = DATA) -> dict:
     }
     if seen != expected_search_keys or oracle_hashes != set(by_hash):
         raise ValueError("per-root policy or oracle coverage is incomplete")
+    if set(tie_by_key) != {
+        (row["state_hash"], row["policy"])
+        for row in searches
+        if len(
+            [
+                move
+                for move in row["legal_moves"]
+                if row["visits"][move]
+                == max(row["visits"][legal] for legal in row["legal_moves"])
+            ]
+        )
+        > 1
+    }:
+        raise ValueError("PUCT tie-break evidence coverage mismatch")
     if any(len(seeds) != 1 for seeds in seeds_by_root.values()):
         raise ValueError("policy searches do not share matched per-root seeds")
     reconstructed_analysis = analyze(frozen_states, searches, oracles)

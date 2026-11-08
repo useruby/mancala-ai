@@ -1,0 +1,19 @@
+{
+  "authenticated_source_sha256": {
+    "registration.json": "fba951d1c30971d86cfb2e546c996a74569c9027a4dabd30303fa2247375b9de",
+    "runtime-policy-preflight.json": "6c86f40d2ba0fe75897fc1c1b9c128ae92bb6804828b10ef2747152a34efc2c0"
+  },
+  "execution_freeze_sha256": "b0892a24872012486ff164d291913e1799737632a816a40c2547210a458bf36d",
+  "expected_from_seed556": {
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "tablebase_size_bytes": 709635072
+  },
+  "oracle_identities_in_frozen_execution": {
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "tablebase_size_bytes": 709635072
+  },
+  "schema": "seed557-authenticated-oracle-identities-v1",
+  "source_commit": "f38838e6ffe20a44c1e8c161a9daed0f1243f0ae"
+}
