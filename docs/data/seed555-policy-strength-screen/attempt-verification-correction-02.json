@@ -1,0 +1,19 @@
+{
+  "append_only_source_correction_sha256": "4ba52fc9f962335e4e10c8e1987a2c2bdf367bf5e2fa21857e045ddf1a43b8e5",
+  "attempt_verification": {
+    "attempts_summary_sha256": "24005d4497caa78d805e34e08bf65e08612095c5426ed248533d872fe864ca03",
+    "failed_attempts": 0,
+    "opening_pairs": 1024,
+    "rebound_receipt_attempt_entries_checked": 1024,
+    "successful_attempt_records": 1024,
+    "unexplained_missing_attempts": 0,
+    "validated_saved_pair_recoveries": 0
+  },
+  "attempt_verifier_sha256": "1a0ebe90101d1d87c99f8cd2d76d1e5c43ef6b67117724f3cb6e57c4acf8fac4",
+  "base_read_only_verification_receipt_sha256": "a12b3284acb72ab817e27e79a265097da3873e7570c93fdbcd3a47810028dc37",
+  "original_verifier_sha256": "105c139c9b83e7cb31e82a8b97876e47e3c31372051b4a61d5ae20d5e5eefd75",
+  "schema": "seed555_attempt_verification_correction_receipt_v1",
+  "status": "verified_complete_with_attempt_correction",
+  "supersedes_receipt_sha256": "38d388ee05f1a91fadbda5788631f01ee0966d1e7be07417a9f989761723b7d2",
+  "test_source_sha256": "2a365f7280ff92a3070a1a839871b99798c4c41a2b47227350468238d8039b05"
+}

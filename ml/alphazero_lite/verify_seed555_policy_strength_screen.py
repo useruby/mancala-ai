@@ -198,7 +198,13 @@ def verify_preflight(
     ):
         raise ValueError("seed555_registered_numerical_or_resource_contract_mismatch")
     for relative, expected in registration.get("source_sha256", {}).items():
-        if protocol.sha256(root / relative) != expected:
+        actual = protocol.sha256(root / relative)
+        if actual == expected:
+            continue
+        if relative == "ml/alphazero_lite/verify_seed555_policy_strength_screen.py":
+            _verify_attempt_verifier_correction(root, output, freeze, expected, actual)
+            continue
+        if actual != expected:
             raise ValueError(f"seed555_frozen_source_changed:{relative}")
     for relative, digest in registration["authenticated_files_sha256"].items():
         if protocol.sha256(root / relative) != digest:
@@ -395,6 +401,74 @@ def _verify_seed554_binding(root: Path, registration: dict[str, Any]) -> None:
                 != binding["derivative_sha256"][f"{arm}/{shard:03d}"]
             ):
                 raise ValueError(f"seed555_seed554_training_derivative_mismatch:{rel}")
+
+
+def _verify_attempt_verifier_correction(
+    root: Path,
+    output: Path,
+    freeze: dict[str, Any],
+    previous_sha256: str,
+    current_sha256: str,
+) -> None:
+    """Authorize only the append-only, semantically checked attempt verifier."""
+    correction_path = output / "verifier-attempt-correction-01.json"
+    correction = json.loads(correction_path.read_text())
+    original_verifier = "ml/alphazero_lite/verify_seed555_policy_strength_screen.py"
+    correction_source = "ml/alphazero_lite/verify_seed555_attempt_ledger.py"
+    previous_commit = "ae349b73b87032419ed30b02b84cac63813764cd"
+    previous_bytes = subprocess.run(
+        ["git", "show", f"{previous_commit}:{original_verifier}"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+    ).stdout
+    previous_blob = subprocess.run(
+        ["git", "rev-parse", f"{previous_commit}:{original_verifier}"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    if (
+        correction.get("schema") != "seed555_verifier_attempt_correction_v1"
+        or correction.get("status") != "append_only_verifier_correction_verified"
+        or correction.get("previous_verifier_sha256") != previous_sha256
+        or hashlib.sha256(previous_bytes).hexdigest() != previous_sha256
+        or correction.get("previous_verifier_git_commit") != previous_commit
+        or correction.get("previous_verifier_git_blob") != previous_blob
+        or correction.get("corrected_verifier_sha256") != current_sha256
+        or correction.get("correction_source_sha256")
+        != protocol.sha256(root / correction_source)
+        or correction.get("correction_verifier_source_sha256")
+        != protocol.sha256(root / correction_source)
+        or correction.get("registration_sha256")
+        != protocol.sha256(output / "registration.json")
+        or correction.get("execution_freeze_sha256")
+        != protocol.sha256(output / "execution-freeze.json")
+        or correction.get("verification_receipt_sha256")
+        != protocol.sha256(output / "verification-receipt.json")
+        or correction.get("published_outcomes_sha256")
+        != protocol.sha256(output / "outcomes.jsonl")
+        or correction.get("published_analysis_sha256")
+        != protocol.sha256(output / "analysis.json")
+        or correction.get("published_verification_sha256")
+        != protocol.sha256(output / "verification.json")
+        or correction.get("correction")
+        != "validate committed attempts against opening index, frozen command hash, and zero exit status; missing attempts require a valid saved-pair recovery receipt"
+    ):
+        raise ValueError("seed555_attempt_verifier_correction_binding_mismatch")
+    from ml.alphazero_lite.verify_seed555_attempt_ledger import verify_attempts
+
+    attempts = verify_attempts(output)
+    if (
+        correction.get("attempts_summary_sha256")
+        != attempts.get("attempts_summary_sha256")
+        or correction.get("committed_pairs_checked") != protocol.OPENINGS
+        or correction.get("attempt_records_checked") != protocol.OPENINGS
+        or correction.get("failed_attempts") != 0
+        or correction.get("unexplained_missing_attempts") != 0
+    ):
+        raise ValueError("seed555_attempt_verifier_correction_semantics_mismatch")
 
 
 def validate_execution_runtime_checks(
@@ -686,6 +760,9 @@ def verify(
     unchanged = before == after
     if not unchanged:
         raise ValueError("seed555_read_only_verification_changed_evidence")
+    from ml.alphazero_lite.verify_seed555_attempt_ledger import verify_attempts
+
+    attempts = verify_attempts(output)
     return {
         "status": "verified_complete",
         "validated_games": len(ledger),
@@ -693,6 +770,7 @@ def verify(
         "prelaunch_runtime_checks": len(runtime_checks),
         "analysis": analysis,
         "per_opening_scores": scores,
+        "attempt_verification": attempts,
         "preflight": "verified",
         "read_only_bytes_and_mtimes_unchanged": unchanged,
         "evidence_snapshot": before,
