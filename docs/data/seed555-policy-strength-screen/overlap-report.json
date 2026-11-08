@@ -1,0 +1,26 @@
+{
+  "historical_games_or_outcomes_imported": false,
+  "opening_count": 1024,
+  "overlap_opening_counts": {
+    "C128_training": {
+      "canonical": 0,
+      "production_float32": 0
+    },
+    "T512_training": {
+      "canonical": 0,
+      "production_float32": 0
+    },
+    "unchanged_development": {
+      "canonical": 1,
+      "production_float32": 1
+    }
+  },
+  "schema": "seed555_training_population_overlap_v1",
+  "seed461_continuation_overlap_unresolved": true,
+  "training_input_binding_sha256": "9c5fce89446ec18a83f8d287394e81b288d63b439d781b111cc4faaf0e8f6422",
+  "training_rows": {
+    "C128": 13818,
+    "T512": 13818
+  },
+  "unchanged_development_members": 4738
+}

@@ -1,0 +1,522 @@
+{
+  "budget_summary": {
+    "mean_final_simulations": 128.0,
+    "p95_root_latency_ms": 206.07,
+    "trigger_counts": {
+      "fixed_budget": 2
+    }
+  },
+  "confidence_interval_95": {
+    "caveat": "Approximation over score rate with win=1.0, draw=0.5, loss=0.0.",
+    "lower": 0.09452865480086611,
+    "method": "wilson_score",
+    "upper": 0.905471345199134
+  },
+  "draws": 0,
+  "games": 2,
+  "games_played": 2,
+  "hard_suite_buckets": {
+    "late": {
+      "games": 2,
+      "score": null
+    },
+    "midgame": {
+      "games": 0,
+      "score": null
+    },
+    "opening": {
+      "games": 0,
+      "score": null
+    }
+  },
+  "losses": 1,
+  "notes": {
+    "base_seed": 1010,
+    "challenger_path": "/home/alex/Mancala/seed555-worktree/docs/data/seed555-policy-strength-screen/runtime-artifacts/T512",
+    "challenger_root_prior_transform": null,
+    "challenger_runtime_policy_inherited": false,
+    "challenger_simulations": 128,
+    "current_path": "/home/alex/Mancala/seed555-worktree/docs/data/seed555-policy-strength-screen/runtime-artifacts/C128",
+    "current_root_prior_transform": null,
+    "current_simulations": 128,
+    "exact_leaf_solve_mode": "disabled",
+    "exact_root_native_probe": "/home/alex/Mancala/seed555-worktree/model-artifact/runtime/kalah_v1_tablebase",
+    "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "exact_root_objective": "final_score_margin",
+    "exact_root_solve_threshold": 16,
+    "exact_root_solver": "native_kvtb_root_action_probe_v1",
+    "exact_root_tablebase": "/home/alex/Mancala/seed555-worktree/../ai/.tmp/seed542-screen-runtime/kalah_v1_21.kvtb",
+    "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+    "exact_solve_semantics": "network_priors_exact_leaf_value",
+    "exact_solve_stone_threshold": null,
+    "exact_solve_value_mode": "wdl",
+    "move_time_mean_ms": 69.2,
+    "move_time_p95_ms": 206.07,
+    "random_opening_plies": 0,
+    "root_prior_transform": null,
+    "runtime_search_policy_mode": "puct_exact_root_hybrid",
+    "runtime_search_policy_sha256": "9d16cb37491c023c2a44ad8dcad047755162991602165b3b0eb6a51460ec355a",
+    "search_configuration_ledger_output": null,
+    "search_configuration_ledger_sha256": "0eab8ea9dca7c70dd319d92bfa02a52dec2e74304aae5c995502fc257fe5deae",
+    "search_options": {
+      "fpu_mode": "zero",
+      "normalize_values": false,
+      "reuse_subtree": false,
+      "root_policy_mode": "deterministic",
+      "root_temperature": 0.0,
+      "tactical_root_bias": 0.0
+    },
+    "search_outcome_ledger_output": null,
+    "search_outcome_ledger_sha256": "6c0f78ac6e4b4b2f0bc63a0b7d351de113770cbbdca686780a05a33d58604ff6",
+    "search_profile": {
+      "c_puct": 1.25,
+      "challenger_runtime_policy_inherited": false,
+      "challenger_simulations": 128,
+      "current_simulations": 128,
+      "exact_leaf_solve_mode": "disabled",
+      "exact_root_native_probe": "/home/alex/Mancala/seed555-worktree/model-artifact/runtime/kalah_v1_tablebase",
+      "exact_root_native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "exact_root_objective": "final_score_margin",
+      "exact_root_solve_enabled": true,
+      "exact_root_solve_threshold": 16,
+      "exact_root_solver": "native_kvtb_root_action_probe_v1",
+      "exact_root_solver_max_solved_seeds": 16,
+      "exact_root_tablebase": "/home/alex/Mancala/seed555-worktree/../ai/.tmp/seed542-screen-runtime/kalah_v1_21.kvtb",
+      "exact_root_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+      "exact_solve_semantics": "network_priors_exact_leaf_value",
+      "exact_solve_stone_threshold": null,
+      "exact_solve_value_mode": "wdl",
+      "hash": "cbf89c3c6402c49a1ef6a497b0d55cf93e1a5bc67fd79c2ec47ef3dcbd96c490",
+      "kind": "arena_eval",
+      "player_mode": "puct",
+      "runtime_search_policy_mode": "puct_exact_root_hybrid",
+      "runtime_search_policy_sha256": "9d16cb37491c023c2a44ad8dcad047755162991602165b3b0eb6a51460ec355a",
+      "search_options": {
+        "fpu_mode": "zero",
+        "normalize_values": false,
+        "reuse_subtree": false,
+        "root_policy_mode": "deterministic",
+        "root_temperature": 0.0,
+        "tactical_root_bias": 0.0
+      },
+      "seed555_execution_identity": {
+        "command_preflight_entry_sha256": "a0169e8a753bb45805043509535bb640d91e907f8b26e06bd9140c2f76537797",
+        "component_artifact_sha256": {
+          "C128": "6957ac4a9db529f51ec184a04c01304c2a6453de300c69f7c53de16634626205",
+          "T512": "8940cbff36976801e74542f5ee2d6c5caffe0cafd57c7e787cdb375f3bbe485e",
+          "initializer": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+        },
+        "component_assignments": {
+          "challenger": "T512 update-108 policy and its own trunk",
+          "challenger_policy_artifact": "T512",
+          "challenger_policy_trunk": "T512",
+          "challenger_value_artifact": "initializer",
+          "challenger_value_trunk": "initializer",
+          "opponent": "C128 update-108 policy and its own trunk",
+          "opponent_policy_artifact": "C128",
+          "opponent_policy_trunk": "C128",
+          "opponent_value_artifact": "initializer",
+          "opponent_value_trunk": "initializer"
+        },
+        "historical_lfs_pointer_git_blob": "27beb8c0bc8ce2351957ab9792971535cb4517ae",
+        "historical_lfs_pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+        "live_cpu_max": "25000 100000",
+        "live_cpu_max_path": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/seed555-policy-strength-screen.service/cpu.max",
+        "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "observed_runtime": {
+          "address_space_rlimit": [
+            17179869184,
+            17179869184
+          ],
+          "cgroup_limits": {
+            "cpu.max": "25000 100000",
+            "cpu.weight": "1",
+            "cpuset.cpus.effective": null,
+            "memory.max": "4294967296"
+          },
+          "cpu_affinity": [
+            30
+          ],
+          "environment": {
+            "BLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "NUMEXPR_NUM_THREADS": "1",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1"
+          },
+          "nice": 19,
+          "torch_interop_threads": 1,
+          "torch_threads": 1
+        },
+        "opening_index": 465,
+        "registered_runtime": {
+          "cgroup_scope_diagnostic": {
+            "cpu.max_path": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/seed555-policy-strength-prepare-final.service/cpu.max",
+            "limits": {
+              "cpu.max": "25000 100000",
+              "cpu.weight": "1",
+              "cpuset.cpus.effective": null,
+              "memory.max": "4294967296"
+            },
+            "membership": "/user.slice/user-1000.slice/user@1000.service/app.slice/seed555-policy-strength-prepare-final.service"
+          },
+          "device": "cpu",
+          "dtype": "float32",
+          "environment": {
+            "BLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "NUMEXPR_NUM_THREADS": "1",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1"
+          },
+          "executable": "/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python",
+          "numpy": "2.5.3",
+          "observed": {
+            "address_space_rlimit": [
+              17179869184,
+              17179869184
+            ],
+            "cgroup_limits": {
+              "cpu.max": "25000 100000",
+              "cpu.weight": "1",
+              "cpuset.cpus.effective": null,
+              "memory.max": "4294967296"
+            },
+            "cpu_affinity": [
+              30
+            ],
+            "environment": {
+              "BLAS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": "1"
+            },
+            "nice": 19,
+            "torch_interop_threads": 1,
+            "torch_threads": 1
+          },
+          "packages": [
+            "cuda-bindings==13.4.4",
+            "cuda-pathfinder==1.8.4",
+            "cuda-toolkit==13.0.3.0",
+            "filelock==4.2.4",
+            "fsspec==2026.9.0",
+            "iniconfig==2.3.1",
+            "Jinja2==3.1.6",
+            "MarkupSafe==3.0.4",
+            "mpmath==1.3.0",
+            "networkx==3.7",
+            "numpy==2.5.3",
+            "nvidia-cublas==13.1.1.3",
+            "nvidia-cuda-cupti==13.0.85",
+            "nvidia-cuda-nvrtc==13.0.88",
+            "nvidia-cuda-runtime==13.0.96",
+            "nvidia-cudnn-cu13==9.24.0.43",
+            "nvidia-cufft==12.0.0.61",
+            "nvidia-cufile==1.15.1.6",
+            "nvidia-curand==10.4.0.35",
+            "nvidia-cusolver==12.0.4.66",
+            "nvidia-cusparse==12.6.3.3",
+            "nvidia-cusparselt-cu13==0.8.1",
+            "nvidia-nccl-cu13==2.30.7",
+            "nvidia-nvjitlink==13.4.92",
+            "nvidia-nvshmem-cu13==3.4.5",
+            "nvidia-nvtx==13.0.85",
+            "packaging==26.3",
+            "pip==26.2.1",
+            "pluggy==1.7.0",
+            "Pygments==2.21.0",
+            "pytest==9.1.1",
+            "ruff==0.15.13",
+            "setuptools==84.2.1",
+            "sympy==1.14.0",
+            "torch==2.14.0+cu130",
+            "triton==3.8.0",
+            "typing_extensions==4.16.0"
+          ],
+          "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+          "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+          "resource_limits": {
+            "address_space_limit": "17179869184",
+            "allowed_cpus": "30",
+            "cpu_quota": "25%",
+            "cpu_weight": "1",
+            "memory_max": "4294967296",
+            "nice": 19,
+            "workers": 1
+          },
+          "runtime_assets": {
+            "historical_lfs_pointer_commit": "ff0805ea6572dcf297a2f13db66abab28ad915e8",
+            "historical_lfs_pointer_git_blob": "27beb8c0bc8ce2351957ab9792971535cb4517ae",
+            "historical_lfs_pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+            "historical_lfs_pointer_size_bytes": 134,
+            "native_probe_path": "model-artifact/runtime/kalah_v1_tablebase",
+            "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+            "tablebase_materialized_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+            "tablebase_materialized_size_bytes": 709635072,
+            "tablebase_repository_path": "model-artifact/runtime/kalah_v1_21.kvtb",
+            "tablebase_repository_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+            "tablebase_repository_size_bytes": 134,
+            "tablebase_runtime_path": "/home/alex/Mancala/ai/.tmp/seed542-screen-runtime/kalah_v1_21.kvtb"
+          },
+          "torch": "2.14.0+cu130",
+          "torch_interop_threads": 1,
+          "torch_threads": 1
+        },
+        "runtime_authentication_sha256": "b37b3bd1f588a893fe714ba6271b07850ab83f9c807eb10a7790fdfba5377ecf",
+        "search_policy_sidecar_sha256": {
+          "C128": "9d16cb37491c023c2a44ad8dcad047755162991602165b3b0eb6a51460ec355a",
+          "T512": "9d16cb37491c023c2a44ad8dcad047755162991602165b3b0eb6a51460ec355a",
+          "initializer": "9d16cb37491c023c2a44ad8dcad047755162991602165b3b0eb6a51460ec355a"
+        },
+        "seed": 1010,
+        "tablebase_object_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "tablebase_object_size_bytes": 709635072,
+        "tablebase_repository_pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+        "tablebase_repository_pointer_size_bytes": 134,
+        "tablebase_resolved_runtime_path": "/home/alex/Mancala/ai/.tmp/seed542-screen-runtime/kalah_v1_21.kvtb"
+      },
+      "simulations": 128,
+      "version": "v1"
+    },
+    "search_profile_hash": "cbf89c3c6402c49a1ef6a497b0d55cf93e1a5bc67fd79c2ec47ef3dcbd96c490",
+    "seed": 1010,
+    "seed555_execution_identity": {
+      "command_preflight_entry_sha256": "a0169e8a753bb45805043509535bb640d91e907f8b26e06bd9140c2f76537797",
+      "component_artifact_sha256": {
+        "C128": "6957ac4a9db529f51ec184a04c01304c2a6453de300c69f7c53de16634626205",
+        "T512": "8940cbff36976801e74542f5ee2d6c5caffe0cafd57c7e787cdb375f3bbe485e",
+        "initializer": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c"
+      },
+      "component_assignments": {
+        "challenger": "T512 update-108 policy and its own trunk",
+        "challenger_policy_artifact": "T512",
+        "challenger_policy_trunk": "T512",
+        "challenger_value_artifact": "initializer",
+        "challenger_value_trunk": "initializer",
+        "opponent": "C128 update-108 policy and its own trunk",
+        "opponent_policy_artifact": "C128",
+        "opponent_policy_trunk": "C128",
+        "opponent_value_artifact": "initializer",
+        "opponent_value_trunk": "initializer"
+      },
+      "historical_lfs_pointer_git_blob": "27beb8c0bc8ce2351957ab9792971535cb4517ae",
+      "historical_lfs_pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+      "live_cpu_max": "25000 100000",
+      "live_cpu_max_path": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/seed555-policy-strength-screen.service/cpu.max",
+      "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "observed_runtime": {
+        "address_space_rlimit": [
+          17179869184,
+          17179869184
+        ],
+        "cgroup_limits": {
+          "cpu.max": "25000 100000",
+          "cpu.weight": "1",
+          "cpuset.cpus.effective": null,
+          "memory.max": "4294967296"
+        },
+        "cpu_affinity": [
+          30
+        ],
+        "environment": {
+          "BLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1"
+        },
+        "nice": 19,
+        "torch_interop_threads": 1,
+        "torch_threads": 1
+      },
+      "opening_index": 465,
+      "registered_runtime": {
+        "cgroup_scope_diagnostic": {
+          "cpu.max_path": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/seed555-policy-strength-prepare-final.service/cpu.max",
+          "limits": {
+            "cpu.max": "25000 100000",
+            "cpu.weight": "1",
+            "cpuset.cpus.effective": null,
+            "memory.max": "4294967296"
+          },
+          "membership": "/user.slice/user-1000.slice/user@1000.service/app.slice/seed555-policy-strength-prepare-final.service"
+        },
+        "device": "cpu",
+        "dtype": "float32",
+        "environment": {
+          "BLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1"
+        },
+        "executable": "/home/alex/Mancala/ai/.tmp/seed542-continuation-prep/.tmp/seed542-recorded-runtime/bin/python",
+        "numpy": "2.5.3",
+        "observed": {
+          "address_space_rlimit": [
+            17179869184,
+            17179869184
+          ],
+          "cgroup_limits": {
+            "cpu.max": "25000 100000",
+            "cpu.weight": "1",
+            "cpuset.cpus.effective": null,
+            "memory.max": "4294967296"
+          },
+          "cpu_affinity": [
+            30
+          ],
+          "environment": {
+            "BLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "NUMEXPR_NUM_THREADS": "1",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1"
+          },
+          "nice": 19,
+          "torch_interop_threads": 1,
+          "torch_threads": 1
+        },
+        "packages": [
+          "cuda-bindings==13.4.4",
+          "cuda-pathfinder==1.8.4",
+          "cuda-toolkit==13.0.3.0",
+          "filelock==4.2.4",
+          "fsspec==2026.9.0",
+          "iniconfig==2.3.1",
+          "Jinja2==3.1.6",
+          "MarkupSafe==3.0.4",
+          "mpmath==1.3.0",
+          "networkx==3.7",
+          "numpy==2.5.3",
+          "nvidia-cublas==13.1.1.3",
+          "nvidia-cuda-cupti==13.0.85",
+          "nvidia-cuda-nvrtc==13.0.88",
+          "nvidia-cuda-runtime==13.0.96",
+          "nvidia-cudnn-cu13==9.24.0.43",
+          "nvidia-cufft==12.0.0.61",
+          "nvidia-cufile==1.15.1.6",
+          "nvidia-curand==10.4.0.35",
+          "nvidia-cusolver==12.0.4.66",
+          "nvidia-cusparse==12.6.3.3",
+          "nvidia-cusparselt-cu13==0.8.1",
+          "nvidia-nccl-cu13==2.30.7",
+          "nvidia-nvjitlink==13.4.92",
+          "nvidia-nvshmem-cu13==3.4.5",
+          "nvidia-nvtx==13.0.85",
+          "packaging==26.3",
+          "pip==26.2.1",
+          "pluggy==1.7.0",
+          "Pygments==2.21.0",
+          "pytest==9.1.1",
+          "ruff==0.15.13",
+          "setuptools==84.2.1",
+          "sympy==1.14.0",
+          "torch==2.14.0+cu130",
+          "triton==3.8.0",
+          "typing_extensions==4.16.0"
+        ],
+        "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+        "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+        "resource_limits": {
+          "address_space_limit": "17179869184",
+          "allowed_cpus": "30",
+          "cpu_quota": "25%",
+          "cpu_weight": "1",
+          "memory_max": "4294967296",
+          "nice": 19,
+          "workers": 1
+        },
+        "runtime_assets": {
+          "historical_lfs_pointer_commit": "ff0805ea6572dcf297a2f13db66abab28ad915e8",
+          "historical_lfs_pointer_git_blob": "27beb8c0bc8ce2351957ab9792971535cb4517ae",
+          "historical_lfs_pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+          "historical_lfs_pointer_size_bytes": 134,
+          "native_probe_path": "model-artifact/runtime/kalah_v1_tablebase",
+          "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+          "tablebase_materialized_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+          "tablebase_materialized_size_bytes": 709635072,
+          "tablebase_repository_path": "model-artifact/runtime/kalah_v1_21.kvtb",
+          "tablebase_repository_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+          "tablebase_repository_size_bytes": 134,
+          "tablebase_runtime_path": "/home/alex/Mancala/ai/.tmp/seed542-screen-runtime/kalah_v1_21.kvtb"
+        },
+        "torch": "2.14.0+cu130",
+        "torch_interop_threads": 1,
+        "torch_threads": 1
+      },
+      "runtime_authentication_sha256": "b37b3bd1f588a893fe714ba6271b07850ab83f9c807eb10a7790fdfba5377ecf",
+      "search_policy_sidecar_sha256": {
+        "C128": "9d16cb37491c023c2a44ad8dcad047755162991602165b3b0eb6a51460ec355a",
+        "T512": "9d16cb37491c023c2a44ad8dcad047755162991602165b3b0eb6a51460ec355a",
+        "initializer": "9d16cb37491c023c2a44ad8dcad047755162991602165b3b0eb6a51460ec355a"
+      },
+      "seed": 1010,
+      "tablebase_object_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "tablebase_object_size_bytes": 709635072,
+      "tablebase_repository_pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+      "tablebase_repository_pointer_size_bytes": 134,
+      "tablebase_resolved_runtime_path": "/home/alex/Mancala/ai/.tmp/seed542-screen-runtime/kalah_v1_21.kvtb"
+    },
+    "seed_contract": "azlite_eval_seed_v2",
+    "seed_identity_ledger_sha256": "1ea3cac871f3d649ff144d21f9a4be24e6a1ff639e8f68abd62e1c7e24d5af19",
+    "seed_ledger_hash": "1ea3cac871f3d649ff144d21f9a4be24e6a1ff639e8f68abd62e1c7e24d5af19",
+    "seed_ledger_output": null,
+    "seed_ledger_records": 68,
+    "suite_sha256": "300509441ad7538245e513d1e1893829178a34ec350c639d6bf25afc2b795715",
+    "value_transform_hash": null,
+    "value_transform_summary": null,
+    "worker_game_counts": [
+      2
+    ],
+    "workers_requested": 1,
+    "workers_used": 1
+  },
+  "opening_cache_summary": {
+    "latency_delta_ms": null,
+    "opening_bucket_quality_delta": null,
+    "runtime_hit_rate": null,
+    "training_hit_rate": null
+  },
+  "promotion_decision": {
+    "passed": false
+  },
+  "root_prior_telemetry": {
+    "challenger": {
+      "activation_count": 0,
+      "activation_rate": 0.0,
+      "average_mass_shift": null,
+      "legal_move_context_counts": {
+        "legal_move_count": 0,
+        "no_extra_turn_capture_count": 0,
+        "no_extra_turn_noncapture_seed5_count": 0,
+        "seed4_extra_turn_count": 0
+      },
+      "root_states_evaluated": 11,
+      "top_changed_move_feature_patterns": []
+    },
+    "current": {
+      "activation_count": 0,
+      "activation_rate": 0.0,
+      "average_mass_shift": null,
+      "legal_move_context_counts": {
+        "legal_move_count": 0,
+        "no_extra_turn_capture_count": 0,
+        "no_extra_turn_noncapture_seed5_count": 0,
+        "seed4_extra_turn_count": 0
+      },
+      "root_states_evaluated": 11,
+      "top_changed_move_feature_patterns": []
+    }
+  },
+  "schema": "arena_v1",
+  "score": 0.5,
+  "threshold": 0.55,
+  "threshold_margin": -0.050000000000000044,
+  "unstable_decision": true,
+  "wins": 1
+}
