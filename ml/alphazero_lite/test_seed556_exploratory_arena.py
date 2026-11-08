@@ -27,6 +27,11 @@ def _execution_fixture(tmp_path: Path, monkeypatch, opening_count: int = 1):
     frozen_source = root / "frozen_source.py"
     frozen_source.write_text("FROZEN = True\n")
     source_hashes = {"frozen_source.py": protocol.sha256(frozen_source)}
+    verifier_source = (
+        root / "ml/alphazero_lite/verify_seed556_completion_order_correction.py"
+    )
+    verifier_source.parent.mkdir(parents=True)
+    verifier_source.write_text("# fixture verifier source\n")
     (output / "openings.jsonl").write_bytes(raw_openings)
     for index, row in enumerate(raw_openings.splitlines(keepends=True)):
         (batch / f"opening-{index:04d}.jsonl").write_bytes(row)
@@ -94,7 +99,9 @@ def _execution_fixture(tmp_path: Path, monkeypatch, opening_count: int = 1):
     monkeypatch.setattr(protocol, "TABLEBASE_SHA256", protocol.sha256(materialized))
     monkeypatch.setattr(protocol, "TABLEBASE_SIZE", materialized.stat().st_size)
     preflight = {
+        "exact_root_native_probe": str(probe.resolve()),
         "exact_root_native_probe_sha256": protocol.sha256(probe),
+        "exact_root_tablebase": str(materialized.resolve()),
         "exact_root_tablebase_sha256": protocol.sha256(materialized),
     }
     runner.write_json(output / "runtime-policy-preflight.json", preflight)
@@ -357,16 +364,48 @@ def test_automatic_finalization_reconciles_completion_order_without_receipts(
             (output / "command-preflight.jsonl").read_text().splitlines()[opening]
         )
         runner.write_json(command_path, command)
-        (batch / f"games-{opening:04d}.jsonl").write_text("saved games\n")
-        (batch / f"report-{opening:04d}.json").write_text("saved report\n")
+        games_path = batch / f"games-{opening:04d}.jsonl"
+        report_path = batch / f"report-{opening:04d}.json"
+        games = [
+            {
+                "game_index": seat,
+                "game_within_opening": seat,
+                "challenger_player": seat,
+                "winner": "challenger" if seat == 0 else "current",
+                "margin": 3 if seat == 0 else -3,
+            }
+            for seat in (0, 1)
+        ]
+        games_path.write_text("".join(json.dumps(game) + "\n" for game in games))
+        report_path.write_text(
+            json.dumps(
+                {
+                    "schema": "arena_v1",
+                    "games_played": 2,
+                    "wins": 1,
+                    "losses": 1,
+                    "draws": 0,
+                    "notes": {},
+                }
+            )
+            + "\n"
+        )
+        runner.write_json(
+            batch / f"attempt-{opening:04d}-00.json",
+            {"returncode": 0, "stdout": "", "stderr": ""},
+        )
         pair = [
             {
                 "opening_index": opening,
                 "game_position": seat,
-                "outcome": outcome,
+                "outcome": "T512" if seat == 0 else "P",
+                "margin": 3 if seat == 0 else -3,
                 "capped_nonterminal": False,
+                "games_sha256": protocol.sha256(games_path),
+                "report_sha256": protocol.sha256(report_path),
+                "command_sha256": protocol.sha256(command_path),
             }
-            for seat, outcome in enumerate(("T512", "P"))
+            for seat in (0, 1)
         ]
         committed_rows.extend(pair)
         runner.write_json(
@@ -396,25 +435,40 @@ def test_automatic_finalization_reconciles_completion_order_without_receipts(
         "validate_pair",
         lambda _root, _output, index: committed_rows[index * 2 : index * 2 + 2],
     )
-    verifier = Mock(
-        return_value={
-            "status": "verified_complete",
-            "validated_games": 4,
-            "validated_pairs": 2,
-        }
+    from ml.alphazero_lite import (
+        verify_seed551_controlled_policy_strength as gamecheck,
+    )
+    from ml.alphazero_lite import verify_seed552_c108_serving_p as prior_verify
+    from ml.alphazero_lite import verify_seed556_completion_order_correction as verifier
+
+    monkeypatch.setattr(gamecheck, "replay_suite", lambda _root: [{}, {}])
+    monkeypatch.setattr(
+        gamecheck, "_validate_arena_local_opening_index", lambda _row: None
     )
     monkeypatch.setattr(
-        "ml.alphazero_lite.verify_seed556_completion_order_correction.verify",
+        prior_verify,
+        "_outcome",
+        lambda _opening, game: (
+            "C" if game["winner"] == "challenger" else "P",
+            game["margin"],
+            False,
+        ),
+    )
+    monkeypatch.setattr(
         verifier,
+        "validate_report_profile",
+        lambda *_: None,
     )
     launch = Mock()
     monkeypatch.setattr(runner.subprocess, "run", launch)
     assert not (output / "verification-receipt.json").exists()
     runner.execute(root, output)
     launch.assert_not_called()
-    verifier.assert_called_once_with(
-        root.resolve(), output.resolve(), require_published_receipt=False
-    )
+    assert (output / "verification-receipt.json").is_file()
+    checked = verifier.verify(root, output)
+    assert checked["status"] == "verified_complete_with_completion_order_correction"
+    receipt = json.loads((output / "verification-receipt.json").read_text())
+    assert "runtime-policy-preflight.json" in receipt["evidence_sha256"]
     assert (
         json.loads((output / "execution-progress.json").read_text())["status"]
         == "complete_verified"

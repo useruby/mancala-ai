@@ -204,6 +204,7 @@ def prepare(root: Path = ROOT, output: Path = OUT) -> dict:
                 "ml/alphazero_lite/verify_seed552_c108_serving_p.py",
                 "ml/alphazero_lite/verify_seed555_attempt_ledger.py",
                 "ml/alphazero_lite/verify_seed556_completion_order_correction.py",
+                "ml/alphazero_lite/publish_seed556_verification.py",
             )
         },
         "tablebase_lfs_pointer_sha256": protocol.sha256(root / protocol.TABLEBASE_PATH),
@@ -241,6 +242,7 @@ def prepare(root: Path = ROOT, output: Path = OUT) -> dict:
                 "ml/alphazero_lite/verify_seed552_c108_serving_p.py",
                 "ml/alphazero_lite/verify_seed555_attempt_ledger.py",
                 "ml/alphazero_lite/verify_seed556_completion_order_correction.py",
+                "ml/alphazero_lite/publish_seed556_verification.py",
             )
         },
     }
@@ -463,31 +465,11 @@ def execute(root: Path = ROOT, output: Path = OUT) -> None:
         )
         == protocol.OPENINGS
     ):
-        from ml.alphazero_lite import (
-            verify_seed556_completion_order_correction as verifier,
-        )
+        from ml.alphazero_lite.publish_seed556_verification import publish
 
-        verified = finalize(
+        finalize(
             output,
-            lambda out: verifier.verify(root, out, require_published_receipt=False),
-        )
-        write_json(output / "verification.json", verified)
-        write_json(
-            output / "verification-receipt.json",
-            {
-                "status": verified["status"],
-                "verified_games": verified["validated_games"],
-                "verified_pairs": verified["validated_pairs"],
-                "verification_sha256": protocol.sha256(output / "verification.json"),
-            },
-        )
-        write_json(
-            output / "execution-progress.json",
-            {
-                "status": "complete_verified",
-                "committed_opening_pairs": protocol.OPENINGS,
-                "committed_games": protocol.GAMES,
-            },
+            lambda out: publish(root, out),
         )
 
 
@@ -772,9 +754,7 @@ def finalize(output: Path, verifier) -> dict:
     (output / "per-opening-scores.jsonl").write_text(
         "".join(protocol.stable_json(row).decode() + "\n" for row in scores)
     )
-    result = verifier(output)
-    write_json(output / "verification.json", result)
-    return result
+    return verifier(output)
 
 
 def main() -> None:

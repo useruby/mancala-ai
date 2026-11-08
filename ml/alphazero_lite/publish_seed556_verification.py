@@ -38,7 +38,12 @@ def _write_json(path: Path, value: Any) -> None:
 def publish(root: Path, output: Path) -> dict[str, Any]:
     root, output = root.resolve(), output.resolve()
     before = _snapshot(output)
-    result = verifier.verify(root, output)
+    receipt_path = output / "verification-receipt.json"
+    result = verifier.verify(
+        root,
+        output,
+        require_published_receipt=receipt_path.is_file(),
+    )
     after = _snapshot(output)
     if before != after:
         raise ValueError("seed556_read_only_verifier_changed_evidence")
