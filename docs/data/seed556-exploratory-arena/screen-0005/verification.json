@@ -1,0 +1,48 @@
+{
+  "all_games_terminal": true,
+  "all_games_valid": true,
+  "analysis": {
+    "bootstrap_resamples": 20000,
+    "bootstrap_seed": 545,
+    "capped_nonterminal_games": 0,
+    "capped_nonterminal_prevents_valid_decision": false,
+    "capped_outcomes_by_winner": {
+      "C128": 0,
+      "T512": 0,
+      "draw": 0
+    },
+    "decision": "do_not_advance_T512",
+    "descriptive_95_interval": [
+      0.484130859375,
+      0.510986328125
+    ],
+    "games": 2048,
+    "one_sided_95_lower": 0.486572265625,
+    "opening_pairs": 1024,
+    "opponent": "frozen serving P (seed504 E4)",
+    "promotion_or_deployment_authorized": false,
+    "quantile_method": "NumPy linear",
+    "sampling": "opening clusters with replacement; duplicate selections retained",
+    "score": 0.497802734375,
+    "status": "complete",
+    "strength_decision_valid": true,
+    "terminal_draws": 193,
+    "terminal_losses": 932,
+    "terminal_wins": 923
+  },
+  "component_artifacts_rehashed": true,
+  "correction": "ledger rows validated in completion order and compared after indexed normalization; raw ledger unchanged",
+  "correction_verifier_sha256": "13a580d5990f295cf12aca3b40138d4d0db2d0d86734a19ee2c0fd0a623e6764",
+  "evidence_files_checked": 6182,
+  "evidence_snapshot_sha256": "223aa7d1f854f1b5fb74ee019dbbc53c50e54e8ae9168c5921132803a05f3ad4",
+  "execution_source_snapshot_count": 8,
+  "frozen_execution_sources_rehashed": true,
+  "materialized_tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+  "materialized_tablebase_size_bytes": 709635072,
+  "native_probe_rehashed": true,
+  "read_only_bytes_and_mtimes_unchanged": true,
+  "repository_lfs_pointer_rehashed": true,
+  "status": "verified_complete_with_completion_order_correction",
+  "validated_games": 2048,
+  "validated_pairs": 1024
+}

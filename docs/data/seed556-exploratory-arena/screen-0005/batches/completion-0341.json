@@ -1,0 +1,26 @@
+{
+  "command_sha256": "77302365a2a45bdc1290f2c051f03c9e2d9e408fcc02abaacf14a132ea0a895e",
+  "opening_index": 341,
+  "outcomes": [
+    {
+      "capped_nonterminal": false,
+      "command_sha256": "77302365a2a45bdc1290f2c051f03c9e2d9e408fcc02abaacf14a132ea0a895e",
+      "game_position": 0,
+      "games_sha256": "ccbab853ed2dac1f101fb048e36c098c35647af5a76e867f2a5d6bfbf7d8d034",
+      "margin": -6,
+      "opening_index": 341,
+      "outcome": "P",
+      "report_sha256": "5d604595dc0f116c1b9de2c48a46062e61cea830ccc0b89c12d4589264541a93"
+    },
+    {
+      "capped_nonterminal": false,
+      "command_sha256": "77302365a2a45bdc1290f2c051f03c9e2d9e408fcc02abaacf14a132ea0a895e",
+      "game_position": 1,
+      "games_sha256": "ccbab853ed2dac1f101fb048e36c098c35647af5a76e867f2a5d6bfbf7d8d034",
+      "margin": 10,
+      "opening_index": 341,
+      "outcome": "T512",
+      "report_sha256": "5d604595dc0f116c1b9de2c48a46062e61cea830ccc0b89c12d4589264541a93"
+    }
+  ]
+}
