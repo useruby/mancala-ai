@@ -30,6 +30,60 @@ def jsonl(path: Path):
     return [json.loads(x) for x in path.read_text().splitlines() if x]
 
 
+def authenticate_556(data556: Path, relative_paths=None) -> dict:
+    """Authenticate the receipt and selected receipt-bound #556 source bytes."""
+    receipt_path = data556 / "verification-receipt.json"
+    if (
+        digest(receipt_path)
+        != "a318933da72b8ed23cb5487fbbd8e57edd0d1d407ba9bc1f8485b0736fcdfbe7"
+    ):
+        raise ValueError("556_verification_receipt_identity_mismatch")
+    receipt = json.loads(receipt_path.read_text())
+    paths = relative_paths or [
+        "registration.json",
+        "execution-freeze.json",
+        "openings.jsonl",
+        "outcomes.jsonl",
+        *[f"batches/games-{i:04d}.jsonl" for i in range(1024)],
+    ]
+    for relative in paths:
+        expected = receipt["evidence_sha256"].get(relative)
+        if expected is None:
+            raise ValueError(f"556_receipt_binding_missing:{relative}")
+        path = data556 / relative
+        if not path.is_file() or digest(path) != expected:
+            raise ValueError(f"556_receipt_bytes_mismatch:{relative}")
+    return receipt
+
+
+def load_pinned_cohort(
+    path: Path, expected_sha256: str, source_name: str
+) -> list[dict]:
+    """Load a publication-pinned cohort and require a state in every record."""
+    if digest(path) != expected_sha256:
+        raise ValueError(f"{source_name}_cohort_bytes_mismatch")
+    doc = json.loads(path.read_text())
+    rows = doc.get("states") if isinstance(doc, dict) else None
+    if not isinstance(rows, list) or not rows:
+        raise ValueError(f"{source_name}_cohort_states_missing")
+    for index, row in enumerate(rows):
+        if not isinstance(row, dict) or not isinstance(row.get("state"), dict):
+            raise ValueError(f"{source_name}_cohort_state_missing:{index}")
+    return rows
+
+
+def verify_subset(rows, source_name, ids556):
+    """Require each declared cohort root to exist in both replayed indexes."""
+    for index, row in enumerate(rows):
+        state = row["state"]
+        if (
+            canonical_identity(state) not in ids556["canonical"]
+            or production_float32_identity(state) not in ids556["kalah_v3_float32"]
+        ):
+            raise ValueError(f"{source_name}_root_outside_556_population:{index}")
+    return len(rows)
+
+
 def validate_alias_records(arms, roots):
     """Validate every arm then reject aliases whose complete outcomes differ."""
     aliases = {}
@@ -69,26 +123,7 @@ def census(data556=S556, data560=S560):
         != "5c47e4d161077f3b438d737887da35b73ca3dddab7d60db22fed19bd6dd3d8a3"
     ):
         raise ValueError("560_continuation_bytes_mismatch")
-    receipt = json.loads((data556 / "verification-receipt.json").read_text())
-    if (
-        digest(data556 / "verification-receipt.json")
-        != "a318933da72b8ed23cb5487fbbd8e57edd0d1d407ba9bc1f8485b0736fcdfbe7"
-    ):
-        raise ValueError("556_verification_receipt_identity_mismatch")
-    relevant = [
-        "registration.json",
-        "execution-freeze.json",
-        "openings.jsonl",
-        "outcomes.jsonl",
-    ]
-    relevant += [f"batches/games-{i:04d}.jsonl" for i in range(1024)]
-    for relative in relevant:
-        expected = receipt["evidence_sha256"].get(relative)
-        if expected is None:
-            raise ValueError(f"556_receipt_binding_missing:{relative}")
-        path = data556 / relative
-        if not path.is_file() or digest(path) != expected:
-            raise ValueError(f"556_receipt_bytes_mismatch:{relative}")
+    authenticate_556(data556)
     cohort = json.loads(cohort_path.read_text())["states"]
     arms = jsonl(continuation_path)
     if len(arms) != 512:
@@ -139,7 +174,7 @@ def census(data556=S556, data560=S560):
             add560(state, index, action, f"post_move_{step['ply']}")
             moves += 1
     # Replay registered 1,024 opening prefixes and all 2,048 game streams.
-    opening_records = jsonl(S556 / "openings.jsonl")
+    opening_records = jsonl(data556 / "openings.jsonl")
     if len(opening_records) != 1024:
         raise ValueError("556_opening_count_mismatch")
     ids556 = {"canonical": set(), "kalah_v3_float32": set()}
@@ -182,7 +217,7 @@ def census(data556=S556, data560=S560):
             raise ValueError(f"556_prefix_state_mismatch:{i}")
         add556(game.to_state(), i, None, None, "opening_root")
         for seat in (0, 1):
-            path = S556 / "batches" / f"games-{i:04d}.jsonl"
+            path = data556 / "batches" / f"games-{i:04d}.jsonl"
             rows = jsonl(path)
             if len(rows) != 2:
                 raise ValueError(f"556_pair_size:{i}")
@@ -218,28 +253,32 @@ def census(data556=S556, data560=S560):
         }
     # Check published diagnostic-root cohorts against the replayed #556 population.
     subset_counts = {}
-    for name, path in (
-        ("557", BASE / "seed557-retrospective-diagnostic/cohort.json"),
+    for name, path, pinned_hash in (
+        (
+            "557",
+            BASE / "seed557-retrospective-diagnostic/cohort.json",
+            "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243",
+        ),
         (
             "559",
             BASE / "seed559-fixed-position-feasibility/run-0003/cohort-manifest.json",
+            "f2e03fb9491474056e7a7cb3ace225cd2310f9069c9e48600d45039ed63158fb",
         ),
-        ("560", data560 / "cohort-manifest.json"),
+        (
+            "560",
+            data560 / "cohort-manifest.json",
+            "fe24d68aea9a158cb441aa886a60adc26631805c5b1213f14fceb4aa4ce4a254",
+        ),
     ):
-        doc = json.loads(path.read_text())
-        rows = doc.get("states", doc if isinstance(doc, list) else [])
-        for row in rows:
-            state = row.get("state")
-            if state is None:
-                continue
-            if (
-                canonical_identity(state) not in ids556["canonical"]
-                or production_float32_identity(state) not in ids556["kalah_v3_float32"]
-            ):
-                raise ValueError(f"{name}_root_outside_556_population")
-        subset_counts[name] = len(rows)
+        rows = load_pinned_cohort(path, pinned_hash, name)
+        subset_counts[name] = verify_subset(rows, name, ids556)
     cohort557 = BASE / "seed557-retrospective-diagnostic/cohort.json"
     cohort558 = BASE / "seed558-value-only-swap/cohort.json"
+    if (
+        digest(cohort558)
+        != "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243"
+    ):
+        raise ValueError("558_cohort_bytes_mismatch")
     if cohort557.read_bytes() != cohort558.read_bytes():
         raise ValueError("558_cohort_not_exact_557_reuse")
     return (
@@ -314,6 +353,11 @@ def main():
                 "continuations_sha256": digest(S560 / "continuations.jsonl"),
                 "merged_commit": "8bf3d551c678066f0863002e1cba295c8834689b",
             },
+        },
+        "declared_cohorts": {
+            "557": "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243",
+            "558": "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243",
+            "559": "f2e03fb9491474056e7a7cb3ace225cd2310f9069c9e48600d45039ed63158fb",
         },
         "identity_schemes": [
             "canonical_state_sha256",

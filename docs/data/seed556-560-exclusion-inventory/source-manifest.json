@@ -1,5 +1,10 @@
 {
   "anchor_commit": "2e92bbfd3f90c9517c4c4449d3bebd750f22ee71",
+  "declared_cohorts": {
+    "557": "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243",
+    "558": "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243",
+    "559": "f2e03fb9491474056e7a7cb3ace225cd2310f9069c9e48600d45039ed63158fb"
+  },
   "identity_schemes": [
     "canonical_state_sha256",
     "kalah_v3_little_endian_float32_sha256"
