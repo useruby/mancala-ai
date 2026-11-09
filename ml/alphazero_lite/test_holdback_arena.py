@@ -29,7 +29,7 @@ def write_rows(path: Path, rows: list[dict]) -> bytes:
     return payload
 
 
-def setup_bundle(path: Path, *, consumed: bool = True) -> str:
+def setup_bundle(path: Path, *, consumed: bool = True) -> dict[str, str]:
     path.mkdir()
     pool = [row(i) for i in range(10)]
     inventory_doc = {"rows": [row(99)], "sources": [{"id": "synthetic"}]}
@@ -78,29 +78,57 @@ def setup_bundle(path: Path, *, consumed: bool = True) -> str:
         event = protocol.lifecycle_event(kind, payload, previous)
         events.append(event)
         previous = event["event_sha256"]
+    start = datetime(2026, 1, 1, tzinfo=timezone.utc)
+
+    def publish_anchor(event_list, log_name, anchor_name, time_offset):
+        event_raw = protocol.event_log_bytes(event_list)
+        (path / log_name).write_bytes(event_raw)
+        anchor = {
+            "lifecycle_path": log_name,
+            "lifecycle_sha256": protocol.sha256(event_raw),
+            "checkpoints": [
+                {
+                    "event_sha256": event["event_sha256"],
+                    "anchored_at_utc": (
+                        start + timedelta(seconds=time_offset + index)
+                    ).isoformat(),
+                }
+                for index, event in enumerate(event_list)
+            ],
+        }
+        anchor_raw = protocol.canonical_bytes(anchor)
+        (path / anchor_name).write_bytes(anchor_raw)
+        return protocol.sha256(anchor_raw)
+
+    reveal_anchor = publish_anchor(
+        events, "lifecycle-reveal.jsonl", "anchor-reveal.json", 0
+    )
+    latest_anchor = reveal_anchor
     if consumed:
         events.append(
             protocol.lifecycle_event(
                 "consumption", {"commitment": commitment}, previous
             )
         )
-    event_raw = protocol.event_log_bytes(events)
-    (path / "lifecycle.jsonl").write_bytes(event_raw)
-    start = datetime(2026, 1, 1, tzinfo=timezone.utc)
-    anchor = {
-        "lifecycle_sha256": protocol.sha256(event_raw),
-        "checkpoints": [
-            {
-                "event_sha256": event["event_sha256"],
-                "anchored_at_utc": (start + timedelta(seconds=index)).isoformat(),
-            }
-            for index, event in enumerate(events)
-        ],
+        latest_anchor = publish_anchor(events, "lifecycle.jsonl", "anchor.json", 10)
+    else:
+        (path / "lifecycle.jsonl").write_bytes(
+            (path / "lifecycle-reveal.jsonl").read_bytes()
+        )
+        (path / "anchor.json").write_bytes((path / "anchor-reveal.json").read_bytes())
+    registry_raw = protocol.canonical_bytes(
+        {
+            "commitment": commitment,
+            "latest_anchor_sha256": latest_anchor,
+            "consumed": consumed,
+        }
+    )
+    (path / "custodian-state.json").write_bytes(registry_raw)
+    return {
+        "reveal_anchor": reveal_anchor,
+        "latest_anchor": latest_anchor,
+        "registry": protocol.sha256(registry_raw),
     }
-    anchor_raw = protocol.canonical_bytes(anchor)
-    (path / "anchor.json").write_bytes(anchor_raw)
-    # This digest is returned out of band, not looked up by the verifier.
-    return protocol.sha256(anchor_raw)
 
 
 class HoldbackProtocolTest(unittest.TestCase):
@@ -108,11 +136,13 @@ class HoldbackProtocolTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             source = root / "source"
-            anchor = setup_bundle(source, consumed=False)
+            trusted = setup_bundle(source, consumed=False)
             copied = root / "copy"
             shutil.copytree(source, copied)
             shutil.rmtree(source)
-            result = protocol.verify(copied, anchor)
+            result = protocol.verify(
+                copied, trusted["latest_anchor"], trusted["registry"]
+            )
             self.assertEqual(result["openings"], 4)
             self.assertTrue(result["held_back_eligible"])
 
@@ -129,39 +159,55 @@ class HoldbackProtocolTest(unittest.TestCase):
     def test_changed_suite_order_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
             bundle = Path(temp) / "bundle"
-            anchor = setup_bundle(bundle)
+            trusted = setup_bundle(bundle)
             lines = (bundle / "suite.jsonl").read_bytes().splitlines(keepends=True)
             (bundle / "suite.jsonl").write_bytes(b"".join(reversed(lines)))
             with self.assertRaisesRegex(ValueError, "suite_bytes_changed"):
-                protocol.verify(bundle, anchor)
+                protocol.verify(bundle, trusted["latest_anchor"], trusted["registry"])
 
     def test_external_anchor_protects_freeze_and_consumption_lifecycle(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             bundle = root / "bundle"
-            anchor = setup_bundle(bundle, consumed=True)
-            result = protocol.verify(bundle, anchor)
+            trusted = setup_bundle(bundle, consumed=True)
+            result = protocol.verify(
+                bundle, trusted["latest_anchor"], trusted["registry"]
+            )
             self.assertTrue(result["consumed"])
             self.assertFalse(result["held_back_eligible"])
+            historical = protocol.verify(
+                bundle,
+                trusted["reveal_anchor"],
+                trusted["registry"],
+                anchor_name="anchor-reveal.json",
+            )
+            self.assertTrue(historical["verified_lifecycle_consumed"] is False)
+            self.assertTrue(historical["consumed"])
+            self.assertFalse(historical["anchor_is_current"])
+            self.assertFalse(historical["held_back_eligible"])
             # Removing a convenience marker or replacing a sidecar freeze has no
             # effect: lifecycle is contained in the independently anchored log.
             (bundle / "consumed.json").unlink(missing_ok=True)
             (bundle / "candidate-freeze.json").write_text("{}")
-            self.assertFalse(protocol.verify(bundle, anchor)["held_back_eligible"])
+            self.assertFalse(
+                protocol.verify(bundle, trusted["latest_anchor"], trusted["registry"])[
+                    "held_back_eligible"
+                ]
+            )
             event_path = bundle / "lifecycle.jsonl"
             event_path.write_bytes(event_path.read_bytes().replace(b'"a', b'"z', 1))
             with self.assertRaisesRegex(ValueError, "anchor_lifecycle_mismatch"):
-                protocol.verify(bundle, anchor)
+                protocol.verify(bundle, trusted["latest_anchor"], trusted["registry"])
 
     def test_size_mismatch_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
             bundle = Path(temp) / "bundle"
-            anchor = setup_bundle(bundle, consumed=False)
+            trusted = setup_bundle(bundle, consumed=False)
             manifest = json.loads((bundle / "manifest.json").read_text())
             manifest["generator"]["size"] = 5
             (bundle / "manifest.json").write_text(json.dumps(manifest))
             with self.assertRaisesRegex(ValueError, "suite_declared_size_mismatch"):
-                protocol.verify(bundle, anchor)
+                protocol.verify(bundle, trusted["latest_anchor"], trusted["registry"])
 
     def test_reveal_event_before_candidate_freeze_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -182,6 +228,7 @@ class HoldbackProtocolTest(unittest.TestCase):
             (bundle / "lifecycle.jsonl").write_bytes(log_raw)
             start = datetime(2026, 1, 1, tzinfo=timezone.utc)
             anchor_doc = {
+                "lifecycle_path": "lifecycle.jsonl",
                 "lifecycle_sha256": protocol.sha256(log_raw),
                 "checkpoints": [
                     {
@@ -196,8 +243,18 @@ class HoldbackProtocolTest(unittest.TestCase):
             anchor_raw = protocol.canonical_bytes(anchor_doc)
             (bundle / "anchor.json").write_bytes(anchor_raw)
             trusted_anchor = protocol.sha256(anchor_raw)
+            registry_raw = protocol.canonical_bytes(
+                {
+                    "commitment": json.loads((bundle / "manifest.json").read_text())[
+                        "commitment"
+                    ],
+                    "latest_anchor_sha256": trusted_anchor,
+                    "consumed": False,
+                }
+            )
+            (bundle / "custodian-state.json").write_bytes(registry_raw)
             with self.assertRaisesRegex(ValueError, "lifecycle_event_order"):
-                protocol.verify(bundle, trusted_anchor)
+                protocol.verify(bundle, trusted_anchor, protocol.sha256(registry_raw))
 
 
 if __name__ == "__main__":

@@ -99,7 +99,13 @@ def event_log_bytes(events: list[dict[str, Any]]) -> bytes:
     return b"".join(canonical_bytes(event) + b"\n" for event in events)
 
 
-def verify(bundle: Path, trusted_anchor_sha256: str) -> dict[str, Any]:
+def verify(
+    bundle: Path,
+    trusted_anchor_sha256: str,
+    trusted_registry_sha256: str,
+    *,
+    anchor_name: str = "anchor.json",
+) -> dict[str, Any]:
     """Verify a revealed bundle against an independently retained event-log hash.
 
     The trusted anchor is delivered out-of-band by the commitment custodian; a
@@ -146,11 +152,11 @@ def verify(bundle: Path, trusted_anchor_sha256: str) -> dict[str, Any]:
             raise ValueError("suite_duplicate_identity")
         seen["canonical"].add(can)
         seen["float32"].add(f32)
-    event_bytes = (bundle / "lifecycle.jsonl").read_bytes()
-    anchor_bytes = (bundle / "anchor.json").read_bytes()
+    anchor_bytes = (bundle / anchor_name).read_bytes()
     if sha256(anchor_bytes) != trusted_anchor_sha256:
         raise ValueError("untrusted_lifecycle_anchor")
     anchor = json.loads(anchor_bytes)
+    event_bytes = (bundle / anchor["lifecycle_path"]).read_bytes()
     if anchor.get("lifecycle_sha256") != sha256(event_bytes):
         raise ValueError("anchor_lifecycle_mismatch")
     events = [json.loads(line) for line in event_bytes.splitlines() if line]
@@ -206,10 +212,22 @@ def verify(bundle: Path, trusted_anchor_sha256: str) -> dict[str, Any]:
     consumed = len(events) == 4
     if consumed and events[3]["payload"].get("commitment") != manifest["commitment"]:
         raise ValueError("consumption_commitment_mismatch")
+    registry_bytes = (bundle / "custodian-state.json").read_bytes()
+    if sha256(registry_bytes) != trusted_registry_sha256:
+        raise ValueError("untrusted_custodian_registry")
+    registry = json.loads(registry_bytes)
+    if registry.get("commitment") != manifest["commitment"]:
+        raise ValueError("custodian_commitment_mismatch")
+    anchor_is_current = registry.get("latest_anchor_sha256") == trusted_anchor_sha256
+    if anchor_is_current and registry.get("consumed") != consumed:
+        raise ValueError("custodian_state_lifecycle_mismatch")
+    currently_consumed = bool(registry.get("consumed"))
     return {
         "status": "verified",
-        "held_back_eligible": not consumed,
-        "consumed": consumed,
+        "held_back_eligible": anchor_is_current and not currently_consumed,
+        "consumed": currently_consumed,
+        "verified_lifecycle_consumed": consumed,
+        "anchor_is_current": anchor_is_current,
         "openings": len(rows),
         "commitment": manifest["commitment"],
         "canonical_identities": len(seen["canonical"]),
@@ -225,8 +243,24 @@ def main() -> None:
         required=True,
         help="SHA-256 of anchor.json obtained independently from its custodian",
     )
+    parser.add_argument(
+        "--trusted-registry-sha256",
+        required=True,
+        help="SHA-256 of current custodian-state.json obtained independently",
+    )
+    parser.add_argument("--anchor-name", default="anchor.json")
     args = parser.parse_args()
-    print(json.dumps(verify(args.bundle, args.trusted_anchor_sha256), sort_keys=True))
+    print(
+        json.dumps(
+            verify(
+                args.bundle,
+                args.trusted_anchor_sha256,
+                args.trusted_registry_sha256,
+                anchor_name=args.anchor_name,
+            ),
+            sort_keys=True,
+        )
+    )
 
 
 if __name__ == "__main__":

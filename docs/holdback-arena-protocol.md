@@ -25,16 +25,23 @@ the #511 registration and exclusion source list bind its later inputs.
 | #557 retrospective diagnostic | Cohort SHA `f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243`; #557 README and freeze bind authenticated #556 games | 256 selected, canonical-deduplicated roots (128 per source side); no new games/positions beyond #556 continuations; production-float32 count not separately published | Reached positions sampled from #556 archived games; derived diagnostic evidence, not a separate novel arena population. |
 | #558 value-only swap | Cohort SHA `f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243` (byte-identical to #557 cohort); README says all 256 roots/oracles reused | 256 roots; 0 newly selected positions relative to #557; no new game trajectories; production-float32 count not separately published | Exact cohort reuse; #558 adds searches, not states. |
 | #559 fixed-position feasibility | Count-audit SHA `6f106dc36f36182ee09090defe646901b1bce81c2418ac73aa8b76f775fe9b1e`; cohort SHA `f2e03fb9491474056e7a7cb3ace225cd2310f9069c9e48600d45039ed63158fb`; archive receipt SHA `a318933da72b8ed23cb5487f7bbd8e57edd0d1d407ba9bc1f8485b0736fcdfbe7` | From 2,048 #556 games: 1,903 eligible first roots, 1,663 unique canonical states, 295 matching #557 excluded occurrences / 256 unique roots, 1,407 remaining roots, 512 selected (256 per side); float32 identities not separately tallied | Newly selected diagnostics roots, but all are positions within #556 trajectories; do not double-count as independent arena source. Count audit classifies canonical-state identity only. |
-| #560 paired first-action diagnostic | Cohort SHA `fe24d68aea9a158cb441aa886a60adc26631805c5b1213f14fceb4aa4ce4a254`; README binds authenticated #556 archive | 256 canonical-deduplicated roots; 313 distinct physical continuations across 512 arm records; 57 roots change action; float32 identity count not separately published | Retrospective subset of #556 reached positions. Include its source roots only as a subset of #556's replayed continuation union, not as a new independent source. |
+| #560 paired first-action diagnostic roots | Cohort SHA `fe24d68aea9a158cb441aa886a60adc26631805c5b1213f14fceb4aa4ce4a254`; freeze binds the authenticated #556 archive | 256 canonical-deduplicated selected roots; roots are a subset of reached #556 positions | Reused starting positions; not an additional root population. |
+| #560 forced continuations | `continuations.jsonl` SHA `5c47e4d161077f3b438d737887da35b73ca3dddab7d60db22fed19bd6dd3d8a3`, included in merged #560 commit `8bf3d551`; run-0004 cohort/freeze bind root and replay rules | 512 arm records, 313 distinct physical continuations, 16,107 authenticated replay actions; replay from forced child through every post-move state yields 9,849 distinct canonical identities and 9,849 production-float32 identities (terminal post-move states included) | **Separate exclusion source.** These forced P continuations are newly executed trajectories, not covered merely because their starting roots occur in #556. Their overlap with #556 continuation states has not been union-replayed and remains unresolved. |
 | #461 continuation population | #483 receipt-matching archive and source ledger; 58 game streams, 1,129,643 trajectory actions | Continuation-state identity counts unavailable/cannot be certified | **Unresolved overlap.** Published roots are included; recorded continuation actions fail canonical replay (first example illegal). No recovery attempt is reopened. |
 
-The #556–#560 evidence is now separated source-by-source. The measured
-diagnostic cohorts are mostly reused subsets of the #556 game continuations;
-they must not be summed as independent states. Counts above are the counts
-published or directly bound by the cited receipts. No float32 totals are
-inferred from canonical counts. For #556, the available development overlap
-is 1/1,024 in both identities, while the recorded T512 and P training overlaps
-are zero at the opening roots only.
+The #560 continuation census replays each arm from its frozen cohort root,
+applies the forced first action, then records every decision state and each
+post-move state through terminal scoring; identities are deduplicated using
+the production `canonical_identity` and `float32_identity` functions. The
+continuation file and cohort hashes above bind the census inputs. The #556–#560
+evidence is now separated source-by-source. #557–#560 roots are
+diagnostic subsets of #556; #560's forced continuations are separate positions
+and are counted independently above. Do not sum diagnostic cohorts as
+independent arena populations. Counts above are published or replay-derived
+from the cited byte-bound records; the remaining float32 totals are not inferred
+from canonical counts. For #556, the available development overlap is 1/1,024
+in both identities, while the recorded T512 and P training overlaps are zero at
+the opening roots only.
 
 This report distinguishes verified counts from unavailable counts; it does not
 claim complete historical disjointness. The #483 confirmation gate remains
@@ -69,11 +76,14 @@ Verification rebuilds the ordered suite from the bound pool, seed, generator,
 and inventory, then derives canonical and production-float32 identities from
 the rule state using `kalah_v3`. Its lifecycle log records commitment,
 candidate freeze, reveal, and optional consumption in order. Verification
-requires the SHA-256 of an independently retained anchor record; the anchor
-binds each lifecycle event hash to its externally recorded UTC checkpoint.
-The trust root is that separately retained digest/transparency receipt, not
-the bundle's self-asserted event log. A consumed suite verifies as consumed but
-returns `held_back_eligible: false`.
+requires the SHA-256 of an independently retained lifecycle anchor and the
+SHA-256 of the custodian's current registry state. Historical anchors remain
+valid for audit, but eligibility is granted only when the supplied anchor is
+the commitment's current registry anchor and the registry marks it unconsumed.
+Thus an older reveal anchor cannot make a suite eligible after a later
+consumption record. The trust roots are the separately retained anchor and
+current-registry digests, not bundle self-assertions. A consumed suite verifies
+as consumed but returns `held_back_eligible: false`.
 The future production generator must be separately frozen against the audited
 source inventory. A clean known-exclusion screen is readiness for an
 **exclusion-screened comparison only**. **Fresh confirmation readiness: blocked**
