@@ -1,0 +1,12 @@
+{
+  "schema": "seed559-cohort-count-audit-supplement-v1",
+  "scope": "canonical unique-state counts derived from the frozen eligible first-per-game root list; supplemental clarification only",
+  "eligible_unique_states_before_exclusion": 1663,
+  "unique_states_excluded_by_seed557": 256,
+  "unique_states_excluded_by_seed418": 0,
+  "unique_states_excluded_by_both": 0,
+  "eligible_occurrence_matches_seed557": 295,
+  "eligible_occurrence_matches_seed418": 0,
+  "unique_remaining_states": 1407,
+  "reconciliation": "1663 eligible unique states minus 256 unique #557 matches and zero unique #418 matches equals 1407 unique remaining states"
+}
