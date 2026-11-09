@@ -213,6 +213,61 @@ class Seed560PairedFirstActionTests(unittest.TestCase):
             self.assertEqual(len(outcomes), 4)
             self.assertEqual(_read_resume_evidence(output)[2], {0, 1})
 
+    def test_incomplete_legacy_tail_rejection_writes_no_new_bundles_or_ledgers(self):
+        def root_record(index):
+            return {
+                "opening_index": index,
+                "state_hash": f"state-{index}",
+                "actions": {"128": 1, "512": 2},
+            }
+
+        def arm_records(index):
+            return [
+                {
+                    "opening_index": index,
+                    "state_hash": f"state-{index}",
+                    "budget": budget,
+                    "action": action,
+                }
+                for budget, action in ((128, 1), (512, 2))
+            ]
+
+        with tempfile.TemporaryDirectory(dir=Path(__file__).parent) as temporary:
+            output = Path(temporary)
+            committed_root = root_record(0)
+            committed_arms = arm_records(0)
+            _commit_root_bundle(output, committed_root, committed_arms)
+            aggregate_roots = [committed_root, root_record(1), root_record(2)]
+            aggregate_arms = [
+                *committed_arms,
+                *arm_records(1),
+                arm_records(2)[0],
+            ]
+            (output / "root-searches.jsonl").write_text(
+                "".join(
+                    json.dumps(row, sort_keys=True) + "\n" for row in aggregate_roots
+                ),
+                encoding="utf-8",
+            )
+            (output / "continuations.jsonl").write_text(
+                "".join(
+                    json.dumps(row, sort_keys=True) + "\n" for row in aggregate_arms
+                ),
+                encoding="utf-8",
+            )
+
+            def snapshot():
+                return {
+                    path.relative_to(output).as_posix(): path.read_bytes()
+                    for path in output.rglob("*")
+                    if path.is_file()
+                }
+
+            before = snapshot()
+            with self.assertRaisesRegex(ValueError, "incomplete_legacy_root_bundle:2"):
+                _read_resume_evidence(output)
+            self.assertEqual(snapshot(), before)
+
     def test_verifier_accepts_a_fresh_freeze_with_current_runner_hash(self):
         runner_path = Path(__file__).with_name("seed560_paired_first_action.py")
         fresh_digest = sha256(runner_path.read_bytes())

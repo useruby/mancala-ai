@@ -18,7 +18,9 @@ This follow-up records the review corrections without changing the published
   commits after interruption; legacy partial roots without both arms are
   rejected before any opening is skipped. A complete legacy prefix is
   migrated to atomic bundles before the first new opening is processed, and
-  the migration resumes safely if interrupted.
+  the migration resumes safely if interrupted. The whole legacy tail is now
+  preflighted against all existing commits before any new bundle is written;
+  rejection leaves all ledgers and commit files unchanged.
 - Serving artifacts are checked against the authenticated #556 component
   registration, #552 P model identity, #555 initializer and exact-root asset
   identities before evaluator construction and again after loading.

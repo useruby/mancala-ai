@@ -286,16 +286,19 @@ def _read_resume_evidence(output: Path) -> tuple[list[dict], list[dict], set[int
                 raise ValueError(f"contradictory_root_commit_record:{index}:{budget}")
         committed[index] = (root, by_budget)
 
-    # Migrate any complete legacy tail before comparing/rebuilding the
-    # aggregate ledgers. This also makes migration restartable if interrupted.
+    # Validate the entire aggregate tail and its relation to existing commits
+    # before the first migration write. This keeps rejection side-effect free.
     aggregate_roots = _rows_by_index(existing_roots, "aggregate_root")
     aggregate_arms = {}
     for row in existing_outcomes:
         key = (int(row["opening_index"]), int(row["budget"]))
+        if key[1] not in (128, 512):
+            raise ValueError(f"invalid_aggregate_arm_budget:{key}")
         if key in aggregate_arms:
             raise ValueError(f"duplicate_aggregate_arm:{key}")
         aggregate_arms[key] = row
     aggregate_indices = set(aggregate_roots) | {key[0] for key in aggregate_arms}
+    legacy_to_migrate = []
     for index in sorted(aggregate_indices - set(committed)):
         root = aggregate_roots.get(index)
         if root is None or any(
@@ -308,6 +311,24 @@ def _read_resume_evidence(output: Path) -> tuple[list[dict], list[dict], set[int
                 "action"
             ) != root.get("actions", {}).get(str(budget)):
                 raise ValueError(f"contradictory_legacy_root_bundle:{index}:{budget}")
+        legacy_to_migrate.append((index, root, arms))
+
+    # Existing rows for committed roots may be a prefix of their atomic
+    # aggregate rewrite, but any extant disagreement is contradictory.
+    for index in sorted(aggregate_indices & set(committed)):
+        committed_root, committed_arms = committed[index]
+        root = aggregate_roots.get(index)
+        if root is not None and root != committed_root:
+            raise ValueError(f"aggregate_root_conflicts_with_commit:{index}")
+        for budget in (128, 512):
+            row = aggregate_arms.get((index, budget))
+            if row is not None and row != committed_arms[budget]:
+                raise ValueError(
+                    f"aggregate_arm_conflicts_with_commit:{index}:{budget}"
+                )
+
+    # The entire tail is known complete and consistent; only now write bundles.
+    for index, root, arms in legacy_to_migrate:
         _commit_root_bundle(output, root, [arms[128], arms[512]])
         committed[index] = (root, arms)
 
