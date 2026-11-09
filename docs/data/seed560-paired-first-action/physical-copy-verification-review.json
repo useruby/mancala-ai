@@ -1,0 +1,28 @@
+{
+  "child_stdout_sha256": "b2c6601ebf71e01044d5a0014c9cc309b847a52b61f89f0fdf0fd1163a8d216a",
+  "child_verification": {
+    "action_changes": 57,
+    "continuation_arm_records": 512,
+    "decision": "no_selective_budget_rule_test",
+    "mean_score_difference_512_minus_128": 0.013671875,
+    "paired_opening_bootstrap_95_ci": [
+      -0.017578125,
+      0.044921875
+    ],
+    "roots": 256,
+    "status": "verified",
+    "verified_continuation_search_choices": 16107,
+    "verified_root_searches": 512
+  },
+  "copied_materialized_tablebase": "/home/alex/Mancala/ai/.tmp/seed560-publish-worktree-seed560-physical-copy-3649012/.tmp/seed560-assets/kalah_v1_21.kvtb",
+  "copy_evidence_bytes_and_mtimes_unchanged": true,
+  "copy_root": "/home/alex/Mancala/ai/.tmp/seed560-publish-worktree-seed560-physical-copy-3649012",
+  "original_execution_root_hidden_during_verification": "/home/alex/Mancala/ai/.tmp/seed560-publish-worktree.hidden-for-seed560-verification",
+  "original_execution_root_inaccessible": true,
+  "original_materialized_tablebase_root": "/home/alex/Mancala/ai/.tmp/seed560-worktree",
+  "original_materialized_tablebase_root_inaccessible": true,
+  "schema": "seed560-physical-copy-verification-v1",
+  "source_evidence_bytes_and_mtimes_unchanged": true,
+  "source_evidence_files": 8,
+  "status": "passed"
+}
