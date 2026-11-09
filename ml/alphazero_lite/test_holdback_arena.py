@@ -4,100 +4,200 @@ import json
 import shutil
 import tempfile
 import unittest
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from ml.alphazero_lite import holdback_arena as protocol
 
 
-def row(n: int) -> dict:
-    return {"state": {"n": n}, "production_input": [float(n), 1.0]}
+def row(n: int, tag: str | None = None) -> dict:
+    state = {
+        "player_pits": [n, 0, 0, 0, 0, 0],
+        "opponent_pits": [0, 0, 0, 0, 0, 0],
+        "player_store": 0,
+        "opponent_store": 0,
+        "current_player": 0,
+    }
+    if tag is not None:
+        state["synthetic_tag"] = tag
+    return {"state": state}
 
 
-def setup_bundle(path, *, revealed=True):
+def write_rows(path: Path, rows: list[dict]) -> bytes:
+    payload = protocol.suite_bytes(rows)
+    path.write_bytes(payload)
+    return payload
+
+
+def setup_bundle(path: Path, *, consumed: bool = True) -> str:
     path.mkdir()
     pool = [row(i) for i in range(10)]
-    excluded = {"rows": [row(99)]}
+    inventory_doc = {"rows": [row(99)], "sources": [{"id": "synthetic"}]}
     generator = {"name": "synthetic-rules-only-v1", "seed": 17, "size": 4}
-    suite = protocol.build_suite(pool, excluded["rows"], 17, 4)
-    raw = protocol.suite_bytes(suite)
-    (path / "suite.jsonl").write_bytes(raw)
-    inv = protocol.canonical_bytes(excluded)
-    (path / "inventory.json").write_bytes(inv)
+    suite = protocol.build_suite(pool, inventory_doc["rows"], 17, 4)
+    suite_raw = write_rows(path / "suite.jsonl", suite)
+    inv_raw = protocol.canonical_bytes(inventory_doc)
+    (path / "inventory.json").write_bytes(inv_raw)
+    pool_raw = write_rows(path / "pool.jsonl", pool)
+    generator["pool_sha256"] = protocol.sha256(pool_raw)
+    commitment = protocol.commitment(suite_raw, generator, inventory_doc)
+    (path / "manifest.json").write_text(
+        json.dumps(
+            {
+                "suite_sha256": protocol.sha256(suite_raw),
+                "inventory_path": "inventory.json",
+                "inventory_sha256": protocol.sha256(inv_raw),
+                "pool_path": "pool.jsonl",
+                "pool_sha256": protocol.sha256(pool_raw),
+                "generator": generator,
+                "commitment": commitment,
+            }
+        )
+    )
     freeze = {
         "candidate_artifact_sha256": "a" * 64,
         "serving_p_artifact_sha256": "b" * 64,
         "arena_settings": {"pairs": 4, "workers": 1},
         "analysis_rule": "paired-opening mean",
     }
-    (path / "candidate-freeze.json").write_text(json.dumps(freeze))
-    manifest = {
-        "suite_sha256": protocol.sha256(raw),
-        "inventory_path": "inventory.json",
-        "inventory_sha256": protocol.sha256(inv),
-        "generator": generator,
-        "commitment": protocol.commitment(raw, generator, excluded),
-        "revealed": revealed,
-    }
-    (path / "manifest.json").write_text(json.dumps(manifest))
-    if revealed:
-        (path / "consumed.json").write_text(
-            json.dumps({"commitment": manifest["commitment"]})
+    events = []
+    previous = "0" * 64
+    for kind, payload in (
+        ("commitment", {"commitment": commitment}),
+        ("candidate_freeze", {"commitment": commitment, "freeze": freeze}),
+        (
+            "reveal",
+            {
+                "commitment": commitment,
+                "suite_sha256": protocol.sha256(suite_raw),
+                "seed": 17,
+                "pool_sha256": protocol.sha256(pool_raw),
+            },
+        ),
+    ):
+        event = protocol.lifecycle_event(kind, payload, previous)
+        events.append(event)
+        previous = event["event_sha256"]
+    if consumed:
+        events.append(
+            protocol.lifecycle_event(
+                "consumption", {"commitment": commitment}, previous
+            )
         )
-    return suite
+    event_raw = protocol.event_log_bytes(events)
+    (path / "lifecycle.jsonl").write_bytes(event_raw)
+    start = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    anchor = {
+        "lifecycle_sha256": protocol.sha256(event_raw),
+        "checkpoints": [
+            {
+                "event_sha256": event["event_sha256"],
+                "anchored_at_utc": (start + timedelta(seconds=index)).isoformat(),
+            }
+            for index, event in enumerate(events)
+        ],
+    }
+    anchor_raw = protocol.canonical_bytes(anchor)
+    (path / "anchor.json").write_bytes(anchor_raw)
+    # This digest is returned out of band, not looked up by the verifier.
+    return protocol.sha256(anchor_raw)
 
 
 class HoldbackProtocolTest(unittest.TestCase):
-    def test_deterministic_rebuild_and_physical_copy(self):
+    def test_rebuild_after_reveal_and_physical_copy(self):
         with tempfile.TemporaryDirectory() as temp:
-            tmp_path = Path(temp)
-            source = tmp_path / "source"
-            suite = setup_bundle(source)
-            self.assertEqual(
-                protocol.build_suite([row(i) for i in range(10)], [row(99)], 17, 4),
-                suite,
-            )
-            copy = tmp_path / "copy"
-            shutil.copytree(source, copy)
+            root = Path(temp)
+            source = root / "source"
+            anchor = setup_bundle(source, consumed=False)
+            copied = root / "copy"
+            shutil.copytree(source, copied)
             shutil.rmtree(source)
-            self.assertEqual(protocol.verify(copy)["openings"], 4)
+            result = protocol.verify(copied, anchor)
+            self.assertEqual(result["openings"], 4)
+            self.assertTrue(result["held_back_eligible"])
 
-    def test_duplicate_and_overlap_rejected_in_both_identity_schemes(self):
-        with self.assertRaisesRegex(ValueError, "duplicate_exclusion"):
+    def test_duplicate_and_overlap_rejected_by_both_derived_identities(self):
+        with self.assertRaisesRegex(ValueError, "duplicate_exclusion_identity"):
             protocol.validate_inventory([row(1), row(1)])
-        # Different canonical states but identical float32 production representation.
+        # Extra metadata changes canonical identity but is ignored by kalah_v3.
         with self.assertRaisesRegex(ValueError, "eligible_pool_shortfall"):
-            protocol.build_suite(
-                [row(1), {"state": {"n": 2}, "production_input": [1.0, 1.0]}], [], 1, 2
-            )
+            protocol.build_suite([row(1), row(1, "different")], [], 1, 2)
+        # Same encoded position under a different metadata-only canonical state.
         with self.assertRaisesRegex(ValueError, "eligible_pool_shortfall"):
-            protocol.build_suite([row(1)], [row(1)], 1, 1)
+            protocol.build_suite([row(1, "other")], [row(1)], 1, 1)
 
-    def test_suite_bytes_order_and_consumed_reuse_are_bound(self):
+    def test_changed_suite_order_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
-            tmp_path = Path(temp)
-            path = tmp_path / "bundle"
-            setup_bundle(path)
-            lines = (path / "suite.jsonl").read_bytes().splitlines(keepends=True)
-            (path / "suite.jsonl").write_bytes(b"".join(reversed(lines)))
+            bundle = Path(temp) / "bundle"
+            anchor = setup_bundle(bundle)
+            lines = (bundle / "suite.jsonl").read_bytes().splitlines(keepends=True)
+            (bundle / "suite.jsonl").write_bytes(b"".join(reversed(lines)))
             with self.assertRaisesRegex(ValueError, "suite_bytes_changed"):
-                protocol.verify(path)
-            consumed = tmp_path / "consumed"
-            setup_bundle(consumed)
-            self.assertEqual(protocol.verify(consumed)["status"], "verified")
-            manifest = json.loads((consumed / "manifest.json").read_text())
-            manifest["revealed"] = False
-            (consumed / "manifest.json").write_text(json.dumps(manifest))
-            with self.assertRaisesRegex(ValueError, "consumed_suite_not_revealed"):
-                protocol.verify(consumed)
+                protocol.verify(bundle, anchor)
 
-    def test_reveal_requires_candidate_and_serving_freeze(self):
+    def test_external_anchor_protects_freeze_and_consumption_lifecycle(self):
         with tempfile.TemporaryDirectory() as temp:
-            path = Path(temp) / "bundle"
-            setup_bundle(path)
-            freeze = {"candidate_artifact_sha256": "a" * 64}
-            (path / "candidate-freeze.json").write_text(json.dumps(freeze))
-            with self.assertRaisesRegex(ValueError, "reveal_before_candidate_freeze"):
-                protocol.verify(path)
+            root = Path(temp)
+            bundle = root / "bundle"
+            anchor = setup_bundle(bundle, consumed=True)
+            result = protocol.verify(bundle, anchor)
+            self.assertTrue(result["consumed"])
+            self.assertFalse(result["held_back_eligible"])
+            # Removing a convenience marker or replacing a sidecar freeze has no
+            # effect: lifecycle is contained in the independently anchored log.
+            (bundle / "consumed.json").unlink(missing_ok=True)
+            (bundle / "candidate-freeze.json").write_text("{}")
+            self.assertFalse(protocol.verify(bundle, anchor)["held_back_eligible"])
+            event_path = bundle / "lifecycle.jsonl"
+            event_path.write_bytes(event_path.read_bytes().replace(b'"a', b'"z', 1))
+            with self.assertRaisesRegex(ValueError, "anchor_lifecycle_mismatch"):
+                protocol.verify(bundle, anchor)
+
+    def test_size_mismatch_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temp:
+            bundle = Path(temp) / "bundle"
+            anchor = setup_bundle(bundle, consumed=False)
+            manifest = json.loads((bundle / "manifest.json").read_text())
+            manifest["generator"]["size"] = 5
+            (bundle / "manifest.json").write_text(json.dumps(manifest))
+            with self.assertRaisesRegex(ValueError, "suite_declared_size_mismatch"):
+                protocol.verify(bundle, anchor)
+
+    def test_reveal_event_before_candidate_freeze_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temp:
+            bundle = Path(temp) / "bundle"
+            setup_bundle(bundle, consumed=False)
+            events = [
+                json.loads(line)
+                for line in (bundle / "lifecycle.jsonl").read_text().splitlines()
+            ]
+            payloads = {event["kind"]: event["payload"] for event in events}
+            ordered = []
+            previous = "0" * 64
+            for kind in ("commitment", "reveal", "candidate_freeze"):
+                event = protocol.lifecycle_event(kind, payloads[kind], previous)
+                ordered.append(event)
+                previous = event["event_sha256"]
+            log_raw = protocol.event_log_bytes(ordered)
+            (bundle / "lifecycle.jsonl").write_bytes(log_raw)
+            start = datetime(2026, 1, 1, tzinfo=timezone.utc)
+            anchor_doc = {
+                "lifecycle_sha256": protocol.sha256(log_raw),
+                "checkpoints": [
+                    {
+                        "event_sha256": event["event_sha256"],
+                        "anchored_at_utc": (
+                            start + timedelta(seconds=index)
+                        ).isoformat(),
+                    }
+                    for index, event in enumerate(ordered)
+                ],
+            }
+            anchor_raw = protocol.canonical_bytes(anchor_doc)
+            (bundle / "anchor.json").write_bytes(anchor_raw)
+            trusted_anchor = protocol.sha256(anchor_raw)
+            with self.assertRaisesRegex(ValueError, "lifecycle_event_order"):
+                protocol.verify(bundle, trusted_anchor)
 
 
 if __name__ == "__main__":

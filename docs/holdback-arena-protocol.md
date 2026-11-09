@@ -21,8 +21,20 @@ the #511 registration and exclusion source list bind its later inputs.
 | #488, #499, #505, #508 arena and #500 self-play | #511 `registration.json` source hash bindings; #511 replayed published game streams and checked #500 shard hashes against accounting | Counts are in #511 exclusion accounting for the frozen run; not all inputs are independently reconstructable in this PR's clean #560 base without the #511 publication directory | These are known screened populations; their source receipts must accompany any future inventory. |
 | #511 screen | #511 v4 registration, suite and outcome publication; exact source hashes in registration | 1,024 roots; historical union counts and replay deltas recorded in registration | Reused screen suite is not a fresh holdout. |
 | #512–#555 training/development and arena populations | Published experiment receipts in the corresponding `docs/data/seed*` publications | No consolidated source-bound identity inventory/counts available in the #560 base | **Uncovered pending authenticated replay or evidenced empty contribution.** A publication or experiment number alone is not proof of zero overlap. |
-| #556 exploratory arena, #557 diagnostic/physical-copy evidence, #558 value-only swap, #559 fixed-position feasibility, #560 paired first-action diagnostic | Publications/receipts through merged PR #560; inspect each registration, input binding, and game/trajectory artifact before inclusion | Not certified as a single union in the #560 base; no aggregate canonical or float32 identity counts claimed | Must be replayed from receipt-matching source bytes into a source-by-source union before an exclusion-screened suite is authorized. #560 is diagnostic evidence, not confirmation. |
+| #556 exploratory arena | `seed556-exploratory-arena/screen-0005/verification-receipt.json` SHA `a318933da72b8ed23cb5487f7bbd8e57edd0d1d407ba9bc1f8485b0736fcdfbe7`; registration binds reused-suite SHA `27a003322e5469507a508010a9743b40062928140e6a4b9d5628b0290e32c21d` | 1,024 unique indexed opening roots (2,048 games); screen reports training overlaps 0/1,024 for both identities, P-policy training 0/1,024, development 1/1,024 for both identities | Reuses the #511 suite. Full continuation-state union remains to be independently rebuilt from the receipt-matched game streams; overlap report is opening-root-only. |
+| #557 retrospective diagnostic | Cohort SHA `f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243`; #557 README and freeze bind authenticated #556 games | 256 selected, canonical-deduplicated roots (128 per source side); no new games/positions beyond #556 continuations; production-float32 count not separately published | Reached positions sampled from #556 archived games; derived diagnostic evidence, not a separate novel arena population. |
+| #558 value-only swap | Cohort SHA `f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243` (byte-identical to #557 cohort); README says all 256 roots/oracles reused | 256 roots; 0 newly selected positions relative to #557; no new game trajectories; production-float32 count not separately published | Exact cohort reuse; #558 adds searches, not states. |
+| #559 fixed-position feasibility | Count-audit SHA `6f106dc36f36182ee09090defe646901b1bce81c2418ac73aa8b76f775fe9b1e`; cohort SHA `f2e03fb9491474056e7a7cb3ace225cd2310f9069c9e48600d45039ed63158fb`; archive receipt SHA `a318933da72b8ed23cb5487f7bbd8e57edd0d1d407ba9bc1f8485b0736fcdfbe7` | From 2,048 #556 games: 1,903 eligible first roots, 1,663 unique canonical states, 295 matching #557 excluded occurrences / 256 unique roots, 1,407 remaining roots, 512 selected (256 per side); float32 identities not separately tallied | Newly selected diagnostics roots, but all are positions within #556 trajectories; do not double-count as independent arena source. Count audit classifies canonical-state identity only. |
+| #560 paired first-action diagnostic | Cohort SHA `fe24d68aea9a158cb441aa886a60adc26631805c5b1213f14fceb4aa4ce4a254`; README binds authenticated #556 archive | 256 canonical-deduplicated roots; 313 distinct physical continuations across 512 arm records; 57 roots change action; float32 identity count not separately published | Retrospective subset of #556 reached positions. Include its source roots only as a subset of #556's replayed continuation union, not as a new independent source. |
 | #461 continuation population | #483 receipt-matching archive and source ledger; 58 game streams, 1,129,643 trajectory actions | Continuation-state identity counts unavailable/cannot be certified | **Unresolved overlap.** Published roots are included; recorded continuation actions fail canonical replay (first example illegal). No recovery attempt is reopened. |
+
+The #556–#560 evidence is now separated source-by-source. The measured
+diagnostic cohorts are mostly reused subsets of the #556 game continuations;
+they must not be summed as independent states. Counts above are the counts
+published or directly bound by the cited receipts. No float32 totals are
+inferred from canonical counts. For #556, the available development overlap
+is 1/1,024 in both identities, while the recorded T512 and P training overlaps
+are zero at the opening roots only.
 
 This report distinguishes verified counts from unavailable counts; it does not
 claim complete historical disjointness. The #483 confirmation gate remains
@@ -53,6 +65,15 @@ as held back in a later comparison.
 
 `ml.alphazero_lite.holdback_arena` implements a read-only bundle verifier and a
 deterministic sampler used by synthetic tests; it has no arena execution path.
+Verification rebuilds the ordered suite from the bound pool, seed, generator,
+and inventory, then derives canonical and production-float32 identities from
+the rule state using `kalah_v3`. Its lifecycle log records commitment,
+candidate freeze, reveal, and optional consumption in order. Verification
+requires the SHA-256 of an independently retained anchor record; the anchor
+binds each lifecycle event hash to its externally recorded UTC checkpoint.
+The trust root is that separately retained digest/transparency receipt, not
+the bundle's self-asserted event log. A consumed suite verifies as consumed but
+returns `held_back_eligible: false`.
 The future production generator must be separately frozen against the audited
 source inventory. A clean known-exclusion screen is readiness for an
 **exclusion-screened comparison only**. **Fresh confirmation readiness: blocked**

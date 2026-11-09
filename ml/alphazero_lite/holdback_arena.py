@@ -7,10 +7,16 @@ candidate pool; production use must use the frozen rules-only generator.
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import hashlib
 import json
 from pathlib import Path
 from typing import Any
+
+from ml.alphazero_lite.seed482_fresh_confirmation import (
+    canonical_identity,
+    float32_identity,
+)
 
 
 def canonical_bytes(value: Any) -> bytes:
@@ -22,16 +28,9 @@ def sha256(data: bytes) -> str:
 
 
 def identities(row: dict[str, Any]) -> tuple[str, str]:
-    """Return canonical rule-state and production-float32 identities."""
+    """Derive both identities from rule state and the registered Kalah encoder."""
     state = row["state"]
-    canonical = sha256(canonical_bytes(state))
-    # The production representation is explicitly little-endian float32.
-    import numpy as np
-
-    encoded = np.asarray(row["production_input"], dtype="<f4")
-    if encoded.ndim != 1 or not np.isfinite(encoded).all():
-        raise ValueError("invalid_production_float32_input")
-    return canonical, sha256(encoded.tobytes())
+    return canonical_identity(state), float32_identity(state)
 
 
 def validate_inventory(rows: list[dict[str, Any]]) -> dict[str, set[str]]:
@@ -88,8 +87,24 @@ def commitment(
     )
 
 
-def verify(bundle: Path) -> dict[str, Any]:
-    """Read-only verifier; paths are relative to bundle, never producer checkout."""
+def lifecycle_event(
+    kind: str, payload: dict[str, Any], previous: str
+) -> dict[str, Any]:
+    event = {"kind": kind, "previous": previous, "payload": payload}
+    event["event_sha256"] = sha256(canonical_bytes(event))
+    return event
+
+
+def event_log_bytes(events: list[dict[str, Any]]) -> bytes:
+    return b"".join(canonical_bytes(event) + b"\n" for event in events)
+
+
+def verify(bundle: Path, trusted_anchor_sha256: str) -> dict[str, Any]:
+    """Verify a revealed bundle against an independently retained event-log hash.
+
+    The trusted anchor is delivered out-of-band by the commitment custodian; a
+    hash stored only inside the bundle would not establish event order.
+    """
     manifest = json.loads((bundle / "manifest.json").read_text())
     suite = (bundle / "suite.jsonl").read_bytes()
     if sha256(suite) != manifest["suite_sha256"]:
@@ -97,6 +112,8 @@ def verify(bundle: Path) -> dict[str, Any]:
     rows = [json.loads(line) for line in suite.splitlines() if line]
     if sha256(suite_bytes(rows)) != manifest["suite_sha256"]:
         raise ValueError("suite_order_or_encoding_changed")
+    if len(rows) != manifest["generator"].get("size"):
+        raise ValueError("suite_declared_size_mismatch")
     inventory_path = bundle / manifest["inventory_path"]
     inventory_bytes = inventory_path.read_bytes()
     if sha256(inventory_bytes) != manifest["inventory_sha256"]:
@@ -108,6 +125,18 @@ def verify(bundle: Path) -> dict[str, Any]:
     ):
         raise ValueError("commitment_mismatch")
     excluded = validate_inventory(inventory_doc["rows"])
+    generator = manifest["generator"]
+    if generator.get("pool_sha256") != manifest["pool_sha256"]:
+        raise ValueError("generator_pool_binding_mismatch")
+    pool_bytes = (bundle / manifest["pool_path"]).read_bytes()
+    if sha256(pool_bytes) != manifest["pool_sha256"]:
+        raise ValueError("synthetic_pool_bytes_changed")
+    pool = [json.loads(line) for line in pool_bytes.splitlines() if line]
+    rebuilt = build_suite(
+        pool, inventory_doc["rows"], generator["seed"], generator["size"]
+    )
+    if suite_bytes(rebuilt) != suite:
+        raise ValueError("suite_rebuild_mismatch")
     seen = {"canonical": set(), "float32": set()}
     for row in rows:
         can, f32 = identities(row)
@@ -117,8 +146,45 @@ def verify(bundle: Path) -> dict[str, Any]:
             raise ValueError("suite_duplicate_identity")
         seen["canonical"].add(can)
         seen["float32"].add(f32)
-    freeze = json.loads((bundle / "candidate-freeze.json").read_text())
-    if manifest.get("revealed") and not all(
+    event_bytes = (bundle / "lifecycle.jsonl").read_bytes()
+    anchor_bytes = (bundle / "anchor.json").read_bytes()
+    if sha256(anchor_bytes) != trusted_anchor_sha256:
+        raise ValueError("untrusted_lifecycle_anchor")
+    anchor = json.loads(anchor_bytes)
+    if anchor.get("lifecycle_sha256") != sha256(event_bytes):
+        raise ValueError("anchor_lifecycle_mismatch")
+    events = [json.loads(line) for line in event_bytes.splitlines() if line]
+    expected_kinds = ["commitment", "candidate_freeze", "reveal"]
+    if len(events) == 4:
+        expected_kinds.append("consumption")
+    if [event["kind"] for event in events] != expected_kinds:
+        raise ValueError("lifecycle_event_order")
+    previous = "0" * 64
+    for event in events:
+        expected = lifecycle_event(event["kind"], event["payload"], previous)
+        if event != expected:
+            raise ValueError("lifecycle_chain_invalid")
+        previous = event["event_sha256"]
+    checkpoints = anchor.get("checkpoints", [])
+    if len(checkpoints) != len(events) or any(
+        point.get("event_sha256") != event["event_sha256"]
+        for point, event in zip(checkpoints, events, strict=True)
+    ):
+        raise ValueError("anchor_checkpoint_mismatch")
+    times = [
+        dt.datetime.fromisoformat(point["anchored_at_utc"]) for point in checkpoints
+    ]
+    if any(time.utcoffset() != dt.timedelta(0) for time in times):
+        raise ValueError("anchor_timestamp_not_utc")
+    if any(left >= right for left, right in zip(times, times[1:])):
+        raise ValueError("anchor_checkpoint_order")
+    commit_event, freeze_event, reveal_event = [
+        event["payload"] for event in events[:3]
+    ]
+    if commit_event.get("commitment") != manifest["commitment"]:
+        raise ValueError("lifecycle_commitment_mismatch")
+    freeze = freeze_event.get("freeze", {})
+    if freeze_event.get("commitment") != manifest["commitment"] or not all(
         freeze.get(key)
         for key in (
             "candidate_artifact_sha256",
@@ -127,15 +193,23 @@ def verify(bundle: Path) -> dict[str, Any]:
             "analysis_rule",
         )
     ):
-        raise ValueError("reveal_before_candidate_freeze")
-    if (bundle / "consumed.json").exists() and not manifest.get("revealed"):
-        raise ValueError("consumed_suite_not_revealed")
-    if manifest.get("revealed") and (bundle / "consumed.json").exists():
-        consumed = json.loads((bundle / "consumed.json").read_text())
-        if consumed.get("commitment") != manifest["commitment"]:
-            raise ValueError("consumption_commitment_mismatch")
+        raise ValueError("candidate_freeze_not_bound")
+    if reveal_event.get("commitment") != manifest["commitment"]:
+        raise ValueError("reveal_commitment_mismatch")
+    if reveal_event.get("suite_sha256") != manifest["suite_sha256"]:
+        raise ValueError("reveal_suite_mismatch")
+    if (
+        reveal_event.get("seed") != generator["seed"]
+        or reveal_event.get("pool_sha256") != manifest["pool_sha256"]
+    ):
+        raise ValueError("reveal_generator_inputs_mismatch")
+    consumed = len(events) == 4
+    if consumed and events[3]["payload"].get("commitment") != manifest["commitment"]:
+        raise ValueError("consumption_commitment_mismatch")
     return {
         "status": "verified",
+        "held_back_eligible": not consumed,
+        "consumed": consumed,
         "openings": len(rows),
         "commitment": manifest["commitment"],
         "canonical_identities": len(seen["canonical"]),
@@ -146,8 +220,13 @@ def verify(bundle: Path) -> dict[str, Any]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("bundle", type=Path)
+    parser.add_argument(
+        "--trusted-anchor-sha256",
+        required=True,
+        help="SHA-256 of anchor.json obtained independently from its custodian",
+    )
     args = parser.parse_args()
-    print(json.dumps(verify(args.bundle), sort_keys=True))
+    print(json.dumps(verify(args.bundle, args.trusted_anchor_sha256), sort_keys=True))
 
 
 if __name__ == "__main__":
