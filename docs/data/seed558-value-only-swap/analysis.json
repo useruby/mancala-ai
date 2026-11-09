@@ -1,0 +1,27 @@
+{
+  "bootstrap_resamples": 20000,
+  "bootstrap_seed": 558,
+  "decision": "diagnostic_does_not_support_advancing_swap",
+  "metrics": {
+    "D432_value": {
+      "exact_optimal_rate": 0.7578125,
+      "mean_exact_final_margin_regret": 1.1484375,
+      "wdl_downgrade_rate": 0.04296875
+    },
+    "initializer_value": {
+      "exact_optimal_rate": 0.78125,
+      "mean_exact_final_margin_regret": 1.1484375,
+      "wdl_downgrade_rate": 0.04296875
+    }
+  },
+  "n_roots": 256,
+  "paired_opening_bootstrap_95_percent_interval": [
+    -0.2578125,
+    0.1796875
+  ],
+  "preserved_decision": "do_not_advance_T512",
+  "primary_contrast_D432_minus_initializer_mean_regret": 0.0,
+  "scope": "Near-cutoff retrospective roots; does not establish full-game strength.",
+  "selected_action_changed_roots": 9,
+  "selected_action_swap_rate": 0.03515625
+}

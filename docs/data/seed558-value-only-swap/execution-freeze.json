@@ -1,0 +1,89 @@
+{
+  "cohort_roots": 256,
+  "cohort_sha256": "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243",
+  "components": {
+    "D432": {
+      "metadata.json": "9f0a17caacd83a0e54d1509951d487702f68db6e1f4375bc93cb708c06418149",
+      "model.npz": "4555cba73d2c908d1eca829836f361b226ccc1072be28affd816b2a240123163",
+      "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "weights.json": "3adc99fa045193c81ea74bd37b971ff5d8fcfc8a0aa39541d7671629a63b2372"
+    },
+    "P_E4": {
+      "metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+      "model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+    },
+    "initializer": {
+      "metadata.json": "7ce41fde58c219c9fd2aa7a912db1c2da357099d6f72e3f715d9a78ce500cb5d",
+      "model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+    }
+  },
+  "oracle_action_margins_reused_verbatim": true,
+  "oracle_records_sha256": "75453e744a86b9dc8471628e0d133fa7d478550af9c8089ed8661426436a8480",
+  "oracle_roots": 256,
+  "planning_rule": {
+    "advance_if": "mean <= -0.25 seeds; 95% interval upper < 0; WDL downgrade rate does not increase",
+    "contrast": "D432-value minus initializer-value mean exact final-margin regret",
+    "decision_scope": "propose a separate 128-simulation value-only arena only; near-cutoff roots do not establish full-game strength",
+    "preserve_decision": "do_not_advance_T512"
+  },
+  "publications": {
+    "seed546_checkpoint_sha256": "4555cba73d2c908d1eca829836f361b226ccc1072be28affd816b2a240123163",
+    "seed546_execution_freeze_sha256": "65286df075d662232a439e7288285fd31d34a9cfc5f4d5d5aa2b6b4006cd60ab",
+    "seed546_merge_commit": "54ca41c2f499452a424dfdd32f0aede1b584fcb7",
+    "seed546_registration_sha256": "8541fef485ac915cbf2b32ac7b46f49e43e9fa867fb8411822594eaa824059f6",
+    "seed546_runtime_authentication_sha256": "570b4c71f37999aa4ba7d4872122276d2556f7a7763bfb14fb3a9921ec1dba53",
+    "seed557_execution_freeze_sha256": "b0892a24872012486ff164d291913e1799737632a816a40c2547210a458bf36d",
+    "seed557_merge_commit": "44834acaa0d7ee17465e807d10bc90e841a51a89",
+    "seed557_oracle_identity_record_sha256": "45f93ce95bf2bc0c58b8a44bdf072324eddfb2c943dd9678e6895613a5a4f60d",
+    "seed557_policy_publication_receipts": {
+      "seed555_verification_receipt_sha256": "a12b3284acb72ab817e27e79a265097da3873e7570c93fdbcd3a47810028dc37",
+      "seed556_verification_receipt_sha256": "a318933da72b8ed23cb5487fbbd8e57edd0d1d407ba9bc1f8485b0736fcdfbe7"
+    },
+    "serving_runtime_authentication_sha256": "61372a7581743be18b7eeebf8922da4ecc0a2a8e440113a80103fea9b417be04"
+  },
+  "schema": "seed558-value-only-freeze-v1",
+  "search": {
+    "bootstrap": {
+      "method": "paired opening-cluster bootstrap, percentile 95%",
+      "resamples": 20000,
+      "seed": 558
+    },
+    "c_puct": 1.25,
+    "exact_leaf_solving": false,
+    "exact_root_solving": false,
+    "fresh_tree_per_root_arm": true,
+    "same_seed_per_root": true,
+    "search_options": {
+      "fpu_mode": "zero",
+      "normalize_values": false,
+      "reuse_subtree": false,
+      "root_policy_mode": "deterministic",
+      "root_temperature": 0.0,
+      "tactical_root_bias": 0.0
+    },
+    "simulations": 128,
+    "workers": 1
+  },
+  "seed": 558,
+  "training_overlap": {
+    "cohort_overlap": "Not authenticated by the #546 publication; no claim of disjointness.",
+    "seed461_historical_overlap_limitation_unresolved": true,
+    "seed542_expanded_training": {
+      "canonical_opening_overlaps": 12,
+      "production_float32_opening_overlaps": 12,
+      "training_rows": 109504,
+      "unique_canonical_identities": 55445,
+      "unique_production_float32_identities": 55445
+    }
+  },
+  "value_routes": {
+    "D432_value": "complete #546 D-update-432 value head and D432 own trunk",
+    "initializer_value": "seed542 frozen initializer value head and own trunk",
+    "only_route_changed": "value head and value trunk",
+    "shared_policy": "serving P seed504 E4 policy head and own trunk"
+  }
+}
