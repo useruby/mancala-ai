@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import random
 import statistics
@@ -24,7 +25,24 @@ from ml.alphazero_lite.seed557_retrospective import (
 from ml.alphazero_lite.native_exact_root_tablebase import NativeExactRootTablebase
 
 ROOT = Path(__file__).resolve().parents[2]
-DATA = ROOT / "docs/data/seed559-fixed-position-feasibility/run-0003"
+DEFAULT_ANALYSIS_DATA = ROOT / "docs/data/seed559-fixed-position-feasibility/run-0003"
+P_ARTIFACT = (
+    ROOT / "docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts/P-E4"
+)
+INITIALIZER_ARTIFACT = (
+    ROOT
+    / "docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts/initializer"
+)
+EVALUATOR_ARTIFACTS = {
+    "P": P_ARTIFACT,
+    "initializer": INITIALIZER_ARTIFACT,
+}
+RUNTIME_FILENAMES = (
+    "metadata.json",
+    "model.npz",
+    "search_policy.json",
+    "weights.json",
+)
 SEED = 559
 OPTIONS = {
     "fpu_mode": "zero",
@@ -62,6 +80,39 @@ def verify_routing_boundaries() -> dict[str, bool]:
 
 def _wdl(value: int) -> int:
     return (value > 0) - (value < 0)
+
+
+def evaluator_artifact_hashes(
+    artifact_dirs: dict[str, Path], expected: dict[str, dict[str, str]]
+) -> dict[str, dict[str, str]]:
+    """Authenticate the exact files that will be passed to ArtifactEvaluator."""
+    observed: dict[str, dict[str, str]] = {}
+    for component, directory in artifact_dirs.items():
+        if component not in expected:
+            raise ValueError(f"unexpected_evaluator_component:{component}")
+        observed[component] = {}
+        for filename in RUNTIME_FILENAMES:
+            path = directory / filename
+            if not path.is_file():
+                raise ValueError(f"evaluator_artifact_missing:{path}")
+            digest = sha256(path.read_bytes())
+            if digest != expected[component].get(filename):
+                raise ValueError(f"evaluator_artifact_identity_mismatch:{path}")
+            observed[component][filename] = digest
+    if set(observed) != set(expected):
+        raise ValueError("evaluator_component_set_mismatch")
+    return observed
+
+
+def build_evaluators(
+    artifact_dirs: dict[str, Path], expected: dict[str, dict[str, str]]
+) -> tuple[dict[str, arena.ArtifactEvaluator], dict[str, dict[str, str]]]:
+    """Verify exact evaluator inputs before constructing or invoking them."""
+    bound = evaluator_artifact_hashes(artifact_dirs, expected)
+    return (
+        {name: arena.ArtifactEvaluator(path) for name, path in artifact_dirs.items()},
+        bound,
+    )
 
 
 def _source_candidates(openings: list[dict], records: list[dict]) -> list[dict]:
@@ -195,8 +246,12 @@ def select() -> tuple[list[dict], dict]:
     return chosen, audit
 
 
-def freeze_and_run() -> None:
-    DATA.mkdir(parents=True, exist_ok=True)
+def freeze_and_run(output: Path) -> None:
+    output = output.resolve()
+    if output.exists():
+        raise FileExistsError(f"diagnostic output must be new: {output}")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.mkdir()
     cohort, audit = select()
     cohort_doc = {
         "schema": "seed559-cohort-v1",
@@ -204,14 +259,14 @@ def freeze_and_run() -> None:
         "selection": audit["ranking"],
         "states": cohort,
     }
-    (DATA / "cohort-manifest.json").write_text(
+    (output / "cohort-manifest.json").write_text(
         json.dumps(cohort_doc, sort_keys=True, indent=2) + "\n"
     )
-    (DATA / "count-audit.json").write_text(
+    (output / "count-audit.json").write_text(
         json.dumps(audit, sort_keys=True, indent=2) + "\n"
     )
     if len(cohort) != 512:
-        (DATA / "decision.json").write_text(
+        (output / "decision.json").write_text(
             json.dumps(
                 {
                     "decision": "no_decision",
@@ -232,6 +287,10 @@ def freeze_and_run() -> None:
     pinned_cpu = allowed_cpus[0]
     os.sched_setaffinity(0, {pinned_cpu})
     authenticated = authenticate_runtime()
+    evaluated_artifacts = evaluator_artifact_hashes(
+        EVALUATOR_ARTIFACTS,
+        {component: authenticated[component] for component in EVALUATOR_ARTIFACTS},
+    )
     native = ROOT / "model-artifact/runtime/kalah_v1_tablebase"
     tablebase = ROOT / "model-artifact/runtime/kalah_v1_21.kvtb"
     preregistration = json.loads(git_blob(ARCHIVE + "registration.json"))
@@ -245,9 +304,16 @@ def freeze_and_run() -> None:
         raise ValueError(f"oracle asset digest mismatch:{tablebase}")
     freeze = {
         "schema": "seed559-execution-freeze-v1",
-        "selection_audit_sha256": sha256((DATA / "count-audit.json").read_bytes()),
-        "cohort_sha256": sha256((DATA / "cohort-manifest.json").read_bytes()),
+        "selection_audit_sha256": sha256((output / "count-audit.json").read_bytes()),
+        "cohort_sha256": sha256((output / "cohort-manifest.json").read_bytes()),
         "authenticated_policies": authenticated,
+        "evaluator_artifacts": {
+            name: {
+                "path": str(path.relative_to(ROOT)),
+                "files": evaluated_artifacts[name],
+            }
+            for name, path in EVALUATOR_ARTIFACTS.items()
+        },
         "search": {
             "policy": "seed504 E4 P",
             "value": "seed504 initializer",
@@ -285,16 +351,15 @@ def freeze_and_run() -> None:
             "scope": "a pass supports proposing a separate cutoff-21 arena only",
         },
     }
-    (DATA / "execution-freeze.json").write_text(
+    (output / "execution-freeze.json").write_text(
         json.dumps(freeze, sort_keys=True, indent=2) + "\n"
     )
-    pdir = ROOT / "docs/data/seed504-policy-only-ablation/screen/runtime-artifacts/P-E4"
-    idir = (
-        ROOT
-        / "docs/data/seed542-update-432-strength-screen-v3/runtime-artifacts/initializer"
+    evaluators, _ = build_evaluators(
+        EVALUATOR_ARTIFACTS,
+        {component: authenticated[component] for component in EVALUATOR_ARTIFACTS},
     )
-    p = arena.ArtifactEvaluator(pdir)
-    initializer = arena.ArtifactEvaluator(idir)
+    p = evaluators["P"]
+    initializer = evaluators["initializer"]
     composed = arena.ComposedArtifactEvaluator(
         p, initializer, policy_source="current", value_source="candidate"
     )
@@ -364,16 +429,16 @@ def freeze_and_run() -> None:
                     "exact_warm_decision_ms": exact_ms,
                 }
             )
-    (DATA / "oracle-records.jsonl").write_text(
+    (output / "oracle-records.jsonl").write_text(
         "".join(json.dumps(r, sort_keys=True) + "\n" for r in oracle_records)
     )
-    (DATA / "search-records.jsonl").write_text(
+    (output / "search-records.jsonl").write_text(
         "".join(json.dumps(r, sort_keys=True) + "\n" for r in search_records)
     )
-    (DATA / "timings.jsonl").write_text(
+    (output / "timings.jsonl").write_text(
         "".join(json.dumps(r, sort_keys=True) + "\n" for r in timing_records)
     )
-    (DATA / "native-startup-prewarm.json").write_text(
+    (output / "native-startup-prewarm.json").write_text(
         json.dumps(
             {
                 "startup_ms": native_startup_ms,
@@ -403,23 +468,23 @@ def freeze_and_run() -> None:
     )
 
 
-def analyze_published_run() -> dict:
-    cohort = json.loads((DATA / "cohort-manifest.json").read_text())["states"]
+def analyze_published_run(data: Path = DEFAULT_ANALYSIS_DATA) -> dict:
+    cohort = json.loads((data / "cohort-manifest.json").read_text())["states"]
     searches = {
         row["state_hash"]: row
         for row in map(
-            json.loads, (DATA / "search-records.jsonl").read_text().splitlines()
+            json.loads, (data / "search-records.jsonl").read_text().splitlines()
         )
     }
     oracles = {
         row["state_hash"]: row
         for row in map(
-            json.loads, (DATA / "oracle-records.jsonl").read_text().splitlines()
+            json.loads, (data / "oracle-records.jsonl").read_text().splitlines()
         )
     }
     timings = {
         row["state_hash"]: row
-        for row in map(json.loads, (DATA / "timings.jsonl").read_text().splitlines())
+        for row in map(json.loads, (data / "timings.jsonl").read_text().splitlines())
     }
     rows = []
     for root in cohort:
@@ -506,9 +571,7 @@ def analyze_published_run() -> dict:
             "exact_mean": statistics.fmean(exact_times),
             "exact_p95": exact_times[int(0.95 * (len(exact_times) - 1))],
         },
-        "native_startup_prewarm": json.loads(
-            (DATA / "native-startup-prewarm.json").read_text()
-        ),
+        "native_startup_prewarm": {},
         "routing_invariance_tests": routing,
         "gate": {
             "all_512_valid_and_full_oracle_coverage": len(rows) == 512
@@ -539,6 +602,24 @@ def analyze_published_run() -> dict:
         else "supports_proposing_separate_cutoff_21_arena_only",
         "scope": "retrospective fixed-position feasibility diagnostic from #556; not full-game strength evidence",
     }
+    native_summary = json.loads((data / "native-startup-prewarm.json").read_text())
+    expected_native_warm = {
+        "warm_end_to_end_exact_mean_ms": metrics["warm_latency_ms"]["exact_mean"],
+        "warm_end_to_end_exact_p95_ms": metrics["warm_latency_ms"]["exact_p95"],
+    }
+    if any(
+        native_summary.get(key) != value for key, value in expected_native_warm.items()
+    ):
+        raise ValueError("native_warm_latency_summary_does_not_match_per_root_timings")
+    if any(
+        not math.isfinite(float(native_summary[key])) or float(native_summary[key]) < 0
+        for key in ("startup_ms", "prewarm_ms")
+    ):
+        raise ValueError("invalid_native_startup_or_prewarm_timing")
+    metrics["native_startup_prewarm"] = {
+        **native_summary,
+        **expected_native_warm,
+    }
     metrics["root_records"] = rows
     return metrics
 
@@ -563,17 +644,18 @@ def ci_subset(rows: list[dict], field: str, seed: int) -> list[float] | None:
 
 
 if __name__ == "__main__":
-    import sys
+    import argparse
 
-    if len(sys.argv) > 1 and sys.argv[1] == "analyze":
-        result = analyze_published_run()
+    parser = argparse.ArgumentParser(description=__doc__)
+    actions = parser.add_mutually_exclusive_group(required=True)
+    actions.add_argument("--output", type=Path, help="new nonexistent output directory")
+    actions.add_argument(
+        "--analyze", type=Path, help="existing diagnostic package to analyze"
+    )
+    args = parser.parse_args()
+    if args.analyze is not None:
+        result = analyze_published_run(args.analyze)
         roots = result.pop("root_records")
-        (DATA / "root-metrics.jsonl").write_text(
-            "".join(json.dumps(row, sort_keys=True) + "\n" for row in roots)
-        )
-        (DATA / "analysis.json").write_text(
-            json.dumps(result, sort_keys=True, indent=2) + "\n"
-        )
-        print(json.dumps(result, sort_keys=True, indent=2))
+        print(json.dumps({"analysis": result, "root_records": roots}, sort_keys=True))
     else:
-        freeze_and_run()
+        freeze_and_run(args.output)

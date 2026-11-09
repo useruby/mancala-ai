@@ -5,10 +5,12 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 from pathlib import Path
 from typing import Any
 
 from ml.alphazero_lite.kalah_rules import KalahGame
+from ml.alphazero_lite import arena
 from ml.alphazero_lite.seed557_retrospective import (
     authenticate_runtime,
     canonical_hash,
@@ -16,10 +18,14 @@ from ml.alphazero_lite.seed557_retrospective import (
     load_authenticated_archive,
 )
 from ml.alphazero_lite.seed559_fixed_position_feasibility import (
-    DATA,
+    DEFAULT_ANALYSIS_DATA,
     _excluded_hashes,
+    EVALUATOR_ARTIFACTS,
     _source_candidates,
     _wdl,
+    analyze_published_run,
+    build_evaluators,
+    evaluator_artifact_hashes,
     select,
     verify_routing_boundaries,
 )
@@ -44,7 +50,7 @@ def _jsonl(path: Path) -> list[dict[str, Any]]:
     return [json.loads(line) for line in path.read_text().splitlines() if line]
 
 
-def verify(data: Path = DATA) -> dict[str, Any]:
+def verify(data: Path = DEFAULT_ANALYSIS_DATA) -> dict[str, Any]:
     cohort_doc = json.loads((data / "cohort-manifest.json").read_text())
     cohort = cohort_doc["states"]
     reconstructed, audit = select()
@@ -89,6 +95,22 @@ def verify(data: Path = DATA) -> dict[str, Any]:
         raise ValueError("count_audit_freeze_hash_mismatch")
     if freeze["authenticated_policies"] != authenticate_runtime():
         raise ValueError("authenticated_policy_identity_mismatch")
+    expected_runtime = freeze["authenticated_policies"]
+    expected_evaluators = {name: expected_runtime[name] for name in EVALUATOR_ARTIFACTS}
+    observed_evaluators = evaluator_artifact_hashes(
+        EVALUATOR_ARTIFACTS, expected_evaluators
+    )
+    recorded_evaluators = freeze.get("evaluator_artifacts")
+    if recorded_evaluators is not None:
+        expected_binding = {
+            name: {
+                "path": str(path.relative_to(Path(__file__).resolve().parents[2])),
+                "files": observed_evaluators[name],
+            }
+            for name, path in EVALUATOR_ARTIFACTS.items()
+        }
+        if recorded_evaluators != expected_binding:
+            raise ValueError("evaluator_artifact_binding_mismatch")
     expected_oracle, _ = expected_oracle_identities()
     native = (
         Path(__file__).resolve().parents[2]
@@ -119,9 +141,24 @@ def verify(data: Path = DATA) -> dict[str, Any]:
     ):
         raise ValueError("routing_boundary_contract_mismatch")
 
+    evaluators, _ = build_evaluators(EVALUATOR_ARTIFACTS, expected_evaluators)
+    composed = arena.ComposedArtifactEvaluator(
+        evaluators["P"],
+        evaluators["initializer"],
+        policy_source="current",
+        value_source="candidate",
+    )
+
     searches = {row["state_hash"]: row for row in _jsonl(data / "search-records.jsonl")}
     oracles = {row["state_hash"]: row for row in _jsonl(data / "oracle-records.jsonl")}
     timings = {row["state_hash"]: row for row in _jsonl(data / "timings.jsonl")}
+    timing_rows = _jsonl(data / "timings.jsonl")
+    if len(timing_rows) != 512 or any(
+        not math.isfinite(float(row[field])) or float(row[field]) < 0
+        for row in timing_rows
+        for field in ("baseline_warm_decision_ms", "exact_warm_decision_ms")
+    ):
+        raise ValueError("invalid_or_incomplete_root_timing_measurements")
     if (
         set(searches) != {row["state_hash"] for row in cohort}
         or set(oracles) != set(searches)
@@ -164,6 +201,27 @@ def verify(data: Path = DATA) -> dict[str, Any]:
             visits[move] for move in range(6) if move not in legal
         ):
             raise ValueError("simulation_budget_or_illegal_visit_mismatch")
+        replay = arena.evaluate_artifact_position(
+            evaluator=composed,
+            state=item["state"],
+            simulations=freeze["search"]["simulations"],
+            seed=int(search["seed"]),
+            c_puct=freeze["search"]["c_puct"],
+            search_options=freeze["search"]["search_options"],
+            exact_root_solve_threshold=None,
+            exact_solve_stone_threshold=None,
+        )
+        observed_priors = [float(value) for value in replay["policy"]]
+        if (
+            not all(
+                math.isclose(actual, recorded, rel_tol=1e-6, abs_tol=1e-7)
+                for actual, recorded in zip(observed_priors, priors, strict=True)
+            )
+            or replay["visits"] != search["visits"]
+            or replay["child_stats"] != search["child_stats"]
+            or int(replay["selected_move"]) != int(search["baseline_action"])
+        ):
+            raise ValueError(f"authenticated_evaluator_search_replay_mismatch:{key}")
         best_margin = max(margins.values())
         reconstructed_metrics.append(
             {
@@ -189,33 +247,12 @@ def verify(data: Path = DATA) -> dict[str, Any]:
         raise ValueError("analysis_coverage_mismatch")
     if analysis["decision"] != "no_cutoff_21_arena_proposal":
         raise ValueError("unexpected_gate_decision")
-    baseline_regret = sum(row["baseline_regret"] for row in reconstructed_metrics) / 512
-    baseline_wdl = (
-        sum(row["baseline_wdl_inferior"] for row in reconstructed_metrics) / 512
-    )
-    if (
-        baseline_regret != analysis["baseline_mean_exact_margin_regret"]
-        or baseline_wdl != analysis["baseline_wdl_inferior_rate"]
-    ):
-        raise ValueError("aggregate_baseline_metric_reconstruction_mismatch")
-    gate = analysis["gate"]
-    expected_decision = (
-        "no_cutoff_21_arena_proposal"
-        if not all(gate.values())
-        else "supports_proposing_separate_cutoff_21_arena_only"
-    )
-    if (
-        analysis["decision"] != expected_decision
-        or gate["baseline_wdl_inferior_at_least_5_percent"]
-        or gate["baseline_regret_at_least_1_seed"]
-    ):
-        raise ValueError("registered_gate_reconstruction_mismatch")
-    native_start = json.loads((data / "native-startup-prewarm.json").read_text())
-    if (
-        native_start["warm_end_to_end_exact_mean_ms"] > 200
-        or native_start["warm_end_to_end_exact_p95_ms"] > 350
-    ):
-        raise ValueError("exact_latency_gate_mismatch")
+    expected_analysis = analyze_published_run(data)
+    expected_roots = expected_analysis.pop("root_records")
+    if expected_roots != root_rows:
+        raise ValueError("root_metrics_recomputation_mismatch")
+    if expected_analysis != analysis:
+        raise ValueError("analysis_latency_interval_or_gate_recomputation_mismatch")
     return {
         "status": "verified",
         "roots": 512,
@@ -228,6 +265,6 @@ def verify(data: Path = DATA) -> dict[str, Any]:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data", type=Path, default=DATA)
+    parser.add_argument("--data", type=Path, default=DEFAULT_ANALYSIS_DATA)
     args = parser.parse_args()
     print(json.dumps(verify(args.data), sort_keys=True, indent=2))
