@@ -1,0 +1,111 @@
+{
+  "analysis": {
+    "bootstrap_seed": 560,
+    "opening_bootstrap_resamples": 20000,
+    "primary": "mean(score_512-score_128), all 256 roots",
+    "score": {
+      "draw": 0.5,
+      "loss": 0,
+      "win": 1
+    }
+  },
+  "archive_receipt_sha256": "a318933da72b8ed23cb5487fbbd8e57edd0d1d407ba9bc1f8485b0736fcdfbe7",
+  "artifacts": {
+    "P": {
+      "metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+      "model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+      "weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+    },
+    "initializer": {
+      "metadata.json": "f3b9a7d665be7b1219b4a3412bf4a499e5bafd525905b50d93deac4e6ad9ccef",
+      "model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+      "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+    }
+  },
+  "cohort_sha256": "fe24d68aea9a158cb441aa886a60adc26631805c5b1213f14fceb4aa4ce4a254",
+  "continuation": {
+    "exact_leaf_solving": false,
+    "exact_root_cutoff": 16,
+    "extra_turns": "honor KalahGame current_player",
+    "policy": "same P composition plays both seats",
+    "seed_schedule": "int(SHA256('seed560:continuation:<opening_index>:<ply>')[:8], 16) mod 2^31; same per opening and ply in both branches",
+    "simulations": 128
+  },
+  "exact_root_assets": {
+    "native_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+  },
+  "root_search": {
+    "budgets": [
+      128,
+      512
+    ],
+    "c_puct": 1.25,
+    "exact_leaf_solving": false,
+    "exact_root_cutoff": 16,
+    "fresh_tree": true,
+    "matched_seed": "int(SHA256('seed560:<state hash>:root')[:8], 16) mod 2^31; shared by 128 and 512 fresh-tree searches",
+    "options": {
+      "fpu_mode": "zero",
+      "normalize_values": false,
+      "reuse_subtree": false,
+      "root_policy_mode": "deterministic",
+      "root_temperature": 0.0,
+      "tactical_root_bias": 0.0
+    }
+  },
+  "runtime": {
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "execution": "serial deterministic per-root evidence",
+    "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+    "python": "3.14.7",
+    "search_workers_per_position": 1
+  },
+  "schema": "seed560-execution-freeze-v1",
+  "scope": "retrospective; continuation score specific to fixed P policy; no serving change or full-game strength claim",
+  "selection_audit_sha256": "e066218b8d637a91ef777b481614d05bb2bcbf25c19b2ac9745eef4d59dbf1c4",
+  "serving_model": "#556 P-E4 policy + initializer composition",
+  "source_commit": "f38838e6ffe20a44c1e8c161a9daed0f1243f0ae",
+  "source_sha256": {
+    "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/native_exact_root_tablebase.py": "bf241fa772efd122355b0706fff9035ee40f6cb9ac913fdd829444f359d62f15",
+    "ml/alphazero_lite/seed557_retrospective.py": "78dbc90f3339a41f932fd07594237fd7a90606251db5e0c49b0070b0586cc3f2",
+    "ml/alphazero_lite/seed560_paired_first_action.py": "70b07ad5e9af020606f83dc45fe7e603b04d8aa3167fcd1eba0fc581ab3b9bf7"
+  }
+}

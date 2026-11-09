@@ -1,0 +1,23 @@
+{
+  "child_stdout_sha256": "ade4e0a66652ff8556dddaca402c5e7fb1fc77681d5507a62539c12abc4ae468",
+  "child_verification": {
+    "action_changes": 57,
+    "continuation_arm_records": 512,
+    "decision": "no_selective_budget_rule_test",
+    "mean_score_difference_512_minus_128": 0.013671875,
+    "paired_opening_bootstrap_95_ci": [
+      -0.017578125,
+      0.044921875
+    ],
+    "roots": 256,
+    "status": "verified"
+  },
+  "copy_evidence_bytes_and_mtimes_unchanged": true,
+  "copy_root": "/home/alex/Mancala/ai/.tmp/seed560-publish-worktree-seed560-physical-copy-3478129",
+  "original_execution_root_hidden_during_verification": "/home/alex/Mancala/ai/.tmp/seed560-publish-worktree.hidden-for-seed560-verification",
+  "original_execution_root_inaccessible": true,
+  "schema": "seed560-physical-copy-verification-v1",
+  "source_evidence_bytes_and_mtimes_unchanged": true,
+  "source_evidence_files": 8,
+  "status": "passed"
+}

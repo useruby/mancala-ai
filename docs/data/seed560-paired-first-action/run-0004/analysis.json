@@ -1,0 +1,16 @@
+{
+  "action_change_rate": 0.22265625,
+  "bootstrap_resamples": 20000,
+  "bootstrap_seed": 560,
+  "changed_action_roots": 57,
+  "changed_action_score_difference": 0.06140350877192982,
+  "decision": "no_selective_budget_rule_test",
+  "incremental_root_search_latency_seconds_mean": 0.05476068352800212,
+  "mean_score_difference_512_minus_128": 0.013671875,
+  "n_openings": 256,
+  "paired_opening_bootstrap_95_ci": [
+    -0.017578125,
+    0.044921875
+  ],
+  "scope": "retrospective; fixed P continuation policy only; no full-game strength or serving authorization"
+}
