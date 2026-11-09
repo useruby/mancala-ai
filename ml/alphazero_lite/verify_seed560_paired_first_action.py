@@ -25,6 +25,18 @@ def _jsonl(path: Path) -> list[dict]:
     return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
 
 
+def _asset_sha(path: Path) -> str:
+    """Authenticate either materialized bytes or a Git LFS SHA-256 pointer."""
+    contents = path.read_bytes()
+    marker = b"version https://git-lfs.github.com/spec/v1\n"
+    if contents.startswith(marker):
+        for line in contents.decode("ascii").splitlines()[1:]:
+            if line.startswith("oid sha256:"):
+                return line.removeprefix("oid sha256:")
+        raise ValueError("invalid_lfs_asset_pointer")
+    return sha256(contents)
+
+
 def _expected_seed(index: int, ply: int, role: str) -> int:
     label = f"seed560:{role}:{index}:{ply}"
     return int(sha256(label.encode())[:8], 16) % (2**31)
@@ -113,7 +125,7 @@ def verify(data: Path = DATA) -> dict:
             raise ValueError(f"serving_artifact_identity_mismatch:{name}")
     if freeze.get("exact_root_assets") != {
         "native_sha256": sha256(NATIVE.read_bytes()),
-        "tablebase_sha256": sha256(TABLEBASE.read_bytes()),
+        "tablebase_sha256": _asset_sha(TABLEBASE),
     }:
         raise ValueError("exact_root_asset_identity_mismatch")
     for relative, digest in freeze.get("source_sha256", {}).items():
