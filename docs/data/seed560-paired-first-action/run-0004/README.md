@@ -39,9 +39,13 @@ full-game arena matchup, or deployment was performed.
 PYTHONPATH=. python -m ml.alphazero_lite.verify_seed560_paired_first_action \
   --data docs/data/seed560-paired-first-action/run-0004
 PYTHONPATH=. python -m unittest ml.alphazero_lite.test_seed560_paired_first_action -v
+PYTHONPATH=. python -m ml.alphazero_lite.verify_seed560_physical_copy
 ```
 
 The read-only verifier reconstructs the cohort from the authenticated archive,
 checks freeze and artifact bindings, replays every continuation through
 terminal scoring, validates seed/action/runtime semantics and identical-action
 reuse, and recomputes the analysis without modifying evidence.
+The physical-copy command clones the committed checkout, hides the execution
+worktree while the copied verifier runs, and records the passing receipt in
+`physical-copy-verification.json`.
