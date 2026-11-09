@@ -28,7 +28,7 @@ def verify_physical_copy() -> dict:
     """Clone the committed tree, hide the execution worktree, and verify."""
     root = ROOT.resolve()
     output = root / DATA_RELATIVE
-    copy_root = root.parent / f"{root.name}-seed560-physical-copy"
+    copy_root = root.parent / f"{root.name}-seed560-physical-copy-{os.getpid()}"
     hidden_root = root.with_name(f"{root.name}.hidden-for-seed560-verification")
     if copy_root.exists() or hidden_root.exists():
         raise FileExistsError("seed560_physical_copy_path_already_exists")
