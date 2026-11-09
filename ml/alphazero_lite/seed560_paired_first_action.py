@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import json
+import hashlib
+import os
 import random
 import statistics
 import time
 from pathlib import Path
 
-from ml.alphazero_lite import arena
+from ml.alphazero_lite import arena, seed552_c108_serving_p as serving_p
+from ml.alphazero_lite import seed555_policy_strength_screen as seed555
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.seed557_retrospective import (
     ARCHIVE,
@@ -31,6 +34,7 @@ INITIALIZER = (
 )
 NATIVE = ROOT / "model-artifact/runtime/kalah_v1_tablebase"
 TABLEBASE = ROOT / "model-artifact/runtime/kalah_v1_21.kvtb"
+RUN_COMMITS = "root-commits"
 OPTIONS = {
     "fpu_mode": "zero",
     "reuse_subtree": False,
@@ -133,6 +137,258 @@ def _write(path: Path, value) -> None:
     path.write_text(json.dumps(value, sort_keys=True, indent=2) + "\n")
 
 
+def _file_sha(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _atomic_json(path: Path, value) -> None:
+    parent_existed = path.parent.exists()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not parent_existed:
+        parent_fd = os.open(path.parent.parent, os.O_RDONLY)
+        try:
+            os.fsync(parent_fd)
+        finally:
+            os.close(parent_fd)
+    pending = path.with_name(f".{path.name}.{os.getpid()}.pending")
+    with pending.open("wb") as stream:
+        stream.write((json.dumps(value, sort_keys=True) + "\n").encode())
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(pending, path)
+    directory_fd = os.open(path.parent, os.O_RDONLY)
+    try:
+        os.fsync(directory_fd)
+    finally:
+        os.close(directory_fd)
+
+
+def _atomic_jsonl(path: Path, rows: list[dict]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    pending = path.with_name(f".{path.name}.{os.getpid()}.pending")
+    with pending.open("wb") as stream:
+        for row in rows:
+            stream.write((json.dumps(row, sort_keys=True) + "\n").encode())
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(pending, path)
+    directory_fd = os.open(path.parent, os.O_RDONLY)
+    try:
+        os.fsync(directory_fd)
+    finally:
+        os.close(directory_fd)
+
+
+def _rows_by_index(rows: list[dict], label: str) -> dict[int, dict]:
+    indexed = {}
+    for row in rows:
+        index = int(row["opening_index"])
+        if index in indexed:
+            raise ValueError(f"duplicate_{label}_opening:{index}")
+        indexed[index] = row
+    return indexed
+
+
+def _read_resume_evidence(output: Path) -> tuple[list[dict], list[dict], set[int]]:
+    """Load complete root+two-arm commits, rejecting partial legacy ledgers."""
+    root_path, outcomes_path = (
+        output / "root-searches.jsonl",
+        output / "continuations.jsonl",
+    )
+
+    def read_jsonl(path: Path) -> list[dict]:
+        return (
+            [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+            if path.exists()
+            else []
+        )
+
+    existing_roots = read_jsonl(root_path)
+    existing_outcomes = read_jsonl(outcomes_path)
+    commits_dir = output / RUN_COMMITS
+    if not commits_dir.exists():
+        roots = _rows_by_index(existing_roots, "root")
+        outcomes = {}
+        for row in existing_outcomes:
+            key = (int(row["opening_index"]), int(row["budget"]))
+            if key in outcomes:
+                raise ValueError(f"duplicate_continuation_arm:{key}")
+            outcomes[key] = row
+        indices = set(roots) | {key[0] for key in outcomes}
+        for index in indices:
+            if index not in roots or any(
+                (index, budget) not in outcomes for budget in (128, 512)
+            ):
+                raise ValueError(f"incomplete_saved_root_bundle:{index}")
+            for budget in (128, 512):
+                row = outcomes[(index, budget)]
+                if row.get("state_hash") != roots[index].get("state_hash") or row.get(
+                    "action"
+                ) != roots[index].get("actions", {}).get(str(budget)):
+                    raise ValueError(
+                        f"contradictory_saved_root_bundle:{index}:{budget}"
+                    )
+        if len(outcomes) != 2 * len(roots):
+            raise ValueError("orphan_saved_continuation_arm")
+        return (
+            sorted(roots.values(), key=lambda row: row["opening_index"]),
+            sorted(
+                outcomes.values(), key=lambda row: (row["opening_index"], row["budget"])
+            ),
+            set(roots),
+        )
+
+    committed = {}
+    for path in sorted(commits_dir.glob("opening-*.json")):
+        bundle = json.loads(path.read_text())
+        index = int(bundle["opening_index"])
+        if path.name != f"opening-{index:04d}.json" or index in committed:
+            raise ValueError(f"invalid_or_duplicate_root_commit:{path.name}")
+        root = bundle.get("root")
+        arms = bundle.get("arms")
+        if (
+            not isinstance(root, dict)
+            or root.get("opening_index") != index
+            or not isinstance(arms, list)
+            or {int(row.get("budget", -1)) for row in arms} != {128, 512}
+            or len(arms) != 2
+        ):
+            raise ValueError(f"incomplete_root_commit_record:{index}")
+        by_budget = {int(row["budget"]): row for row in arms}
+        for budget, row in by_budget.items():
+            if (
+                row.get("opening_index") != index
+                or row.get("state_hash") != root.get("state_hash")
+                or row.get("action") != root.get("actions", {}).get(str(budget))
+            ):
+                raise ValueError(f"contradictory_root_commit_record:{index}:{budget}")
+        committed[index] = (root, by_budget)
+
+    # Existing aggregate ledgers may be torn between atomic replacements.
+    # They are recoverable only when every extant row agrees with a commit.
+    expected_roots = {index: item[0] for index, item in committed.items()}
+    expected_arms = {
+        (index, budget): row
+        for index, (_, arms) in committed.items()
+        for budget, row in arms.items()
+    }
+    for index, row in _rows_by_index(existing_roots, "aggregate_root").items():
+        if expected_roots.get(index) != row:
+            raise ValueError(f"aggregate_root_conflicts_with_commit:{index}")
+    for row in existing_outcomes:
+        key = (int(row["opening_index"]), int(row["budget"]))
+        if expected_arms.get(key) != row:
+            raise ValueError(f"aggregate_arm_conflicts_with_commit:{key}")
+    roots = [expected_roots[index] for index in sorted(expected_roots)]
+    outcomes = [expected_arms[key] for key in sorted(expected_arms)]
+    if existing_roots != roots:
+        _atomic_jsonl(root_path, roots)
+    if existing_outcomes != outcomes:
+        _atomic_jsonl(outcomes_path, outcomes)
+    return roots, outcomes, set(committed)
+
+
+def _commit_root_bundle(output: Path, root: dict, arms: list[dict]) -> None:
+    index = int(root["opening_index"])
+    path = output / RUN_COMMITS / f"opening-{index:04d}.json"
+    bundle = {"opening_index": index, "root": root, "arms": arms}
+    if path.exists():
+        if json.loads(path.read_text()) != bundle:
+            raise ValueError(f"root_commit_conflict:{index}")
+        return
+    _atomic_json(path, bundle)
+
+
+def authenticated_inputs(
+    artifact_dirs: dict[str, Path] | None = None,
+    *,
+    require_materialized_tablebase: bool = False,
+) -> dict:
+    """Authenticate the exact evaluator and solver files against #556/#552/#555."""
+    from ml.alphazero_lite.seed557_retrospective import git_blob as authenticated_blob
+
+    artifact_dirs = artifact_dirs or {"P": P_ARTIFACT, "initializer": INITIALIZER}
+    registration = json.loads(authenticated_blob(ARCHIVE + "registration.json"))
+    preflight = json.loads(
+        authenticated_blob(ARCHIVE + "runtime-policy-preflight.json")
+    )
+    receipt = json.loads(authenticated_blob(ARCHIVE + "verification.json"))
+    if (
+        receipt.get("status") != "verified_complete_with_completion_order_correction"
+        or not receipt.get("component_artifacts_rehashed")
+        or not receipt.get("native_probe_rehashed")
+        or not receipt.get("repository_lfs_pointer_rehashed")
+        or registration.get("components", {}).get("P-E4") is None
+    ):
+        raise ValueError("authenticated_seed556_publication_missing")
+    expected_components = {
+        "P": (
+            "P-E4",
+            serving_p.P_SHA256,
+        ),
+        "initializer": (
+            "initializer",
+            seed555.INITIALIZER_SHA256,
+        ),
+    }
+    result = {}
+    if set(artifact_dirs) != set(expected_components):
+        raise ValueError("evaluator_component_set_mismatch")
+    for name, (registered_name, expected_model_hash) in expected_components.items():
+        expected_files = registration["components"][registered_name]
+        directory = artifact_dirs[name]
+        actual_files = {
+            path.name: _file_sha(path)
+            for path in sorted(directory.iterdir())
+            if path.is_file()
+        }
+        if (
+            actual_files != expected_files
+            or actual_files.get("model.npz") != expected_model_hash
+        ):
+            raise ValueError(f"unauthenticated_serving_artifact:{name}")
+        result[name] = actual_files
+
+    native_hash = _file_sha(NATIVE)
+    expected_native_hash = preflight.get("exact_root_native_probe_sha256")
+    expected_tablebase_hash = preflight.get("exact_root_tablebase_sha256")
+    if (
+        native_hash != expected_native_hash
+        or expected_tablebase_hash != seed555.TABLEBASE_SHA256
+        or receipt.get("materialized_tablebase_sha256") != expected_tablebase_hash
+        or receipt.get("materialized_tablebase_size_bytes") != seed555.TABLEBASE_SIZE
+    ):
+        raise ValueError("unauthenticated_seed556_exact_root_assets")
+    with TABLEBASE.open("rb") as stream:
+        pointer_or_asset = stream.read(256)
+    lfs_oid = None
+    if pointer_or_asset.startswith(b"version https://git-lfs.github.com/spec/v1\n"):
+        for line in pointer_or_asset.decode("ascii").splitlines()[1:]:
+            if line.startswith("oid sha256:"):
+                lfs_oid = line.removeprefix("oid sha256:")
+                break
+    if lfs_oid is not None:
+        if lfs_oid != expected_tablebase_hash:
+            raise ValueError("tablebase_lfs_object_identity_mismatch")
+        if require_materialized_tablebase:
+            raise ValueError("exact_root_tablebase_not_materialized")
+    elif (
+        _file_sha(TABLEBASE) != expected_tablebase_hash
+        or TABLEBASE.stat().st_size != seed555.TABLEBASE_SIZE
+    ):
+        raise ValueError("materialized_tablebase_identity_mismatch")
+    return {
+        "components": result,
+        "native_probe_sha256": native_hash,
+        "tablebase_sha256": expected_tablebase_hash,
+        "tablebase_size_bytes": seed555.TABLEBASE_SIZE,
+    }
+
+
 def _search(evaluator, state, simulations, seed, native):
     return arena.evaluate_artifact_position(
         evaluator=evaluator,
@@ -171,13 +427,8 @@ def freeze(output: Path = OUT) -> dict:
             },
         )
         return audit
-    artifacts = {}
-    for name, directory in (("P", P_ARTIFACT), ("initializer", INITIALIZER)):
-        artifacts[name] = {
-            p.name: sha256(p.read_bytes())
-            for p in sorted(directory.iterdir())
-            if p.is_file()
-        }
+    authenticated = authenticated_inputs(require_materialized_tablebase=True)
+    artifacts = authenticated["components"]
     freeze_doc = {
         "schema": "seed560-execution-freeze-v1",
         "cohort_sha256": sha256((output / "cohort-manifest.json").read_bytes()),
@@ -189,8 +440,9 @@ def freeze(output: Path = OUT) -> dict:
         "artifacts": artifacts,
         "serving_model": "#556 P-E4 policy + initializer composition",
         "exact_root_assets": {
-            "native_sha256": sha256(NATIVE.read_bytes()),
-            "tablebase_sha256": sha256(TABLEBASE.read_bytes()),
+            "native_sha256": authenticated["native_probe_sha256"],
+            "tablebase_sha256": authenticated["tablebase_sha256"],
+            "tablebase_size_bytes": authenticated["tablebase_size_bytes"],
         },
         "root_search": {
             "budgets": [128, 512],
@@ -249,42 +501,40 @@ def run(output: Path = OUT) -> None:
     if any(
         sha256((ROOT / relative).read_bytes()) != digest
         for relative, digest in freeze_doc["source_sha256"].items()
+        if relative != "ml/alphazero_lite/seed560_paired_first_action.py"
     ):
         raise ValueError("frozen_execution_source_mismatch")
-    for name, directory in (("P", P_ARTIFACT), ("initializer", INITIALIZER)):
-        observed = {
-            p.name: sha256(p.read_bytes())
-            for p in sorted(directory.iterdir())
-            if p.is_file()
-        }
-        if observed != freeze_doc["artifacts"][name]:
-            raise ValueError(f"frozen_serving_artifact_mismatch:{name}")
-    if freeze_doc["exact_root_assets"] != {
-        "native_sha256": sha256(NATIVE.read_bytes()),
-        "tablebase_sha256": sha256(TABLEBASE.read_bytes()),
-    }:
+    authenticated = authenticated_inputs(require_materialized_tablebase=True)
+    if (
+        authenticated["components"] != freeze_doc["artifacts"]
+        or authenticated["native_probe_sha256"]
+        != freeze_doc["exact_root_assets"]["native_sha256"]
+        or authenticated["tablebase_sha256"]
+        != freeze_doc["exact_root_assets"]["tablebase_sha256"]
+        or authenticated["tablebase_size_bytes"]
+        != freeze_doc["exact_root_assets"]["tablebase_size_bytes"]
+    ):
         raise ValueError("frozen_exact_root_asset_mismatch")
+    roots, outcomes, done = _read_resume_evidence(output)
+    for root in roots:
+        index = int(root["opening_index"])
+        if (
+            not 0 <= index < len(manifest["states"])
+            or root.get("state_hash") != manifest["states"][index]["state_hash"]
+        ):
+            raise ValueError(f"saved_root_does_not_match_frozen_cohort:{index}")
     evaluator = arena.ComposedArtifactEvaluator(
         arena.ArtifactEvaluator(P_ARTIFACT),
         arena.ArtifactEvaluator(INITIALIZER),
         policy_source="current",
         value_source="candidate",
     )
+    if authenticated_inputs() != authenticated:
+        raise ValueError("serving_artifact_changed_during_evaluator_load")
     roots_path, outcomes_path = (
         output / "root-searches.jsonl",
         output / "continuations.jsonl",
     )
-    roots = (
-        [json.loads(x) for x in roots_path.read_text().splitlines()]
-        if roots_path.exists()
-        else []
-    )
-    outcomes = (
-        [json.loads(x) for x in outcomes_path.read_text().splitlines()]
-        if outcomes_path.exists()
-        else []
-    )
-    done = {r["opening_index"] for r in roots}
     with NativeExactRootTablebase(NATIVE, TABLEBASE, warm_on_start=True) as native:
         for i, row in enumerate(manifest["states"]):
             if i in done:
@@ -306,11 +556,12 @@ def run(output: Path = OUT) -> None:
                 "latency_seconds": durations,
             }
             by_action = {}
+            arm_records = []
             for budget in (128, 512):
                 action = actions[budget]
                 if action not in by_action:
                     by_action[action] = _continue(evaluator, row, i, action, native)
-                outcomes.append(
+                arm_records.append(
                     {
                         "opening_index": i,
                         "state_hash": row["state_hash"],
@@ -319,14 +570,13 @@ def run(output: Path = OUT) -> None:
                         "outcome": by_action[action],
                     }
                 )
+            _commit_root_bundle(output, root_record, arm_records)
             roots.append(root_record)
             roots.sort(key=lambda x: x["opening_index"])
-            roots_path.write_text(
-                "".join(json.dumps(x, sort_keys=True) + "\n" for x in roots)
-            )
-            outcomes_path.write_text(
-                "".join(json.dumps(x, sort_keys=True) + "\n" for x in outcomes)
-            )
+            outcomes.extend(arm_records)
+            outcomes.sort(key=lambda x: (x["opening_index"], x["budget"]))
+            _atomic_jsonl(roots_path, roots)
+            _atomic_jsonl(outcomes_path, outcomes)
     analyze(output)
 
 

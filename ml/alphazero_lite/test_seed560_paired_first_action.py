@@ -3,10 +3,24 @@
 from __future__ import annotations
 
 import json
+import shutil
+import tempfile
 import unittest
+from pathlib import Path
 
-from ml.alphazero_lite.seed560_paired_first_action import OUT
-from ml.alphazero_lite.verify_seed560_paired_first_action import validate_continuation
+from ml.alphazero_lite.seed557_retrospective import canonical_hash
+from ml.alphazero_lite.seed560_paired_first_action import (
+    INITIALIZER,
+    OUT,
+    P_ARTIFACT,
+    _commit_root_bundle,
+    _read_resume_evidence,
+    authenticated_inputs,
+)
+from ml.alphazero_lite.verify_seed560_paired_first_action import (
+    validate_continuation,
+    verify_search_choices,
+)
 
 
 class Seed560PairedFirstActionTests(unittest.TestCase):
@@ -70,6 +84,124 @@ class Seed560PairedFirstActionTests(unittest.TestCase):
             validate_continuation(
                 self.cohort[row["opening_index"]], corrupted, corrupted["outcome"]
             )
+
+    def _search_evidence_fixture(self, index=0):
+        cohort = [self.cohort[index]]
+        roots = [self.roots[index]]
+        arms = [row for row in self.outcomes if row["opening_index"] == index]
+        expected = {}
+        root = roots[0]
+        state = cohort[0]["state"]
+        for budget in (128, 512):
+            expected[(canonical_hash(state), budget, root["seed"])] = root["actions"][
+                str(budget)
+            ]
+        from ml.alphazero_lite.kalah_rules import KalahGame
+
+        for arm in arms:
+            game = KalahGame.from_state(cohort[0]["state"])
+            self.assertTrue(game.move(game.pit_index(arm["action"])))
+            for step in arm["outcome"]["trajectory"]:
+                key = (step["state_hash"], 128, step["seed"])
+                self.assertIn(expected.get(key, step["action"]), (step["action"],))
+                expected[key] = step["action"]
+                self.assertTrue(game.move(game.pit_index(step["action"])))
+
+        def search_action(state, simulations, seed):
+            return expected[(canonical_hash(state), simulations, seed)]
+
+        roots[0]["opening_index"] = 0
+        for arm in arms:
+            arm["opening_index"] = 0
+        return cohort, roots, arms, search_action
+
+    def test_reexecuted_search_rejects_swapped_root_and_continuation_labels(self):
+        index = next(
+            i
+            for i, row in enumerate(self.roots)
+            if row["actions"]["128"] != row["actions"]["512"]
+        )
+        cohort, roots, arms, search_action = self._search_evidence_fixture(index)
+        corrupted_roots = json.loads(json.dumps(roots))
+        corrupted_arms = json.loads(json.dumps(arms))
+        actions = corrupted_roots[0]["actions"]
+        actions["128"], actions["512"] = actions["512"], actions["128"]
+        for row in corrupted_arms:
+            row["budget"] = 640 - row["budget"]
+        with self.assertRaisesRegex(ValueError, "root_search_choice_mismatch"):
+            verify_search_choices(
+                cohort, corrupted_roots, corrupted_arms, search_action
+            )
+
+    def test_reexecuted_search_rejects_a_legal_but_wrong_continuation_action(self):
+        index = next(
+            i
+            for i, row in enumerate(self.roots)
+            if row["actions"]["128"] != row["actions"]["512"]
+        )
+        cohort, roots, arms, search_action = self._search_evidence_fixture(index)
+        changed = json.loads(json.dumps(arms))
+        row = next(row for row in changed if row["budget"] == 128)
+        step = row["outcome"]["trajectory"][0]
+        from ml.alphazero_lite.kalah_rules import KalahGame
+
+        game = KalahGame.from_state(cohort[0]["state"])
+        self.assertTrue(game.move(game.pit_index(row["action"])))
+        legal_alternatives = [
+            move for move in game.possible_moves() if move != step["action"]
+        ]
+        self.assertTrue(legal_alternatives)
+        step["action"] = legal_alternatives[0]
+        with self.assertRaisesRegex(ValueError, "continuation_search_choice_mismatch"):
+            verify_search_choices(cohort, roots, changed, search_action)
+
+    def test_saved_root_without_both_arms_is_rejected_before_resume(self):
+        root = {
+            "opening_index": 0,
+            "state_hash": "state",
+            "actions": {"128": 1, "512": 2},
+        }
+        with tempfile.TemporaryDirectory(dir=Path(__file__).parent) as temporary:
+            output = Path(temporary)
+            (output / "root-searches.jsonl").write_text(
+                json.dumps(root) + "\n", encoding="utf-8"
+            )
+            with self.assertRaisesRegex(ValueError, "incomplete_saved_root_bundle"):
+                _read_resume_evidence(output)
+
+    def test_atomic_root_bundle_recovers_torn_aggregate_ledgers(self):
+        root = {
+            "opening_index": 0,
+            "state_hash": "state",
+            "actions": {"128": 1, "512": 2},
+        }
+        arms = [
+            {"opening_index": 0, "state_hash": "state", "budget": 128, "action": 1},
+            {"opening_index": 0, "state_hash": "state", "budget": 512, "action": 2},
+        ]
+        with tempfile.TemporaryDirectory(dir=Path(__file__).parent) as temporary:
+            output = Path(temporary)
+            _commit_root_bundle(output, root, arms)
+            (output / "root-searches.jsonl").write_text(
+                json.dumps(root, sort_keys=True) + "\n", encoding="utf-8"
+            )
+            roots, outcomes, done = _read_resume_evidence(output)
+            self.assertEqual(done, {0})
+            self.assertEqual(roots, [root])
+            self.assertEqual(outcomes, arms)
+
+    def test_artifact_hashes_must_match_authenticated_seed556_components(self):
+        authenticated = authenticated_inputs()
+        self.assertEqual(set(authenticated["components"]), {"P", "initializer"})
+        with tempfile.TemporaryDirectory(dir=Path(__file__).parent) as temporary:
+            copied_policy = Path(temporary) / "P-E4"
+            shutil.copytree(P_ARTIFACT, copied_policy)
+            model = copied_policy / "model.npz"
+            model.write_bytes(model.read_bytes() + b"tampered")
+            with self.assertRaisesRegex(
+                ValueError, "unauthenticated_serving_artifact:P"
+            ):
+                authenticated_inputs({"P": copied_policy, "initializer": INITIALIZER})
 
 
 if __name__ == "__main__":

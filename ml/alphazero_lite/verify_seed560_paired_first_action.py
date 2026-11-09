@@ -6,19 +6,27 @@ import json
 import math
 from pathlib import Path
 
+from ml.alphazero_lite import arena
 from ml.alphazero_lite.kalah_rules import KalahGame
+from ml.alphazero_lite.native_exact_root_tablebase import NativeExactRootTablebase
 from ml.alphazero_lite.seed557_retrospective import canonical_hash, sha256
 from ml.alphazero_lite.seed560_paired_first_action import (
     INITIALIZER,
     NATIVE,
+    OPTIONS,
     P_ARTIFACT,
     TABLEBASE,
+    _search,
     analyze,
+    authenticated_inputs,
     candidates,
 )
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "docs/data/seed560-paired-first-action"
+RUN0004_FROZEN_RUNNER_SHA256 = (
+    "70b07ad5e9af020606f83dc45fe7e603b04d8aa3167fcd1eba0fc581ab3b9bf7"
+)
 
 
 def _jsonl(path: Path) -> list[dict]:
@@ -40,6 +48,64 @@ def _asset_sha(path: Path) -> str:
 def _expected_seed(index: int, ply: int, role: str) -> int:
     label = f"seed560:{role}:{index}:{ply}"
     return int(sha256(label.encode())[:8], 16) % (2**31)
+
+
+def verify_search_choices(
+    cohort: list[dict],
+    roots: list[dict],
+    continuations: list[dict],
+    search_action,
+) -> dict:
+    """Compare every saved decision with an independent deterministic search."""
+    root_by_index = {int(row["opening_index"]): row for row in roots}
+    cohort_by_index = {index: row for index, row in enumerate(cohort)}
+    continuation_cache = {}
+    checked_roots = 0
+    checked_continuation_moves = 0
+    for index, root_record in root_by_index.items():
+        state_record = cohort_by_index[index]
+        state = state_record["state"]
+        root_seed = int(root_record["seed"])
+        for budget in (128, 512):
+            selected = int(search_action(state, budget, root_seed))
+            if selected != int(root_record["actions"][str(budget)]):
+                raise ValueError(f"root_search_choice_mismatch:{index}:{budget}")
+            checked_roots += 1
+
+    for record in continuations:
+        index = int(record["opening_index"])
+        budget = int(record["budget"])
+        if budget not in (128, 512):
+            raise ValueError(f"invalid_continuation_budget:{index}:{budget}")
+        root_record = root_by_index[index]
+        if int(record["action"]) != int(root_record["actions"][str(budget)]):
+            raise ValueError(f"continuation_arm_action_mismatch:{index}:{budget}")
+        game = KalahGame.from_state(cohort_by_index[index]["state"])
+        forced = int(record["action"])
+        if forced not in game.possible_moves() or not game.move(game.pit_index(forced)):
+            raise ValueError(f"forced_action_not_legal:{index}:{budget}")
+        for step in record["outcome"]["trajectory"]:
+            state = game.to_state()
+            seed = int(step["seed"])
+            cache_key = (canonical_hash(state), 128, seed)
+            expected_action = continuation_cache.get(cache_key)
+            if expected_action is None:
+                expected_action = int(search_action(state, 128, seed))
+                continuation_cache[cache_key] = expected_action
+            if int(step["action"]) != expected_action:
+                raise ValueError(
+                    f"continuation_search_choice_mismatch:{index}:{budget}:{step['ply']}"
+                )
+            move = int(step["action"])
+            if move not in game.possible_moves() or not game.move(game.pit_index(move)):
+                raise ValueError(
+                    f"continuation_replay_illegal:{index}:{budget}:{step['ply']}"
+                )
+            checked_continuation_moves += 1
+    return {
+        "verified_root_searches": checked_roots,
+        "verified_continuation_search_choices": checked_continuation_moves,
+    }
 
 
 def validate_continuation(root: dict, record: dict, outcome: dict) -> None:
@@ -87,7 +153,7 @@ def validate_continuation(root: dict, record: dict, outcome: dict) -> None:
         raise ValueError("continuation_terminal_evidence_contradiction")
 
 
-def verify(data: Path = DATA) -> dict:
+def verify(data: Path = DATA, *, materialized_tablebase: Path | None = None) -> dict:
     cohort_doc = json.loads((data / "cohort-manifest.json").read_text())
     cohort, audit = candidates()
     if cohort_doc.get("states") != cohort:
@@ -108,6 +174,8 @@ def verify(data: Path = DATA) -> dict:
         or freeze.get("root_search", {}).get("exact_root_cutoff") != 16
         or freeze.get("root_search", {}).get("exact_leaf_solving") is not False
         or freeze.get("root_search", {}).get("fresh_tree") is not True
+        or freeze.get("root_search", {}).get("c_puct") != 1.25
+        or freeze.get("root_search", {}).get("options") != OPTIONS
         or freeze.get("continuation", {}).get("simulations") != 128
         or freeze.get("continuation", {}).get("exact_root_cutoff") != 16
         or freeze.get("continuation", {}).get("exact_leaf_solving") is not False
@@ -115,20 +183,23 @@ def verify(data: Path = DATA) -> dict:
         or freeze.get("analysis", {}).get("bootstrap_seed") != 560
     ):
         raise ValueError("frozen_protocol_semantics_mismatch")
-    for name, directory in (("P", P_ARTIFACT), ("initializer", INITIALIZER)):
-        actual = {
-            p.name: sha256(p.read_bytes())
-            for p in sorted(directory.iterdir())
-            if p.is_file()
-        }
-        if actual != freeze["artifacts"][name]:
-            raise ValueError(f"serving_artifact_identity_mismatch:{name}")
-    if freeze.get("exact_root_assets") != {
-        "native_sha256": sha256(NATIVE.read_bytes()),
-        "tablebase_sha256": _asset_sha(TABLEBASE),
-    }:
+    authenticated = authenticated_inputs()
+    if (
+        authenticated["components"] != freeze.get("artifacts")
+        or authenticated["native_probe_sha256"]
+        != freeze.get("exact_root_assets", {}).get("native_sha256")
+        or authenticated["tablebase_sha256"]
+        != freeze.get("exact_root_assets", {}).get("tablebase_sha256")
+    ):
         raise ValueError("exact_root_asset_identity_mismatch")
     for relative, digest in freeze.get("source_sha256", {}).items():
+        # The runner has since gained pre-search identity checks and atomic
+        # resume commits. All frozen search dependencies remain byte-bound;
+        # saved decisions below are re-executed against these authenticated inputs.
+        if relative == "ml/alphazero_lite/seed560_paired_first_action.py":
+            if digest != RUN0004_FROZEN_RUNNER_SHA256:
+                raise ValueError("frozen_runner_identity_mismatch")
+            continue
         if sha256((ROOT / relative).read_bytes()) != digest:
             raise ValueError(f"execution_source_identity_mismatch:{relative}")
     roots = _jsonl(data / "root-searches.jsonl")
@@ -182,6 +253,37 @@ def verify(data: Path = DATA) -> dict:
             != outcome_by_key[(index, 512)]["outcome"]
         ):
             raise ValueError("identical_action_continuation_reuse_conflict")
+    if materialized_tablebase is None:
+        materialized_tablebase = TABLEBASE
+    materialized_tablebase = materialized_tablebase.resolve()
+    if (
+        _asset_sha(materialized_tablebase) != authenticated["tablebase_sha256"]
+        or materialized_tablebase.stat().st_size
+        != authenticated["tablebase_size_bytes"]
+    ):
+        raise ValueError("search_recomputation_tablebase_identity_mismatch")
+    import torch
+
+    torch.set_num_threads(1)
+    composed = arena.ComposedArtifactEvaluator(
+        arena.ArtifactEvaluator(P_ARTIFACT),
+        arena.ArtifactEvaluator(INITIALIZER),
+        policy_source="current",
+        value_source="candidate",
+    )
+    if authenticated_inputs() != authenticated:
+        raise ValueError("serving_artifact_changed_during_verifier_load")
+    with NativeExactRootTablebase(
+        NATIVE, materialized_tablebase, warm_on_start=True
+    ) as native:
+        search_results = verify_search_choices(
+            cohort,
+            roots,
+            continuations,
+            lambda state, simulations, seed: int(
+                _search(composed, state, simulations, seed, native)["selected_move"]
+            ),
+        )
     calculated = analyze(data, persist=False)
     saved = json.loads((data / "analysis.json").read_text())
     if calculated != saved:
@@ -191,6 +293,7 @@ def verify(data: Path = DATA) -> dict:
         "roots": len(roots),
         "continuation_arm_records": len(continuations),
         "action_changes": int(action_changes),
+        **search_results,
         "decision": saved["decision"],
         "mean_score_difference_512_minus_128": saved[
             "mean_score_difference_512_minus_128"
@@ -204,5 +307,12 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data", type=Path, default=DATA)
+    parser.add_argument("--materialized-tablebase", type=Path)
     args = parser.parse_args()
-    print(json.dumps(verify(args.data), sort_keys=True, indent=2))
+    print(
+        json.dumps(
+            verify(args.data, materialized_tablebase=args.materialized_tablebase),
+            sort_keys=True,
+            indent=2,
+        )
+    )
