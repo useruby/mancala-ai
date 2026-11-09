@@ -13,11 +13,11 @@
     "status": "verified"
   },
   "copy_evidence_bytes_and_mtimes_unchanged": true,
-  "copy_root": "/home/alex/Mancala/ai/.tmp/seed560-worktree-seed560-physical-copy",
+  "copy_root": "/home/alex/Mancala/ai/.tmp/seed560-worktree-seed560-physical-copy-3437972",
   "original_execution_root_hidden_during_verification": "/home/alex/Mancala/ai/.tmp/seed560-worktree.hidden-for-seed560-verification",
   "original_execution_root_inaccessible": true,
   "schema": "seed560-physical-copy-verification-v1",
   "source_evidence_bytes_and_mtimes_unchanged": true,
-  "source_evidence_files": 7,
+  "source_evidence_files": 8,
   "status": "passed"
 }
