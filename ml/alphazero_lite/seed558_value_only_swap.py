@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import random
-import shutil
 import statistics
-import sys
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -305,21 +305,21 @@ def score(
     }
 
 
-def main() -> None:
-    DATA.mkdir(parents=True, exist_ok=True)
+def run(output: Path) -> dict[str, Any]:
+    """Run a new diagnostic into a path that does not already exist."""
+    output = output.resolve()
+    if output.exists():
+        raise FileExistsError(f"diagnostic output must be new: {output}")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.mkdir()
     freeze = frozen_inputs()
-    freeze_path = DATA / "execution-freeze.json"
+    freeze_path = output / "execution-freeze.json"
     freeze_bytes = (json.dumps(freeze, sort_keys=True, indent=2) + "\n").encode()
-    if len(sys.argv) > 1 and sys.argv[1] == "refreeze-and-run":
-        freeze_path.write_bytes(freeze_bytes)
-    elif freeze_path.exists() and freeze_path.read_bytes() != freeze_bytes:
-        raise ValueError("frozen execution inputs changed")
-    elif not freeze_path.exists():
-        freeze_path.write_bytes(freeze_bytes)
+    freeze_path.write_bytes(freeze_bytes)
     # Preserve the #557 cohort and margins byte-for-byte in this self-contained package.
     for name in ("cohort.json", "oracle-records.jsonl"):
         source = BASE / name
-        target = DATA / name
+        target = output / name
         if target.exists() and target.read_bytes() != source.read_bytes():
             raise ValueError(f"frozen #557 evidence changed: {name}")
         if not target.exists():
@@ -329,7 +329,7 @@ def main() -> None:
         ("initializer", ARTIFACTS / "initializer"),
         ("D432", ARTIFACTS / "D-final"),
     ):
-        target = DATA / "artifacts" / label
+        target = output / "artifacts" / label
         target.mkdir(parents=True, exist_ok=True)
         for filename in (
             "metadata.json",
@@ -346,9 +346,9 @@ def main() -> None:
                 raise ValueError(f"bundled component changed: {label}/{filename}")
             if not dest.exists():
                 shutil.copyfile(source, dest)
-    cohort = read_json(DATA / "cohort.json")["states"]
+    cohort = read_json(output / "cohort.json")["states"]
     searches = run_searches(cohort)
-    (DATA / "search-records.jsonl").write_text(
+    (output / "search-records.jsonl").write_text(
         "".join(json.dumps(row, sort_keys=True) + "\n" for row in searches)
     )
     result = score(
@@ -356,17 +356,30 @@ def main() -> None:
         searches,
         [
             json.loads(line)
-            for line in (DATA / "oracle-records.jsonl").read_text().splitlines()
+            for line in (output / "oracle-records.jsonl").read_text().splitlines()
         ],
     )
-    (DATA / "root-metrics.jsonl").write_text(
+    (output / "root-metrics.jsonl").write_text(
         "".join(
             json.dumps(row, sort_keys=True) + "\n" for row in result.pop("root_records")
         )
     )
-    (DATA / "analysis.json").write_text(
+    (output / "analysis.json").write_text(
         json.dumps(result, sort_keys=True, indent=2) + "\n"
     )
+    return result
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--output",
+        required=True,
+        type=Path,
+        help="new, nonexistent directory for this immutable run",
+    )
+    args = parser.parse_args()
+    result = run(args.output)
     print(json.dumps(result, indent=2, sort_keys=True))
 
 

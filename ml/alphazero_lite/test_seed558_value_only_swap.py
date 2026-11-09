@@ -8,7 +8,7 @@ import unittest
 import uuid
 from pathlib import Path
 
-from ml.alphazero_lite.seed558_value_only_swap import DATA, ROOT
+from ml.alphazero_lite.seed558_value_only_swap import ARMS, DATA, ROOT, run, score
 from ml.alphazero_lite.verify_seed558_value_only_swap import verify
 
 
@@ -26,11 +26,24 @@ def _edit_first_record(path: Path, update) -> None:
 
 class Seed558ValueOnlySwapTests(unittest.TestCase):
     def test_fresh_package_and_physical_copy_verify(self) -> None:
+        frozen = {
+            name: (DATA / name).read_bytes()
+            for name in (
+                "execution-freeze.json",
+                "search-records.jsonl",
+                "analysis.json",
+            )
+        }
         self.assertEqual(verify(DATA)["status"], "verified")
+        self.assertEqual({name: (DATA / name).read_bytes() for name in frozen}, frozen)
         copy = _copy()
         try:
             # The verifier consumes only the copied package and bundled artifacts.
+            copied_records = (copy / "search-records.jsonl").read_bytes()
             self.assertEqual(verify(copy)["paired_searches"], 512)
+            self.assertEqual(
+                (copy / "search-records.jsonl").read_bytes(), copied_records
+            )
         finally:
             shutil.rmtree(copy)
 
@@ -79,3 +92,43 @@ class Seed558ValueOnlySwapTests(unittest.TestCase):
                 verify(copy)
         finally:
             shutil.rmtree(copy)
+
+    def test_swapped_arm_labels_with_regenerated_metrics_fail_replay(self) -> None:
+        copy = _copy()
+        try:
+            searches = [
+                json.loads(line)
+                for line in (copy / "search-records.jsonl").read_text().splitlines()
+            ]
+            for row in searches:
+                row["arm"] = next(arm for arm in ARMS if arm != row["arm"])
+            (copy / "search-records.jsonl").write_text(
+                "".join(json.dumps(row, sort_keys=True) + "\n" for row in searches)
+            )
+            cohort = json.loads((copy / "cohort.json").read_text())["states"]
+            oracles = [
+                json.loads(line)
+                for line in (copy / "oracle-records.jsonl").read_text().splitlines()
+            ]
+            rebuilt = score(cohort, searches, oracles)
+            (copy / "root-metrics.jsonl").write_text(
+                "".join(
+                    json.dumps(row, sort_keys=True) + "\n"
+                    for row in rebuilt.pop("root_records")
+                )
+            )
+            (copy / "analysis.json").write_text(
+                json.dumps(rebuilt, sort_keys=True, indent=2) + "\n"
+            )
+            with self.assertRaisesRegex(ValueError, "search_result_replay_mismatch"):
+                verify(copy)
+        finally:
+            shutil.rmtree(copy)
+
+    def test_existing_output_is_never_overwritten(self) -> None:
+        frozen = (DATA / "execution-freeze.json").read_bytes()
+        searches = (DATA / "search-records.jsonl").read_bytes()
+        with self.assertRaisesRegex(FileExistsError, "must be new"):
+            run(DATA)
+        self.assertEqual((DATA / "execution-freeze.json").read_bytes(), frozen)
+        self.assertEqual((DATA / "search-records.jsonl").read_bytes(), searches)

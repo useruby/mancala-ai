@@ -47,6 +47,26 @@ def verify(data: Path = DATA) -> dict[str, Any]:
     oracle_bytes = (data / "oracle-records.jsonl").read_bytes()
     if freeze["schema"] != "seed558-value-only-freeze-v1":
         raise ValueError("freeze_schema_mismatch")
+    expected_options = {
+        "fpu_mode": "zero",
+        "reuse_subtree": False,
+        "normalize_values": False,
+        "root_policy_mode": "deterministic",
+        "root_temperature": 0.0,
+        "tactical_root_bias": 0.0,
+    }
+    contract = freeze["search"]
+    if (
+        contract["simulations"] != 128
+        or contract["c_puct"] != 1.25
+        or contract["workers"] != 1
+        or contract["fresh_tree_per_root_arm"] is not True
+        or contract["same_seed_per_root"] is not True
+        or contract["exact_root_solving"] is not False
+        or contract["exact_leaf_solving"] is not False
+        or contract["search_options"] != expected_options
+    ):
+        raise ValueError("search_contract_mismatch")
     for name, value in EXPECTED_PUBLICATIONS.items():
         if freeze["publications"].get(name) != value:
             raise ValueError(f"published_source_identity_mismatch:{name}")
@@ -172,6 +192,34 @@ def verify(data: Path = DATA) -> dict[str, Any]:
         )
         if row["selected_action"] != expected_action:
             raise ValueError("selected_action_breaks_deterministic_tie_rule")
+        replay = arena.evaluate_artifact_position(
+            evaluator=compositions[row["arm"]],
+            state=state_by_hash[row["state_hash"]]["state"],
+            simulations=contract["simulations"],
+            seed=expected_seed,
+            c_puct=contract["c_puct"],
+            search_options=contract["search_options"],
+            exact_root_solve_threshold=None,
+            exact_solve_stone_threshold=None,
+        )
+        replayed_priors = [float(value) for value in replay["policy"]]
+        priors_match = len(replayed_priors) == len(row["priors"]) and all(
+            math.isclose(float(observed), expected, rel_tol=1e-6, abs_tol=1e-7)
+            for observed, expected in zip(row["priors"], replayed_priors, strict=True)
+        )
+        if (
+            replay["legal_moves"] != legal
+            or not priors_match
+            or replay["visits"] != row["visits"]
+            or int(replay["selected_move"]) != int(row["selected_action"])
+            or replay["child_stats"] != row["child_stats"]
+        ):
+            raise ValueError(
+                f"search_result_replay_mismatch:{row['state_hash']}:{row['arm']}"
+            )
+    expected_keys = {(state_hash, arm) for state_hash in state_by_hash for arm in ARMS}
+    if set(by_key) != expected_keys:
+        raise ValueError("per-root arm search coverage mismatch")
     for state_hash in state_by_hash:
         left, right = (by_key[(state_hash, arm)] for arm in ARMS)
         if left["seed"] != right["seed"]:
@@ -186,30 +234,11 @@ def verify(data: Path = DATA) -> dict[str, Any]:
     published = json.loads((data / "analysis.json").read_text())
     if metrics != published:
         raise ValueError("analysis_reconstruction_mismatch")
-    expected_options = {
-        "fpu_mode": "zero",
-        "reuse_subtree": False,
-        "normalize_values": False,
-        "root_policy_mode": "deterministic",
-        "root_temperature": 0.0,
-        "tactical_root_bias": 0.0,
-    }
-    contract = freeze["search"]
-    if (
-        contract["simulations"] != 128
-        or contract["c_puct"] != 1.25
-        or contract["workers"] != 1
-        or contract["fresh_tree_per_root_arm"] is not True
-        or contract["same_seed_per_root"] is not True
-        or contract["exact_root_solving"] is not False
-        or contract["exact_leaf_solving"] is not False
-        or contract["search_options"] != expected_options
-    ):
-        raise ValueError("search_contract_mismatch")
     return {
         "status": "verified",
         "roots": 256,
         "paired_searches": 512,
+        "replayed_searches": 512,
         "oracle_roots": 256,
         "decision": published["decision"],
     }

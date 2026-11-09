@@ -39,3 +39,5 @@ python -m unittest ml.alphazero_lite.test_seed558_value_only_swap -v
 ```
 
 The read-only verifier works on a physical copy of this directory and bundled component exports; it does not open original artifact paths. Tests verify fresh output and reject altered priors, a selected move contradicted by visits, and a substituted value artifact.
+
+To execute a new run, provide a nonexistent output path, for example `python -m ml.alphazero_lite.seed558_value_only_swap --output .tmp/seed558-reproduction-01`. The runner rejects every existing output directory and has no refreeze mode; it never writes into this published evidence directory. Verification independently replays all 512 searches against the bundled arm compositions and checks visits, selected actions, child Q values, and priors against the recorded results.
