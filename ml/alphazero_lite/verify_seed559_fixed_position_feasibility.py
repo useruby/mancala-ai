@@ -29,6 +29,17 @@ def _sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def _asset_sha(path: Path) -> str:
+    contents = path.read_bytes()
+    marker = b"version https://git-lfs.github.com/spec/v1\n"
+    if contents.startswith(marker):
+        for line in contents.decode("ascii").splitlines()[1:]:
+            if line.startswith("oid sha256:"):
+                return line.removeprefix("oid sha256:")
+        raise ValueError("invalid_git_lfs_pointer")
+    return _sha(contents)
+
+
 def _jsonl(path: Path) -> list[dict[str, Any]]:
     return [json.loads(line) for line in path.read_text().splitlines() if line]
 
@@ -88,7 +99,7 @@ def verify(data: Path = DATA) -> dict[str, Any]:
     )
     if (
         _sha(native.read_bytes()) != expected_oracle["native_probe_sha256"]
-        or _sha(tablebase.read_bytes()) != expected_oracle["tablebase_sha256"]
+        or _asset_sha(tablebase) != expected_oracle["tablebase_sha256"]
     ):
         raise ValueError("authenticated_native_oracle_asset_mismatch")
     if (
