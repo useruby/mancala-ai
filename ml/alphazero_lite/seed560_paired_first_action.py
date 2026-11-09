@@ -25,6 +25,12 @@ from ml.alphazero_lite.native_exact_root_tablebase import NativeExactRootTableba
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "docs/data/seed560-paired-first-action/run-0004"
+RUN0004_COHORT_SHA256 = (
+    "fe24d68aea9a158cb441aa886a60adc26631805c5b1213f14fceb4aa4ce4a254"
+)
+RUN0004_RUNNER_SHA256 = (
+    "70b07ad5e9af020606f83dc45fe7e603b04d8aa3167fcd1eba0fc581ab3b9bf7"
+)
 P_ARTIFACT = (
     ROOT / "docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts/P-E4"
 )
@@ -234,6 +240,18 @@ def _read_resume_evidence(output: Path) -> tuple[list[dict], list[dict], set[int
                     )
         if len(outcomes) != 2 * len(roots):
             raise ValueError("orphan_saved_continuation_arm")
+        if len(roots) > 256 or set(roots) != set(range(len(roots))):
+            raise ValueError("legacy_root_records_are_not_a_frozen_cohort_prefix")
+        # Keep the fully published run-0004 byte-identical. A complete legacy
+        # prefix that will be extended is migrated before the first new search.
+        if roots and len(roots) < 256:
+            for index in sorted(roots):
+                _commit_root_bundle(
+                    output,
+                    roots[index],
+                    [outcomes[(index, budget)] for budget in (128, 512)],
+                )
+            return _read_resume_evidence(output)
         return (
             sorted(roots.values(), key=lambda row: row["opening_index"]),
             sorted(
@@ -268,6 +286,31 @@ def _read_resume_evidence(output: Path) -> tuple[list[dict], list[dict], set[int
                 raise ValueError(f"contradictory_root_commit_record:{index}:{budget}")
         committed[index] = (root, by_budget)
 
+    # Migrate any complete legacy tail before comparing/rebuilding the
+    # aggregate ledgers. This also makes migration restartable if interrupted.
+    aggregate_roots = _rows_by_index(existing_roots, "aggregate_root")
+    aggregate_arms = {}
+    for row in existing_outcomes:
+        key = (int(row["opening_index"]), int(row["budget"]))
+        if key in aggregate_arms:
+            raise ValueError(f"duplicate_aggregate_arm:{key}")
+        aggregate_arms[key] = row
+    aggregate_indices = set(aggregate_roots) | {key[0] for key in aggregate_arms}
+    for index in sorted(aggregate_indices - set(committed)):
+        root = aggregate_roots.get(index)
+        if root is None or any(
+            (index, budget) not in aggregate_arms for budget in (128, 512)
+        ):
+            raise ValueError(f"incomplete_legacy_root_bundle:{index}")
+        arms = {budget: aggregate_arms[(index, budget)] for budget in (128, 512)}
+        for budget, row in arms.items():
+            if row.get("state_hash") != root.get("state_hash") or row.get(
+                "action"
+            ) != root.get("actions", {}).get(str(budget)):
+                raise ValueError(f"contradictory_legacy_root_bundle:{index}:{budget}")
+        _commit_root_bundle(output, root, [arms[128], arms[512]])
+        committed[index] = (root, arms)
+
     # Existing aggregate ledgers may be torn between atomic replacements.
     # They are recoverable only when every extant row agrees with a commit.
     expected_roots = {index: item[0] for index, item in committed.items()}
@@ -276,11 +319,10 @@ def _read_resume_evidence(output: Path) -> tuple[list[dict], list[dict], set[int
         for index, (_, arms) in committed.items()
         for budget, row in arms.items()
     }
-    for index, row in _rows_by_index(existing_roots, "aggregate_root").items():
+    for index, row in aggregate_roots.items():
         if expected_roots.get(index) != row:
             raise ValueError(f"aggregate_root_conflicts_with_commit:{index}")
-    for row in existing_outcomes:
-        key = (int(row["opening_index"]), int(row["budget"]))
+    for key, row in aggregate_arms.items():
         if expected_arms.get(key) != row:
             raise ValueError(f"aggregate_arm_conflicts_with_commit:{key}")
     roots = [expected_roots[index] for index in sorted(expected_roots)]
@@ -498,10 +540,21 @@ def run(output: Path = OUT) -> None:
         != freeze_doc["cohort_sha256"]
     ):
         raise ValueError("cohort freeze mismatch")
+    runner_relative = "ml/alphazero_lite/seed560_paired_first_action.py"
+    is_preserved_run0004 = (
+        output.resolve() == OUT.resolve()
+        and freeze_doc.get("cohort_sha256") == RUN0004_COHORT_SHA256
+        and freeze_doc.get("source_sha256", {}).get(runner_relative)
+        == RUN0004_RUNNER_SHA256
+    )
     if any(
         sha256((ROOT / relative).read_bytes()) != digest
         for relative, digest in freeze_doc["source_sha256"].items()
-        if relative != "ml/alphazero_lite/seed560_paired_first_action.py"
+        if relative != runner_relative
+    ) or (
+        not is_preserved_run0004
+        and sha256((ROOT / runner_relative).read_bytes())
+        != freeze_doc["source_sha256"].get(runner_relative)
     ):
         raise ValueError("frozen_execution_source_mismatch")
     authenticated = authenticated_inputs(require_materialized_tablebase=True)

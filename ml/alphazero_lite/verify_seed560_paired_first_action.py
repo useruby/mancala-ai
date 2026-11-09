@@ -24,6 +24,13 @@ from ml.alphazero_lite.seed560_paired_first_action import (
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "docs/data/seed560-paired-first-action"
+PUBLISHED_RUN_0004 = DATA / "run-0004"
+RUN0004_COHORT_SHA256 = (
+    "fe24d68aea9a158cb441aa886a60adc26631805c5b1213f14fceb4aa4ce4a254"
+)
+RUN0004_SELECTION_AUDIT_SHA256 = (
+    "e066218b8d637a91ef777b481614d05bb2bcbf25c19b2ac9745eef4d59dbf1c4"
+)
 RUN0004_FROZEN_RUNNER_SHA256 = (
     "70b07ad5e9af020606f83dc45fe7e603b04d8aa3167fcd1eba0fc581ab3b9bf7"
 )
@@ -43,6 +50,27 @@ def _asset_sha(path: Path) -> str:
                 return line.removeprefix("oid sha256:")
         raise ValueError("invalid_lfs_asset_pointer")
     return sha256(contents)
+
+
+def verify_source_bindings(data: Path, freeze: dict) -> None:
+    """Use the historical runner hash only for the immutable run-0004 package."""
+    runner_path = "ml/alphazero_lite/seed560_paired_first_action.py"
+    runner_digest = freeze.get("source_sha256", {}).get(runner_path)
+    is_preserved_publication = (
+        data.resolve() == PUBLISHED_RUN_0004.resolve()
+        and freeze.get("cohort_sha256") == RUN0004_COHORT_SHA256
+        and freeze.get("selection_audit_sha256") == RUN0004_SELECTION_AUDIT_SHA256
+    )
+    if is_preserved_publication:
+        if runner_digest != RUN0004_FROZEN_RUNNER_SHA256:
+            raise ValueError("published_run0004_runner_identity_mismatch")
+    elif runner_digest != sha256((ROOT / runner_path).read_bytes()):
+        raise ValueError("fresh_freeze_runner_source_hash_mismatch")
+    for relative, digest in freeze.get("source_sha256", {}).items():
+        if relative == runner_path:
+            continue
+        if sha256((ROOT / relative).read_bytes()) != digest:
+            raise ValueError(f"execution_source_identity_mismatch:{relative}")
 
 
 def _expected_seed(index: int, ply: int, role: str) -> int:
@@ -192,16 +220,7 @@ def verify(data: Path = DATA, *, materialized_tablebase: Path | None = None) -> 
         != freeze.get("exact_root_assets", {}).get("tablebase_sha256")
     ):
         raise ValueError("exact_root_asset_identity_mismatch")
-    for relative, digest in freeze.get("source_sha256", {}).items():
-        # The runner has since gained pre-search identity checks and atomic
-        # resume commits. All frozen search dependencies remain byte-bound;
-        # saved decisions below are re-executed against these authenticated inputs.
-        if relative == "ml/alphazero_lite/seed560_paired_first_action.py":
-            if digest != RUN0004_FROZEN_RUNNER_SHA256:
-                raise ValueError("frozen_runner_identity_mismatch")
-            continue
-        if sha256((ROOT / relative).read_bytes()) != digest:
-            raise ValueError(f"execution_source_identity_mismatch:{relative}")
+    verify_source_bindings(data, freeze)
     roots = _jsonl(data / "root-searches.jsonl")
     continuations = _jsonl(data / "continuations.jsonl")
     if len(roots) != 256 or len(continuations) != 512:

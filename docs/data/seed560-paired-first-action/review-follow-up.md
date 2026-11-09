@@ -10,10 +10,15 @@ This follow-up records the review corrections without changing the published
   against the authenticated P/initializer artifacts, native probe, and
   materialized tablebase. Legal replay alone is not treated as proof of the
   chosen search action.
+- The historical runner-source hash exception is restricted to the frozen
+  `run-0004` path and its cohort/selection bindings. Other freezes must match
+  the current runner hash.
 - Future/resumed runs persist the root record and both arms in one fsynced,
   atomic per-opening commit. Aggregate JSONL ledgers are rebuilt from those
   commits after interruption; legacy partial roots without both arms are
-  rejected before any opening is skipped.
+  rejected before any opening is skipped. A complete legacy prefix is
+  migrated to atomic bundles before the first new opening is processed, and
+  the migration resumes safely if interrupted.
 - Serving artifacts are checked against the authenticated #556 component
   registration, #552 P model identity, #555 initializer and exact-root asset
   identities before evaluator construction and again after loading.

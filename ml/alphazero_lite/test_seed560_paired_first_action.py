@@ -16,9 +16,11 @@ from ml.alphazero_lite.seed560_paired_first_action import (
     _commit_root_bundle,
     _read_resume_evidence,
     authenticated_inputs,
+    sha256,
 )
 from ml.alphazero_lite.verify_seed560_paired_first_action import (
     validate_continuation,
+    verify_source_bindings,
     verify_search_choices,
 )
 
@@ -168,6 +170,78 @@ class Seed560PairedFirstActionTests(unittest.TestCase):
             )
             with self.assertRaisesRegex(ValueError, "incomplete_saved_root_bundle"):
                 _read_resume_evidence(output)
+            self.assertFalse((output / "root-commits").exists())
+
+    def test_complete_legacy_prefix_migrates_before_a_new_atomic_bundle(self):
+        def root_record(index):
+            return {
+                "opening_index": index,
+                "state_hash": f"state-{index}",
+                "actions": {"128": 1, "512": 2},
+            }
+
+        def arm_records(index):
+            return [
+                {
+                    "opening_index": index,
+                    "state_hash": f"state-{index}",
+                    "budget": budget,
+                    "action": action,
+                }
+                for budget, action in ((128, 1), (512, 2))
+            ]
+
+        with tempfile.TemporaryDirectory(dir=Path(__file__).parent) as temporary:
+            output = Path(temporary)
+            legacy_root = root_record(0)
+            legacy_arms = arm_records(0)
+            (output / "root-searches.jsonl").write_text(
+                json.dumps(legacy_root, sort_keys=True) + "\n", encoding="utf-8"
+            )
+            (output / "continuations.jsonl").write_text(
+                "".join(json.dumps(row, sort_keys=True) + "\n" for row in legacy_arms),
+                encoding="utf-8",
+            )
+            roots, outcomes, done = _read_resume_evidence(output)
+            self.assertEqual(done, {0})
+            self.assertTrue((output / "root-commits/opening-0000.json").is_file())
+
+            _commit_root_bundle(output, root_record(1), arm_records(1))
+            roots, outcomes, done = _read_resume_evidence(output)
+            self.assertEqual(done, {0, 1})
+            self.assertEqual([row["opening_index"] for row in roots], [0, 1])
+            self.assertEqual(len(outcomes), 4)
+            self.assertEqual(_read_resume_evidence(output)[2], {0, 1})
+
+    def test_verifier_accepts_a_fresh_freeze_with_current_runner_hash(self):
+        runner_path = Path(__file__).with_name("seed560_paired_first_action.py")
+        fresh_digest = sha256(runner_path.read_bytes())
+        with tempfile.TemporaryDirectory(dir=Path(__file__).parent) as temporary:
+            verify_source_bindings(
+                Path(temporary),
+                {
+                    "source_sha256": {
+                        runner_path.relative_to(
+                            Path(__file__).parents[2]
+                        ).as_posix(): fresh_digest
+                    }
+                },
+            )
+
+    def test_historical_runner_hash_exception_is_not_accepted_outside_run0004(self):
+        runner_path = Path(__file__).with_name("seed560_paired_first_action.py")
+        with tempfile.TemporaryDirectory(dir=Path(__file__).parent) as temporary:
+            with self.assertRaisesRegex(ValueError, "fresh_freeze_runner_source_hash"):
+                verify_source_bindings(
+                    Path(temporary),
+                    {
+                        "source_sha256": {
+                            runner_path.relative_to(
+                                Path(__file__).parents[2]
+                            ).as_posix(): "70b07ad5e9af020606f83dc45fe7e603b04d8aa3167fcd1eba0fc581ab3b9bf7"
+                        }
+                    },
+                )
 
     def test_atomic_root_bundle_recovers_torn_aggregate_ledgers(self):
         root = {
