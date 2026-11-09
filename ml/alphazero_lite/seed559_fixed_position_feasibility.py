@@ -9,6 +9,7 @@ import random
 import statistics
 from collections import Counter
 from pathlib import Path
+from typing import Any
 
 from ml.alphazero_lite import arena
 from ml.alphazero_lite.kalah_rules import KalahGame
@@ -246,6 +247,38 @@ def select() -> tuple[list[dict], dict]:
     return chosen, audit
 
 
+def count_audit_supplement() -> dict[str, Any]:
+    """Return unique-state and occurrence reconciliation for the published audit."""
+    openings, records, _ = load_authenticated_archive()
+    eligible = _source_candidates(openings, records)
+    excluded557, excluded418 = _excluded_hashes()
+    eligible_unique = {row["state_hash"] for row in eligible}
+    remaining_unique = eligible_unique - excluded557 - excluded418
+    return {
+        "schema": "seed559-cohort-count-audit-supplement-v1",
+        "scope": "canonical unique-state counts derived from the eligible first-per-game root list; clarification only",
+        "eligible_unique_states_before_exclusion": len(eligible_unique),
+        "unique_states_excluded_by_seed557": len(eligible_unique & excluded557),
+        "unique_states_excluded_by_seed418": len(eligible_unique & excluded418),
+        "unique_states_excluded_by_both": len(
+            eligible_unique & excluded557 & excluded418
+        ),
+        "eligible_occurrence_matches_seed557": sum(
+            row["state_hash"] in excluded557 for row in eligible
+        ),
+        "eligible_occurrence_matches_seed418": sum(
+            row["state_hash"] in excluded418 for row in eligible
+        ),
+        "unique_remaining_states": len(remaining_unique),
+        "reconciliation": (
+            f"{len(eligible_unique)} eligible unique states minus "
+            f"{len(eligible_unique & excluded557)} unique #557 matches and "
+            f"{len(eligible_unique & excluded418)} unique #418 matches equals "
+            f"{len(remaining_unique)} unique remaining states"
+        ),
+    }
+
+
 def freeze_and_run(output: Path) -> None:
     output = output.resolve()
     if output.exists():
@@ -264,6 +297,9 @@ def freeze_and_run(output: Path) -> None:
     )
     (output / "count-audit.json").write_text(
         json.dumps(audit, sort_keys=True, indent=2) + "\n"
+    )
+    (output / "count-audit-supplement.json").write_text(
+        json.dumps(count_audit_supplement(), sort_keys=True, indent=2) + "\n"
     )
     if len(cohort) != 512:
         (output / "decision.json").write_text(

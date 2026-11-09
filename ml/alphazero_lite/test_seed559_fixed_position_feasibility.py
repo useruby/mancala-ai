@@ -17,9 +17,49 @@ RUN = diagnostic.DEFAULT_ANALYSIS_DATA
 
 
 def _copy_run(tmp_path: Path) -> Path:
+    tmp_path.mkdir(parents=True, exist_ok=True)
     destination = tmp_path / "evidence-copy"
     shutil.copytree(RUN, destination)
     return destination
+
+
+def _make_passing_gate_fixture(data: Path) -> None:
+    """Synthesize internally consistent action margins that clear both efficacy gates."""
+    search_path = data / "search-records.jsonl"
+    oracle_path = data / "oracle-records.jsonl"
+    searches = {
+        row["state_hash"]: row
+        for row in map(json.loads, search_path.read_text().splitlines())
+    }
+    oracles = {
+        row["state_hash"]: row
+        for row in map(json.loads, oracle_path.read_text().splitlines())
+    }
+    for state_hash, search in searches.items():
+        legal = search["legal_moves"]
+        baseline = int(search["baseline_action"])
+        alternatives = [move for move in legal if move != baseline]
+        if not alternatives:
+            raise AssertionError("fixture root must have at least two legal actions")
+        margins = {str(move): (-2 if move == baseline else 1) for move in legal}
+        priors = [float(value) for value in search["priors"]]
+        exact = max(alternatives, key=lambda move: (1, priors[move], -move))
+        oracles[state_hash]["action_margins"] = margins
+        search["exact_action"] = exact
+    oracle_path.write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in oracles.values())
+    )
+    search_path.write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in searches.values())
+    )
+    analysis = diagnostic.analyze_published_run(data)
+    roots = analysis.pop("root_records")
+    (data / "root-metrics.jsonl").write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in roots)
+    )
+    (data / "analysis.json").write_text(
+        json.dumps(analysis, sort_keys=True, indent=2) + "\n"
+    )
 
 
 def test_verifier_recomputes_latency_from_per_root_measurements(
@@ -48,6 +88,36 @@ def test_verifier_recomputes_confidence_interval_and_gate(tmp_path: Path) -> Non
 
     with pytest.raises(ValueError, match="analysis_latency_interval_or_gate"):
         verifier.verify(copied)
+
+
+def test_fresh_package_verifier_accepts_both_gate_outcomes(tmp_path: Path) -> None:
+    failing_package = _copy_run(tmp_path / "failed")
+    failed = verifier.verify(failing_package)
+    assert failed["decision"] == "no_cutoff_21_arena_proposal"
+
+    passing_package = _copy_run(tmp_path / "passed")
+    _make_passing_gate_fixture(passing_package)
+    passed = verifier.verify(passing_package)
+    assert passed["decision"] == "supports_proposing_separate_cutoff_21_arena_only"
+
+
+def test_fresh_shortfall_output_writes_count_supplement(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    output = tmp_path / "fresh-diagnostic"
+    audit = {"selected_roots": 0, "shortfall": 512, "ranking": "seed559 test"}
+    supplement = {"schema": "seed559-cohort-count-audit-supplement-v1"}
+    monkeypatch.setattr(diagnostic, "select", lambda: ([], audit))
+    monkeypatch.setattr(diagnostic, "count_audit_supplement", lambda: supplement)
+
+    diagnostic.freeze_and_run(output)
+
+    assert (
+        json.loads((output / "count-audit-supplement.json").read_text()) == supplement
+    )
+    assert (
+        json.loads((output / "decision.json").read_text())["decision"] == "no_decision"
+    )
 
 
 def test_evaluator_artifact_tamper_rejected_before_construction(

@@ -245,8 +245,6 @@ def verify(data: Path = DEFAULT_ANALYSIS_DATA) -> dict[str, Any]:
     analysis = json.loads((data / "analysis.json").read_text())
     if analysis["n_roots"] != 512 or analysis["oracle_full_coverage"] is not True:
         raise ValueError("analysis_coverage_mismatch")
-    if analysis["decision"] != "no_cutoff_21_arena_proposal":
-        raise ValueError("unexpected_gate_decision")
     expected_analysis = analyze_published_run(data)
     expected_roots = expected_analysis.pop("root_records")
     if expected_roots != root_rows:
