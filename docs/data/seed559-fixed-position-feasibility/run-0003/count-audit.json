@@ -1,0 +1,21 @@
+{
+  "archive_receipt_sha256": "a318933da72b8ed23cb5487fbbd8e57edd0d1d407ba9bc1f8485b0736fcdfbe7",
+  "archive_verified_games": 2048,
+  "balance": "alternating T512/P selection from ranked candidates; skip exhausted side; one root per opening",
+  "canonical_hash": "seed557_retrospective.canonical_hash(JSON state, sorted keys, compact separators, SHA256)",
+  "distinct_remaining_openings": 941,
+  "eligible_first_roots": 1903,
+  "excluded_by_both_audits": 0,
+  "excluded_by_seed418_state_match": 0,
+  "excluded_by_seed557_state_match": 295,
+  "ranking": "SHA256(seed559:<canonical_state_hash>), then canonical_state_hash",
+  "schema": "seed559-cohort-count-audit-v1",
+  "selected_by_source_side": {
+    "P": 256,
+    "T512": 256
+  },
+  "selected_roots": 512,
+  "shortfall": 0,
+  "source_commit": "f38838e6ffe20a44c1e8c161a9daed0f1243f0ae",
+  "unique_remaining_states": 1407
+}

@@ -1,0 +1,76 @@
+{
+  "authenticated_policies": {
+    "C128": {
+      "metadata.json": "658ee3036424272d30be984dfb9febf16d266f3fe263947155acc2ecc72d183b",
+      "model.npz": "6957ac4a9db529f51ec184a04c01304c2a6453de300c69f7c53de16634626205",
+      "search_policy.json": "9d16cb37491c023c2a44ad8dcad047755162991602165b3b0eb6a51460ec355a",
+      "weights.json": "e6330530b7ec8731eebace9e1c0f23f66ef83a9fa69e3b05192151d0728e40d7"
+    },
+    "P": {
+      "metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+      "model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+      "weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+    },
+    "T512": {
+      "metadata.json": "b37f3aa75d828b9b9a0743930c73c8e168b159f6b37434eba1d9871e769af1b8",
+      "model.npz": "8940cbff36976801e74542f5ee2d6c5caffe0cafd57c7e787cdb375f3bbe485e",
+      "search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+      "weights.json": "70af73e6f8ee3f4fb76981584c1f2068a4b669300be90bd71cfdd8f71b369997"
+    },
+    "initializer": {
+      "metadata.json": "f3b9a7d665be7b1219b4a3412bf4a499e5bafd525905b50d93deac4e6ad9ccef",
+      "model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+      "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+    }
+  },
+  "cohort_sha256": "f2e03fb9491474056e7a7cb3ace225cd2310f9069c9e48600d45039ed63158fb",
+  "diagnostic_routing": {
+    "exact_tie_break": "largest exact final-score margin, then highest legal P prior, then lowest move index",
+    "extended_cutoff": 21,
+    "unchanged_above": 21,
+    "unchanged_at_or_below": 16
+  },
+  "gate": {
+    "baseline_mean_regret_min_seeds": 1,
+    "baseline_wdl_inferior_rate_min": 0.05,
+    "exact_latency_mean_ms_max": 200,
+    "exact_latency_p95_ms_max": 350,
+    "n_roots": 512,
+    "scope": "a pass supports proposing a separate cutoff-21 arena only"
+  },
+  "latency_protocol": {
+    "baseline": "warm end-to-end 128-simulation decision, including P and initializer inference",
+    "cpu_affinity": [
+      0
+    ],
+    "exact": "warm end-to-end P inference, native exact legal-action query, and margin/prior/index tie-break",
+    "native_startup_and_prewarm": "reported separately before per-root timing"
+  },
+  "oracle": {
+    "coverage": "all legal actions; exact final-score margins",
+    "native_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+  },
+  "schema": "seed559-execution-freeze-v1",
+  "search": {
+    "c_puct": 1.25,
+    "exact_leaf_solving": false,
+    "exact_root_solving": false,
+    "fresh_tree_per_root": true,
+    "policy": "seed504 E4 P",
+    "search_options": {
+      "fpu_mode": "zero",
+      "normalize_values": false,
+      "reuse_subtree": false,
+      "root_policy_mode": "deterministic",
+      "root_temperature": 0.0,
+      "tactical_root_bias": 0.0
+    },
+    "simulations": 128,
+    "value": "seed504 initializer",
+    "workers": 1
+  },
+  "selection_audit_sha256": "6f106dc36f36182ee09090defe646901b1bce81c2418ac73aa8b76f775fe9b1e"
+}
