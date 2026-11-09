@@ -14,9 +14,9 @@
     "verified_continuation_search_choices": 16107,
     "verified_root_searches": 512
   },
-  "copied_materialized_tablebase": "/home/alex/Mancala/ai/.tmp/seed560-publish-worktree-seed560-physical-copy-3649012/.tmp/seed560-assets/kalah_v1_21.kvtb",
+  "copied_materialized_tablebase": "/home/alex/Mancala/ai/.tmp/seed560-publish-worktree-seed560-physical-copy-3715169/.tmp/seed560-assets/kalah_v1_21.kvtb",
   "copy_evidence_bytes_and_mtimes_unchanged": true,
-  "copy_root": "/home/alex/Mancala/ai/.tmp/seed560-publish-worktree-seed560-physical-copy-3649012",
+  "copy_root": "/home/alex/Mancala/ai/.tmp/seed560-publish-worktree-seed560-physical-copy-3715169",
   "original_execution_root_hidden_during_verification": "/home/alex/Mancala/ai/.tmp/seed560-publish-worktree.hidden-for-seed560-verification",
   "original_execution_root_inaccessible": true,
   "original_materialized_tablebase_root": "/home/alex/Mancala/ai/.tmp/seed560-worktree",
