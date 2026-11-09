@@ -1,0 +1,41 @@
+{
+  "observed": {
+    "558_exact_reuse": true,
+    "actions_arm_records": 16107,
+    "actions_physical": 9878,
+    "arms": 512,
+    "declared_root_subset_counts": {
+      "557": 256,
+      "559": 512,
+      "560": 256
+    },
+    "identities_556": {
+      "canonical": 54373,
+      "kalah_v3_float32": 54373
+    },
+    "identities_560": {
+      "canonical": 9849,
+      "kalah_v3_float32": 9849
+    },
+    "physical_continuations": 313
+  },
+  "overlap": {
+    "canonical": {
+      "intersection": 6121,
+      "source_556": 54373,
+      "source_560": 9849,
+      "union": 58101,
+      "unique_556": 48252,
+      "unique_560": 3728
+    },
+    "kalah_v3_float32": {
+      "intersection": 6121,
+      "source_556": 54373,
+      "source_560": 9849,
+      "union": 58101,
+      "unique_556": 48252,
+      "unique_560": 3728
+    }
+  },
+  "scope": "verified #556\u2013#560 only"
+}
