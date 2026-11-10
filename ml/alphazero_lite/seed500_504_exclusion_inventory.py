@@ -18,6 +18,15 @@ SEED504 = DATA / "seed504"
 OUT = DATA / "seed500-504-exclusion-inventory"
 SHARDS = [CORPUS / f"shard-503{i:03d}.jsonl" for i in range(8)]
 SPLIT_SHA256 = "080b362d334dcce81bbd04a490900ec78483d6c05ad38c88ebb33fd8b8695d89"
+SEED504_MANIFEST_SHA256 = (
+    "449506a30cbe04e2cbe34794c0647fad4aa9f74019ee480edf2c67520a9e353a"
+)
+SEED500_ACCOUNTING_SHA256 = (
+    "9a4f9396ec90d60cc5a00678b88180a725a049eb8b46e8f8637acd9fac4718d7"
+)
+SEED504_RESULTS_SHA256 = (
+    "cf0f9b7ef7a53a1ec1ad620240c0bbbccef0e514269f66f35decf0aec3dcf402"
+)
 
 
 def sha256_bytes(data: bytes) -> str:
@@ -105,8 +114,14 @@ def _replayed_occurrences() -> dict[
 
 
 def census() -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    # #504's manifest binds all eight #503 source files to their exact bytes.
-    manifest = json.loads((SEED504 / "manifest.json").read_text(encoding="utf-8"))
+    # Pin #504's merged-publication manifest, then use its shard bindings.
+    manifest_path = SEED504 / "manifest.json"
+    require_digest(
+        manifest_path,
+        SEED504_MANIFEST_SHA256,
+        str(manifest_path.relative_to(ROOT)),
+    )
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     source_specs = manifest["sources"]["training"] + manifest["sources"]["development"]
     if len(source_specs) != 8:
         raise ValueError("expected_eight_registered_seed500_shards")
@@ -117,7 +132,13 @@ def census() -> tuple[dict[str, Any], list[dict[str, Any]]]:
     split_path = SEED504 / "split.json"
     observed_split = sha256_file(split_path)
     require_digest(split_path, SPLIT_SHA256, str(split_path.relative_to(ROOT)))
-    corpus_accounting = json.loads((CORPUS / "accounting.json").read_text())
+    accounting_path = CORPUS / "accounting.json"
+    require_digest(
+        accounting_path,
+        SEED500_ACCOUNTING_SHA256,
+        str(accounting_path.relative_to(ROOT)),
+    )
+    corpus_accounting = json.loads(accounting_path.read_text())
     corpus_rows = sum(
         len(path.read_text(encoding="utf-8").splitlines()) for path in SHARDS
     )
@@ -214,6 +235,11 @@ def census() -> tuple[dict[str, Any], list[dict[str, Any]]]:
         raise ValueError("seed504_split_count_mismatch")
 
     results_path = SEED504 / "results.json"
+    require_digest(
+        results_path,
+        SEED504_RESULTS_SHA256,
+        str(results_path.relative_to(ROOT)),
+    )
     results = json.loads(results_path.read_text(encoding="utf-8"))
     expected_scored = {(row["_source"], int(row["_line"])) for row in retained_dev}
     for endpoint, evidence in results.items():

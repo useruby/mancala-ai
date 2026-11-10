@@ -35,12 +35,18 @@ Seed549 contains 13,818 control and 13,849 treatment training rows, 4,656 and
 occurrences. The retained development populations are separately indexed and
 are not added again to family totals.
 
-The #550 registration's input hashes bind its control and treatment training
-identity lists; both occurrence lists match the authenticated #549 corpus
-memberships. #554's input-authentication record and training-input binding
-confirm the 13,818-row fixed-state input membership is reused. Changed targets,
-exposure schedules, or checkpoints do not add state identities. Neither
-derivative adds an independent state population.
+The #550 registration's publication-pinned input hashes bind its control and
+treatment training identity lists; both occurrence lists match the authenticated
+#549 corpus memberships. #554's publication-pinned input-authentication record
+and training-input binding authenticate all 12 derivative shards; their decoded
+state occurrences match the 13,818-row #549 control training multiset. Changed
+targets, exposure schedules, or checkpoints do not add state identities.
+Neither derivative adds an independent state population.
+
+The verifier pins the #504 source manifest and #500 accounting/results records,
+both #549 arm manifests and shared membership, the #550 registration, and the
+#554 input-authentication and training-input-binding records to the merged
+publication bytes before accepting their local shard-hash maps.
 
 ## Artifacts and verification
 

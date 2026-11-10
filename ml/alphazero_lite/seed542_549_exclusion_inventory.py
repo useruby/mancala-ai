@@ -18,6 +18,24 @@ S549 = DATA / "seed549-matched-selfplay"
 S550 = DATA / "seed549-controlled-training"
 S554 = DATA / "seed554-fixed-state-teacher-budget"
 OUT = DATA / "seed542-549-exclusion-inventory"
+PINNED_SEED549_CONTROL_MANIFEST = (
+    "d552f55fc51d2016cd02c779750ed535e62779abf540fd00c26832526b31e3bf"
+)
+PINNED_SEED549_TREATMENT_MANIFEST = (
+    "19d3d51bfaaab69cfd3cbb5e8dfed22258a668ed690f9bc002d18a9f08f14a39"
+)
+PINNED_SEED549_SHARED_MEMBERSHIP = (
+    "186146add16819afe6b42a9137d06fcb0188d4b2d58f7ac5db5120ee003472de"
+)
+PINNED_SEED550_REGISTRATION = (
+    "dc088d45685a1ea5101464e23d5f6bdbd9570b27eb11f44cd5dee16e3bbacadc"
+)
+PINNED_SEED554_INPUT_BINDING = (
+    "9c5fce89446ec18a83f8d287394e81b288d63b439d781b111cc4faaf0e8f6422"
+)
+PINNED_SEED554_INPUT_AUTHENTICATION = (
+    "d778b307824cbf334bc08a7dca1c92e657c40ecc82e2eb4658348f64a4903328"
+)
 EXPECTED_542_VERIFIED_ARTIFACTS = {
     "amended-accounting.json": "89140844f831ec31b5bcf994d69c677d70f757abb3e18907d07b79817da8d807",
     "continuation-amendment.json": "098a7297d7c73cc3ae8701ea285f0dff26917d8d695310edae986bda17be42e4",
@@ -96,6 +114,28 @@ def jsonl_rows(path: Path) -> list[tuple[int, dict[str, Any]]]:
         for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1)
         if line
     ]
+
+
+def derivative_state_pairs(
+    path: Path, expected_hash: str, label: str
+) -> tuple[Counter[tuple[str, str]], int]:
+    """Authenticate one #554 derivative shard and derive its actual state multiset."""
+    authenticate(path, expected_hash, label)
+    rows = jsonl_rows(path)
+    pairs: Counter[tuple[str, str]] = Counter()
+    for _, row in rows:
+        _, float32, state = identity_record(row["state"])
+        pairs[(legacy_canonical_sha256(state), float32)] += 1
+    return pairs, len(rows)
+
+
+def require_state_membership(
+    observed: Counter[tuple[str, str]],
+    expected: Counter[tuple[str, str]],
+    label: str,
+) -> None:
+    if observed != expected:
+        raise ValueError(f"seed554_derivative_state_membership_changed:{label}")
 
 
 def add_population(
@@ -276,6 +316,16 @@ def census() -> tuple[
     shared_membership = []
     for arm in ("control", "treatment"):
         src_manifest_path = S549 / f"{arm}-source-manifest.json"
+        expected_manifest = (
+            PINNED_SEED549_CONTROL_MANIFEST
+            if arm == "control"
+            else PINNED_SEED549_TREATMENT_MANIFEST
+        )
+        authenticate(
+            src_manifest_path,
+            expected_manifest,
+            str(src_manifest_path.relative_to(ROOT)),
+        )
         src_manifest = json.loads(src_manifest_path.read_text())
         arm_train = set()
         arm_raw_dev = set()
@@ -320,7 +370,13 @@ def census() -> tuple[
                 "development_identity_sha256"
             ],
         }
-    for line in (S549 / "shared-development-membership.jsonl").read_text().splitlines():
+    shared_membership_path = S549 / "shared-development-membership.jsonl"
+    authenticate(
+        shared_membership_path,
+        PINNED_SEED549_SHARED_MEMBERSHIP,
+        str(shared_membership_path.relative_to(ROOT)),
+    )
+    for line in shared_membership_path.read_text().splitlines():
         row = json.loads(line)
         key = (row["source"]["path"], int(row["source"]["row_number"]) + 1)
         expected = dev_by_row.get(key)
@@ -372,7 +428,13 @@ def census() -> tuple[
 
     # #550/#554 bind training input lists, not new state populations. Verify
     # identity pairs against the authenticated #549 training populations.
-    registration550 = json.loads((S550 / "registration.json").read_text())
+    registration550_path = S550 / "registration.json"
+    authenticate(
+        registration550_path,
+        PINNED_SEED550_REGISTRATION,
+        str(registration550_path.relative_to(ROOT)),
+    )
+    registration550 = json.loads(registration550_path.read_text())
     input_hashes550 = registration550.get("input_sha256", {})
     shared_membership_sha = digest_file(S549 / "shared-development-membership.jsonl")
     if (
@@ -415,8 +477,18 @@ def census() -> tuple[
             "membership_matches_seed549": True,
         }
     binding554_path = S554 / "training-input-binding.json"
+    authenticate(
+        binding554_path,
+        PINNED_SEED554_INPUT_BINDING,
+        str(binding554_path.relative_to(ROOT)),
+    )
     binding554 = json.loads(binding554_path.read_text())
     auth554_path = S554 / "input-authentication.json"
+    authenticate(
+        auth554_path,
+        PINNED_SEED554_INPUT_AUTHENTICATION,
+        str(auth554_path.relative_to(ROOT)),
+    )
     auth554 = json.loads(auth554_path.read_text())
     if auth554.get("development_membership_sha256") != shared_membership_sha:
         raise ValueError("seed554_shared_development_membership_binding_mismatch")
@@ -457,6 +529,40 @@ def census() -> tuple[
             binding_manifest["derivative_reuse"]["550"]["membership_added"] = False
     if auth554.get("occurrences") != 13818 or binding554.get("rows") != 13818:
         raise ValueError("seed554_training_occurrence_binding_mismatch")
+    derivative_hashes = binding554.get("derivative_sha256", {})
+    expected_derivative_keys = {
+        f"{arm}/{shard:03d}" for arm in ("control", "treatment") for shard in range(6)
+    }
+    if set(derivative_hashes) != expected_derivative_keys:
+        raise ValueError("seed554_derivative_shard_binding_set_mismatch")
+    verified_derivative_shards = {}
+    for arm in ("control", "treatment"):
+        derivative_pairs: Counter[tuple[str, str]] = Counter()
+        derivative_rows = 0
+        arm_shards = []
+        for shard in range(6):
+            shard_name = f"{shard:03d}"
+            key = f"{arm}/{shard_name}"
+            path = S554 / arm / f"shard-{shard_name}.jsonl"
+            expected_hash = derivative_hashes[key]
+            shard_pairs, shard_rows = derivative_state_pairs(
+                path, expected_hash, str(path.relative_to(ROOT))
+            )
+            derivative_rows += shard_rows
+            derivative_pairs.update(shard_pairs)
+            arm_shards.append(
+                {
+                    "path": str(path.relative_to(ROOT)),
+                    "sha256": expected_hash,
+                    "rows": shard_rows,
+                }
+            )
+        if derivative_rows != 13818:
+            raise ValueError(
+                f"seed554_derivative_occurrence_count_mismatch:{arm}:{derivative_rows}"
+            )
+        require_state_membership(derivative_pairs, training_pairs["control"], arm)
+        verified_derivative_shards[arm] = arm_shards
     for arm in ("control", "treatment"):
         list_path = S554 / f"{arm}-training-row-identities.jsonl"
         source_path = S549 / f"{arm}-training-row-identities.jsonl"
@@ -481,6 +587,9 @@ def census() -> tuple[
     ]
     binding_manifest["derivative_reuse"]["554"]["input_authentication_sha256"] = (
         digest_file(auth554_path)
+    )
+    binding_manifest["derivative_reuse"]["554"]["verified_derivative_shards"] = (
+        verified_derivative_shards
     )
     binding_manifest["derivative_reuse"]["554"]["control_state_membership_reused"] = (
         True

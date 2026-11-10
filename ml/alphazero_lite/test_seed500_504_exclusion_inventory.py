@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -40,6 +41,37 @@ class Seed500504AuthenticationTests(unittest.TestCase):
                 f"digest_mismatch:split.json:expected={expected}:observed={observed}",
             ):
                 require_digest(path, expected, "split.json")
+
+    def test_updated_local_manifest_cannot_rebind_changed_shard(self) -> None:
+        scratch_root = Path(__file__).resolve().parents[2] / ".tmp"
+        scratch_root.mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=scratch_root) as scratch:
+            root = Path(scratch)
+            shard = root / "shard.jsonl"
+            manifest = root / "manifest.json"
+            shard.write_bytes(b"published-row\n")
+            manifest.write_bytes(
+                json.dumps(
+                    {"shard_sha256": hashlib.sha256(shard.read_bytes()).hexdigest()}
+                ).encode()
+            )
+            pinned_manifest = hashlib.sha256(manifest.read_bytes()).hexdigest()
+
+            # Simulate an attacker changing the source and rewriting the local
+            # manifest and derived report to agree with the replacement bytes.
+            shard.write_bytes(b"replacement-row\n")
+            replacement_sha = hashlib.sha256(shard.read_bytes()).hexdigest()
+            manifest.write_bytes(json.dumps({"shard_sha256": replacement_sha}).encode())
+            (root / "identity-index.jsonl").write_bytes(
+                json.dumps(
+                    {"row": shard.read_text(), "sha256": replacement_sha}
+                ).encode()
+            )
+            (root / "count-report.json").write_text(
+                json.dumps({"source_rows": 1, "source_sha256": replacement_sha})
+            )
+            with self.assertRaisesRegex(ValueError, "digest_mismatch:manifest.json"):
+                require_digest(manifest, pinned_manifest, "manifest.json")
 
 
 if __name__ == "__main__":
