@@ -81,7 +81,8 @@ The custodian CLI is `python -m ml.alphazero_lite.holdback_operator`. Run
 the no-sampling inventory/source/runtime check first:
 
 ```bash
-python -m ml.alphazero_lite.holdback_operator preflight --root .
+python -m ml.alphazero_lite.holdback_operator preflight --root . \
+  --output "$HOME/holdback-preflight-seal-01.json"
 ```
 
 It authenticates the exact #565 source inventory and both identity indexes and
@@ -103,6 +104,7 @@ python -m ml.alphazero_lite.holdback_operator initialize \
   --root . \
   --custody "$HOME/.local/share/mancala-holdback/seal-01" \
   --size 1024 \
+  --preflight-json "$HOME/holdback-preflight-seal-01.json" \
   --manifest docs/data/seed561-historical-exclusion-inventory-v1/source-manifest.json \
   --manifest-sha256 946fc52c75fa2e6c0499811fcb97ff773ea00ec6ec9b6d1bfb3ec1c2466a95ad
 
@@ -115,10 +117,12 @@ python -m ml.alphazero_lite.holdback_operator resume \
 # frozen, create freeze.json containing their SHA-256 values/settings/rule.
 python -m ml.alphazero_lite.holdback_operator freeze \
   --custody "$HOME/.local/share/mancala-holdback/seal-01" \
+  --root . \
   --freeze-json ./freeze.json
 
 python -m ml.alphazero_lite.holdback_operator reveal \
   --custody "$HOME/.local/share/mancala-holdback/seal-01" \
+  --root . \
   --bundle ./revealed-holdback-bundle
 
 # After the suite has been used, permanently mark it consumed.
@@ -149,6 +153,17 @@ and consumption are controlled lifecycle events; a consumed suite cannot be
 reused. The rehearsal is synthetic only. The seed461 gap remains unresolved,
 #483 remains closed, and any later comparison is screened against known
 exclusions only.
+
+Production initialization requires a retained preflight JSON record and
+recomputes it before invoking the OS RNG. A stale or edited record, changed
+runtime/source binding, or inventory mismatch blocks initialization. Explicit
+seed injection is available only through the `--synthetic-fixture` test path.
+The commitment and candidate-freeze events are independently appended and
+anchored at their actual operation times; reveal checks their order, saved
+anchor, and the exact already-published public commitment before staging a
+portable bundle. Consumption uses a durable pending transaction so restart
+replays the exact event, anchor, and registry bytes rather than appending a
+second consumption event.
 
 Before any real generation, publish the exact generator version, legal move and
 state-identity implementations, 1,024-root sample law, exclusion-inventory
