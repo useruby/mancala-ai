@@ -85,9 +85,11 @@ or production-float32 identity appears in the exclusion union or an earlier
 selected opening. Do not replace openings based on outcomes.
 
 Publish a commitment over canonical JSON containing the SHA-256 of exact suite
-bytes (therefore also binds order and encoding), generator description/version,
-and full hash-bound exclusion inventory. Keep the suite bytes and seed in
-restricted custody until release. Freeze hashes for both candidate and serving
+bytes (therefore also binds order and encoding), the complete generator
+specification, and the hash-bound exclusion inventory. Public commitment
+records are distinct from private custody files: the seed, ordered suite JSONL,
+generation receipt, and custody access log remain private until release.
+Freeze hashes for both candidate and serving
 P artifacts, arena settings (including 1,024 paired openings / 2,048 games,
 seat swap, worker count and runtime limits), and the complete analysis rule
 before revealing the suite. A verifier must check the commitment and both
@@ -96,9 +98,17 @@ consumption receipt bound to the commitment. A consumed suite is never described
 as held back in a later comparison.
 
 `ml.alphazero_lite.holdback_arena` implements a read-only bundle verifier and a
-deterministic sampler used by synthetic tests; it has no arena execution path.
-Verification rebuilds the ordered suite from the bound pool, seed, generator,
-and inventory, then derives canonical and production-float32 identities from
+deterministic rules-only sampler; it has no arena execution path. It uses one
+`random.Random(seed)` MT19937 stream, draws each prefix length with
+`randint(4, 12)`, and selects uniformly with `choice` from ascending legal
+relative pit indices. The attempt limit is 20,000 total; it never reseeds and
+fails on shortfall without publishing a partial result. Serialization is
+compact UTF-8 sorted-key JSON, separators `,` and `:`, one LF per row, with
+`opening_index`, `opening_contract`, `prefix_moves`,
+`source_prefix_moves_absolute`, `state`, and `state_hash` fields under
+`arena_player_relative_v2`. Verification rebuilds the exact ordered suite from
+the seed, frozen generator, and pinned inventory, without a caller-supplied
+pool, then derives canonical and production-float32 identities from
 the rule state using `kalah_v3`. Its lifecycle log records commitment,
 candidate freeze, reveal, and optional consumption in order. Verification
 requires the SHA-256 of an independently retained lifecycle anchor and the
@@ -111,6 +121,15 @@ current-registry digests, not bundle self-assertions. A consumed suite verifies
 as consumed but returns `held_back_eligible: false`.
 The future production generator must be separately frozen against the audited
 source inventory. A clean known-exclusion screen is readiness for an
-**exclusion-screened comparison only**. **Fresh confirmation readiness: blocked**
+**exclusion-screened comparison only**. Before a later 1,024-opening
+comparison freeze the generator source/version, RNG and attempt limit,
+generator/rules/canonical-identity/float32-identity source hashes, the complete
+`self_play.py` and `input_encodings.py` encoder implementation files, and
+complete `holdback_arena.py` and `seed482_fresh_confirmation.py` files, plus
+Python/NumPy runtime versions, inventory pin, seed custody
+procedure, suite digest/order, candidate and
+serving-P hashes, pair/seat semantics, pair concurrency, per-game worker count,
+CPU/memory/runtime limits, and analysis rule. No real suite is generated or
+revealed by this preparation. **Fresh confirmation readiness: blocked**
 until historical evidence gaps, especially #461 continuations, are resolved and
 the existing #483 gate is explicitly reopened by its authorized process.

@@ -11,6 +11,8 @@ import datetime as dt
 import gzip
 import hashlib
 import json
+import inspect
+import platform
 from pathlib import Path
 from typing import Any
 import zlib
@@ -19,6 +21,18 @@ from ml.alphazero_lite.seed482_fresh_confirmation import (
     canonical_identity,
     float32_identity,
 )
+from ml.alphazero_lite.kalah_rules import KalahGame
+
+INITIAL_STATE = {
+    "player_pits": [4] * 6,
+    "opponent_pits": [4] * 6,
+    "player_store": 0,
+    "opponent_store": 0,
+    "current_player": 0,
+}
+RULES_GENERATOR = "rules_only_uniform_prefix_v1"
+RULES_ATTEMPT_LIMIT = 20_000
+RULES_GENERATOR_SCHEMA = "rules_only_uniform_prefix_v1"
 
 INVENTORY_REFERENCE_SCHEMA = "seed561_holdback_inventory_reference_v1"
 INVENTORY_MANIFEST_SCHEMA = "seed561_historical_exclusion_inventory_v1"
@@ -191,6 +205,64 @@ def build_suite(
     return chosen
 
 
+def build_rules_only_suite(
+    inventory: dict[str, set[str]],
+    seed: int,
+    size: int,
+    *,
+    attempt_limit: int = RULES_ATTEMPT_LIMIT,
+) -> list[dict[str, Any]]:
+    """Reproduce #511's uniform 4–12-ply legal-prefix sampling law.
+
+    Python's ``random.Random`` MT19937 is seeded once; each attempt draws a
+    length with ``randint(4, 12)`` and then ``choice`` from ascending legal
+    relative pit indices. No retries are reseeded.
+    """
+    import random
+
+    excluded = validate_identity_sets(inventory)
+    rng = random.Random(seed)
+    seen = {key: set(values) for key, values in excluded.items()}
+    result: list[dict[str, Any]] = []
+    for _ in range(attempt_limit):
+        game = KalahGame.from_state(INITIAL_STATE)
+        length = rng.randint(4, 12)
+        absolute: list[int] = []
+        relative: list[int] = []
+        for _ply in range(length):
+            legal = game.possible_moves()
+            if not legal or game.over():
+                break
+            move = rng.choice(legal)
+            relative.append(move)
+            absolute_move = game.pit_index(move)
+            absolute.append(absolute_move)
+            if not game.move(absolute_move):
+                raise ValueError("generated_prefix_move_rejected")
+        if len(absolute) != length or game.over():
+            continue
+        state = game.to_state()
+        can, f32 = canonical_identity(state), float32_identity(state)
+        if can in seen["canonical"] or f32 in seen["float32"]:
+            continue
+        index = len(result)
+        result.append(
+            {
+                "opening_index": index,
+                "opening_contract": "arena_player_relative_v2",
+                "prefix_moves": relative,
+                "source_prefix_moves_absolute": absolute,
+                "state": state,
+                "state_hash": sha256(canonical_bytes(state)),
+            }
+        )
+        seen["canonical"].add(can)
+        seen["float32"].add(f32)
+        if len(result) == size:
+            return result
+    raise ValueError(f"rules_only_opening_shortfall:{len(result)}")
+
+
 def suite_bytes(suite: list[dict[str, Any]]) -> bytes:
     return b"".join(canonical_bytes(row) + b"\n" for row in suite)
 
@@ -198,15 +270,108 @@ def suite_bytes(suite: list[dict[str, Any]]) -> bytes:
 def commitment(
     suite: bytes, generator: dict[str, Any], inventory: dict[str, Any]
 ) -> str:
+    public_generator = public_generator_spec(generator)
     return sha256(
         canonical_bytes(
             {
                 "suite_sha256": sha256(suite),
-                "generator": generator,
+                "generator": public_generator,
                 "exclusion_inventory": inventory,
             }
         )
     )
+
+
+def _source_sha256(function: Any) -> str:
+    return sha256(inspect.getsource(function).encode())
+
+
+def rules_generator_spec(
+    size: int, attempt_limit: int = RULES_ATTEMPT_LIMIT
+) -> dict[str, Any]:
+    """Return the public, seed-free generator identity bound into commitments."""
+    if size <= 0 or attempt_limit != RULES_ATTEMPT_LIMIT:
+        raise ValueError("rules_generator_parameters_invalid")
+    from ml.alphazero_lite.seed482_fresh_confirmation import (
+        canonical_identity as canonical_fn,
+        float32_identity as float32_fn,
+    )
+    from ml.alphazero_lite.self_play import encode_state
+    from ml.alphazero_lite.input_encodings import feature_count_for
+    import numpy as np
+
+    rules_path = Path(inspect.getfile(KalahGame))
+    encoder_path = Path(inspect.getfile(encode_state))
+    encoding_contract_path = Path(inspect.getfile(feature_count_for))
+    identity_path = Path(inspect.getfile(canonical_fn))
+    return {
+        "name": RULES_GENERATOR,
+        "schema": RULES_GENERATOR_SCHEMA,
+        "size": size,
+        "attempt_limit": attempt_limit,
+        "rng": "python.random.Random/MT19937",
+        "python_runtime": platform.python_version(),
+        "numpy_runtime": np.__version__,
+        "initial_state_sha256": sha256(canonical_bytes(INITIAL_STATE)),
+        "generator_source_sha256": _source_sha256(build_rules_only_suite),
+        "rules_source_sha256": sha256(rules_path.read_bytes()),
+        "canonical_identity_source_sha256": _source_sha256(canonical_fn),
+        "float32_identity_source_sha256": _source_sha256(float32_fn),
+        "implementation_files_sha256": {
+            "holdback_arena.py": sha256(Path(__file__).read_bytes()),
+            "seed482_fresh_confirmation.py": sha256(identity_path.read_bytes()),
+        },
+        "kalah_v3_encoder_source_sha256": _source_sha256(encode_state),
+        "encoder_implementation_files_sha256": {
+            "self_play.py": sha256(encoder_path.read_bytes()),
+            "input_encodings.py": sha256(encoding_contract_path.read_bytes()),
+        },
+    }
+
+
+def public_generator_spec(generator: dict[str, Any]) -> dict[str, Any]:
+    """Remove only the revealed seed, preserving the exact committed spec."""
+    return {key: value for key, value in generator.items() if key != "seed"}
+
+
+def public_commitment_record(
+    suite_digest: str, generator: dict[str, Any], inventory: dict[str, Any]
+) -> dict[str, Any]:
+    """Create the seed-free public commitment payload for a sealed suite."""
+    if "seed" in generator:
+        raise ValueError("public_generator_must_not_expose_seed")
+    size = generator.get("size")
+    attempt_limit = generator.get("attempt_limit")
+    if not isinstance(size, int) or not isinstance(attempt_limit, int):
+        raise ValueError("public_generator_spec_invalid")
+    expected_generator = rules_generator_spec(size, attempt_limit)
+    if generator != expected_generator:
+        raise ValueError("public_generator_spec_invalid")
+    bound = {
+        "suite_sha256": suite_digest,
+        "generator": generator,
+        "exclusion_inventory": inventory,
+    }
+    return {
+        "schema": "holdback_public_commitment_v1",
+        **bound,
+        "commitment": sha256(canonical_bytes(bound)),
+    }
+
+
+def verify_public_commitment_record(record: dict[str, Any]) -> None:
+    """Validate a pre-reveal public record without opening private custody files."""
+    if record.get("schema") != "holdback_public_commitment_v1":
+        raise ValueError("public_commitment_schema_invalid")
+    if "seed" in record.get("generator", {}):
+        raise ValueError("public_commitment_seed_exposed")
+    expected = public_commitment_record(
+        record.get("suite_sha256", ""),
+        record.get("generator", {}),
+        record.get("exclusion_inventory", {}),
+    )
+    if expected != record:
+        raise ValueError("public_commitment_record_mismatch")
 
 
 def lifecycle_event(
@@ -259,13 +424,36 @@ def verify(
         bundle, inventory_doc, trusted_inventory_manifest_sha256
     )
     generator = manifest["generator"]
-    if generator.get("pool_sha256") != manifest["pool_sha256"]:
-        raise ValueError("generator_pool_binding_mismatch")
-    pool_bytes = (bundle / manifest["pool_path"]).read_bytes()
-    if sha256(pool_bytes) != manifest["pool_sha256"]:
-        raise ValueError("synthetic_pool_bytes_changed")
-    pool = [json.loads(line) for line in pool_bytes.splitlines() if line]
-    rebuilt = build_suite(pool, excluded, generator["seed"], generator["size"])
+    if generator.get("name") == RULES_GENERATOR:
+        seed = generator.get("seed")
+        size = generator.get("size")
+        attempt_limit = generator.get("attempt_limit")
+        if (
+            not isinstance(seed, int)
+            or isinstance(seed, bool)
+            or not isinstance(size, int)
+            or isinstance(size, bool)
+            or not isinstance(attempt_limit, int)
+            or isinstance(attempt_limit, bool)
+        ):
+            raise ValueError("rules_generator_spec_invalid")
+        expected_spec = rules_generator_spec(size, attempt_limit)
+        if public_generator_spec(generator) != expected_spec:
+            raise ValueError("rules_generator_spec_invalid")
+        rebuilt = build_rules_only_suite(
+            excluded,
+            seed,
+            generator["size"],
+            attempt_limit=generator["attempt_limit"],
+        )
+    else:
+        if generator.get("pool_sha256") != manifest["pool_sha256"]:
+            raise ValueError("generator_pool_binding_mismatch")
+        pool_bytes = (bundle / manifest["pool_path"]).read_bytes()
+        if sha256(pool_bytes) != manifest["pool_sha256"]:
+            raise ValueError("synthetic_pool_bytes_changed")
+        pool = [json.loads(line) for line in pool_bytes.splitlines() if line]
+        rebuilt = build_suite(pool, excluded, generator["seed"], generator["size"])
     if suite_bytes(rebuilt) != suite:
         raise ValueError("suite_rebuild_mismatch")
     seen = {"canonical": set(), "float32": set()}
@@ -329,9 +517,9 @@ def verify(
         raise ValueError("reveal_commitment_mismatch")
     if reveal_event.get("suite_sha256") != manifest["suite_sha256"]:
         raise ValueError("reveal_suite_mismatch")
-    if (
-        reveal_event.get("seed") != generator["seed"]
-        or reveal_event.get("pool_sha256") != manifest["pool_sha256"]
+    rules_mode = generator.get("name") == RULES_GENERATOR
+    if reveal_event.get("seed") != generator["seed"] or (
+        not rules_mode and reveal_event.get("pool_sha256") != manifest["pool_sha256"]
     ):
         raise ValueError("reveal_generator_inputs_mismatch")
     consumed = len(events) == 4
