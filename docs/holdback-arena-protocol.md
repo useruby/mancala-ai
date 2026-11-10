@@ -125,6 +125,7 @@ source inventory. A clean known-exclusion screen is readiness for an
 comparison freeze the generator source/version, RNG and attempt limit,
 generator/rules/canonical-identity/float32-identity source hashes, the complete
 `self_play.py` and `input_encodings.py` encoder implementation files, and
+complete `holdback_arena.py` and `seed482_fresh_confirmation.py` files, plus
 Python/NumPy runtime versions, inventory pin, seed custody
 procedure, suite digest/order, candidate and
 serving-P hashes, pair/seat semantics, pair concurrency, per-game worker count,

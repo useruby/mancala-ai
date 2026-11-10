@@ -303,6 +303,7 @@ def rules_generator_spec(
     rules_path = Path(inspect.getfile(KalahGame))
     encoder_path = Path(inspect.getfile(encode_state))
     encoding_contract_path = Path(inspect.getfile(feature_count_for))
+    identity_path = Path(inspect.getfile(canonical_fn))
     return {
         "name": RULES_GENERATOR,
         "schema": RULES_GENERATOR_SCHEMA,
@@ -316,6 +317,10 @@ def rules_generator_spec(
         "rules_source_sha256": sha256(rules_path.read_bytes()),
         "canonical_identity_source_sha256": _source_sha256(canonical_fn),
         "float32_identity_source_sha256": _source_sha256(float32_fn),
+        "implementation_files_sha256": {
+            "holdback_arena.py": sha256(Path(__file__).read_bytes()),
+            "seed482_fresh_confirmation.py": sha256(identity_path.read_bytes()),
+        },
         "kalah_v3_encoder_source_sha256": _source_sha256(encode_state),
         "encoder_implementation_files_sha256": {
             "self_play.py": sha256(encoder_path.read_bytes()),
