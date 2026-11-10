@@ -1,13 +1,19 @@
 from __future__ import annotations
 
 import json
+import gzip
+import hashlib
 import shutil
 import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from unittest.mock import patch
 
 from ml.alphazero_lite import holdback_arena as protocol
+from ml.alphazero_lite import (
+    seed561_historical_exclusion_inventory as historical_inventory,
+)
 
 
 def row(n: int, tag: str | None = None) -> dict:
@@ -29,12 +35,69 @@ def write_rows(path: Path, rows: list[dict]) -> bytes:
     return payload
 
 
-def setup_bundle(path: Path, *, consumed: bool = True) -> dict[str, str]:
+def setup_bundle(
+    path: Path,
+    *,
+    consumed: bool = True,
+    pool: list[dict] | None = None,
+    inventory_rows: list[dict] | None = None,
+    size: int = 4,
+) -> dict[str, str]:
     path.mkdir()
-    pool = [row(i) for i in range(10)]
-    inventory_doc = {"rows": [row(99)], "sources": [{"id": "synthetic"}]}
-    generator = {"name": "synthetic-rules-only-v1", "seed": 17, "size": 4}
-    suite = protocol.build_suite(pool, inventory_doc["rows"], 17, 4)
+    pool = pool or [row(i) for i in range(10)]
+    inventory_rows = inventory_rows or [row(99)]
+    generator = {"name": "synthetic-rules-only-v1", "seed": 17, "size": size}
+    index_bindings = {}
+    identity_sets = {"canonical": set(), "float32": set()}
+    for scheme, filename, position in (
+        ("canonical", "canonical-index.jsonl.gz", 0),
+        ("float32", "float32-index.jsonl.gz", 1),
+    ):
+        index_rows = []
+        for source_row in inventory_rows:
+            pair = protocol.identities(source_row)
+            value = pair[position]
+            identity_sets[scheme].add(value)
+            index_rows.append(
+                {
+                    "identity": value,
+                    "source": "synthetic",
+                    "provenance": {
+                        "fixture_row": source_row["state"].get("synthetic_tag", "known")
+                    },
+                }
+            )
+        payload = b"".join(
+            protocol.canonical_bytes(index_row) + b"\n" for index_row in index_rows
+        )
+        compressed = gzip.compress(payload, mtime=0)
+        (path / filename).write_bytes(compressed)
+        index_bindings["canonical" if scheme == "canonical" else "kalah_v3_float32"] = {
+            "path": filename,
+            "sha256_gzip": hashlib.sha256(compressed).hexdigest(),
+            "sha256_jsonl": hashlib.sha256(payload).hexdigest(),
+            "occurrence_rows": len(index_rows),
+            "distinct_identities": len(identity_sets[scheme]),
+        }
+    inventory_manifest = {
+        "schema": protocol.INVENTORY_MANIFEST_SCHEMA,
+        "identity_schemes": ["canonical_state_sha256", "kalah_v3_float32_sha256"],
+        "indexes": index_bindings,
+    }
+    inventory_manifest_raw = (
+        json.dumps(inventory_manifest, sort_keys=True, indent=2).encode() + b"\n"
+    )
+    (path / "inventory-source-manifest.json").write_bytes(inventory_manifest_raw)
+    trusted_inventory_manifest = protocol.sha256(inventory_manifest_raw)
+    inventory_doc = {
+        "schema": protocol.INVENTORY_REFERENCE_SCHEMA,
+        "manifest_path": "inventory-source-manifest.json",
+        "manifest_sha256": trusted_inventory_manifest,
+    }
+    excluded = protocol.load_pinned_identity_indexes(
+        path, inventory_doc, trusted_inventory_manifest
+    )
+    suite = protocol.build_suite(pool, excluded, 17, size)
     suite_raw = write_rows(path / "suite.jsonl", suite)
     inv_raw = protocol.canonical_bytes(inventory_doc)
     (path / "inventory.json").write_bytes(inv_raw)
@@ -128,10 +191,38 @@ def setup_bundle(path: Path, *, consumed: bool = True) -> dict[str, str]:
         "reveal_anchor": reveal_anchor,
         "latest_anchor": latest_anchor,
         "registry": protocol.sha256(registry_raw),
+        "inventory_manifest": trusted_inventory_manifest,
     }
 
 
+def verify_bundle(bundle: Path, trusted: dict[str, str], **kwargs) -> dict:
+    return protocol.verify(
+        bundle,
+        trusted["latest_anchor"],
+        trusted["registry"],
+        trusted_inventory_manifest_sha256=trusted["inventory_manifest"],
+        **kwargs,
+    )
+
+
 class HoldbackProtocolTest(unittest.TestCase):
+    def test_public_loader_authenticates_published_historical_indexes(self):
+        reference = {
+            "schema": protocol.INVENTORY_REFERENCE_SCHEMA,
+            "manifest_path": (
+                "docs/data/seed561-historical-exclusion-inventory-v1/"
+                "source-manifest.json"
+            ),
+            "manifest_sha256": protocol.TRUSTED_HISTORICAL_INVENTORY_MANIFEST_SHA256,
+        }
+        excluded = protocol.load_pinned_identity_indexes(
+            historical_inventory.ROOT,
+            reference,
+            protocol.TRUSTED_HISTORICAL_INVENTORY_MANIFEST_SHA256,
+        )
+        self.assertEqual(len(excluded["canonical"]), 534033)
+        self.assertEqual(len(excluded["float32"]), 534033)
+
     def test_rebuild_after_reveal_and_physical_copy(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
@@ -140,9 +231,7 @@ class HoldbackProtocolTest(unittest.TestCase):
             copied = root / "copy"
             shutil.copytree(source, copied)
             shutil.rmtree(source)
-            result = protocol.verify(
-                copied, trusted["latest_anchor"], trusted["registry"]
-            )
+            result = verify_bundle(copied, trusted)
             self.assertEqual(result["openings"], 4)
             self.assertTrue(result["held_back_eligible"])
 
@@ -156,6 +245,74 @@ class HoldbackProtocolTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "eligible_pool_shortfall"):
             protocol.build_suite([row(1, "other")], [row(1)], 1, 1)
 
+    def test_public_verifier_excludes_opening_collision_in_either_identity_scheme(self):
+        for collision in ("canonical", "float32"):
+
+            def synthetic_identities(item, collision=collision):
+                tag = item["state"]["synthetic_tag"]
+                if tag == "known":
+                    return "c" * 64, "f" * 64
+                if collision == "canonical":
+                    return (
+                        ("c" * 64, "d" * 64)
+                        if tag == "candidate"
+                        else ("a" * 64, "b" * 64)
+                    )
+                return (
+                    ("d" * 64, "f" * 64) if tag == "candidate" else ("a" * 64, "b" * 64)
+                )
+
+            with (
+                self.subTest(collision=collision),
+                patch.object(protocol, "identities", side_effect=synthetic_identities),
+                tempfile.TemporaryDirectory() as temporary,
+            ):
+                bundle = Path(temporary) / "bundle"
+                trusted = setup_bundle(
+                    bundle,
+                    pool=[row(1, "candidate"), row(2, "safe")],
+                    inventory_rows=[row(99, "known")],
+                    size=1,
+                )
+                result = verify_bundle(bundle, trusted)
+                self.assertEqual(result["openings"], 1)
+                suite_rows = [
+                    json.loads(line)
+                    for line in (bundle / "suite.jsonl").read_text().splitlines()
+                ]
+                self.assertNotIn(
+                    "candidate", [x["state"]["synthetic_tag"] for x in suite_rows]
+                )
+
+    def test_public_verifier_rejects_tampered_index_without_writing(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            bundle = Path(temporary) / "bundle"
+            trusted = setup_bundle(bundle, consumed=False)
+            path = bundle / "canonical-index.jsonl.gz"
+            original = path.read_bytes()
+            rows = [json.loads(line) for line in gzip.decompress(original).splitlines()]
+            rows[0]["identity"] = "f" * 64
+            changed = b"".join(protocol.canonical_bytes(x) + b"\n" for x in rows)
+            path.write_bytes(gzip.compress(changed, mtime=0))
+            tampered_bytes = path.read_bytes()
+            tampered_mtime = path.stat().st_mtime_ns
+            with self.assertRaisesRegex(
+                ValueError, "inventory_index_content_mismatch:canonical"
+            ):
+                verify_bundle(bundle, trusted)
+            self.assertEqual(path.read_bytes(), tampered_bytes)
+            self.assertEqual(path.stat().st_mtime_ns, tampered_mtime)
+
+    def test_public_verifier_accepts_equivalent_gzip_encoding(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            bundle = Path(temporary) / "bundle"
+            trusted = setup_bundle(bundle, consumed=False)
+            path = bundle / "canonical-index.jsonl.gz"
+            jsonl = gzip.decompress(path.read_bytes())
+            path.write_bytes(gzip.compress(jsonl, compresslevel=1, mtime=123))
+            result = verify_bundle(bundle, trusted)
+            self.assertEqual(result["openings"], 4)
+
     def test_changed_suite_order_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
             bundle = Path(temp) / "bundle"
@@ -163,22 +320,22 @@ class HoldbackProtocolTest(unittest.TestCase):
             lines = (bundle / "suite.jsonl").read_bytes().splitlines(keepends=True)
             (bundle / "suite.jsonl").write_bytes(b"".join(reversed(lines)))
             with self.assertRaisesRegex(ValueError, "suite_bytes_changed"):
-                protocol.verify(bundle, trusted["latest_anchor"], trusted["registry"])
+                verify_bundle(bundle, trusted)
 
     def test_external_anchor_protects_freeze_and_consumption_lifecycle(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             bundle = root / "bundle"
             trusted = setup_bundle(bundle, consumed=True)
-            result = protocol.verify(
-                bundle, trusted["latest_anchor"], trusted["registry"]
-            )
+            result = verify_bundle(bundle, trusted)
             self.assertTrue(result["consumed"])
             self.assertFalse(result["held_back_eligible"])
-            historical = protocol.verify(
+            historical = verify_bundle(
                 bundle,
-                trusted["reveal_anchor"],
-                trusted["registry"],
+                {
+                    **trusted,
+                    "latest_anchor": trusted["reveal_anchor"],
+                },
                 anchor_name="anchor-reveal.json",
             )
             self.assertTrue(historical["verified_lifecycle_consumed"] is False)
@@ -189,15 +346,11 @@ class HoldbackProtocolTest(unittest.TestCase):
             # effect: lifecycle is contained in the independently anchored log.
             (bundle / "consumed.json").unlink(missing_ok=True)
             (bundle / "candidate-freeze.json").write_text("{}")
-            self.assertFalse(
-                protocol.verify(bundle, trusted["latest_anchor"], trusted["registry"])[
-                    "held_back_eligible"
-                ]
-            )
+            self.assertFalse(verify_bundle(bundle, trusted)["held_back_eligible"])
             event_path = bundle / "lifecycle.jsonl"
             event_path.write_bytes(event_path.read_bytes().replace(b'"a', b'"z', 1))
             with self.assertRaisesRegex(ValueError, "anchor_lifecycle_mismatch"):
-                protocol.verify(bundle, trusted["latest_anchor"], trusted["registry"])
+                verify_bundle(bundle, trusted)
 
     def test_size_mismatch_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -207,12 +360,12 @@ class HoldbackProtocolTest(unittest.TestCase):
             manifest["generator"]["size"] = 5
             (bundle / "manifest.json").write_text(json.dumps(manifest))
             with self.assertRaisesRegex(ValueError, "suite_declared_size_mismatch"):
-                protocol.verify(bundle, trusted["latest_anchor"], trusted["registry"])
+                verify_bundle(bundle, trusted)
 
     def test_reveal_event_before_candidate_freeze_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
             bundle = Path(temp) / "bundle"
-            setup_bundle(bundle, consumed=False)
+            trusted = setup_bundle(bundle, consumed=False)
             events = [
                 json.loads(line)
                 for line in (bundle / "lifecycle.jsonl").read_text().splitlines()
@@ -254,7 +407,12 @@ class HoldbackProtocolTest(unittest.TestCase):
             )
             (bundle / "custodian-state.json").write_bytes(registry_raw)
             with self.assertRaisesRegex(ValueError, "lifecycle_event_order"):
-                protocol.verify(bundle, trusted_anchor, protocol.sha256(registry_raw))
+                protocol.verify(
+                    bundle,
+                    trusted_anchor,
+                    protocol.sha256(registry_raw),
+                    trusted_inventory_manifest_sha256=trusted["inventory_manifest"],
+                )
 
 
 if __name__ == "__main__":
