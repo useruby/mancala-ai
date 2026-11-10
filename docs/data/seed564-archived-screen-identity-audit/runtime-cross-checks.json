@@ -1,0 +1,63 @@
+{
+  "schema": "seed564_runtime_cross_checks_v1",
+  "runtime_classification": "cross_check_only_not_recorded_runtime",
+  "interpreter": "/home/alex/azlite-venv/bin/python",
+  "observed_runtime": {
+    "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+    "torch": "2.13.0+cpu",
+    "numpy": "2.5.2",
+    "torch_num_threads": 1,
+    "torch_num_interop_threads": 1,
+    "thread_environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    }
+  },
+  "recorded_seed542_runtime": {
+    "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+    "torch": "2.14.0+cu130",
+    "numpy": "2.5.3",
+    "torch_num_threads": 24,
+    "numpy_num_threads": 1
+  },
+  "recorded_runtime_status": "unverified_in_this_worktree",
+  "cross_checks": [
+    {
+      "source": "PR #545 / seed542-expanded-policy-strength-screen",
+      "command": "/home/alex/azlite-venv/bin/python -m ml.alphazero_lite.verify_seed542_expanded_policy_strength_completeness --root . --out docs/data/seed542-expanded-policy-strength-screen",
+      "status": "all_1024_pairs_and_2048_games_independently_verified",
+      "games": 2048,
+      "pairs": 1024,
+      "evidence_files_snapshotted": 6436,
+      "evidence_bytes_and_mtimes_unchanged": true,
+      "analysis_performed": false,
+      "tablebase": {
+        "source": "/home/alex/Mancala/seed552-worktree/model-artifact/runtime/kalah_v1_21.kvtb",
+        "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+        "size_bytes": 709635072,
+        "copied_to": ".tmp/seed542-screen-runtime/kalah_v1_21.kvtb"
+      }
+    },
+    {
+      "source": "PR #547 / seed542-update-432-strength-screen-v3",
+      "commands": [
+        "/home/alex/azlite-venv/bin/python -m ml.alphazero_lite.verify_seed542_update432_strength_screen --root . --out docs/data/seed542-update-432-strength-screen-v3",
+        "/home/alex/azlite-venv/bin/python -m ml.alphazero_lite.verify_seed542_update432_strength_screen_supplement --root . --out docs/data/seed542-update-432-strength-screen-v3"
+      ],
+      "status": "all_1024_pairs_and_2048_games_independently_verified",
+      "games": 2048,
+      "pairs": 1024,
+      "per_opening_suite_and_command_bindings_verified": 1024,
+      "continuation_bindings_verified": 1024,
+      "continuation_versions": [4, 5, 6],
+      "analysis_reproduced": true,
+      "result": "do_not_advance"
+    }
+  ],
+  "limitations": [
+    "These are published-verifier cross-checks under a different installed runtime; they do not establish reproduction under the recorded runtime.",
+    "This record does not claim completion of the seven-source rules-only replay, identity indexes, mutation tests, or physical-copy verification."
+  ]
+}
