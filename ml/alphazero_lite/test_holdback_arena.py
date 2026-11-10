@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from unittest.mock import patch
 
 from ml.alphazero_lite import holdback_arena as protocol
 
@@ -155,6 +156,22 @@ class HoldbackProtocolTest(unittest.TestCase):
         # Same encoded position under a different metadata-only canonical state.
         with self.assertRaisesRegex(ValueError, "eligible_pool_shortfall"):
             protocol.build_suite([row(1, "other")], [row(1)], 1, 1)
+
+    def test_public_builder_excludes_collision_in_either_identity_scheme(self):
+        pool = [{"state": {"tag": "candidate"}}]
+        inventory = [{"state": {"tag": "known"}}]
+        for collision in ("canonical", "float32"):
+
+            def synthetic_identities(item, collision=collision):
+                if item["state"]["tag"] == "known":
+                    return "same-canonical", "same-float32"
+                if collision == "canonical":
+                    return "same-canonical", "new-float32"
+                return "new-canonical", "same-float32"
+
+            with patch.object(protocol, "identities", side_effect=synthetic_identities):
+                with self.assertRaisesRegex(ValueError, "eligible_pool_shortfall"):
+                    protocol.build_suite(pool, inventory, seed=1, size=1)
 
     def test_changed_suite_order_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp:

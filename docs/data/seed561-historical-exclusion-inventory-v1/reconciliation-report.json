@@ -1,0 +1,201 @@
+{
+  "all_seed511_pinned_bytes_authenticated": true,
+  "combined_union": {
+    "canonical": 534033,
+    "kalah_v3_float32": 534033
+  },
+  "index_occurrence_rows": {
+    "canonical": 662606,
+    "kalah_v3_float32": 662606
+  },
+  "no_experiment_execution": true,
+  "older_union": {
+    "canonical": {
+      "additions_beyond_562_564": 231631,
+      "distinct": 254802,
+      "overlap_with_562_564": 23171
+    },
+    "kalah_v3_float32": {
+      "additions_beyond_562_564": 231631,
+      "distinct": 254802,
+      "overlap_with_562_564": 23171
+    }
+  },
+  "other_uncovered_historical_populations": "remain uncovered; counts unknown",
+  "published_subtotal_verification": {
+    "passed": true,
+    "verified_baseline_and_seven_source_indexes": true,
+    "verifier": "archived_screen_identity_seven.verify_seven"
+  },
+  "schema": "seed561_historical_exclusion_inventory_v1",
+  "seed461_continuations": "unresolved; not reconstructed or counted",
+  "seed483_confirmation_gate": "closed",
+  "seed503_504_not_double_counted": true,
+  "seed511_pinned_source_count": 2073,
+  "seed511_registration_sha256": "89f04c6e1f774d81a7866d3913dd5ffa990b9e04a58f9a7f066b8f19204445c4",
+  "seed545_standalone_diagnostic": {
+    "canonical_and_float32_decompressed_indexes_match": true,
+    "cause": "--out selected a scratch directory without the committed #545 index artifacts; no committed index mismatch",
+    "commit": "0139cbd70d70184fc86cabd92afafdd849f28ef0",
+    "committed_canonical_index_sha256": "2e4c66b9be044701430fbdf30ed28a0ebd2e2f434d9adc86533b4ccfedb38045",
+    "committed_float32_index_sha256": "c710db3d81c0af6da68d7a724cf024d0663af81357eadb08ad2cf0082c94c043",
+    "committed_index_modified": false,
+    "correct_command": "python -m ml.alphazero_lite.archived_screen_identity_inventory --root . --out docs/data/seed564-archived-screen-identity-audit",
+    "correct_interpreter": "/usr/bin/python (CPython 3.14.7)",
+    "correct_out_path": "docs/data/seed564-archived-screen-identity-audit",
+    "correct_root_path": ".",
+    "correct_working_directory_absolute": "/home/alex/Mancala/ai/.tmp/holdback-historical-exclusions",
+    "first_differing_row": null,
+    "fresh_canonical_rows": 68166,
+    "fresh_float32_rows": 68166,
+    "membership_or_provenance_difference": false,
+    "prior_error": "published_index_mismatch:seed545-canonical-index.jsonl.gz",
+    "prior_failed_invocation": "python -m ml.alphazero_lite.archived_screen_identity_inventory --root . --out .tmp/historical-exclusion-audit",
+    "prior_failed_invocation_interpreter": "/usr/bin/python (CPython 3.14.7)",
+    "prior_out_path": ".tmp/historical-exclusion-audit",
+    "prior_root_path": ".",
+    "prior_working_directory": ".tmp/holdback-historical-exclusions",
+    "prior_working_directory_absolute": "/home/alex/Mancala/ai/.tmp/holdback-historical-exclusions",
+    "serialization_only_difference": false
+  },
+  "source_scope": "exact #511 registration exclusion_source_sha256 list",
+  "sources": [
+    {
+      "canonical": {
+        "additions_beyond_562_564": 58837,
+        "distinct": 62330,
+        "overlap_with_562_564": 3493,
+        "overlap_with_563_seed503_504": 764
+      },
+      "identity_origin": "imported_verified_snapshot",
+      "kalah_v3_float32": {
+        "additions_beyond_562_564": 58837,
+        "distinct": 62330,
+        "overlap_with_562_564": 3493,
+        "overlap_with_563_seed503_504": 764
+      },
+      "source": "482"
+    },
+    {
+      "canonical": {
+        "additions_beyond_562_564": 45589,
+        "distinct": 48080,
+        "overlap_with_562_564": 2491,
+        "overlap_with_563_seed503_504": 208
+      },
+      "identity_origin": "imported_verified_snapshot",
+      "kalah_v3_float32": {
+        "additions_beyond_562_564": 45589,
+        "distinct": 48080,
+        "overlap_with_562_564": 2491,
+        "overlap_with_563_seed503_504": 208
+      },
+      "source": "483"
+    },
+    {
+      "canonical": {
+        "additions_beyond_562_564": 38220,
+        "distinct": 39346,
+        "overlap_with_562_564": 1126,
+        "overlap_with_563_seed503_504": 166
+      },
+      "identity_origin": "imported_verified_snapshot",
+      "kalah_v3_float32": {
+        "additions_beyond_562_564": 38220,
+        "distinct": 39346,
+        "overlap_with_562_564": 1126,
+        "overlap_with_563_seed503_504": 166
+      },
+      "source": "484_seed467_additions"
+    },
+    {
+      "canonical": {
+        "additions_beyond_562_564": 28398,
+        "distinct": 30681,
+        "overlap_with_562_564": 2283,
+        "overlap_with_563_seed503_504": 277
+      },
+      "games_or_rows": 1024,
+      "identity_origin": "independently_replayed_state",
+      "kalah_v3_float32": {
+        "additions_beyond_562_564": 28398,
+        "distinct": 30681,
+        "overlap_with_562_564": 2283,
+        "overlap_with_563_seed503_504": 277
+      },
+      "source": "488"
+    },
+    {
+      "canonical": {
+        "additions_beyond_562_564": 26379,
+        "distinct": 28344,
+        "overlap_with_562_564": 1965,
+        "overlap_with_563_seed503_504": 270
+      },
+      "games_or_rows": 1024,
+      "identity_origin": "independently_replayed_state",
+      "kalah_v3_float32": {
+        "additions_beyond_562_564": 26379,
+        "distinct": 28344,
+        "overlap_with_562_564": 1965,
+        "overlap_with_563_seed503_504": 270
+      },
+      "source": "499"
+    },
+    {
+      "canonical": {
+        "additions_beyond_562_564": 28340,
+        "distinct": 31130,
+        "overlap_with_562_564": 2790,
+        "overlap_with_563_seed503_504": 329
+      },
+      "games_or_rows": 1024,
+      "identity_origin": "independently_replayed_state",
+      "kalah_v3_float32": {
+        "additions_beyond_562_564": 28340,
+        "distinct": 31130,
+        "overlap_with_562_564": 2790,
+        "overlap_with_563_seed503_504": 329
+      },
+      "source": "505"
+    },
+    {
+      "canonical": {
+        "additions_beyond_562_564": 44017,
+        "distinct": 48080,
+        "overlap_with_562_564": 4063,
+        "overlap_with_563_seed503_504": 438
+      },
+      "games_or_rows": 2048,
+      "identity_origin": "independently_replayed_state",
+      "kalah_v3_float32": {
+        "additions_beyond_562_564": 44017,
+        "distinct": 48080,
+        "overlap_with_562_564": 4063,
+        "overlap_with_563_seed503_504": 438
+      },
+      "source": "508"
+    },
+    {
+      "canonical": {
+        "additions_beyond_562_564": 753,
+        "distinct": 13363,
+        "overlap_with_562_564": 12610,
+        "overlap_with_563_seed503_504": 11896
+      },
+      "games_or_rows": 20657,
+      "identity_origin": "independently_replayed_state",
+      "kalah_v3_float32": {
+        "additions_beyond_562_564": 753,
+        "distinct": 13363,
+        "overlap_with_562_564": 12610,
+        "overlap_with_563_seed503_504": 11896
+      },
+      "source": "500"
+    }
+  ],
+  "subtotal_562_564": {
+    "canonical": 302402,
+    "kalah_v3_float32": 302402
+  }
+}
