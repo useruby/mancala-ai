@@ -1,0 +1,294 @@
+{
+  "cross_family_overlap": {
+    "canonical": {
+      "seed500_504_with_seed542": 5194,
+      "seed500_504_with_seed549": 2341,
+      "seed542_with_seed549": 6462
+    },
+    "kalah_v3_float32": {
+      "seed500_504_with_seed542": 5194,
+      "seed500_504_with_seed549": 2341,
+      "seed542_with_seed549": 6462
+    }
+  },
+  "families_vs_562": {
+    "combined": {
+      "canonical": {
+        "562_distinct": 58101,
+        "additions_beyond_562": 89045,
+        "distinct": 91082,
+        "overlap_with_562": 2037,
+        "union_with_562": 147146
+      },
+      "kalah_v3_float32": {
+        "562_distinct": 58101,
+        "additions_beyond_562": 89045,
+        "distinct": 91082,
+        "overlap_with_562": 2037,
+        "union_with_562": 147146
+      }
+    },
+    "seed500_504": {
+      "canonical": {
+        "additions_beyond_562": 11522,
+        "distinct": 11896,
+        "overlap_with_562": 374
+      },
+      "kalah_v3_float32": {
+        "additions_beyond_562": 11522,
+        "distinct": 11896,
+        "overlap_with_562": 374
+      }
+    },
+    "seed542": {
+      "canonical": {
+        "additions_beyond_562": 68975,
+        "distinct": 70614,
+        "overlap_with_562": 1639
+      },
+      "kalah_v3_float32": {
+        "additions_beyond_562": 68975,
+        "distinct": 70614,
+        "overlap_with_562": 1639
+      }
+    },
+    "seed549": {
+      "canonical": {
+        "additions_beyond_562": 19746,
+        "distinct": 20470,
+        "overlap_with_562": 724
+      },
+      "kalah_v3_float32": {
+        "additions_beyond_562": 19746,
+        "distinct": 20470,
+        "overlap_with_562": 724
+      }
+    }
+  },
+  "known_gaps": {
+    "historical_evaluation_populations_not_in_scope": "remain uncovered; this inventory does not close all #512\u2013#555 evidence",
+    "seed461_continuations": "unresolved; 1,129,643 continuation actions are not canonically replayable",
+    "seed483_confirmation_gate": "closed; this inventory does not authorize suite generation or confirmation"
+  },
+  "per_population": {
+    "raw_development": {
+      "canonical_distinct": 3654,
+      "kalah_v3_float32_distinct": 3654,
+      "occurrences": 4557,
+      "retained_cohort_only": false
+    },
+    "retained_development": {
+      "canonical_distinct": 2615,
+      "kalah_v3_float32_distinct": 2615,
+      "occurrences": 2671,
+      "retained_cohort_only": true
+    },
+    "seed542_raw_development": {
+      "canonical_distinct": 22897,
+      "kalah_v3_float32_distinct": 22897,
+      "occurrences": 36844,
+      "retained_cohort_only": false
+    },
+    "seed542_retained_development": {
+      "canonical_distinct": 14903,
+      "kalah_v3_float32_distinct": 14903,
+      "occurrences": 15359,
+      "retained_cohort_only": true
+    },
+    "seed542_training": {
+      "canonical_distinct": 55445,
+      "kalah_v3_float32_distinct": 55445,
+      "occurrences": 109504,
+      "retained_cohort_only": false
+    },
+    "seed549_control_raw_development": {
+      "canonical_distinct": 3679,
+      "kalah_v3_float32_distinct": 3679,
+      "occurrences": 4656,
+      "retained_cohort_only": false
+    },
+    "seed549_control_training": {
+      "canonical_distinct": 9891,
+      "kalah_v3_float32_distinct": 9891,
+      "occurrences": 13818,
+      "retained_cohort_only": false
+    },
+    "seed549_retained_shared_development": {
+      "canonical_distinct": 4424,
+      "kalah_v3_float32_distinct": 4424,
+      "occurrences": 4738,
+      "retained_cohort_only": true
+    },
+    "seed549_treatment_raw_development": {
+      "canonical_distinct": 2963,
+      "kalah_v3_float32_distinct": 2963,
+      "occurrences": 4661,
+      "retained_cohort_only": false
+    },
+    "seed549_treatment_training": {
+      "canonical_distinct": 7199,
+      "kalah_v3_float32_distinct": 7199,
+      "occurrences": 13849,
+      "retained_cohort_only": false
+    },
+    "training": {
+      "canonical_distinct": 9281,
+      "kalah_v3_float32_distinct": 9281,
+      "occurrences": 13724,
+      "retained_cohort_only": false
+    }
+  },
+  "scope": "verified #503/#504, amended #543 seed542, and #549 corpora",
+  "seed500_504_reconciliation": {
+    "counts": {
+      "loader_accepted_corpus": {
+        "canonical_distinct": 11896,
+        "kalah_v3_float32_distinct": 11896,
+        "occurrences": 18281
+      },
+      "raw_development": {
+        "canonical_distinct": 3654,
+        "kalah_v3_float32_distinct": 3654,
+        "occurrences": 4557
+      },
+      "retained_development": {
+        "canonical_distinct": 2615,
+        "kalah_v3_float32_distinct": 2615,
+        "occurrences": 2671
+      },
+      "training": {
+        "canonical_distinct": 9281,
+        "kalah_v3_float32_distinct": 9281,
+        "occurrences": 13724
+      }
+    },
+    "excluded_raw_development": 1886,
+    "retained_development_scored": 2671,
+    "scored_endpoints": [
+      "E1",
+      "E2",
+      "E3",
+      "E4",
+      "initializer"
+    ],
+    "scored_results_sha256": "cf0f9b7ef7a53a1ec1ad620240c0bbbccef0e514269f66f35decf0aec3dcf402",
+    "source": "#503 archived seed500 shards; #504 frozen split",
+    "source_status": "verified",
+    "split_sha256": "080b362d334dcce81bbd04a490900ec78483d6c05ad38c88ebb33fd8b8695d89"
+  },
+  "seed542_549_reconciliation": {
+    "counts": {
+      "seed542_raw_development": {
+        "canonical_distinct": 22897,
+        "kalah_v3_float32_distinct": 22897,
+        "occurrences": 36844
+      },
+      "seed542_retained_development": {
+        "canonical_distinct": 14903,
+        "kalah_v3_float32_distinct": 14903,
+        "occurrences": 15359
+      },
+      "seed542_training": {
+        "canonical_distinct": 55445,
+        "kalah_v3_float32_distinct": 55445,
+        "occurrences": 109504
+      },
+      "seed549_control_raw_development": {
+        "canonical_distinct": 3679,
+        "kalah_v3_float32_distinct": 3679,
+        "occurrences": 4656
+      },
+      "seed549_control_training": {
+        "canonical_distinct": 9891,
+        "kalah_v3_float32_distinct": 9891,
+        "occurrences": 13818
+      },
+      "seed549_retained_shared_development": {
+        "canonical_distinct": 4424,
+        "kalah_v3_float32_distinct": 4424,
+        "occurrences": 4738
+      },
+      "seed549_treatment_raw_development": {
+        "canonical_distinct": 2963,
+        "kalah_v3_float32_distinct": 2963,
+        "occurrences": 4661
+      },
+      "seed549_treatment_training": {
+        "canonical_distinct": 7199,
+        "kalah_v3_float32_distinct": 7199,
+        "occurrences": 13849
+      }
+    },
+    "sources": {
+      "derivative_reuse": {
+        "550": {
+          "binding_path": "docs/data/seed549-controlled-training/registration.json",
+          "binding_sha256": "dc088d45685a1ea5101464e23d5f6bdbd9570b27eb11f44cd5dee16e3bbacadc",
+          "bound_training_state_lists": {
+            "control": {
+              "membership_matches_seed549": true,
+              "occurrences": 13818,
+              "path": "docs/data/seed549-matched-selfplay/control-training-row-identities.jsonl",
+              "sha256": "ae81c08913e93e3c95acb664802808d471c74276a8b1aab01c1eb6c1ccf809e9"
+            },
+            "treatment": {
+              "membership_matches_seed549": true,
+              "occurrences": 13849,
+              "path": "docs/data/seed549-matched-selfplay/treatment-training-row-identities.jsonl",
+              "sha256": "277ddd5446548732171b5bacaebee5a41a46ff263bb4ddb6619188a4b32547bd"
+            }
+          },
+          "membership_added": false,
+          "rows": null
+        },
+        "554": {
+          "binding_path": "docs/data/seed554-fixed-state-teacher-budget/training-input-binding.json",
+          "binding_sha256": "9c5fce89446ec18a83f8d287394e81b288d63b439d781b111cc4faaf0e8f6422",
+          "bound_state_occurrences": 13818,
+          "control_state_membership_reused": true,
+          "input_authentication_sha256": "d778b307824cbf334bc08a7dca1c92e657c40ecc82e2eb4658348f64a4903328",
+          "membership_added": false,
+          "rows": 13818
+        }
+      },
+      "seed542": {
+        "incomplete_and_unstarted_slots_included": false,
+        "loader_accepted_rows": 146348,
+        "manifest_sha256": "63ffa566b929de4bec6fd445768e5161a53807fc2dcc1b170c8240a28be8f616",
+        "membership_sha256": "feeed97c7666a69603620e4e59575fdf02aa206e9e570cde937aa360bd37505b",
+        "raw_development_occurrences": 36844,
+        "recovered_games": 51,
+        "recovered_rows": 1768,
+        "retained_development_occurrences": 15359,
+        "supplement_games": 13,
+        "supplement_rows": 453,
+        "training_occurrences": 109504,
+        "usable_games": 4096
+      },
+      "seed549": {
+        "control": {
+          "development_identity_manifest_sha256": "e4436e71a7fa345255ac7566501471cd2b4fc039b5f4340fc0da388d66b76b0b",
+          "raw_development_occurrences": 4656,
+          "source_manifest_sha256": "d552f55fc51d2016cd02c779750ed535e62779abf540fd00c26832526b31e3bf",
+          "training_identity_manifest_sha256": "ae81c08913e93e3c95acb664802808d471c74276a8b1aab01c1eb6c1ccf809e9",
+          "training_occurrences": 13818
+        },
+        "raw_development_occurrences": 9317,
+        "retained_shared_development_occurrences": 4738,
+        "shared_membership_sha256": "186146add16819afe6b42a9137d06fcb0188d4b2d58f7ac5db5120ee003472de",
+        "treatment": {
+          "development_identity_manifest_sha256": "790d6a7b8e42acd845f90c520d96b578ab23011c67bd4e05fc660a10b271f81c",
+          "raw_development_occurrences": 4661,
+          "source_manifest_sha256": "19d3d51bfaaab69cfd3cbb5e8dfed22258a668ed690f9bc002d18a9f08f14a39",
+          "training_identity_manifest_sha256": "277ddd5446548732171b5bacaebee5a41a46ff263bb4ddb6619188a4b32547bd",
+          "training_occurrences": 13849
+        }
+      }
+    }
+  },
+  "source_status": {
+    "seed500_504": "verified",
+    "seed542": "verified",
+    "seed549": "verified"
+  }
+}
