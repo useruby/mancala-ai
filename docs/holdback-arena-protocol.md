@@ -75,6 +75,81 @@ historical evaluation gaps or the unresolved seed461 continuation population.
 
 ## Freeze, commitment, and reveal
 
+### Operator rehearsal and private seal commands
+
+The custodian CLI is `python -m ml.alphazero_lite.holdback_operator`. Run
+the no-sampling inventory/source/runtime check first:
+
+```bash
+python -m ml.alphazero_lite.holdback_operator preflight --root .
+```
+
+It authenticates the exact #565 source inventory and both identity indexes and
+reports the #566 source/runtime bindings, without drawing a seed or calling the
+sampler. A passing preflight is not a real seal and does not change the
+unresolved historical coverage status.
+
+Run
+`initialize` once with a custody directory on a restricted filesystem outside
+the repository. It creates the directory as `0700` and writes the immutable
+`private-inputs.json` (`0600`) before any sampling. Production initialization
+omits `--seed`, draws 256 bits with `secrets.randbits` (OS cryptographic RNG),
+and stores the seed plus generator/runtime and inventory pins. The optional
+`--seed` argument exists for synthetic fixtures only. Never use a repository
+directory for custody.
+
+```bash
+python -m ml.alphazero_lite.holdback_operator initialize \
+  --root . \
+  --custody "$HOME/.local/share/mancala-holdback/seal-01" \
+  --size 1024 \
+  --manifest docs/data/seed561-historical-exclusion-inventory-v1/source-manifest.json \
+  --manifest-sha256 946fc52c75fa2e6c0499811fcb97ff773ea00ec6ec9b6d1bfb3ec1c2466a95ad
+
+python -m ml.alphazero_lite.holdback_operator resume \
+  --root . \
+  --custody "$HOME/.local/share/mancala-holdback/seal-01" \
+  --public-output ./holdback-commitment.json
+
+# After the candidate and serving-P artifacts and all comparison settings are
+# frozen, create freeze.json containing their SHA-256 values/settings/rule.
+python -m ml.alphazero_lite.holdback_operator freeze \
+  --custody "$HOME/.local/share/mancala-holdback/seal-01" \
+  --freeze-json ./freeze.json
+
+python -m ml.alphazero_lite.holdback_operator reveal \
+  --custody "$HOME/.local/share/mancala-holdback/seal-01" \
+  --bundle ./revealed-holdback-bundle
+
+# After the suite has been used, permanently mark it consumed.
+python -m ml.alphazero_lite.holdback_operator consume \
+  --bundle ./revealed-holdback-bundle
+```
+
+On restart, `resume` reads the exact saved seed and inputs, authenticates the
+inventory again, and either verifies an existing ordered suite against those
+inputs or deterministically creates it. Missing inputs, contradictory suite or
+receipt bytes, and an existing public commitment fail closed. It verifies the
+private suite and exclusion identities before creating the seed-free public
+commitment with exclusive creation. A crash after saving inputs or after suite
+write is resumable; an interrupted/partial file is not silently replaced.
+Retain the private directory and public commitment separately. Keep the
+independent registry digest and lifecycle anchor digest in separate custodian
+records.
+
+The exact production generator settings are 1,024 openings, 20,000 total
+attempts, one Python `random.Random` MT19937 stream, legal prefix lengths 4–12,
+and compact UTF-8 sorted-key JSONL with one LF per opening. The public record
+binds suite SHA-256, generator/source/runtime bindings, and the hash-pinned
+inventory; it excludes seed and opening bytes. Candidate and serving-P artifact
+hashes, arena settings, and analysis rule must be frozen before the private
+suite is revealed. Use 18-way opening-pair concurrency, one search worker per
+game, and bind registered CPU, memory, and runtime limits in the freeze. Reveal
+and consumption are controlled lifecycle events; a consumed suite cannot be
+reused. The rehearsal is synthetic only. The seed461 gap remains unresolved,
+#483 remains closed, and any later comparison is screened against known
+exclusions only.
+
 Before any real generation, publish the exact generator version, legal move and
 state-identity implementations, 1,024-root sample law, exclusion-inventory
 schema and source list, pair execution semantics, and analysis rule. Use a
