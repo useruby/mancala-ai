@@ -11,6 +11,7 @@ import argparse
 import gzip
 import hashlib
 import json
+import zlib
 from pathlib import Path
 from typing import Any
 
@@ -311,7 +312,14 @@ def _published_subtotal(root: Path) -> tuple[list[dict[str, Any]], dict[str, set
     for location, pair in sorted(by_location.items()):
         if set(pair) != {"canonical", "kalah_v3_float32"}:
             raise InventoryError("seed564_scheme_provenance_mismatch")
-        rows.append({"source": "564", "location": location, **pair})
+        rows.append(
+            {
+                "source": "564",
+                "canonical_identity": pair["canonical"],
+                "kalah_v3_float32_identity": pair["kalah_v3_float32"],
+                "provenance": location,
+            }
+        )
     return rows, sets
 
 
@@ -396,9 +404,13 @@ def build(root: Path) -> tuple[dict[str, bytes], dict[str, Any]]:
         report_sources.append(row)
 
     combined = subtotal_rows + source_records
+    combined_sets = {
+        scheme: subtotal[scheme] | older_sets[scheme] for scheme in subtotal
+    }
     # Index preserves each source occurrence/provenance; sorting is stable and
     # the identities are explicitly separated by scheme.
     index_bytes: dict[str, bytes] = {}
+    index_jsonl_bytes: dict[str, bytes] = {}
     index_rows: dict[str, int] = {}
     for scheme, field in (
         ("canonical", "canonical_identity"),
@@ -433,11 +445,9 @@ def build(root: Path) -> tuple[dict[str, bytes], dict[str, Any]]:
                 for item in records
             )
         ).encode()
+        index_jsonl_bytes[scheme] = payload
         index_bytes[scheme] = gzip.compress(payload, mtime=0)
 
-    combined_sets = {
-        scheme: subtotal[scheme] | older_sets[scheme] for scheme in subtotal
-    }
     report = {
         "schema": SCHEMA,
         "source_scope": "exact #511 registration exclusion_source_sha256 list",
@@ -506,7 +516,28 @@ def build(root: Path) -> tuple[dict[str, bytes], dict[str, Any]]:
         },
         "published_subtotal": "authenticated #562, #563, and #564 indexes",
         "identity_schemes": ["canonical_state_sha256", "kalah_v3_float32_sha256"],
-        "indexes": ["canonical-index.jsonl.gz", "kalah-v3-float32-index.jsonl.gz"],
+        "indexes": {
+            "canonical": {
+                "path": "canonical-index.jsonl.gz",
+                "sha256_gzip": hashlib.sha256(index_bytes["canonical"]).hexdigest(),
+                "sha256_jsonl": hashlib.sha256(
+                    index_jsonl_bytes["canonical"]
+                ).hexdigest(),
+                "occurrence_rows": index_rows["canonical"],
+                "distinct_identities": len(combined_sets["canonical"]),
+            },
+            "kalah_v3_float32": {
+                "path": "kalah-v3-float32-index.jsonl.gz",
+                "sha256_gzip": hashlib.sha256(
+                    index_bytes["kalah_v3_float32"]
+                ).hexdigest(),
+                "sha256_jsonl": hashlib.sha256(
+                    index_jsonl_bytes["kalah_v3_float32"]
+                ).hexdigest(),
+                "occurrence_rows": index_rows["kalah_v3_float32"],
+                "distinct_identities": len(combined_sets["kalah_v3_float32"]),
+            },
+        },
         "verifier": "python -m ml.alphazero_lite.seed561_historical_exclusion_inventory",
     }
     return {
@@ -529,11 +560,31 @@ def verify(root: Path, out: Path, *, write: bool = False) -> dict[str, Any]:
         for name, payload in artifacts.items():
             (out / name).write_bytes(payload)
     else:
-        for name, payload in artifacts.items():
-            path = out / name
-            if not path.is_file() or path.read_bytes() != payload:
-                raise InventoryError(f"published_artifact_mismatch:{name}")
+        verify_published_artifacts(out, artifacts)
     return report
+
+
+def verify_published_artifacts(out: Path, artifacts: dict[str, bytes]) -> None:
+    """Compare indexes by decompressed JSONL and metadata artifacts as bytes."""
+    index_names = {
+        "canonical-index.jsonl.gz",
+        "kalah-v3-float32-index.jsonl.gz",
+    }
+    for name, expected in artifacts.items():
+        path = out / name
+        if not path.is_file():
+            raise InventoryError(f"published_artifact_mismatch:{name}")
+        actual = path.read_bytes()
+        if name in index_names:
+            try:
+                actual_jsonl = gzip.decompress(actual)
+                expected_jsonl = gzip.decompress(expected)
+            except (OSError, EOFError, zlib.error) as exc:
+                raise InventoryError(f"published_index_gzip_invalid:{name}") from exc
+            if actual_jsonl != expected_jsonl:
+                raise InventoryError(f"published_artifact_mismatch:{name}")
+        elif actual != expected:
+            raise InventoryError(f"published_artifact_mismatch:{name}")
 
 
 def main() -> None:

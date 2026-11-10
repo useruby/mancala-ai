@@ -4,10 +4,22 @@
     "canonical_state_sha256",
     "kalah_v3_float32_sha256"
   ],
-  "indexes": [
-    "canonical-index.jsonl.gz",
-    "kalah-v3-float32-index.jsonl.gz"
-  ],
+  "indexes": {
+    "canonical": {
+      "distinct_identities": 534033,
+      "occurrence_rows": 1143823,
+      "path": "canonical-index.jsonl.gz",
+      "sha256_gzip": "0bbf129eca3f747375eb3bb81417b6b698fa2c733ce1ffcd4431b89d24541f3f",
+      "sha256_jsonl": "c8689b4983c50952abb564d133a59bc253d7aa7e5b8d66ffcb8424906f2b3db7"
+    },
+    "kalah_v3_float32": {
+      "distinct_identities": 534033,
+      "occurrence_rows": 1143823,
+      "path": "kalah-v3-float32-index.jsonl.gz",
+      "sha256_gzip": "d18d45a0caa028ba956bba78c87ea68c0cfb6378ef93cb303731f6be1f9ce5e3",
+      "sha256_jsonl": "1b7aaec8aa53575af5bf7afce0f1c251f7fe0e7cf72e2733f83ba1cd76ba9a90"
+    }
+  },
   "published_subtotal": "authenticated #562, #563, and #564 indexes",
   "schema": "seed561_historical_exclusion_inventory_v1",
   "seed511_registration": {

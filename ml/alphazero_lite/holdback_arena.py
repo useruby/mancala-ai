@@ -8,14 +8,23 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import gzip
 import hashlib
 import json
 from pathlib import Path
 from typing import Any
+import zlib
 
 from ml.alphazero_lite.seed482_fresh_confirmation import (
     canonical_identity,
     float32_identity,
+)
+
+INVENTORY_REFERENCE_SCHEMA = "seed561_holdback_inventory_reference_v1"
+INVENTORY_MANIFEST_SCHEMA = "seed561_historical_exclusion_inventory_v1"
+# Updated to the committed source-manifest digest when the v1 indexes publish.
+TRUSTED_HISTORICAL_INVENTORY_MANIFEST_SHA256 = (
+    "946fc52c75fa2e6c0499811fcb97ff773ea00ec6ec9b6d1bfb3ec1c2466a95ad"
 )
 
 
@@ -44,12 +53,125 @@ def validate_inventory(rows: list[dict[str, Any]]) -> dict[str, set[str]]:
     return result
 
 
+def validate_identity_sets(
+    identities_by_scheme: dict[str, set[str]],
+) -> dict[str, set[str]]:
+    """Validate and copy precomputed identity sets for both required schemes."""
+    if set(identities_by_scheme) != {"canonical", "float32"}:
+        raise ValueError("inventory_identity_schemes_invalid")
+    result: dict[str, set[str]] = {}
+    for scheme in ("canonical", "float32"):
+        values = identities_by_scheme[scheme]
+        if not isinstance(values, set) or any(
+            not isinstance(value, str) or len(value) != 64 for value in values
+        ):
+            raise ValueError(f"inventory_identity_set_invalid:{scheme}")
+        result[scheme] = set(values)
+    return result
+
+
+def _bundle_file(bundle: Path, relative: str) -> Path:
+    """Resolve a bundle-relative path while preventing traversal outside it."""
+    path = Path(relative)
+    if path.is_absolute():
+        raise ValueError("inventory_path_must_be_relative")
+    root = bundle.resolve()
+    resolved = (root / path).resolve()
+    if resolved != root and root not in resolved.parents:
+        raise ValueError("inventory_path_escapes_bundle")
+    return resolved
+
+
+def load_pinned_identity_indexes(
+    bundle: Path,
+    inventory_reference: dict[str, Any],
+    trusted_manifest_sha256: str,
+) -> dict[str, set[str]]:
+    """Load both published indexes only when their manifest has an external pin.
+
+    Gzip headers and compression settings are intentionally not identity
+    evidence: each index is authenticated by the SHA-256 of its decompressed
+    deterministic JSONL, whose digest is itself bound by the trusted manifest.
+    """
+    if inventory_reference.get("schema") != INVENTORY_REFERENCE_SCHEMA:
+        raise ValueError("inventory_reference_schema_mismatch")
+    if inventory_reference.get("manifest_sha256") != trusted_manifest_sha256:
+        raise ValueError("untrusted_inventory_manifest")
+    manifest_path = _bundle_file(
+        bundle, str(inventory_reference.get("manifest_path", ""))
+    )
+    manifest_bytes = manifest_path.read_bytes()
+    if sha256(manifest_bytes) != trusted_manifest_sha256:
+        raise ValueError("inventory_manifest_bytes_changed")
+    manifest = json.loads(manifest_bytes)
+    if manifest.get("schema") != INVENTORY_MANIFEST_SCHEMA:
+        raise ValueError("inventory_manifest_schema_mismatch")
+    if manifest.get("identity_schemes") != [
+        "canonical_state_sha256",
+        "kalah_v3_float32_sha256",
+    ]:
+        raise ValueError("inventory_manifest_identity_schemes_invalid")
+    expected_schemes = {"canonical", "kalah_v3_float32"}
+    index_manifest = manifest.get("indexes")
+    if not isinstance(index_manifest, dict) or set(index_manifest) != expected_schemes:
+        raise ValueError("inventory_manifest_indexes_invalid")
+
+    result: dict[str, set[str]] = {}
+    for scheme in ("canonical", "kalah_v3_float32"):
+        binding = index_manifest[scheme]
+        index_path = _bundle_file(manifest_path.parent, str(binding.get("path", "")))
+        identities: set[str] = set()
+        occurrence_count = 0
+        content_digest = hashlib.sha256()
+        try:
+            with gzip.open(index_path, "rb") as stream:
+                for line in stream:
+                    content_digest.update(line)
+                    if not line.strip():
+                        continue
+                    row = json.loads(line)
+                    value = row.get("identity")
+                    if (
+                        not isinstance(value, str)
+                        or len(value) != 64
+                        or any(char not in "0123456789abcdef" for char in value)
+                        or not isinstance(row.get("source"), str)
+                        or "provenance" not in row
+                    ):
+                        raise ValueError("inventory_index_row_invalid")
+                    identities.add(value)
+                    occurrence_count += 1
+        except (
+            OSError,
+            EOFError,
+            zlib.error,
+            json.JSONDecodeError,
+            AttributeError,
+        ) as exc:
+            raise ValueError(f"inventory_index_jsonl_invalid:{scheme}") from exc
+        if content_digest.hexdigest() != binding.get("sha256_jsonl"):
+            raise ValueError(f"inventory_index_content_mismatch:{scheme}")
+        if occurrence_count != binding.get("occurrence_rows"):
+            raise ValueError(f"inventory_index_row_count_mismatch:{scheme}")
+        if len(identities) != binding.get("distinct_identities"):
+            raise ValueError(f"inventory_index_identity_count_mismatch:{scheme}")
+        result["canonical" if scheme == "canonical" else "float32"] = identities
+    return result
+
+
 def build_suite(
-    pool: list[dict[str, Any]], inventory: list[dict[str, Any]], seed: int, size: int
+    pool: list[dict[str, Any]],
+    inventory: list[dict[str, Any]] | dict[str, set[str]],
+    seed: int,
+    size: int,
 ) -> list[dict[str, Any]]:
     import random
 
-    excluded = validate_inventory(inventory)
+    excluded = (
+        validate_identity_sets(inventory)
+        if isinstance(inventory, dict)
+        else validate_inventory(inventory)
+    )
     rng = random.Random(seed)
     candidates = list(pool)
     rng.shuffle(candidates)
@@ -105,6 +227,7 @@ def verify(
     trusted_registry_sha256: str,
     *,
     anchor_name: str = "anchor.json",
+    trusted_inventory_manifest_sha256: str = TRUSTED_HISTORICAL_INVENTORY_MANIFEST_SHA256,
 ) -> dict[str, Any]:
     """Verify a revealed bundle against an independently retained event-log hash.
 
@@ -130,7 +253,11 @@ def verify(
         != manifest["commitment"]
     ):
         raise ValueError("commitment_mismatch")
-    excluded = validate_inventory(inventory_doc["rows"])
+    if not trusted_inventory_manifest_sha256:
+        raise ValueError("trusted_inventory_manifest_pin_required")
+    excluded = load_pinned_identity_indexes(
+        bundle, inventory_doc, trusted_inventory_manifest_sha256
+    )
     generator = manifest["generator"]
     if generator.get("pool_sha256") != manifest["pool_sha256"]:
         raise ValueError("generator_pool_binding_mismatch")
@@ -138,9 +265,7 @@ def verify(
     if sha256(pool_bytes) != manifest["pool_sha256"]:
         raise ValueError("synthetic_pool_bytes_changed")
     pool = [json.loads(line) for line in pool_bytes.splitlines() if line]
-    rebuilt = build_suite(
-        pool, inventory_doc["rows"], generator["seed"], generator["size"]
-    )
+    rebuilt = build_suite(pool, excluded, generator["seed"], generator["size"])
     if suite_bytes(rebuilt) != suite:
         raise ValueError("suite_rebuild_mismatch")
     seen = {"canonical": set(), "float32": set()}
@@ -248,6 +373,11 @@ def main() -> None:
         required=True,
         help="SHA-256 of current custodian-state.json obtained independently",
     )
+    parser.add_argument(
+        "--trusted-inventory-manifest-sha256",
+        default=TRUSTED_HISTORICAL_INVENTORY_MANIFEST_SHA256,
+        help="Independently trusted digest of the published historical inventory manifest",
+    )
     parser.add_argument("--anchor-name", default="anchor.json")
     args = parser.parse_args()
     print(
@@ -257,6 +387,9 @@ def main() -> None:
                 args.trusted_anchor_sha256,
                 args.trusted_registry_sha256,
                 anchor_name=args.anchor_name,
+                trusted_inventory_manifest_sha256=(
+                    args.trusted_inventory_manifest_sha256
+                ),
             ),
             sort_keys=True,
         )

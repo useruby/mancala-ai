@@ -16,6 +16,27 @@ model, or change serving behavior.
   independently rebuilt #562–#564 subtotal, additions, and overlap with
   #563's #503/#504 family.
 
+## Holdback bundle reference
+
+The holdback verifier accepts the inventory through a versioned reference
+document, rather than requiring expanded rule-state rows:
+
+```json
+{
+  "schema": "seed561_holdback_inventory_reference_v1",
+  "manifest_path": "historical/source-manifest.json",
+  "manifest_sha256": "946fc52c75fa2e6c0499811fcb97ff773ea00ec6ec9b6d1bfb3ec1c2466a95ad"
+}
+```
+
+Place the manifest and both indexes at the manifest's relative paths inside the
+bundle. The trusted digest is pinned by `holdback_arena`; callers can also pass
+an independently supplied trusted digest to `verify`. The loader checks both
+scheme bindings, the decompressed JSONL digest, occurrence and distinct counts,
+and derives the exclusion identity sets used while rebuilding and checking the
+suite. Equivalent gzip headers/compression are accepted when the JSONL matches;
+changed index content or a locally regenerated manifest is rejected.
+
 ## Verification
 
 From a checkout containing the authenticated evidence files, run:

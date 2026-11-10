@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import gzip
 import hashlib
 import json
 import shutil
@@ -10,11 +11,64 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from ml.alphazero_lite import seed561_historical_exclusion_inventory as inventory
 
 
 class HistoricalInventoryTest(unittest.TestCase):
+    def test_published_index_check_accepts_gzip_variants_and_rejects_content_read_only(
+        self,
+    ):
+        root = inventory.ROOT
+        canonical_jsonl = b'{"identity":"a","source":"fixture","provenance":{}}\n'
+        float32_jsonl = b'{"identity":"b","source":"fixture","provenance":{}}\n'
+        artifacts = {
+            "source-manifest.json": b"manifest\n",
+            "reconciliation-report.json": b"report\n",
+            "canonical-index.jsonl.gz": gzip.compress(canonical_jsonl, mtime=0),
+            "kalah-v3-float32-index.jsonl.gz": gzip.compress(float32_jsonl, mtime=0),
+        }
+        with tempfile.TemporaryDirectory(dir=root / ".tmp") as temporary:
+            output = Path(temporary)
+            for name, payload in artifacts.items():
+                (output / name).write_bytes(payload)
+            # Alternate gzip metadata/compression preserves the JSONL evidence.
+            canonical_path = output / "canonical-index.jsonl.gz"
+            canonical_path.write_bytes(
+                gzip.compress(canonical_jsonl, compresslevel=1, mtime=123)
+            )
+            before = {
+                path: (path.read_bytes(), path.stat().st_mtime_ns)
+                for path in output.iterdir()
+            }
+            with patch.object(inventory, "build", return_value=(artifacts, {})):
+                inventory.verify(root, output)
+                self.assertEqual(
+                    {
+                        path: (path.read_bytes(), path.stat().st_mtime_ns)
+                        for path in output.iterdir()
+                    },
+                    before,
+                )
+                changed_jsonl = (
+                    b'{"identity":"changed","source":"fixture","provenance":{}}\n'
+                )
+                canonical_path.write_bytes(gzip.compress(changed_jsonl, mtime=0))
+                tampered = (
+                    canonical_path.read_bytes(),
+                    canonical_path.stat().st_mtime_ns,
+                )
+                with self.assertRaisesRegex(
+                    inventory.InventoryError,
+                    "published_artifact_mismatch:canonical-index.jsonl.gz",
+                ):
+                    inventory.verify(root, output)
+                self.assertEqual(
+                    (canonical_path.read_bytes(), canonical_path.stat().st_mtime_ns),
+                    tampered,
+                )
+
     def test_regenerated_local_source_receipt_cannot_replace_the_pinned_registration(
         self,
     ):
