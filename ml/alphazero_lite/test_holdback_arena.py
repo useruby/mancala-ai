@@ -206,6 +206,56 @@ def verify_bundle(bundle: Path, trusted: dict[str, str], **kwargs) -> dict:
 
 
 class HoldbackProtocolTest(unittest.TestCase):
+    def test_rules_only_generation_is_deterministic_and_serialized(self):
+        inventory = {"canonical": set(), "float32": set()}
+        first = protocol.build_rules_only_suite(inventory, 1234, 3)
+        self.assertEqual(first, protocol.build_rules_only_suite(inventory, 1234, 3))
+        self.assertEqual([0, 1, 2], [item["opening_index"] for item in first])
+        for opening in first:
+            self.assertEqual("arena_player_relative_v2", opening["opening_contract"])
+            self.assertEqual(
+                len(opening["prefix_moves"]),
+                len(opening["source_prefix_moves_absolute"]),
+            )
+            self.assertIn(len(opening["prefix_moves"]), range(4, 13))
+        self.assertTrue(protocol.suite_bytes(first).endswith(b"\n"))
+
+    def test_rules_only_collision_under_either_identity_and_shortfall(self):
+        empty = {"canonical": set(), "float32": set()}
+        opening = protocol.build_rules_only_suite(empty, 44, 1)[0]
+        can, f32 = protocol.identities(opening)
+        for scheme, value in (("canonical", can), ("float32", f32)):
+            inventory = {"canonical": set(), "float32": set()}
+            inventory[scheme].add(value)
+            with (
+                self.subTest(scheme=scheme),
+                self.assertRaisesRegex(ValueError, "rules_only_opening_shortfall"),
+            ):
+                protocol.build_rules_only_suite(inventory, 44, 1, attempt_limit=1)
+        with self.assertRaisesRegex(ValueError, "rules_only_opening_shortfall"):
+            protocol.build_rules_only_suite(empty, 1, 1, attempt_limit=0)
+
+    def test_seed_free_commitment_binds_suite_generator_and_inventory(self):
+        generator = {
+            "name": protocol.RULES_GENERATOR,
+            "size": 1024,
+            "rng": "python.random.Random/MT19937",
+            "attempt_limit": 20_000,
+        }
+        inventory = {"manifest_sha256": "a" * 64, "schema": "inventory-v1"}
+        record = protocol.public_commitment_record("b" * 64, generator, inventory)
+        protocol.verify_public_commitment_record(record)
+        self.assertNotIn("seed", record["generator"])
+        changed = dict(record, suite_sha256="c" * 64)
+        with self.assertRaisesRegex(ValueError, "public_commitment_record_mismatch"):
+            protocol.verify_public_commitment_record(changed)
+        with self.assertRaisesRegex(
+            ValueError, "public_generator_must_not_expose_seed"
+        ):
+            protocol.public_commitment_record(
+                "b" * 64, {**generator, "seed": 9}, inventory
+            )
+
     def test_public_loader_authenticates_published_historical_indexes(self):
         reference = {
             "schema": protocol.INVENTORY_REFERENCE_SCHEMA,
@@ -231,9 +281,20 @@ class HoldbackProtocolTest(unittest.TestCase):
             copied = root / "copy"
             shutil.copytree(source, copied)
             shutil.rmtree(source)
+            before = {
+                item.relative_to(copied): (item.read_bytes(), item.stat().st_mtime_ns)
+                for item in copied.rglob("*")
+                if item.is_file()
+            }
             result = verify_bundle(copied, trusted)
             self.assertEqual(result["openings"], 4)
             self.assertTrue(result["held_back_eligible"])
+            after = {
+                item.relative_to(copied): (item.read_bytes(), item.stat().st_mtime_ns)
+                for item in copied.rglob("*")
+                if item.is_file()
+            }
+            self.assertEqual(before, after)
 
     def test_duplicate_and_overlap_rejected_by_both_derived_identities(self):
         with self.assertRaisesRegex(ValueError, "duplicate_exclusion_identity"):
