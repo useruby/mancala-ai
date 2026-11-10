@@ -13,6 +13,7 @@ from ml.alphazero_lite.seed500_504_exclusion_inventory import require_digest
 class Seed500504AuthenticationTests(unittest.TestCase):
     def test_changed_shard_bytes_are_rejected_with_both_digests(self) -> None:
         scratch_root = Path(__file__).resolve().parents[2] / ".tmp"
+        scratch_root.mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=scratch_root) as scratch:
             path = Path(scratch) / "shard.jsonl"
             path.write_bytes(b'{"state":[1]}\n')
@@ -27,6 +28,7 @@ class Seed500504AuthenticationTests(unittest.TestCase):
 
     def test_changed_split_assignment_bytes_are_rejected(self) -> None:
         scratch_root = Path(__file__).resolve().parents[2] / ".tmp"
+        scratch_root.mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=scratch_root) as scratch:
             path = Path(scratch) / "split.json"
             path.write_bytes(b'{"training":[],"development":[]}\n')

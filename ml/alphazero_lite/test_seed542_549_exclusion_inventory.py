@@ -16,7 +16,9 @@ class Seed542549AuthenticationTests(unittest.TestCase):
     def _assert_mutation_rejected(
         self, filename: str, before: bytes, after: bytes
     ) -> None:
-        with tempfile.TemporaryDirectory(dir=ROOT / ".tmp") as scratch:
+        scratch_root = ROOT / ".tmp"
+        scratch_root.mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=scratch_root) as scratch:
             path = Path(scratch) / filename
             path.write_bytes(before)
             expected = hashlib.sha256(path.read_bytes()).hexdigest()
