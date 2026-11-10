@@ -1,0 +1,815 @@
+{
+  "baseline_identities": 147146,
+  "baseline_reconciliation": {
+    "#562_distinct": 58101,
+    "#562_plus_#563_union": 147146,
+    "#563_distinct": 91082,
+    "index_sha256": {
+      "docs/data/expanded-training-dev-exclusion-inventory/count-report.json": "d018de15ff5a6a98879df6f4853a90c89cf97bf3ab9b4ef4deb436b2953a13b8",
+      "docs/data/expanded-training-dev-exclusion-inventory/identity-inventory.jsonl": "3605078c7b14a14e23e1cb1c74e44660f5f5bc5316b3bae3d980d5d303f7f5db",
+      "docs/data/expanded-training-dev-exclusion-inventory/source-manifest.json": "5c0ae635f6e12c91701557124aab51ae259dd6b11e4fc3a7a40f185a16c5b6d2",
+      "docs/data/seed556-560-exclusion-inventory/count-report.json": "b6eea0fe006da2164ca4ad75528a6b08d44b191b2eb0364e5b5c211d95dd7639",
+      "docs/data/seed556-560-exclusion-inventory/identity-inventory.json": "8b5bf0ca78a9d370a91d9cb309cfa7f39c4fec8e2fba3576a8483727c0a6cb52",
+      "docs/data/seed556-560-exclusion-inventory/source-manifest.json": "ad691da4dc0272c6a37f077f961023443d05295321d54cb7c339c51a9391d5ce"
+    },
+    "reconstructed_from_published_indexes": true
+  },
+  "baseline_verified": true,
+  "combined_identity_occurrences": 481217,
+  "evidence_bytes_and_mtimes_unchanged": true,
+  "fresh_confirmation_gate_483": "closed",
+  "pairwise_overlaps": [
+    {
+      "all_state_overlap": 8189,
+      "continuation_overlap": 7166,
+      "left": "511",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "512",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 22413,
+      "continuation_overlap": 21390,
+      "left": "511",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "545",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 22006,
+      "continuation_overlap": 20983,
+      "left": "511",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "547",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 16664,
+      "continuation_overlap": 15641,
+      "left": "511",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "551",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 23262,
+      "continuation_overlap": 22239,
+      "left": "511",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "552",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 18233,
+      "continuation_overlap": 17210,
+      "left": "511",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "555",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 7400,
+      "continuation_overlap": 6377,
+      "left": "512",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "545",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 7849,
+      "continuation_overlap": 6826,
+      "left": "512",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "547",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 7677,
+      "continuation_overlap": 6654,
+      "left": "512",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "551",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 7661,
+      "continuation_overlap": 6638,
+      "left": "512",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "552",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 7671,
+      "continuation_overlap": 6648,
+      "left": "512",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "555",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 30938,
+      "continuation_overlap": 29915,
+      "left": "545",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "547",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 22536,
+      "continuation_overlap": 21513,
+      "left": "545",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "551",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 34257,
+      "continuation_overlap": 33234,
+      "left": "545",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "552",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 18084,
+      "continuation_overlap": 17061,
+      "left": "545",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "555",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 20682,
+      "continuation_overlap": 19659,
+      "left": "547",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "551",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 29898,
+      "continuation_overlap": 28875,
+      "left": "547",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "552",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 17844,
+      "continuation_overlap": 16821,
+      "left": "547",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "555",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 28127,
+      "continuation_overlap": 27104,
+      "left": "551",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "552",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 16581,
+      "continuation_overlap": 15558,
+      "left": "551",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "555",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 19971,
+      "continuation_overlap": 18948,
+      "left": "552",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "555",
+      "right_root_left_continuation": 1,
+      "scheme": "canonical"
+    },
+    {
+      "all_state_overlap": 8189,
+      "continuation_overlap": 7166,
+      "left": "511",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "512",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    },
+    {
+      "all_state_overlap": 22413,
+      "continuation_overlap": 21390,
+      "left": "511",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "545",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    },
+    {
+      "all_state_overlap": 22006,
+      "continuation_overlap": 20983,
+      "left": "511",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "547",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    },
+    {
+      "all_state_overlap": 16664,
+      "continuation_overlap": 15641,
+      "left": "511",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "551",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    },
+    {
+      "all_state_overlap": 23262,
+      "continuation_overlap": 22239,
+      "left": "511",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "552",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    },
+    {
+      "all_state_overlap": 18233,
+      "continuation_overlap": 17210,
+      "left": "511",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "555",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    },
+    {
+      "all_state_overlap": 7400,
+      "continuation_overlap": 6377,
+      "left": "512",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "545",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    },
+    {
+      "all_state_overlap": 7849,
+      "continuation_overlap": 6826,
+      "left": "512",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "547",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    },
+    {
+      "all_state_overlap": 7677,
+      "continuation_overlap": 6654,
+      "left": "512",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "551",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    },
+    {
+      "all_state_overlap": 7661,
+      "continuation_overlap": 6638,
+      "left": "512",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "552",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    },
+    {
+      "all_state_overlap": 7671,
+      "continuation_overlap": 6648,
+      "left": "512",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "555",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    },
+    {
+      "all_state_overlap": 30938,
+      "continuation_overlap": 29915,
+      "left": "545",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "547",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    },
+    {
+      "all_state_overlap": 22536,
+      "continuation_overlap": 21513,
+      "left": "545",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "551",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    },
+    {
+      "all_state_overlap": 34257,
+      "continuation_overlap": 33234,
+      "left": "545",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "552",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    },
+    {
+      "all_state_overlap": 18084,
+      "continuation_overlap": 17061,
+      "left": "545",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "555",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    },
+    {
+      "all_state_overlap": 20682,
+      "continuation_overlap": 19659,
+      "left": "547",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "551",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    },
+    {
+      "all_state_overlap": 29898,
+      "continuation_overlap": 28875,
+      "left": "547",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "552",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    },
+    {
+      "all_state_overlap": 17844,
+      "continuation_overlap": 16821,
+      "left": "547",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "555",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    },
+    {
+      "all_state_overlap": 28127,
+      "continuation_overlap": 27104,
+      "left": "551",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "552",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    },
+    {
+      "all_state_overlap": 16581,
+      "continuation_overlap": 15558,
+      "left": "551",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "555",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    },
+    {
+      "all_state_overlap": 19971,
+      "continuation_overlap": 18948,
+      "left": "552",
+      "left_root_right_continuation": 1,
+      "opening_root_overlap": 1024,
+      "right": "555",
+      "right_root_left_continuation": 1,
+      "scheme": "kalah_v3_float32"
+    }
+  ],
+  "recorded_seed461_continuations_unresolved": true,
+  "root_overlap_is_not_continuation_overlap": true,
+  "schema": "seed564_seven_source_replay_report_v1",
+  "source_union": {
+    "canonical": {
+      "additions_beyond_562_563_baseline": 155256,
+      "continuation_additions_beyond_562_563": 155256,
+      "continuation_union_distinct": 206399,
+      "distinct_across_sources": 207422,
+      "opening_root_additions_beyond_562_563": 0,
+      "opening_root_union_distinct": 1024,
+      "overlap_with_562_563_baseline": 52166
+    },
+    "kalah_v3_float32": {
+      "additions_beyond_562_563_baseline": 155256,
+      "continuation_additions_beyond_562_563": 155256,
+      "continuation_union_distinct": 206399,
+      "distinct_across_sources": 207422,
+      "opening_root_additions_beyond_562_563": 0,
+      "opening_root_union_distinct": 1024,
+      "overlap_with_562_563_baseline": 52166
+    }
+  },
+  "sources": [
+    {
+      "baseline_comparison": {
+        "canonical": {
+          "additions_beyond_562_563": 29492,
+          "continuation_additions_beyond_562_563": 29492,
+          "continuation_overlap_with_562_563": 25814,
+          "distinct": 56329,
+          "opening_root_additions_beyond_562_563": 0,
+          "opening_root_overlap_with_562_563": 1024,
+          "overlap_with_562_563": 26837
+        },
+        "kalah_v3_float32": {
+          "additions_beyond_562_563": 29492,
+          "continuation_additions_beyond_562_563": 29492,
+          "continuation_overlap_with_562_563": 25814,
+          "distinct": 56329,
+          "opening_root_additions_beyond_562_563": 0,
+          "opening_root_overlap_with_562_563": 1024,
+          "overlap_with_562_563": 26837
+        }
+      },
+      "failed_or_superseded_attempts_separate": {},
+      "final_receipt_sha256": "daf24729427f2b45d8ac19d83f2b6a367d35e006279a2a236585eba82d6b3006",
+      "identity_counts": {
+        "canonical": {
+          "continuation_distinct": 55306,
+          "distinct": 56329,
+          "opening_root_distinct": 1024,
+          "root_continuation_overlap": 1
+        },
+        "kalah_v3_float32": {
+          "continuation_distinct": 55306,
+          "distinct": 56329,
+          "opening_root_distinct": 1024,
+          "root_continuation_overlap": 1
+        },
+        "occurrences": 67052
+      },
+      "name": "seed511-fixed-composition-screen-v4",
+      "replay": {
+        "games": 2048,
+        "pairs": 1024,
+        "recovered_openings": []
+      },
+      "source": "511"
+    },
+    {
+      "baseline_comparison": {
+        "canonical": {
+          "additions_beyond_562_563": 50935,
+          "continuation_additions_beyond_562_563": 50935,
+          "continuation_overlap_with_562_563": 8441,
+          "distinct": 60399,
+          "opening_root_additions_beyond_562_563": 0,
+          "opening_root_overlap_with_562_563": 1024,
+          "overlap_with_562_563": 9464
+        },
+        "kalah_v3_float32": {
+          "additions_beyond_562_563": 50935,
+          "continuation_additions_beyond_562_563": 50935,
+          "continuation_overlap_with_562_563": 8441,
+          "distinct": 60399,
+          "opening_root_additions_beyond_562_563": 0,
+          "opening_root_overlap_with_562_563": 1024,
+          "overlap_with_562_563": 9464
+        }
+      },
+      "failed_or_superseded_attempts_separate": {},
+      "final_receipt_sha256": "8e8e7acc08f85fde189c55d6d4d37652de902ecb1d72ce250f31719a2309bb3f",
+      "identity_counts": {
+        "canonical": {
+          "continuation_distinct": 59376,
+          "distinct": 60399,
+          "opening_root_distinct": 1024,
+          "root_continuation_overlap": 1
+        },
+        "kalah_v3_float32": {
+          "continuation_distinct": 59376,
+          "distinct": 60399,
+          "opening_root_distinct": 1024,
+          "root_continuation_overlap": 1
+        },
+        "occurrences": 72024
+      },
+      "name": "seed512-fixed-composition-evaluation",
+      "replay": {
+        "games": 2048,
+        "pairs": 1024,
+        "recovered_openings": []
+      },
+      "source": "512"
+    },
+    {
+      "baseline_comparison": {
+        "canonical": {
+          "additions_beyond_562_563": 20045,
+          "continuation_additions_beyond_562_563": 20045,
+          "continuation_overlap_with_562_563": 29008,
+          "distinct": 50076,
+          "opening_root_additions_beyond_562_563": 0,
+          "opening_root_overlap_with_562_563": 1024,
+          "overlap_with_562_563": 30031
+        },
+        "kalah_v3_float32": {
+          "additions_beyond_562_563": 20045,
+          "continuation_additions_beyond_562_563": 20045,
+          "continuation_overlap_with_562_563": 29008,
+          "distinct": 50076,
+          "opening_root_additions_beyond_562_563": 0,
+          "opening_root_overlap_with_562_563": 1024,
+          "overlap_with_562_563": 30031
+        }
+      },
+      "failed_or_superseded_attempts_separate": {
+        "docs/data/seed542-expanded-policy-strength-screen/PRELAUNCH-FAILURE-0000.json": "03ed05abe358a823bf5a784e9665389a492772b5081cecb5b42b9d572d9d120c"
+      },
+      "final_receipt_sha256": "c749bc760019fddc3a53755c41b4ea1bf28e87251cfc44c9f0cb71ac1088cb6b",
+      "identity_counts": {
+        "canonical": {
+          "continuation_distinct": 49053,
+          "distinct": 50076,
+          "opening_root_distinct": 1024,
+          "root_continuation_overlap": 1
+        },
+        "kalah_v3_float32": {
+          "continuation_distinct": 49053,
+          "distinct": 50076,
+          "opening_root_distinct": 1024,
+          "root_continuation_overlap": 1
+        },
+        "occurrences": 68166
+      },
+      "name": "seed542-expanded-policy-strength-screen",
+      "replay": {
+        "games": 2048,
+        "pairs": 1024,
+        "recovered_openings": [
+          0,
+          1
+        ]
+      },
+      "source": "545"
+    },
+    {
+      "baseline_comparison": {
+        "canonical": {
+          "additions_beyond_562_563": 24716,
+          "continuation_additions_beyond_562_563": 24716,
+          "continuation_overlap_with_562_563": 27422,
+          "distinct": 53161,
+          "opening_root_additions_beyond_562_563": 0,
+          "opening_root_overlap_with_562_563": 1024,
+          "overlap_with_562_563": 28445
+        },
+        "kalah_v3_float32": {
+          "additions_beyond_562_563": 24716,
+          "continuation_additions_beyond_562_563": 24716,
+          "continuation_overlap_with_562_563": 27422,
+          "distinct": 53161,
+          "opening_root_additions_beyond_562_563": 0,
+          "opening_root_overlap_with_562_563": 1024,
+          "overlap_with_562_563": 28445
+        }
+      },
+      "failed_or_superseded_attempts_separate": {
+        "docs/data/seed542-update-432-strength-screen-v3/attempt-disposition.json": "e4f58e6d042e2c14e2a8c454685aabc94417ee0b58b08b9437b991d586e400c0"
+      },
+      "final_receipt_sha256": "7612269cbb4fc93aae4b7080bb7eac42787182973ee268d040a807b20651504e",
+      "identity_counts": {
+        "canonical": {
+          "continuation_distinct": 52138,
+          "distinct": 53161,
+          "opening_root_distinct": 1024,
+          "root_continuation_overlap": 1
+        },
+        "kalah_v3_float32": {
+          "continuation_distinct": 52138,
+          "distinct": 53161,
+          "opening_root_distinct": 1024,
+          "root_continuation_overlap": 1
+        },
+        "occurrences": 68287
+      },
+      "name": "seed542-update-432-strength-screen-v3",
+      "replay": {
+        "games": 2048,
+        "pairs": 1024,
+        "recovered_openings": [
+          0,
+          1,
+          2
+        ]
+      },
+      "source": "547"
+    },
+    {
+      "baseline_comparison": {
+        "canonical": {
+          "additions_beyond_562_563": 33210,
+          "continuation_additions_beyond_562_563": 33210,
+          "continuation_overlap_with_562_563": 20782,
+          "distinct": 55015,
+          "opening_root_additions_beyond_562_563": 0,
+          "opening_root_overlap_with_562_563": 1024,
+          "overlap_with_562_563": 21805
+        },
+        "kalah_v3_float32": {
+          "additions_beyond_562_563": 33210,
+          "continuation_additions_beyond_562_563": 33210,
+          "continuation_overlap_with_562_563": 20782,
+          "distinct": 55015,
+          "opening_root_additions_beyond_562_563": 0,
+          "opening_root_overlap_with_562_563": 1024,
+          "overlap_with_562_563": 21805
+        }
+      },
+      "failed_or_superseded_attempts_separate": {
+        "docs/data/seed551-controlled-policy-strength-screen/verification-failure-0001.json": "732ec73ef27acc294596066106c1422d8ff772b65f20d31bb360f7b826bd2957"
+      },
+      "final_receipt_sha256": "c0ae73dc1a64b573dd669af34e075eefbb1d247bb21c5df58138419d68835b5d",
+      "identity_counts": {
+        "canonical": {
+          "continuation_distinct": 53992,
+          "distinct": 55015,
+          "opening_root_distinct": 1024,
+          "root_continuation_overlap": 1
+        },
+        "kalah_v3_float32": {
+          "continuation_distinct": 53992,
+          "distinct": 55015,
+          "opening_root_distinct": 1024,
+          "root_continuation_overlap": 1
+        },
+        "occurrences": 68631
+      },
+      "name": "seed551-controlled-policy-strength-screen",
+      "replay": {
+        "games": 2048,
+        "pairs": 1024,
+        "recovered_openings": [
+          1
+        ]
+      },
+      "source": "551"
+    },
+    {
+      "baseline_comparison": {
+        "canonical": {
+          "additions_beyond_562_563": 19032,
+          "continuation_additions_beyond_562_563": 19032,
+          "continuation_overlap_with_562_563": 31103,
+          "distinct": 51158,
+          "opening_root_additions_beyond_562_563": 0,
+          "opening_root_overlap_with_562_563": 1024,
+          "overlap_with_562_563": 32126
+        },
+        "kalah_v3_float32": {
+          "additions_beyond_562_563": 19032,
+          "continuation_additions_beyond_562_563": 19032,
+          "continuation_overlap_with_562_563": 31103,
+          "distinct": 51158,
+          "opening_root_additions_beyond_562_563": 0,
+          "opening_root_overlap_with_562_563": 1024,
+          "overlap_with_562_563": 32126
+        }
+      },
+      "failed_or_superseded_attempts_separate": {
+        "docs/data/seed552-c108-serving-p-preparation-attempt-0001/PREPARATION-FAILURE.json": "1355b04a8edf5b511db7a6ab70fad9d7e968081c2c28c6f492b4ba52281ea598",
+        "docs/data/seed552-c108-serving-p-preparation-attempt-0002/PREPARATION-FAILURE.json": "57bfacdb6f202caa71322104e3cf1f10a3b8a4cf4413d9b8879f185a78ef9e98",
+        "docs/data/seed552-c108-serving-p-preparation-attempt-0003/PREPARATION-FAILURE.json": "769227c017a4e4b05cb1a31d0d2294577d0ece84ad028f2873fc984b61d9bdb3",
+        "docs/data/seed552-c108-serving-p-preparation-attempt-0004/PREPARATION-FAILURE.json": "51e0440a20c7317ff23a668ba5dce0d76385b7b19e7a0e85add9a255b9468386",
+        "docs/data/seed552-c108-serving-p-preparation-attempt-0005/PREPARATION-FAILURE.json": "1e1f6b38f4af76643c24da8d5f34424d067ee4e89f2ecb14d135eaf3b3b688f4",
+        "docs/data/seed552-c108-serving-p-preparation-attempt-0006/PREPARATION-FAILURE.json": "de5760c3cda234f1bc507022e6ec83c2b7768e369cd8a1c1b79ec17946bf5b73",
+        "docs/data/seed552-c108-serving-p-preparation-attempt-0007/PREPARATION-FAILURE.json": "60a0c696f6a71e72b3832ece3d351a243fc06d1999dd1f4208c9f2a34ff42698",
+        "docs/data/seed552-c108-serving-p-preparation-attempt-0008/PREPARATION-FAILURE.json": "f65deee16c5602a74afa7c346eddd46c80c965169180d975aac8e410aafd8c7f",
+        "docs/data/seed552-c108-serving-p-preparation-attempt-0009/PREPARATION-FAILURE.json": "7dca44bbabf9a5ee3426f7289283c241be767a95dc781d9425780172ba699dde"
+      },
+      "final_receipt_sha256": "e538490a04eafac5d34df0ccc479e7a44828117ad01e8bfc8654395cec168c3d",
+      "identity_counts": {
+        "canonical": {
+          "continuation_distinct": 50135,
+          "distinct": 51158,
+          "opening_root_distinct": 1024,
+          "root_continuation_overlap": 1
+        },
+        "kalah_v3_float32": {
+          "continuation_distinct": 50135,
+          "distinct": 51158,
+          "opening_root_distinct": 1024,
+          "root_continuation_overlap": 1
+        },
+        "occurrences": 68100
+      },
+      "name": "seed552-c108-serving-p",
+      "replay": {
+        "games": 2048,
+        "pairs": 1024,
+        "recovered_openings": []
+      },
+      "source": "552"
+    },
+    {
+      "baseline_comparison": {
+        "canonical": {
+          "additions_beyond_562_563": 19352,
+          "continuation_additions_beyond_562_563": 19352,
+          "continuation_overlap_with_562_563": 29271,
+          "distinct": 49646,
+          "opening_root_additions_beyond_562_563": 0,
+          "opening_root_overlap_with_562_563": 1024,
+          "overlap_with_562_563": 30294
+        },
+        "kalah_v3_float32": {
+          "additions_beyond_562_563": 19352,
+          "continuation_additions_beyond_562_563": 19352,
+          "continuation_overlap_with_562_563": 29271,
+          "distinct": 49646,
+          "opening_root_additions_beyond_562_563": 0,
+          "opening_root_overlap_with_562_563": 1024,
+          "overlap_with_562_563": 30294
+        }
+      },
+      "failed_or_superseded_attempts_separate": {},
+      "final_receipt_sha256": "a12b3284acb72ab817e27e79a265097da3873e7570c93fdbcd3a47810028dc37",
+      "identity_counts": {
+        "canonical": {
+          "continuation_distinct": 48623,
+          "distinct": 49646,
+          "opening_root_distinct": 1024,
+          "root_continuation_overlap": 1
+        },
+        "kalah_v3_float32": {
+          "continuation_distinct": 48623,
+          "distinct": 49646,
+          "opening_root_distinct": 1024,
+          "root_continuation_overlap": 1
+        },
+        "occurrences": 68957
+      },
+      "name": "seed555-policy-strength-screen",
+      "replay": {
+        "games": 2048,
+        "pairs": 1024,
+        "recovered_openings": []
+      },
+      "source": "555"
+    }
+  ]
+}

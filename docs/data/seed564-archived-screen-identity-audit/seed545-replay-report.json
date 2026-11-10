@@ -1,0 +1,40 @@
+{
+  "archive_authenticated": true,
+  "archive_replayed": true,
+  "corrected_publication_verifier_sha256": "7af938402a096fc9c81d747efc99f42a2d58abc8339b40e385710e0d3df43b6c",
+  "different_runtime_cross_check": "supporting_evidence_only",
+  "evidence_bytes_and_mtimes_unchanged": true,
+  "identities": {
+    "canonical": {
+      "continuation_distinct": 49053,
+      "distinct": 50076,
+      "opening_root_distinct": 1024,
+      "root_continuation_overlap": 1
+    },
+    "kalah_v3_float32": {
+      "continuation_distinct": 49053,
+      "distinct": 50076,
+      "opening_root_distinct": 1024,
+      "root_continuation_overlap": 1
+    },
+    "occurrences": 68166
+  },
+  "prelaunch_failure_separate_from_committed_games": {
+    "classification": "pre-game runtime asset contract failure; no committed game",
+    "path": "PRELAUNCH-FAILURE-0000.json",
+    "sha256": "03ed05abe358a823bf5a784e9665389a492772b5081cecb5b42b9d572d9d120c"
+  },
+  "publication_commit": "56c5ae4e24ee73500f4f4ad027974cd186bba1ab",
+  "recorded_runtime_reproduction": "unverified",
+  "recovered_openings_counted_once": [
+    0,
+    1
+  ],
+  "replay": {
+    "games": 2048,
+    "openings": 1024,
+    "pairs": 1024
+  },
+  "schema": "seed564_seed545_replay_report_v1",
+  "tablebase_required": false
+}
