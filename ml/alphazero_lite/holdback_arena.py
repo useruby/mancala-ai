@@ -297,9 +297,12 @@ def rules_generator_spec(
         float32_identity as float32_fn,
     )
     from ml.alphazero_lite.self_play import encode_state
+    from ml.alphazero_lite.input_encodings import feature_count_for
     import numpy as np
 
     rules_path = Path(inspect.getfile(KalahGame))
+    encoder_path = Path(inspect.getfile(encode_state))
+    encoding_contract_path = Path(inspect.getfile(feature_count_for))
     return {
         "name": RULES_GENERATOR,
         "schema": RULES_GENERATOR_SCHEMA,
@@ -314,6 +317,10 @@ def rules_generator_spec(
         "canonical_identity_source_sha256": _source_sha256(canonical_fn),
         "float32_identity_source_sha256": _source_sha256(float32_fn),
         "kalah_v3_encoder_source_sha256": _source_sha256(encode_state),
+        "encoder_implementation_files_sha256": {
+            "self_play.py": sha256(encoder_path.read_bytes()),
+            "input_encodings.py": sha256(encoding_contract_path.read_bytes()),
+        },
     }
 
 

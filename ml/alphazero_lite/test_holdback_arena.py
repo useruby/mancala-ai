@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import gzip
 import hashlib
+import random
 import shutil
 import tempfile
 import unittest
@@ -344,6 +345,38 @@ class HoldbackProtocolTest(unittest.TestCase):
             )
             with self.assertRaisesRegex(ValueError, "suite_bytes_changed"):
                 verify_bundle(bundle, trusted)
+
+    def test_encoder_helper_source_change_rejected_before_regeneration(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            bundle = Path(temporary) / "bundle"
+            trusted = setup_bundle(bundle, consumed=False, rules_only=True, size=3)
+            encoder_path = Path(protocol.inspect.getfile(protocol.KalahGame)).with_name(
+                "self_play.py"
+            )
+            read_bytes = Path.read_bytes
+
+            def changed_encoder_source(path: Path) -> bytes:
+                source = read_bytes(path)
+                if path == encoder_path:
+                    return source + b"\n# synthetic helper-only change\n"
+                return source
+
+            with (
+                patch.object(
+                    Path,
+                    "read_bytes",
+                    autospec=True,
+                    side_effect=changed_encoder_source,
+                ),
+                patch.object(
+                    random,
+                    "Random",
+                    side_effect=AssertionError("regeneration must not run"),
+                ) as random_constructor,
+                self.assertRaisesRegex(ValueError, "rules_generator_spec_invalid"),
+            ):
+                verify_bundle(bundle, trusted)
+            random_constructor.assert_not_called()
 
     def test_duplicate_and_overlap_rejected_by_both_derived_identities(self):
         with self.assertRaisesRegex(ValueError, "duplicate_exclusion_identity"):
