@@ -164,6 +164,13 @@ def _load_rows(path: Path) -> list[dict[str, Any]]:
         raise ArchiveVerificationError(f"invalid_jsonl:{path.name}") from exc
 
 
+def validate_seat_swapped_pair(rows: list[dict[str, Any]]) -> None:
+    """Require exactly one recorded game per challenger seat."""
+    seats = [int(row.get("challenger_player", -1)) for row in rows]
+    if len(seats) != GAMES_PER_OPENING or sorted(seats) != [0, 1]:
+        raise ArchiveVerificationError("seat_swapped_pair_mismatch")
+
+
 def _pin_manifest_path(root: Path) -> Path:
     return root / AUDIT_RELATIVE / "seed545-source-manifest.json"
 
@@ -387,6 +394,7 @@ def replay_source(
         game_rows = _load_rows(archive / f"batches/games-{opening_index:04d}.jsonl")
         if len(game_rows) != GAMES_PER_OPENING:
             raise ArchiveVerificationError(f"pair_game_count_mismatch:{opening_index}")
+        validate_seat_swapped_pair(game_rows)
         report_path = archive / f"batches/report-{opening_index:04d}.json"
         report_sha = sha256_file(report_path)
         report = json.loads(report_path.read_text())
@@ -525,11 +533,19 @@ def identity_indexes(
     return canonical_rows, float_rows, counts
 
 
-def verify(root: Path, out: Path, *, write_manifest: bool = False) -> dict[str, Any]:
+def verify(
+    root: Path,
+    out: Path,
+    *,
+    write_manifest: bool = False,
+    write_indexes: bool = False,
+) -> dict[str, Any]:
     """Public verification operation; source evidence is read-only."""
     root, out = root.resolve(), out.resolve()
     manifest_path = _pin_manifest_path(root)
     if write_manifest:
+        if write_indexes:
+            raise ArchiveVerificationError("manifest_and_index_generation_are_separate")
         manifest = bootstrap_source_manifest(root)
         out.mkdir(parents=True, exist_ok=True)
         (out / manifest_path.name).write_text(
@@ -565,7 +581,6 @@ def verify(root: Path, out: Path, *, write_manifest: bool = False) -> dict[str, 
     unchanged = before == _snapshot(evidence_paths)
     if not unchanged:
         raise ArchiveVerificationError("verifier_changed_evidence_bytes_or_mtimes")
-    out.mkdir(parents=True, exist_ok=True)
     canonical_bytes = "".join(
         json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n"
         for row in canonical_rows
@@ -574,12 +589,6 @@ def verify(root: Path, out: Path, *, write_manifest: bool = False) -> dict[str, 
         json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n"
         for row in float_rows
     ).encode("utf-8")
-    (out / "seed545-canonical-index.jsonl.gz").write_bytes(
-        gzip.compress(canonical_bytes, mtime=0)
-    )
-    (out / "seed545-kalah-v3-float32-index.jsonl.gz").write_bytes(
-        gzip.compress(float_bytes, mtime=0)
-    )
     report = {
         "schema": "seed564_seed545_replay_report_v1",
         "publication_commit": PUBLICATION_COMMIT,
@@ -597,9 +606,22 @@ def verify(root: Path, out: Path, *, write_manifest: bool = False) -> dict[str, 
         "identities": counts,
         "tablebase_required": False,
     }
-    (out / "seed545-replay-report.json").write_text(
-        json.dumps(report, indent=2, sort_keys=True) + "\n"
-    )
+    expected_artifacts = {
+        "seed545-canonical-index.jsonl.gz": gzip.compress(canonical_bytes, mtime=0),
+        "seed545-kalah-v3-float32-index.jsonl.gz": gzip.compress(float_bytes, mtime=0),
+        "seed545-replay-report.json": (
+            json.dumps(report, indent=2, sort_keys=True) + "\n"
+        ).encode("utf-8"),
+    }
+    if write_indexes:
+        out.mkdir(parents=True, exist_ok=True)
+        for filename, contents in expected_artifacts.items():
+            (out / filename).write_bytes(contents)
+    else:
+        for filename, contents in expected_artifacts.items():
+            path = out / filename
+            if not path.is_file() or path.read_bytes() != contents:
+                raise ArchiveVerificationError(f"published_index_mismatch:{filename}")
     return report
 
 
@@ -608,9 +630,15 @@ def main() -> None:
     parser.add_argument("--root", type=Path, default=ROOT)
     parser.add_argument("--out", type=Path, default=ROOT / AUDIT_RELATIVE)
     parser.add_argument("--write-source-manifest", action="store_true")
+    parser.add_argument("--write-indexes", action="store_true")
     args = parser.parse_args()
     try:
-        result = verify(args.root, args.out, write_manifest=args.write_source_manifest)
+        result = verify(
+            args.root,
+            args.out,
+            write_manifest=args.write_source_manifest,
+            write_indexes=args.write_indexes,
+        )
     except (ArchiveVerificationError, OSError, KeyError, TypeError, ValueError) as exc:
         parser.exit(2, f"verification failed: {exc}\n")
     print(json.dumps(result, indent=2, sort_keys=True))

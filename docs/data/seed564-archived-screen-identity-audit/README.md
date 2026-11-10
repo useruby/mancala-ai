@@ -26,6 +26,11 @@ python -m ml.alphazero_lite.archived_screen_identity_seven \
   --out docs/data/seed564-archived-screen-identity-audit
 ```
 
+The default invocation verifies the already-published index/report bytes against
+freshly recomputed output and rejects missing or corrupted artifacts without
+writing them. `--write-indexes` is a separate explicit generation mode; it is
+not the verification path.
+
 Every source authenticated and replayed 1,024 opening pairs / 2,048 games. The
 deterministic indexes contain 481,217 state occurrences across the seven
 sources. Per-source canonical and production `kalah_v3` float32 distinct counts
@@ -63,8 +68,9 @@ The verifier reads the already-recorded absolute moves and the pure Python
 rules engine; it does not import Torch or NumPy and does not access model weights
 or tablebase files. Evidence byte sizes, modification times, and SHA-256 values
 are snapshotted before and after replay and must remain unchanged. A physical
-copy test runs the public CLI with no materialized tablebase and confirms the
-same evidence immutability.
+copy test runs the public CLI from a disposable evidence-only checkout and an
+unrelated working directory, with no materialized tablebase or original runtime
+assets in the copy, and confirms the same evidence immutability.
 
 The #545 and #547 published-verifier runs under `/home/alex/azlite-venv` remain
 supporting cross-checks under a different runtime. Reproduction under the
@@ -78,10 +84,15 @@ Focused tests:
   ml/alphazero_lite/test_archived_screen_identity_inventory.py -q
 ```
 
+The focused suite has 8 passing tests, including rejection of corrupted
+published indexes without repair, duplicate-seat pairs, reversed decisive
+ledger outcomes, and altered archive bytes with a regenerated local receipt.
+
 The verifier imports neither Torch nor NumPy and reads no model weights or
 tablebase. It confirms evidence bytes and modification times are unchanged.
-The physical-copy public-entrypoint test runs with the original worktree and
-runtime assets absent and compares the deterministic index bytes.
+The physical-copy public-entrypoint test runs from an evidence-only fixture,
+does not rename or move the source checkout, and compares deterministic index
+bytes.
 
 Remaining historical evaluation populations outside these seven sources remain
 uncovered, and missing counts are unknown. Seed461 continuations remain

@@ -1040,6 +1040,7 @@
       "key": "511",
       "merge_commit": "193fc4d15cec8bc24a0c33abbcefb2a12ab345e7",
       "name": "seed511-fixed-composition-screen-v4",
+      "outcome_labels": {},
       "outcomes_sha256": "6324ce385df6ee3e824630b84744947e96cda97748caf703cd6ecc60f5ad2cb8",
       "receipt_file_count": 3095,
       "receipt_path": "docs/data/seed511-fixed-composition-screen-v4/publication-receipt.json",
@@ -2088,6 +2089,7 @@
       "key": "512",
       "merge_commit": "320991da30563bde3b8f4993146581f82352d4b7",
       "name": "seed512-fixed-composition-evaluation",
+      "outcome_labels": {},
       "outcomes_sha256": "b3c5679e8523e968f7b0f2e76ae477f677ca1688e5e513e28ea64cf845cf84bb",
       "receipt_file_count": 3084,
       "receipt_path": "docs/data/seed512-fixed-composition-evaluation/publication-receipt.json",
@@ -3142,6 +3144,7 @@
       "key": "545",
       "merge_commit": "56c5ae4e24ee73500f4f4ad027974cd186bba1ab",
       "name": "seed542-expanded-policy-strength-screen",
+      "outcome_labels": {},
       "outcomes_sha256": "e3c54882fec44163fe1d8166241883728a491372f7c98021d2faf75c52f15e13",
       "receipt_file_count": 0,
       "receipt_path": "docs/data/seed542-expanded-policy-strength-screen/continuation-registration-v3.json",
@@ -4198,6 +4201,7 @@
       "key": "547",
       "merge_commit": "b245852f9d6eda84ef2d5c2efbe5fcc14f3b1c9d",
       "name": "seed542-update-432-strength-screen-v3",
+      "outcome_labels": {},
       "outcomes_sha256": "8cb6f4523c9832d6c79a15a363548ad989d9da4c145e3729017c9be29cd3ddaf",
       "receipt_file_count": 0,
       "receipt_path": "docs/data/seed542-update-432-strength-screen-v3/independent-verification.json",
@@ -5253,6 +5257,11 @@
       "key": "551",
       "merge_commit": "ff0805ea6572dcf297a2f13db66abab28ad915e8",
       "name": "seed551-controlled-policy-strength-screen",
+      "outcome_labels": {
+        "challenger": "T",
+        "current": "C",
+        "draw": "draw"
+      },
       "outcomes_sha256": "109874fc29ae3f42303a44bf2335dfaf76fe68fdc04c4fb5d8f105236706b3ba",
       "receipt_file_count": 7209,
       "receipt_path": "docs/data/seed551-controlled-policy-strength-screen/verification-receipt.json",
@@ -6313,6 +6322,11 @@
       "key": "552",
       "merge_commit": "ab1376c00e71627663ce474c1ea46b5b6e55c3e2",
       "name": "seed552-c108-serving-p",
+      "outcome_labels": {
+        "challenger": "C",
+        "current": "P",
+        "draw": "draw"
+      },
       "outcomes_sha256": "6b0e2bb6fcfaea4e81b1b5261ac72fbe6406ab878cc08d4da01a18c28b206e8a",
       "receipt_file_count": 8,
       "receipt_path": "docs/data/seed552-c108-serving-p/verification-receipt.json",
@@ -7361,6 +7375,11 @@
       "key": "555",
       "merge_commit": "47a7cb39f0733c338daccceab54f8aea614c9464",
       "name": "seed555-policy-strength-screen",
+      "outcome_labels": {
+        "challenger": "T512",
+        "current": "C128",
+        "draw": "draw"
+      },
       "outcomes_sha256": "10a64e24d7901a05c1edf6adf7c32451c281cf3328b73229bfee827f445deb0e",
       "receipt_file_count": 6173,
       "receipt_path": "docs/data/seed555-policy-strength-screen/verification-receipt.json",

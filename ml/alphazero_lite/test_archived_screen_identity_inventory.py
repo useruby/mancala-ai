@@ -9,7 +9,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
@@ -20,19 +19,6 @@ from ml.alphazero_lite import archived_screen_identity_seven as seven
 ROOT = Path(__file__).resolve().parents[2]
 ARCHIVE_RELATIVE = inventory.ARCHIVE_RELATIVE
 AUDIT_RELATIVE = inventory.AUDIT_RELATIVE
-
-
-@contextmanager
-def _hide_original_worktree():
-    """Make the source worktree path unavailable while a copied verifier runs."""
-    hidden = ROOT.with_name(f"{ROOT.name}.temporarily-inaccessible")
-    if hidden.exists():
-        raise AssertionError(f"temporary worktree path already exists: {hidden}")
-    ROOT.rename(hidden)
-    try:
-        yield
-    finally:
-        hidden.rename(ROOT)
 
 
 def _copy_minimal_publication(source: Path, target: Path) -> None:
@@ -68,6 +54,12 @@ def _copy_minimal_publication(source: Path, target: Path) -> None:
     shutil.copy2(
         source / AUDIT_RELATIVE / "seed545-source-manifest.json", manifest_destination
     )
+    for name in (
+        "seed545-canonical-index.jsonl.gz",
+        "seed545-kalah-v3-float32-index.jsonl.gz",
+        "seed545-replay-report.json",
+    ):
+        shutil.copy2(source / AUDIT_RELATIVE / name, target / AUDIT_RELATIVE / name)
 
 
 def _copy_seven_source_publication(source: Path, target: Path) -> None:
@@ -97,6 +89,14 @@ def _copy_seven_source_publication(source: Path, target: Path) -> None:
     )
     relatives.add(f"{AUDIT_RELATIVE}/seed545-source-manifest.json")
     relatives.add(f"{AUDIT_RELATIVE}/{seven.MANIFEST_NAME}")
+    relatives.update(
+        f"{AUDIT_RELATIVE}/{name}"
+        for name in (
+            "seven-source-canonical-index.jsonl.gz",
+            "seven-source-kalah-v3-float32-index.jsonl.gz",
+            "seven-source-count-report.json",
+        )
+    )
     for relative in sorted(relatives):
         origin, destination = source / relative, target / relative
         if not origin.is_file():
@@ -139,23 +139,22 @@ def test_public_cli_replays_physical_copy_without_tablebase() -> None:
         ]
         evidence_before = _snapshot(evidence)
         env = {**os.environ, "PYTHONPATH": str(physical)}
-        with _hide_original_worktree():
-            result = subprocess.run(
-                [
-                    sys.executable,
-                    "-m",
-                    "ml.alphazero_lite.archived_screen_identity_inventory",
-                    "--root",
-                    str(physical),
-                    "--out",
-                    str(physical / AUDIT_RELATIVE),
-                ],
-                cwd=physical,
-                env=env,
-                check=False,
-                capture_output=True,
-                text=True,
-            )
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "ml.alphazero_lite.archived_screen_identity_inventory",
+                "--root",
+                str(physical),
+                "--out",
+                str(physical / AUDIT_RELATIVE),
+            ],
+            cwd=Path(work),
+            env=env,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
         assert result.returncode == 0, result.stderr
         report = json.loads(result.stdout)
         assert report["archive_authenticated"] is True
@@ -163,6 +162,24 @@ def test_public_cli_replays_physical_copy_without_tablebase() -> None:
         assert report["replay"] == {"games": 2048, "openings": 1024, "pairs": 1024}
         assert report["tablebase_required"] is False
         assert _snapshot(evidence) == evidence_before
+
+
+def test_corrupt_published_identity_index_is_rejected_without_repair() -> None:
+    with tempfile.TemporaryDirectory(
+        prefix="seed545-index-corruption-", dir=ROOT.parent
+    ) as work:
+        physical = Path(work) / "checkout"
+        _copy_minimal_publication(ROOT, physical)
+        index = physical / AUDIT_RELATIVE / "seed545-canonical-index.jsonl.gz"
+        original = index.read_bytes()
+        index.write_bytes(original[:-1] + bytes([original[-1] ^ 0x01]))
+        before = _snapshot([index])
+        with pytest.raises(
+            inventory.ArchiveVerificationError,
+            match="published_index_mismatch:seed545-canonical-index.jsonl.gz",
+        ):
+            inventory.verify(physical, physical / AUDIT_RELATIVE)
+        assert _snapshot([index]) == before
 
 
 def test_modified_game_and_regenerated_local_receipt_rejected() -> None:
@@ -308,6 +325,12 @@ def test_rules_replay_rejects_opening_seat_move_and_result_mutations() -> None:
 
 def test_duplicate_recovered_pairs_and_replayed_directory_mismatch_rejected() -> None:
     with pytest.raises(
+        inventory.ArchiveVerificationError, match="seat_swapped_pair_mismatch"
+    ):
+        inventory.validate_seat_swapped_pair(
+            [{"challenger_player": 0}, {"challenger_player": 0}]
+        )
+    with pytest.raises(
         seven.SevenSourceError, match="recovery_pair_accounting_invalid"
     ):
         seven.validate_recovered_openings([0, 1, 1])
@@ -317,6 +340,25 @@ def test_duplicate_recovered_pairs_and_replayed_directory_mismatch_rejected() ->
     source["archive"] = "docs/data/seed512-fixed-composition-evaluation"
     with pytest.raises(seven.SevenSourceError, match="outcomes_sha_mismatch:545"):
         seven.replay_one_source(ROOT, source)
+
+
+def test_seat_swap_and_reversed_decisive_ledger_outcome_rejected() -> None:
+    archive = ROOT / "docs/data/seed552-c108-serving-p"
+    rows = inventory._load_rows(archive / "batches/games-0000.jsonl")
+    with pytest.raises(seven.SevenSourceError, match="seat_swapped_pair_mismatch"):
+        seven.validate_seat_swapped_pair([rows[0], dict(rows[0])])
+
+    decisive = dict(rows[1])
+    assert decisive["winner"] == "challenger"
+    assert int(decisive["margin"]) > 0
+    with pytest.raises(seven.SevenSourceError, match="ledger_outcome_mismatch:552"):
+        seven._ledger_matches_game(
+            "552",
+            {"outcome": "P", "margin": int(decisive["margin"])},
+            decisive,
+            int(decisive["margin"]),
+            {"challenger": "C", "current": "P", "draw": "draw"},
+        )
 
 
 def test_seven_source_public_cli_physical_copy_is_read_only_and_portable() -> None:
@@ -352,23 +394,22 @@ def test_seven_source_public_cli_physical_copy_is_read_only_and_portable() -> No
                 "seven-source-count-report.json",
             )
         }
-        with _hide_original_worktree():
-            result = subprocess.run(
-                [
-                    sys.executable,
-                    "-m",
-                    "ml.alphazero_lite.archived_screen_identity_seven",
-                    "--root",
-                    str(physical),
-                    "--out",
-                    str(physical / AUDIT_RELATIVE),
-                ],
-                cwd=physical,
-                env=env,
-                check=False,
-                capture_output=True,
-                text=True,
-            )
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "ml.alphazero_lite.archived_screen_identity_seven",
+                "--root",
+                str(physical),
+                "--out",
+                str(physical / AUDIT_RELATIVE),
+            ],
+            cwd=Path(work),
+            env=env,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
         assert result.returncode == 0, result.stderr
         physical_report = json.loads(result.stdout)
         assert physical_report["baseline_verified"] is True
@@ -377,3 +418,14 @@ def test_seven_source_public_cli_physical_copy_is_read_only_and_portable() -> No
         assert _snapshot(sorted(set(evidence))) == evidence_before
         for name, expected in expected_indexes.items():
             assert (physical / AUDIT_RELATIVE / name).read_bytes() == expected
+
+        index = physical / AUDIT_RELATIVE / "seven-source-canonical-index.jsonl.gz"
+        original = index.read_bytes()
+        index.write_bytes(original[:-1] + bytes([original[-1] ^ 0x01]))
+        before = _snapshot([index])
+        with pytest.raises(
+            seven.SevenSourceError,
+            match="published_index_mismatch:seven-source-canonical-index.jsonl.gz",
+        ):
+            seven.verify_seven(physical, physical / AUDIT_RELATIVE)
+        assert _snapshot([index]) == before

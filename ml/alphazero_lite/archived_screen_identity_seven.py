@@ -13,7 +13,7 @@ from ml.alphazero_lite import archived_screen_identity_inventory as replay
 ROOT = replay.ROOT
 AUDIT = ROOT / replay.AUDIT_RELATIVE
 MANIFEST_NAME = "seed564-seven-source-manifest.json"
-MANIFEST_SHA256 = "5df74d7b49c75598c0ab57964ebc66913549571fab108b3703ae66a97ff06991"
+MANIFEST_SHA256 = "c5d4c4f1296cea7bd5cd8cf9ef95a01a94fcf611fa0dbc3001283c8038fd9dfd"
 BASELINE_IDENTITIES = 147_146
 BASELINE_INDEX_BINDINGS = {
     "docs/data/seed556-560-exclusion-inventory/source-manifest.json": "ad691da4dc0272c6a37f077f961023443d05295321d54cb7c339c51a9391d5ce",
@@ -42,6 +42,7 @@ SOURCES: tuple[dict[str, Any], ...] = (
         "receipt": "publication-receipt.json",
         "recovered_openings": [],
         "failed_attempts": [],
+        "outcome_labels": {},
     },
     {
         "key": "512",
@@ -60,6 +61,7 @@ SOURCES: tuple[dict[str, Any], ...] = (
         "receipt": "publication-receipt.json",
         "recovered_openings": [],
         "failed_attempts": [],
+        "outcome_labels": {},
     },
     {
         "key": "545",
@@ -84,6 +86,7 @@ SOURCES: tuple[dict[str, Any], ...] = (
         "failed_attempts": [
             "docs/data/seed542-expanded-policy-strength-screen/PRELAUNCH-FAILURE-0000.json"
         ],
+        "outcome_labels": {},
     },
     {
         "key": "547",
@@ -107,6 +110,7 @@ SOURCES: tuple[dict[str, Any], ...] = (
         "failed_attempts": [
             "docs/data/seed542-update-432-strength-screen-v3/attempt-disposition.json"
         ],
+        "outcome_labels": {},
     },
     {
         "key": "551",
@@ -128,6 +132,7 @@ SOURCES: tuple[dict[str, Any], ...] = (
         "failed_attempts": [
             "docs/data/seed551-controlled-policy-strength-screen/verification-failure-0001.json"
         ],
+        "outcome_labels": {"challenger": "T", "current": "C", "draw": "draw"},
     },
     {
         "key": "552",
@@ -156,6 +161,7 @@ SOURCES: tuple[dict[str, Any], ...] = (
             "docs/data/seed552-c108-serving-p-preparation-attempt-0008/PREPARATION-FAILURE.json",
             "docs/data/seed552-c108-serving-p-preparation-attempt-0009/PREPARATION-FAILURE.json",
         ],
+        "outcome_labels": {"challenger": "C", "current": "P", "draw": "draw"},
     },
     {
         "key": "555",
@@ -174,6 +180,11 @@ SOURCES: tuple[dict[str, Any], ...] = (
         "receipt": "verification-receipt.json",
         "recovered_openings": [],
         "failed_attempts": [],
+        "outcome_labels": {
+            "challenger": "T512",
+            "current": "C128",
+            "draw": "draw",
+        },
     },
 )
 
@@ -188,6 +199,13 @@ def validate_recovered_openings(recovered_openings: list[int]) -> None:
         index not in range(1024) for index in recovered_openings
     ):
         raise SevenSourceError("recovery_pair_accounting_invalid")
+
+
+def validate_seat_swapped_pair(rows: list[dict[str, Any]]) -> None:
+    """Require exactly one game for challenger seat 0 and one for seat 1."""
+    seats = [int(row.get("challenger_player", -1)) for row in rows]
+    if len(seats) != 2 or sorted(seats) != [0, 1]:
+        raise SevenSourceError("seat_swapped_pair_mismatch")
 
 
 def _sha(path: Path) -> str:
@@ -253,6 +271,7 @@ def bootstrap_manifest(root: Path = ROOT) -> dict[str, Any]:
                 "outcomes_sha256": ledger_sha,
                 "game_batches": game_batches,
                 "recovered_openings": definition["recovered_openings"],
+                "outcome_labels": definition["outcome_labels"],
                 "failed_or_superseded_attempts": {
                     path: _sha(root / path)
                     for path in definition["failed_attempts"]
@@ -290,7 +309,11 @@ def _winner_label(row: dict[str, Any]) -> str | None:
 
 
 def _ledger_matches_game(
-    source_key: str, ledger: dict[str, Any], row: dict[str, Any], margin: int
+    source_key: str,
+    ledger: dict[str, Any],
+    row: dict[str, Any],
+    margin: int,
+    outcome_labels: dict[str, str],
 ) -> None:
     if "challenger_margin" in ledger and int(ledger["challenger_margin"]) != margin:
         raise SevenSourceError(f"ledger_margin_mismatch:{source_key}")
@@ -308,7 +331,10 @@ def _ledger_matches_game(
             raise SevenSourceError(f"ledger_winner_mismatch:{source_key}")
     if "outcome" in ledger:
         outcome = ledger["outcome"]
-        if (margin == 0 and outcome != "draw") or (margin != 0 and outcome == "draw"):
+        winner_side = (
+            "challenger" if margin > 0 else "current" if margin < 0 else "draw"
+        )
+        if outcome != outcome_labels.get(winner_side):
             raise SevenSourceError(f"ledger_outcome_mismatch:{source_key}")
     raw_winner = _winner_label(row)
     if raw_winner is None:
@@ -472,6 +498,12 @@ def replay_one_source(
             raise SevenSourceError(
                 f"pair_size_mismatch:{source['key']}:{opening_index}"
             )
+        try:
+            validate_seat_swapped_pair(game_rows)
+        except SevenSourceError as exc:
+            raise SevenSourceError(
+                f"pair_seat_swap_invalid:{source['key']}:{opening_index}"
+            ) from exc
         report_path = archive / f"batches/report-{opening_index:04d}.json"
         report_sha = _sha(report_path)
         for position, row in enumerate(game_rows):
@@ -522,7 +554,9 @@ def replay_one_source(
                     f"trajectory_or_association_failure:{source['key']}:{opening_index}:{position}:{exc}"
                 ) from exc
             occurrences.extend(trace)
-            _ledger_matches_game(source["key"], record, row, margin)
+            _ledger_matches_game(
+                source["key"], record, row, margin, source["outcome_labels"]
+            )
     if len(ledger) != 2048:
         raise SevenSourceError(f"unaccounted_ledger_games:{source['key']}")
     recovered = source["recovered_openings"]
@@ -543,12 +577,18 @@ def replay_one_source(
 
 
 def verify_seven(
-    root: Path, output: Path, *, write_manifest: bool = False
+    root: Path,
+    output: Path,
+    *,
+    write_manifest: bool = False,
+    write_indexes: bool = False,
 ) -> dict[str, Any]:
     """Build or execute the public seven-screen verifier and provenance census."""
     root, output = root.resolve(), output.resolve()
     manifest_path = output / MANIFEST_NAME
     if write_manifest:
+        if write_indexes:
+            raise SevenSourceError("manifest_and_index_generation_are_separate")
         manifest = bootstrap_manifest(root)
         output.mkdir(parents=True, exist_ok=True)
         manifest_path.write_text(json.dumps(manifest, sort_keys=True, indent=2) + "\n")
@@ -707,18 +747,27 @@ def verify_seven(
         raise SevenSourceError(
             "baseline_or_source_manifest_changed_during_verification"
         )
-    output.mkdir(parents=True, exist_ok=True)
+    expected_artifacts: dict[str, bytes] = {}
     for name, rows in (("canonical", canonical_rows), ("kalah-v3-float32", float_rows)):
         body = "".join(
             json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n"
             for row in rows
         ).encode()
-        (output / f"seven-source-{name}-index.jsonl.gz").write_bytes(
-            gzip.compress(body, mtime=0)
+        expected_artifacts[f"seven-source-{name}-index.jsonl.gz"] = gzip.compress(
+            body, mtime=0
         )
-    (output / "seven-source-count-report.json").write_text(
+    expected_artifacts["seven-source-count-report.json"] = (
         json.dumps(report, sort_keys=True, indent=2) + "\n"
-    )
+    ).encode("utf-8")
+    if write_indexes:
+        output.mkdir(parents=True, exist_ok=True)
+        for filename, contents in expected_artifacts.items():
+            (output / filename).write_bytes(contents)
+    else:
+        for filename, contents in expected_artifacts.items():
+            path = output / filename
+            if not path.is_file() or path.read_bytes() != contents:
+                raise SevenSourceError(f"published_index_mismatch:{filename}")
     return report
 
 
@@ -727,10 +776,14 @@ def main() -> None:
     parser.add_argument("--root", type=Path, default=ROOT)
     parser.add_argument("--out", type=Path, default=AUDIT)
     parser.add_argument("--write-source-manifest", action="store_true")
+    parser.add_argument("--write-indexes", action="store_true")
     args = parser.parse_args()
     try:
         result = verify_seven(
-            args.root, args.out, write_manifest=args.write_source_manifest
+            args.root,
+            args.out,
+            write_manifest=args.write_source_manifest,
+            write_indexes=args.write_indexes,
         )
     except (
         SevenSourceError,
