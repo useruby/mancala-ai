@@ -1,0 +1,37 @@
+{
+  "counts": {
+    "loader_accepted_corpus": {
+      "canonical_distinct": 11896,
+      "kalah_v3_float32_distinct": 11896,
+      "occurrences": 18281
+    },
+    "raw_development": {
+      "canonical_distinct": 3654,
+      "kalah_v3_float32_distinct": 3654,
+      "occurrences": 4557
+    },
+    "retained_development": {
+      "canonical_distinct": 2615,
+      "kalah_v3_float32_distinct": 2615,
+      "occurrences": 2671
+    },
+    "training": {
+      "canonical_distinct": 9281,
+      "kalah_v3_float32_distinct": 9281,
+      "occurrences": 13724
+    }
+  },
+  "excluded_raw_development": 1886,
+  "retained_development_scored": 2671,
+  "scored_endpoints": [
+    "E1",
+    "E2",
+    "E3",
+    "E4",
+    "initializer"
+  ],
+  "scored_results_sha256": "cf0f9b7ef7a53a1ec1ad620240c0bbbccef0e514269f66f35decf0aec3dcf402",
+  "source": "#503 archived seed500 shards; #504 frozen split",
+  "source_status": "verified",
+  "split_sha256": "080b362d334dcce81bbd04a490900ec78483d6c05ad38c88ebb33fd8b8695d89"
+}

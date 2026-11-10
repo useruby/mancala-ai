@@ -1,0 +1,176 @@
+{
+  "counts": {
+    "seed542_raw_development": {
+      "canonical_distinct": 22897,
+      "kalah_v3_float32_distinct": 22897,
+      "occurrences": 36844
+    },
+    "seed542_retained_development": {
+      "canonical_distinct": 14903,
+      "kalah_v3_float32_distinct": 14903,
+      "occurrences": 15359
+    },
+    "seed542_training": {
+      "canonical_distinct": 55445,
+      "kalah_v3_float32_distinct": 55445,
+      "occurrences": 109504
+    },
+    "seed549_control_raw_development": {
+      "canonical_distinct": 3679,
+      "kalah_v3_float32_distinct": 3679,
+      "occurrences": 4656
+    },
+    "seed549_control_training": {
+      "canonical_distinct": 9891,
+      "kalah_v3_float32_distinct": 9891,
+      "occurrences": 13818
+    },
+    "seed549_retained_shared_development": {
+      "canonical_distinct": 4424,
+      "kalah_v3_float32_distinct": 4424,
+      "occurrences": 4738
+    },
+    "seed549_treatment_raw_development": {
+      "canonical_distinct": 2963,
+      "kalah_v3_float32_distinct": 2963,
+      "occurrences": 4661
+    },
+    "seed549_treatment_training": {
+      "canonical_distinct": 7199,
+      "kalah_v3_float32_distinct": 7199,
+      "occurrences": 13849
+    }
+  },
+  "sources": {
+    "derivative_reuse": {
+      "550": {
+        "binding_path": "docs/data/seed549-controlled-training/registration.json",
+        "binding_sha256": "dc088d45685a1ea5101464e23d5f6bdbd9570b27eb11f44cd5dee16e3bbacadc",
+        "bound_training_state_lists": {
+          "control": {
+            "membership_matches_seed549": true,
+            "occurrences": 13818,
+            "path": "docs/data/seed549-matched-selfplay/control-training-row-identities.jsonl",
+            "sha256": "ae81c08913e93e3c95acb664802808d471c74276a8b1aab01c1eb6c1ccf809e9"
+          },
+          "treatment": {
+            "membership_matches_seed549": true,
+            "occurrences": 13849,
+            "path": "docs/data/seed549-matched-selfplay/treatment-training-row-identities.jsonl",
+            "sha256": "277ddd5446548732171b5bacaebee5a41a46ff263bb4ddb6619188a4b32547bd"
+          }
+        },
+        "membership_added": false,
+        "rows": null
+      },
+      "554": {
+        "binding_path": "docs/data/seed554-fixed-state-teacher-budget/training-input-binding.json",
+        "binding_sha256": "9c5fce89446ec18a83f8d287394e81b288d63b439d781b111cc4faaf0e8f6422",
+        "bound_state_occurrences": 13818,
+        "control_state_membership_reused": true,
+        "input_authentication_sha256": "d778b307824cbf334bc08a7dca1c92e657c40ecc82e2eb4658348f64a4903328",
+        "membership_added": false,
+        "rows": 13818,
+        "verified_derivative_shards": {
+          "control": [
+            {
+              "path": "docs/data/seed554-fixed-state-teacher-budget/control/shard-000.jsonl",
+              "rows": 2365,
+              "sha256": "2d2f885cf9cf0d8257701fe6674bc2a2c05f562512b0c8a700ca5faea38a7206"
+            },
+            {
+              "path": "docs/data/seed554-fixed-state-teacher-budget/control/shard-001.jsonl",
+              "rows": 2312,
+              "sha256": "db2db70d63f89353c652318d08f0598a7cbd74e24ab741989a073149b36d057d"
+            },
+            {
+              "path": "docs/data/seed554-fixed-state-teacher-budget/control/shard-002.jsonl",
+              "rows": 2235,
+              "sha256": "f8ad74e1b2cf90252e6470eeaf2c436153ec6c41f071a6b6e537cc4cb01630e0"
+            },
+            {
+              "path": "docs/data/seed554-fixed-state-teacher-budget/control/shard-003.jsonl",
+              "rows": 2311,
+              "sha256": "9fd70e913293b3b2cbfbdc5589d55b8dca09da62b19535dbcb11ebe68d9e2480"
+            },
+            {
+              "path": "docs/data/seed554-fixed-state-teacher-budget/control/shard-004.jsonl",
+              "rows": 2210,
+              "sha256": "ded720ea1b472a830e8f7cf69268c0c0c69d45526bbf052efd8d16fbfd4f0d60"
+            },
+            {
+              "path": "docs/data/seed554-fixed-state-teacher-budget/control/shard-005.jsonl",
+              "rows": 2385,
+              "sha256": "7661fa1403703abdce09dd17b9b65725ca6cdc63bc4141a5293f938283ad554b"
+            }
+          ],
+          "treatment": [
+            {
+              "path": "docs/data/seed554-fixed-state-teacher-budget/treatment/shard-000.jsonl",
+              "rows": 2365,
+              "sha256": "f0179b7593f96424d8bc950928e14d081395672216783869cca493f66c7463d4"
+            },
+            {
+              "path": "docs/data/seed554-fixed-state-teacher-budget/treatment/shard-001.jsonl",
+              "rows": 2312,
+              "sha256": "9c022cd06ca9692d58e2665f9f764e9ab5e3c5edf74360ec68bf841d31ae5416"
+            },
+            {
+              "path": "docs/data/seed554-fixed-state-teacher-budget/treatment/shard-002.jsonl",
+              "rows": 2235,
+              "sha256": "d1d2462cdda8b2f46cd976c2450a03b5c685e42a80f49bb3893a87a0632930bc"
+            },
+            {
+              "path": "docs/data/seed554-fixed-state-teacher-budget/treatment/shard-003.jsonl",
+              "rows": 2311,
+              "sha256": "098366e1db7debe91b8d1b9976258a9b8b416dd43e126206f19f5026cc1baa7e"
+            },
+            {
+              "path": "docs/data/seed554-fixed-state-teacher-budget/treatment/shard-004.jsonl",
+              "rows": 2210,
+              "sha256": "41a507afd960624192901860d71f6702002833628519a890e4f282013d74b341"
+            },
+            {
+              "path": "docs/data/seed554-fixed-state-teacher-budget/treatment/shard-005.jsonl",
+              "rows": 2385,
+              "sha256": "807711579324e5571a605c68eac3863df3e2cfa4e0511d0ee5fe3b5f6106d8e5"
+            }
+          ]
+        }
+      }
+    },
+    "seed542": {
+      "incomplete_and_unstarted_slots_included": false,
+      "loader_accepted_rows": 146348,
+      "manifest_sha256": "63ffa566b929de4bec6fd445768e5161a53807fc2dcc1b170c8240a28be8f616",
+      "membership_sha256": "feeed97c7666a69603620e4e59575fdf02aa206e9e570cde937aa360bd37505b",
+      "raw_development_occurrences": 36844,
+      "recovered_games": 51,
+      "recovered_rows": 1768,
+      "retained_development_occurrences": 15359,
+      "supplement_games": 13,
+      "supplement_rows": 453,
+      "training_occurrences": 109504,
+      "usable_games": 4096
+    },
+    "seed549": {
+      "control": {
+        "development_identity_manifest_sha256": "e4436e71a7fa345255ac7566501471cd2b4fc039b5f4340fc0da388d66b76b0b",
+        "raw_development_occurrences": 4656,
+        "source_manifest_sha256": "d552f55fc51d2016cd02c779750ed535e62779abf540fd00c26832526b31e3bf",
+        "training_identity_manifest_sha256": "ae81c08913e93e3c95acb664802808d471c74276a8b1aab01c1eb6c1ccf809e9",
+        "training_occurrences": 13818
+      },
+      "raw_development_occurrences": 9317,
+      "retained_shared_development_occurrences": 4738,
+      "shared_membership_sha256": "186146add16819afe6b42a9137d06fcb0188d4b2d58f7ac5db5120ee003472de",
+      "treatment": {
+        "development_identity_manifest_sha256": "790d6a7b8e42acd845f90c520d96b578ab23011c67bd4e05fc660a10b271f81c",
+        "raw_development_occurrences": 4661,
+        "source_manifest_sha256": "19d3d51bfaaab69cfd3cbb5e8dfed22258a668ed690f9bc002d18a9f08f14a39",
+        "training_identity_manifest_sha256": "277ddd5446548732171b5bacaebee5a41a46ff263bb4ddb6619188a4b32547bd",
+        "training_occurrences": 13849
+      }
+    }
+  }
+}
