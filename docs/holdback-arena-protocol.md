@@ -123,7 +123,9 @@ The future production generator must be separately frozen against the audited
 source inventory. A clean known-exclusion screen is readiness for an
 **exclusion-screened comparison only**. Before a later 1,024-opening
 comparison freeze the generator source/version, RNG and attempt limit,
-inventory pin, seed custody procedure, suite digest/order, candidate and
+generator/rules/canonical-identity/float32-identity/`kalah_v3` encoder source
+hashes and Python/NumPy runtime versions, inventory pin, seed custody
+procedure, suite digest/order, candidate and
 serving-P hashes, pair/seat semantics, pair concurrency, per-game worker count,
 CPU/memory/runtime limits, and analysis rule. No real suite is generated or
 revealed by this preparation. **Fresh confirmation readiness: blocked**

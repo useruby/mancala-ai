@@ -11,6 +11,8 @@ import datetime as dt
 import gzip
 import hashlib
 import json
+import inspect
+import platform
 from pathlib import Path
 from typing import Any
 import zlib
@@ -30,6 +32,7 @@ INITIAL_STATE = {
 }
 RULES_GENERATOR = "rules_only_uniform_prefix_v1"
 RULES_ATTEMPT_LIMIT = 20_000
+RULES_GENERATOR_SCHEMA = "rules_only_uniform_prefix_v1"
 
 INVENTORY_REFERENCE_SCHEMA = "seed561_holdback_inventory_reference_v1"
 INVENTORY_MANIFEST_SCHEMA = "seed561_historical_exclusion_inventory_v1"
@@ -267,15 +270,56 @@ def suite_bytes(suite: list[dict[str, Any]]) -> bytes:
 def commitment(
     suite: bytes, generator: dict[str, Any], inventory: dict[str, Any]
 ) -> str:
+    public_generator = public_generator_spec(generator)
     return sha256(
         canonical_bytes(
             {
                 "suite_sha256": sha256(suite),
-                "generator": generator,
+                "generator": public_generator,
                 "exclusion_inventory": inventory,
             }
         )
     )
+
+
+def _source_sha256(function: Any) -> str:
+    return sha256(inspect.getsource(function).encode())
+
+
+def rules_generator_spec(
+    size: int, attempt_limit: int = RULES_ATTEMPT_LIMIT
+) -> dict[str, Any]:
+    """Return the public, seed-free generator identity bound into commitments."""
+    if size <= 0 or attempt_limit != RULES_ATTEMPT_LIMIT:
+        raise ValueError("rules_generator_parameters_invalid")
+    from ml.alphazero_lite.seed482_fresh_confirmation import (
+        canonical_identity as canonical_fn,
+        float32_identity as float32_fn,
+    )
+    from ml.alphazero_lite.self_play import encode_state
+    import numpy as np
+
+    rules_path = Path(inspect.getfile(KalahGame))
+    return {
+        "name": RULES_GENERATOR,
+        "schema": RULES_GENERATOR_SCHEMA,
+        "size": size,
+        "attempt_limit": attempt_limit,
+        "rng": "python.random.Random/MT19937",
+        "python_runtime": platform.python_version(),
+        "numpy_runtime": np.__version__,
+        "initial_state_sha256": sha256(canonical_bytes(INITIAL_STATE)),
+        "generator_source_sha256": _source_sha256(build_rules_only_suite),
+        "rules_source_sha256": sha256(rules_path.read_bytes()),
+        "canonical_identity_source_sha256": _source_sha256(canonical_fn),
+        "float32_identity_source_sha256": _source_sha256(float32_fn),
+        "kalah_v3_encoder_source_sha256": _source_sha256(encode_state),
+    }
+
+
+def public_generator_spec(generator: dict[str, Any]) -> dict[str, Any]:
+    """Remove only the revealed seed, preserving the exact committed spec."""
+    return {key: value for key, value in generator.items() if key != "seed"}
 
 
 def public_commitment_record(
@@ -284,6 +328,13 @@ def public_commitment_record(
     """Create the seed-free public commitment payload for a sealed suite."""
     if "seed" in generator:
         raise ValueError("public_generator_must_not_expose_seed")
+    size = generator.get("size")
+    attempt_limit = generator.get("attempt_limit")
+    if not isinstance(size, int) or not isinstance(attempt_limit, int):
+        raise ValueError("public_generator_spec_invalid")
+    expected_generator = rules_generator_spec(size, attempt_limit)
+    if generator != expected_generator:
+        raise ValueError("public_generator_spec_invalid")
     bound = {
         "suite_sha256": suite_digest,
         "generator": generator,
@@ -362,17 +413,24 @@ def verify(
     )
     generator = manifest["generator"]
     if generator.get("name") == RULES_GENERATOR:
-        required = {"name", "seed", "size", "attempt_limit", "rng"}
+        seed = generator.get("seed")
+        size = generator.get("size")
+        attempt_limit = generator.get("attempt_limit")
         if (
-            set(generator) != required
-            or generator["attempt_limit"] != RULES_ATTEMPT_LIMIT
+            not isinstance(seed, int)
+            or isinstance(seed, bool)
+            or not isinstance(size, int)
+            or isinstance(size, bool)
+            or not isinstance(attempt_limit, int)
+            or isinstance(attempt_limit, bool)
         ):
             raise ValueError("rules_generator_spec_invalid")
-        if generator["rng"] != "python.random.Random/MT19937":
-            raise ValueError("rules_generator_rng_invalid")
+        expected_spec = rules_generator_spec(size, attempt_limit)
+        if public_generator_spec(generator) != expected_spec:
+            raise ValueError("rules_generator_spec_invalid")
         rebuilt = build_rules_only_suite(
             excluded,
-            generator["seed"],
+            seed,
             generator["size"],
             attempt_limit=generator["attempt_limit"],
         )

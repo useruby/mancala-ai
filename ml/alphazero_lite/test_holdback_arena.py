@@ -42,11 +42,16 @@ def setup_bundle(
     pool: list[dict] | None = None,
     inventory_rows: list[dict] | None = None,
     size: int = 4,
+    rules_only: bool = False,
 ) -> dict[str, str]:
     path.mkdir()
     pool = pool or [row(i) for i in range(10)]
     inventory_rows = inventory_rows or [row(99)]
-    generator = {"name": "synthetic-rules-only-v1", "seed": 17, "size": size}
+    generator = (
+        {**protocol.rules_generator_spec(size), "seed": 17}
+        if rules_only
+        else {"name": "synthetic-rules-only-v1", "seed": 17, "size": size}
+    )
     index_bindings = {}
     identity_sets = {"canonical": set(), "float32": set()}
     for scheme, filename, position in (
@@ -97,21 +102,39 @@ def setup_bundle(
     excluded = protocol.load_pinned_identity_indexes(
         path, inventory_doc, trusted_inventory_manifest
     )
-    suite = protocol.build_suite(pool, excluded, 17, size)
+    suite = (
+        protocol.build_rules_only_suite(excluded, 17, size)
+        if rules_only
+        else protocol.build_suite(pool, excluded, 17, size)
+    )
     suite_raw = write_rows(path / "suite.jsonl", suite)
     inv_raw = protocol.canonical_bytes(inventory_doc)
     (path / "inventory.json").write_bytes(inv_raw)
-    pool_raw = write_rows(path / "pool.jsonl", pool)
-    generator["pool_sha256"] = protocol.sha256(pool_raw)
-    commitment = protocol.commitment(suite_raw, generator, inventory_doc)
+    if rules_only:
+        public_record = protocol.public_commitment_record(
+            protocol.sha256(suite_raw),
+            protocol.public_generator_spec(generator),
+            inventory_doc,
+        )
+        commitment = public_record["commitment"]
+    else:
+        pool_raw = write_rows(path / "pool.jsonl", pool)
+        generator["pool_sha256"] = protocol.sha256(pool_raw)
+        commitment = protocol.commitment(suite_raw, generator, inventory_doc)
     (path / "manifest.json").write_text(
         json.dumps(
             {
                 "suite_sha256": protocol.sha256(suite_raw),
                 "inventory_path": "inventory.json",
                 "inventory_sha256": protocol.sha256(inv_raw),
-                "pool_path": "pool.jsonl",
-                "pool_sha256": protocol.sha256(pool_raw),
+                **(
+                    {}
+                    if rules_only
+                    else {
+                        "pool_path": "pool.jsonl",
+                        "pool_sha256": protocol.sha256(pool_raw),
+                    }
+                ),
                 "generator": generator,
                 "commitment": commitment,
             }
@@ -134,7 +157,7 @@ def setup_bundle(
                 "commitment": commitment,
                 "suite_sha256": protocol.sha256(suite_raw),
                 "seed": 17,
-                "pool_sha256": protocol.sha256(pool_raw),
+                **({} if rules_only else {"pool_sha256": protocol.sha256(pool_raw)}),
             },
         ),
     ):
@@ -236,16 +259,21 @@ class HoldbackProtocolTest(unittest.TestCase):
             protocol.build_rules_only_suite(empty, 1, 1, attempt_limit=0)
 
     def test_seed_free_commitment_binds_suite_generator_and_inventory(self):
-        generator = {
-            "name": protocol.RULES_GENERATOR,
-            "size": 1024,
-            "rng": "python.random.Random/MT19937",
-            "attempt_limit": 20_000,
-        }
+        generator = protocol.rules_generator_spec(1024)
         inventory = {"manifest_sha256": "a" * 64, "schema": "inventory-v1"}
-        record = protocol.public_commitment_record("b" * 64, generator, inventory)
+        synthetic_suite = b"synthetic suite bytes"
+        suite_digest = protocol.sha256(synthetic_suite)
+        record = protocol.public_commitment_record(suite_digest, generator, inventory)
         protocol.verify_public_commitment_record(record)
         self.assertNotIn("seed", record["generator"])
+        self.assertEqual(
+            record["commitment"],
+            protocol.commitment(
+                synthetic_suite,
+                {**generator, "seed": 123},
+                inventory,
+            ),
+        )
         changed = dict(record, suite_sha256="c" * 64)
         with self.assertRaisesRegex(ValueError, "public_commitment_record_mismatch"):
             protocol.verify_public_commitment_record(changed)
@@ -277,7 +305,8 @@ class HoldbackProtocolTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             source = root / "source"
-            trusted = setup_bundle(source, consumed=False)
+            trusted = setup_bundle(source, consumed=True, rules_only=True, size=3)
+            self.assertFalse((source / "pool.jsonl").exists())
             copied = root / "copy"
             shutil.copytree(source, copied)
             shutil.rmtree(source)
@@ -287,14 +316,34 @@ class HoldbackProtocolTest(unittest.TestCase):
                 if item.is_file()
             }
             result = verify_bundle(copied, trusted)
-            self.assertEqual(result["openings"], 4)
-            self.assertTrue(result["held_back_eligible"])
+            self.assertEqual(result["openings"], 3)
+            self.assertTrue(result["consumed"])
+            self.assertFalse(result["held_back_eligible"])
             after = {
                 item.relative_to(copied): (item.read_bytes(), item.stat().st_mtime_ns)
                 for item in copied.rglob("*")
                 if item.is_file()
             }
             self.assertEqual(before, after)
+
+    def test_rules_only_reveal_rejects_changed_seed_and_order(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            bundle = Path(temporary) / "bundle"
+            trusted = setup_bundle(bundle, consumed=False, rules_only=True, size=3)
+            manifest_path = bundle / "manifest.json"
+            original = json.loads(manifest_path.read_text())
+            changed = dict(original)
+            changed["generator"] = {**original["generator"], "seed": 18}
+            manifest_path.write_text(json.dumps(changed))
+            with self.assertRaisesRegex(ValueError, "suite_rebuild_mismatch"):
+                verify_bundle(bundle, trusted)
+            manifest_path.write_text(json.dumps(original))
+            suite_path = bundle / "suite.jsonl"
+            suite_path.write_bytes(
+                b"".join(reversed(suite_path.read_bytes().splitlines(keepends=True)))
+            )
+            with self.assertRaisesRegex(ValueError, "suite_bytes_changed"):
+                verify_bundle(bundle, trusted)
 
     def test_duplicate_and_overlap_rejected_by_both_derived_identities(self):
         with self.assertRaisesRegex(ValueError, "duplicate_exclusion_identity"):
