@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import gzip
 import json
 import os
 import shutil
@@ -123,6 +124,12 @@ def test_public_cli_replays_physical_copy_without_tablebase() -> None:
         physical = Path(work) / "checkout"
         _copy_minimal_publication(ROOT, physical)
         assert not (physical / ".tmp/seed542-screen-runtime/kalah_v1_21.kvtb").exists()
+        published_index = physical / AUDIT_RELATIVE / "seed545-canonical-index.jsonl.gz"
+        expected_jsonl = gzip.decompress(published_index.read_bytes())
+        equivalent_gzip = gzip.compress(expected_jsonl, compresslevel=1, mtime=1)
+        assert equivalent_gzip != published_index.read_bytes()
+        published_index.write_bytes(equivalent_gzip)
+        published_index_before = _snapshot([published_index])
         archive = physical / ARCHIVE_RELATIVE
         manifest = json.loads(
             (physical / AUDIT_RELATIVE / "seed545-source-manifest.json").read_text()
@@ -162,6 +169,8 @@ def test_public_cli_replays_physical_copy_without_tablebase() -> None:
         assert report["replay"] == {"games": 2048, "openings": 1024, "pairs": 1024}
         assert report["tablebase_required"] is False
         assert _snapshot(evidence) == evidence_before
+        assert _snapshot([published_index]) == published_index_before
+        assert gzip.decompress(published_index.read_bytes()) == expected_jsonl
 
 
 def test_corrupt_published_identity_index_is_rejected_without_repair() -> None:
@@ -172,7 +181,7 @@ def test_corrupt_published_identity_index_is_rejected_without_repair() -> None:
         _copy_minimal_publication(ROOT, physical)
         index = physical / AUDIT_RELATIVE / "seed545-canonical-index.jsonl.gz"
         original = index.read_bytes()
-        index.write_bytes(original[:-1] + bytes([original[-1] ^ 0x01]))
+        index.write_bytes(gzip.compress(gzip.decompress(original) + b" ", mtime=2))
         before = _snapshot([index])
         with pytest.raises(
             inventory.ArchiveVerificationError,
@@ -394,6 +403,14 @@ def test_seven_source_public_cli_physical_copy_is_read_only_and_portable() -> No
                 "seven-source-count-report.json",
             )
         }
+        index = physical / AUDIT_RELATIVE / "seven-source-canonical-index.jsonl.gz"
+        expected_canonical_jsonl = gzip.decompress(index.read_bytes())
+        equivalent_gzip = gzip.compress(
+            expected_canonical_jsonl, compresslevel=1, mtime=1
+        )
+        assert equivalent_gzip != index.read_bytes()
+        index.write_bytes(equivalent_gzip)
+        compressed_index_before = _snapshot([index])
         result = subprocess.run(
             [
                 sys.executable,
@@ -416,12 +433,18 @@ def test_seven_source_public_cli_physical_copy_is_read_only_and_portable() -> No
         assert len(physical_report["sources"]) == 7
         assert physical_report["fresh_confirmation_gate_483"] == "closed"
         assert _snapshot(sorted(set(evidence))) == evidence_before
+        assert _snapshot([index]) == compressed_index_before
         for name, expected in expected_indexes.items():
-            assert (physical / AUDIT_RELATIVE / name).read_bytes() == expected
+            actual = (physical / AUDIT_RELATIVE / name).read_bytes()
+            if name.endswith(".gz"):
+                assert gzip.decompress(actual) == gzip.decompress(expected)
+            else:
+                assert actual == expected
 
-        index = physical / AUDIT_RELATIVE / "seven-source-canonical-index.jsonl.gz"
-        original = index.read_bytes()
-        index.write_bytes(original[:-1] + bytes([original[-1] ^ 0x01]))
+        original_jsonl = gzip.decompress(index.read_bytes())
+        index.write_bytes(
+            gzip.compress(original_jsonl + b" ", compresslevel=1, mtime=2)
+        )
         before = _snapshot([index])
         with pytest.raises(
             seven.SevenSourceError,

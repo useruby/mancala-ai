@@ -26,10 +26,11 @@ python -m ml.alphazero_lite.archived_screen_identity_seven \
   --out docs/data/seed564-archived-screen-identity-audit
 ```
 
-The default invocation verifies the already-published index/report bytes against
-freshly recomputed output and rejects missing or corrupted artifacts without
-writing them. `--write-indexes` is a separate explicit generation mode; it is
-not the verification path.
+The default invocation verifies the published index JSONL content against
+freshly recomputed canonical JSONL and compares the report bytes. Equivalent
+gzip encodings are accepted; changed JSONL is rejected without repair or write.
+`--write-indexes` is a separate explicit generation mode; it is not the
+verification path.
 
 Every source authenticated and replayed 1,024 opening pairs / 2,048 games. The
 deterministic indexes contain 481,217 state occurrences across the seven
@@ -84,8 +85,8 @@ Focused tests:
   ml/alphazero_lite/test_archived_screen_identity_inventory.py -q
 ```
 
-The focused suite has 8 passing tests, including rejection of corrupted
-published indexes without repair, duplicate-seat pairs, reversed decisive
+The focused suite has 8 passing tests, including equivalent-gzip acceptance,
+changed-JSONL rejection without repair, duplicate-seat pairs, reversed decisive
 ledger outcomes, and altered archive bytes with a regenerated local receipt.
 
 The verifier imports neither Torch nor NumPy and reads no model weights or

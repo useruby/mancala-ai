@@ -606,22 +606,32 @@ def verify(
         "identities": counts,
         "tablebase_required": False,
     }
-    expected_artifacts = {
-        "seed545-canonical-index.jsonl.gz": gzip.compress(canonical_bytes, mtime=0),
-        "seed545-kalah-v3-float32-index.jsonl.gz": gzip.compress(float_bytes, mtime=0),
-        "seed545-replay-report.json": (
-            json.dumps(report, indent=2, sort_keys=True) + "\n"
-        ).encode("utf-8"),
+    expected_indexes = {
+        "seed545-canonical-index.jsonl.gz": canonical_bytes,
+        "seed545-kalah-v3-float32-index.jsonl.gz": float_bytes,
     }
+    expected_report = (json.dumps(report, indent=2, sort_keys=True) + "\n").encode(
+        "utf-8"
+    )
     if write_indexes:
         out.mkdir(parents=True, exist_ok=True)
-        for filename, contents in expected_artifacts.items():
-            (out / filename).write_bytes(contents)
+        for filename, contents in expected_indexes.items():
+            (out / filename).write_bytes(gzip.compress(contents, mtime=0))
+        (out / "seed545-replay-report.json").write_bytes(expected_report)
     else:
-        for filename, contents in expected_artifacts.items():
+        for filename, contents in expected_indexes.items():
             path = out / filename
-            if not path.is_file() or path.read_bytes() != contents:
+            try:
+                actual_jsonl = gzip.decompress(path.read_bytes())
+            except (OSError, EOFError):
+                actual_jsonl = b""
+            if actual_jsonl != contents:
                 raise ArchiveVerificationError(f"published_index_mismatch:{filename}")
+        report_path = out / "seed545-replay-report.json"
+        if not report_path.is_file() or report_path.read_bytes() != expected_report:
+            raise ArchiveVerificationError(
+                "published_index_mismatch:seed545-replay-report.json"
+            )
     return report
 
 

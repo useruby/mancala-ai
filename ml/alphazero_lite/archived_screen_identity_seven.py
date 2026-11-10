@@ -747,27 +747,35 @@ def verify_seven(
         raise SevenSourceError(
             "baseline_or_source_manifest_changed_during_verification"
         )
-    expected_artifacts: dict[str, bytes] = {}
+    expected_indexes: dict[str, bytes] = {}
     for name, rows in (("canonical", canonical_rows), ("kalah-v3-float32", float_rows)):
         body = "".join(
             json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n"
             for row in rows
         ).encode()
-        expected_artifacts[f"seven-source-{name}-index.jsonl.gz"] = gzip.compress(
-            body, mtime=0
-        )
-    expected_artifacts["seven-source-count-report.json"] = (
-        json.dumps(report, sort_keys=True, indent=2) + "\n"
-    ).encode("utf-8")
+        expected_indexes[f"seven-source-{name}-index.jsonl.gz"] = body
+    expected_report = (json.dumps(report, sort_keys=True, indent=2) + "\n").encode(
+        "utf-8"
+    )
     if write_indexes:
         output.mkdir(parents=True, exist_ok=True)
-        for filename, contents in expected_artifacts.items():
-            (output / filename).write_bytes(contents)
+        for filename, contents in expected_indexes.items():
+            (output / filename).write_bytes(gzip.compress(contents, mtime=0))
+        (output / "seven-source-count-report.json").write_bytes(expected_report)
     else:
-        for filename, contents in expected_artifacts.items():
+        for filename, contents in expected_indexes.items():
             path = output / filename
-            if not path.is_file() or path.read_bytes() != contents:
+            try:
+                actual_jsonl = gzip.decompress(path.read_bytes())
+            except (OSError, EOFError):
+                actual_jsonl = b""
+            if actual_jsonl != contents:
                 raise SevenSourceError(f"published_index_mismatch:{filename}")
+        report_path = output / "seven-source-count-report.json"
+        if not report_path.is_file() or report_path.read_bytes() != expected_report:
+            raise SevenSourceError(
+                "published_index_mismatch:seven-source-count-report.json"
+            )
     return report
 
 
