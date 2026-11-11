@@ -50,20 +50,44 @@ def _sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def _json(path: Path) -> Any:
-    return json.loads(_bytes(path))
+TRAINING_PATH = "docs/data/seed557-retrospective-diagnostic/cohort.json"
+QUALIFICATION_PATH = (
+    "docs/data/seed559-fixed-position-feasibility/run-0003/cohort-manifest.json"
+)
+ORACLE_PATH = (
+    "docs/data/seed559-fixed-position-feasibility/run-0003/oracle-records.jsonl"
+)
 
 
-def _jsonl(path: Path) -> list[dict[str, Any]]:
-    return [json.loads(line) for line in _bytes(path).splitlines() if line]
-
-
-def authenticate_sources(root: Path = ROOT) -> dict[str, str]:
-    """Require the exact frozen source artifacts, including correction records."""
-    actual = {name: _sha(_bytes(root / name)) for name in SOURCE_SHA256}
+def _authenticated_source_bytes(root: Path) -> dict[str, bytes]:
+    """Read once, authenticate those exact bytes, and return them for parsing."""
+    contents = {name: _bytes(root / name) for name in SOURCE_SHA256}
+    actual = {name: _sha(data) for name, data in contents.items()}
     if actual != SOURCE_SHA256:
         raise ValueError("source_binding_mismatch")
-    return actual
+    return contents
+
+
+def _parse_inputs(
+    contents: dict[str, bytes],
+) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
+    training = json.loads(contents[TRAINING_PATH])
+    qualification = json.loads(contents[QUALIFICATION_PATH])["states"]
+    oracle = [json.loads(line) for line in contents[ORACLE_PATH].splitlines() if line]
+    return training, qualification, oracle
+
+
+def _check_source_counts(
+    training: dict[str, Any],
+    qualification: list[dict[str, Any]],
+    oracle: list[dict[str, Any]],
+) -> None:
+    if (
+        len(training["states"]) != 256
+        or len(qualification) != 512
+        or len(oracle) != 512
+    ):
+        raise ValueError("source_population_count_mismatch")
 
 
 def build(
@@ -171,32 +195,32 @@ def build(
 
 def verify(
     bundle: dict[str, Any],
-    training: dict[str, Any],
-    qualification: list[dict[str, Any]],
-    oracle: list[dict[str, Any]],
     *,
     root: Path = ROOT,
-) -> None:
-    authenticate_sources(root)
+) -> dict[str, Any]:
+    contents = _authenticated_source_bytes(root)
+    training, qualification, oracle = _parse_inputs(contents)
+    _check_source_counts(training, qualification, oracle)
     expected = build(training, qualification, oracle)
     if bundle != expected:
         raise ValueError("membership_mismatch_or_tampering")
+    return expected
 
 
 def verify_package(root: Path, membership_path: Path) -> dict[str, Any]:
-    authenticate_sources(root)
-    training = _json(root / "docs/data/seed557-retrospective-diagnostic/cohort.json")
-    qual = root / "docs/data/seed559-fixed-position-feasibility/run-0003"
-    qualification = _json(qual / "cohort-manifest.json")["states"]
-    oracle = _jsonl(qual / "oracle-records.jsonl")
-    if (
-        len(training["states"]) != 256
-        or len(qualification) != 512
-        or len(oracle) != 512
-    ):
-        raise ValueError("source_population_count_mismatch")
+    bundle = json.loads(_bytes(membership_path))
+    return verify(bundle, root=root)
+
+
+def publish_membership(root: Path, destination: Path) -> dict[str, Any]:
+    """Publish authenticated membership without replacing an existing file."""
+    contents = _authenticated_source_bytes(root)
+    training, qualification, oracle = _parse_inputs(contents)
+    _check_source_counts(training, qualification, oracle)
     bundle = build(training, qualification, oracle)
-    verify(_json(membership_path), training, qualification, oracle, root=root)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    with destination.open("x", encoding="utf-8") as stream:
+        stream.write(json.dumps(bundle, indent=2, sort_keys=True) + "\n")
     return bundle
 
 
@@ -215,21 +239,7 @@ def main() -> None:
         / "docs/data/seed570-policy-prior-distillation/qualification-membership.json"
     )
     if args.publish:
-        authenticate_sources(args.evidence_root)
-        training = _json(
-            args.evidence_root
-            / "docs/data/seed557-retrospective-diagnostic/cohort.json"
-        )
-        qual = (
-            args.evidence_root / "docs/data/seed559-fixed-position-feasibility/run-0003"
-        )
-        bundle = build(
-            training,
-            _json(qual / "cohort-manifest.json")["states"],
-            _jsonl(qual / "oracle-records.jsonl"),
-        )
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_text(json.dumps(bundle, indent=2, sort_keys=True) + "\n")
+        bundle = publish_membership(args.evidence_root, destination)
     else:
         if not destination.is_file():
             raise FileNotFoundError(f"membership package not found: {destination}")

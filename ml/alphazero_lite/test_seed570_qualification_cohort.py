@@ -1,11 +1,24 @@
 """Regression checks for deterministic qualification cohort filtering."""
 
 from copy import deepcopy
+import json
+import os
+from pathlib import Path
+import shutil
 from unittest.mock import Mock, patch
 
 import pytest
 
-from ml.alphazero_lite.seed570_qualification_cohort import build, verify
+from ml.alphazero_lite.seed570_qualification_cohort import (
+    ORACLE_PATH,
+    QUALIFICATION_PATH,
+    ROOT,
+    SOURCE_SHA256,
+    TRAINING_PATH,
+    build,
+    publish_membership,
+    verify,
+)
 
 
 def fixture() -> tuple[dict, list[dict], list[dict]]:
@@ -60,7 +73,6 @@ def test_shared_opening_is_rejected() -> None:
     ids = patched_ids({1: "t", 2: "a", 3: "b"}, {1: "tf", 2: "af", 3: "bf"})
     with ids[0], ids[1], ids[2], mocked_rules():
         result = build(training, qualification, oracle)
-        verify(result, training, qualification, oracle)
     assert result["rejections"]["shared_opening"] == 1
     assert [row["opening_index"] for row in result["roots"]] == [2]
 
@@ -77,7 +89,6 @@ def test_collision_in_either_identity_scheme_excludes_root(scheme: str) -> None:
     patches = patched_ids(canonical, float32)
     with patches[0], patches[1], patches[2], mocked_rules():
         result = build(training, qualification, oracle)
-        verify(result, training, qualification, oracle)
     assert result["rejections"][f"{scheme}_collision"] == 1
 
 
@@ -92,15 +103,56 @@ def test_incomplete_oracle_coverage_is_rejected() -> None:
         mocked_rules(),
         pytest.raises(ValueError, match="incomplete_oracle"),
     ):
-        verify({}, training, qualification, oracle)
+        build(training, qualification, oracle)
 
 
 def test_tampered_membership_is_rejected() -> None:
-    training, qualification, oracle = fixture()
-    patches = patched_ids({1: "t", 2: "a", 3: "b"}, {1: "tf", 2: "af", 3: "bf"})
-    with patches[0], patches[1], patches[2], mocked_rules():
-        bundle = build(training, qualification, oracle)
-        altered = deepcopy(bundle)
-        altered["roots"][0]["opening_index"] = 999
-        with pytest.raises(ValueError, match="membership_mismatch"):
-            verify(altered, training, qualification, oracle)
+    membership_path = (
+        ROOT
+        / "docs/data/seed570-policy-prior-distillation/qualification-membership.json"
+    )
+    altered = deepcopy(json.loads(membership_path.read_bytes()))
+    altered["roots"][0]["opening_index"] = 999
+    with pytest.raises(ValueError, match="membership_mismatch"):
+        verify(altered)
+
+
+def test_public_verifier_rejects_matching_membership_from_tampered_source(
+    tmp_path: Path,
+) -> None:
+    for relative_path in SOURCE_SHA256:
+        source = ROOT / relative_path
+        target = tmp_path / relative_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+
+    training_path = tmp_path / TRAINING_PATH
+    training = json.loads(training_path.read_bytes())
+    training["source_tamper_marker"] = True
+    training_path.write_text(json.dumps(training), encoding="utf-8")
+    qualification = json.loads((tmp_path / QUALIFICATION_PATH).read_bytes())["states"]
+    oracle = [
+        json.loads(line)
+        for line in (tmp_path / ORACLE_PATH).read_bytes().splitlines()
+        if line
+    ]
+    matching_bundle = build(training, qualification, oracle)
+
+    with pytest.raises(ValueError, match="source_binding_mismatch"):
+        verify(matching_bundle, root=tmp_path)
+
+
+def test_publisher_preserves_existing_destination_bytes_and_mtime(
+    tmp_path: Path,
+) -> None:
+    destination = tmp_path / "qualification-membership.json"
+    original_bytes = b"existing frozen membership\n"
+    destination.write_bytes(original_bytes)
+    original_mtime_ns = 1_700_000_000_123_456_789
+    os.utime(destination, ns=(original_mtime_ns, original_mtime_ns))
+
+    with pytest.raises(FileExistsError):
+        publish_membership(ROOT, destination)
+
+    assert destination.read_bytes() == original_bytes
+    assert destination.stat().st_mtime_ns == original_mtime_ns
