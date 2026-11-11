@@ -120,9 +120,14 @@ python -m ml.alphazero_lite.holdback_operator freeze \
   --root . \
   --freeze-json ./freeze.json
 
+# Retain the printed commitment and freeze_checkpoint_sha256 in an
+# independently controlled operator record before authorizing reveal.
+
 python -m ml.alphazero_lite.holdback_operator reveal \
   --custody "$HOME/.local/share/mancala-holdback/seal-01" \
   --root . \
+  --trusted-commitment-sha256 <independently-retained-commitment> \
+  --trusted-freeze-checkpoint-sha256 <independently-retained-freeze-checkpoint> \
   --bundle ./revealed-holdback-bundle
 
 # After the suite has been used, permanently mark it consumed.
@@ -160,8 +165,12 @@ runtime/source binding, or inventory mismatch blocks initialization. Explicit
 seed injection is available only through the `--synthetic-fixture` test path.
 The commitment and candidate-freeze events are independently appended and
 anchored at their actual operation times; reveal checks their order, saved
-anchor, and the exact already-published public commitment before staging a
-portable bundle. Consumption uses a durable pending transaction so restart
+anchor, the exact already-published public commitment, and caller-supplied
+commitment/freeze-checkpoint digests retained outside the custody directory
+before staging a portable bundle. Do not obtain those reveal trust values from
+the mutable custody bundle. A reveal retry verifies an already-recorded reveal
+event and publishes the same staged bundle without appending another event.
+Consumption uses a durable pending transaction so restart
 replays the exact event, anchor, and registry bytes rather than appending a
 second consumption event.
 

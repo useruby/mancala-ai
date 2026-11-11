@@ -178,12 +178,18 @@ def test_freeze_gates_reveal_and_consumption_blocks_reuse(tmp_path):
         synthetic=True,
     )
     public_path = tmp_path / "public.json"
-    operator.resume_seal(custody, repo, public_path)
+    sealed = operator.resume_seal(custody, repo, public_path)
     bundle = tmp_path / "revealed"
     with pytest.raises(
         ValueError, match="published_commitment_and_independent_freeze_required"
     ):
-        operator.reveal_seal(custody, bundle, root=repo)
+        operator.reveal_seal(
+            custody,
+            bundle,
+            root=repo,
+            trusted_commitment_sha256=sealed["commitment"],
+            trusted_freeze_checkpoint_sha256="0" * 64,
+        )
     freeze = {
         "candidate_artifact_sha256": "a" * 64,
         "serving_p_artifact_sha256": "b" * 64,
@@ -195,8 +201,33 @@ def test_freeze_gates_reveal_and_consumption_blocks_reuse(tmp_path):
         },
         "analysis_rule": "synthetic paired mean",
     }
-    operator.freeze_comparison(custody, freeze, root=repo)
-    trusted = operator.reveal_seal(custody, bundle, root=repo)
+    frozen = operator.freeze_comparison(custody, freeze, root=repo)
+    with pytest.raises(RuntimeError, match="simulated reveal interruption"):
+        operator.reveal_seal(
+            custody,
+            bundle,
+            root=repo,
+            trusted_commitment_sha256=sealed["commitment"],
+            trusted_freeze_checkpoint_sha256=frozen["freeze_checkpoint_sha256"],
+            interruption=lambda stage: (
+                (_ for _ in ()).throw(RuntimeError("simulated reveal interruption"))
+                if stage == "after_reveal_event_before_bundle_publish"
+                else None
+            ),
+        )
+    assert not bundle.exists()
+    reveals = [
+        json.loads(line)
+        for line in (custody / "custodian-lifecycle.jsonl").read_bytes().splitlines()
+    ]
+    assert [event["kind"] for event in reveals].count("reveal") == 1
+    trusted = operator.reveal_seal(
+        custody,
+        bundle,
+        root=repo,
+        trusted_commitment_sha256=sealed["commitment"],
+        trusted_freeze_checkpoint_sha256=frozen["freeze_checkpoint_sha256"],
+    )
     result = protocol.verify(
         bundle,
         trusted["anchor_sha256"],
@@ -275,8 +306,8 @@ def test_rejected_reveal_leaves_no_suite_at_destination(tmp_path):
         synthetic=True,
     )
     public_path = tmp_path / "public.json"
-    operator.resume_seal(custody, repo, public_path)
-    operator.freeze_comparison(
+    sealed = operator.resume_seal(custody, repo, public_path)
+    frozen = operator.freeze_comparison(
         custody,
         {
             "candidate_artifact_sha256": "a" * 64,
@@ -292,9 +323,87 @@ def test_rejected_reveal_leaves_no_suite_at_destination(tmp_path):
     freeze_path.write_bytes(operator._json_bytes(freeze))
     destination = tmp_path / "rejected-reveal"
     with pytest.raises(ValueError, match="freeze_commitment_mismatch"):
-        operator.reveal_seal(custody, destination, root=repo)
+        operator.reveal_seal(
+            custody,
+            destination,
+            root=repo,
+            trusted_commitment_sha256=sealed["commitment"],
+            trusted_freeze_checkpoint_sha256=frozen["freeze_checkpoint_sha256"],
+        )
     assert not destination.exists()
     assert not (destination / "suite.jsonl").exists()
+
+
+def test_rewritten_local_freeze_history_rejected_by_external_checkpoint_pin(
+    tmp_path,
+):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    inventory_root = repo / "inventory"
+    inventory_root.mkdir()
+    reference = make_inventory(inventory_root)
+    reference["manifest_path"] = "inventory/source-manifest.json"
+    custody = tmp_path / "custody"
+    operator.initialize_private_inputs(
+        custody,
+        size=1,
+        inventory_reference=reference,
+        root=repo,
+        seed=213,
+        synthetic=True,
+    )
+    public_path = tmp_path / "commitment.json"
+    sealed = operator.resume_seal(custody, repo, public_path)
+    frozen = operator.freeze_comparison(
+        custody,
+        {
+            "candidate_artifact_sha256": "a" * 64,
+            "serving_p_artifact_sha256": "b" * 64,
+            "arena_settings": {"pairs": 1},
+            "analysis_rule": "original synthetic rule",
+        },
+        root=repo,
+    )
+
+    freeze_path = custody / "comparison-freeze.json"
+    freeze_record = json.loads(freeze_path.read_bytes())
+    freeze_record["freeze"]["analysis_rule"] = "rewritten local rule"
+    freeze_path.write_bytes(operator._json_bytes(freeze_record))
+    original_events = [
+        json.loads(line)
+        for line in (custody / "custodian-lifecycle.jsonl").read_bytes().splitlines()
+    ]
+    rewritten = []
+    previous = "0" * 64
+    for index, event in enumerate(original_events):
+        payload = event["payload"]
+        if index == 1:
+            payload = freeze_record
+        replacement = protocol.lifecycle_event(event["kind"], payload, previous)
+        rewritten.append(replacement)
+        previous = replacement["event_sha256"]
+    event_bytes = protocol.event_log_bytes(rewritten)
+    (custody / "custodian-lifecycle.jsonl").write_bytes(event_bytes)
+    anchor = json.loads((custody / "custodian-anchor.json").read_bytes())
+    anchor["lifecycle_sha256"] = hashlib.sha256(event_bytes).hexdigest()
+    for checkpoint, event in zip(anchor["checkpoints"], rewritten, strict=True):
+        checkpoint["event_sha256"] = event["event_sha256"]
+    anchor_bytes = operator._json_bytes(anchor)
+    (custody / "custodian-anchor.json").write_bytes(anchor_bytes)
+    (custody / "anchor-candidate_freeze.sha256").write_text(
+        hashlib.sha256(anchor_bytes).hexdigest() + "\n"
+    )
+
+    destination = tmp_path / "tampered-history-reveal"
+    with pytest.raises(ValueError, match="trusted_freeze_checkpoint_mismatch"):
+        operator.reveal_seal(
+            custody,
+            destination,
+            root=repo,
+            trusted_commitment_sha256=sealed["commitment"],
+            trusted_freeze_checkpoint_sha256=frozen["freeze_checkpoint_sha256"],
+        )
+    assert not destination.exists()
 
 
 def test_local_freeze_and_private_suite_without_published_commitment_rejected(
@@ -316,8 +425,8 @@ def test_local_freeze_and_private_suite_without_published_commitment_rejected(
         synthetic=True,
     )
     public_path = tmp_path / "commitment.json"
-    operator.resume_seal(custody, repo, public_path)
-    operator.freeze_comparison(
+    sealed = operator.resume_seal(custody, repo, public_path)
+    frozen = operator.freeze_comparison(
         custody,
         {
             "candidate_artifact_sha256": "a" * 64,
@@ -337,5 +446,11 @@ def test_local_freeze_and_private_suite_without_published_commitment_rejected(
     with pytest.raises(
         ValueError, match="published_commitment_and_independent_freeze_required"
     ):
-        operator.reveal_seal(custody, destination, root=repo)
+        operator.reveal_seal(
+            custody,
+            destination,
+            root=repo,
+            trusted_commitment_sha256=sealed["commitment"],
+            trusted_freeze_checkpoint_sha256=frozen["freeze_checkpoint_sha256"],
+        )
     assert not destination.exists()

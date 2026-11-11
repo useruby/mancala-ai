@@ -431,7 +431,7 @@ def resume_seal(
 
 def freeze_comparison(
     custody: Path, freeze: dict[str, Any], root: Path = Path.cwd()
-) -> None:
+) -> dict[str, str]:
     """Persist candidate/serving and comparison bindings before reveal."""
     required = (
         "candidate_artifact_sha256",
@@ -486,16 +486,34 @@ def freeze_comparison(
         json.loads(line) for line in events_path.read_bytes().splitlines() if line
     ]
     if len(events) == 1:
-        _record_private_event(custody, "candidate_freeze", freeze_document)
+        checkpoint_digest = _record_private_event(
+            custody, "candidate_freeze", freeze_document
+        )
     elif not (
         len(events) == 2
         and events[1]["kind"] == "candidate_freeze"
         and events[1]["payload"] == freeze_document
     ):
         raise ValueError("candidate_freeze_lifecycle_conflict")
+    else:
+        checkpoint_digest = events[1]["event_sha256"]
+    anchor_bytes = (custody / "custodian-anchor.json").read_bytes()
+    return {
+        "commitment": commitment,
+        "freeze_checkpoint_sha256": checkpoint_digest,
+        "anchor_sha256": _digest(anchor_bytes),
+    }
 
 
-def reveal_seal(custody: Path, bundle: Path, root: Path = Path.cwd()) -> dict[str, str]:
+def reveal_seal(
+    custody: Path,
+    bundle: Path,
+    root: Path = Path.cwd(),
+    *,
+    trusted_commitment_sha256: str,
+    trusted_freeze_checkpoint_sha256: str,
+    interruption: Callable[[str], None] | None = None,
+) -> dict[str, str]:
     """Verify and stage a reveal, then atomically publish the complete bundle."""
     custody = custody.expanduser().absolute()
     bundle = bundle.expanduser().absolute()
@@ -516,6 +534,8 @@ def reveal_seal(custody: Path, bundle: Path, root: Path = Path.cwd()) -> dict[st
         raise ValueError("public_commitment_not_published_or_changed")
     public_record = json.loads(published.read_bytes())
     protocol.verify_public_commitment_record(public_record)
+    if public_record.get("commitment") != trusted_commitment_sha256:
+        raise ValueError("untrusted_public_commitment")
 
     inputs = _load_inputs(custody)
     _verify_runtime_binding(root, inputs)
@@ -556,8 +576,27 @@ def reveal_seal(custody: Path, bundle: Path, root: Path = Path.cwd()) -> dict[st
     events = [
         json.loads(line) for line in events_path.read_bytes().splitlines() if line
     ]
-    if [event["kind"] for event in events] != ["commitment", "candidate_freeze"]:
+    if [event["kind"] for event in events] not in (
+        ["commitment", "candidate_freeze"],
+        ["commitment", "candidate_freeze", "reveal"],
+    ):
         raise ValueError("commitment_and_freeze_must_be_independently_recorded")
+    anchor = json.loads((custody / "custodian-anchor.json").read_bytes())
+    private_event_bytes = events_path.read_bytes()
+    previous = "0" * 64
+    for event in events:
+        expected = protocol.lifecycle_event(event["kind"], event["payload"], previous)
+        if event != expected:
+            raise ValueError("custodian_lifecycle_chain_invalid")
+        previous = event["event_sha256"]
+    if anchor.get("lifecycle_sha256") != _digest(private_event_bytes) or [
+        item.get("event_sha256") for item in anchor.get("checkpoints", [])
+    ] != [event["event_sha256"] for event in events]:
+        raise ValueError("custodian_lifecycle_anchor_invalid")
+    if events[0]["payload"].get("commitment") != trusted_commitment_sha256:
+        raise ValueError("trusted_commitment_checkpoint_mismatch")
+    if events[1]["event_sha256"] != trusted_freeze_checkpoint_sha256:
+        raise ValueError("trusted_freeze_checkpoint_mismatch")
     if (
         events[0]["payload"].get("commitment") != commitment
         or events[1]["payload"] != freeze_record
@@ -600,6 +639,8 @@ def reveal_seal(custody: Path, bundle: Path, root: Path = Path.cwd()) -> dict[st
         ]
         if len(current_events) == 2:
             _record_private_event(custody, "reveal", reveal_payload)
+            if interruption:
+                interruption("after_reveal_event_before_bundle_publish")
         elif not (
             len(current_events) == 3
             and current_events[2]["kind"] == "reveal"
@@ -762,6 +803,8 @@ def main() -> None:
     reveal.add_argument("--custody", type=Path, required=True)
     reveal.add_argument("--root", type=Path, default=Path.cwd())
     reveal.add_argument("--bundle", type=Path, required=True)
+    reveal.add_argument("--trusted-commitment-sha256", required=True)
+    reveal.add_argument("--trusted-freeze-checkpoint-sha256", required=True)
     consume = subparsers.add_parser("consume")
     consume.add_argument("--bundle", type=Path, required=True)
     args = parser.parse_args()
@@ -794,14 +837,19 @@ def main() -> None:
         if args.command == "resume":
             result = resume_seal(args.custody, args.root, args.public_output)
         elif args.command == "freeze":
-            freeze_comparison(
+            result = freeze_comparison(
                 args.custody,
                 json.loads(args.freeze_json.read_bytes()),
                 root=args.root,
             )
-            result = {"status": "comparison_frozen"}
         elif args.command == "reveal":
-            result = reveal_seal(args.custody, args.bundle, root=args.root)
+            result = reveal_seal(
+                args.custody,
+                args.bundle,
+                root=args.root,
+                trusted_commitment_sha256=args.trusted_commitment_sha256,
+                trusted_freeze_checkpoint_sha256=args.trusted_freeze_checkpoint_sha256,
+            )
         else:
             result = consume_seal(args.bundle)
         print(json.dumps(result, sort_keys=True))
