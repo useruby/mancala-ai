@@ -75,6 +75,143 @@ historical evaluation gaps or the unresolved seed461 continuation population.
 
 ## Freeze, commitment, and reveal
 
+### Public protocol freeze before any seed draw
+
+This section is the public protocol freeze for one future **exclusion-screened
+comparison**. It is distinct from the no-sampling preflight record and binds
+that record by digest. The preflight was run with
+`python -m ml.alphazero_lite.holdback_operator preflight --root .`; its
+seed-free record has SHA-256
+`28879ca7f303db509ccdaf1a1a2eb73cb0fea9dab3d4b929c43b64218f86cd27`.
+This is the record's canonical `preflight_sha256` field. The exact preflight
+JSON bytes written by the command (canonical compact UTF-8 sorted-key JSON,
+one trailing LF) have SHA-256
+`c49e9531d02279312140fd078ff1beb2a871740f5b7346578c02b0978e230e99`.
+The JSON is seed-free and may be published with this protocol. To reproduce
+and check the exact bytes from the repository root with the frozen CPython and
+NumPy runtime, run:
+
+```bash
+python -m ml.alphazero_lite.holdback_operator preflight --root . \
+  --output "$HOME/holdback-preflight-seal-01.json"
+sha256sum "$HOME/holdback-preflight-seal-01.json"
+```
+
+The output file is created exclusively; use a new name if it already exists.
+The expected full-file digest is the value above. The printed pretty JSON is
+not the file representation and must not be used for this byte check.
+It reports `seed_drawn=false`, `openings_sampled=false`, and authenticates the
+#565 inventory manifest
+`946fc52c75fa2e6c0499811fcb97ff773ea00ec6ec9b6d1bfb3ec1c2466a95ad` and both
+identity indexes (534,033 distinct canonical and 534,033 distinct
+`kalah_v3_float32` identities). The bound inventory is the complete
+#565/#561 published known-source inventory, including its #511 pinned source
+list and the #562–#564, #556–#560, and expanded #503/#504, #543, and #549
+populations as detailed in the coverage audit above. No claim is made about
+populations not reconstructed by that inventory.
+
+The no-seed generator/runtime binding recorded by that preflight is:
+
+| Binding | Frozen value |
+| --- | --- |
+| Generator | `rules_only_uniform_prefix_v1`, `build_rules_only_suite`; source SHA-256 `00e238eee7893c8e9cf843f2cbff9c2ecfb36a8be8f785cfec2066919f3e8fb7` |
+| Rules implementation | `kalah_rules.py` whole-file SHA-256 `6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036` |
+| Canonical identity | `canonical_identity` source SHA-256 `1f76439bd6fb9870a964785159e1f847e959aad38e89f29d49c86c6103a03b3c` |
+| Production float32 identity | `float32_identity` source SHA-256 `8d55af9d5ee48c4bec014de8b3bfd7310e1b5a009b510baac9f4eeaaa5ed1a11` |
+| Encoder | `kalah_v3`; `encode_state` source SHA-256 `d8cbfa207eeebc1cdfe4181ddc230499d0915c416d6ef06c032b527308f4e953`; `self_play.py` SHA-256 `76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c`; `input_encodings.py` SHA-256 `0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe` |
+| Identity implementation file | `seed482_fresh_confirmation.py` SHA-256 `81460b8fedd4df15c5614fdb76ce32a7bcd77864782bfe0cc0e07316b1c23952` |
+| Protocol implementation file | `holdback_arena.py` SHA-256 `a05868191ab98ee7de48ef9fe5840caedcff4fea81055cdf3d15458507efcb59` |
+| Runtime | CPython `3.14.7`; NumPy `2.5.3`; RNG `python.random.Random` / MT19937 |
+
+The sampling law is fixed at 1,024 accepted openings, with at most 20,000
+attempts total and no reseeding. Each attempt starts from the standard Kalah
+initial state, draws a legal prefix length uniformly with `randint(4, 12)`,
+then chooses uniformly from ascending legal relative pit indices using the
+single MT19937 stream. Reject terminal/short prefixes and any resulting state
+whose canonical or production-float32 identity occurs in either #565 index or
+an earlier accepted opening. Never select, replace, or discard an opening in
+response to outcomes. Serialize ordered records as compact UTF-8 sorted-key
+JSON with `,`/`:` separators and one LF per row, under
+`arena_player_relative_v2`. The persisted seed is the only recovery seed;
+shortfall is reported without publishing a partial suite and without drawing a
+replacement seed.
+
+The later candidate freeze, before reveal, must bind candidate and serving-P
+artifact SHA-256 values. The arena contract itself is fixed now: 1,024 opening
+pairs (2,048 games), each opening played once with candidate as arena player
+and once with serving P as arena player, with seats swapped. Each side receives
+exactly 128 PUCT simulations per move with `c_puct=1.25`; root policy is
+deterministic, root temperature is zero, and there is no tactical root bias,
+root-prior transform, value transform, or subtree reuse. The shared
+`search_policy.json` configuration is SHA-256
+`b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d`: native
+exact-root routing is enabled at threshold 16 for final-score margin, ties use
+highest legal network prior then lowest move index, and exact-leaf solving is
+disabled. Both artifacts must use this exact policy file; verify its bytes and
+bind its digest into the later candidate freeze. One search worker is used per
+game. Search RNG uses `azlite_eval_seed_v2`, with search seed derived
+independently at each decision from the fixed public `base_seed=0`, suite
+SHA-256, opening index and state hash, challenger seat, game-within-opening,
+ply, canonical current-state hash, acting role, and RNG stream name
+`puct_search`; the contract's canonical JSON, stable-hash, and stable-seed
+functions derive the seed, without reading or reusing the private
+suite-generation seed. The seed-contract source file
+`evaluation_seed_contract.py` is SHA-256
+`be5ed17519f86040cdac2a2380d4dd907015b927c6b80fedc85f7d668b9422c3`.
+Pair-level concurrency is 18 and must not be converted into per-game search
+parallelism. Use the registered #556 resource profile:
+Linux CPU affinity 14–31, CPU quota 1,800%, CPU weight 100, memory maximum
+36,864 MiB, address-space limit 65,536 MiB, nice 19, one Torch thread and one
+Torch inter-op thread, and one thread for BLAS/MKL/NumExpr/OpenMP/OpenBLAS.
+Enforce a 200-ply per-game cap and a 72-hour wall-clock cap for the complete
+2,048-game run. At 200 plies, record the score margin from the two store counts
+at the cap with an explicit `capped_nonterminal` label; do not sweep remaining
+pit seeds into stores or call it a terminal result. Any
+per-game cap or wall-clock cap makes the complete comparison invalid for
+decision-making, even if a descriptive score is reported. Do not replace or
+rerun capped games. Bind observed limits, executable/runtime versions, and
+the full settings into the later execution freeze. Do not adjust concurrency
+or limits during a run.
+
+The sole primary statistic is candidate score minus serving-P score, with win
+= 1, draw = 0.5, loss = 0, averaged within each opening across its two
+seat-swapped games; report the mean paired difference over the 1,024 openings
+and its two-sided 95% Student-t confidence interval using the sample standard
+error across opening-level differences (df=1,023). Report game counts and
+draws; no subgroup, alternate metric, or post-hoc exclusion can replace this
+primary analysis. This screen is descriptive and does not itself qualify fresh
+confirmation, establish superiority, or authorize deployment.
+
+The seed461 continuation overlap remains unresolved, and other historical
+training/development populations remain uncovered with unknown counts. This
+known-exclusion screen cannot establish fresh disjointness: **#483 stays
+closed**. Candidate and serving-P artifact hashes are intentionally absent
+from this public protocol freeze; they must be frozen later, together with the
+corresponding search configuration hashes, before any suite reveal.
+
+After `resume` has verified the private suite and published the seed-free
+commitment, publish a separate seed-free `protocol-seal-receipt.json`. It must
+be canonical compact UTF-8 sorted-key JSON with one trailing LF and exactly
+these identifying fields (values shown symbolically):
+
+```json
+{"preflight_record_sha256":"<SHA-256 of exact preflight JSON bytes>","protocol_path":"docs/holdback-arena-protocol.md","protocol_revision":"<full merged-main commit SHA>","protocol_sha256":"<SHA-256 of exact protocol file bytes at that revision>","schema":"holdback_protocol_seal_receipt_v1","suite_commitment":"<commitment from public commitment record>"}
+```
+
+Compute `protocol_sha256` from the exact file bytes at the merged revision
+(for example, `git show <protocol_revision>:docs/holdback-arena-protocol.md |
+sha256sum`), and set `preflight_record_sha256` to the verified full-file
+preflight digest above. Check `suite_commitment` against the published
+`holdback_public_commitment_v1` record; do not derive it from private files for
+publication. The receipt contains no seed, opening, or suite bytes. Publish it
+beside the public commitment and retain its exact-byte SHA-256 independently
+of private custody. A verifier checks the receipt's protocol revision and file
+digest against merged main, checks the preflight digest against the reproduced
+or published preflight JSON, and checks the commitment against the public
+commitment record before accepting the protocol-to-seal binding. Publishing
+this receipt is required: the seal is not considered publicly frozen under
+this protocol until the receipt is published and all three bindings verify.
+
 ### Operator rehearsal and private seal commands
 
 The custodian CLI is `python -m ml.alphazero_lite.holdback_operator`. Run
