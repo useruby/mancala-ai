@@ -93,6 +93,39 @@ def _digest_list(items: list[Any]) -> str:
     return sha256(payload)
 
 
+def verify_runtime_source_bindings(root: Path, bindings: dict[str, str]) -> None:
+    for relative, expected in bindings.items():
+        path = root / relative
+        if not path.is_file() or sha256(path.read_bytes()) != expected:
+            raise ValueError(f"runtime_source_hash_mismatch:{relative}")
+
+
+def verify_authorization(
+    freeze_bytes: bytes,
+    authorization_bytes: bytes,
+    trusted_authorization_sha256: str,
+) -> dict[str, Any]:
+    if sha256(authorization_bytes) != trusted_authorization_sha256:
+        raise PermissionError("trusted_authorization_hash_mismatch")
+    auth = json.loads(authorization_bytes)
+    if (
+        auth.get("schema") != "seed512-qualification-authorization-v1"
+        or auth.get("status") != "approved_after_review"
+        or auth.get("qualification_authorized") is not True
+        or auth.get("freeze_sha256") != sha256(freeze_bytes)
+        or type(auth.get("reviewed_pull_request")) is not int
+        or auth["reviewed_pull_request"] < 1
+        or not isinstance(auth.get("reviewed_merge_commit"), str)
+        or len(auth["reviewed_merge_commit"]) != 40
+        or any(
+            character not in "0123456789abcdef"
+            for character in auth["reviewed_merge_commit"]
+        )
+    ):
+        raise PermissionError("reviewed_authorization_binding_mismatch")
+    return auth
+
+
 def verify_freeze(root: Path = ROOT) -> dict[str, Any]:
     """Verify every input before any evaluator is constructed or search starts."""
     data = root / "docs/data/seed512-policy-strength-evaluation"
@@ -102,6 +135,9 @@ def verify_freeze(root: Path = ROOT) -> dict[str, Any]:
         raise ValueError("freeze_schema_mismatch")
     if freeze.get("qualification_started") is not False:
         raise ValueError("qualification_already_started")
+    if freeze.get("qualification_authorized") is not False:
+        raise ValueError("freeze_authorization_flag_must_remain_false")
+    verify_runtime_source_bindings(root, freeze["runtime_source_bindings"])
     for relative, expected in freeze["provenance_bindings"].items():
         path = root / relative
         if not path.is_file() or sha256(path.read_bytes()) != expected:
@@ -228,19 +264,29 @@ def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     return [json.loads(line) for line in path.read_text().splitlines() if line]
 
 
-def evaluate(root: Path, out: Path, authorization: Path) -> dict[str, Any]:
+def evaluate(
+    root: Path,
+    out: Path,
+    authorization: Path,
+    trusted_authorization_sha256: str,
+) -> dict[str, Any]:
     """Run only under a separate reviewed authorization; output is create-only."""
+    if out.exists() or out.is_symlink():
+        raise FileExistsError(f"evaluation_output_already_exists:{out}")
+    if not out.parent.is_dir():
+        raise FileNotFoundError(f"evaluation_output_parent_missing:{out.parent}")
     verified = verify_freeze(root)
     freeze = verified["freeze"]
-    if freeze["qualification_authorized"] is not True:
-        raise PermissionError("qualification_not_authorized_by_reviewed_freeze")
     if not authorization.is_file():
         raise PermissionError("post_review_authorization_missing")
-    auth = _json(authorization)
-    if auth.get("freeze_sha256") != sha256(
-        (root / "docs/data/seed512-policy-strength-evaluation/freeze.json").read_bytes()
-    ):
-        raise PermissionError("authorization_freeze_hash_mismatch")
+    freeze_bytes = (
+        root / "docs/data/seed512-policy-strength-evaluation/freeze.json"
+    ).read_bytes()
+    verify_authorization(
+        freeze_bytes,
+        authorization.read_bytes(),
+        trusted_authorization_sha256,
+    )
     torch.set_num_threads(1)
     torch.set_num_interop_threads(1)
 
@@ -289,6 +335,20 @@ def evaluate(root: Path, out: Path, authorization: Path) -> dict[str, Any]:
                 "opening_index": int(item["opening_index"]),
                 "seed": seed,
                 "selected_action": action,
+                "search_witness": {
+                    "selected_action": action,
+                    "legal_moves": [int(move) for move in result["legal_moves"]],
+                    "visit_counts": [int(value) for value in result["visits"]],
+                    "child_stats": [
+                        {
+                            "move": int(item["move"]),
+                            "visits": int(item["visits"]),
+                            "q_value": float(item["q_value"]),
+                        }
+                        for item in result["child_stats"]
+                    ],
+                    "network_priors": [float(value) for value in result["policy"]],
+                },
                 "exact_final_margin": margin,
                 "regret": best - margin,
                 "wdl": (margin > 0) - (margin < 0),
@@ -318,12 +378,24 @@ def main() -> None:
     parser.add_argument("--root", type=Path, default=ROOT)
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--authorization", type=Path)
+    parser.add_argument("--trusted-authorization-sha256")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     if args.execute:
-        if args.authorization is None or args.output is None:
-            parser.error("--execute requires --authorization and --output")
-        evaluate(args.root, args.output, args.authorization)
+        if (
+            args.authorization is None
+            or args.output is None
+            or args.trusted_authorization_sha256 is None
+        ):
+            parser.error(
+                "--execute requires --authorization, --trusted-authorization-sha256, and --output"
+            )
+        evaluate(
+            args.root,
+            args.output,
+            args.authorization,
+            args.trusted_authorization_sha256,
+        )
         return
     checked = verify_freeze(args.root)
     print(

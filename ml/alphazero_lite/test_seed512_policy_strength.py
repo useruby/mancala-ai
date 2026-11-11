@@ -13,6 +13,7 @@ from ml.alphazero_lite import seed512_policy_strength as runner
 from ml.alphazero_lite import verify_seed512_policy_strength as verifier
 from ml.alphazero_lite.arena import ArtifactEvaluator
 from ml.alphazero_lite.kalah_rules import KalahGame
+from ml.alphazero_lite.seed557_retrospective import canonical_hash, search_seed
 
 
 def synthetic_evidence() -> dict:
@@ -43,6 +44,72 @@ def synthetic_evidence() -> dict:
         "pairs": paired,
         "gate": runner.reconstruct_gate(paired),
     }
+
+
+def synthetic_root_payload() -> tuple[dict, dict, dict, dict]:
+    members = {}
+    oracles = {}
+    control = {}
+    treatment = {}
+    expected_search = {"control": {}, "treatment": {}}
+    for index in range(3):
+        key = f"synthetic-{index}"
+        state = {
+            "current_player": 0,
+            "player_pits": [2 + index, 1, 0, 0, 0, 0],
+            "opponent_pits": [1, 2, 0, 0, 0, 0],
+            "player_store": 1,
+            "opponent_store": 1,
+        }
+        members[key] = {
+            "state_hash": key,
+            "state": state,
+            "opening_index": index,
+            "legal_moves": [0, 1],
+        }
+        oracles[key] = {
+            "coverage_complete": True,
+            "legal_moves": [0, 1],
+            "action_margins": {"0": 0, "1": 1},
+        }
+        seed = int(search_seed(canonical_hash(state)))
+        for arm, action in (("control", 0), ("treatment", 1)):
+            q_values = {0: 0.2, 1: 0.1} if action == 0 else {0: 0.1, 1: 0.2}
+            row = {
+                "opening_index": index,
+                "seed": seed,
+                "selected_action": action,
+                "search_witness": {
+                    "selected_action": action,
+                    "legal_moves": [0, 1],
+                    "visit_counts": [64, 64, 0, 0, 0, 0],
+                    "child_stats": [
+                        {"move": move, "visits": 64, "q_value": q_values[move]}
+                        for move in (0, 1)
+                    ],
+                    "network_priors": [0.6, 0.4, 0.0, 0.0, 0.0, 0.0],
+                },
+                "exact_final_margin": action,
+                "regret": 1 - action,
+                "wdl": action,
+                "oracle_wdl": 1,
+            }
+            {"control": control, "treatment": treatment}[arm][key] = row
+            expected_search[arm][key] = copy.deepcopy(row["search_witness"])
+    pairs = {"control": control, "treatment": treatment}
+    payload = {
+        "schema": "seed512-policy-strength-evidence-v1",
+        "pairs": pairs,
+        "gate": runner.reconstruct_gate(pairs),
+    }
+    return payload, members, oracles, expected_search
+
+
+def synthetic_replay(expected_search: dict):
+    def replay(arm, key, _member, _seed):
+        return expected_search[arm][key]
+
+    return replay
 
 
 def test_synthetic_gate_reconstruction_passes_all_three_conditions() -> None:
@@ -90,6 +157,33 @@ def test_mutated_arm_evidence_cannot_reuse_gate() -> None:
         verifier.verify_gate_only(evidence)
 
 
+def test_search_action_mutation_fails_even_with_recomputed_gate() -> None:
+    evidence, members, oracles, expected_search = synthetic_root_payload()
+    changed = evidence["pairs"]["treatment"]["synthetic-0"]
+    changed["selected_action"] = 0
+    changed["search_witness"]["selected_action"] = 0
+    changed["search_witness"]["child_stats"][0]["q_value"] = 0.3
+    changed["search_witness"]["child_stats"][1]["q_value"] = 0.2
+    changed["exact_final_margin"] = 0
+    changed["regret"] = 1
+    changed["wdl"] = 0
+    evidence["gate"] = runner.reconstruct_gate(evidence["pairs"])
+    with pytest.raises(ValueError, match="frozen_search_replay_mismatch"):
+        verifier.verify_paired_payload(
+            evidence, members, oracles, synthetic_replay(expected_search)
+        )
+
+
+def test_fractional_regret_fails_even_with_recomputed_gate() -> None:
+    evidence, members, oracles, expected_search = synthetic_root_payload()
+    evidence["pairs"]["treatment"]["synthetic-0"]["regret"] = 0.25
+    evidence["gate"] = runner.reconstruct_gate(evidence["pairs"])
+    with pytest.raises(ValueError, match="non_integer_evidence:regret"):
+        verifier.verify_paired_payload(
+            evidence, members, oracles, synthetic_replay(expected_search)
+        )
+
+
 def test_altered_artifact_pins_and_membership_are_rejected() -> None:
     with pytest.raises(ValueError, match="artifact_hash_manifest_mismatch"):
         runner.assert_artifact_hashes({"T512/model.npz": "altered"})
@@ -99,11 +193,92 @@ def test_altered_artifact_pins_and_membership_are_rejected() -> None:
         )
 
 
-def test_pre_review_freeze_cannot_start_qualification(tmp_path: Path) -> None:
-    output = tmp_path / "must-not-exist.json"
-    with pytest.raises(PermissionError, match="qualification_not_authorized"):
-        runner.evaluate(runner.ROOT, output, tmp_path / "no-authorization.json")
-    assert not output.exists()
+def test_existing_output_is_rejected_before_evaluator_construction(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    output = tmp_path / "existing.json"
+    output.write_text("preserve this result")
+    constructed = False
+
+    def unexpected_evaluator(*_args, **_kwargs):
+        nonlocal constructed
+        constructed = True
+        raise AssertionError("evaluator must not be constructed")
+
+    monkeypatch.setattr(runner.arena, "ArtifactEvaluator", unexpected_evaluator)
+    with pytest.raises(FileExistsError, match="evaluation_output_already_exists"):
+        runner.evaluate(
+            runner.ROOT,
+            output,
+            tmp_path / "authorization.json",
+            "0" * 64,
+        )
+    assert not constructed
+    assert output.read_text() == "preserve this result"
+
+
+def test_review_authorization_is_separate_and_freeze_bound() -> None:
+    freeze_path = runner.DATA / "freeze.json"
+    freeze_bytes = freeze_path.read_bytes()
+    authorization = {
+        "schema": "seed512-qualification-authorization-v1",
+        "status": "approved_after_review",
+        "qualification_authorized": True,
+        "freeze_sha256": runner.sha256(freeze_bytes),
+        "reviewed_pull_request": 576,
+        "reviewed_merge_commit": "a" * 40,
+    }
+    auth_bytes = json.dumps(authorization, sort_keys=True).encode()
+    assert (
+        runner.verify_authorization(freeze_bytes, auth_bytes, runner.sha256(auth_bytes))
+        == authorization
+    )
+    with pytest.raises(PermissionError, match="trusted_authorization_hash_mismatch"):
+        runner.verify_authorization(freeze_bytes, auth_bytes, "0" * 64)
+    with pytest.raises(
+        PermissionError, match="reviewed_authorization_binding_mismatch"
+    ):
+        runner.verify_authorization(
+            freeze_bytes,
+            json.dumps({**authorization, "freeze_sha256": "0" * 64}).encode(),
+            runner.sha256(
+                json.dumps({**authorization, "freeze_sha256": "0" * 64}).encode()
+            ),
+        )
+    assert freeze_path.read_bytes() == freeze_bytes
+
+
+def test_dependency_tampering_stops_before_evaluator_construction(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    dependency = "ml/alphazero_lite/self_play.py"
+    dependency_path = tmp_path / dependency
+    dependency_path.parent.mkdir(parents=True)
+    expected = (runner.ROOT / dependency).read_bytes()
+    dependency_path.write_bytes(expected + b"# synthetic tampering\n")
+    constructed = False
+
+    def verify_tampered_root(_root: Path):
+        runner.verify_runtime_source_bindings(
+            tmp_path, {dependency: runner.sha256(expected)}
+        )
+        raise AssertionError("altered dependency unexpectedly verified")
+
+    def unexpected_evaluator(*_args, **_kwargs):
+        nonlocal constructed
+        constructed = True
+        raise AssertionError("evaluator must not be constructed")
+
+    monkeypatch.setattr(runner, "verify_freeze", verify_tampered_root)
+    monkeypatch.setattr(runner.arena, "ArtifactEvaluator", unexpected_evaluator)
+    with pytest.raises(ValueError, match="runtime_source_hash_mismatch"):
+        runner.evaluate(
+            tmp_path,
+            tmp_path / "new-result.json",
+            tmp_path / "authorization.json",
+            "0" * 64,
+        )
+    assert not constructed
 
 
 def test_update512_export_parity_on_synthetic_states(tmp_path: Path) -> None:
