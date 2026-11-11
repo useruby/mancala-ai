@@ -1,0 +1,130 @@
+{
+  "schema": "seed512-policy-strength-evaluation-freeze-v1",
+  "provenance_bindings": {
+    "docs/data/seed570-policy-prior-distillation/registration.md": "e10cf8e3b8a0d016e3196baa3ad7448a2b8f3672f722620fd17767e94c098cbe",
+    "docs/data/seed570-policy-prior-distillation/execution-freeze.json": "709c405f1a2bd202a4a1f2543bf18e96c5d86447581f8e4ba7455160e399fe87",
+    "docs/data/seed571-policy-prior-distillation/run-0001/checkpoint-identity.json": "1d72c6f60587cf8d480bbe1e2d40653310c097ce3c8439075b5d065019274a3d",
+    "docs/data/seed559-fixed-position-feasibility/run-0003/execution-freeze.json": "3b1ab386c33534130c7e15df024f21ef75359ccd00d453e4c6aea104c8181927",
+    "docs/data/seed557-retrospective-diagnostic/cohort.json": "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243",
+    "model-artifact/current/search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d"
+  },
+  "runtime_source_bindings": {
+    "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
+    "ml/alphazero_lite/evaluation_seed_contract.py": "be5ed17519f86040cdac2a2380d4dd907015b927c6b80fedc85f7d668b9422c3",
+    "ml/alphazero_lite/seed557_retrospective.py": "78dbc90f3339a41f932fd07594237fd7a90606251db5e0c49b0070b0586cc3f2",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/input_encodings.py": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe",
+    "ml/alphazero_lite/runtime_search_policy.py": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
+    "ml/alphazero_lite/exact_root_decision.py": "c806a7c3c3a8fd7d7be800f59fc568c670889164a46c7acbde8ff92473776905",
+    "ml/alphazero_lite/endgame_tablebase.py": "fe00e7b48277e2f8a5795232f78b25df4d29449b7b5dc819a09771999b2350f5",
+    "ml/alphazero_lite/native_exact_root_tablebase.py": "bf241fa772efd122355b0706fff9035ee40f6cb9ac913fdd829444f359d62f15",
+    "ml/alphazero_lite/search_ablation.py": "6c9a6b9bf85eb4826c1ba33964d5f8675f1402bd6cbd6008a06b6c15d05d4193",
+    "ml/alphazero_lite/root_prior_transforms.py": "05892bb9d8af2e0551b3d45ced7a2c905db771a00283f04430ee6f49017afe0c",
+    "ml/alphazero_lite/policy_prior_localization.py": "33cdcd8082389f5e1eba20856ee55328fd8c39942ccb1b5b0dbbf3c4d63313a5",
+    "ml/alphazero_lite/opening_cache.py": "8ba33240d25c4cad54011b1f2712d0326ad09952c63515a4b794c585de5195ed",
+    "ml/alphazero_lite/shadow_root_q.py": "93563da902a4020a312fa02c175e6115ac98e9a03b0679ea0f6109434aab8b13",
+    "ml/alphazero_lite/report_validation.py": "5d1c02e8b1ac11b1224153769b6d843a046381ef0d64206d33f6b70c30399699",
+    "ml/alphazero_lite/value_transforms.py": "d63bf9772389614cae22e3a599d2151bd0b4f7d1dfbb7f8e5079bb01c6e5a21b",
+    "ml/alphazero_lite/seed570_qualification_cohort.py": "4a37b4ea4d89bc7fe00469d712c3ed4fa2cfe1762f54b8d98ff8edafeaf75a17",
+    "ml/alphazero_lite/seed551_controlled_policy_strength.py": "c589240e2352273e0b86c48c3b37f5fa9737cfc2423255b67d74e7e177f59e63"
+  },
+  "status": "frozen_pending_review",
+  "qualification_authorized": false,
+  "qualification_started": false,
+  "sealed_suite_accessed": false,
+  "serving_changes": false,
+  "issue_483": "closed",
+  "arms": {
+    "control": {
+      "policy_artifact": "runtime-artifacts/P-E4",
+      "policy_model_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "policy_metadata_sha256": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+      "policy_weights_sha256": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+    },
+    "treatment": {
+      "policy_artifact": "runtime-artifacts/T512",
+      "checkpoint_source": "docs/data/seed571-policy-prior-distillation/run-0001/seed571-policy-distillation-update-512.npz",
+      "checkpoint_sha256": "4e16fed2550a64a9413b588f84e8df1eadde7e0b5889b4932cb3783e3cb648e4",
+      "policy_model_sha256": "4e16fed2550a64a9413b588f84e8df1eadde7e0b5889b4932cb3783e3cb648e4",
+      "policy_metadata_sha256": "703957f2b2da2966ec7e7f67975e775fb9daf7407dfd68f50785550bca143c61",
+      "policy_weights_sha256": "171c897e27ec4967d33cd28366f4c0114b25d766455ae41e777c5692fd64e892"
+    },
+    "shared_value": {
+      "artifact": "runtime-artifacts/initializer",
+      "source": "docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts/initializer",
+      "model_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "metadata_sha256": "f3b9a7d665be7b1219b4a3412bf4a499e5bafd525905b50d93deac4e6ad9ccef",
+      "weights_sha256": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+    }
+  },
+  "shared_search_policy": {
+    "source": "model-artifact/current/search_policy.json",
+    "sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "identity_basis": "#568 shared policy contract, independently bound from archived component sidecars"
+  },
+  "cohort": {
+    "source": "docs/data/seed570-policy-prior-distillation/qualification-membership.json",
+    "roots": 423,
+    "membership_sha256": "94e126af6ea88fb99a4230f84e5cf2a20248daa39ea66d25b68730ea0426d668",
+    "training_source": "docs/data/seed557-retrospective-diagnostic/cohort.json",
+    "training_source_sha256": "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243",
+    "exclusion_set_digests": {
+      "opening_indices": "e8960d865d25f8f3934deace76b13ba6902cc2630e0e2222707776e6a9858a91",
+      "canonical_identities": "b252718083e3bac090c30bc0a60eec3e404c56dcb27f2f42146adae6e53a244f",
+      "kalah_v3_float32_identities": "2994d6fa2b17f1873413eb20e077fcf777f3a51248437c424db639172f762a1a"
+    },
+    "oracle_records": "docs/data/seed559-fixed-position-feasibility/run-0003/oracle-records.jsonl",
+    "oracle_records_sha256": "83bec1bb348cbc6d1183112363f27d0612ee204a48d14ee5dbb7530e9b5fb8c2"
+  },
+  "search": {
+    "simulations": 128,
+    "c_puct": 1.25,
+    "workers": 1,
+    "fresh_tree_per_arm_and_root": true,
+    "matched_seed_per_root": true,
+    "seed_derivation": "seed557_retrospective.search_seed(canonical_hash(state))",
+    "options": {
+      "fpu_mode": "zero",
+      "normalize_values": false,
+      "reuse_subtree": false,
+      "root_policy_mode": "deterministic",
+      "root_temperature": 0.0,
+      "tactical_root_bias": 0.0
+    },
+    "exact_leaf_solving": false,
+    "shared_policy_exact_root_threshold": 16,
+    "qualification_root_active_pit_stones": [17, 21],
+    "exact_root_handoff_roots": 0
+  },
+  "gate": {
+    "source": "docs/data/seed570-policy-prior-distillation/registration.md",
+    "primary": "treatment-minus-control exact final-margin regret, paired by root and clustered by opening",
+    "bootstrap_resamples": 20000,
+    "bootstrap_rng": "numpy.random.default_rng(570)",
+    "quantiles": [0.025, 0.975],
+    "quantile_method": "linear",
+    "advance_if": {
+      "mean_regret_improvement_at_least": 0.1,
+      "interval_upper_strictly_below": 0.0,
+      "wdl_downgrade_rate_not_increased": true
+    },
+    "failure_result": "do_not_advance"
+  },
+  "runtime": {
+    "python": "3.12.8",
+    "numpy": "2.2.6",
+    "torch": "2.7.1+cpu",
+    "device": "cpu",
+    "search_workers": 1,
+    "threads": 1
+  },
+  "export_runtime": {
+    "python": "3.12.8",
+    "numpy": "2.2.6",
+    "command": "python ml/alphazero_lite/export_artifact.py --checkpoint docs/data/seed571-policy-prior-distillation/run-0001/seed571-policy-distillation-update-512.npz --out-dir docs/data/seed512-policy-strength-evaluation/runtime-artifacts/T512 --version seed571-update-512 --model-type residual_v3 --rules-version kalah_v1 --input-encoding kalah_v3"
+  },
+  "runner_sha256": "c4bd078a82de4c13d5b83dec73a801a931b0abc79e21f1aee9440ddf0661aa4a",
+  "verifier_sha256": "2fc86968ee39c40896717cdd2e9f3494a2501368590b3bb1fd3b482ad13ef45c",
+  "synthetic_tests_sha256": "9febed137e33fe521fada845d6b340332997e38251fc0be45aebc6da426b6e97"
+}
