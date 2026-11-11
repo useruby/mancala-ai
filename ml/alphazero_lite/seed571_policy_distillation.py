@@ -33,6 +33,7 @@ SOURCES = {
     "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
     "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
     "ml/alphazero_lite/input_encodings.py": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe",
+    "ml/alphazero_lite/seed557_retrospective.py": "78dbc90f3339a41f932fd07594237fd7a90606251db5e0c49b0070b0586cc3f2",
     "docs/data/seed557-retrospective-diagnostic/cohort.json": "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243",
 }
 ARTIFACTS = {
@@ -89,6 +90,7 @@ CONFIG: dict[str, Any] = {
         "dirichlet_noise": False,
     },
     "target": "six-action visit counts divided by total visits; illegal actions zero; unvisited legal actions zero",
+    "search_seed_derivation": "seed557_retrospective.search_seed(canonical_hash(state)); seed helper source is authenticated",
     "model": {
         "type": "residual_v3",
         "input_encoding": "kalah_v3",
@@ -268,6 +270,13 @@ def verify_pretraining_freeze(root: Path = ROOT) -> None:
         (root / "ml/alphazero_lite/seed571_policy_distillation.py").read_bytes()
     ):
         raise ValueError("runner_binding_mismatch")
+    expected_implementation_bindings = {
+        path: digest
+        for path, digest in SOURCES.items()
+        if path.startswith("ml/") and digest != "SELF"
+    }
+    if freeze.get("implementation_bindings") != expected_implementation_bindings:
+        raise ValueError("implementation_binding_mismatch")
     verify_configuration(config_path, freeze.get("configuration", {}).get("sha256", ""))
     if freeze.get("teacher_artifact_hashes") != ARTIFACTS:
         raise ValueError("teacher_artifact_freeze_mismatch")
@@ -394,35 +403,15 @@ def fixed_order(seed: int = 571) -> list[int]:
     return order
 
 
-def train_synthetic_step(
-    model: torch.nn.Module,
-    optimizer: torch.optim.Optimizer,
-    x: torch.Tensor,
-    target: torch.Tensor,
-    legal: torch.Tensor,
-) -> float:
-    optimizer.zero_grad(set_to_none=True)
-    logits = model(x)[0]
-    loss = masked_policy_loss(logits, target, legal)
-    if not torch.isfinite(loss):
-        raise ValueError("nonfinite_loss")
-    loss.backward()
-    torch.nn.utils.clip_grad_norm_(
-        [p for p in model.parameters() if p.requires_grad], 1.0, error_if_nonfinite=True
-    )
-    optimizer.step()
-    return float(loss.detach())
-
-
-def train_targets(
-    target_rows: list[dict[str, Any]], output_dir: Path, *, root: Path = ROOT
-) -> dict[str, Any]:
-    """Run the frozen 512-update policy/trunk recipe on an authenticated corpus."""
+def train_targets(output_dir: Path, *, root: Path = ROOT) -> dict[str, Any]:
+    """Generate teacher targets and train them inside one authorized pathway."""
     verified_bindings = verify_inputs(root)
     verify_pretraining_freeze(root)
     verify_execution_freeze(root)
     if output_dir.exists():
         raise ValueError("checkpoint_output_already_exists")
+    target_rows = generate_targets(output_dir=output_dir, root=root)
+    verified_bindings = verify_inputs(root)
     if len(target_rows) != 256:
         raise ValueError("target_root_count_mismatch")
     cohort = json.loads((root / CONFIG["training_membership"]["path"]).read_bytes())
@@ -569,8 +558,7 @@ def main() -> None:
         parser.error("choose --verify-only or --run")
     if args.output_dir is None:
         parser.error("--output-dir is required with --run")
-    targets = generate_targets(output_dir=args.output_dir)
-    print(json.dumps(train_targets(targets, args.output_dir), sort_keys=True))
+    print(json.dumps(train_targets(args.output_dir), sort_keys=True))
 
 
 if __name__ == "__main__":

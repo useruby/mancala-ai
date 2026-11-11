@@ -16,18 +16,19 @@
   },
   "configuration": {
     "path": "docs/data/seed570-policy-prior-distillation/training-configuration.json",
-    "sha256": "321168efbcac0b3630ac14a656e785daef4b9a6fb98addb7939c7fe587080e92"
+    "sha256": "0941e5d658a65c006f8ccae7b84f13437ebe3476e2c4c61b1fd26733c0882ea8"
   },
   "runner": {
     "path": "ml/alphazero_lite/seed571_policy_distillation.py",
-    "sha256": "9f8c3f71e453271e925234acd3327dd5b8805284e8083892dc0139f4753fd0f0"
+    "sha256": "186f93e674b6aeeb6396c3df59449c174660494e7924b2f315003c1ada660c4c"
   },
   "implementation_bindings": {
     "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
     "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
     "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
     "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
-    "ml/alphazero_lite/input_encodings.py": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe"
+    "ml/alphazero_lite/input_encodings.py": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe",
+    "ml/alphazero_lite/seed557_retrospective.py": "78dbc90f3339a41f932fd07594237fd7a90606251db5e0c49b0070b0586cc3f2"
   },
   "teacher_artifact_root": "docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts",
   "teacher_artifact_hashes": {

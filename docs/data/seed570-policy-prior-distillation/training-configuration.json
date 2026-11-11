@@ -39,6 +39,7 @@
     "dirichlet_noise": false
   },
   "targets": "visit_count / sum(visit_count) over legal actions; illegal and unvisited actions are zero",
+  "search_seed_derivation": "seed557_retrospective.search_seed(canonical_hash(state)); source bytes are hash-bound in the pre-training freeze",
   "model": {
     "type": "residual_v3/kalah_v3",
     "initialization": "serving-P E4 checkpoint",

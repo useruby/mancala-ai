@@ -118,7 +118,11 @@ def test_training_step_changes_only_policy_and_trunk_parameters():
     targets = torch.tensor(
         [[0.25, 0.75, 0, 0, 0, 0], [0, 0, 0.5, 0, 0.5, 0]], dtype=torch.float32
     )
-    protocol.train_synthetic_step(model, optimizer, x, targets, legal)
+    optimizer.zero_grad(set_to_none=True)
+    logits, _ = model(x)
+    loss = protocol.masked_policy_loss(logits, targets, legal)
+    loss.backward()
+    optimizer.step()
     params = dict(model.named_parameters())
     assert all(torch.equal(params[name], value) for name, value in frozen.items())
     assert all(
@@ -138,6 +142,31 @@ def test_changed_configuration_is_rejected(tmp_path):
     frozen_digest = hashlib.sha256(b'{"updates": 512}').hexdigest()
     with pytest.raises(ValueError, match="configuration_binding_mismatch"):
         protocol.verify_configuration(config, frozen_digest)
+
+
+def test_changed_seed_derivation_source_blocks_search_construction(
+    tmp_path, monkeypatch
+):
+    source = "ml/alphazero_lite/seed557_retrospective.py"
+    path = tmp_path / source
+    path.parent.mkdir(parents=True)
+    path.write_text("def search_seed(_state_hash): return 7\n")
+    expected = protocol.SOURCES[source]
+    monkeypatch.setattr(protocol, "SOURCES", {source: expected})
+    monkeypatch.setattr(protocol, "ARTIFACTS", {})
+    constructed = False
+
+    class FakePUCT:
+        def __init__(self, *_args, **_kwargs):
+            nonlocal constructed
+            constructed = True
+
+    monkeypatch.setattr(protocol.self_play, "PUCT", FakePUCT)
+    with pytest.raises(ValueError, match="input_binding_mismatch"):
+        protocol.generate_targets(root=tmp_path, output_dir=tmp_path / "run")
+
+    assert not constructed
+    assert not (tmp_path / "run").exists()
 
 
 def test_target_generation_handles_both_players_and_keeps_relative_slots(
@@ -198,7 +227,7 @@ def test_missing_execution_freeze_blocks_target_and_training_entrypoints(
     with pytest.raises(ValueError, match="execution_freeze_missing"):
         protocol.generate_targets(root=tmp_path, output_dir=output_dir)
     with pytest.raises(ValueError, match="execution_freeze_missing"):
-        protocol.train_targets([], output_dir, root=tmp_path)
+        protocol.train_targets(output_dir, root=tmp_path)
 
     assert not searched
     assert not trained
@@ -298,3 +327,30 @@ def test_artifact_load_paths_use_the_authenticated_evidence_root(tmp_path, monke
         tmp_path / relative_root / "P-E4",
         tmp_path / relative_root / "P-E4/model.npz",
     ]
+
+
+def test_train_entrypoint_cannot_accept_substituted_teacher_visits(
+    tmp_path, monkeypatch
+):
+    optimizer_constructed = False
+    search_constructed = False
+
+    def fake_adam(*_args, **_kwargs):
+        nonlocal optimizer_constructed
+        optimizer_constructed = True
+        raise AssertionError("optimizer was constructed")
+
+    class FakePUCT:
+        def __init__(self, *_args, **_kwargs):
+            nonlocal search_constructed
+            search_constructed = True
+
+    monkeypatch.setattr(protocol.torch.optim, "Adam", fake_adam)
+    monkeypatch.setattr(protocol.self_play, "PUCT", FakePUCT)
+    substituted = [{"state_hash": "synthetic", "visits": [128, 0, 0, 0, 0, 0]}]
+    with pytest.raises(TypeError, match="unexpected keyword argument 'target_rows'"):
+        protocol.train_targets(tmp_path / "run", root=tmp_path, target_rows=substituted)
+
+    assert not optimizer_constructed
+    assert not search_constructed
+    assert not (tmp_path / "run").exists()

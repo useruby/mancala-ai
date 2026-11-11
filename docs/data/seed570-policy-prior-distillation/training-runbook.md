@@ -30,18 +30,21 @@ Run `python -m pytest ml/alphazero_lite/test_seed571_policy_distillation.py`.
 The fixtures exercise the target-generation path with synthetic roots for both
 players to move, pre-operation authorization/integrity rejection, existing
 output rejection, legal-mask visit targets, authenticated artifact-root
-propagation, and isolation of trainable trunk/policy parameters from frozen
-value parameters. PUCT is stubbed in the target-generation fixture; no real
-searches or training inputs are used.
+propagation, frozen seed-helper binding, and rejection of caller-supplied
+targets at the training API. They also check isolation of trainable trunk/policy
+parameters from frozen value parameters. PUCT is stubbed in the
+target-generation fixture; no real searches or training inputs are used.
 
 ## Later run procedure
 
 The preparation runner is intentionally fail-closed for real runs. A later
 execution PR must bind the finalized runner and this configuration's exact bytes
 in a new immutable pre-training execution freeze, confirm the pinned runtime,
-and change the freeze status to `authorized-for-pretraining`. Do not edit a
-frozen runner/config in place. After that separate freeze has been reviewed, run
-from the repository root with a new, nonexistent output directory:
+and change the freeze status to `authorized-for-pretraining`. Training accepts
+only a new output directory and generates teacher targets internally; it has no
+caller-supplied-targets argument. Do not edit a frozen runner/config in place.
+After that separate freeze has been reviewed, run from the repository root with
+a new, nonexistent output directory:
 
 ```bash
 PYTHONHASHSEED=571 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
