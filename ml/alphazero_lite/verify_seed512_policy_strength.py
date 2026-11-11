@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import math
 from collections.abc import Callable
@@ -13,7 +12,10 @@ from typing import Any
 from ml.alphazero_lite.seed512_policy_strength import (
     ARTIFACT_HASHES,
     ROOT,
+    configure_evaluation_runtime,
     reconstruct_gate,
+    sha256,
+    verify_authorization,
     verify_freeze,
 )
 from ml.alphazero_lite import arena
@@ -210,17 +212,30 @@ def verify_paired_payload(
     return normalized, observed_gate
 
 
-def verify_evidence(root: Path, evidence: dict[str, Any]) -> dict[str, Any]:
+def verify_evidence(
+    root: Path,
+    evidence: dict[str, Any],
+    authorization: Path | None,
+    trusted_authorization_sha256: str | None,
+) -> dict[str, Any]:
     frozen = verify_freeze(root)
+    if authorization is None or not authorization.is_file():
+        raise PermissionError("post_review_authorization_missing")
+    if trusted_authorization_sha256 is None:
+        raise PermissionError("trusted_authorization_digest_missing")
+    freeze_bytes = (
+        root / "docs/data/seed512-policy-strength-evaluation/freeze.json"
+    ).read_bytes()
+    authorization_bytes = authorization.read_bytes()
+    verify_authorization(
+        freeze_bytes, authorization_bytes, trusted_authorization_sha256
+    )
+    authorization_sha256 = sha256(authorization_bytes)
     if evidence.get("schema") != "seed512-policy-strength-evidence-v1":
         raise ValueError("evidence_schema_mismatch")
     if (
-        evidence.get("freeze_sha256")
-        != hashlib.sha256(
-            (
-                root / "docs/data/seed512-policy-strength-evaluation/freeze.json"
-            ).read_bytes()
-        ).hexdigest()
+        evidence.get("freeze_sha256") != sha256(freeze_bytes)
+        or evidence.get("authorization_sha256") != authorization_sha256
         or evidence.get("membership_sha256")
         != frozen["freeze"]["cohort"]["membership_sha256"]
         or evidence.get("artifact_hashes") != ARTIFACT_HASHES
@@ -241,6 +256,7 @@ def verify_evidence(root: Path, evidence: dict[str, Any]) -> dict[str, Any]:
     artifact_root = (
         root / "docs/data/seed512-policy-strength-evaluation/runtime-artifacts"
     )
+    configure_evaluation_runtime()
     evaluators = {
         name: arena.ArtifactEvaluator(artifact_root / name)
         for name in ("P-E4", "T512", "initializer")
@@ -309,8 +325,15 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("evidence", type=Path)
     parser.add_argument("--root", type=Path, default=ROOT)
+    parser.add_argument("--authorization", type=Path, required=True)
+    parser.add_argument("--trusted-authorization-sha256", required=True)
     args = parser.parse_args()
-    result = verify_evidence(args.root, json.loads(args.evidence.read_bytes()))
+    result = verify_evidence(
+        args.root,
+        json.loads(args.evidence.read_bytes()),
+        args.authorization,
+        args.trusted_authorization_sha256,
+    )
     print(json.dumps(result, sort_keys=True))
 
 

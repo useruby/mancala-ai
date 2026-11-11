@@ -126,6 +126,14 @@ def verify_authorization(
     return auth
 
 
+def configure_evaluation_runtime() -> None:
+    """Apply the preregistered single-thread CPU runtime before model work."""
+    torch.set_num_threads(1)
+    torch.set_num_interop_threads(1)
+    if torch.get_num_threads() != 1 or torch.get_num_interop_threads() != 1:
+        raise RuntimeError("single_thread_runtime_configuration_failed")
+
+
 def verify_freeze(root: Path = ROOT) -> dict[str, Any]:
     """Verify every input before any evaluator is constructed or search starts."""
     data = root / "docs/data/seed512-policy-strength-evaluation"
@@ -282,13 +290,11 @@ def evaluate(
     freeze_bytes = (
         root / "docs/data/seed512-policy-strength-evaluation/freeze.json"
     ).read_bytes()
+    authorization_bytes = authorization.read_bytes()
     verify_authorization(
-        freeze_bytes,
-        authorization.read_bytes(),
-        trusted_authorization_sha256,
+        freeze_bytes, authorization_bytes, trusted_authorization_sha256
     )
-    torch.set_num_threads(1)
-    torch.set_num_interop_threads(1)
+    configure_evaluation_runtime()
 
     data = root / "docs/data/seed512-policy-strength-evaluation"
     membership = verified["membership"]
@@ -362,6 +368,7 @@ def evaluate(
     result = {
         "schema": "seed512-policy-strength-evidence-v1",
         "freeze_sha256": sha256((data / "freeze.json").read_bytes()),
+        "authorization_sha256": sha256(authorization_bytes),
         "membership_sha256": freeze["cohort"]["membership_sha256"],
         "artifact_hashes": ARTIFACT_HASHES,
         "pairs": results,

@@ -124,7 +124,7 @@
     "numpy": "2.2.6",
     "command": "python ml/alphazero_lite/export_artifact.py --checkpoint docs/data/seed571-policy-prior-distillation/run-0001/seed571-policy-distillation-update-512.npz --out-dir docs/data/seed512-policy-strength-evaluation/runtime-artifacts/T512 --version seed571-update-512 --model-type residual_v3 --rules-version kalah_v1 --input-encoding kalah_v3"
   },
-  "runner_sha256": "e69c46e1d9c3f30dad00780cee0476f5bca9c3690d281bd8114c424c93e86d1e",
-  "verifier_sha256": "61e451ba2189d428f02cc8bc24c2f58dc8d388abc174fb219f23551488b4fc1a",
-  "synthetic_tests_sha256": "edd5aff6d6fe270a7d1035aad88d5b25fe6e33568df9e0d7b438377b13e9ca2f"
+  "runner_sha256": "c4bd078a82de4c13d5b83dec73a801a931b0abc79e21f1aee9440ddf0661aa4a",
+  "verifier_sha256": "2fc86968ee39c40896717cdd2e9f3494a2501368590b3bb1fd3b482ad13ef45c",
+  "synthetic_tests_sha256": "9febed137e33fe521fada845d6b340332997e38251fc0be45aebc6da426b6e97"
 }

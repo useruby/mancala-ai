@@ -248,6 +248,85 @@ def test_review_authorization_is_separate_and_freeze_bound() -> None:
     assert freeze_path.read_bytes() == freeze_bytes
 
 
+@pytest.mark.parametrize("auth_mode", ["missing", "digest_mismatch"])
+def test_verifier_auth_failure_precedes_evaluator_construction(
+    auth_mode: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    constructed = False
+
+    def unexpected_evaluator(*_args, **_kwargs):
+        nonlocal constructed
+        constructed = True
+        raise AssertionError("unauthorized verifier must not construct evaluators")
+
+    monkeypatch.setattr(verifier.arena, "ArtifactEvaluator", unexpected_evaluator)
+    auth_path = None
+    trusted_digest = None
+    if auth_mode == "digest_mismatch":
+        auth_path = tmp_path / "authorization.json"
+        auth_path.write_text("{}")
+        trusted_digest = "0" * 64
+    expected_error = (
+        "post_review_authorization_missing"
+        if auth_mode == "missing"
+        else "trusted_authorization_hash_mismatch"
+    )
+    with pytest.raises(PermissionError, match=expected_error):
+        verifier.verify_evidence(
+            runner.ROOT,
+            {},
+            auth_path,
+            trusted_digest,
+        )
+    assert not constructed
+
+
+def test_verifier_requires_authorization_digest_in_evidence(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    freeze_bytes = (runner.DATA / "freeze.json").read_bytes()
+    authorization = {
+        "schema": "seed512-qualification-authorization-v1",
+        "status": "approved_after_review",
+        "qualification_authorized": True,
+        "freeze_sha256": runner.sha256(freeze_bytes),
+        "reviewed_pull_request": 576,
+        "reviewed_merge_commit": "a" * 40,
+    }
+    authorization_path = tmp_path / "authorization.json"
+    authorization_path.write_text(json.dumps(authorization))
+    trusted_digest = runner.sha256(authorization_path.read_bytes())
+    evidence = {
+        "schema": "seed512-policy-strength-evidence-v1",
+        "freeze_sha256": runner.sha256(freeze_bytes),
+        "authorization_sha256": "0" * 64,
+        "membership_sha256": "94e126af6ea88fb99a4230f84e5cf2a20248daa39ea66d25b68730ea0426d668",
+        "artifact_hashes": runner.ARTIFACT_HASHES,
+    }
+    constructed = False
+
+    def unexpected_evaluator(*_args, **_kwargs):
+        nonlocal constructed
+        constructed = True
+        raise AssertionError("mismatched evidence authorization must stop first")
+
+    monkeypatch.setattr(verifier.arena, "ArtifactEvaluator", unexpected_evaluator)
+    with pytest.raises(ValueError, match="evidence_freeze_binding_mismatch"):
+        verifier.verify_evidence(
+            runner.ROOT, evidence, authorization_path, trusted_digest
+        )
+    assert not constructed
+
+
+def test_shared_search_runtime_setup_is_single_threaded() -> None:
+    runner.configure_evaluation_runtime()
+    assert runner.torch.get_num_threads() == 1
+    assert runner.torch.get_num_interop_threads() == 1
+
+
 def test_dependency_tampering_stops_before_evaluator_construction(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

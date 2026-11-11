@@ -49,7 +49,10 @@ python -m ml.alphazero_lite.seed512_policy_strength
 
 The `--execute` path requires a separate authorization record bound to the
 exact freeze SHA-256 and an independently supplied trusted authorization
-SHA-256 from its review record. An existing output path is rejected before
-evaluator construction. This path is not invoked in this preparation. No arena
+SHA-256 from its review record. The evidence records that authorization digest,
+and the read-only verifier requires and rechecks the same authorization before
+constructing evaluators or replaying searches. Both execution paths apply the
+same single-thread CPU setup. An existing output path is rejected before
+evaluator construction. Neither path is invoked in this preparation. No arena
 games, qualification searches, or sealed-suite access are part of this PR.
 Serving remains unchanged; #483 remains closed.
