@@ -1,0 +1,8 @@
+{
+  "schema": "seed512-qualification-authorization-v1",
+  "status": "approved_after_review",
+  "qualification_authorized": true,
+  "freeze_sha256": "3631361ba748511d2f4b532df808982da9c0559b0a71bf5b8627d68916f56096",
+  "reviewed_pull_request": 575,
+  "reviewed_merge_commit": "b9aa4a0d6e056df804718e2e0b1bd76f7d74d892"
+}
