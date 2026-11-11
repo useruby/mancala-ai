@@ -20,7 +20,7 @@
   },
   "runner": {
     "path": "ml/alphazero_lite/seed571_policy_distillation.py",
-    "sha256": "1d4ee3754d7ddd6f473fdf2fcf50b5653a78e8a5e2bb2e0ae33a4e53b1ead5ce"
+    "sha256": "650724fa6b3c2624bd77c00dc83998d4caf5149ae9230dee0ab8f727f077917a"
   },
   "implementation_bindings": {
     "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",

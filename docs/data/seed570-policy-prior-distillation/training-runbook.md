@@ -36,8 +36,17 @@ They do not invoke real searches or train on real inputs.
 The preparation runner is intentionally fail-closed for real runs. A later
 execution PR must bind the finalized runner and this configuration's exact bytes
 in a new immutable pre-training execution freeze, confirm the pinned runtime,
-and then explicitly enable execution. Do not edit a frozen runner/config in
-place. The run must retain, under a new run directory:
+and change the freeze status to `authorized-for-pretraining`. Do not edit a
+frozen runner/config in place. After that separate freeze has been reviewed, run
+from the repository root with a new, nonexistent output directory:
+
+```bash
+PYTHONHASHSEED=571 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  python -m ml.alphazero_lite.seed571_policy_distillation \
+  --run --output-dir docs/data/seed571-policy-prior-distillation/run-0001
+```
+
+The run must retain, under that run directory:
 
 1. `teacher-visits.jsonl`: all 256 root identities, legal actions, complete
    six-action integer visit vectors, search seed, and search settings;

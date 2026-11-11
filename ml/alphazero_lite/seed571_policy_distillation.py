@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import platform
 import random
 from pathlib import Path
@@ -15,7 +16,8 @@ from typing import Any
 import numpy as np
 import torch
 
-from ml.alphazero_lite import arena, self_play
+from ml.alphazero_lite import arena, self_play, train
+from ml.alphazero_lite.input_encodings import encode_state
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.seed557_retrospective import canonical_hash, search_seed
 
@@ -217,6 +219,15 @@ def verify_runtime() -> None:
     expected = {key: CONFIG["runtime"][key] for key in actual}
     if actual != expected:
         raise ValueError(f"runtime_binding_mismatch:{actual}")
+    if os.environ.get("PYTHONHASHSEED") != "571":
+        raise ValueError("runtime_binding_mismatch:PYTHONHASHSEED")
+    if (
+        os.environ.get("OMP_NUM_THREADS") != "1"
+        or os.environ.get("MKL_NUM_THREADS") != "1"
+    ):
+        raise ValueError("runtime_binding_mismatch:thread_environment")
+    torch.set_num_threads(1)
+    torch.use_deterministic_algorithms(True)
 
 
 def verify_pretraining_freeze(root: Path = ROOT) -> None:
@@ -227,7 +238,10 @@ def verify_pretraining_freeze(root: Path = ROOT) -> None:
         root / "docs/data/seed570-policy-prior-distillation/training-configuration.json"
     )
     freeze = json.loads(freeze_path.read_bytes())
-    if freeze.get("status") != "frozen-pretraining-not-authorized":
+    if freeze.get("status") not in {
+        "frozen-pretraining-not-authorized",
+        "authorized-for-pretraining",
+    }:
         raise ValueError("pretraining_freeze_status_mismatch")
     if freeze.get("runner", {}).get("sha256") != sha(
         (root / "ml/alphazero_lite/seed571_policy_distillation.py").read_bytes()
@@ -292,6 +306,9 @@ def generate_targets(
         rows.append(
             {
                 "state_hash": canonical_hash(root_row["state"]),
+                "search_seed": seed,
+                "simulations": 128,
+                "c_puct": 1.25,
                 "legal_actions": legal,
                 "visits": visit_vector,
                 "target": target.tolist(),
@@ -326,17 +343,165 @@ def train_synthetic_step(
     return float(loss.detach())
 
 
+def train_targets(
+    target_rows: list[dict[str, Any]], output_dir: Path, *, root: Path = ROOT
+) -> dict[str, Any]:
+    """Run the frozen 512-update policy/trunk recipe on an authenticated corpus."""
+    verify_inputs(root)
+    verify_pretraining_freeze(root)
+    if output_dir.exists():
+        raise ValueError("checkpoint_output_already_exists")
+    if len(target_rows) != 256:
+        raise ValueError("target_root_count_mismatch")
+    cohort = json.loads((root / CONFIG["training_membership"]["path"]).read_bytes())
+    expected_hashes = [canonical_hash(row["state"]) for row in cohort["states"]]
+    if [row.get("state_hash") for row in target_rows] != expected_hashes:
+        raise ValueError("target_root_order_mismatch")
+    for source, target in zip(cohort["states"], target_rows, strict=True):
+        legal_actions = sorted(KalahGame.from_state(source["state"]).possible_moves())
+        if target.get("legal_actions") != legal_actions:
+            raise ValueError("target_legal_action_mismatch")
+        if sum(target.get("visits", [])) != 128:
+            raise ValueError("teacher_visit_budget_mismatch")
+        expected_target = normalized_visit_target(target["visits"], legal_actions)
+        if not np.array_equal(
+            expected_target, np.asarray(target["target"], dtype=np.float32)
+        ):
+            raise ValueError("target_visit_normalization_mismatch")
+
+    train.set_seed(571)
+    torch.set_num_threads(1)
+    torch.use_deterministic_algorithms(True)
+    model = train.PolicyValueNet(
+        hidden_sizes=(96, 3), model_type="residual_v3", input_size=27
+    ).cpu()
+    skipped = train.load_checkpoint_into_model(model, ARTIFACT_ROOT / "P-E4/model.npz")
+    if skipped:
+        raise ValueError(f"teacher_checkpoint_keys_skipped:{skipped}")
+    trainable_prefixes = (
+        "input_layer.",
+        "residual_layers.",
+        "policy_hidden_layer.",
+        "policy_head.",
+    )
+    for name, parameter in model.named_parameters():
+        parameter.requires_grad_(name.startswith(trainable_prefixes))
+    frozen_before = {
+        name: parameter.detach().clone()
+        for name, parameter in model.named_parameters()
+        if not parameter.requires_grad
+    }
+    encoded = [
+        encode_state(row["state"], input_encoding="kalah_v3")
+        for row in cohort["states"]
+    ]
+    x = torch.tensor(encoded, dtype=torch.float32)
+    targets = torch.tensor([row["target"] for row in target_rows], dtype=torch.float32)
+    legal = torch.zeros((256, 6), dtype=torch.bool)
+    for index, row in enumerate(target_rows):
+        legal[index, row["legal_actions"]] = True
+    order = fixed_order()
+    batches = [order[index : index + 32] for index in range(0, 256, 32)]
+    optimizer = torch.optim.Adam(
+        [parameter for parameter in model.parameters() if parameter.requires_grad],
+        lr=1e-5,
+        betas=(0.9, 0.999),
+        eps=1e-8,
+        weight_decay=0.0,
+    )
+    output_dir.mkdir(parents=True)
+    (output_dir / "teacher-visits.jsonl").write_text(
+        "".join(
+            json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n"
+            for row in target_rows
+        )
+    )
+    target_digest = sha(canonical_json(target_rows))
+    (output_dir / "targets.sha256").write_text(target_digest + "\n")
+    with (output_dir / "training-trace.jsonl").open("x", encoding="utf-8") as trace:
+        for update in range(512):
+            indices = batches[update % len(batches)]
+            optimizer.zero_grad(set_to_none=True)
+            logits, _ = model(x[indices])
+            loss = masked_policy_loss(logits, targets[indices], legal[indices])
+            if not torch.isfinite(loss):
+                raise ValueError(f"nonfinite_loss_at_update:{update + 1}")
+            loss.backward()
+            grad_norm = torch.nn.utils.clip_grad_norm_(
+                [p for p in model.parameters() if p.requires_grad],
+                1.0,
+                error_if_nonfinite=True,
+            )
+            optimizer.step()
+            if any(not torch.isfinite(p).all() for p in model.parameters()):
+                raise ValueError(f"nonfinite_parameter_at_update:{update + 1}")
+            trace.write(
+                json.dumps(
+                    {
+                        "update": update + 1,
+                        "root_indexes": indices,
+                        "loss": float(loss.detach()),
+                        "gradient_norm": float(grad_norm),
+                        "seed": 571,
+                        "runtime": CONFIG["runtime"],
+                    },
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+                + "\n"
+            )
+            trace.flush()
+    parameters = dict(model.named_parameters())
+    if any(
+        not torch.equal(parameters[name].detach(), value)
+        for name, value in frozen_before.items()
+    ):
+        raise ValueError("frozen_parameter_changed")
+    checkpoint = output_dir / "seed571-policy-distillation-update-512.npz"
+    arrays = train.checkpoint_from_model(model)
+    np.savez(checkpoint, **arrays)
+    identity = {
+        "checkpoint": checkpoint.name,
+        "sha256": sha(checkpoint.read_bytes()),
+        "target_sha256": target_digest,
+        "training_roots": 256,
+        "updates": 512,
+        "frozen_parameters_unchanged": True,
+        "parent_policy_checkpoint_sha256": ARTIFACTS["P-E4/model.npz"],
+        "initializer_value_checkpoint_sha256": ARTIFACTS["initializer/model.npz"],
+        "tensors": {
+            name: {"shape": list(value.shape), "dtype": str(value.dtype)}
+            for name, value in sorted(arrays.items())
+        },
+    }
+    (output_dir / "checkpoint-identity.json").write_text(
+        json.dumps(identity, indent=2, sort_keys=True) + "\n"
+    )
+    return identity
+
+
 def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--verify-only", action="store_true")
-    parser.parse_args()
-    # Preparation PR deliberately exposes no real-run action until immutable
-    # source/artifact hashes are populated in the execution freeze.
-    raise SystemExit(
-        "preparation-only: no real targets or training have been authorized"
-    )
+    parser.add_argument("--run", action="store_true")
+    parser.add_argument("--output-dir", type=Path)
+    args = parser.parse_args()
+    verify_inputs()
+    verify_pretraining_freeze()
+    if args.verify_only:
+        print("pretraining freeze verified; no search or training performed")
+        return
+    if not args.run:
+        parser.error("choose --verify-only or --run")
+    freeze = json.loads((DATA / "pretraining-freeze.json").read_bytes())
+    if freeze.get("status") != "authorized-for-pretraining":
+        raise SystemExit("pretraining_not_authorized_by_execution_freeze")
+    if args.output_dir is None:
+        parser.error("--output-dir is required with --run")
+    targets = generate_targets()
+    print(json.dumps(train_targets(targets, args.output_dir), sort_keys=True))
 
 
 if __name__ == "__main__":
