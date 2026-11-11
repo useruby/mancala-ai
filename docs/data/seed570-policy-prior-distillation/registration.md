@@ -34,36 +34,83 @@ existing model.
 
 ## Proposed single change and control
 
+**Training cohort:** the frozen 256-root #557 cohort, whose membership is bound
+by the public `cohort.json` and #557 execution freeze. It is used only to form
+distillation targets and train the treatment.
+
 **Control:** frozen serving-P E4 policy and trunk, initializer value head and
-trunk, and the public #557 256-root cohort.
+trunk, evaluated on a separate qualification cohort derived from public #559
+`run-0003/cohort-manifest.json` (512 roots from 941 openings, with complete
+oracle coverage).
 
 **Treatment:** initialize from exactly the same serving-P components and
 fine-tune only the policy head and shared trunk by distilling the normalized
-128-simulation PUCT visit distribution on the frozen #557 roots. Keep the
-initializer value head/trunk fixed; do not change architecture, input
-encoding, search, or serving runtime. Freeze the training seed, optimizer,
-schedule, target temperature, and resulting artifact hashes in a separate
-pre-training registration before training starts. Do not include #557 oracle
-margins or evaluation outcomes as training targets.
+128-simulation PUCT visit distribution on the frozen #557 training roots.
+Keep the initializer value head/trunk fixed; do not change architecture, input
+encoding, search, or serving runtime. Do not include #557 oracle margins or
+evaluation outcomes as training targets.
 
 The hypothesis is that PUCT-corrected targets can improve the raw prior's
 selection of useful actions, addressing the specific prior-versus-post-search
 gap recorded in #557 without replacing the unchanged search or value component.
 
+## Cohort separation and staged freezes
+
+Before training, construct qualification membership from the public #559 cohort
+by excluding, using set-based membership:
+
+1. every opening group (`opening_index`) represented by any #557 training root;
+2. every state whose canonical identity **or** production `kalah_v3` float32
+   identity collides with any #557 training root; and
+3. duplicate qualification roots under either identity scheme, retaining at
+   most one root per opening.
+
+Authenticate the #557 and #559 source records, compute both identity schemes
+from their states, and publish the exact sorted qualification membership and
+digest before training. Require complete exact legal-action oracle coverage
+from the existing #559 public records and at least 256 eligible roots from 256
+distinct opening groups. If filtering leaves fewer than 256, publish the exact
+eligible count and shortfall, mark `stop_shortfall`, and do not train or
+evaluate. Do not select replacement roots based on outcomes.
+
+Use two immutable freezes:
+
+- **Training freeze, before training:** bind the #557 membership/hash; serving-P
+  teacher policy/trunk and initializer value/trunk hashes; teacher search
+  implementation and 128-simulation PUCT settings; target generation
+  (`visit_count / sum(visit_count)` over legal moves, zero for unvisited legal
+  moves); model inputs; trainable/frozen parameter sets; initialization;
+  optimizer, learning rate, batch size, update/epoch schedule, target loss and
+  weight, regularization, seed, runtime, and stopping rule. Freeze all these
+  values before generating any targets or training. Hash and retain the
+  resulting target data. No post-search oracle labels are training targets.
+- **Evaluation freeze, after training and before evaluation:** bind exact
+  treatment checkpoint/export hashes, unchanged serving-P control hashes,
+  qualification membership/hash and both exclusion-index digests, #559 oracle
+  identities, evaluation code/runtime, shared search settings, statistic,
+  resampling algorithm, seed, resample count, and quantile rule. Record
+  treatment artifact identity only after training and before inspecting any
+  qualification results.
+
 ## Prospective public development gate
 
-Use only the already published #557 roots and oracle records for this first
-diagnostic. Compare control and treatment on the exact same roots, with fresh
-trees and the **#568 shared search contract**: 128 simulations per side,
+Use only the separate, disjoint qualification cohort derived from #559; do not
+evaluate on the #557 training roots. Compare control and treatment on the exact
+same qualification roots, with fresh trees and the **#568 shared search
+contract**: 128 simulations per side,
 `c_puct=1.25`, deterministic root policy, native exact-root routing at
 threshold 16 with final-score-margin objective, highest-prior then lowest-index
 tie break, exact-leaf solving disabled, no subtree reuse, and one search worker
-per evaluation. Keep matched per-root search seeds and bind exact model/search
-artifact hashes before evaluation. The training uses no new positions beyond
-this public cohort.
+per evaluation. Keep matched per-root search seeds. Training uses only #557
+roots; qualification uses only eligible #559 roots after the frozen opening
+and two-identity exclusions. No new positions or games are generated.
 
 Primary development statistic: treatment-minus-control exact final-margin
-regret, paired by root and clustered by opening. Advance to a separately
+regret, paired by root and clustered by opening. Compute 20,000 paired
+opening-cluster bootstrap resamples with replacement using
+`numpy.random.default_rng(570)` and linear quantiles (`method="linear"`); report
+the two-sided 95% interval at quantiles 0.025 and 0.975. Bind the analysis
+implementation and runtime in the evaluation freeze. Advance to a separately
 registered public exploratory strength screen only if all conditions hold:
 
 1. mean regret improvement is at least `0.10` seeds (negative treatment minus
@@ -80,7 +127,9 @@ semantics. No settings may be altered to rescue a result.
 
 ## Stop rule and scope
 
-If any development-gate condition fails, stop this path: record the result as
+If cohort construction yields fewer than 256 eligible roots, stop before
+training and record the shortfall. If any development-gate condition fails,
+stop this path: record the result as
 `do_not_advance`, do not run a full-game screen, do not increase search budget,
 and do not iterate against this cohort. If execution or verification is
 incomplete, treat the gate as failed for advancement. Preserve serving P.
