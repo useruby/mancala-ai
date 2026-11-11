@@ -1,0 +1,59 @@
+{
+  "schema": "seed571-policy-distillation-pretraining-freeze-v1",
+  "status": "frozen-pretraining-not-authorized",
+  "base_commit": "92a57fd9",
+  "verifier": {
+    "command": "python -m ml.alphazero_lite.verify_seed557_retrospective",
+    "result": "verified",
+    "selected_roots": 256,
+    "membership_sha256": "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243"
+  },
+  "qualification_identity_only": {
+    "command": "python -m ml.alphazero_lite.seed570_qualification_cohort --membership docs/data/seed570-policy-prior-distillation/qualification-membership.json",
+    "population": 423,
+    "membership_sha256": "94e126af6ea88fb99a4230f84e5cf2a20248daa39ea66d25b68730ea0426d668",
+    "consumed_by_training": false
+  },
+  "configuration": {
+    "path": "docs/data/seed570-policy-prior-distillation/training-configuration.json",
+    "sha256": "f29d94f70940973fc55b8f4d3274e3024d260b15f29fd9662296c4482aa0b60f"
+  },
+  "runner": {
+    "path": "ml/alphazero_lite/seed571_policy_distillation.py",
+    "sha256": "1d4ee3754d7ddd6f473fdf2fcf50b5653a78e8a5e2bb2e0ae33a4e53b1ead5ce"
+  },
+  "implementation_bindings": {
+    "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
+    "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/input_encodings.py": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe"
+  },
+  "teacher_artifact_root": "docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts",
+  "teacher_artifact_hashes": {
+    "P-E4/metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+    "P-E4/model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+    "P-E4/search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+    "P-E4/weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136",
+    "initializer/metadata.json": "f3b9a7d665be7b1219b4a3412bf4a499e5bafd525905b50d93deac4e6ad9ccef",
+    "initializer/model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "initializer/search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+    "initializer/weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+  },
+  "runtime": {
+    "python": "3.12.3",
+    "numpy": "2.2.6",
+    "torch": "2.7.1+cpu",
+    "device": "cpu",
+    "pythonhashseed": "571",
+    "torch_num_threads": 1,
+    "deterministic_algorithms": true
+  },
+  "execution": {
+    "searches": 0,
+    "training_updates": 0,
+    "games": 0,
+    "sealed_suite_access": false
+  },
+  "qualification_checkpoint_binding": "separate freeze required before qualification"
+}
