@@ -6,6 +6,7 @@ import json
 import shutil
 import threading
 import time
+from types import SimpleNamespace
 from pathlib import Path
 
 import pytest
@@ -43,13 +44,26 @@ def _specs(opponent: str = "initializer") -> list[dict]:
 
 
 def _scripted_search(seen: list[tuple[int, str]]):
-    def search(game, evaluator, _rng, _ply, retain):
+    def search(game, evaluator, _rng, ply, retain):
         seen.append((game.current_player, evaluator.name))
         legal = game.possible_moves()
         move = 2 if not seen[:-1] and game.current_player == 0 else legal[0]
         policy = [0.0] * 6
         policy[legal[0]] = 1.0
-        row = {"policy": policy, "legal_moves": legal, "value": 0.0}
+        visits = [0] * 6
+        visits[legal[0]] = 1
+        row = {
+            "policy": policy,
+            "legal_moves": legal,
+            "value": 0.0,
+            "teacher_source": "artifact_puct",
+            "target_visits": visits,
+            "target_temperature": (
+                pilot.TEMPERATURE_EARLY
+                if ply < pilot.TEMPERATURE_THRESHOLD
+                else pilot.TEMPERATURE_LATE
+            ),
+        }
         return {"move": move, "row": row if retain else {}}
 
     return search
@@ -136,11 +150,15 @@ def test_cpu_and_row_accounting_aggregates_per_arm():
         )
         for spec in specs
     ]
+    process_cpu_ns = sum(game["cpu_time_ns"] for game in games) + 500
+    native_child_cpu_ns = 300
     summary = pilot.summarize_pair_accounting(
         [
             {
                 "arm": "treatment",
-                "pair_cpu_time_ns": sum(game["cpu_time_ns"] for game in games) + 500,
+                "pair_process_cpu_time_ns": process_cpu_ns,
+                "native_child_cpu_time_ns": native_child_cpu_ns,
+                "pair_cpu_time_ns": process_cpu_ns + native_child_cpu_ns,
                 "games": games,
             }
         ]
@@ -149,8 +167,15 @@ def test_cpu_and_row_accounting_aggregates_per_arm():
     assert summary["games"] == 2
     assert summary["complete_games"] == 2
     assert summary["accepted_rows"] == sum(game["accepted_rows"] for game in games)
-    assert summary["cpu_time_ns"] == sum(game["cpu_time_ns"] for game in games) + 500
+    assert summary["native_child_cpu_time_ns"] == native_child_cpu_ns
+    assert summary["cpu_time_ns"] == process_cpu_ns + native_child_cpu_ns
     assert summary["cpu_hours"] == summary["cpu_time_ns"] / 3_600_000_000_000
+
+
+def test_reaped_native_probe_cpu_is_sampled(monkeypatch):
+    monkeypatch_result = SimpleNamespace(ru_utime=0.125, ru_stime=0.025)
+    monkeypatch.setattr(pilot.resource, "getrusage", lambda _who: monkeypatch_result)
+    assert pilot.reaped_child_cpu_ns() == 150_000_000
 
 
 def test_verifier_rejects_missing_duplicate_opponent_and_mutated_rows():
@@ -191,6 +216,38 @@ def test_verifier_rejects_missing_duplicate_opponent_and_mutated_rows():
     reassigned["rows"][0]["opponent"] = "T512"
     with pytest.raises(ValueError, match="row_pair_assignment_mismatch"):
         pilot.verify_game(reassigned)
+
+    different_legal_target = json.loads(json.dumps(record))
+    row = different_legal_target["rows"][0]
+    alternative = next(
+        action for action in row["legal_moves"] if row["policy"][action] == 0.0
+    )
+    row["policy"] = [float(action == alternative) for action in range(6)]
+    with pytest.raises(ValueError, match="row_policy_target_mismatch"):
+        pilot.verify_game(different_legal_target)
+
+
+def test_exact_root_target_is_rebuilt_from_saved_decision_evidence():
+    legal = list(range(6))
+    row = {
+        "teacher_source": "exact_root_tablebase",
+        "exact_selected_action": 3,
+        "exact_optimal_actions": [1, 3],
+        "exact_action_margins": {"0": 1, "1": 5, "2": 4, "3": 5, "4": 0, "5": -1},
+        "exact_legal_moves": legal,
+        "exact_network_priors": [0.0, 0.2, 0.0, 0.7, 0.0, 0.0],
+        "exact_active_pit_stones": 48,
+        "exact_root_player": 0,
+        "exact_solver_calls": 1,
+        "stone_count": 48,
+        "player": 0,
+    }
+    expected = pilot.reconstruct_policy_target(row, legal_moves=legal)
+    assert expected[3] == 1.0
+    assert sum(expected) == 1.0
+    row["exact_action_margins"].pop("5")
+    with pytest.raises(ValueError, match="exact_root_decision.*evidence|exact_root"):
+        pilot.reconstruct_policy_target(row, legal_moves=legal)
 
 
 def test_pair_assignment_change_is_rejected_before_runner():
@@ -281,3 +338,33 @@ def test_game_specs_require_single_search_worker_and_swapped_seats():
     bad_seat[1]["designated_p_seat"] = 0
     with pytest.raises(ValueError, match="pair_must_have_both_seat_assignments"):
         pilot.validate_game_specs(bad_seat)
+
+
+def test_opening_prefix_is_bound_across_seats_and_arms_and_archive():
+    specs = _specs("initializer")
+    specs[1]["opening_moves"] = [0]
+    with pytest.raises(ValueError, match="opening_prefix_assignment_mismatch"):
+        pilot.validate_game_specs(specs)
+
+    treatment = [dict(row) for row in _specs("T512") if row["arm"] == "treatment"]
+    for row in treatment:
+        row["opening_moves"] = [0]
+    with pytest.raises(ValueError, match="opening_prefix_assignment_mismatch"):
+        pilot.validate_game_specs(
+            treatment + [row for row in _specs() if row["arm"] == "control"]
+        )
+
+    spec = next(
+        row
+        for row in _specs()
+        if row["arm"] == "treatment" and row["designated_p_seat"] == 0
+    )
+    game_record = pilot.play_game(
+        spec,
+        p_evaluator=_Evaluator("P"),
+        opponent_evaluator=_Evaluator("initializer"),
+        search_turn=_scripted_search([]),
+    )
+    game_record["opening_moves"] = [0]
+    with pytest.raises(ValueError, match="archived_opening_prefix_mismatch"):
+        pilot.verify_game(game_record)

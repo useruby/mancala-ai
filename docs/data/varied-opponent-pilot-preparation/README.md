@@ -49,10 +49,15 @@ Exact-leaf solving is disabled by the artifact runtime policy.
 The verifier replays every move from the archived opening, checks player/extra-
 turn transitions, rebuilds the expected P-seat row IDs, and rejects missing,
 duplicate, opponent-seat, wrong-state, wrong-ply, illegal-move-mass, and
-wrong-terminal-target rows. It also checks the target-setting declaration on
-every row and game against the common frozen settings. A nonterminal capped or
-incomplete game retains its trajectory and is classified separately; none of
-its rows are accepted.
+wrong-terminal-target rows. It binds each `opening_id` to one move prefix across
+both arms and seat assignments and checks every archived prefix against that
+assignment. PUCT rows retain denoised target visit counts; exact-root rows retain
+legal actions, action margins, selected/optimal moves, network priors, and root
+metadata. The verifier reconstructs the PUCT or selected-one-hot target from
+that evidence and rejects any changed legal distribution. It also checks the
+target-setting declaration on every row and game against the common frozen
+settings. A nonterminal capped or incomplete game retains its trajectory and is
+classified separately; none of its rows are accepted.
 
 ## Parallelism and CPU accounting
 
@@ -62,11 +67,15 @@ attributable to that pair. The scope binds CPU quota 1800%, CPU weight 100,
 memory maximum 36 GiB, CPUs 14–31, and nice level 19. Each game search remains
 single-worker; PyTorch intra-op and inter-op thread counts are both set to one
 in each pair process. The worker records process CPU time per game and per pair;
-the per-pair amount includes model initialization, native tablebase setup, and
-both seat-swapped games, without mixing concurrent pairs. Sum pair CPU time
-separately by arm; CPU-hours are `sum(pair_cpu_time_ns) / 3_600_000_000_000`.
-Wall time is not used as the primary-efficiency denominator. Capped and
-incomplete games still incur CPU cost and remain in cost accounting.
+the per-pair amount is the pair process CPU plus the cumulative user/system CPU
+of its reaped native-probe children, sampled from `RUSAGE_CHILDREN` after both
+probes have been waited on. It includes model initialization, native tablebase
+setup and solving, and both seat-swapped games, without mixing concurrent pairs.
+The arm denominator is the sum of `pair_cpu_time_ns`, which is validated as
+`pair_process_cpu_time_ns + native_child_cpu_time_ns`; CPU-hours are
+`sum(pair_cpu_time_ns) / 3_600_000_000_000`. Wall time is not used as the
+primary-efficiency denominator. Capped and incomplete games still incur CPU
+cost and remain in cost accounting.
 
 ## Preparation checks
 

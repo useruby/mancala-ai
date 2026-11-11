@@ -13,6 +13,7 @@ import math
 import random
 import argparse
 import os
+import resource
 import subprocess
 import sys
 import time
@@ -20,8 +21,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
+import numpy as np
+
 from ml.alphazero_lite import arena, self_play
-from ml.alphazero_lite.exact_root_policy_targets import exact_root_policy_target
+from ml.alphazero_lite.exact_root_policy_targets import (
+    exact_root_policy_target,
+    validate_exact_root_metadata,
+)
 from ml.alphazero_lite.kalah_rules import KalahGame
 
 SCHEMA = "varied_opponent_pilot_game_v1"
@@ -90,7 +96,7 @@ EXPECTED_COMPONENT_HASHES = {
 }
 OPPONENTS = frozenset({"initializer", "T512"})
 _PROCESS_EVALUATORS: PilotEvaluators | None = None
-_PROCESS_SETUP_CPU_NS = 0
+_PROCESS_CHILD_CPU_START_NS = 0
 
 
 def sha256(path: Path) -> str:
@@ -100,6 +106,12 @@ def sha256(path: Path) -> str:
         for block in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def reaped_child_cpu_ns() -> int:
+    """Return cumulative user+system CPU time for reaped direct children."""
+    usage = resource.getrusage(resource.RUSAGE_CHILDREN)
+    return int(round((usage.ru_utime + usage.ru_stime) * 1_000_000_000))
 
 
 def verify_components(artifact_root: Path) -> dict[str, dict[str, str]]:
@@ -192,6 +204,7 @@ def validate_game_specs(specs: list[dict[str, Any]]) -> None:
     """Validate whole-pair assignments before any search can start."""
     by_pair: dict[tuple[str, str], list[dict[str, Any]]] = {}
     identifiers: set[str] = set()
+    opening_prefixes: dict[str, tuple[int, ...]] = {}
     for spec in specs:
         required = {
             "game_id",
@@ -215,6 +228,10 @@ def validate_game_specs(specs: list[dict[str, Any]]) -> None:
             raise ValueError("invalid_designated_p_seat")
         if spec["search_workers"] != WORKERS_PER_GAME:
             raise ValueError("game_search_worker_count_mismatch")
+        prefix = tuple(int(move) for move in spec["opening_moves"])
+        bound_prefix = opening_prefixes.setdefault(str(spec["opening_id"]), prefix)
+        if prefix != bound_prefix:
+            raise ValueError("opening_prefix_assignment_mismatch")
         if spec["arm"] == "control":
             if spec["opponent"] != "P":
                 raise ValueError("control_must_be_P_vs_P")
@@ -233,6 +250,11 @@ def validate_game_specs(specs: list[dict[str, Any]]) -> None:
             raise ValueError("pair_must_have_both_seat_assignments")
         if len({s["opening_id"] for s in pair_specs}) != 1:
             raise ValueError("pair_opening_mismatch")
+        if (
+            len({tuple(int(move) for move in s["opening_moves"]) for s in pair_specs})
+            != 1
+        ):
+            raise ValueError("pair_opening_prefix_mismatch")
         if len({int(s["seed"]) for s in pair_specs}) != 1:
             raise ValueError("pair_seed_mismatch")
         if arm == "treatment" and len({s["opponent"] for s in pair_specs}) != 1:
@@ -424,6 +446,19 @@ def production_search_turn(
                     "value": 0.0,
                     "exact_selected_action": int(decision.selected_move),
                     "exact_optimal_actions": [int(a) for a in decision.optimal_moves],
+                    "exact_action_margins": {
+                        str(int(action)): int(margin)
+                        for action, margin in decision.action_margins.items()
+                    },
+                    "exact_legal_moves": [
+                        int(action) for action in decision.legal_moves
+                    ],
+                    "exact_network_priors": [
+                        float(value) for value in decision.network_priors
+                    ],
+                    "exact_active_pit_stones": int(decision.active_pit_stones),
+                    "exact_root_player": int(decision.root_player),
+                    "exact_solver_calls": int(decision.solver_calls),
                 }
                 if retain
                 else {},
@@ -470,6 +505,10 @@ def production_search_turn(
             "simulations": SIMULATIONS,
             "legal_moves": legal,
             "policy_target_noise_mode": "denoised",
+            "target_visits": [
+                int(round(float(value))) for value in target_visits.tolist()
+            ],
+            "target_temperature": float(temperature),
         },
     }
 
@@ -493,6 +532,8 @@ def verify_game(game_record: dict[str, Any]) -> dict[str, int | str]:
     }
     if game_record.get("search_settings") != expected_search_settings:
         raise ValueError("game_search_settings_mismatch")
+    if game_record.get("opening_moves") != spec.get("opening_moves"):
+        raise ValueError("archived_opening_prefix_mismatch")
     game = _state_after_prefix([int(move) for move in game_record["opening_moves"]])
     if game.to_state() != game_record["start_state"]:
         raise ValueError("game_start_state_mismatch")
@@ -604,6 +645,14 @@ def verify_game(game_record: dict[str, Any]) -> dict[str, int | str]:
                 if action not in legal
             ):
                 raise ValueError("row_policy_assigns_illegal_mass")
+            expected_policy = reconstruct_policy_target(row, legal_moves=legal)
+            if not np.allclose(
+                np.asarray(row["policy"], dtype=np.float64),
+                np.asarray(expected_policy, dtype=np.float64),
+                rtol=0.0,
+                atol=1e-7,
+            ):
+                raise ValueError("row_policy_target_mismatch")
             expected_value = self_play.outcome_for_player(
                 game.winner, int(spec["designated_p_seat"])
             )
@@ -631,14 +680,110 @@ def verify_archive(records: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def reconstruct_policy_target(
+    row: dict[str, Any], *, legal_moves: list[int]
+) -> list[float]:
+    """Rebuild the registered policy target from archived search evidence."""
+    if row.get("teacher_source") == "exact_root_tablebase":
+        required = (
+            "exact_selected_action",
+            "exact_optimal_actions",
+            "exact_action_margins",
+            "exact_legal_moves",
+            "exact_network_priors",
+            "exact_active_pit_stones",
+            "exact_root_player",
+            "exact_solver_calls",
+        )
+        if any(key not in row for key in required):
+            raise ValueError("exact_root_decision_evidence_missing")
+        if row["exact_legal_moves"] != legal_moves:
+            raise ValueError("exact_root_legal_moves_mismatch")
+        if row["exact_active_pit_stones"] != row["stone_count"]:
+            raise ValueError("exact_root_active_stones_mismatch")
+        if row["exact_root_player"] != row["player"] or row["exact_solver_calls"] <= 0:
+            raise ValueError("exact_root_decision_provenance_mismatch")
+        selected, optimal = validate_exact_root_metadata(
+            {
+                "exact_selected_action": row["exact_selected_action"],
+                "exact_optimal_actions": row["exact_optimal_actions"],
+                "exact_action_margins": row["exact_action_margins"],
+            }
+        )
+        margins = {
+            int(action): int(value)
+            for action, value in row["exact_action_margins"].items()
+        }
+        if set(margins) != set(legal_moves) or optimal != sorted(
+            action
+            for action, margin in margins.items()
+            if margin == max(margins.values())
+        ):
+            raise ValueError("exact_root_margin_evidence_mismatch")
+        priors = [float(value) for value in row["exact_network_priors"]]
+        if len(priors) != PIT_COUNT or not all(
+            math.isfinite(value) for value in priors
+        ):
+            raise ValueError("exact_root_network_prior_evidence_invalid")
+        selected_by_tie_rule = max(
+            optimal, key=lambda action: (priors[action], -action)
+        )
+        if selected != selected_by_tie_rule:
+            raise ValueError("exact_root_selected_action_mismatch")
+        return exact_root_policy_target(
+            selected_action=selected,
+            optimal_actions=optimal,
+            mode=TARGET_SETTINGS["exact_root_policy_target_mode"],
+        )
+
+    if row.get("teacher_source") != "artifact_puct":
+        raise ValueError("retained_row_teacher_source_invalid")
+    visits = row.get("target_visits")
+    temperature = row.get("target_temperature")
+    if (
+        not isinstance(visits, list)
+        or len(visits) != PIT_COUNT
+        or not isinstance(temperature, (int, float))
+        or float(temperature)
+        != (
+            TEMPERATURE_EARLY
+            if int(row["move_index"]) < TEMPERATURE_THRESHOLD
+            else TEMPERATURE_LATE
+        )
+    ):
+        raise ValueError("puct_target_visit_evidence_invalid")
+    if any(not isinstance(value, int) or value < 0 for value in visits):
+        raise ValueError("puct_target_visits_invalid")
+    if any(
+        visits[action] != 0 for action in range(PIT_COUNT) if action not in legal_moves
+    ):
+        raise ValueError("puct_target_visits_include_illegal_move")
+    return self_play.build_policy_target(
+        np.asarray(visits, dtype=np.float32),
+        legal_moves=legal_moves,
+        temperature=float(temperature),
+        mode=TARGET_SETTINGS["policy_target_mode"],
+    )
+
+
 def summarize_pair_accounting(pair_results: list[dict[str, Any]]) -> dict[str, Any]:
     """Aggregate accepted rows, incomplete games, and measured CPU by arm."""
     summary: dict[str, dict[str, int | float]] = {}
     for pair in pair_results:
         arm = str(pair["arm"])
         cpu_ns = pair.get("pair_cpu_time_ns")
+        process_cpu_ns = pair.get("pair_process_cpu_time_ns")
+        child_cpu_ns = pair.get("native_child_cpu_time_ns")
         if not isinstance(cpu_ns, int) or cpu_ns < 0:
             raise ValueError("pair_cpu_accounting_invalid")
+        if (
+            not isinstance(process_cpu_ns, int)
+            or process_cpu_ns < 0
+            or not isinstance(child_cpu_ns, int)
+            or child_cpu_ns < 0
+            or cpu_ns != process_cpu_ns + child_cpu_ns
+        ):
+            raise ValueError("pair_child_cpu_accounting_invalid")
         game_cpu_ns = sum(int(game.get("cpu_time_ns", -1)) for game in pair["games"])
         if game_cpu_ns < 0 or cpu_ns < game_cpu_ns:
             raise ValueError("pair_cpu_below_game_cpu")
@@ -652,11 +797,13 @@ def summarize_pair_accounting(pair_results: list[dict[str, Any]]) -> dict[str, A
                 "incomplete_games": 0,
                 "accepted_rows": 0,
                 "cpu_time_ns": 0,
+                "native_child_cpu_time_ns": 0,
                 "cpu_hours": 0.0,
             },
         )
         bucket["pairs"] += 1
         bucket["cpu_time_ns"] += cpu_ns
+        bucket["native_child_cpu_time_ns"] += child_cpu_ns
         for game in pair["games"]:
             verify_game(game)
             bucket["games"] += 1
@@ -725,8 +872,9 @@ def run_validated_pairs(
 
 def _initialize_pair_process(artifact_root: str) -> None:
     """Authenticate and load immutable evaluators once in each pair process."""
-    global _PROCESS_EVALUATORS, _PROCESS_SETUP_CPU_NS
+    global _PROCESS_EVALUATORS, _PROCESS_SETUP_CPU_NS, _PROCESS_CHILD_CPU_START_NS
     setup_start = time.process_time_ns()
+    _PROCESS_CHILD_CPU_START_NS = reaped_child_cpu_ns()
     import torch
 
     torch.set_num_threads(WORKERS_PER_GAME)
@@ -751,11 +899,17 @@ def _play_pair_process(job: dict[str, Any]) -> dict[str, Any]:
         )
         for spec in specs
     ]
-    pair_cpu_ns = _PROCESS_SETUP_CPU_NS + time.process_time_ns() - pair_cpu_start
+    process_cpu_ns = _PROCESS_SETUP_CPU_NS + time.process_time_ns() - pair_cpu_start
+    child_cpu_ns = reaped_child_cpu_ns() - _PROCESS_CHILD_CPU_START_NS
+    if child_cpu_ns < 0:
+        raise ValueError("reaped_child_cpu_counter_regressed")
+    pair_cpu_ns = process_cpu_ns + child_cpu_ns
     return {
         "pair_id": str(specs[0]["pair_id"]),
         "arm": str(specs[0]["arm"]),
         "games": games,
+        "pair_process_cpu_time_ns": process_cpu_ns,
+        "native_child_cpu_time_ns": child_cpu_ns,
         "pair_cpu_time_ns": pair_cpu_ns,
     }
 
@@ -783,7 +937,7 @@ def launch_preflight(
             "allowed_cpus": ALLOWED_CPUS,
             "nice": NICE,
         },
-        "cpu_accounting": "isolated_pair_process_cpu_including_model_setup_and_both_games",
+        "cpu_accounting": "pair_process_cpu_plus_reaped_native_child_cpu_by_arm",
         "systemd_scope_preflight": "passed_no_game_command_run",
     }
 
