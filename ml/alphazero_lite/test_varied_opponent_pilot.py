@@ -51,7 +51,7 @@ def _scripted_search(seen: list[tuple[int, str]]):
         policy = [0.0] * 6
         policy[legal[0]] = 1.0
         visits = [0] * 6
-        visits[legal[0]] = 1
+        visits[legal[0]] = pilot.SIMULATIONS
         row = {
             "policy": policy,
             "legal_moves": legal,
@@ -248,6 +248,128 @@ def test_exact_root_target_is_rebuilt_from_saved_decision_evidence():
     row["exact_action_margins"].pop("5")
     with pytest.raises(ValueError, match="exact_root_decision.*evidence|exact_root"):
         pilot.reconstruct_policy_target(row, legal_moves=legal)
+
+
+def _exactize_row_for_fixture(row: dict, *, selected: int, legal: list[int]) -> None:
+    row["teacher_source"] = "exact_root_tablebase"
+    row["exact_selected_action"] = selected
+    row["exact_optimal_actions"] = [selected]
+    row["exact_action_margins"] = {
+        str(action): 5 if action == selected else 0 for action in legal
+    }
+    row["exact_legal_moves"] = legal
+    row["exact_network_priors"] = [
+        0.9 if action == selected else 0.0 for action in range(6)
+    ]
+    row["exact_active_pit_stones"] = row["stone_count"]
+    row["exact_root_player"] = row["player"]
+    row["exact_solver_calls"] = 1
+    row.pop("target_visits", None)
+    row.pop("target_temperature", None)
+    row["policy"] = pilot.exact_root_policy_target(
+        selected_action=selected,
+        optimal_actions=[selected],
+        mode="selected_one_hot",
+    )
+
+
+def test_verifier_requires_128_visits_for_puct_target():
+    spec = next(
+        row
+        for row in _specs()
+        if row["arm"] == "treatment" and row["designated_p_seat"] == 0
+    )
+    record = pilot.play_game(
+        spec,
+        p_evaluator=_Evaluator("P"),
+        opponent_evaluator=_Evaluator("initializer"),
+        search_turn=_scripted_search([]),
+    )
+    target_row = record["rows"][0]
+    target_row["target_visits"][target_row["legal_moves"][0]] = 1
+    with pytest.raises(ValueError, match="puct_target_simulation_count_mismatch"):
+        pilot.verify_game(record)
+
+
+def test_verifier_rejects_exact_root_route_above_stone_cutoff():
+    spec = next(
+        row
+        for row in _specs()
+        if row["arm"] == "treatment" and row["designated_p_seat"] == 0
+    )
+    record = pilot.play_game(
+        spec,
+        p_evaluator=_Evaluator("P"),
+        opponent_evaluator=_Evaluator("initializer"),
+        search_turn=_scripted_search([]),
+    )
+    row = record["rows"][0]
+    played = record["trajectory"][row["move_index"]]["move"]
+    alternative = next(action for action in row["legal_moves"] if action != played)
+    _exactize_row_for_fixture(row, selected=alternative, legal=row["legal_moves"])
+    with pytest.raises(ValueError, match="row_search_route_mismatch"):
+        pilot.verify_game(record)
+
+
+def test_verifier_requires_exact_selection_to_match_trajectory_move():
+    spec = next(
+        row
+        for row in _specs()
+        if row["arm"] == "treatment" and row["designated_p_seat"] == 0
+    )
+    spec["opening_moves"] = [
+        3,
+        3,
+        0,
+        2,
+        5,
+        3,
+        4,
+        2,
+        3,
+        4,
+        4,
+        0,
+        5,
+        1,
+        2,
+        2,
+        0,
+        5,
+        2,
+        0,
+        3,
+        0,
+        0,
+        3,
+        2,
+    ]
+
+    def choose_legal(game, evaluator, rng, ply, retain):
+        result = _scripted_search([])(game, evaluator, rng, ply, retain)
+        result["move"] = game.possible_moves()[0]
+        if retain:
+            legal = game.possible_moves()
+            visits = [0] * 6
+            visits[legal[0]] = pilot.SIMULATIONS
+            result["row"]["legal_moves"] = legal
+            result["row"]["target_visits"] = visits
+            result["row"]["policy"] = [float(action == legal[0]) for action in range(6)]
+        return result
+
+    record = pilot.play_game(
+        spec,
+        p_evaluator=_Evaluator("P"),
+        opponent_evaluator=_Evaluator("initializer"),
+        search_turn=choose_legal,
+    )
+    row = record["rows"][0]
+    assert row["stone_count"] <= pilot.EXACT_ROOT_THRESHOLD
+    played = record["trajectory"][row["move_index"]]["move"]
+    alternative = next(action for action in row["legal_moves"] if action != played)
+    _exactize_row_for_fixture(row, selected=alternative, legal=row["legal_moves"])
+    with pytest.raises(ValueError, match="exact_root_selected_move_mismatch"):
+        pilot.verify_game(record)
 
 
 def test_pair_assignment_change_is_rejected_before_runner():

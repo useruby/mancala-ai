@@ -54,7 +54,9 @@ both arms and seat assignments and checks every archived prefix against that
 assignment. PUCT rows retain denoised target visit counts; exact-root rows retain
 legal actions, action margins, selected/optimal moves, network priors, and root
 metadata. The verifier reconstructs the PUCT or selected-one-hot target from
-that evidence and rejects any changed legal distribution. It also checks the
+that evidence, requires exactly 128 PUCT target visits, derives the exact-root
+route from the replayed active-stone count, and checks exact selection against
+the played move. It rejects any changed legal distribution. It also checks the
 target-setting declaration on every row and game against the common frozen
 settings. A nonterminal capped or incomplete game retains its trajectory and is
 classified separately; none of its rows are accepted.

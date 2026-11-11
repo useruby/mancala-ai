@@ -42,6 +42,7 @@ PIT_COUNT = 6
 SIMULATIONS = 128
 C_PUCT = 1.25
 MAX_MOVES = 200
+EXACT_ROOT_THRESHOLD = 16
 TEMPERATURE_THRESHOLD = 9
 TEMPERATURE_EARLY = 1.0
 TEMPERATURE_LATE = 0.1
@@ -73,6 +74,7 @@ SEARCH_SETTINGS = {
     "dirichlet_epsilon": DIRICHLET_EPSILON,
     "search_options": SEARCH_OPTIONS,
     "max_moves": MAX_MOVES,
+    "exact_root_threshold": EXACT_ROOT_THRESHOLD,
 }
 EXPECTED_COMPONENT_HASHES = {
     "P-E4": {
@@ -164,7 +166,7 @@ def effective_runtime_policy(artifact_root: Path) -> dict[str, Any]:
         first.get("schema") != "azlite_runtime_search_policy_v1"
         or first.get("mode") != "puct_exact_root_hybrid"
         or first.get("exact_root_enabled") is not True
-        or first.get("exact_root_threshold") != 16
+        or first.get("exact_root_threshold") != EXACT_ROOT_THRESHOLD
         or first.get("exact_root_objective") != "final_score_margin"
         or first.get("exact_root_tie_rule")
         != "highest_legal_network_prior_then_lowest_move_index"
@@ -621,6 +623,21 @@ def verify_game(game_record: dict[str, Any]) -> dict[str, int | str]:
             + sum(matching_step["state"]["opponent_pits"])
         ):
             raise ValueError("row_state_or_ply_mismatch")
+        active_stones = sum(matching_step["state"]["player_pits"]) + sum(
+            matching_step["state"]["opponent_pits"]
+        )
+        expected_teacher = (
+            "exact_root_tablebase"
+            if active_stones <= EXACT_ROOT_THRESHOLD
+            else "artifact_puct"
+        )
+        if row.get("teacher_source") != expected_teacher:
+            raise ValueError("row_search_route_mismatch")
+        if (
+            expected_teacher == "exact_root_tablebase"
+            and row.get("exact_selected_action") != matching_step["move"]
+        ):
+            raise ValueError("exact_root_selected_move_mismatch")
         policy = row.get("policy")
         if not isinstance(policy, list) or len(policy) != PIT_COUNT:
             raise ValueError("row_policy_shape_invalid")
@@ -754,6 +771,8 @@ def reconstruct_policy_target(
         raise ValueError("puct_target_visit_evidence_invalid")
     if any(not isinstance(value, int) or value < 0 for value in visits):
         raise ValueError("puct_target_visits_invalid")
+    if sum(visits) != SIMULATIONS:
+        raise ValueError("puct_target_simulation_count_mismatch")
     if any(
         visits[action] != 0 for action in range(PIT_COUNT) if action not in legal_moves
     ):
