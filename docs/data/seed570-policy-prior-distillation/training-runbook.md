@@ -27,9 +27,12 @@ legal actions; illegal actions and legal actions with zero visits remain zero.
 ## Synthetic tests
 
 Run `python -m pytest ml/alphazero_lite/test_seed571_policy_distillation.py`.
-The fixtures exercise pre-operation input rejection, legal-mask visit targets,
-and isolation of trainable trunk/policy parameters from frozen value parameters.
-They do not invoke real searches or train on real inputs.
+The fixtures exercise the target-generation path with synthetic roots for both
+players to move, pre-operation authorization/integrity rejection, existing
+output rejection, legal-mask visit targets, authenticated artifact-root
+propagation, and isolation of trainable trunk/policy parameters from frozen
+value parameters. PUCT is stubbed in the target-generation fixture; no real
+searches or training inputs are used.
 
 ## Later run procedure
 

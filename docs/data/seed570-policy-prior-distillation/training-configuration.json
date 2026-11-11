@@ -79,7 +79,7 @@
   ],
   "runtime": {
     "device": "cpu",
-    "python": "3.12.3",
+    "python": "3.12.8",
     "numpy": "2.2.6",
     "torch": "2.7.1+cpu",
     "pythonhashseed": "571",

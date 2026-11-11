@@ -16,11 +16,11 @@
   },
   "configuration": {
     "path": "docs/data/seed570-policy-prior-distillation/training-configuration.json",
-    "sha256": "f29d94f70940973fc55b8f4d3274e3024d260b15f29fd9662296c4482aa0b60f"
+    "sha256": "321168efbcac0b3630ac14a656e785daef4b9a6fb98addb7939c7fe587080e92"
   },
   "runner": {
     "path": "ml/alphazero_lite/seed571_policy_distillation.py",
-    "sha256": "650724fa6b3c2624bd77c00dc83998d4caf5149ae9230dee0ab8f727f077917a"
+    "sha256": "9f8c3f71e453271e925234acd3327dd5b8805284e8083892dc0139f4753fd0f0"
   },
   "implementation_bindings": {
     "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
@@ -41,7 +41,7 @@
     "initializer/weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
   },
   "runtime": {
-    "python": "3.12.3",
+    "python": "3.12.8",
     "numpy": "2.2.6",
     "torch": "2.7.1+cpu",
     "device": "cpu",

@@ -17,7 +17,6 @@ import numpy as np
 import torch
 
 from ml.alphazero_lite import arena, self_play, train
-from ml.alphazero_lite.input_encodings import encode_state
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.seed557_retrospective import canonical_hash, search_seed
 
@@ -132,7 +131,7 @@ CONFIG: dict[str, Any] = {
         "training_trace": "training-trace.jsonl",
         "checkpoint_identity": "checkpoint-identity.json",
     },
-    "runtime": {"python": "3.12.3", "numpy": "2.2.6", "torch": "2.7.1+cpu"},
+    "runtime": {"python": "3.12.8", "numpy": "2.2.6", "torch": "2.7.1+cpu"},
 }
 
 
@@ -198,6 +197,28 @@ def verify_inputs(
     return bindings
 
 
+def artifact_path(
+    root: Path, relative_path: str, verified_bindings: dict[str, str]
+) -> Path:
+    """Return an artifact path only when those exact bytes were authenticated."""
+    relative_artifact = f"{ARTIFACT_ROOT.relative_to(ROOT)}/{relative_path}"
+    if relative_artifact not in verified_bindings:
+        raise ValueError(f"artifact_not_authenticated:{relative_path}")
+    return root / relative_artifact
+
+
+def teacher_checkpoint_path(root: Path, verified_bindings: dict[str, str]) -> Path:
+    return artifact_path(root, "P-E4/model.npz", verified_bindings)
+
+
+def load_teacher_checkpoint(
+    model: train.PolicyValueNet, root: Path, verified_bindings: dict[str, str]
+) -> list[str]:
+    return train.load_checkpoint_into_model(
+        model, teacher_checkpoint_path(root, verified_bindings)
+    )
+
+
 def verify_bindings(root: Path, bindings: dict[str, str]) -> None:
     for rel, digest in bindings.items():
         path = root / rel
@@ -258,29 +279,79 @@ def verify_pretraining_freeze(root: Path = ROOT) -> None:
     verify_runtime()
 
 
-def make_teacher() -> arena.ComposedArtifactEvaluator:
-    initializer = arena.ArtifactEvaluator(ARTIFACT_ROOT / "initializer")
-    policy = arena.ArtifactEvaluator(ARTIFACT_ROOT / "P-E4")
+def verify_execution_freeze(root: Path = ROOT) -> dict[str, Any]:
+    """Require distinct execution authorization bound to this exact preparation."""
+    execution_path = (
+        root / "docs/data/seed570-policy-prior-distillation/execution-freeze.json"
+    )
+    if not execution_path.is_file():
+        raise ValueError("execution_freeze_missing")
+    execution = json.loads(execution_path.read_bytes())
+    required_bindings = expected_execution_bindings(root)
+    if (
+        execution.get("schema") != "seed571-policy-distillation-execution-freeze-v1"
+        or execution.get("status") != "authorized-for-pretraining"
+        or execution.get("bindings") != required_bindings
+    ):
+        raise ValueError("execution_freeze_binding_mismatch")
+    return execution
+
+
+def expected_execution_bindings(root: Path = ROOT) -> dict[str, Any]:
+    preparation_path = (
+        root / "docs/data/seed570-policy-prior-distillation/pretraining-freeze.json"
+    )
+    config_path = (
+        root / "docs/data/seed570-policy-prior-distillation/training-configuration.json"
+    )
+    runner_path = root / "ml/alphazero_lite/seed571_policy_distillation.py"
+    cohort_path = root / CONFIG["training_membership"]["path"]
+    return {
+        "preparation_freeze_sha256": sha(preparation_path.read_bytes()),
+        "configuration_sha256": sha(config_path.read_bytes()),
+        "runner_sha256": sha(runner_path.read_bytes()),
+        "training_membership_sha256": sha(cohort_path.read_bytes()),
+        "teacher_artifact_hashes": ARTIFACTS,
+    }
+
+
+def make_teacher(
+    root: Path, verified_bindings: dict[str, str]
+) -> arena.ComposedArtifactEvaluator:
+    initializer_path = artifact_path(
+        root, "initializer/metadata.json", verified_bindings
+    ).parent
+    policy_path = artifact_path(root, "P-E4/metadata.json", verified_bindings).parent
+    initializer = arena.ArtifactEvaluator(initializer_path)
+    policy = arena.ArtifactEvaluator(policy_path)
     return arena.ComposedArtifactEvaluator(
         initializer, policy, policy_source="candidate", value_source="current"
     )
 
 
 def generate_targets(
-    *, root: Path = ROOT, evaluator: Any | None = None
+    *, output_dir: Path, root: Path = ROOT, evaluator: Any | None = None
 ) -> list[dict[str, Any]]:
     # Complete validation occurs before opening cohort data or constructing/running search.
-    verify_inputs(root)
+    verified_bindings = verify_inputs(root)
     verify_pretraining_freeze(root)
+    verify_execution_freeze(root)
+    if output_dir.exists():
+        raise ValueError("checkpoint_output_already_exists")
     cohort = json.loads((root / CONFIG["training_membership"]["path"]).read_bytes())
     if len(cohort.get("states", [])) != 256:
         raise ValueError("training_root_count_mismatch")
-    teacher = evaluator if evaluator is not None else make_teacher()
+    teacher = (
+        evaluator if evaluator is not None else make_teacher(root, verified_bindings)
+    )
     rows = []
     for root_row in cohort["states"]:
         game = KalahGame.from_state(root_row["state"])
         legal = sorted(game.possible_moves())
-        if legal != sorted(int(x) for x in root_row["legal_absolute_actions"]):
+        legal_absolute = sorted(game.pit_index(move) for move in legal)
+        if legal_absolute != sorted(
+            int(action) for action in root_row["legal_absolute_actions"]
+        ):
             raise ValueError("cohort_legal_action_mismatch")
         seed = search_seed(canonical_hash(root_row["state"]))
         search = self_play.PUCT(
@@ -347,8 +418,9 @@ def train_targets(
     target_rows: list[dict[str, Any]], output_dir: Path, *, root: Path = ROOT
 ) -> dict[str, Any]:
     """Run the frozen 512-update policy/trunk recipe on an authenticated corpus."""
-    verify_inputs(root)
+    verified_bindings = verify_inputs(root)
     verify_pretraining_freeze(root)
+    verify_execution_freeze(root)
     if output_dir.exists():
         raise ValueError("checkpoint_output_already_exists")
     if len(target_rows) != 256:
@@ -375,7 +447,7 @@ def train_targets(
     model = train.PolicyValueNet(
         hidden_sizes=(96, 3), model_type="residual_v3", input_size=27
     ).cpu()
-    skipped = train.load_checkpoint_into_model(model, ARTIFACT_ROOT / "P-E4/model.npz")
+    skipped = load_teacher_checkpoint(model, root, verified_bindings)
     if skipped:
         raise ValueError(f"teacher_checkpoint_keys_skipped:{skipped}")
     trainable_prefixes = (
@@ -392,7 +464,7 @@ def train_targets(
         if not parameter.requires_grad
     }
     encoded = [
-        encode_state(row["state"], input_encoding="kalah_v3")
+        self_play.encode_state(row["state"], input_encoding="kalah_v3")
         for row in cohort["states"]
     ]
     x = torch.tensor(encoded, dtype=torch.float32)
@@ -495,12 +567,9 @@ def main() -> None:
         return
     if not args.run:
         parser.error("choose --verify-only or --run")
-    freeze = json.loads((DATA / "pretraining-freeze.json").read_bytes())
-    if freeze.get("status") != "authorized-for-pretraining":
-        raise SystemExit("pretraining_not_authorized_by_execution_freeze")
     if args.output_dir is None:
         parser.error("--output-dir is required with --run")
-    targets = generate_targets()
+    targets = generate_targets(output_dir=args.output_dir)
     print(json.dumps(train_targets(targets, args.output_dir), sort_keys=True))
 
 
