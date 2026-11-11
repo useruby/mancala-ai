@@ -1,0 +1,90 @@
+{
+  "schema": "seed571-policy-distillation-config-v1",
+  "base_commit": "92a57fd9",
+  "training_roots": {
+    "source": "docs/data/seed557-retrospective-diagnostic/cohort.json",
+    "sha256": "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243",
+    "count": 256,
+    "qualification_and_oracle_data_consumed": false
+  },
+  "teacher": {
+    "policy_trunk": "docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts/P-E4",
+    "policy_trunk_hashes": {
+      "metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+      "model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+      "weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+    },
+    "fixed_initializer_value_trunk": "docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts/initializer",
+    "initializer_hashes": {
+      "metadata.json": "f3b9a7d665be7b1219b4a3412bf4a499e5bafd525905b50d93deac4e6ad9ccef",
+      "model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+      "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+    }
+  },
+  "search": {
+    "implementation": "ml/alphazero_lite/self_play.py:PUCT",
+    "implementation_commit": "92a57fd9",
+    "simulations": 128,
+    "c_puct": 1.25,
+    "workers": 1,
+    "fresh_tree": true,
+    "fpu_mode": "zero",
+    "reuse_subtree": false,
+    "normalize_values": false,
+    "root_policy_mode": "deterministic",
+    "root_temperature": 0.0,
+    "tactical_root_bias": 0.0,
+    "dirichlet_noise": false
+  },
+  "targets": "visit_count / sum(visit_count) over legal actions; illegal and unvisited actions are zero",
+  "search_seed_derivation": "seed557_retrospective.search_seed(canonical_hash(state)); source bytes are hash-bound in the pre-training freeze",
+  "model": {
+    "type": "residual_v3/kalah_v3",
+    "initialization": "serving-P E4 checkpoint",
+    "trainable": ["shared trunk", "policy hidden/head"],
+    "fixed": ["initializer value model and its trunk"]
+  },
+  "training": {
+    "seed": 571,
+    "batch_size": 32,
+    "updates": 512,
+    "batch_order": "one Python random.Random(571) shuffle of root indexes 0..255; contiguous batches of 32 cycled in order for 512 updates",
+    "optimizer": "Adam",
+    "learning_rate": 0.00001,
+    "betas": [0.9, 0.999],
+    "epsilon": 1e-8,
+    "weight_decay": 0.0,
+    "loss": "mean legal-action masked soft-target cross entropy",
+    "regularization": "none",
+    "gradient_clip_norm": 1.0,
+    "selection": "update 512 only; no intermediate checkpoint selection",
+    "checkpoint": "seed571-policy-distillation-update-512.npz"
+  },
+  "failure_conditions": [
+    "any input/configuration hash mismatch before search or training",
+    "root count or legal-action mismatch",
+    "visit total differs from 128 or target has illegal/nonfinite/negative mass",
+    "nonfinite loss, gradient, or parameter",
+    "any frozen parameter changes",
+    "unexpected batch order/update count",
+    "checkpoint destination already exists"
+  ],
+  "outputs": [
+    "teacher-visits.jsonl",
+    "targets.sha256",
+    "training-trace.jsonl",
+    "seed571-policy-distillation-update-512.npz",
+    "checkpoint-identity.json"
+  ],
+  "runtime": {
+    "device": "cpu",
+    "python": "3.12.8",
+    "numpy": "2.2.6",
+    "torch": "2.7.1+cpu",
+    "pythonhashseed": "571",
+    "deterministic_algorithms": true,
+    "threads": 1
+  }
+}
