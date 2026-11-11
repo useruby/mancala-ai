@@ -1,0 +1,155 @@
+{
+  "checkpoint": "seed571-policy-distillation-update-512.npz",
+  "frozen_parameters_unchanged": true,
+  "initializer_value_checkpoint_sha256": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+  "parent_policy_checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+  "sha256": "4e16fed2550a64a9413b588f84e8df1eadde7e0b5889b4932cb3783e3cb648e4",
+  "target_sha256": "56d2d1e5f56f786a92304d6a6ed741c1f885a3c61d474ef03b2950797561b15a",
+  "tensors": {
+    "b_input": {
+      "dtype": "float32",
+      "shape": [
+        96
+      ]
+    },
+    "b_policy": {
+      "dtype": "float32",
+      "shape": [
+        6
+      ]
+    },
+    "b_policy_hidden": {
+      "dtype": "float32",
+      "shape": [
+        96
+      ]
+    },
+    "b_residual_1_1": {
+      "dtype": "float32",
+      "shape": [
+        96
+      ]
+    },
+    "b_residual_1_2": {
+      "dtype": "float32",
+      "shape": [
+        96
+      ]
+    },
+    "b_residual_2_1": {
+      "dtype": "float32",
+      "shape": [
+        96
+      ]
+    },
+    "b_residual_2_2": {
+      "dtype": "float32",
+      "shape": [
+        96
+      ]
+    },
+    "b_residual_3_1": {
+      "dtype": "float32",
+      "shape": [
+        96
+      ]
+    },
+    "b_residual_3_2": {
+      "dtype": "float32",
+      "shape": [
+        96
+      ]
+    },
+    "b_value": {
+      "dtype": "float32",
+      "shape": [
+        1
+      ]
+    },
+    "b_value_hidden": {
+      "dtype": "float32",
+      "shape": [
+        48
+      ]
+    },
+    "w_input": {
+      "dtype": "float32",
+      "shape": [
+        27,
+        96
+      ]
+    },
+    "w_policy": {
+      "dtype": "float32",
+      "shape": [
+        96,
+        6
+      ]
+    },
+    "w_policy_hidden": {
+      "dtype": "float32",
+      "shape": [
+        96,
+        96
+      ]
+    },
+    "w_residual_1_1": {
+      "dtype": "float32",
+      "shape": [
+        96,
+        96
+      ]
+    },
+    "w_residual_1_2": {
+      "dtype": "float32",
+      "shape": [
+        96,
+        96
+      ]
+    },
+    "w_residual_2_1": {
+      "dtype": "float32",
+      "shape": [
+        96,
+        96
+      ]
+    },
+    "w_residual_2_2": {
+      "dtype": "float32",
+      "shape": [
+        96,
+        96
+      ]
+    },
+    "w_residual_3_1": {
+      "dtype": "float32",
+      "shape": [
+        96,
+        96
+      ]
+    },
+    "w_residual_3_2": {
+      "dtype": "float32",
+      "shape": [
+        96,
+        96
+      ]
+    },
+    "w_value": {
+      "dtype": "float32",
+      "shape": [
+        48,
+        1
+      ]
+    },
+    "w_value_hidden": {
+      "dtype": "float32",
+      "shape": [
+        96,
+        48
+      ]
+    }
+  },
+  "training_roots": 256,
+  "updates": 512
+}
