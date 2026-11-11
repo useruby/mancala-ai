@@ -75,6 +75,84 @@ historical evaluation gaps or the unresolved seed461 continuation population.
 
 ## Freeze, commitment, and reveal
 
+### Public protocol freeze before any seed draw
+
+This section is the public protocol freeze for one future **exclusion-screened
+comparison**. It is distinct from the no-sampling preflight record and binds
+that record by digest. The preflight was run with
+`python -m ml.alphazero_lite.holdback_operator preflight --root .`; its
+seed-free record has SHA-256
+`28879ca7f303db509ccdaf1a1a2eb73cb0fea9dab3d4b929c43b64218f86cd27`.
+It reports `seed_drawn=false`, `openings_sampled=false`, and authenticates the
+#565 inventory manifest
+`946fc52c75fa2e6c0499811fcb97ff773ea00ec6ec9b6d1bfb3ec1c2466a95ad` and both
+identity indexes (534,033 distinct canonical and 534,033 distinct
+`kalah_v3_float32` identities). The bound inventory is the complete
+#565/#561 published known-source inventory, including its #511 pinned source
+list and the #562–#564, #556–#560, and expanded #503/#504, #543, and #549
+populations as detailed in the coverage audit above. No claim is made about
+populations not reconstructed by that inventory.
+
+The no-seed generator/runtime binding recorded by that preflight is:
+
+| Binding | Frozen value |
+| --- | --- |
+| Generator | `rules_only_uniform_prefix_v1`, `build_rules_only_suite`; source SHA-256 `00e238eee7893c8e9cf843f2cbff9c2ecfb36a8be8f785cfec2066919f3e8fb7` |
+| Rules implementation | `kalah_rules.py` whole-file SHA-256 `6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036` |
+| Canonical identity | `canonical_identity` source SHA-256 `1f76439bd6fb9870a964785159e1f847e959aad38e89f29d49c86c6103a03b3c` |
+| Production float32 identity | `float32_identity` source SHA-256 `8d55af9d5ee48c4bec014de8b3bfd7310e1b5a009b510baac9f4eeaaa5ed1a11` |
+| Encoder | `kalah_v3`; `encode_state` source SHA-256 `d8cbfa207eeebc1cdfe4181ddc230499d0915c416d6ef06c032b527308f4e953`; `self_play.py` SHA-256 `76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c`; `input_encodings.py` SHA-256 `0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe` |
+| Identity implementation file | `seed482_fresh_confirmation.py` SHA-256 `81460b8fedd4df15c5614fdb76ce32a7bcd77864782bfe0cc0e07316b1c23952` |
+| Protocol implementation file | `holdback_arena.py` SHA-256 `a05868191ab98ee7de48ef9fe5840caedcff4fea81055cdf3d15458507efcb59` |
+| Runtime | CPython `3.14.7`; NumPy `2.5.3`; RNG `python.random.Random` / MT19937 |
+
+The sampling law is fixed at 1,024 accepted openings, with at most 20,000
+attempts total and no reseeding. Each attempt starts from the standard Kalah
+initial state, draws a legal prefix length uniformly with `randint(4, 12)`,
+then chooses uniformly from ascending legal relative pit indices using the
+single MT19937 stream. Reject terminal/short prefixes and any resulting state
+whose canonical or production-float32 identity occurs in either #565 index or
+an earlier accepted opening. Never select, replace, or discard an opening in
+response to outcomes. Serialize ordered records as compact UTF-8 sorted-key
+JSON with `,`/`:` separators and one LF per row, under
+`arena_player_relative_v2`. The persisted seed is the only recovery seed;
+shortfall is reported without publishing a partial suite and without drawing a
+replacement seed.
+
+The later candidate freeze, before reveal, must bind candidate and serving-P
+artifact SHA-256 values and each artifact's exact inference/search configuration.
+The arena contract itself is fixed now: 1,024 opening pairs (2,048 games),
+each opening played once with candidate as arena player and once with serving P
+as arena player, with seats swapped; one search worker per game. Both arms use
+the registered shared `search_policy.json` configuration, SHA-256
+`280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc`; its
+bytes and the effective search settings are rechecked and bound in the later
+candidate freeze. Pair-level concurrency is 18 and must not be converted into
+per-game search parallelism. Use the registered #556 resource profile:
+Linux CPU affinity 14–31, CPU quota 1,800%, CPU weight 100, memory maximum
+36,864 MiB, address-space limit 65,536 MiB, nice 19, one Torch thread and one
+Torch inter-op thread, and one thread for BLAS/MKL/NumExpr/OpenMP/OpenBLAS.
+Enforce a 72-hour wall-clock cap for the complete 2,048-game run; reaching the
+cap makes the run incomplete and ineligible for the predeclared comparison.
+Bind observed limits, executable/runtime versions, and the full settings into
+the later execution freeze. Do not adjust concurrency or limits during a run.
+
+The sole primary statistic is candidate score minus serving-P score, with win
+= 1, draw = 0.5, loss = 0, averaged within each opening across its two
+seat-swapped games; report the mean paired difference over the 1,024 openings
+and its two-sided 95% Student-t confidence interval using the sample standard
+error across opening-level differences (df=1,023). Report game counts and
+draws; no subgroup, alternate metric, or post-hoc exclusion can replace this
+primary analysis. This screen is descriptive and does not itself qualify fresh
+confirmation, establish superiority, or authorize deployment.
+
+The seed461 continuation overlap remains unresolved, and other historical
+training/development populations remain uncovered with unknown counts. This
+known-exclusion screen cannot establish fresh disjointness: **#483 stays
+closed**. Candidate and serving-P artifact hashes are intentionally absent
+from this public protocol freeze; they must be frozen later, together with the
+corresponding search configuration hashes, before any suite reveal.
+
 ### Operator rehearsal and private seal commands
 
 The custodian CLI is `python -m ml.alphazero_lite.holdback_operator`. Run
