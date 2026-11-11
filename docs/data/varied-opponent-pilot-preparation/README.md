@@ -57,15 +57,16 @@ its rows are accepted.
 ## Parallelism and CPU accounting
 
 Pair jobs are the 18-way concurrency unit, dispatched to 18 isolated worker
-processes. The scope binds CPU quota 1800%, CPU weight 100, memory maximum 36
-GiB, CPUs 14–31, and nice level 19. Each game search remains single-worker;
-PyTorch intra-op and inter-op thread counts are both set to one in each pair
-process. CPU cost uses `time.process_time_ns()` around each game in its isolated
-pair process, which includes CPU consumed by the process's search threads without
-mixing concurrent pairs. It is accumulated separately by arm; CPU-hours are
-`sum(cpu_time_ns) / 3_600_000_000_000`. Wall time is not used as the
-primary-efficiency denominator. Capped and incomplete games still incur CPU
-cost and remain in cost accounting.
+processes. Each process handles one pair and exits, so model initialization is
+attributable to that pair. The scope binds CPU quota 1800%, CPU weight 100,
+memory maximum 36 GiB, CPUs 14–31, and nice level 19. Each game search remains
+single-worker; PyTorch intra-op and inter-op thread counts are both set to one
+in each pair process. The worker records process CPU time per game and per pair;
+the per-pair amount includes model initialization, native tablebase setup, and
+both seat-swapped games, without mixing concurrent pairs. Sum pair CPU time
+separately by arm; CPU-hours are `sum(pair_cpu_time_ns) / 3_600_000_000_000`.
+Wall time is not used as the primary-efficiency denominator. Capped and
+incomplete games still incur CPU cost and remain in cost accounting.
 
 ## Preparation checks
 
@@ -86,8 +87,14 @@ For a planned frozen spec JSON, invoke:
 ```bash
 /home/alex/azlite-venv/bin/python -m ml.alphazero_lite.varied_opponent_pilot \
   --preflight --specs /path/to/frozen-game-specs.json \
-  --artifacts docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts
+  --artifacts docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts \
+  --tablebase /path/to/materialized/kalah_v1_21.kvtb
 ```
+
+The tablebase path must point to the materialized 709,635,072-byte object whose
+SHA-256 is bound by #556; the tracked Git-LFS pointer itself is not used as a
+solver table. The native probe is resolved from the worktree and independently
+hash-checked.
 
 The actual pilot freeze must separately record its public opening manifest,
 complete game assignments, effective search policy, runtime limits, coverage

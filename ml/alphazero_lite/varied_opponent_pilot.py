@@ -12,6 +12,7 @@ import json
 import math
 import random
 import argparse
+import os
 import subprocess
 import sys
 import time
@@ -89,6 +90,7 @@ EXPECTED_COMPONENT_HASHES = {
 }
 OPPONENTS = frozenset({"initializer", "T512"})
 _PROCESS_EVALUATORS: PilotEvaluators | None = None
+_PROCESS_SETUP_CPU_NS = 0
 
 
 def sha256(path: Path) -> str:
@@ -157,9 +159,15 @@ def effective_runtime_policy(artifact_root: Path) -> dict[str, Any]:
         or first.get("exact_leaf_solve") != "disabled"
     ):
         raise ValueError("runtime_policy_semantics_mismatch")
+    tablebase = Path(
+        os.environ.get(
+            "AZLITE_KALAH_V1_TABLEBASE",
+            root / "model-artifact/runtime/kalah_v1_21.kvtb",
+        )
+    )
     assets = {
         "native_probe": root / "model-artifact/runtime/kalah_v1_tablebase",
-        "tablebase": root / "model-artifact/runtime/kalah_v1_21.kvtb",
+        "tablebase": tablebase,
     }
     resolved: dict[str, str] = {}
     for name, path in assets.items():
@@ -623,6 +631,46 @@ def verify_archive(records: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def summarize_pair_accounting(pair_results: list[dict[str, Any]]) -> dict[str, Any]:
+    """Aggregate accepted rows, incomplete games, and measured CPU by arm."""
+    summary: dict[str, dict[str, int | float]] = {}
+    for pair in pair_results:
+        arm = str(pair["arm"])
+        cpu_ns = pair.get("pair_cpu_time_ns")
+        if not isinstance(cpu_ns, int) or cpu_ns < 0:
+            raise ValueError("pair_cpu_accounting_invalid")
+        game_cpu_ns = sum(int(game.get("cpu_time_ns", -1)) for game in pair["games"])
+        if game_cpu_ns < 0 or cpu_ns < game_cpu_ns:
+            raise ValueError("pair_cpu_below_game_cpu")
+        bucket = summary.setdefault(
+            arm,
+            {
+                "pairs": 0,
+                "games": 0,
+                "complete_games": 0,
+                "capped_games": 0,
+                "incomplete_games": 0,
+                "accepted_rows": 0,
+                "cpu_time_ns": 0,
+                "cpu_hours": 0.0,
+            },
+        )
+        bucket["pairs"] += 1
+        bucket["cpu_time_ns"] += cpu_ns
+        for game in pair["games"]:
+            verify_game(game)
+            bucket["games"] += 1
+            status_key = {
+                "complete": "complete_games",
+                "capped": "capped_games",
+                "incomplete": "incomplete_games",
+            }[game["game_status"]]
+            bucket[status_key] += 1
+            bucket["accepted_rows"] += int(game["accepted_rows"])
+        bucket["cpu_hours"] = bucket["cpu_time_ns"] / 3_600_000_000_000
+    return summary
+
+
 def run_pair_specs(
     pair_jobs: list[dict[str, Any]],
     pair_runner: Callable[[dict[str, Any]], Any],
@@ -664,30 +712,35 @@ def run_validated_pairs(
     verify_components(artifact_root)
     with concurrent.futures.ProcessPoolExecutor(
         max_workers=PAIR_CONCURRENCY,
+        max_tasks_per_child=1,
         initializer=_initialize_pair_process,
         initargs=(str(artifact_root),),
     ) as pool:
         futures = [pool.submit(_play_pair_process, job) for job in pair_jobs]
         results = [future.result() for future in futures]
     verify_archive([game for result in results for game in result["games"]])
+    summarize_pair_accounting(results)
     return results
 
 
 def _initialize_pair_process(artifact_root: str) -> None:
     """Authenticate and load immutable evaluators once in each pair process."""
-    global _PROCESS_EVALUATORS
+    global _PROCESS_EVALUATORS, _PROCESS_SETUP_CPU_NS
+    setup_start = time.process_time_ns()
     import torch
 
     torch.set_num_threads(WORKERS_PER_GAME)
     if torch.get_num_interop_threads() != WORKERS_PER_GAME:
         torch.set_num_interop_threads(WORKERS_PER_GAME)
     _PROCESS_EVALUATORS = load_evaluators(Path(artifact_root))
+    _PROCESS_SETUP_CPU_NS = time.process_time_ns() - setup_start
 
 
 def _play_pair_process(job: dict[str, Any]) -> dict[str, Any]:
     """Run both seat assignments sequentially in one isolated pair process."""
     if _PROCESS_EVALUATORS is None:
         raise RuntimeError("pair_process_evaluators_not_initialized")
+    pair_cpu_start = time.process_time_ns()
     specs = job["game_specs"]
     validate_game_specs(specs)
     games = [
@@ -698,7 +751,13 @@ def _play_pair_process(job: dict[str, Any]) -> dict[str, Any]:
         )
         for spec in specs
     ]
-    return {"pair_id": str(specs[0]["pair_id"]), "games": games}
+    pair_cpu_ns = _PROCESS_SETUP_CPU_NS + time.process_time_ns() - pair_cpu_start
+    return {
+        "pair_id": str(specs[0]["pair_id"]),
+        "arm": str(specs[0]["arm"]),
+        "games": games,
+        "pair_cpu_time_ns": pair_cpu_ns,
+    }
 
 
 def launch_preflight(
@@ -724,7 +783,7 @@ def launch_preflight(
             "allowed_cpus": ALLOWED_CPUS,
             "nice": NICE,
         },
-        "cpu_accounting": "process_cpu_time_ns_per_game_in_isolated_pair_process",
+        "cpu_accounting": "isolated_pair_process_cpu_including_model_setup_and_both_games",
         "systemd_scope_preflight": "passed_no_game_command_run",
     }
 
@@ -830,7 +889,10 @@ def main() -> None:
     parser.add_argument("--preflight", action="store_true", required=True)
     parser.add_argument("--specs", type=Path, required=True)
     parser.add_argument("--artifacts", type=Path, required=True)
+    parser.add_argument("--tablebase", type=Path)
     args = parser.parse_args()
+    if args.tablebase is not None:
+        os.environ["AZLITE_KALAH_V1_TABLEBASE"] = str(args.tablebase)
     specs = json.loads(args.specs.read_text())
     if not isinstance(specs, list):
         raise SystemExit("specs_file_must_contain_json_array")

@@ -125,6 +125,34 @@ def test_capped_game_is_separate_and_has_no_accepted_rows():
     assert pilot.verify_game(record)["status"] == "capped"
 
 
+def test_cpu_and_row_accounting_aggregates_per_arm():
+    specs = [row for row in _specs("T512") if row["arm"] == "treatment"]
+    games = [
+        pilot.play_game(
+            spec,
+            p_evaluator=_Evaluator("P"),
+            opponent_evaluator=_Evaluator("T512"),
+            search_turn=_scripted_search([]),
+        )
+        for spec in specs
+    ]
+    summary = pilot.summarize_pair_accounting(
+        [
+            {
+                "arm": "treatment",
+                "pair_cpu_time_ns": sum(game["cpu_time_ns"] for game in games) + 500,
+                "games": games,
+            }
+        ]
+    )["treatment"]
+    assert summary["pairs"] == 1
+    assert summary["games"] == 2
+    assert summary["complete_games"] == 2
+    assert summary["accepted_rows"] == sum(game["accepted_rows"] for game in games)
+    assert summary["cpu_time_ns"] == sum(game["cpu_time_ns"] for game in games) + 500
+    assert summary["cpu_hours"] == summary["cpu_time_ns"] / 3_600_000_000_000
+
+
 def test_verifier_rejects_missing_duplicate_opponent_and_mutated_rows():
     spec = next(
         row
@@ -194,7 +222,12 @@ def test_component_hash_mismatch_fails_launch_preflight(tmp_path):
         pilot.launch_preflight(_specs(), copied)
 
 
-def test_launch_preflight_checks_bundle_scope_and_fixed_workers():
+def test_launch_preflight_checks_bundle_scope_and_fixed_workers(monkeypatch):
+    monkeypatch.setattr(
+        pilot,
+        "effective_runtime_policy",
+        lambda _artifacts: {"effective_search_policy": {}, "runtime_assets": {}},
+    )
     result = pilot.launch_preflight(_specs(), ARTIFACTS)
     assert result["status"] == "preflight_passed_no_games_launched"
     assert result["pair_concurrency"] == 18
@@ -204,6 +237,14 @@ def test_launch_preflight_checks_bundle_scope_and_fixed_workers():
     assert "--property=CPUQuota=1800%" in command
     assert "--property=MemoryMax=38654705664" in command
     assert "--property=AllowedCPUs=14-31" in command
+
+
+def test_runtime_asset_materialization_is_hash_checked(tmp_path, monkeypatch):
+    materialized = tmp_path / "tablebase.kvtb"
+    materialized.write_bytes(b"not the registered tablebase")
+    monkeypatch.setenv("AZLITE_KALAH_V1_TABLEBASE", str(materialized))
+    with pytest.raises(ValueError, match="runtime_asset_hash_mismatch:tablebase"):
+        pilot.effective_runtime_policy(ARTIFACTS)
 
 
 def test_pair_executor_uses_18_concurrent_pair_slots():
