@@ -1,0 +1,74 @@
+{
+  "schema": "seed571-policy-distillation-execution-freeze-v1",
+  "status": "authorized-for-pretraining",
+  "bindings": {
+    "preparation_freeze_sha256": "ed5a0427a484fb45c8aee794765a0aff1a5fa7f9955338a2c2ab2f76e2cb0f98",
+    "configuration_sha256": "0941e5d658a65c006f8ccae7b84f13437ebe3476e2c4c61b1fd26733c0882ea8",
+    "runner_sha256": "186f93e674b6aeeb6396c3df59449c174660494e7924b2f315003c1ada660c4c",
+    "training_membership_sha256": "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243",
+    "teacher_artifact_hashes": {
+      "P-E4/metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+      "P-E4/model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "P-E4/search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+      "P-E4/weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136",
+      "initializer/metadata.json": "f3b9a7d665be7b1219b4a3412bf4a499e5bafd525905b50d93deac4e6ad9ccef",
+      "initializer/model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "initializer/search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+      "initializer/weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+    }
+  },
+  "runtime": {
+    "interpreter": "/home/alex/Mancala/ai-seed571-results/.tmp/seed571-py3128/bin/python",
+    "python": "3.12.8",
+    "numpy": "2.2.6",
+    "torch": "2.7.1+cpu",
+    "device": "cpu",
+    "cuda_available": false,
+    "pythonhashseed": "571",
+    "omp_num_threads": "1",
+    "mkl_num_threads": "1",
+    "torch_num_threads": 1,
+    "deterministic_algorithms": true
+  },
+  "preflight": {
+    "seed557_verifier": {
+      "status": "verified",
+      "selected_roots": 256,
+      "verified_game_batches": 1024,
+      "receipt_games": 2048,
+      "search_records": 768
+    },
+    "qualification_membership_identity_only": {
+      "status": "ready_for_pretraining_freeze",
+      "roots": 423,
+      "membership_sha256": "94e126af6ea88fb99a4230f84e5cf2a20248daa39ea66d25b68730ea0426d668",
+      "consumed_by_training": false
+    },
+    "focused_tests": {
+      "command": "python -m pytest ml/alphazero_lite/test_seed571_policy_distillation.py",
+      "result": "12 passed"
+    },
+    "runner_verify_only": "pretraining freeze verified; no search or training performed"
+  },
+  "recipe": {
+    "training_roots": 256,
+    "teacher": "authenticated serving-P E4 policy/trunk with authenticated initializer value model",
+    "search_simulations_per_root": 128,
+    "search_workers": 1,
+    "training_seed": 571,
+    "batch_size": 32,
+    "updates": 512,
+    "optimizer": "Adam",
+    "learning_rate": 0.00001,
+    "batch_order": "one random.Random(571) shuffle of indexes 0..255; contiguous batches cycled for 512 updates",
+    "candidate": "update 512 only",
+    "output_directory": "docs/data/seed571-policy-prior-distillation/run-0001"
+  },
+  "scope": {
+    "qualification": false,
+    "arena_games": false,
+    "sealed_suite_access": false,
+    "serving_changes": false,
+    "issue_483": "closed"
+  }
+}
