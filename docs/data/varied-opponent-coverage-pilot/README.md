@@ -38,7 +38,10 @@ commit is treated as unreconciled CPU and stops resume; it is not silently
 replayed. `dispatched` is written before queue submission and `started` is
 written by the worker before model setup; a dispatched attempt with no start
 marker is preserved as never started and remains pending on resume. Such a
-pilot is inconclusive unless any started-attempt cost can be reconciled.
+pair may be retried without deleting the dispatched-only receipt. The committed
+checkpoint records its producing attempt, so a later successful attempt can be
+reconciled alongside earlier never-started dispatches. A started attempt without
+a committed pair is inconclusive unless its cost can be reconciled.
 
 ## Commands
 
@@ -49,7 +52,7 @@ registered launch command is:
 
 ```bash
 export AZLITE_KALAH_V1_TABLEBASE=/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb
-export PILOT_FREEZE_SHA256=ed4b9ce82ba5aee89014241f66e16a2fcc95682bf020b1ddec010989ea68199e
+export PILOT_FREEZE_SHA256=bf0ee23fa7b6153a5f47c4a4782a963b271b7f598ad899c0c384accc1cd6ecab
 systemd-run --user --scope --quiet \
   --property=CPUQuota=1800% --property=CPUWeight=100 \
   --property=MemoryMax=38654705664 --property=AllowedCPUs=14-31 --nice=19 -- \

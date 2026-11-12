@@ -926,6 +926,8 @@ def commit_verified_pair(
     checkpoint_dir: Path,
     job: dict[str, Any],
     result: dict[str, Any],
+    *,
+    attempt_number: int = 1,
 ) -> Path:
     """Verify and atomically commit one complete pair and its assignment."""
     specs = job.get("game_specs", [])
@@ -940,11 +942,14 @@ def commit_verified_pair(
     games = result.get("games")
     if not isinstance(games, list) or len(games) != 2:
         raise ValueError("pair_checkpoint_game_count_mismatch")
+    if not isinstance(attempt_number, int) or attempt_number < 1:
+        raise ValueError("pair_checkpoint_attempt_number_invalid")
     verify_pair_result(job, result)
     assignment = json.loads(json.dumps(job, sort_keys=True))
     payload = {
         "schema": "varied_opponent_pair_checkpoint_v1",
         "assignment": assignment,
+        "producing_attempt": attempt_number,
         "result": result,
     }
     encoded = (json.dumps(payload, sort_keys=True) + "\n").encode("utf-8")
@@ -1008,6 +1013,9 @@ def load_pair_checkpoints(
         result = payload.get("result")
         if not isinstance(job, dict) or not isinstance(result, dict):
             raise ValueError("pair_checkpoint_payload_invalid")
+        attempt_number = payload.get("producing_attempt")
+        if not isinstance(attempt_number, int) or attempt_number < 1:
+            raise ValueError("pair_checkpoint_attempt_number_invalid")
         pair_id = str(job.get("game_specs", [{}])[0].get("pair_id", ""))
         if pair_id not in expected or json.dumps(job, sort_keys=True) != json.dumps(
             expected[pair_id], sort_keys=True
@@ -1053,10 +1061,18 @@ def reconcile_pair_attempts(
             raise ValueError("pilot_attempt_path_invalid") from exc
         last_number[pair_id] = max(last_number[pair_id], number)
         if pair_id in committed_results:
-            if status == "dispatched":
+            checkpoint = pair_checkpoint_path(checkpoint_dir, pair_id)
+            checkpoint_payload = json.loads(checkpoint.read_text())
+            producing_attempt = checkpoint_payload.get("producing_attempt")
+            if not isinstance(producing_attempt, int) or producing_attempt < 1:
+                raise ValueError("pair_checkpoint_attempt_number_invalid")
+            if number < producing_attempt:
+                if status != "dispatched":
+                    raise ValueError("pilot_attempt_status_conflicts_with_checkpoint")
+                continue
+            if number > producing_attempt or status == "dispatched":
                 raise ValueError("pilot_attempt_status_conflicts_with_checkpoint")
             result = committed_results[pair_id]
-            checkpoint = pair_checkpoint_path(checkpoint_dir, pair_id)
             checkpoint_digest = sha256(checkpoint)
             if status == "completed" and not {
                 "checkpoint_sha256",
@@ -1120,7 +1136,13 @@ def run_checkpointed_pairs(
         for future in concurrent.futures.as_completed(future_jobs):
             job, attempt_path = future_jobs[future]
             result = future.result()
-            checkpoint = commit_verified_pair(checkpoint_dir, job, result)
+            pair_id = str(job["game_specs"][0]["pair_id"])
+            checkpoint = commit_verified_pair(
+                checkpoint_dir,
+                job,
+                result,
+                attempt_number=attempt_numbers[pair_id],
+            )
             write_json_atomic(
                 attempt_path,
                 {

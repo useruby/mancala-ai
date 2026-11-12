@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import concurrent.futures
 import shutil
 import threading
 import time
@@ -663,6 +664,7 @@ def test_empty_pair_checkpoint_cannot_be_committed_or_skipped(tmp_path):
     checkpoint = {
         "schema": "varied_opponent_pair_checkpoint_v1",
         "assignment": job,
+        "producing_attempt": 1,
         "result": result,
     }
     path = pilot.pair_checkpoint_path(tmp_path, job["game_specs"][0]["pair_id"])
@@ -712,6 +714,99 @@ def test_dispatched_but_never_started_pair_remains_pending(tmp_path):
     assert completed == []
     assert pending == [job]
     assert next_numbers[pair_id] == 2
+
+
+def test_retry_completion_then_resume_skips_pair_and_preserves_history(
+    tmp_path, monkeypatch
+):
+    job = {
+        "game_specs": [
+            spec for spec in _specs("initializer") if spec["arm"] == "treatment"
+        ]
+    }
+    pair_id = job["game_specs"][0]["pair_id"]
+    games = [
+        pilot.play_game(
+            spec,
+            p_evaluator=_Evaluator("P"),
+            opponent_evaluator=_Evaluator("initializer"),
+            search_turn=_scripted_search([]),
+        )
+        for spec in job["game_specs"]
+    ]
+    process_cpu = sum(game["cpu_time_ns"] for game in games) + 500
+    result = {
+        "pair_id": pair_id,
+        "arm": "treatment",
+        "games": games,
+        "pair_process_cpu_time_ns": process_cpu,
+        "native_child_cpu_time_ns": 0,
+        "pair_cpu_time_ns": process_cpu,
+    }
+    attempt_dir = tmp_path / "attempts"
+    attempt1 = pilot.pair_attempt_path(attempt_dir, pair_id, 1)
+    pilot.write_json_atomic(
+        attempt1,
+        {"pair_id": pair_id, "status": "dispatched", "assignment": job},
+    )
+    monkeypatch.setattr(pilot, "verify_components", lambda _root: {})
+
+    def fake_attempt(_job, _artifact_root, attempt_path):
+        pilot.write_json_atomic(
+            attempt_path,
+            {"pair_id": pair_id, "status": "started", "assignment": job},
+        )
+        return result
+
+    class SynchronousPool:
+        def __init__(self, **_kwargs):
+            self.submissions = 0
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def submit(self, function, *args):
+            self.submissions += 1
+            future = concurrent.futures.Future()
+            try:
+                future.set_result(function(*args))
+            except Exception as error:  # pragma: no cover - fixture propagation
+                future.set_exception(error)
+            return future
+
+    pool_instances = []
+
+    def make_pool(**kwargs):
+        pool = SynchronousPool(**kwargs)
+        pool_instances.append(pool)
+        return pool
+
+    monkeypatch.setattr(pilot, "_play_pair_attempt", fake_attempt)
+    monkeypatch.setattr(pilot.concurrent.futures, "ProcessPoolExecutor", make_pool)
+    checkpoint_dir = tmp_path / "pairs"
+    first_resume = pilot.run_checkpointed_pairs(
+        [job], ARTIFACTS, checkpoint_dir, attempt_dir=attempt_dir
+    )
+    assert [pair["pair_id"] for pair in first_resume] == [pair_id]
+    assert len(pool_instances) == 1 and pool_instances[0].submissions == 1
+    attempt2 = pilot.pair_attempt_path(attempt_dir, pair_id, 2)
+    assert json.loads(attempt1.read_text())["status"] == "dispatched"
+    assert json.loads(attempt2.read_text())["status"] == "completed"
+    checkpoint = json.loads(
+        pilot.pair_checkpoint_path(checkpoint_dir, pair_id).read_text()
+    )
+    assert checkpoint["producing_attempt"] == 2
+
+    second_resume = pilot.run_checkpointed_pairs(
+        [job], ARTIFACTS, checkpoint_dir, attempt_dir=attempt_dir
+    )
+    assert [pair["pair_id"] for pair in second_resume] == [pair_id]
+    assert len(pool_instances) == 1
+    assert json.loads(attempt1.read_text())["status"] == "dispatched"
+    assert json.loads(attempt2.read_text())["status"] == "completed"
 
 
 def test_pair_checkpoint_game_specs_must_match_frozen_assignment(tmp_path):
