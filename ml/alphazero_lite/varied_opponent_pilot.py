@@ -12,6 +12,7 @@ import json
 import math
 import random
 import argparse
+import contextlib
 import os
 import resource
 import subprocess
@@ -803,8 +804,13 @@ def summarize_pair_accounting(pair_results: list[dict[str, Any]]) -> dict[str, A
             or cpu_ns != process_cpu_ns + child_cpu_ns
         ):
             raise ValueError("pair_child_cpu_accounting_invalid")
-        game_cpu_ns = sum(int(game.get("cpu_time_ns", -1)) for game in pair["games"])
-        if game_cpu_ns < 0 or cpu_ns < game_cpu_ns:
+        game_cpu_values = [game.get("cpu_time_ns") for game in pair["games"]]
+        if any(not isinstance(value, int) or value < 0 for value in game_cpu_values):
+            raise ValueError("pair_game_cpu_accounting_invalid")
+        game_cpu_ns = sum(game_cpu_values)
+        if process_cpu_ns < game_cpu_ns:
+            raise ValueError("pair_process_cpu_below_game_cpu")
+        if cpu_ns < game_cpu_ns:
             raise ValueError("pair_cpu_below_game_cpu")
         bucket = summary.setdefault(
             arm,
@@ -889,6 +895,292 @@ def run_validated_pairs(
     return results
 
 
+def pair_checkpoint_path(checkpoint_dir: Path, pair_id: str) -> Path:
+    """Return the stable archive path for one committed pair."""
+    safe_id = hashlib.sha256(pair_id.encode("utf-8")).hexdigest()
+    return Path(checkpoint_dir) / f"{safe_id}.json"
+
+
+def write_json_atomic(path: Path, payload: dict[str, Any]) -> None:
+    """Durably replace a JSON record without exposing a partial file."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(f".{os.getpid()}.tmp")
+    encoded = (json.dumps(payload, sort_keys=True) + "\n").encode("utf-8")
+    try:
+        with temporary.open("xb") as handle:
+            handle.write(encoded)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+        directory_fd = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+    finally:
+        with contextlib.suppress(FileNotFoundError):
+            temporary.unlink()
+
+
+def commit_verified_pair(
+    checkpoint_dir: Path,
+    job: dict[str, Any],
+    result: dict[str, Any],
+    *,
+    attempt_number: int = 1,
+) -> Path:
+    """Verify and atomically commit one complete pair and its assignment."""
+    specs = job.get("game_specs", [])
+    validate_game_specs(specs)
+    if len(specs) != 2:
+        raise ValueError("pair_job_must_contain_two_seat_games")
+    if (
+        result.get("pair_id") != specs[0]["pair_id"]
+        or result.get("arm") != specs[0]["arm"]
+    ):
+        raise ValueError("pair_checkpoint_assignment_mismatch")
+    games = result.get("games")
+    if not isinstance(games, list) or len(games) != 2:
+        raise ValueError("pair_checkpoint_game_count_mismatch")
+    if not isinstance(attempt_number, int) or attempt_number < 1:
+        raise ValueError("pair_checkpoint_attempt_number_invalid")
+    verify_pair_result(job, result)
+    assignment = json.loads(json.dumps(job, sort_keys=True))
+    payload = {
+        "schema": "varied_opponent_pair_checkpoint_v1",
+        "assignment": assignment,
+        "producing_attempt": attempt_number,
+        "result": result,
+    }
+    encoded = (json.dumps(payload, sort_keys=True) + "\n").encode("utf-8")
+    path = pair_checkpoint_path(checkpoint_dir, str(specs[0]["pair_id"]))
+    if path.exists():
+        existing = path.read_bytes()
+        if existing != encoded:
+            raise ValueError("pair_checkpoint_conflict")
+        return path
+    write_json_atomic(path, payload)
+    return path
+
+
+def verify_pair_result(job: dict[str, Any], result: dict[str, Any]) -> None:
+    """Bind a pair result to both frozen seat specs and reconcile its CPU."""
+    specs = job.get("game_specs", [])
+    games = result.get("games")
+    if len(specs) != 2 or not isinstance(games, list) or len(games) != 2:
+        raise ValueError("pair_checkpoint_game_count_mismatch")
+    validate_game_specs(specs)
+    expected_by_id = {str(spec["game_id"]): spec for spec in specs}
+    observed_by_id: dict[str, dict[str, Any]] = {}
+    for game in games:
+        spec = game.get("spec")
+        if not isinstance(spec, dict):
+            raise ValueError("pair_checkpoint_game_spec_missing")
+        game_id = str(spec.get("game_id", ""))
+        if game_id in observed_by_id:
+            raise ValueError("pair_checkpoint_duplicate_game")
+        observed_by_id[game_id] = spec
+        if game_id not in expected_by_id or json.dumps(
+            spec, sort_keys=True
+        ) != json.dumps(expected_by_id[game_id], sort_keys=True):
+            raise ValueError("pair_checkpoint_game_assignment_mismatch")
+    if observed_by_id.keys() != expected_by_id.keys():
+        raise ValueError("pair_checkpoint_game_assignment_mismatch")
+    if (
+        result.get("pair_id") != specs[0]["pair_id"]
+        or result.get("arm") != specs[0]["arm"]
+    ):
+        raise ValueError("pair_checkpoint_assignment_mismatch")
+    verify_archive(games)
+    summarize_pair_accounting([result])
+
+
+def load_pair_checkpoints(
+    checkpoint_dir: Path,
+    pair_jobs: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Validate existing committed evidence and return completed and pending jobs."""
+    expected = {str(job["game_specs"][0]["pair_id"]): job for job in pair_jobs}
+    if len(expected) != len(pair_jobs):
+        raise ValueError("pair_assignment_duplicate_id")
+    completed: list[dict[str, Any]] = []
+    directory = Path(checkpoint_dir)
+    for path in sorted(directory.glob("*.json")) if directory.exists() else []:
+        payload = json.loads(path.read_text())
+        if payload.get("schema") != "varied_opponent_pair_checkpoint_v1":
+            raise ValueError("pair_checkpoint_schema_mismatch")
+        job = payload.get("assignment")
+        result = payload.get("result")
+        if not isinstance(job, dict) or not isinstance(result, dict):
+            raise ValueError("pair_checkpoint_payload_invalid")
+        attempt_number = payload.get("producing_attempt")
+        if not isinstance(attempt_number, int) or attempt_number < 1:
+            raise ValueError("pair_checkpoint_attempt_number_invalid")
+        pair_id = str(job.get("game_specs", [{}])[0].get("pair_id", ""))
+        if pair_id not in expected or json.dumps(job, sort_keys=True) != json.dumps(
+            expected[pair_id], sort_keys=True
+        ):
+            raise ValueError("pair_checkpoint_assignment_conflict")
+        if path != pair_checkpoint_path(directory, pair_id):
+            raise ValueError("pair_checkpoint_path_mismatch")
+        verify_pair_result(job, result)
+        completed.append(result)
+    done = {str(result["pair_id"]) for result in completed}
+    return completed, [job for pair_id, job in expected.items() if pair_id not in done]
+
+
+def pair_attempt_path(attempt_dir: Path, pair_id: str, attempt_number: int) -> Path:
+    pair_hash = hashlib.sha256(pair_id.encode()).hexdigest()
+    return Path(attempt_dir) / f"{pair_hash}.attempt-{attempt_number:04d}.json"
+
+
+def reconcile_pair_attempts(
+    attempt_dir: Path,
+    pair_jobs: list[dict[str, Any]],
+    committed_results: dict[str, dict[str, Any]],
+    checkpoint_dir: Path,
+) -> dict[str, int]:
+    """Reconcile receipts to commits; only dispatched work never started may retry."""
+    jobs = {str(job["game_specs"][0]["pair_id"]): job for job in pair_jobs}
+    last_number: dict[str, int] = {pair_id: 0 for pair_id in jobs}
+    attempt_records: dict[str, dict[int, dict[str, Any]]] = {}
+    committed_attempts: dict[str, int] = {}
+    for path in sorted(Path(attempt_dir).glob("*.json")):
+        record = json.loads(path.read_text())
+        pair_id = str(record.get("pair_id", ""))
+        status = record.get("status")
+        if pair_id not in jobs or status not in {"dispatched", "started", "completed"}:
+            raise ValueError("pilot_attempt_record_invalid")
+        assignment = record.get("assignment")
+        if json.dumps(assignment, sort_keys=True) != json.dumps(
+            jobs[pair_id], sort_keys=True
+        ):
+            raise ValueError("pilot_attempt_assignment_conflict")
+        stem = path.stem
+        try:
+            number = int(stem.rsplit("-", 1)[1])
+        except (IndexError, ValueError) as exc:
+            raise ValueError("pilot_attempt_path_invalid") from exc
+        if path != pair_attempt_path(Path(attempt_dir), pair_id, number):
+            raise ValueError("pilot_attempt_path_invalid")
+        pair_records = attempt_records.setdefault(pair_id, {})
+        if number in pair_records:
+            raise ValueError("pilot_attempt_duplicate_number")
+        pair_records[number] = record
+        last_number[pair_id] = max(last_number[pair_id], number)
+        if pair_id in committed_results:
+            checkpoint = pair_checkpoint_path(checkpoint_dir, pair_id)
+            checkpoint_payload = json.loads(checkpoint.read_text())
+            producing_attempt = checkpoint_payload.get("producing_attempt")
+            if not isinstance(producing_attempt, int) or producing_attempt < 1:
+                raise ValueError("pair_checkpoint_attempt_number_invalid")
+            committed_attempts[pair_id] = producing_attempt
+            if number < producing_attempt:
+                if status != "dispatched":
+                    raise ValueError("pilot_attempt_status_conflicts_with_checkpoint")
+                continue
+            if number > producing_attempt or status == "dispatched":
+                raise ValueError("pilot_attempt_status_conflicts_with_checkpoint")
+            result = committed_results[pair_id]
+            checkpoint_digest = sha256(checkpoint)
+            if status == "completed" and not {
+                "checkpoint_sha256",
+                "pair_cpu_time_ns",
+            }.issubset(record):
+                raise ValueError("pilot_attempt_checkpoint_receipt_conflict")
+            if (
+                "checkpoint_sha256" in record
+                and record["checkpoint_sha256"] != checkpoint_digest
+            ) or (
+                "pair_cpu_time_ns" in record
+                and record["pair_cpu_time_ns"] != result.get("pair_cpu_time_ns")
+            ):
+                raise ValueError("pilot_attempt_checkpoint_receipt_conflict")
+            continue
+        if status in {"started", "completed"}:
+            raise ValueError("unreconciled_interrupted_attempt_cpu")
+    for pair_id in committed_results:
+        if pair_id not in committed_attempts:
+            checkpoint_payload = json.loads(
+                pair_checkpoint_path(checkpoint_dir, pair_id).read_text()
+            )
+            producing_attempt = checkpoint_payload.get("producing_attempt")
+            if not isinstance(producing_attempt, int) or producing_attempt < 1:
+                raise ValueError("pair_checkpoint_attempt_number_invalid")
+            committed_attempts[pair_id] = producing_attempt
+    for pair_id, producing_attempt in committed_attempts.items():
+        producing_record = attempt_records.get(pair_id, {}).get(producing_attempt)
+        if producing_record is None:
+            raise ValueError("pair_checkpoint_producing_attempt_missing")
+        if producing_record.get("status") not in {"started", "completed"}:
+            raise ValueError("pilot_attempt_status_conflicts_with_checkpoint")
+    return {pair_id: number + 1 for pair_id, number in last_number.items()}
+
+
+def run_checkpointed_pairs(
+    pair_jobs: list[dict[str, Any]],
+    artifact_root: Path,
+    checkpoint_dir: Path,
+    *,
+    attempt_dir: Path,
+) -> list[dict[str, Any]]:
+    """Resume only after validating commits; atomically persist each finished pair."""
+    all_specs = [spec for job in pair_jobs for spec in job.get("game_specs", [])]
+    validate_game_specs(all_specs)
+    verify_components(artifact_root)
+    committed, pending = load_pair_checkpoints(checkpoint_dir, pair_jobs)
+    attempt_dir.mkdir(parents=True, exist_ok=True)
+    committed_results = {str(result["pair_id"]): result for result in committed}
+    attempt_numbers = reconcile_pair_attempts(
+        attempt_dir, pair_jobs, committed_results, checkpoint_dir
+    )
+    if not pending:
+        return committed
+    with concurrent.futures.ProcessPoolExecutor(
+        max_workers=PAIR_CONCURRENCY,
+        max_tasks_per_child=1,
+    ) as pool:
+        future_jobs = {}
+        for job in pending:
+            pair_id = str(job["game_specs"][0]["pair_id"])
+            attempt_path = pair_attempt_path(
+                attempt_dir, pair_id, attempt_numbers[pair_id]
+            )
+            write_json_atomic(
+                attempt_path,
+                {
+                    "pair_id": pair_id,
+                    "status": "dispatched",
+                    "assignment": job,
+                },
+            )
+            future_jobs[
+                pool.submit(_play_pair_attempt, job, str(artifact_root), attempt_path)
+            ] = (job, attempt_path)
+        for future in concurrent.futures.as_completed(future_jobs):
+            job, attempt_path = future_jobs[future]
+            result = future.result()
+            pair_id = str(job["game_specs"][0]["pair_id"])
+            checkpoint = commit_verified_pair(
+                checkpoint_dir,
+                job,
+                result,
+                attempt_number=attempt_numbers[pair_id],
+            )
+            write_json_atomic(
+                attempt_path,
+                {
+                    "pair_id": result["pair_id"],
+                    "status": "completed",
+                    "assignment": job,
+                    "checkpoint_sha256": sha256(checkpoint),
+                    "pair_cpu_time_ns": result["pair_cpu_time_ns"],
+                },
+            )
+            committed.append(result)
+    return committed
+
+
 def _initialize_pair_process(artifact_root: str) -> None:
     """Authenticate and load immutable evaluators once in each pair process."""
     global _PROCESS_EVALUATORS, _PROCESS_SETUP_CPU_NS, _PROCESS_CHILD_CPU_START_NS
@@ -901,6 +1193,22 @@ def _initialize_pair_process(artifact_root: str) -> None:
         torch.set_num_interop_threads(WORKERS_PER_GAME)
     _PROCESS_EVALUATORS = load_evaluators(Path(artifact_root))
     _PROCESS_SETUP_CPU_NS = time.process_time_ns() - setup_start
+
+
+def _play_pair_attempt(
+    job: dict[str, Any], artifact_root: str, attempt_path: Path
+) -> dict[str, Any]:
+    """Durably mark actual process start before setup CPU or game work begins."""
+    write_json_atomic(
+        attempt_path,
+        {
+            "pair_id": str(job["game_specs"][0]["pair_id"]),
+            "status": "started",
+            "assignment": job,
+        },
+    )
+    _initialize_pair_process(artifact_root)
+    return _play_pair_process(job)
 
 
 def _play_pair_process(job: dict[str, Any]) -> dict[str, Any]:
@@ -940,7 +1248,16 @@ def launch_preflight(
     validate_game_specs(specs)
     components = verify_components(artifact_root)
     runtime = effective_runtime_policy(artifact_root)
-    scope_argv = systemd_scope_command([sys.executable, "-c", "pass"])
+    runtime_check = (
+        "from ml.alphazero_lite.varied_opponent_pilot import verify_live_resource_limits; "
+        "verify_live_resource_limits({"
+        f"'cpu_quota': {CPU_QUOTA!r}, 'cpu_weight': {CPU_WEIGHT!r}, "
+        f"'memory_max_bytes': {MEMORY_MAX_BYTES}, 'allowed_cpus': {ALLOWED_CPUS!r}, "
+        f"'nice': {NICE}}})"
+    )
+    scope_argv = systemd_scope_command(
+        ["taskset", "-c", ALLOWED_CPUS, sys.executable, "-c", runtime_check]
+    )
     subprocess.run(scope_argv, check=True, capture_output=True, text=True)
     return {
         "status": "preflight_passed_no_games_launched",
@@ -978,6 +1295,76 @@ def systemd_scope_command(command: list[str]) -> list[str]:
         "--",
         *command,
     ]
+
+
+def _parse_cpu_set(value: str) -> set[int]:
+    cpus: set[int] = set()
+    for item in value.strip().split(","):
+        if not item:
+            continue
+        if "-" in item:
+            start, end = (int(part) for part in item.split("-", 1))
+            cpus.update(range(start, end + 1))
+        else:
+            cpus.add(int(item))
+    return cpus
+
+
+def verify_live_resource_limits(
+    frozen: dict[str, Any],
+    *,
+    cgroup_root: Path = Path("/sys/fs/cgroup"),
+    proc_cgroup: Path = Path("/proc/self/cgroup"),
+    affinity: set[int] | None = None,
+    nice: int | None = None,
+) -> dict[str, Any]:
+    """Fail closed unless the current process is inside the frozen resource scope."""
+    unified = next(
+        (
+            line.split("::", 1)[1]
+            for line in proc_cgroup.read_text().splitlines()
+            if "::" in line
+        ),
+        None,
+    )
+    if unified is None:
+        raise ValueError("pilot_unified_cgroup_missing")
+    cgroup = cgroup_root / unified.lstrip("/")
+    try:
+        cpu_max = (cgroup / "cpu.max").read_text().strip().split()
+        cpu_weight = int((cgroup / "cpu.weight").read_text().strip())
+        memory_max = int((cgroup / "memory.max").read_text().strip())
+        cpuset_path = cgroup / "cpuset.cpus.effective"
+        cpuset_text = cpuset_path.read_text().strip() if cpuset_path.exists() else None
+    except (OSError, ValueError) as exc:
+        raise ValueError("pilot_live_cgroup_limits_unavailable") from exc
+    quota_percent = int(str(frozen["cpu_quota"]).rstrip("%"))
+    if (
+        len(cpu_max) != 2
+        or cpu_max[0] == "max"
+        or int(cpu_max[0]) * 100 != quota_percent * int(cpu_max[1])
+        or cpu_weight != int(frozen["cpu_weight"])
+        or memory_max != int(frozen["memory_max_bytes"])
+    ):
+        raise ValueError("pilot_live_cgroup_limit_mismatch")
+    expected_cpus = _parse_cpu_set(str(frozen["allowed_cpus"]))
+    live_cpuset = _parse_cpu_set(cpuset_text) if cpuset_text else None
+    actual_affinity = set(os.sched_getaffinity(0)) if affinity is None else affinity
+    actual_nice = os.getpriority(os.PRIO_PROCESS, 0) if nice is None else nice
+    if (
+        live_cpuset is not None and live_cpuset != expected_cpus
+    ) or actual_affinity != expected_cpus:
+        raise ValueError("pilot_live_cpu_affinity_mismatch")
+    if actual_nice != int(frozen["nice"]):
+        raise ValueError("pilot_live_nice_mismatch")
+    return {
+        "cpu_max": " ".join(cpu_max),
+        "cpu_weight": cpu_weight,
+        "memory_max_bytes": memory_max,
+        "cpuset_cpus_effective": cpuset_text,
+        "affinity": sorted(actual_affinity),
+        "nice": actual_nice,
+    }
 
 
 @dataclass(frozen=True)

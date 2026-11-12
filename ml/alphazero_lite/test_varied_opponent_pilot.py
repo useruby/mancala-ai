@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import concurrent.futures
 import shutil
 import threading
 import time
@@ -170,6 +171,32 @@ def test_cpu_and_row_accounting_aggregates_per_arm():
     assert summary["native_child_cpu_time_ns"] == native_child_cpu_ns
     assert summary["cpu_time_ns"] == process_cpu_ns + native_child_cpu_ns
     assert summary["cpu_hours"] == summary["cpu_time_ns"] / 3_600_000_000_000
+
+
+def test_pair_process_cpu_must_cover_both_game_cpu_totals():
+    specs = [row for row in _specs("T512") if row["arm"] == "treatment"]
+    games = [
+        pilot.play_game(
+            spec,
+            p_evaluator=_Evaluator("P"),
+            opponent_evaluator=_Evaluator("T512"),
+            search_turn=_scripted_search([]),
+        )
+        for spec in specs
+    ]
+    game_cpu_ns = sum(game["cpu_time_ns"] for game in games)
+    with pytest.raises(ValueError, match="pair_process_cpu_below_game_cpu"):
+        pilot.summarize_pair_accounting(
+            [
+                {
+                    "arm": "treatment",
+                    "games": games,
+                    "pair_process_cpu_time_ns": 0,
+                    "native_child_cpu_time_ns": game_cpu_ns,
+                    "pair_cpu_time_ns": game_cpu_ns,
+                }
+            ]
+        )
 
 
 def test_reaped_native_probe_cpu_is_sampled(monkeypatch):
@@ -407,6 +434,11 @@ def test_launch_preflight_checks_bundle_scope_and_fixed_workers(monkeypatch):
         "effective_runtime_policy",
         lambda _artifacts: {"effective_search_policy": {}, "runtime_assets": {}},
     )
+    monkeypatch.setattr(
+        pilot.subprocess,
+        "run",
+        lambda argv, **_kwargs: SimpleNamespace(args=argv, returncode=0),
+    )
     result = pilot.launch_preflight(_specs(), ARTIFACTS)
     assert result["status"] == "preflight_passed_no_games_launched"
     assert result["pair_concurrency"] == 18
@@ -490,3 +522,345 @@ def test_opening_prefix_is_bound_across_seats_and_arms_and_archive():
     game_record["opening_moves"] = [0]
     with pytest.raises(ValueError, match="archived_opening_prefix_mismatch"):
         pilot.verify_game(game_record)
+
+
+def test_pair_checkpoint_is_atomic_idempotent_and_resume_skips_committed(
+    tmp_path, monkeypatch
+):
+    job = {
+        "game_specs": [
+            spec for spec in _specs("initializer") if spec["arm"] == "treatment"
+        ]
+    }
+    games = [
+        pilot.play_game(
+            spec,
+            p_evaluator=_Evaluator("P"),
+            opponent_evaluator=_Evaluator("initializer"),
+            search_turn=_scripted_search([]),
+        )
+        for spec in job["game_specs"]
+    ]
+    result = {
+        "pair_id": job["game_specs"][0]["pair_id"],
+        "arm": "treatment",
+        "games": games,
+        "pair_process_cpu_time_ns": sum(game["cpu_time_ns"] for game in games),
+        "native_child_cpu_time_ns": 0,
+        "pair_cpu_time_ns": sum(game["cpu_time_ns"] for game in games),
+    }
+    checkpoint_dir = tmp_path / "pairs"
+    committed_path = pilot.commit_verified_pair(checkpoint_dir, job, result)
+    assert pilot.commit_verified_pair(checkpoint_dir, job, result) == committed_path
+    monkeypatch.setattr(pilot, "verify_components", lambda _root: {})
+    attempt_dir = tmp_path / "attempts"
+    producer_attempt = pilot.pair_attempt_path(attempt_dir, result["pair_id"], 1)
+    pilot.write_json_atomic(
+        producer_attempt,
+        {
+            "pair_id": result["pair_id"],
+            "status": "started",
+            "assignment": job,
+        },
+    )
+    resumed = pilot.run_checkpointed_pairs(
+        [job], ARTIFACTS, checkpoint_dir, attempt_dir=attempt_dir
+    )
+    assert [row["pair_id"] for row in resumed] == [result["pair_id"]]
+    attempt_path = pilot.pair_attempt_path(attempt_dir, result["pair_id"], 1)
+    receipt = {
+        "pair_id": result["pair_id"],
+        "status": "completed",
+        "assignment": job,
+        "checkpoint_sha256": pilot.sha256(committed_path),
+        "pair_cpu_time_ns": result["pair_cpu_time_ns"],
+    }
+    pilot.write_json_atomic(attempt_path, receipt)
+    assert (
+        pilot.reconcile_pair_attempts(
+            attempt_dir, [job], {result["pair_id"]: result}, checkpoint_dir
+        )[result["pair_id"]]
+        == 2
+    )
+    receipt["pair_cpu_time_ns"] += 1
+    pilot.write_json_atomic(attempt_path, receipt)
+    with pytest.raises(ValueError, match="pilot_attempt_checkpoint_receipt_conflict"):
+        pilot.reconcile_pair_attempts(
+            attempt_dir, [job], {result["pair_id"]: result}, checkpoint_dir
+        )
+    receipt["pair_cpu_time_ns"] = result["pair_cpu_time_ns"]
+    receipt["checkpoint_sha256"] = "0" * 64
+    pilot.write_json_atomic(attempt_path, receipt)
+    with pytest.raises(ValueError, match="pilot_attempt_checkpoint_receipt_conflict"):
+        pilot.reconcile_pair_attempts(
+            attempt_dir, [job], {result["pair_id"]: result}, checkpoint_dir
+        )
+    completed, pending = pilot.load_pair_checkpoints(
+        checkpoint_dir,
+        [
+            job,
+            {
+                "game_specs": [
+                    {
+                        **spec,
+                        "arm": "control",
+                        "opponent": "P",
+                        "pair_id": "control-opening-17",
+                        "game_id": f"control-opening-17-P{spec['designated_p_seat']}",
+                    }
+                    for spec in job["game_specs"]
+                ]
+            },
+        ],
+    )
+    assert [row["pair_id"] for row in completed] == [job["game_specs"][0]["pair_id"]]
+    assert len(pending) == 1
+    conflicting = json.loads(committed_path.read_text())
+    conflicting["result"]["pair_cpu_time_ns"] += 1
+    committed_path.write_text(json.dumps(conflicting))
+    with pytest.raises(ValueError, match="pair_child_cpu_accounting_invalid"):
+        pilot.load_pair_checkpoints(checkpoint_dir, [job])
+
+
+def test_pair_checkpoint_rejects_assignment_conflict(tmp_path):
+    job = {
+        "game_specs": [
+            spec for spec in _specs("initializer") if spec["arm"] == "treatment"
+        ]
+    }
+    games = [
+        pilot.play_game(
+            spec,
+            p_evaluator=_Evaluator("P"),
+            opponent_evaluator=_Evaluator("initializer"),
+            search_turn=_scripted_search([]),
+        )
+        for spec in job["game_specs"]
+    ]
+    cpu = sum(game["cpu_time_ns"] for game in games)
+    result = {
+        "pair_id": job["game_specs"][0]["pair_id"],
+        "arm": "treatment",
+        "games": games,
+        "pair_process_cpu_time_ns": cpu,
+        "native_child_cpu_time_ns": 0,
+        "pair_cpu_time_ns": cpu,
+    }
+    path = pilot.commit_verified_pair(tmp_path, job, result)
+    changed = json.loads(path.read_text())
+    changed["assignment"]["game_specs"][0]["seed"] += 1
+    path.write_text(json.dumps(changed))
+    with pytest.raises(ValueError, match="pair_checkpoint_assignment_conflict"):
+        pilot.load_pair_checkpoints(tmp_path, [job])
+
+
+def test_empty_pair_checkpoint_cannot_be_committed_or_skipped(tmp_path):
+    job = {
+        "game_specs": [
+            spec for spec in _specs("initializer") if spec["arm"] == "treatment"
+        ]
+    }
+    result = {
+        "pair_id": job["game_specs"][0]["pair_id"],
+        "arm": "treatment",
+        "games": [],
+        "pair_process_cpu_time_ns": 0,
+        "native_child_cpu_time_ns": 0,
+        "pair_cpu_time_ns": 0,
+    }
+    with pytest.raises(ValueError, match="pair_checkpoint_game_count_mismatch"):
+        pilot.commit_verified_pair(tmp_path, job, result)
+    checkpoint = {
+        "schema": "varied_opponent_pair_checkpoint_v1",
+        "assignment": job,
+        "producing_attempt": 1,
+        "result": result,
+    }
+    path = pilot.pair_checkpoint_path(tmp_path, job["game_specs"][0]["pair_id"])
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(checkpoint))
+    with pytest.raises(ValueError, match="pair_checkpoint_game_count_mismatch"):
+        pilot.load_pair_checkpoints(tmp_path, [job])
+
+
+def test_interrupted_pair_attempt_is_preserved_and_blocks_resume(tmp_path):
+    job = {
+        "game_specs": [
+            spec for spec in _specs("initializer") if spec["arm"] == "treatment"
+        ]
+    }
+    pair_id = job["game_specs"][0]["pair_id"]
+    attempt_dir = tmp_path / "attempts"
+    attempt_dir.mkdir()
+    attempt = pilot.pair_attempt_path(attempt_dir, pair_id, 1)
+    attempt.parent.mkdir(parents=True, exist_ok=True)
+    original = {"pair_id": pair_id, "status": "started", "assignment": job}
+    attempt.write_text(json.dumps(original))
+    with pytest.raises(ValueError, match="unreconciled_interrupted_attempt_cpu"):
+        pilot.run_checkpointed_pairs(
+            [job], ARTIFACTS, tmp_path / "pairs", attempt_dir=attempt_dir
+        )
+    assert json.loads(attempt.read_text()) == original
+
+
+def test_dispatched_but_never_started_pair_remains_pending(tmp_path):
+    job = {
+        "game_specs": [
+            spec for spec in _specs("initializer") if spec["arm"] == "treatment"
+        ]
+    }
+    pair_id = job["game_specs"][0]["pair_id"]
+    attempt_dir = tmp_path / "attempts"
+    path = pilot.pair_attempt_path(attempt_dir, pair_id, 1)
+    pilot.write_json_atomic(
+        path,
+        {"pair_id": pair_id, "status": "dispatched", "assignment": job},
+    )
+    next_numbers = pilot.reconcile_pair_attempts(
+        attempt_dir, [job], {}, tmp_path / "pairs"
+    )
+    completed, pending = pilot.load_pair_checkpoints(tmp_path / "pairs", [job])
+    assert completed == []
+    assert pending == [job]
+    assert next_numbers[pair_id] == 2
+
+
+def test_retry_completion_then_resume_skips_pair_and_preserves_history(
+    tmp_path, monkeypatch
+):
+    job = {
+        "game_specs": [
+            spec for spec in _specs("initializer") if spec["arm"] == "treatment"
+        ]
+    }
+    pair_id = job["game_specs"][0]["pair_id"]
+    games = [
+        pilot.play_game(
+            spec,
+            p_evaluator=_Evaluator("P"),
+            opponent_evaluator=_Evaluator("initializer"),
+            search_turn=_scripted_search([]),
+        )
+        for spec in job["game_specs"]
+    ]
+    process_cpu = sum(game["cpu_time_ns"] for game in games) + 500
+    result = {
+        "pair_id": pair_id,
+        "arm": "treatment",
+        "games": games,
+        "pair_process_cpu_time_ns": process_cpu,
+        "native_child_cpu_time_ns": 0,
+        "pair_cpu_time_ns": process_cpu,
+    }
+    attempt_dir = tmp_path / "attempts"
+    attempt1 = pilot.pair_attempt_path(attempt_dir, pair_id, 1)
+    pilot.write_json_atomic(
+        attempt1,
+        {"pair_id": pair_id, "status": "dispatched", "assignment": job},
+    )
+    monkeypatch.setattr(pilot, "verify_components", lambda _root: {})
+
+    def fake_attempt(_job, _artifact_root, attempt_path):
+        pilot.write_json_atomic(
+            attempt_path,
+            {"pair_id": pair_id, "status": "started", "assignment": job},
+        )
+        return result
+
+    class SynchronousPool:
+        def __init__(self, **_kwargs):
+            self.submissions = 0
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def submit(self, function, *args):
+            self.submissions += 1
+            future = concurrent.futures.Future()
+            try:
+                future.set_result(function(*args))
+            except Exception as error:  # pragma: no cover - fixture propagation
+                future.set_exception(error)
+            return future
+
+    pool_instances = []
+
+    def make_pool(**kwargs):
+        pool = SynchronousPool(**kwargs)
+        pool_instances.append(pool)
+        return pool
+
+    monkeypatch.setattr(pilot, "_play_pair_attempt", fake_attempt)
+    monkeypatch.setattr(pilot.concurrent.futures, "ProcessPoolExecutor", make_pool)
+    checkpoint_dir = tmp_path / "pairs"
+    first_resume = pilot.run_checkpointed_pairs(
+        [job], ARTIFACTS, checkpoint_dir, attempt_dir=attempt_dir
+    )
+    assert [pair["pair_id"] for pair in first_resume] == [pair_id]
+    assert len(pool_instances) == 1 and pool_instances[0].submissions == 1
+    attempt2 = pilot.pair_attempt_path(attempt_dir, pair_id, 2)
+    assert json.loads(attempt1.read_text())["status"] == "dispatched"
+    assert json.loads(attempt2.read_text())["status"] == "completed"
+    checkpoint = json.loads(
+        pilot.pair_checkpoint_path(checkpoint_dir, pair_id).read_text()
+    )
+    assert checkpoint["producing_attempt"] == 2
+
+    completed_receipt = attempt2.read_bytes()
+    pilot.write_json_atomic(
+        attempt2,
+        {"pair_id": pair_id, "status": "started", "assignment": job},
+    )
+    recovery_resume = pilot.run_checkpointed_pairs(
+        [job], ARTIFACTS, checkpoint_dir, attempt_dir=attempt_dir
+    )
+    assert [pair["pair_id"] for pair in recovery_resume] == [pair_id]
+    assert len(pool_instances) == 1
+
+    attempt2.unlink()
+    with pytest.raises(ValueError, match="pair_checkpoint_producing_attempt_missing"):
+        pilot.run_checkpointed_pairs(
+            [job], ARTIFACTS, checkpoint_dir, attempt_dir=attempt_dir
+        )
+    assert json.loads(attempt1.read_text())["status"] == "dispatched"
+    attempt2.write_bytes(completed_receipt)
+
+    second_resume = pilot.run_checkpointed_pairs(
+        [job], ARTIFACTS, checkpoint_dir, attempt_dir=attempt_dir
+    )
+    assert [pair["pair_id"] for pair in second_resume] == [pair_id]
+    assert len(pool_instances) == 1
+    assert json.loads(attempt1.read_text())["status"] == "dispatched"
+    assert json.loads(attempt2.read_text())["status"] == "completed"
+
+
+def test_pair_checkpoint_game_specs_must_match_frozen_assignment(tmp_path):
+    job = {
+        "game_specs": [
+            spec for spec in _specs("initializer") if spec["arm"] == "treatment"
+        ]
+    }
+    games = [
+        pilot.play_game(
+            spec,
+            p_evaluator=_Evaluator("P"),
+            opponent_evaluator=_Evaluator("initializer"),
+            search_turn=_scripted_search([]),
+        )
+        for spec in job["game_specs"]
+    ]
+    cpu = sum(game["cpu_time_ns"] for game in games)
+    result = {
+        "pair_id": job["game_specs"][0]["pair_id"],
+        "arm": "treatment",
+        "games": games,
+        "pair_process_cpu_time_ns": cpu,
+        "native_child_cpu_time_ns": 0,
+        "pair_cpu_time_ns": cpu,
+    }
+    games[0]["spec"]["seed"] += 1
+    with pytest.raises(ValueError, match="pair_checkpoint_game_assignment_mismatch"):
+        pilot.commit_verified_pair(tmp_path, job, result)

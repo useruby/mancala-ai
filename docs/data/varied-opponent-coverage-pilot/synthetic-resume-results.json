@@ -1,0 +1,26 @@
+{
+  "command": "/home/alex/azlite-venv/bin/python -m pytest -q ml/alphazero_lite/test_varied_opponent_pilot.py ml/alphazero_lite/test_varied_opponent_pilot_runner.py",
+  "result": "33 passed",
+  "fixtures_only": true,
+  "checks": {
+    "pair_commit_contains_assignment_trajectories_targets_and_cpu": "passed",
+    "atomic_commit_idempotence": "passed",
+    "resume_validates_and_skips_committed_pair": "passed",
+    "pending_assignment_remains_pending": "passed",
+    "conflicting_assignment_or_cpu_evidence_rejected": "passed",
+    "empty_or_assignment_mismatched_pair_rejected": "passed",
+    "interrupted_started_attempt_preserved_and_resume_blocked": "passed",
+    "dispatched_but_not_started_pair_remains_pending": "passed",
+    "recomputed_freeze_digest_cannot_replace_external_digest": "passed",
+    "execution_source_hash_mismatch_rejected": "passed",
+    "PUCT_rules_encoding_and_exact_root_source_hashes_enforced": "passed",
+    "completed_attempt_receipt_checkpoint_hash_and_CPU_reconciled": "passed",
+    "pair_process_CPU_covers_sum_of_game_CPU": "passed",
+    "retry_after_never_started_attempt_then_resume_skips_committed_pair": "passed",
+    "checkpoint_without_producing_attempt_record_rejected": "passed",
+    "producing_started_record_allows_checkpoint_recovery": "passed",
+    "live_resource_limit_mismatch_rejected": "passed",
+    "frozen_resource_declaration_drift_rejected": "passed",
+    "production_games_launched": false
+  }
+}
