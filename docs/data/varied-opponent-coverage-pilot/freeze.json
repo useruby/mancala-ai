@@ -5363,17 +5363,17 @@
     }
   ],
   "commands": {
-    "launch": "AZLITE_KALAH_V1_TABLEBASE=/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb systemd-run --user --scope --quiet --property=CPUQuota=1800% --property=CPUWeight=100 --property=MemoryMax=38654705664 --property=AllowedCPUs=14-31 --nice=19 -- /home/alex/azlite-venv/bin/python -m ml.alphazero_lite.run_varied_opponent_pilot --freeze docs/data/varied-opponent-coverage-pilot/freeze.json --checkpoint-dir docs/data/varied-opponent-coverage-pilot/pairs",
+    "launch": "AZLITE_KALAH_V1_TABLEBASE=/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb systemd-run --user --scope --quiet --property=CPUQuota=1800% --property=CPUWeight=100 --property=MemoryMax=38654705664 --property=AllowedCPUs=14-31 --nice=19 -- taskset -c 14-31 /home/alex/azlite-venv/bin/python -m ml.alphazero_lite.run_varied_opponent_pilot --freeze docs/data/varied-opponent-coverage-pilot/freeze.json --expected-freeze-sha256 \"$PILOT_FREEZE_SHA256\" --checkpoint-dir docs/data/varied-opponent-coverage-pilot/pairs",
     "preflight": "/home/alex/azlite-venv/bin/python -m ml.alphazero_lite.varied_opponent_pilot --preflight --specs docs/data/varied-opponent-coverage-pilot/game-assignments.json --artifacts docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts --tablebase /home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
-    "resume": "AZLITE_KALAH_V1_TABLEBASE=/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb systemd-run --user --scope --quiet --property=CPUQuota=1800% --property=CPUWeight=100 --property=MemoryMax=38654705664 --property=AllowedCPUs=14-31 --nice=19 -- /home/alex/azlite-venv/bin/python -m ml.alphazero_lite.run_varied_opponent_pilot --freeze docs/data/varied-opponent-coverage-pilot/freeze.json --checkpoint-dir docs/data/varied-opponent-coverage-pilot/pairs --resume"
+    "resume": "AZLITE_KALAH_V1_TABLEBASE=/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb systemd-run --user --scope --quiet --property=CPUQuota=1800% --property=CPUWeight=100 --property=MemoryMax=38654705664 --property=AllowedCPUs=14-31 --nice=19 -- taskset -c 14-31 /home/alex/azlite-venv/bin/python -m ml.alphazero_lite.run_varied_opponent_pilot --freeze docs/data/varied-opponent-coverage-pilot/freeze.json --expected-freeze-sha256 \"$PILOT_FREEZE_SHA256\" --checkpoint-dir docs/data/varied-opponent-coverage-pilot/pairs --resume"
   },
   "decision_rule": "Propose a larger data-generation run only if treatment yield is at least 1.15 times control yield under both identity schemes. If either control yield is zero or run accounting cannot be reconciled, pilot decision is inconclusive.",
   "execution_source_hashes": {
-    "ml/alphazero_lite/freeze_varied_opponent_pilot.py": "eb0f13451ee8f6fc69061a4165c65a10b69cef6e8d7dbeba6f77fab3416f719c",
-    "ml/alphazero_lite/run_varied_opponent_pilot.py": "6207f70ccb3268899bd3953ce830a461dfdd5e14e14be9797fd7f02906e715d6",
-    "ml/alphazero_lite/varied_opponent_pilot.py": "d5e07737df92a37715dfb72cf0db858dd17eb9fe2577fb1d1f09573cd8089d6e"
+    "ml/alphazero_lite/freeze_varied_opponent_pilot.py": "99a3151cc066e209ed846110fee352a35696d1b3527ec4e5b9c6f668a71bfafa",
+    "ml/alphazero_lite/run_varied_opponent_pilot.py": "effe9d493dd9da5d4dce76d4a91c4015dbf828c15ce01e3dbb8db3766b4d0e92",
+    "ml/alphazero_lite/varied_opponent_pilot.py": "86ee23a88abc931c95afadb8f8bef0094490f1d24a21f695fbc902455cf7fc9c"
   },
-  "freeze_sha256": "2929bd1ac978df8ac2faf88cf2840799cf070bc69fa0039b1a885c3110453023",
+  "freeze_sha256": "5f498fdd71c4b1bac01b9c15efa7d155f8ff872450bd739edb6044f97155371e",
   "metric": {
     "counting": "each identity once per arm",
     "cpu_denominator": "sum of seat-swapped pair CPU, including evaluator/model setup and reaped native-probe child CPU; capped/incomplete games contribute CPU and zero accepted rows",
@@ -7749,7 +7749,7 @@
       "state_hash": "a7a6563bcb995d1b714e99ea0ee27863c92565a7a9ff8cdead11798441280036"
     }
   ],
-  "resume_contract": "Each verified seat-swapped pair is committed atomically with exact assignment, both full game trajectories, retained P rows, and process/native-child/pair CPU accounting. Resume validates every committed file against the freeze assignment and replay before dispatch; committed pairs are skipped. Uncommitted/interrupted attempts are preserved separately and any unreconciled CPU makes the result inconclusive.",
+  "resume_contract": "Each verified seat-swapped pair is committed atomically with exact assignment, both full game trajectories, retained P rows, and process/native-child/pair CPU accounting. Resume validates every committed file against the freeze assignment and replay before dispatch; committed pairs are skipped. Attempt history distinguishes dispatched from worker-started; a dispatched attempt without a start marker remains pending, while a started attempt without a committed pair is unreconciled and makes the result inconclusive.",
   "runtime_assets": {
     "native_probe": {
       "path": "/home/alex/Mancala/ai-varied-opponents-freeze/model-artifact/runtime/kalah_v1_tablebase",

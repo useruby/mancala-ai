@@ -1,5 +1,5 @@
 {
-  "freeze_sha256": "2929bd1ac978df8ac2faf88cf2840799cf070bc69fa0039b1a885c3110453023",
+  "freeze_sha256": "5f498fdd71c4b1bac01b9c15efa7d155f8ff872450bd739edb6044f97155371e",
   "command": "/home/alex/azlite-venv/bin/python -m ml.alphazero_lite.varied_opponent_pilot --preflight --specs docs/data/varied-opponent-coverage-pilot/game-assignments.json --artifacts docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts --tablebase /home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
   "status": "preflight_passed_no_games_launched",
   "specifications": 256,
@@ -22,5 +22,14 @@
       "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
     }
   },
-  "systemd_scope_preflight": "passed_no_game_command_run"
+  "systemd_scope_preflight": "passed_no_game_command_run",
+  "live_scope_observation": {
+    "cpu_max": "1800000 100000",
+    "cpu_weight": 100,
+    "memory_max_bytes": 38654705664,
+    "cpuset_cpus_effective": null,
+    "affinity": [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+    "nice": 19,
+    "cpu_affinity_enforced_by": "taskset -c 14-31; systemd AllowedCPUs property is requested but cpuset controller files are unavailable in this environment"
+  }
 }

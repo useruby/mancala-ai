@@ -935,8 +935,7 @@ def commit_verified_pair(
     games = result.get("games")
     if not isinstance(games, list) or len(games) != 2:
         raise ValueError("pair_checkpoint_game_count_mismatch")
-    verify_archive(games)
-    summarize_pair_accounting([result])
+    verify_pair_result(job, result)
     assignment = json.loads(json.dumps(job, sort_keys=True))
     payload = {
         "schema": "varied_opponent_pair_checkpoint_v1",
@@ -952,6 +951,38 @@ def commit_verified_pair(
         return path
     write_json_atomic(path, payload)
     return path
+
+
+def verify_pair_result(job: dict[str, Any], result: dict[str, Any]) -> None:
+    """Bind a pair result to both frozen seat specs and reconcile its CPU."""
+    specs = job.get("game_specs", [])
+    games = result.get("games")
+    if len(specs) != 2 or not isinstance(games, list) or len(games) != 2:
+        raise ValueError("pair_checkpoint_game_count_mismatch")
+    validate_game_specs(specs)
+    expected_by_id = {str(spec["game_id"]): spec for spec in specs}
+    observed_by_id: dict[str, dict[str, Any]] = {}
+    for game in games:
+        spec = game.get("spec")
+        if not isinstance(spec, dict):
+            raise ValueError("pair_checkpoint_game_spec_missing")
+        game_id = str(spec.get("game_id", ""))
+        if game_id in observed_by_id:
+            raise ValueError("pair_checkpoint_duplicate_game")
+        observed_by_id[game_id] = spec
+        if game_id not in expected_by_id or json.dumps(
+            spec, sort_keys=True
+        ) != json.dumps(expected_by_id[game_id], sort_keys=True):
+            raise ValueError("pair_checkpoint_game_assignment_mismatch")
+    if observed_by_id.keys() != expected_by_id.keys():
+        raise ValueError("pair_checkpoint_game_assignment_mismatch")
+    if (
+        result.get("pair_id") != specs[0]["pair_id"]
+        or result.get("arm") != specs[0]["arm"]
+    ):
+        raise ValueError("pair_checkpoint_assignment_mismatch")
+    verify_archive(games)
+    summarize_pair_accounting([result])
 
 
 def load_pair_checkpoints(
@@ -979,16 +1010,47 @@ def load_pair_checkpoints(
             raise ValueError("pair_checkpoint_assignment_conflict")
         if path != pair_checkpoint_path(directory, pair_id):
             raise ValueError("pair_checkpoint_path_mismatch")
-        if (
-            result.get("pair_id") != pair_id
-            or result.get("arm") != job["game_specs"][0]["arm"]
-        ):
-            raise ValueError("pair_checkpoint_result_binding_mismatch")
-        verify_archive(result.get("games", []))
-        summarize_pair_accounting([result])
+        verify_pair_result(job, result)
         completed.append(result)
     done = {str(result["pair_id"]) for result in completed}
     return completed, [job for pair_id, job in expected.items() if pair_id not in done]
+
+
+def pair_attempt_path(attempt_dir: Path, pair_id: str, attempt_number: int) -> Path:
+    pair_hash = hashlib.sha256(pair_id.encode()).hexdigest()
+    return Path(attempt_dir) / f"{pair_hash}.attempt-{attempt_number:04d}.json"
+
+
+def reconcile_pair_attempts(
+    attempt_dir: Path,
+    pair_jobs: list[dict[str, Any]],
+    committed_ids: set[str],
+) -> dict[str, int]:
+    """Preserve attempt history; only dispatched-but-never-started jobs may retry."""
+    jobs = {str(job["game_specs"][0]["pair_id"]): job for job in pair_jobs}
+    last_number: dict[str, int] = {pair_id: 0 for pair_id in jobs}
+    for path in sorted(Path(attempt_dir).glob("*.json")):
+        record = json.loads(path.read_text())
+        pair_id = str(record.get("pair_id", ""))
+        status = record.get("status")
+        if pair_id not in jobs or status not in {"dispatched", "started", "completed"}:
+            raise ValueError("pilot_attempt_record_invalid")
+        assignment = record.get("assignment")
+        if json.dumps(assignment, sort_keys=True) != json.dumps(
+            jobs[pair_id], sort_keys=True
+        ):
+            raise ValueError("pilot_attempt_assignment_conflict")
+        stem = path.stem
+        try:
+            number = int(stem.rsplit("-", 1)[1])
+        except (IndexError, ValueError) as exc:
+            raise ValueError("pilot_attempt_path_invalid") from exc
+        last_number[pair_id] = max(last_number[pair_id], number)
+        if pair_id in committed_ids:
+            continue
+        if status in {"started", "completed"}:
+            raise ValueError("unreconciled_interrupted_attempt_cpu")
+    return {pair_id: number + 1 for pair_id, number in last_number.items()}
 
 
 def run_checkpointed_pairs(
@@ -1005,37 +1067,30 @@ def run_checkpointed_pairs(
     committed, pending = load_pair_checkpoints(checkpoint_dir, pair_jobs)
     attempt_dir.mkdir(parents=True, exist_ok=True)
     committed_ids = {str(result["pair_id"]) for result in committed}
-    for attempt in attempt_dir.glob("*.json"):
-        record = json.loads(attempt.read_text())
-        if record.get("pair_id") in committed_ids:
-            continue
-        if record.get("status") == "started":
-            raise ValueError("unreconciled_interrupted_attempt_cpu")
+    attempt_numbers = reconcile_pair_attempts(attempt_dir, pair_jobs, committed_ids)
     if not pending:
         return committed
     with concurrent.futures.ProcessPoolExecutor(
         max_workers=PAIR_CONCURRENCY,
         max_tasks_per_child=1,
-        initializer=_initialize_pair_process,
-        initargs=(str(artifact_root),),
     ) as pool:
         future_jobs = {}
         for job in pending:
             pair_id = str(job["game_specs"][0]["pair_id"])
-            attempt_path = (
-                attempt_dir / f"{hashlib.sha256(pair_id.encode()).hexdigest()}.json"
+            attempt_path = pair_attempt_path(
+                attempt_dir, pair_id, attempt_numbers[pair_id]
             )
-            if attempt_path.exists():
-                raise ValueError("unreconciled_interrupted_attempt_cpu")
             write_json_atomic(
                 attempt_path,
                 {
                     "pair_id": pair_id,
-                    "status": "started",
+                    "status": "dispatched",
                     "assignment": job,
                 },
             )
-            future_jobs[pool.submit(_play_pair_process, job)] = (job, attempt_path)
+            future_jobs[
+                pool.submit(_play_pair_attempt, job, str(artifact_root), attempt_path)
+            ] = (job, attempt_path)
         for future in concurrent.futures.as_completed(future_jobs):
             job, attempt_path = future_jobs[future]
             result = future.result()
@@ -1066,6 +1121,22 @@ def _initialize_pair_process(artifact_root: str) -> None:
         torch.set_num_interop_threads(WORKERS_PER_GAME)
     _PROCESS_EVALUATORS = load_evaluators(Path(artifact_root))
     _PROCESS_SETUP_CPU_NS = time.process_time_ns() - setup_start
+
+
+def _play_pair_attempt(
+    job: dict[str, Any], artifact_root: str, attempt_path: Path
+) -> dict[str, Any]:
+    """Durably mark actual process start before setup CPU or game work begins."""
+    write_json_atomic(
+        attempt_path,
+        {
+            "pair_id": str(job["game_specs"][0]["pair_id"]),
+            "status": "started",
+            "assignment": job,
+        },
+    )
+    _initialize_pair_process(artifact_root)
+    return _play_pair_process(job)
 
 
 def _play_pair_process(job: dict[str, Any]) -> dict[str, Any]:
@@ -1105,7 +1176,16 @@ def launch_preflight(
     validate_game_specs(specs)
     components = verify_components(artifact_root)
     runtime = effective_runtime_policy(artifact_root)
-    scope_argv = systemd_scope_command([sys.executable, "-c", "pass"])
+    runtime_check = (
+        "from ml.alphazero_lite.varied_opponent_pilot import verify_live_resource_limits; "
+        "verify_live_resource_limits({"
+        f"'cpu_quota': {CPU_QUOTA!r}, 'cpu_weight': {CPU_WEIGHT!r}, "
+        f"'memory_max_bytes': {MEMORY_MAX_BYTES}, 'allowed_cpus': {ALLOWED_CPUS!r}, "
+        f"'nice': {NICE}}})"
+    )
+    scope_argv = systemd_scope_command(
+        ["taskset", "-c", ALLOWED_CPUS, sys.executable, "-c", runtime_check]
+    )
     subprocess.run(scope_argv, check=True, capture_output=True, text=True)
     return {
         "status": "preflight_passed_no_games_launched",
@@ -1143,6 +1223,76 @@ def systemd_scope_command(command: list[str]) -> list[str]:
         "--",
         *command,
     ]
+
+
+def _parse_cpu_set(value: str) -> set[int]:
+    cpus: set[int] = set()
+    for item in value.strip().split(","):
+        if not item:
+            continue
+        if "-" in item:
+            start, end = (int(part) for part in item.split("-", 1))
+            cpus.update(range(start, end + 1))
+        else:
+            cpus.add(int(item))
+    return cpus
+
+
+def verify_live_resource_limits(
+    frozen: dict[str, Any],
+    *,
+    cgroup_root: Path = Path("/sys/fs/cgroup"),
+    proc_cgroup: Path = Path("/proc/self/cgroup"),
+    affinity: set[int] | None = None,
+    nice: int | None = None,
+) -> dict[str, Any]:
+    """Fail closed unless the current process is inside the frozen resource scope."""
+    unified = next(
+        (
+            line.split("::", 1)[1]
+            for line in proc_cgroup.read_text().splitlines()
+            if "::" in line
+        ),
+        None,
+    )
+    if unified is None:
+        raise ValueError("pilot_unified_cgroup_missing")
+    cgroup = cgroup_root / unified.lstrip("/")
+    try:
+        cpu_max = (cgroup / "cpu.max").read_text().strip().split()
+        cpu_weight = int((cgroup / "cpu.weight").read_text().strip())
+        memory_max = int((cgroup / "memory.max").read_text().strip())
+        cpuset_path = cgroup / "cpuset.cpus.effective"
+        cpuset_text = cpuset_path.read_text().strip() if cpuset_path.exists() else None
+    except (OSError, ValueError) as exc:
+        raise ValueError("pilot_live_cgroup_limits_unavailable") from exc
+    quota_percent = int(str(frozen["cpu_quota"]).rstrip("%"))
+    if (
+        len(cpu_max) != 2
+        or cpu_max[0] == "max"
+        or int(cpu_max[0]) * 100 != quota_percent * int(cpu_max[1])
+        or cpu_weight != int(frozen["cpu_weight"])
+        or memory_max != int(frozen["memory_max_bytes"])
+    ):
+        raise ValueError("pilot_live_cgroup_limit_mismatch")
+    expected_cpus = _parse_cpu_set(str(frozen["allowed_cpus"]))
+    live_cpuset = _parse_cpu_set(cpuset_text) if cpuset_text else None
+    actual_affinity = set(os.sched_getaffinity(0)) if affinity is None else affinity
+    actual_nice = os.getpriority(os.PRIO_PROCESS, 0) if nice is None else nice
+    if (
+        live_cpuset is not None and live_cpuset != expected_cpus
+    ) or actual_affinity != expected_cpus:
+        raise ValueError("pilot_live_cpu_affinity_mismatch")
+    if actual_nice != int(frozen["nice"]):
+        raise ValueError("pilot_live_nice_mismatch")
+    return {
+        "cpu_max": " ".join(cpu_max),
+        "cpu_weight": cpu_weight,
+        "memory_max_bytes": memory_max,
+        "cpuset_cpus_effective": cpuset_text,
+        "affinity": sorted(actual_affinity),
+        "nice": actual_nice,
+    }
 
 
 @dataclass(frozen=True)

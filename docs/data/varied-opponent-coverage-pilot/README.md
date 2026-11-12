@@ -33,7 +33,10 @@ process/native-child CPU. Resume validates all existing commits before work is
 dispatched and skips committed pair IDs. Each dispatched pair also has a
 separate attempt record. A surviving `started` attempt without a verified pair
 commit is treated as unreconciled CPU and stops resume; it is not silently
-replayed. Such a pilot is inconclusive unless its cost can be reconciled.
+replayed. `dispatched` is written before queue submission and `started` is
+written by the worker before model setup; a dispatched attempt with no start
+marker is preserved as never started and remains pending on resume. Such a
+pilot is inconclusive unless any started-attempt cost can be reconciled.
 
 ## Commands
 
@@ -44,11 +47,14 @@ registered launch command is:
 
 ```bash
 export AZLITE_KALAH_V1_TABLEBASE=/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb
+export PILOT_FREEZE_SHA256=5f498fdd71c4b1bac01b9c15efa7d155f8ff872450bd739edb6044f97155371e
 systemd-run --user --scope --quiet \
   --property=CPUQuota=1800% --property=CPUWeight=100 \
   --property=MemoryMax=38654705664 --property=AllowedCPUs=14-31 --nice=19 -- \
-  /home/alex/azlite-venv/bin/python -m ml.alphazero_lite.run_varied_opponent_pilot \
+  taskset -c 14-31 /home/alex/azlite-venv/bin/python -m ml.alphazero_lite.run_varied_opponent_pilot \
   --freeze docs/data/varied-opponent-coverage-pilot/freeze.json \
+  --expected-freeze-sha256 "$PILOT_FREEZE_SHA256" \
+  --expected-freeze-sha256 "$PILOT_FREEZE_SHA256" \
   --checkpoint-dir docs/data/varied-opponent-coverage-pilot/pairs
 ```
 
