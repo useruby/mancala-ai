@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import shutil
 import threading
 import time
@@ -490,3 +491,114 @@ def test_opening_prefix_is_bound_across_seats_and_arms_and_archive():
     game_record["opening_moves"] = [0]
     with pytest.raises(ValueError, match="archived_opening_prefix_mismatch"):
         pilot.verify_game(game_record)
+
+
+def test_pair_checkpoint_is_atomic_idempotent_and_resume_skips_committed(
+    tmp_path, monkeypatch
+):
+    job = {
+        "game_specs": [
+            spec for spec in _specs("initializer") if spec["arm"] == "treatment"
+        ]
+    }
+    games = [
+        pilot.play_game(
+            spec,
+            p_evaluator=_Evaluator("P"),
+            opponent_evaluator=_Evaluator("initializer"),
+            search_turn=_scripted_search([]),
+        )
+        for spec in job["game_specs"]
+    ]
+    result = {
+        "pair_id": job["game_specs"][0]["pair_id"],
+        "arm": "treatment",
+        "games": games,
+        "pair_process_cpu_time_ns": sum(game["cpu_time_ns"] for game in games),
+        "native_child_cpu_time_ns": 0,
+        "pair_cpu_time_ns": sum(game["cpu_time_ns"] for game in games),
+    }
+    checkpoint_dir = tmp_path / "pairs"
+    committed_path = pilot.commit_verified_pair(checkpoint_dir, job, result)
+    assert pilot.commit_verified_pair(checkpoint_dir, job, result) == committed_path
+    monkeypatch.setattr(pilot, "verify_components", lambda _root: {})
+    resumed = pilot.run_checkpointed_pairs(
+        [job], ARTIFACTS, checkpoint_dir, attempt_dir=tmp_path / "attempts"
+    )
+    assert [row["pair_id"] for row in resumed] == [result["pair_id"]]
+    completed, pending = pilot.load_pair_checkpoints(
+        checkpoint_dir,
+        [
+            job,
+            {
+                "game_specs": [
+                    {
+                        **spec,
+                        "arm": "control",
+                        "opponent": "P",
+                        "pair_id": "control-opening-17",
+                        "game_id": f"control-opening-17-P{spec['designated_p_seat']}",
+                    }
+                    for spec in job["game_specs"]
+                ]
+            },
+        ],
+    )
+    assert [row["pair_id"] for row in completed] == [job["game_specs"][0]["pair_id"]]
+    assert len(pending) == 1
+    conflicting = json.loads(committed_path.read_text())
+    conflicting["result"]["pair_cpu_time_ns"] += 1
+    committed_path.write_text(json.dumps(conflicting))
+    with pytest.raises(ValueError, match="pair_child_cpu_accounting_invalid"):
+        pilot.load_pair_checkpoints(checkpoint_dir, [job])
+
+
+def test_pair_checkpoint_rejects_assignment_conflict(tmp_path):
+    job = {
+        "game_specs": [
+            spec for spec in _specs("initializer") if spec["arm"] == "treatment"
+        ]
+    }
+    games = [
+        pilot.play_game(
+            spec,
+            p_evaluator=_Evaluator("P"),
+            opponent_evaluator=_Evaluator("initializer"),
+            search_turn=_scripted_search([]),
+        )
+        for spec in job["game_specs"]
+    ]
+    cpu = sum(game["cpu_time_ns"] for game in games)
+    result = {
+        "pair_id": job["game_specs"][0]["pair_id"],
+        "arm": "treatment",
+        "games": games,
+        "pair_process_cpu_time_ns": cpu,
+        "native_child_cpu_time_ns": 0,
+        "pair_cpu_time_ns": cpu,
+    }
+    path = pilot.commit_verified_pair(tmp_path, job, result)
+    changed = json.loads(path.read_text())
+    changed["assignment"]["game_specs"][0]["seed"] += 1
+    path.write_text(json.dumps(changed))
+    with pytest.raises(ValueError, match="pair_checkpoint_assignment_conflict"):
+        pilot.load_pair_checkpoints(tmp_path, [job])
+
+
+def test_interrupted_pair_attempt_is_preserved_and_blocks_resume(tmp_path):
+    job = {
+        "game_specs": [
+            spec for spec in _specs("initializer") if spec["arm"] == "treatment"
+        ]
+    }
+    pair_id = job["game_specs"][0]["pair_id"]
+    attempt_dir = tmp_path / "attempts"
+    attempt_dir.mkdir()
+    attempt = attempt_dir / f"{hashlib.sha256(pair_id.encode()).hexdigest()}.json"
+    original = {"pair_id": pair_id, "status": "started", "assignment": job}
+    attempt.write_text(json.dumps(original))
+    with pytest.raises(ValueError, match="unreconciled_interrupted_attempt_cpu"):
+        pilot.run_checkpointed_pairs(
+            [job], ARTIFACTS, tmp_path / "pairs", attempt_dir=attempt_dir
+        )
+    assert json.loads(attempt.read_text()) == original

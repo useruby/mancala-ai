@@ -1,0 +1,2361 @@
+[
+  {
+    "opening_id": "opening-0000",
+    "source_opening_index": 0,
+    "prefix_moves": [
+      5,
+      2,
+      4,
+      1,
+      1,
+      5,
+      4
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        6,
+        0,
+        1,
+        6,
+        6,
+        0
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        7,
+        1,
+        6,
+        6,
+        0,
+        3
+      ],
+      "player_store": 3
+    },
+    "state_hash": "50f498137c4a6ac5a6c8e84569a2dc60cbd2a8ec37c33372d5ed2eae4734047b"
+  },
+  {
+    "opening_id": "opening-0001",
+    "source_opening_index": 1,
+    "prefix_moves": [
+      4,
+      0,
+      2,
+      0,
+      2,
+      1,
+      5,
+      1,
+      4,
+      5
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        3,
+        0,
+        2,
+        8,
+        8,
+        0
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        3,
+        2,
+        3,
+        8,
+        1,
+        2
+      ],
+      "player_store": 5
+    },
+    "state_hash": "b35f0eae0511e63d89143b6a538c89c5d4375f3c7bf689aa3bb33cd02deab766"
+  },
+  {
+    "opening_id": "opening-0002",
+    "source_opening_index": 2,
+    "prefix_moves": [
+      0,
+      5,
+      0,
+      0,
+      5,
+      2,
+      1,
+      3,
+      1,
+      2
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        2,
+        7,
+        0,
+        0,
+        7,
+        2
+      ],
+      "opponent_store": 13,
+      "player_pits": [
+        2,
+        0,
+        0,
+        6,
+        6,
+        1
+      ],
+      "player_store": 2
+    },
+    "state_hash": "c236cc422388127ee1ba79d82dc190b3b46cad293672f511d6391aa4bdd44532"
+  },
+  {
+    "opening_id": "opening-0003",
+    "source_opening_index": 3,
+    "prefix_moves": [
+      5,
+      4,
+      3,
+      1,
+      0,
+      4,
+      3,
+      1,
+      0,
+      3,
+      1,
+      4
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        1,
+        9,
+        1,
+        2,
+        9
+      ],
+      "opponent_store": 12,
+      "player_pits": [
+        6,
+        0,
+        0,
+        0,
+        0,
+        3
+      ],
+      "player_store": 4
+    },
+    "state_hash": "713c010aeb302ca1c01614ae134c887bc6c0609f0b21ebb647f4b4c74445f17f"
+  },
+  {
+    "opening_id": "opening-0004",
+    "source_opening_index": 4,
+    "prefix_moves": [
+      0,
+      5,
+      0,
+      3
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        4,
+        4,
+        4,
+        0,
+        5,
+        1
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        1,
+        7,
+        6,
+        5,
+        5,
+        4
+      ],
+      "player_store": 0
+    },
+    "state_hash": "e2361662b4ad64c56109a99246f552b30c4ed53cd2de9693a771bb75ad8ef469"
+  },
+  {
+    "opening_id": "opening-0005",
+    "source_opening_index": 5,
+    "prefix_moves": [
+      5,
+      0,
+      1,
+      1,
+      5,
+      3,
+      4,
+      0,
+      1,
+      0,
+      5
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        2,
+        7,
+        6,
+        0,
+        7
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        0,
+        0,
+        8,
+        3,
+        7,
+        0
+      ],
+      "player_store": 5
+    },
+    "state_hash": "0e8cac9080e7c9c5d1bba9aa4244688fe6cc8bb1ce725334148490e538fc0109"
+  },
+  {
+    "opening_id": "opening-0006",
+    "source_opening_index": 6,
+    "prefix_moves": [
+      3,
+      1,
+      1,
+      5,
+      0,
+      2,
+      1
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        5,
+        0,
+        0,
+        6,
+        6,
+        1
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        1,
+        0,
+        8,
+        4,
+        7,
+        7
+      ],
+      "player_store": 1
+    },
+    "state_hash": "86ca5afe036c0bd7ea659043989eb919150789c18b2773ff4201514ed018db54"
+  },
+  {
+    "opening_id": "opening-0007",
+    "source_opening_index": 7,
+    "prefix_moves": [
+      5,
+      3,
+      3,
+      4,
+      5,
+      0,
+      4
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        7,
+        6,
+        6,
+        1,
+        0,
+        6
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        0,
+        6,
+        6,
+        1,
+        0,
+        2
+      ],
+      "player_store": 5
+    },
+    "state_hash": "f062084d8fa1826b6d38521cc58a99106c1ec9ba0a2c562ed4e953f9d7d7390c"
+  },
+  {
+    "opening_id": "opening-0008",
+    "source_opening_index": 8,
+    "prefix_moves": [
+      0,
+      3,
+      2,
+      2,
+      5,
+      0,
+      4,
+      3,
+      1,
+      5
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        6,
+        0,
+        2,
+        3,
+        2,
+        0
+      ],
+      "opponent_store": 6,
+      "player_pits": [
+        2,
+        8,
+        3,
+        0,
+        8,
+        6
+      ],
+      "player_store": 2
+    },
+    "state_hash": "80b4611fb42b767b9251bcbd9d99096ae6592363a220ae36af6f320d8c775dae"
+  },
+  {
+    "opening_id": "opening-0009",
+    "source_opening_index": 9,
+    "prefix_moves": [
+      3,
+      3,
+      1,
+      1,
+      0,
+      4,
+      4
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        6,
+        1,
+        6,
+        2,
+        1,
+        7
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        1,
+        2,
+        7,
+        3,
+        0,
+        8
+      ],
+      "player_store": 2
+    },
+    "state_hash": "c7d4d54fdb6b75a9b2f4c57848bf58c60e259ab2648ffb3c7b7882f8acb68e18"
+  },
+  {
+    "opening_id": "opening-0010",
+    "source_opening_index": 10,
+    "prefix_moves": [
+      4,
+      1,
+      0,
+      1,
+      4,
+      4,
+      3,
+      2,
+      5
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        2,
+        2,
+        7,
+        0,
+        1,
+        0
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        7,
+        3,
+        1,
+        8,
+        2,
+        9
+      ],
+      "player_store": 2
+    },
+    "state_hash": "0264b74291d9d3b82a332be6691fc40b40f8442e860e47603b21847eaadc7ca9"
+  },
+  {
+    "opening_id": "opening-0011",
+    "source_opening_index": 11,
+    "prefix_moves": [
+      5,
+      1,
+      0,
+      3,
+      2,
+      5,
+      1,
+      5,
+      0,
+      5,
+      0
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        0,
+        1,
+        0,
+        7,
+        7,
+        0
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        0,
+        3,
+        8,
+        3,
+        8,
+        1
+      ],
+      "player_store": 7
+    },
+    "state_hash": "177b9a8cbbd5e63b73e349b214541050a9e880188517992adce9155c3d491708"
+  },
+  {
+    "opening_id": "opening-0012",
+    "source_opening_index": 12,
+    "prefix_moves": [
+      5,
+      5,
+      4,
+      2,
+      2
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        7,
+        6,
+        0,
+        5,
+        5,
+        1
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        6,
+        5,
+        0,
+        5,
+        1,
+        2
+      ],
+      "player_store": 3
+    },
+    "state_hash": "e1c33074c906d879b6dfa19a0ed7be05da5d0b7d598b85ec71cacb914caf5615"
+  },
+  {
+    "opening_id": "opening-0013",
+    "source_opening_index": 13,
+    "prefix_moves": [
+      5,
+      0,
+      0,
+      1,
+      0,
+      4,
+      2
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        1,
+        7,
+        6,
+        0,
+        7
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        1,
+        7,
+        0,
+        7,
+        6,
+        1
+      ],
+      "player_store": 2
+    },
+    "state_hash": "8f3704a01e8ad6824739da5000486a6331ab33ffb1da65e70400c52056cd34a1"
+  },
+  {
+    "opening_id": "opening-0014",
+    "source_opening_index": 14,
+    "prefix_moves": [
+      3,
+      0,
+      2,
+      3,
+      2
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        5,
+        0,
+        6,
+        6,
+        6
+      ],
+      "opponent_store": 1,
+      "player_pits": [
+        5,
+        4,
+        0,
+        0,
+        7,
+        6
+      ],
+      "player_store": 2
+    },
+    "state_hash": "8aa672300916b985fe0560c52d58fefa923ab0a2794e4df8d50ebeea9ed0d0d9"
+  },
+  {
+    "opening_id": "opening-0015",
+    "source_opening_index": 15,
+    "prefix_moves": [
+      2,
+      0,
+      2,
+      0,
+      5,
+      5,
+      1
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        2,
+        6,
+        2,
+        7,
+        6,
+        0
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        1,
+        0,
+        3,
+        8,
+        7,
+        1
+      ],
+      "player_store": 3
+    },
+    "state_hash": "53c2b0edd7730425eb43b8e920fd03e6047610f612e31e78f95e772e200695c3"
+  },
+  {
+    "opening_id": "opening-0016",
+    "source_opening_index": 16,
+    "prefix_moves": [
+      3,
+      3,
+      4,
+      4,
+      1,
+      0,
+      3,
+      2,
+      5,
+      3
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        7,
+        6,
+        1,
+        0,
+        3,
+        9
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        2,
+        2,
+        7,
+        0,
+        3,
+        0
+      ],
+      "player_store": 5
+    },
+    "state_hash": "251975bb27eebcb07f46820b639107c4b664739be8078d9d134d4a724e75a821"
+  },
+  {
+    "opening_id": "opening-0017",
+    "source_opening_index": 17,
+    "prefix_moves": [
+      1,
+      0,
+      2,
+      3,
+      4,
+      4,
+      3,
+      3,
+      5,
+      3,
+      1
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        4,
+        8,
+        0,
+        0,
+        3,
+        8
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        7,
+        0,
+        2,
+        0,
+        1,
+        0
+      ],
+      "player_store": 13
+    },
+    "state_hash": "174a3d54d221d39db4f96a73c861b2b6cca26aeed44e585fc1859b995adb8d0f"
+  },
+  {
+    "opening_id": "opening-0018",
+    "source_opening_index": 18,
+    "prefix_moves": [
+      1,
+      3,
+      2,
+      0,
+      3,
+      2
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        1,
+        6,
+        0,
+        2,
+        7,
+        7
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        6,
+        1,
+        0,
+        0,
+        7,
+        7
+      ],
+      "player_store": 2
+    },
+    "state_hash": "ba01e44bc03ddacb65f0a110e1e6f84293293bd1e24ff1b3b740e8308902addb"
+  },
+  {
+    "opening_id": "opening-0019",
+    "source_opening_index": 19,
+    "prefix_moves": [
+      0,
+      4,
+      3,
+      3,
+      1,
+      5,
+      5,
+      4,
+      1,
+      2,
+      3
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        8,
+        1,
+        7,
+        0,
+        2,
+        3
+      ],
+      "opponent_store": 5,
+      "player_pits": [
+        4,
+        1,
+        0,
+        3,
+        9,
+        1
+      ],
+      "player_store": 4
+    },
+    "state_hash": "a85a61b6bb3b829e8e877f9adbf96cc51933eed4827ecb4cfdd32a10901effc9"
+  },
+  {
+    "opening_id": "opening-0020",
+    "source_opening_index": 20,
+    "prefix_moves": [
+      1,
+      0,
+      2,
+      2,
+      4,
+      4,
+      5,
+      4,
+      3
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        4,
+        8,
+        3,
+        9,
+        0,
+        8
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        6,
+        1,
+        1,
+        0,
+        1,
+        1
+      ],
+      "player_store": 4
+    },
+    "state_hash": "d4a3ff675316c85de93911ee39abeab5eea145e1bf7ef4799b96fd894c580d15"
+  },
+  {
+    "opening_id": "opening-0021",
+    "source_opening_index": 21,
+    "prefix_moves": [
+      2,
+      4,
+      2,
+      3,
+      5,
+      5,
+      4,
+      3,
+      3,
+      0,
+      5
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        1,
+        8,
+        1,
+        0,
+        1,
+        0
+      ],
+      "opponent_store": 5,
+      "player_pits": [
+        1,
+        9,
+        4,
+        1,
+        3,
+        1
+      ],
+      "player_store": 13
+    },
+    "state_hash": "f2c89adf753b4dd3d096d9ce008d1eaec8f1652eed440984b5f6ad62ee0bd71a"
+  },
+  {
+    "opening_id": "opening-0022",
+    "source_opening_index": 22,
+    "prefix_moves": [
+      4,
+      3,
+      5,
+      2,
+      1,
+      4,
+      2,
+      5,
+      2,
+      3,
+      5
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        2,
+        7,
+        0,
+        0,
+        1,
+        0
+      ],
+      "opponent_store": 13,
+      "player_pits": [
+        0,
+        2,
+        0,
+        9,
+        3,
+        0
+      ],
+      "player_store": 11
+    },
+    "state_hash": "93a26b3fbd7743be0f8dfc283ad0e0d1e9b4610916954bc68de08f767061bf2f"
+  },
+  {
+    "opening_id": "opening-0023",
+    "source_opening_index": 23,
+    "prefix_moves": [
+      1,
+      4,
+      1,
+      3,
+      3,
+      0,
+      5,
+      1
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        1,
+        0,
+        7,
+        3,
+        4,
+        8
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        7,
+        1,
+        6,
+        0,
+        6,
+        0
+      ],
+      "player_store": 2
+    },
+    "state_hash": "01cb139e25702d69c26d0eae893d757731ff3cedec2db504cab97ebb44e3a7f1"
+  },
+  {
+    "opening_id": "opening-0024",
+    "source_opening_index": 24,
+    "prefix_moves": [
+      4,
+      0,
+      5,
+      0,
+      3
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        8,
+        6,
+        6,
+        5,
+        5
+      ],
+      "opponent_store": 0,
+      "player_pits": [
+        4,
+        4,
+        4,
+        0,
+        1,
+        1
+      ],
+      "player_store": 3
+    },
+    "state_hash": "33d1baa19f1aa30290cf6995adea84e8b4755529c20c020fe814114be9290ea5"
+  },
+  {
+    "opening_id": "opening-0025",
+    "source_opening_index": 25,
+    "prefix_moves": [
+      4,
+      4,
+      5,
+      1,
+      2,
+      5,
+      3,
+      4,
+      4
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        7,
+        1,
+        6,
+        6,
+        0,
+        7
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        6,
+        5,
+        0,
+        0,
+        0,
+        2
+      ],
+      "player_store": 6
+    },
+    "state_hash": "7af507fcf967e4a1b72eea208b937a7f28c2e4dbe004f0187dc2210fe63032ed"
+  },
+  {
+    "opening_id": "opening-0026",
+    "source_opening_index": 26,
+    "prefix_moves": [
+      2,
+      1,
+      3,
+      4,
+      4,
+      1
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        5,
+        5,
+        5,
+        1,
+        0,
+        6
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        6,
+        0,
+        3,
+        6,
+        0,
+        7
+      ],
+      "player_store": 2
+    },
+    "state_hash": "7353d8c8850d03d8aebce8ea93d141c490df0ed3343ffd9141c859c9f2864b0b"
+  },
+  {
+    "opening_id": "opening-0027",
+    "source_opening_index": 27,
+    "prefix_moves": [
+      2,
+      5,
+      1,
+      3,
+      2,
+      0,
+      0,
+      4,
+      1,
+      0
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        3,
+        7,
+        1,
+        0,
+        8
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        1,
+        0,
+        3,
+        9,
+        8,
+        2
+      ],
+      "player_store": 3
+    },
+    "state_hash": "aacb9220f68310f2e260441c1704655e71f3124f771cc332427d1abf48583677"
+  },
+  {
+    "opening_id": "opening-0028",
+    "source_opening_index": 28,
+    "prefix_moves": [
+      5,
+      2,
+      3,
+      0,
+      1,
+      2,
+      4,
+      5,
+      1,
+      2
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        1,
+        3,
+        8,
+        7,
+        0
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        7,
+        0,
+        0,
+        4,
+        3,
+        5
+      ],
+      "player_store": 5
+    },
+    "state_hash": "9641b469c53ce63683210ed3c42c4bfbb77bb56b6a9ed4c46290713fccfe0368"
+  },
+  {
+    "opening_id": "opening-0029",
+    "source_opening_index": 29,
+    "prefix_moves": [
+      3,
+      5,
+      4,
+      4,
+      0,
+      3,
+      5,
+      0,
+      5,
+      2
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        6,
+        0,
+        6,
+        2,
+        1
+      ],
+      "opponent_store": 6,
+      "player_pits": [
+        1,
+        8,
+        6,
+        0,
+        2,
+        7
+      ],
+      "player_store": 3
+    },
+    "state_hash": "ebc75d100a859202a3c9e2c345f4745994d44b8b17d1967cda881e8a5f4c0947"
+  },
+  {
+    "opening_id": "opening-0030",
+    "source_opening_index": 30,
+    "prefix_moves": [
+      2,
+      4,
+      4,
+      0,
+      5,
+      2,
+      0,
+      4,
+      5
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        7,
+        7,
+        6,
+        2,
+        0
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        0,
+        7,
+        0,
+        8,
+        0,
+        0
+      ],
+      "player_store": 6
+    },
+    "state_hash": "1f7aece52a0d9fe0f3048888624402e8c65428dde172e4125bd16d1b175333f7"
+  },
+  {
+    "opening_id": "opening-0031",
+    "source_opening_index": 31,
+    "prefix_moves": [
+      3,
+      4,
+      4,
+      3,
+      2,
+      5,
+      5
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        7,
+        6,
+        6,
+        1,
+        2,
+        0
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        7,
+        6,
+        1,
+        2,
+        2,
+        1
+      ],
+      "player_store": 4
+    },
+    "state_hash": "b55d260344a4e081ce1da54d77e43fdb52201b76f50a8ce92faf893acbaee0ed"
+  },
+  {
+    "opening_id": "opening-0032",
+    "source_opening_index": 32,
+    "prefix_moves": [
+      0,
+      1,
+      5,
+      2,
+      1,
+      0,
+      1,
+      4,
+      2,
+      0,
+      0
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        2,
+        0,
+        10,
+        0,
+        8
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        0,
+        0,
+        6,
+        6,
+        0,
+        2
+      ],
+      "player_store": 12
+    },
+    "state_hash": "d89a823939d0076d674376c5eb448bc79158dfb70deebb2b4b1d9e742343b201"
+  },
+  {
+    "opening_id": "opening-0033",
+    "source_opening_index": 33,
+    "prefix_moves": [
+      0,
+      4,
+      2,
+      3,
+      0,
+      2,
+      5,
+      5,
+      2,
+      3,
+      3,
+      2
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        7,
+        6,
+        1,
+        0,
+        4,
+        1
+      ],
+      "opponent_store": 5,
+      "player_pits": [
+        2,
+        8,
+        0,
+        1,
+        9,
+        1
+      ],
+      "player_store": 3
+    },
+    "state_hash": "8ead2204a5b48a6147e863d636ef7e6a01c9b11e488f8ea57016bfdd7251c86b"
+  },
+  {
+    "opening_id": "opening-0034",
+    "source_opening_index": 34,
+    "prefix_moves": [
+      5,
+      5,
+      1,
+      5,
+      2
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        6,
+        6,
+        5,
+        4,
+        4,
+        0
+      ],
+      "opponent_store": 1,
+      "player_pits": [
+        5,
+        0,
+        0,
+        6,
+        6,
+        1
+      ],
+      "player_store": 4
+    },
+    "state_hash": "e5c26b584a1a824bc794c4bca05fdae79d42639345020df555dfe0baf0a22fc3"
+  },
+  {
+    "opening_id": "opening-0035",
+    "source_opening_index": 35,
+    "prefix_moves": [
+      1,
+      3,
+      5,
+      4,
+      2,
+      0,
+      3,
+      4,
+      3
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        1,
+        8,
+        7,
+        0,
+        3,
+        8
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        6,
+        1,
+        0,
+        6,
+        0,
+        2
+      ],
+      "player_store": 3
+    },
+    "state_hash": "c5026137c7b379492badb0e085085527ae3b53fe5e8b8c485a921f102a02ccdd"
+  },
+  {
+    "opening_id": "opening-0036",
+    "source_opening_index": 36,
+    "prefix_moves": [
+      5,
+      5,
+      0,
+      4,
+      0,
+      2,
+      1,
+      5
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        1,
+        6,
+        1,
+        5,
+        1,
+        0
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        2,
+        0,
+        7,
+        6,
+        6,
+        1
+      ],
+      "player_store": 8
+    },
+    "state_hash": "0e94920e4929a5e72d67004a04d62620938314a8f47eda71f8999c53008cd391"
+  },
+  {
+    "opening_id": "opening-0037",
+    "source_opening_index": 37,
+    "prefix_moves": [
+      2,
+      0,
+      1,
+      4,
+      5,
+      2,
+      2,
+      5,
+      4,
+      0
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        6,
+        1,
+        1,
+        8,
+        0,
+        2
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        0,
+        9,
+        2,
+        10,
+        1,
+        0
+      ],
+      "player_store": 5
+    },
+    "state_hash": "f34b65dff57002917c0aa49a5dee1df517d8bc7046838a9efef5787273113001"
+  },
+  {
+    "opening_id": "opening-0038",
+    "source_opening_index": 38,
+    "prefix_moves": [
+      3,
+      2,
+      5,
+      5,
+      2,
+      1,
+      0,
+      0,
+      5,
+      3,
+      4,
+      5
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        1,
+        7,
+        2,
+        1,
+        8,
+        0
+      ],
+      "opponent_store": 6,
+      "player_pits": [
+        2,
+        2,
+        8,
+        4,
+        0,
+        3
+      ],
+      "player_store": 4
+    },
+    "state_hash": "ff9ec78eab68e1e15d6fa6ce39b2f3bb4be491d6ebc8c33ef661d6f94532a814"
+  },
+  {
+    "opening_id": "opening-0039",
+    "source_opening_index": 39,
+    "prefix_moves": [
+      2,
+      1,
+      2,
+      0,
+      5,
+      4,
+      0,
+      2,
+      2,
+      1,
+      4
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        1,
+        2,
+        10,
+        2,
+        8
+      ],
+      "opponent_store": 6,
+      "player_pits": [
+        2,
+        0,
+        0,
+        9,
+        0,
+        2
+      ],
+      "player_store": 5
+    },
+    "state_hash": "6b5f8a0221b4bad188fa415bc8394d6d9d5eeaaabae31b5ea49f62a53fb51176"
+  },
+  {
+    "opening_id": "opening-0040",
+    "source_opening_index": 40,
+    "prefix_moves": [
+      5,
+      5,
+      1,
+      0,
+      1,
+      2,
+      5,
+      5,
+      2,
+      3,
+      4,
+      5
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        8,
+        2,
+        2,
+        1,
+        8,
+        0
+      ],
+      "opponent_store": 6,
+      "player_pits": [
+        3,
+        3,
+        1,
+        7,
+        0,
+        2
+      ],
+      "player_store": 5
+    },
+    "state_hash": "2991d26c52d7a8953f4b8a32d844a0ad95685cfd90881324a93f419234bb4022"
+  },
+  {
+    "opening_id": "opening-0041",
+    "source_opening_index": 41,
+    "prefix_moves": [
+      4,
+      5,
+      5,
+      2,
+      0,
+      2,
+      4,
+      2
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        7,
+        7,
+        0,
+        6,
+        0,
+        2
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        1,
+        7,
+        0,
+        7,
+        2,
+        2
+      ],
+      "player_store": 4
+    },
+    "state_hash": "518813b4528b2d4e193c066485c31ab5cc7f942d7aa5c57b086df37570e89c75"
+  },
+  {
+    "opening_id": "opening-0042",
+    "source_opening_index": 42,
+    "prefix_moves": [
+      2,
+      1,
+      1,
+      4,
+      2,
+      5,
+      4,
+      3,
+      1,
+      5
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        7,
+        0,
+        3,
+        10,
+        0,
+        8
+      ],
+      "opponent_store": 5,
+      "player_pits": [
+        6,
+        0,
+        2,
+        0,
+        2,
+        0
+      ],
+      "player_store": 5
+    },
+    "state_hash": "390c11f37452c584e0c73c88265ba35218bb58febbe3c514c6e490a4f2eee19e"
+  },
+  {
+    "opening_id": "opening-0043",
+    "source_opening_index": 43,
+    "prefix_moves": [
+      1,
+      4,
+      0,
+      0,
+      5,
+      3,
+      2,
+      1
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        2,
+        0,
+        8,
+        1,
+        3,
+        7
+      ],
+      "opponent_store": 6,
+      "player_pits": [
+        2,
+        2,
+        0,
+        7,
+        7,
+        1
+      ],
+      "player_store": 2
+    },
+    "state_hash": "94127376db2f16acc315020188a37f9ec27f8c81781656878944570f2d1fb0e6"
+  },
+  {
+    "opening_id": "opening-0044",
+    "source_opening_index": 44,
+    "prefix_moves": [
+      0,
+      5,
+      1,
+      2,
+      4,
+      1,
+      3,
+      3,
+      0
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        0,
+        6,
+        2,
+        1,
+        2,
+        4
+      ],
+      "opponent_store": 5,
+      "player_pits": [
+        3,
+        1,
+        9,
+        0,
+        7,
+        6
+      ],
+      "player_store": 2
+    },
+    "state_hash": "72e4f04c1483e534b682e75198c38a5a210718a58efd1fe4e70502560b53a04d"
+  },
+  {
+    "opening_id": "opening-0045",
+    "source_opening_index": 45,
+    "prefix_moves": [
+      0,
+      3,
+      4,
+      0,
+      5
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        7,
+        7,
+        2,
+        6,
+        6
+      ],
+      "opponent_store": 1,
+      "player_pits": [
+        1,
+        5,
+        5,
+        5,
+        0,
+        0
+      ],
+      "player_store": 2
+    },
+    "state_hash": "9039541bcdf40f637bdbbcb055e5844dabcd81532b99fe1b9ca21aa97e066d70"
+  },
+  {
+    "opening_id": "opening-0046",
+    "source_opening_index": 46,
+    "prefix_moves": [
+      0,
+      4,
+      1,
+      3,
+      2
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        6,
+        5,
+        4,
+        0,
+        1,
+        6
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        2,
+        0,
+        0,
+        7,
+        7,
+        6
+      ],
+      "player_store": 2
+    },
+    "state_hash": "5c12903d07c06d83d6c1dd583e7dd3624ba2de4c12f6ad3940b83a18a7712222"
+  },
+  {
+    "opening_id": "opening-0047",
+    "source_opening_index": 47,
+    "prefix_moves": [
+      4,
+      3,
+      1,
+      2,
+      1,
+      3,
+      4,
+      2,
+      5,
+      4,
+      0
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        7,
+        1,
+        1,
+        1,
+        0,
+        10
+      ],
+      "opponent_store": 10,
+      "player_pits": [
+        0,
+        2,
+        2,
+        7,
+        2,
+        2
+      ],
+      "player_store": 3
+    },
+    "state_hash": "3c1535dffc2c77e4306be5e410e871e7d91e560bf42d3a29827cdbec4132257a"
+  },
+  {
+    "opening_id": "opening-0048",
+    "source_opening_index": 48,
+    "prefix_moves": [
+      5,
+      5,
+      1,
+      3,
+      4,
+      2
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        7,
+        7,
+        5,
+        4,
+        0,
+        1
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        6,
+        1,
+        0,
+        1,
+        7,
+        3
+      ],
+      "player_store": 4
+    },
+    "state_hash": "6203a9f61cee9ef3b807a0a47c37a36901ce9fac292f9f554fa392df6ce3de6f"
+  },
+  {
+    "opening_id": "opening-0049",
+    "source_opening_index": 49,
+    "prefix_moves": [
+      3,
+      4,
+      2,
+      3,
+      2,
+      1,
+      1,
+      3
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        5,
+        0,
+        1,
+        6,
+        2,
+        7
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        5,
+        0,
+        1,
+        0,
+        9,
+        7
+      ],
+      "player_store": 3
+    },
+    "state_hash": "c78b5848e861995d3fd6e70eccf8d1490c7949005cc5e48fd853d61399b7314d"
+  },
+  {
+    "opening_id": "opening-0050",
+    "source_opening_index": 50,
+    "prefix_moves": [
+      3,
+      4,
+      5,
+      2,
+      0,
+      4,
+      3,
+      3,
+      0
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        7,
+        2,
+        1,
+        3,
+        8
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        2,
+        7,
+        6,
+        0,
+        1,
+        3
+      ],
+      "player_store": 4
+    },
+    "state_hash": "76efb9e608e933f59ebff5e7ae80ebda20674c37775a2bd17aafebce400a47db"
+  },
+  {
+    "opening_id": "opening-0051",
+    "source_opening_index": 51,
+    "prefix_moves": [
+      2,
+      0,
+      0,
+      4,
+      1,
+      5,
+      5,
+      1,
+      0,
+      2
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        0,
+        2,
+        9,
+        9,
+        7,
+        0
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        2,
+        0,
+        0,
+        9,
+        2,
+        2
+      ],
+      "player_store": 4
+    },
+    "state_hash": "bff93e20db16dfa1581598b36e9a937d0b45d1b45cb708c2f725157bdbc4237e"
+  },
+  {
+    "opening_id": "opening-0052",
+    "source_opening_index": 52,
+    "prefix_moves": [
+      5,
+      3,
+      3,
+      5,
+      2
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        7,
+        5,
+        5,
+        0,
+        5,
+        0
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        6,
+        5,
+        0,
+        2,
+        6,
+        2
+      ],
+      "player_store": 3
+    },
+    "state_hash": "99f255334de7797af41dfc3741bd6861d69f23ba5f7d52d70725b94a39c64508"
+  },
+  {
+    "opening_id": "opening-0053",
+    "source_opening_index": 53,
+    "prefix_moves": [
+      2,
+      3,
+      4,
+      4,
+      5
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        6,
+        6,
+        5,
+        5,
+        0,
+        0
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        6,
+        6,
+        1,
+        1,
+        0,
+        7
+      ],
+      "player_store": 3
+    },
+    "state_hash": "e49bf9942e485826e38526aa4cd784acdec0717f1cbe09786805aad42280591c"
+  },
+  {
+    "opening_id": "opening-0054",
+    "source_opening_index": 54,
+    "prefix_moves": [
+      0,
+      2,
+      1,
+      5,
+      0,
+      3
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        3,
+        3,
+        7,
+        7,
+        7
+      ],
+      "opponent_store": 1,
+      "player_pits": [
+        0,
+        5,
+        5,
+        0,
+        6,
+        1
+      ],
+      "player_store": 2
+    },
+    "state_hash": "df69ac398c332728e95dd4326783782ab6d6e84bf9c4e15ab58ee359bc4982ea"
+  },
+  {
+    "opening_id": "opening-0055",
+    "source_opening_index": 55,
+    "prefix_moves": [
+      0,
+      4,
+      4,
+      3,
+      0,
+      4,
+      2,
+      0,
+      3,
+      5
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        8,
+        7,
+        1,
+        3,
+        8
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        0,
+        7,
+        0,
+        6,
+        1,
+        0
+      ],
+      "player_store": 3
+    },
+    "state_hash": "ee94e536c03c7a193f80abe70db8da188d4759cf10a07ccc701386dd50485b1b"
+  },
+  {
+    "opening_id": "opening-0056",
+    "source_opening_index": 56,
+    "prefix_moves": [
+      3,
+      1,
+      5,
+      1,
+      4,
+      3,
+      1,
+      4,
+      2,
+      3,
+      4,
+      2
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        8,
+        2,
+        1,
+        2,
+        0,
+        8
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        7,
+        2,
+        0,
+        2,
+        3,
+        5
+      ],
+      "player_store": 5
+    },
+    "state_hash": "4c272ed2532b6381de18a14c4418f47ad0add94654be53fcc557779ed4b49482"
+  },
+  {
+    "opening_id": "opening-0057",
+    "source_opening_index": 57,
+    "prefix_moves": [
+      4,
+      5,
+      3,
+      2,
+      1,
+      0,
+      2,
+      4,
+      3,
+      4,
+      4,
+      2
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        2,
+        1,
+        0,
+        0,
+        5
+      ],
+      "opponent_store": 16,
+      "player_pits": [
+        7,
+        7,
+        0,
+        3,
+        2,
+        1
+      ],
+      "player_store": 3
+    },
+    "state_hash": "1a4f1e1c53dee1048c56520013b9ed1a6d01c8870245f0a4b462a6ea7f27f771"
+  },
+  {
+    "opening_id": "opening-0058",
+    "source_opening_index": 58,
+    "prefix_moves": [
+      0,
+      5,
+      5,
+      4,
+      3,
+      5,
+      2,
+      2,
+      3
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        7,
+        7,
+        0,
+        0,
+        2,
+        2
+      ],
+      "opponent_store": 5,
+      "player_pits": [
+        4,
+        8,
+        0,
+        1,
+        7,
+        2
+      ],
+      "player_store": 3
+    },
+    "state_hash": "1a6527da16be4b4fa3e69bd1485250ca50a1c5b3102a5983e93bdaa11c379d0e"
+  },
+  {
+    "opening_id": "opening-0059",
+    "source_opening_index": 59,
+    "prefix_moves": [
+      0,
+      1,
+      4,
+      1,
+      2,
+      4,
+      0,
+      3,
+      4,
+      5,
+      0,
+      0
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        0,
+        1,
+        8,
+        1,
+        2,
+        1
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        0,
+        10,
+        3,
+        7,
+        1,
+        8
+      ],
+      "player_store": 2
+    },
+    "state_hash": "c54153d09b45af42ad42ae80fd323e06a8efb3f39222243437caa17f7a921d10"
+  },
+  {
+    "opening_id": "opening-0060",
+    "source_opening_index": 60,
+    "prefix_moves": [
+      5,
+      5,
+      1,
+      3,
+      0,
+      2,
+      2,
+      5,
+      3,
+      0,
+      4
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        10,
+        1,
+        7,
+        7,
+        1
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        7,
+        1,
+        0,
+        0,
+        0,
+        4
+      ],
+      "player_store": 5
+    },
+    "state_hash": "f1d2aed4786221cdc34c726612de7d7f44bc02c1216e75114a882e105969f142"
+  },
+  {
+    "opening_id": "opening-0061",
+    "source_opening_index": 61,
+    "prefix_moves": [
+      3,
+      1,
+      1,
+      4,
+      0,
+      5,
+      5,
+      5,
+      2,
+      4,
+      2,
+      2
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        8,
+        3,
+        1,
+        10,
+        3,
+        2
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        2,
+        4,
+        0,
+        4,
+        1,
+        2
+      ],
+      "player_store": 4
+    },
+    "state_hash": "f62b94c46a26865b4593a869b70836d5a46f37079c57640d3726da9b07b5286b"
+  },
+  {
+    "opening_id": "opening-0062",
+    "source_opening_index": 62,
+    "prefix_moves": [
+      4,
+      1,
+      0,
+      2,
+      4,
+      2,
+      0,
+      3,
+      4,
+      5,
+      3
+    ],
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        2,
+        1,
+        1,
+        9,
+        0
+      ],
+      "opponent_store": 15,
+      "player_pits": [
+        2,
+        8,
+        3,
+        0,
+        2,
+        1
+      ],
+      "player_store": 3
+    },
+    "state_hash": "e591acd64ce4abbd7c4196713571c98719b0ee6e28287f96ba960fbd0861122a"
+  },
+  {
+    "opening_id": "opening-0063",
+    "source_opening_index": 63,
+    "prefix_moves": [
+      2,
+      1,
+      5,
+      1,
+      4,
+      5,
+      5,
+      1,
+      3,
+      3,
+      1
+    ],
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        6,
+        0,
+        8,
+        0,
+        3,
+        2
+      ],
+      "opponent_store": 5,
+      "player_pits": [
+        7,
+        2,
+        4,
+        0,
+        7,
+        1
+      ],
+      "player_store": 3
+    },
+    "state_hash": "a7a6563bcb995d1b714e99ea0ee27863c92565a7a9ff8cdead11798441280036"
+  }
+]

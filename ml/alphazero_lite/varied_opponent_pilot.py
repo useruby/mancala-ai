@@ -12,6 +12,7 @@ import json
 import math
 import random
 import argparse
+import contextlib
 import os
 import resource
 import subprocess
@@ -887,6 +888,170 @@ def run_validated_pairs(
     verify_archive([game for result in results for game in result["games"]])
     summarize_pair_accounting(results)
     return results
+
+
+def pair_checkpoint_path(checkpoint_dir: Path, pair_id: str) -> Path:
+    """Return the stable archive path for one committed pair."""
+    safe_id = hashlib.sha256(pair_id.encode("utf-8")).hexdigest()
+    return Path(checkpoint_dir) / f"{safe_id}.json"
+
+
+def write_json_atomic(path: Path, payload: dict[str, Any]) -> None:
+    """Durably replace a JSON record without exposing a partial file."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(f".{os.getpid()}.tmp")
+    encoded = (json.dumps(payload, sort_keys=True) + "\n").encode("utf-8")
+    try:
+        with temporary.open("xb") as handle:
+            handle.write(encoded)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+        directory_fd = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+    finally:
+        with contextlib.suppress(FileNotFoundError):
+            temporary.unlink()
+
+
+def commit_verified_pair(
+    checkpoint_dir: Path,
+    job: dict[str, Any],
+    result: dict[str, Any],
+) -> Path:
+    """Verify and atomically commit one complete pair and its assignment."""
+    specs = job.get("game_specs", [])
+    validate_game_specs(specs)
+    if len(specs) != 2:
+        raise ValueError("pair_job_must_contain_two_seat_games")
+    if (
+        result.get("pair_id") != specs[0]["pair_id"]
+        or result.get("arm") != specs[0]["arm"]
+    ):
+        raise ValueError("pair_checkpoint_assignment_mismatch")
+    games = result.get("games")
+    if not isinstance(games, list) or len(games) != 2:
+        raise ValueError("pair_checkpoint_game_count_mismatch")
+    verify_archive(games)
+    summarize_pair_accounting([result])
+    assignment = json.loads(json.dumps(job, sort_keys=True))
+    payload = {
+        "schema": "varied_opponent_pair_checkpoint_v1",
+        "assignment": assignment,
+        "result": result,
+    }
+    encoded = (json.dumps(payload, sort_keys=True) + "\n").encode("utf-8")
+    path = pair_checkpoint_path(checkpoint_dir, str(specs[0]["pair_id"]))
+    if path.exists():
+        existing = path.read_bytes()
+        if existing != encoded:
+            raise ValueError("pair_checkpoint_conflict")
+        return path
+    write_json_atomic(path, payload)
+    return path
+
+
+def load_pair_checkpoints(
+    checkpoint_dir: Path,
+    pair_jobs: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Validate existing committed evidence and return completed and pending jobs."""
+    expected = {str(job["game_specs"][0]["pair_id"]): job for job in pair_jobs}
+    if len(expected) != len(pair_jobs):
+        raise ValueError("pair_assignment_duplicate_id")
+    completed: list[dict[str, Any]] = []
+    directory = Path(checkpoint_dir)
+    for path in sorted(directory.glob("*.json")) if directory.exists() else []:
+        payload = json.loads(path.read_text())
+        if payload.get("schema") != "varied_opponent_pair_checkpoint_v1":
+            raise ValueError("pair_checkpoint_schema_mismatch")
+        job = payload.get("assignment")
+        result = payload.get("result")
+        if not isinstance(job, dict) or not isinstance(result, dict):
+            raise ValueError("pair_checkpoint_payload_invalid")
+        pair_id = str(job.get("game_specs", [{}])[0].get("pair_id", ""))
+        if pair_id not in expected or json.dumps(job, sort_keys=True) != json.dumps(
+            expected[pair_id], sort_keys=True
+        ):
+            raise ValueError("pair_checkpoint_assignment_conflict")
+        if path != pair_checkpoint_path(directory, pair_id):
+            raise ValueError("pair_checkpoint_path_mismatch")
+        if (
+            result.get("pair_id") != pair_id
+            or result.get("arm") != job["game_specs"][0]["arm"]
+        ):
+            raise ValueError("pair_checkpoint_result_binding_mismatch")
+        verify_archive(result.get("games", []))
+        summarize_pair_accounting([result])
+        completed.append(result)
+    done = {str(result["pair_id"]) for result in completed}
+    return completed, [job for pair_id, job in expected.items() if pair_id not in done]
+
+
+def run_checkpointed_pairs(
+    pair_jobs: list[dict[str, Any]],
+    artifact_root: Path,
+    checkpoint_dir: Path,
+    *,
+    attempt_dir: Path,
+) -> list[dict[str, Any]]:
+    """Resume only after validating commits; atomically persist each finished pair."""
+    all_specs = [spec for job in pair_jobs for spec in job.get("game_specs", [])]
+    validate_game_specs(all_specs)
+    verify_components(artifact_root)
+    committed, pending = load_pair_checkpoints(checkpoint_dir, pair_jobs)
+    attempt_dir.mkdir(parents=True, exist_ok=True)
+    committed_ids = {str(result["pair_id"]) for result in committed}
+    for attempt in attempt_dir.glob("*.json"):
+        record = json.loads(attempt.read_text())
+        if record.get("pair_id") in committed_ids:
+            continue
+        if record.get("status") == "started":
+            raise ValueError("unreconciled_interrupted_attempt_cpu")
+    if not pending:
+        return committed
+    with concurrent.futures.ProcessPoolExecutor(
+        max_workers=PAIR_CONCURRENCY,
+        max_tasks_per_child=1,
+        initializer=_initialize_pair_process,
+        initargs=(str(artifact_root),),
+    ) as pool:
+        future_jobs = {}
+        for job in pending:
+            pair_id = str(job["game_specs"][0]["pair_id"])
+            attempt_path = (
+                attempt_dir / f"{hashlib.sha256(pair_id.encode()).hexdigest()}.json"
+            )
+            if attempt_path.exists():
+                raise ValueError("unreconciled_interrupted_attempt_cpu")
+            write_json_atomic(
+                attempt_path,
+                {
+                    "pair_id": pair_id,
+                    "status": "started",
+                    "assignment": job,
+                },
+            )
+            future_jobs[pool.submit(_play_pair_process, job)] = (job, attempt_path)
+        for future in concurrent.futures.as_completed(future_jobs):
+            job, attempt_path = future_jobs[future]
+            result = future.result()
+            checkpoint = commit_verified_pair(checkpoint_dir, job, result)
+            write_json_atomic(
+                attempt_path,
+                {
+                    "pair_id": result["pair_id"],
+                    "status": "completed",
+                    "assignment": job,
+                    "checkpoint_sha256": sha256(checkpoint),
+                    "pair_cpu_time_ns": result["pair_cpu_time_ns"],
+                },
+            )
+            committed.append(result)
+    return committed
 
 
 def _initialize_pair_process(artifact_root: str) -> None:

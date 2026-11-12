@@ -1,0 +1,14 @@
+{
+  "command": "/home/alex/azlite-venv/bin/python -m pytest -q ml/alphazero_lite/test_varied_opponent_pilot.py",
+  "result": "23 passed",
+  "fixtures_only": true,
+  "checks": {
+    "pair_commit_contains_assignment_trajectories_targets_and_cpu": "passed",
+    "atomic_commit_idempotence": "passed",
+    "resume_validates_and_skips_committed_pair": "passed",
+    "pending_assignment_remains_pending": "passed",
+    "conflicting_assignment_or_cpu_evidence_rejected": "passed",
+    "interrupted_started_attempt_preserved_and_resume_blocked": "passed",
+    "production_games_launched": false
+  }
+}

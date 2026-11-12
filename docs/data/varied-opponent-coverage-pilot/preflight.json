@@ -1,0 +1,26 @@
+{
+  "freeze_sha256": "2929bd1ac978df8ac2faf88cf2840799cf070bc69fa0039b1a885c3110453023",
+  "command": "/home/alex/azlite-venv/bin/python -m ml.alphazero_lite.varied_opponent_pilot --preflight --specs docs/data/varied-opponent-coverage-pilot/game-assignments.json --artifacts docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts --tablebase /home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+  "status": "preflight_passed_no_games_launched",
+  "specifications": 256,
+  "pair_concurrency": 18,
+  "workers_per_game": 1,
+  "resource_limits": {
+    "cpu_quota": "1800%",
+    "cpu_weight": "100",
+    "memory_max_bytes": 38654705664,
+    "allowed_cpus": "14-31",
+    "nice": 19
+  },
+  "runtime_assets": {
+    "native_probe": {
+      "path": "/home/alex/Mancala/ai-varied-opponents-freeze/model-artifact/runtime/kalah_v1_tablebase",
+      "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48"
+    },
+    "tablebase": {
+      "path": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+      "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+    }
+  },
+  "systemd_scope_preflight": "passed_no_game_command_run"
+}
