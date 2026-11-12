@@ -553,11 +553,20 @@ def test_pair_checkpoint_is_atomic_idempotent_and_resume_skips_committed(
     committed_path = pilot.commit_verified_pair(checkpoint_dir, job, result)
     assert pilot.commit_verified_pair(checkpoint_dir, job, result) == committed_path
     monkeypatch.setattr(pilot, "verify_components", lambda _root: {})
+    attempt_dir = tmp_path / "attempts"
+    producer_attempt = pilot.pair_attempt_path(attempt_dir, result["pair_id"], 1)
+    pilot.write_json_atomic(
+        producer_attempt,
+        {
+            "pair_id": result["pair_id"],
+            "status": "started",
+            "assignment": job,
+        },
+    )
     resumed = pilot.run_checkpointed_pairs(
-        [job], ARTIFACTS, checkpoint_dir, attempt_dir=tmp_path / "attempts"
+        [job], ARTIFACTS, checkpoint_dir, attempt_dir=attempt_dir
     )
     assert [row["pair_id"] for row in resumed] == [result["pair_id"]]
-    attempt_dir = tmp_path / "attempts"
     attempt_path = pilot.pair_attempt_path(attempt_dir, result["pair_id"], 1)
     receipt = {
         "pair_id": result["pair_id"],
@@ -799,6 +808,25 @@ def test_retry_completion_then_resume_skips_pair_and_preserves_history(
         pilot.pair_checkpoint_path(checkpoint_dir, pair_id).read_text()
     )
     assert checkpoint["producing_attempt"] == 2
+
+    completed_receipt = attempt2.read_bytes()
+    pilot.write_json_atomic(
+        attempt2,
+        {"pair_id": pair_id, "status": "started", "assignment": job},
+    )
+    recovery_resume = pilot.run_checkpointed_pairs(
+        [job], ARTIFACTS, checkpoint_dir, attempt_dir=attempt_dir
+    )
+    assert [pair["pair_id"] for pair in recovery_resume] == [pair_id]
+    assert len(pool_instances) == 1
+
+    attempt2.unlink()
+    with pytest.raises(ValueError, match="pair_checkpoint_producing_attempt_missing"):
+        pilot.run_checkpointed_pairs(
+            [job], ARTIFACTS, checkpoint_dir, attempt_dir=attempt_dir
+        )
+    assert json.loads(attempt1.read_text())["status"] == "dispatched"
+    attempt2.write_bytes(completed_receipt)
 
     second_resume = pilot.run_checkpointed_pairs(
         [job], ARTIFACTS, checkpoint_dir, attempt_dir=attempt_dir

@@ -17,6 +17,8 @@
     "completed_attempt_receipt_checkpoint_hash_and_CPU_reconciled": "passed",
     "pair_process_CPU_covers_sum_of_game_CPU": "passed",
     "retry_after_never_started_attempt_then_resume_skips_committed_pair": "passed",
+    "checkpoint_without_producing_attempt_record_rejected": "passed",
+    "producing_started_record_allows_checkpoint_recovery": "passed",
     "live_resource_limit_mismatch_rejected": "passed",
     "frozen_resource_declaration_drift_rejected": "passed",
     "production_games_launched": false

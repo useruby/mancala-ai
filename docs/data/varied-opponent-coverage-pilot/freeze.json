@@ -5391,9 +5391,9 @@
     "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
     "ml/alphazero_lite/shadow_root_q.py": "93563da902a4020a312fa02c175e6115ac98e9a03b0679ea0f6109434aab8b13",
     "ml/alphazero_lite/value_transforms.py": "d63bf9772389614cae22e3a599d2151bd0b4f7d1dfbb7f8e5079bb01c6e5a21b",
-    "ml/alphazero_lite/varied_opponent_pilot.py": "d11feb01ceafa661545c0a20ae2be32bd288c25400ec732b2c8dd9f65345ee1b"
+    "ml/alphazero_lite/varied_opponent_pilot.py": "41f125962f0c07777f0c4d4d6c12c456a0495c5e5e006fb891ebb5f862a81289"
   },
-  "freeze_sha256": "bf0ee23fa7b6153a5f47c4a4782a963b271b7f598ad899c0c384accc1cd6ecab",
+  "freeze_sha256": "8da846678e89568e17e7bd81270287ef373e1f8acdfcbc892317d08385ad4c36",
   "metric": {
     "counting": "each identity once per arm",
     "cpu_denominator": "sum of seat-swapped pair CPU, including evaluator/model setup and reaped native-probe child CPU; capped/incomplete games contribute CPU and zero accepted rows",

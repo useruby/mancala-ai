@@ -1043,6 +1043,8 @@ def reconcile_pair_attempts(
     """Reconcile receipts to commits; only dispatched work never started may retry."""
     jobs = {str(job["game_specs"][0]["pair_id"]): job for job in pair_jobs}
     last_number: dict[str, int] = {pair_id: 0 for pair_id in jobs}
+    attempt_records: dict[str, dict[int, dict[str, Any]]] = {}
+    committed_attempts: dict[str, int] = {}
     for path in sorted(Path(attempt_dir).glob("*.json")):
         record = json.loads(path.read_text())
         pair_id = str(record.get("pair_id", ""))
@@ -1059,6 +1061,12 @@ def reconcile_pair_attempts(
             number = int(stem.rsplit("-", 1)[1])
         except (IndexError, ValueError) as exc:
             raise ValueError("pilot_attempt_path_invalid") from exc
+        if path != pair_attempt_path(Path(attempt_dir), pair_id, number):
+            raise ValueError("pilot_attempt_path_invalid")
+        pair_records = attempt_records.setdefault(pair_id, {})
+        if number in pair_records:
+            raise ValueError("pilot_attempt_duplicate_number")
+        pair_records[number] = record
         last_number[pair_id] = max(last_number[pair_id], number)
         if pair_id in committed_results:
             checkpoint = pair_checkpoint_path(checkpoint_dir, pair_id)
@@ -1066,6 +1074,7 @@ def reconcile_pair_attempts(
             producing_attempt = checkpoint_payload.get("producing_attempt")
             if not isinstance(producing_attempt, int) or producing_attempt < 1:
                 raise ValueError("pair_checkpoint_attempt_number_invalid")
+            committed_attempts[pair_id] = producing_attempt
             if number < producing_attempt:
                 if status != "dispatched":
                     raise ValueError("pilot_attempt_status_conflicts_with_checkpoint")
@@ -1090,6 +1099,21 @@ def reconcile_pair_attempts(
             continue
         if status in {"started", "completed"}:
             raise ValueError("unreconciled_interrupted_attempt_cpu")
+    for pair_id in committed_results:
+        if pair_id not in committed_attempts:
+            checkpoint_payload = json.loads(
+                pair_checkpoint_path(checkpoint_dir, pair_id).read_text()
+            )
+            producing_attempt = checkpoint_payload.get("producing_attempt")
+            if not isinstance(producing_attempt, int) or producing_attempt < 1:
+                raise ValueError("pair_checkpoint_attempt_number_invalid")
+            committed_attempts[pair_id] = producing_attempt
+    for pair_id, producing_attempt in committed_attempts.items():
+        producing_record = attempt_records.get(pair_id, {}).get(producing_attempt)
+        if producing_record is None:
+            raise ValueError("pair_checkpoint_producing_attempt_missing")
+        if producing_record.get("status") not in {"started", "completed"}:
+            raise ValueError("pilot_attempt_status_conflicts_with_checkpoint")
     return {pair_id: number + 1 for pair_id, number in last_number.items()}
 
 

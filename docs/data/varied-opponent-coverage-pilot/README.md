@@ -52,7 +52,7 @@ registered launch command is:
 
 ```bash
 export AZLITE_KALAH_V1_TABLEBASE=/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb
-export PILOT_FREEZE_SHA256=bf0ee23fa7b6153a5f47c4a4782a963b271b7f598ad899c0c384accc1cd6ecab
+export PILOT_FREEZE_SHA256=8da846678e89568e17e7bd81270287ef373e1f8acdfcbc892317d08385ad4c36
 systemd-run --user --scope --quiet \
   --property=CPUQuota=1800% --property=CPUWeight=100 \
   --property=MemoryMax=38654705664 --property=AllowedCPUs=14-31 --nice=19 -- \
