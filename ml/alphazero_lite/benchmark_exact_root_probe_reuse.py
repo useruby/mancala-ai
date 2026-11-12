@@ -394,9 +394,7 @@ def main() -> None:
     parser.add_argument(
         "--probe",
         type=Path,
-        default=Path(
-            "/home/alex/Mancala/ai-varied-opponents-freeze/model-artifact/runtime/kalah_v1_tablebase"
-        ),
+        default=ROOT / "model-artifact/runtime/kalah_v1_tablebase",
     )
     parser.add_argument(
         "--tablebase",

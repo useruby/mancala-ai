@@ -47,6 +47,7 @@ against varied opponents. #483 remains closed.
 From the repository root, reconstruct and freeze the requests, then benchmark:
 
 ```bash
+git lfs pull --include=model-artifact/runtime/kalah_v1_21.kvtb
 python -m ml.alphazero_lite.benchmark_exact_root_probe_reuse manifest
 systemd-run --user --scope --quiet \
   --property=CPUQuota=1800% --property=CPUWeight=100 \
