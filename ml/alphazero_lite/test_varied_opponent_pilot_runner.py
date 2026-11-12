@@ -43,6 +43,30 @@ def test_execution_source_hashes_are_checked_against_live_tree():
         runner.verify_execution_sources(freeze, ROOT)
 
 
+def test_self_play_search_dependency_change_is_rejected_in_scratch_tree(tmp_path):
+    relative = "ml/alphazero_lite/self_play.py"
+    original = ROOT / relative
+    scratch = tmp_path / relative
+    scratch.parent.mkdir(parents=True)
+    scratch.write_bytes(original.read_bytes())
+    source_hashes = json.loads(FREEZE.read_text())["execution_source_hashes"]
+    assert {
+        "ml/alphazero_lite/arena.py",
+        "ml/alphazero_lite/kalah_rules.py",
+        "ml/alphazero_lite/input_encodings.py",
+        "ml/alphazero_lite/exact_root_policy_targets.py",
+        "ml/alphazero_lite/exact_root_decision.py",
+        "ml/alphazero_lite/native_exact_root_tablebase.py",
+    }.issubset(source_hashes)
+    freeze = {"execution_source_hashes": {relative: source_hashes[relative]}}
+    runner.verify_execution_sources(freeze, tmp_path)
+    scratch.write_bytes(scratch.read_bytes() + b"\n# unreviewed search change\n")
+    with pytest.raises(
+        ValueError, match="pilot_execution_source_hash_mismatch:.*self_play"
+    ):
+        runner.verify_execution_sources(freeze, tmp_path)
+
+
 def test_live_runtime_scope_matches_registered_limits(tmp_path):
     cgroup_root = tmp_path / "sys/fs/cgroup"
     cgroup = cgroup_root / "pilot"

@@ -804,8 +804,13 @@ def summarize_pair_accounting(pair_results: list[dict[str, Any]]) -> dict[str, A
             or cpu_ns != process_cpu_ns + child_cpu_ns
         ):
             raise ValueError("pair_child_cpu_accounting_invalid")
-        game_cpu_ns = sum(int(game.get("cpu_time_ns", -1)) for game in pair["games"])
-        if game_cpu_ns < 0 or cpu_ns < game_cpu_ns:
+        game_cpu_values = [game.get("cpu_time_ns") for game in pair["games"]]
+        if any(not isinstance(value, int) or value < 0 for value in game_cpu_values):
+            raise ValueError("pair_game_cpu_accounting_invalid")
+        game_cpu_ns = sum(game_cpu_values)
+        if process_cpu_ns < game_cpu_ns:
+            raise ValueError("pair_process_cpu_below_game_cpu")
+        if cpu_ns < game_cpu_ns:
             raise ValueError("pair_cpu_below_game_cpu")
         bucket = summary.setdefault(
             arm,
@@ -1024,9 +1029,10 @@ def pair_attempt_path(attempt_dir: Path, pair_id: str, attempt_number: int) -> P
 def reconcile_pair_attempts(
     attempt_dir: Path,
     pair_jobs: list[dict[str, Any]],
-    committed_ids: set[str],
+    committed_results: dict[str, dict[str, Any]],
+    checkpoint_dir: Path,
 ) -> dict[str, int]:
-    """Preserve attempt history; only dispatched-but-never-started jobs may retry."""
+    """Reconcile receipts to commits; only dispatched work never started may retry."""
     jobs = {str(job["game_specs"][0]["pair_id"]): job for job in pair_jobs}
     last_number: dict[str, int] = {pair_id: 0 for pair_id in jobs}
     for path in sorted(Path(attempt_dir).glob("*.json")):
@@ -1046,7 +1052,25 @@ def reconcile_pair_attempts(
         except (IndexError, ValueError) as exc:
             raise ValueError("pilot_attempt_path_invalid") from exc
         last_number[pair_id] = max(last_number[pair_id], number)
-        if pair_id in committed_ids:
+        if pair_id in committed_results:
+            if status == "dispatched":
+                raise ValueError("pilot_attempt_status_conflicts_with_checkpoint")
+            result = committed_results[pair_id]
+            checkpoint = pair_checkpoint_path(checkpoint_dir, pair_id)
+            checkpoint_digest = sha256(checkpoint)
+            if status == "completed" and not {
+                "checkpoint_sha256",
+                "pair_cpu_time_ns",
+            }.issubset(record):
+                raise ValueError("pilot_attempt_checkpoint_receipt_conflict")
+            if (
+                "checkpoint_sha256" in record
+                and record["checkpoint_sha256"] != checkpoint_digest
+            ) or (
+                "pair_cpu_time_ns" in record
+                and record["pair_cpu_time_ns"] != result.get("pair_cpu_time_ns")
+            ):
+                raise ValueError("pilot_attempt_checkpoint_receipt_conflict")
             continue
         if status in {"started", "completed"}:
             raise ValueError("unreconciled_interrupted_attempt_cpu")
@@ -1066,8 +1090,10 @@ def run_checkpointed_pairs(
     verify_components(artifact_root)
     committed, pending = load_pair_checkpoints(checkpoint_dir, pair_jobs)
     attempt_dir.mkdir(parents=True, exist_ok=True)
-    committed_ids = {str(result["pair_id"]) for result in committed}
-    attempt_numbers = reconcile_pair_attempts(attempt_dir, pair_jobs, committed_ids)
+    committed_results = {str(result["pair_id"]): result for result in committed}
+    attempt_numbers = reconcile_pair_attempts(
+        attempt_dir, pair_jobs, committed_results, checkpoint_dir
+    )
     if not pending:
         return committed
     with concurrent.futures.ProcessPoolExecutor(

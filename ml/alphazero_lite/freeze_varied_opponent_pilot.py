@@ -14,6 +14,31 @@ ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "docs/data/varied-opponent-coverage-pilot"
 SOURCE = ROOT / "docs/data/seed556-exploratory-arena/screen-0005/openings.jsonl"
 SEED = 578064
+EXECUTION_SOURCE_PATHS = (
+    "ml/alphazero_lite/varied_opponent_pilot.py",
+    "ml/alphazero_lite/run_varied_opponent_pilot.py",
+    "ml/alphazero_lite/freeze_varied_opponent_pilot.py",
+    "ml/alphazero_lite/arena.py",
+    "ml/alphazero_lite/self_play.py",
+    "ml/alphazero_lite/kalah_rules.py",
+    "ml/alphazero_lite/input_encodings.py",
+    "ml/alphazero_lite/exact_root_policy_targets.py",
+    "ml/alphazero_lite/exact_root_decision.py",
+    "ml/alphazero_lite/native_exact_root_tablebase.py",
+    "ml/alphazero_lite/classic_mcts.py",
+    "ml/alphazero_lite/runtime_search_policy.py",
+    "ml/alphazero_lite/eval_cache.py",
+    "ml/alphazero_lite/endgame_tablebase.py",
+    "ml/alphazero_lite/opening_cache.py",
+    "ml/alphazero_lite/opponent_pool.py",
+    "ml/alphazero_lite/search_ablation.py",
+    "ml/alphazero_lite/value_transforms.py",
+    "ml/alphazero_lite/evaluation_seed_contract.py",
+    "ml/alphazero_lite/report_validation.py",
+    "ml/alphazero_lite/root_prior_transforms.py",
+    "ml/alphazero_lite/policy_prior_localization.py",
+    "ml/alphazero_lite/shadow_root_q.py",
+)
 
 
 def digest_bytes(payload: bytes) -> str:
@@ -107,12 +132,7 @@ def build() -> dict[str, Any]:
         "artifact_components": components,
         "runtime_assets": runtime["runtime_assets"],
         "execution_source_hashes": {
-            relative: sha(ROOT / relative)
-            for relative in (
-                "ml/alphazero_lite/varied_opponent_pilot.py",
-                "ml/alphazero_lite/run_varied_opponent_pilot.py",
-                "ml/alphazero_lite/freeze_varied_opponent_pilot.py",
-            )
+            relative: sha(ROOT / relative) for relative in EXECUTION_SOURCE_PATHS
         },
         "search_settings": pilot.SEARCH_SETTINGS,
         "target_settings": pilot.TARGET_SETTINGS,

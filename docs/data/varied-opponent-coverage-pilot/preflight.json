@@ -1,5 +1,5 @@
 {
-  "freeze_sha256": "5f498fdd71c4b1bac01b9c15efa7d155f8ff872450bd739edb6044f97155371e",
+  "freeze_sha256": "ed4b9ce82ba5aee89014241f66e16a2fcc95682bf020b1ddec010989ea68199e",
   "command": "/home/alex/azlite-venv/bin/python -m ml.alphazero_lite.varied_opponent_pilot --preflight --specs docs/data/varied-opponent-coverage-pilot/game-assignments.json --artifacts docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts --tablebase /home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
   "status": "preflight_passed_no_games_launched",
   "specifications": 256,

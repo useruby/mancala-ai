@@ -172,6 +172,32 @@ def test_cpu_and_row_accounting_aggregates_per_arm():
     assert summary["cpu_hours"] == summary["cpu_time_ns"] / 3_600_000_000_000
 
 
+def test_pair_process_cpu_must_cover_both_game_cpu_totals():
+    specs = [row for row in _specs("T512") if row["arm"] == "treatment"]
+    games = [
+        pilot.play_game(
+            spec,
+            p_evaluator=_Evaluator("P"),
+            opponent_evaluator=_Evaluator("T512"),
+            search_turn=_scripted_search([]),
+        )
+        for spec in specs
+    ]
+    game_cpu_ns = sum(game["cpu_time_ns"] for game in games)
+    with pytest.raises(ValueError, match="pair_process_cpu_below_game_cpu"):
+        pilot.summarize_pair_accounting(
+            [
+                {
+                    "arm": "treatment",
+                    "games": games,
+                    "pair_process_cpu_time_ns": 0,
+                    "native_child_cpu_time_ns": game_cpu_ns,
+                    "pair_cpu_time_ns": game_cpu_ns,
+                }
+            ]
+        )
+
+
 def test_reaped_native_probe_cpu_is_sampled(monkeypatch):
     monkeypatch_result = SimpleNamespace(ru_utime=0.125, ru_stime=0.025)
     monkeypatch.setattr(pilot.resource, "getrusage", lambda _who: monkeypatch_result)
@@ -530,6 +556,35 @@ def test_pair_checkpoint_is_atomic_idempotent_and_resume_skips_committed(
         [job], ARTIFACTS, checkpoint_dir, attempt_dir=tmp_path / "attempts"
     )
     assert [row["pair_id"] for row in resumed] == [result["pair_id"]]
+    attempt_dir = tmp_path / "attempts"
+    attempt_path = pilot.pair_attempt_path(attempt_dir, result["pair_id"], 1)
+    receipt = {
+        "pair_id": result["pair_id"],
+        "status": "completed",
+        "assignment": job,
+        "checkpoint_sha256": pilot.sha256(committed_path),
+        "pair_cpu_time_ns": result["pair_cpu_time_ns"],
+    }
+    pilot.write_json_atomic(attempt_path, receipt)
+    assert (
+        pilot.reconcile_pair_attempts(
+            attempt_dir, [job], {result["pair_id"]: result}, checkpoint_dir
+        )[result["pair_id"]]
+        == 2
+    )
+    receipt["pair_cpu_time_ns"] += 1
+    pilot.write_json_atomic(attempt_path, receipt)
+    with pytest.raises(ValueError, match="pilot_attempt_checkpoint_receipt_conflict"):
+        pilot.reconcile_pair_attempts(
+            attempt_dir, [job], {result["pair_id"]: result}, checkpoint_dir
+        )
+    receipt["pair_cpu_time_ns"] = result["pair_cpu_time_ns"]
+    receipt["checkpoint_sha256"] = "0" * 64
+    pilot.write_json_atomic(attempt_path, receipt)
+    with pytest.raises(ValueError, match="pilot_attempt_checkpoint_receipt_conflict"):
+        pilot.reconcile_pair_attempts(
+            attempt_dir, [job], {result["pair_id"]: result}, checkpoint_dir
+        )
     completed, pending = pilot.load_pair_checkpoints(
         checkpoint_dir,
         [
@@ -650,7 +705,9 @@ def test_dispatched_but_never_started_pair_remains_pending(tmp_path):
         path,
         {"pair_id": pair_id, "status": "dispatched", "assignment": job},
     )
-    next_numbers = pilot.reconcile_pair_attempts(attempt_dir, [job], set())
+    next_numbers = pilot.reconcile_pair_attempts(
+        attempt_dir, [job], {}, tmp_path / "pairs"
+    )
     completed, pending = pilot.load_pair_checkpoints(tmp_path / "pairs", [job])
     assert completed == []
     assert pending == [job]

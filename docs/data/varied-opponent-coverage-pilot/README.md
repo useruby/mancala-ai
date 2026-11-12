@@ -4,7 +4,9 @@ This is the freeze-only preparation for the 128-pair, 256-game coverage pilot.
 No production games are launched by this publication. `freeze.json` binds the
 ordered public openings, complete assignments, frozen opponent split, targets,
 artifacts, runtime assets, execution code, resource scope, metric, and decision
-rule. `game-assignments.json` is the exact worker input; `openings.json` is the
+rule. Execution hashes include the effective arena/PUCT, Kalah rules, input
+encoding, exact-root, native-tablebase, and target modules.
+`game-assignments.json` is the exact worker input; `openings.json` is the
 selected ordered opening manifest.
 
 ## Frozen design
@@ -47,7 +49,7 @@ registered launch command is:
 
 ```bash
 export AZLITE_KALAH_V1_TABLEBASE=/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb
-export PILOT_FREEZE_SHA256=5f498fdd71c4b1bac01b9c15efa7d155f8ff872450bd739edb6044f97155371e
+export PILOT_FREEZE_SHA256=ed4b9ce82ba5aee89014241f66e16a2fcc95682bf020b1ddec010989ea68199e
 systemd-run --user --scope --quiet \
   --property=CPUQuota=1800% --property=CPUWeight=100 \
   --property=MemoryMax=38654705664 --property=AllowedCPUs=14-31 --nice=19 -- \
