@@ -34,7 +34,37 @@ def _outcome_counts(games: list[dict[str, Any]]) -> dict[str, int]:
     return {key: outcomes[key] for key in ("win", "draw", "loss")}
 
 
-def verify(root: Path, expected_digest: str) -> dict[str, Any]:
+def _raw_evidence_manifest_digest(base: Path, pair_dir: Path, attempt_dir: Path) -> str:
+    """Hash the sorted paths and bytes of all published pair/attempt records."""
+    raw_files = sorted([*pair_dir.glob("*.json"), *attempt_dir.glob("*.json")])
+    raw_manifest = [
+        [str(path.relative_to(base)), hashlib.sha256(path.read_bytes()).hexdigest()]
+        for path in raw_files
+    ]
+    return hashlib.sha256(
+        json.dumps(raw_manifest, separators=(",", ":")).encode()
+    ).hexdigest()
+
+
+def _require_evidence_manifest_digest(actual: str, expected: str) -> None:
+    """Reject evidence that differs from the independently published digest."""
+    if actual != expected:
+        raise ValueError("pilot_evidence_manifest_digest_mismatch")
+
+
+def _verify_frozen_move_cap(games: list[dict[str, Any]]) -> None:
+    """Require the registered 200-move cap and prohibit longer trajectories."""
+    for game in games:
+        if game.get("max_moves") != pilot.MAX_MOVES:
+            raise ValueError("frozen_game_move_cap_mismatch")
+        trajectory = game.get("trajectory")
+        if not isinstance(trajectory, list) or len(trajectory) > pilot.MAX_MOVES:
+            raise ValueError("trajectory_exceeds_frozen_move_cap")
+
+
+def verify(
+    root: Path, expected_digest: str, expected_evidence_digest: str
+) -> dict[str, Any]:
     freeze_path = root / "docs/data/varied-opponent-coverage-pilot/freeze.json"
     freeze = runner.load_freeze(freeze_path, expected_digest=expected_digest)
     runner.verify_execution_sources(freeze, root)
@@ -82,6 +112,7 @@ def verify(root: Path, expected_digest: str) -> dict[str, Any]:
         expected_assignments
     ):
         raise ValueError("game_assignment_coverage_mismatch")
+    _verify_frozen_move_cap(games)
     replay = pilot.verify_archive(games)
     if replay["games"] != 256:
         raise ValueError("replay_game_count_mismatch")
@@ -182,14 +213,8 @@ def verify(root: Path, expected_digest: str) -> dict[str, Any]:
             "same_opening_control_p_outcomes": _outcome_counts(controls),
         }
 
-    raw_files = sorted([*pair_dir.glob("*.json"), *attempt_dir.glob("*.json")])
-    raw_manifest = [
-        [str(path.relative_to(base)), hashlib.sha256(path.read_bytes()).hexdigest()]
-        for path in raw_files
-    ]
-    raw_manifest_digest = hashlib.sha256(
-        json.dumps(raw_manifest, separators=(",", ":")).encode()
-    ).hexdigest()
+    raw_manifest_digest = _raw_evidence_manifest_digest(base, pair_dir, attempt_dir)
+    _require_evidence_manifest_digest(raw_manifest_digest, expected_evidence_digest)
     return {
         "schema": "varied_opponent_coverage_pilot_verified_results_v1",
         "freeze_sha256": expected_digest,
@@ -235,10 +260,15 @@ def main() -> None:
         "--root", type=Path, default=Path(__file__).resolve().parents[2]
     )
     parser.add_argument("--expected-freeze-sha256", required=True)
+    parser.add_argument("--expected-evidence-manifest-sha256", required=True)
     args = parser.parse_args()
     print(
         json.dumps(
-            verify(args.root.resolve(), args.expected_freeze_sha256),
+            verify(
+                args.root.resolve(),
+                args.expected_freeze_sha256,
+                args.expected_evidence_manifest_sha256,
+            ),
             indent=2,
             sort_keys=True,
         )

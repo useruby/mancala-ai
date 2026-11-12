@@ -51,7 +51,8 @@ From the repository root, replay all games, reconcile assignments, attempt recei
 
 ```bash
 python -m ml.alphazero_lite.verify_varied_opponent_pilot \
-  --expected-freeze-sha256 8da846678e89568e17e7bd81270287ef373e1f8acdfcbc892317d08385ad4c36
+  --expected-freeze-sha256 8da846678e89568e17e7bd81270287ef373e1f8acdfcbc892317d08385ad4c36 \
+  --expected-evidence-manifest-sha256 7c8d32ced1fd56ae71f261b9dcbc482b5248a62ce825409513bb9ad78aed2c0c
 ```
 
-The command is read-only and fails closed on missing, conflicting, or unreconciled evidence. No training, strength screening, sealed-suite access, or serving changes were performed; #483 remains closed.
+The evidence digest is supplied independently from this published report, and the command is read-only. It fails closed on evidence digest mismatch, missing or conflicting records, unreconciled accounting, a changed frozen move cap, or a trajectory longer than 200 moves. No training, strength screening, sealed-suite access, or serving changes were performed; #483 remains closed.
