@@ -105,16 +105,31 @@ def live_resource_snapshot(
         quota_percent = None
     else:
         quota_percent = int(cpu_max[0]) / int(cpu_max[1]) * 100.0
-    cpuset_path = cgroup / "cpuset.cpus.effective"
-    if not cpuset_path.is_file():
-        cpuset_path = cgroup / "cpuset.cpus"
     actual_affinity = set(os.sched_getaffinity(0)) if affinity is None else affinity
     actual_nice = os.getpriority(os.PRIO_PROCESS, 0) if nice is None else nice
+    cpuset_path = next(
+        (
+            path
+            for path in (
+                cgroup / "cpuset.cpus.effective",
+                cgroup / "cpuset.cpus",
+            )
+            if path.is_file()
+        ),
+        None,
+    )
+    if cpuset_path is None:
+        allowed_cpus = set(actual_affinity)
+        cpuset_source = "taskset_affinity_fallback"
+    else:
+        allowed_cpus = parse_cpu_set(cpuset_path.read_text().strip())
+        cpuset_source = "cgroup_cpuset"
     return {
         "cpu_quota_percent": quota_percent,
         "cpu_weight": int((cgroup / "cpu.weight").read_text().strip()),
         "memory_max_bytes": int((cgroup / "memory.max").read_text().strip()),
-        "allowed_cpus": parse_cpu_set(cpuset_path.read_text().strip()),
+        "allowed_cpus": allowed_cpus,
+        "cpuset_source": cpuset_source,
         "process_affinity": set(actual_affinity),
         "nice": int(actual_nice),
     }
@@ -140,6 +155,12 @@ def enforce_live_resources(
     }
     if mismatches:
         raise ValueError(f"broader_pilot_live_resource_scope_mismatch:{mismatches}")
+    cpuset_source = actual.get("cpuset_source")
+    if cpuset_source == "taskset_affinity_fallback":
+        if not limits.get("allow_taskset_affinity_fallback", False):
+            raise ValueError("broader_pilot_taskset_affinity_fallback_not_registered")
+    elif cpuset_source != "cgroup_cpuset":
+        raise ValueError("broader_pilot_cpuset_source_invalid")
     return actual
 
 
@@ -269,11 +290,12 @@ def select_matched_openings(
 def load_inventory(
     path: Path = INVENTORY_PATH, *, expected_sha256: str | None = None
 ) -> dict[str, set[str]]:
-    actual_sha256 = sha(path)
+    payload = path.read_bytes()
+    actual_sha256 = digest_bytes(payload)
     if expected_sha256 is not None and actual_sha256 != expected_sha256:
         raise ValueError("broader_pilot_novelty_inventory_hash_mismatch")
     inventory: dict[str, set[str]] = {"canonical": set(), "kalah_v3_float32": set()}
-    for line in path.read_text().splitlines():
+    for line in payload.decode("utf-8").splitlines():
         if not line:
             continue
         row = json.loads(line)
@@ -400,6 +422,8 @@ def build() -> dict[str, Any]:
             "memory_max_bytes": 38654705664,
             "allowed_cpus": "14-31",
             "nice": 19,
+            "allow_taskset_affinity_fallback": True,
+            "cpu_set_enforcement": "cgroup_cpuset_when_present_else_exact_taskset_process_affinity",
             "torch_intraop_threads": 1,
             "torch_interop_threads": 1,
         },
@@ -412,7 +436,7 @@ def build() -> dict[str, Any]:
         "decision_rule": "For the 62 matchable openings only, propose a larger data-generation run only if treatment yield is at least 1.15 times control yield under both canonical-state and production kalah_v3 float32 identities. Zero control yield or unreconciled CPU/attempt accounting is inconclusive. The 24-active-stone unmatched control cannot contribute >32-stone positions; the 33-active-stone unmatched control could, and is outside this 62-opening estimand.",
         "resume_contract": "Reuse the validated v2 pair-owned warmed probe worker and atomic checkpoint/attempt reconciliation. Resume validates existing commits and attempt records, skips verified pairs, preserves dispatch/start evidence, and stops on unreconciled started attempts.",
         "commands": {
-            "preflight": "/home/alex/azlite-venv/bin/python -m ml.alphazero_lite.broader_opening_coverage_pilot preflight --freeze docs/data/broader-opening-coverage-pilot/freeze.json --expected-freeze-sha256 $PILOT_FREEZE_SHA256 --artifacts docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts --tablebase .tmp/broader-opening-coverage/kalah_v1_21.kvtb",
+            "preflight": 'AZLITE_KALAH_V1_TABLEBASE=.tmp/broader-opening-coverage/kalah_v1_21.kvtb systemd-run --user --scope --quiet --property=CPUQuota=1800% --property=CPUWeight=100 --property=MemoryMax=38654705664 --property=AllowedCPUs=14-31 --nice=19 -- taskset -c 14-31 /home/alex/azlite-venv/bin/python -m ml.alphazero_lite.broader_opening_coverage_pilot preflight --freeze docs/data/broader-opening-coverage-pilot/freeze.json --expected-freeze-sha256 "$PILOT_FREEZE_SHA256" --artifacts docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts --tablebase .tmp/broader-opening-coverage/kalah_v1_21.kvtb',
             "launch": 'PILOT_FREEZE_SHA256=<externally-reviewed-digest> AZLITE_KALAH_V1_TABLEBASE=.tmp/broader-opening-coverage/kalah_v1_21.kvtb systemd-run --user --scope --quiet --property=CPUQuota=1800% --property=CPUWeight=100 --property=MemoryMax=38654705664 --property=AllowedCPUs=14-31 --nice=19 -- taskset -c 14-31 /home/alex/azlite-venv/bin/python -m ml.alphazero_lite.broader_opening_coverage_pilot run --freeze docs/data/broader-opening-coverage-pilot/freeze.json --expected-freeze-sha256 "$PILOT_FREEZE_SHA256" --checkpoint-dir docs/data/broader-opening-coverage-pilot/pairs',
             "resume": 'PILOT_FREEZE_SHA256=<externally-reviewed-digest> AZLITE_KALAH_V1_TABLEBASE=.tmp/broader-opening-coverage/kalah_v1_21.kvtb systemd-run --user --scope --quiet --property=CPUQuota=1800% --property=CPUWeight=100 --property=MemoryMax=38654705664 --property=AllowedCPUs=14-31 --nice=19 -- taskset -c 14-31 /home/alex/azlite-venv/bin/python -m ml.alphazero_lite.broader_opening_coverage_pilot run --freeze docs/data/broader-opening-coverage-pilot/freeze.json --expected-freeze-sha256 "$PILOT_FREEZE_SHA256" --checkpoint-dir docs/data/broader-opening-coverage-pilot/pairs --resume; preserve all existing checkpoints and attempts, and retain the frozen resource/concurrency settings.',
             "analysis": "python -m ml.alphazero_lite.broader_opening_coverage_pilot analyze --freeze docs/data/broader-opening-coverage-pilot/freeze.json --checkpoint-dir docs/data/broader-opening-coverage-pilot/pairs --attempt-dir docs/data/broader-opening-coverage-pilot/attempts",
@@ -495,6 +519,8 @@ def verify_pilot_pair_result(job: dict[str, Any], result: dict[str, Any]) -> Non
         if spec != expected[game_id]:
             raise ValueError("pair_checkpoint_game_assignment_mismatch")
         observed[game_id] = spec
+        if any(row.get("opponent") != "P" for row in game_copy.get("rows", [])):
+            raise ValueError("retained_pilot_row_opponent_mismatch")
         if spec["arm"] == "treatment":
             # The shared verifier only knows historical opponent labels. Adapt
             # verifier copies after exact P assignment equality; persisted rows
@@ -745,6 +771,7 @@ def coverage_identity_set(
 def preflight(
     freeze: dict[str, Any], tablebase: Path, artifacts: Path
 ) -> dict[str, Any]:
+    observed_resources = enforce_live_resources(freeze["runtime_limits"])
     if sha(tablebase) != TABLEBASE_SHA256:
         raise ValueError("broader_pilot_tablebase_hash_mismatch")
     assets = pilot.verify_components(artifacts)
@@ -766,6 +793,11 @@ def preflight(
         "games": sum(len(job["game_specs"]) for job in jobs),
         "pair_concurrency": PAIR_CONCURRENCY,
         "search_workers_per_game": 1,
+        "observed_live_resources": {
+            **observed_resources,
+            "allowed_cpus": sorted(observed_resources["allowed_cpus"]),
+            "process_affinity": sorted(observed_resources["process_affinity"]),
+        },
         "freeze_sha256": freeze["freeze_sha256"],
         "components": assets,
         "tablebase_sha256": sha(tablebase),

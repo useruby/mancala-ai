@@ -109,6 +109,39 @@ class BroaderOpeningFreezeTests(unittest.TestCase):
             experiment.play_pair_with_probe({"game_specs": specs}, evaluators)
         self.assertEqual(observed, [evaluators.p, evaluators.p])
 
+    def test_treatment_retained_rows_must_say_p_before_verifier_adaptation(self):
+        specs = [
+            {
+                "game_id": f"treatment-row-P{seat}",
+                "pair_id": "treatment-row-pair",
+                "arm": "treatment",
+                "opening_id": "treatment-row-opening",
+                "opening_moves": [],
+                "seed": 72,
+                "designated_p_seat": seat,
+                "opponent": "P",
+                "search_workers": 1,
+            }
+            for seat in (0, 1)
+        ]
+        job = {"game_specs": specs}
+        result = {
+            "pair_id": "treatment-row-pair",
+            "arm": "treatment",
+            "games": [{"spec": spec, "rows": [{"opponent": "P"}]} for spec in specs],
+        }
+        with patch.object(pilot, "verify_pair_result") as verifier:
+            experiment.verify_pilot_pair_result(job, result)
+            verifier.assert_called_once()
+            verifier.reset_mock()
+            mutated = json.loads(json.dumps(result))
+            mutated["games"][0]["rows"][0]["opponent"] = "initializer"
+            with self.assertRaisesRegex(
+                ValueError, "retained_pilot_row_opponent_mismatch"
+            ):
+                experiment.verify_pilot_pair_result(job, mutated)
+            verifier.assert_not_called()
+
     @staticmethod
     def _evaluators():
         return type(
@@ -205,6 +238,34 @@ class BroaderOpeningFreezeTests(unittest.TestCase):
             ):
                 experiment.load_inventory(mutated, expected_sha256=original_digest)
 
+    def test_inventory_hashing_and_parsing_share_one_byte_read(self):
+        payload = b'{"scheme":"canonical","identity":"known"}\n'
+        with tempfile.TemporaryDirectory() as directory:
+            inventory_path = Path(directory) / "inventory.jsonl"
+            inventory_path.write_bytes(payload)
+            expected = experiment.digest_bytes(payload)
+            original_read_bytes = Path.read_bytes
+            reads = []
+
+            def counted_read_bytes(path):
+                if path == inventory_path:
+                    reads.append(path)
+                return original_read_bytes(path)
+
+            with (
+                patch.object(Path, "read_bytes", counted_read_bytes),
+                patch.object(
+                    Path,
+                    "read_text",
+                    side_effect=AssertionError("inventory should parse hashed bytes"),
+                ),
+            ):
+                result = experiment.load_inventory(
+                    inventory_path, expected_sha256=expected
+                )
+        self.assertEqual(reads, [inventory_path])
+        self.assertEqual(result["canonical"], {"known"})
+
     def test_resource_scope_requires_all_frozen_live_limits(self):
         freeze = json.loads((experiment.DATA / "freeze.json").read_text())
         limits = freeze["runtime_limits"]
@@ -213,11 +274,16 @@ class BroaderOpeningFreezeTests(unittest.TestCase):
             "cpu_weight": 100,
             "memory_max_bytes": 38654705664,
             "allowed_cpus": set(range(14, 32)),
+            "cpuset_source": "cgroup_cpuset",
             "process_affinity": set(range(14, 32)),
             "nice": 19,
         }
         self.assertEqual(
             experiment.enforce_live_resources(limits, observed=valid), valid
+        )
+        fallback = {**valid, "cpuset_source": "taskset_affinity_fallback"}
+        self.assertEqual(
+            experiment.enforce_live_resources(limits, observed=fallback), fallback
         )
         for key, value in (
             ("cpu_quota_percent", 1900.0),
@@ -258,9 +324,38 @@ class BroaderOpeningFreezeTests(unittest.TestCase):
                 "cpu_weight": 100,
                 "memory_max_bytes": 38654705664,
                 "allowed_cpus": set(range(14, 32)),
+                "cpuset_source": "cgroup_cpuset",
                 "process_affinity": set(range(14, 32)),
                 "nice": 19,
             },
+        )
+
+    def test_live_resource_reader_uses_registered_taskset_fallback(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            proc_cgroup = root / "proc-cgroup"
+            proc_cgroup.write_text("0::/user.slice/pilot.scope\n")
+            cgroup = root / "cgroup" / "user.slice/pilot.scope"
+            cgroup.mkdir(parents=True)
+            (cgroup / "cpu.max").write_text("1800000 100000\n")
+            (cgroup / "cpu.weight").write_text("100\n")
+            (cgroup / "memory.max").write_text("38654705664\n")
+            snapshot = experiment.live_resource_snapshot(
+                proc_cgroup=proc_cgroup,
+                cgroup_root=root / "cgroup",
+                affinity=set(range(14, 32)),
+                nice=19,
+            )
+        self.assertEqual(snapshot["cpuset_source"], "taskset_affinity_fallback")
+        self.assertEqual(snapshot["allowed_cpus"], set(range(14, 32)))
+        self.assertEqual(
+            experiment.enforce_live_resources(
+                json.loads((experiment.DATA / "freeze.json").read_text())[
+                    "runtime_limits"
+                ],
+                observed=snapshot,
+            ),
+            snapshot,
         )
 
     def test_run_rejects_out_of_scope_before_writing_evidence(self):
@@ -270,6 +365,7 @@ class BroaderOpeningFreezeTests(unittest.TestCase):
             "cpu_weight": 1,
             "memory_max_bytes": 38654705664,
             "allowed_cpus": set(range(14, 32)),
+            "cpuset_source": "cgroup_cpuset",
             "process_affinity": set(range(14, 32)),
             "nice": 19,
         }

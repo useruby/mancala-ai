@@ -75,19 +75,27 @@ outside the registered systemd/taskset scope fails closed. Analysis verifies the
 exact published novelty-inventory bytes against the freeze digest before reading
 identities; mutation aborts analysis.
 
+The host omits both cgroup cpuset files. The freeze explicitly permits the
+`taskset_affinity_fallback` only in that case; the harness records that source
+and requires the current process affinity to equal CPUs 14–31. The no-games
+preflight ran inside the exact registered systemd/taskset scope and recorded
+CPU quota 1800%, CPU weight 100, 36 GiB memory cap, CPUs 14–31, nice 19, and the
+taskset affinity fallback in `preflight.json`.
+
 The recorded no-games preflight is `preflight.json` and reports 124 pairs, 248
 games, concurrency 1, and `games_launched: 0`. `synthetic-checks.json` records
 the passing synthetic test command and outcomes. Synthetic tests cover deterministic
 matching, both identity schemes, supplied-opening exclusion in both arms, P
-against P in treatment, preservation of prior runner hashes, resource-scope
-rejection before evidence creation, exact novelty-inventory authentication, and
-v2 checkpoint/resume skipping a verified pair.
+against P in treatment, rejection of mutated treatment-row opponent metadata,
+preservation of prior runner hashes, resource-scope rejection before evidence
+creation, one-buffer inventory hash/parse and mutation rejection, taskset
+fallback verification, and v2 checkpoint/resume skipping a verified pair.
 
 After the freeze merges, launch with the digest independently reviewed from
 `freeze.json`:
 
 ```bash
-export PILOT_FREEZE_SHA256=c0ed1ac6adfec1726bd77b2c94fc763f3c9524f0f428c2d8d0444e7190d627f8
+export PILOT_FREEZE_SHA256=3f2ccca4fae605f826b4fb00e0adb6f88c8c87ad8ca1373152aea051133f75b5
 export AZLITE_KALAH_V1_TABLEBASE=.tmp/broader-opening-coverage/kalah_v1_21.kvtb
 systemd-run --user --scope --quiet \
   --property=CPUQuota=1800% --property=CPUWeight=100 \

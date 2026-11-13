@@ -5432,7 +5432,7 @@
   "commands": {
     "analysis": "python -m ml.alphazero_lite.broader_opening_coverage_pilot analyze --freeze docs/data/broader-opening-coverage-pilot/freeze.json --checkpoint-dir docs/data/broader-opening-coverage-pilot/pairs --attempt-dir docs/data/broader-opening-coverage-pilot/attempts",
     "launch": "PILOT_FREEZE_SHA256=<externally-reviewed-digest> AZLITE_KALAH_V1_TABLEBASE=.tmp/broader-opening-coverage/kalah_v1_21.kvtb systemd-run --user --scope --quiet --property=CPUQuota=1800% --property=CPUWeight=100 --property=MemoryMax=38654705664 --property=AllowedCPUs=14-31 --nice=19 -- taskset -c 14-31 /home/alex/azlite-venv/bin/python -m ml.alphazero_lite.broader_opening_coverage_pilot run --freeze docs/data/broader-opening-coverage-pilot/freeze.json --expected-freeze-sha256 \"$PILOT_FREEZE_SHA256\" --checkpoint-dir docs/data/broader-opening-coverage-pilot/pairs",
-    "preflight": "/home/alex/azlite-venv/bin/python -m ml.alphazero_lite.broader_opening_coverage_pilot preflight --freeze docs/data/broader-opening-coverage-pilot/freeze.json --expected-freeze-sha256 $PILOT_FREEZE_SHA256 --artifacts docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts --tablebase .tmp/broader-opening-coverage/kalah_v1_21.kvtb",
+    "preflight": "AZLITE_KALAH_V1_TABLEBASE=.tmp/broader-opening-coverage/kalah_v1_21.kvtb systemd-run --user --scope --quiet --property=CPUQuota=1800% --property=CPUWeight=100 --property=MemoryMax=38654705664 --property=AllowedCPUs=14-31 --nice=19 -- taskset -c 14-31 /home/alex/azlite-venv/bin/python -m ml.alphazero_lite.broader_opening_coverage_pilot preflight --freeze docs/data/broader-opening-coverage-pilot/freeze.json --expected-freeze-sha256 \"$PILOT_FREEZE_SHA256\" --artifacts docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts --tablebase .tmp/broader-opening-coverage/kalah_v1_21.kvtb",
     "resume": "PILOT_FREEZE_SHA256=<externally-reviewed-digest> AZLITE_KALAH_V1_TABLEBASE=.tmp/broader-opening-coverage/kalah_v1_21.kvtb systemd-run --user --scope --quiet --property=CPUQuota=1800% --property=CPUWeight=100 --property=MemoryMax=38654705664 --property=AllowedCPUs=14-31 --nice=19 -- taskset -c 14-31 /home/alex/azlite-venv/bin/python -m ml.alphazero_lite.broader_opening_coverage_pilot run --freeze docs/data/broader-opening-coverage-pilot/freeze.json --expected-freeze-sha256 \"$PILOT_FREEZE_SHA256\" --checkpoint-dir docs/data/broader-opening-coverage-pilot/pairs --resume; preserve all existing checkpoints and attempts, and retain the frozen resource/concurrency settings."
   },
   "control_manifest": [
@@ -8423,7 +8423,7 @@
   },
   "execution_source_hashes": {
     "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
-    "ml/alphazero_lite/broader_opening_coverage_pilot.py": "a06bf8d40bb7c98d07cfae139dfd308957d6040940c8dd24123f6a7aa4979b29",
+    "ml/alphazero_lite/broader_opening_coverage_pilot.py": "57c50eed2b060316b5a72a589d021e45ff5fd3133c1f6ae8b1b1bac7e4d27144",
     "ml/alphazero_lite/classic_mcts.py": "9643d859e22fad8ef83211fb38256a30aa15f245775408310c147d7db65e61b9",
     "ml/alphazero_lite/endgame_tablebase.py": "fe00e7b48277e2f8a5795232f78b25df4d29449b7b5dc819a09771999b2350f5",
     "ml/alphazero_lite/eval_cache.py": "7f9da64a0ec2b3c00418727d8d5d0de5257037d47dc42cd2b8e72071fb70b8f6",
@@ -8448,7 +8448,7 @@
     "ml/alphazero_lite/value_transforms.py": "d63bf9772389614cae22e3a599d2151bd0b4f7d1dfbb7f8e5079bb01c6e5a21b",
     "ml/alphazero_lite/varied_opponent_pilot.py": "41f125962f0c07777f0c4d4d6c12c456a0495c5e5e006fb891ebb5f862a81289"
   },
-  "freeze_sha256": "c0ed1ac6adfec1726bd77b2c94fc763f3c9524f0f428c2d8d0444e7190d627f8",
+  "freeze_sha256": "3f2ccca4fae605f826b4fb00e0adb6f88c8c87ad8ca1373152aea051133f75b5",
   "matching": {
     "control_canonical_identity_count": 64,
     "control_count": 64,
@@ -8745,8 +8745,10 @@
     }
   },
   "runtime_limits": {
+    "allow_taskset_affinity_fallback": true,
     "allowed_cpus": "14-31",
     "cpu_quota": "1800%",
+    "cpu_set_enforcement": "cgroup_cpuset_when_present_else_exact_taskset_process_affinity",
     "cpu_weight": "100",
     "memory_max_bytes": 38654705664,
     "nice": 19,
