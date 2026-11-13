@@ -1,0 +1,31 @@
+{
+  "schema": "varied_opponent_pilot_execution_freeze_v2",
+  "parent_freeze": {
+    "path": "docs/data/varied-opponent-coverage-pilot/freeze.json",
+    "sha256": "8da846678e89568e17e7bd81270287ef373e1f8acdfcbc892317d08385ad4c36"
+  },
+  "runner_source": "ml/alphazero_lite/run_varied_opponent_pilot_v2.py",
+  "runner_sha256": "ba93a0aeeade6298c5a4f0d2a48f0d42125e9af8ff157361c1d5a585fcb0b1e7",
+  "probe_lifetime": "one_fresh_warmed_probe_per_seat_swapped_pair",
+  "request_manifest_sha256": "d5bf560e2932b58c643cce872c17d4608bbb358cc9e7372979b898d1228302af",
+  "runtime_assets": {
+    "native_probe": {
+      "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48"
+    },
+    "tablebase": {
+      "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+    }
+  },
+  "runtime_limits": {
+    "pair_concurrency": 18,
+    "workers_per_game": 1,
+    "cpu_quota": "1800%",
+    "cpu_weight": "100",
+    "memory_max_bytes": 38654705664,
+    "allowed_cpus": "14-31",
+    "nice": 19,
+    "torch_intraop_threads": 1,
+    "torch_interop_threads": 1
+  },
+  "freeze_sha256": "fc6dee8b0d5e04190a6326b4d55242196ee1f9901d2a2196ae5b03f6bfa200a1"
+}
