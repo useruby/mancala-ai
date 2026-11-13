@@ -1,0 +1,120 @@
+{
+  "analysis": {
+    "accounting": {
+      "control": {
+        "accepted_rows": 1912,
+        "capped_games": 0,
+        "complete_games": 124,
+        "cpu_hours": 0.12230920950972222,
+        "cpu_time_ns": 440313154235,
+        "games": 124,
+        "incomplete_games": 0,
+        "native_child_cpu_time_ns": 235604514000,
+        "pairs": 62
+      },
+      "treatment": {
+        "accepted_rows": 1950,
+        "capped_games": 0,
+        "complete_games": 124,
+        "cpu_hours": 0.12289072628694445,
+        "cpu_time_ns": 442406614633,
+        "games": 124,
+        "incomplete_games": 0,
+        "native_child_cpu_time_ns": 235509256000,
+        "pairs": 62
+      }
+    },
+    "arms": {
+      "control": {
+        "accepted_designated_p_rows": 1912,
+        "canonical": {
+          "distinct_after_opening_exclusion": 361,
+          "eligible_rows_above_32_before_opening_exclusion": 419,
+          "identity_key_field": "canonical_identity",
+          "inventory_scope": "verified #556-#560 only",
+          "novel_to_published_556_560_inventory": 268,
+          "opening_identity_rows_excluded": 58,
+          "per_cpu_hour": 2951.5357138442178,
+          "published_556_560_inventory_overlap": 93
+        },
+        "cpu_hours": 0.12230920950972222,
+        "cpu_time_ns": 440313154235,
+        "kalah_v3_float32": {
+          "distinct_after_opening_exclusion": 361,
+          "eligible_rows_above_32_before_opening_exclusion": 419,
+          "identity_key_field": "production_float32_identity",
+          "inventory_scope": "verified #556-#560 only",
+          "novel_to_published_556_560_inventory": 268,
+          "opening_identity_rows_excluded": 58,
+          "per_cpu_hour": 2951.5357138442178,
+          "published_556_560_inventory_overlap": 93
+        },
+        "pairs": 62
+      },
+      "treatment": {
+        "accepted_designated_p_rows": 1950,
+        "canonical": {
+          "distinct_after_opening_exclusion": 316,
+          "eligible_rows_above_32_before_opening_exclusion": 374,
+          "identity_key_field": "canonical_identity",
+          "inventory_scope": "verified #556-#560 only",
+          "novel_to_published_556_560_inventory": 237,
+          "opening_identity_rows_excluded": 58,
+          "per_cpu_hour": 2571.3901247694953,
+          "published_556_560_inventory_overlap": 79
+        },
+        "cpu_hours": 0.12289072628694445,
+        "cpu_time_ns": 442406614633,
+        "kalah_v3_float32": {
+          "distinct_after_opening_exclusion": 316,
+          "eligible_rows_above_32_before_opening_exclusion": 374,
+          "identity_key_field": "production_float32_identity",
+          "inventory_scope": "verified #556-#560 only",
+          "novel_to_published_556_560_inventory": 237,
+          "opening_identity_rows_excluded": 58,
+          "per_cpu_hour": 2571.3901247694953,
+          "published_556_560_inventory_overlap": 79
+        },
+        "pairs": 62
+      }
+    },
+    "attempt_accounting": "reconciled by v2 runner",
+    "decision_rule": "For the 62 matchable openings only, propose a larger data-generation run only if treatment yield is at least 1.15 times control yield under both canonical-state and production kalah_v3 float32 identities. Zero control yield or unreconciled CPU/attempt accounting is inconclusive. The 24-active-stone unmatched control cannot contribute >32-stone positions; the 33-active-stone unmatched control could, and is outside this 62-opening estimand.",
+    "freeze_sha256": "3f2ccca4fae605f826b4fb00e0adb6f88c8c87ad8ca1373152aea051133f75b5",
+    "larger_run_gate_met": false,
+    "pairs_reconciled": 124,
+    "published_inventory_sha256": "8b5bf0ca78a9d370a91d9cb309cfa7f39c4fec8e2fba3576a8483727c0a6cb52",
+    "schema": "broader_opening_coverage_analysis_v1",
+    "scope": "62 matchable openings per arm only",
+    "treatment_control_yield_ratio": {
+      "canonical": 0.8712041371237202,
+      "kalah_v3_float32": 0.8712041371237202
+    }
+  },
+  "conclusion": "The frozen 62-opening pilot did not meet the 1.15x treatment/control yield gate under both identity schemes; do not propose a larger run. This conclusion applies only to the 62 matchable openings.",
+  "coverage_overlap": {
+    "canonical": {
+      "control_only_distinct_positions": 361,
+      "shared_distinct_positions": 0,
+      "treatment_only_distinct_positions": 316
+    },
+    "kalah_v3_float32": {
+      "control_only_distinct_positions": 361,
+      "shared_distinct_positions": 0,
+      "treatment_only_distinct_positions": 316
+    }
+  },
+  "decision": "do_not_propose_larger_run",
+  "evidence_digest_sha256": "e1cf047b1e8587d673ae711c11e29eb9125240391d945a581a27ce47ce37cd75",
+  "freeze_sha256": "3f2ccca4fae605f826b4fb00e0adb6f88c8c87ad8ca1373152aea051133f75b5",
+  "historical_novelty_scope": "authenticated published #556-#560 inventory only",
+  "program_status": {
+    "sealed_suite_accessed": false,
+    "seed_483_reopened": false,
+    "seed_580_decision_changed": false,
+    "serving_changes_performed": false,
+    "training_or_strength_screening_performed": false
+  },
+  "schema": "broader_opening_coverage_pilot_results_v1",
+  "scope": "62 matchable openings per arm only"
+}

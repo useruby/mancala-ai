@@ -118,3 +118,32 @@ and attempts reconcile:
   --checkpoint-dir docs/data/broader-opening-coverage-pilot/pairs \
   --attempt-dir docs/data/broader-opening-coverage-pilot/attempts
 ```
+
+## Published pilot result
+
+The frozen pilot ran 124 seat-swapped pairs (248 complete games) at pair
+concurrency 1. All 124 pair checkpoints replayed, and assignment, retained-row,
+attempt, and CPU accounting reconciled, including reaped native-probe CPU.
+There were no capped or incomplete games.
+
+`pairs/` and `attempts/` contain the raw run evidence. `results.json` reports the
+recomputed metric, shared and arm-only coverage, inventory overlap and novelty,
+and the frozen decision. `evidence-digest.json` independently hashes the frozen
+inputs, runner sources, authenticated inventory, all checkpoints, and all attempt
+records. Its SHA-256 is recorded in `results.json`. Verify the digest, replay all
+games, and reconstruct the reported metrics and decision with the read-only
+verifier. Supply the evidence digest independently (also published in the PR
+description); do not take the expected value from `results.json` or
+`evidence-digest.json`:
+
+```bash
+python -m ml.alphazero_lite.verify_broader_opening_coverage_results \
+  --expected-evidence-digest-sha256 \
+  e1cf047b1e8587d673ae711c11e29eb9125240391d945a581a27ce47ce37cd75
+```
+
+Treatment yield was 0.8712x control under both canonical and production float32
+identity (2,571.39 vs 2,951.54 distinct accepted positions per CPU-hour). The
+1.15x gate was not met; do not propose a larger run. This conclusion is limited
+to the 62 matchable openings. Novelty is reported against the authenticated
+#556–#560 inventory only and is not a full historical exclusion census.
