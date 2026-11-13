@@ -1,0 +1,33 @@
+{
+  "schema": "varied_opponent_v2_frozen_request_replay_v1",
+  "freeze_sha256": "ffcbdd1b0cb0fb34f0261a7c69cb05566fea18a2af0623033a19a029ff9e2859",
+  "runner_sha256": "7bab2d146a680ad1c4a7c3aa7e8eb77d70cd4bd77f44862853bf16f340f59ec5",
+  "manifest_sha256": "d5bf560e2932b58c643cce872c17d4608bbb358cc9e7372979b898d1228302af",
+  "runtime_assets": {
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+  },
+  "replay": {
+    "requests": 3354,
+    "game_boundaries": 256,
+    "pairs": 128,
+    "per_game_probe_count": 256,
+    "per_pair_probe_count": 128,
+    "per_game_lifecycle": "one fresh warmed probe per game, via v2 exact-root callback",
+    "per_pair_lifecycle": "one fresh warmed probe shared by both games, via v2 exact-root callback",
+    "decision_mismatches": [],
+    "archived_margin_mismatches": [],
+    "archived_move_mismatches": [],
+    "passed": true
+  },
+  "execution_identity": {
+    "schema": "varied_opponent_pair_run_identity_v2",
+    "freeze_sha256": "ffcbdd1b0cb0fb34f0261a7c69cb05566fea18a2af0623033a19a029ff9e2859",
+    "runner_source": "ml/alphazero_lite/run_varied_opponent_pilot_v2.py",
+    "runner_sha256": "7bab2d146a680ad1c4a7c3aa7e8eb77d70cd4bd77f44862853bf16f340f59ec5",
+    "probe_lifetime": "one_fresh_warmed_probe_per_seat_swapped_pair",
+    "checkpoint_schema": "varied_opponent_pair_checkpoint_v1"
+  },
+  "command": "python -m ml.alphazero_lite.run_varied_opponent_pilot_v2 replay --tablebase .git/lfs/objects/f1/26/f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7 --output .tmp/seed581-v2-replay-shared-lifecycle.json",
+  "prerequisite": "git lfs fetch origin 61883fd68697ef1a7700c6364f01a5d90c863e3e --include=model-artifact/runtime/kalah_v1_21.kvtb"
+}
