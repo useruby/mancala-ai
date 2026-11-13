@@ -1,5 +1,5 @@
 {
-  "digest_sha256": "41e31773338580fe8a952b8aeaa25f4fabc6b1746fefc660cdaa5d33df413949",
+  "digest_sha256": "e1cf047b1e8587d673ae711c11e29eb9125240391d945a581a27ce47ce37cd75",
   "files": [
     {
       "bytes": 258966,
@@ -160,6 +160,11 @@
       "bytes": 13066,
       "path": "ml/alphazero_lite/seed551_controlled_policy_strength.py",
       "sha256": "c589240e2352273e0b86c48c3b37f5fa9737cfc2423255b67d74e7e177f59e63"
+    },
+    {
+      "bytes": 420,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/run-identity.v2",
+      "sha256": "3dece6c3884b833b3d7e9d2e09a2cbaed570ae76c034f9f920c6fe69fd25d8d5"
     },
     {
       "bytes": 69731,

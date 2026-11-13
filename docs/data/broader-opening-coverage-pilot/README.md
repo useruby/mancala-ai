@@ -132,10 +132,14 @@ and the frozen decision. `evidence-digest.json` independently hashes the frozen
 inputs, runner sources, authenticated inventory, all checkpoints, and all attempt
 records. Its SHA-256 is recorded in `results.json`. Verify the digest, replay all
 games, and reconstruct the reported metrics and decision with the read-only
-verifier:
+verifier. Supply the evidence digest independently (also published in the PR
+description); do not take the expected value from `results.json` or
+`evidence-digest.json`:
 
 ```bash
-python -m ml.alphazero_lite.verify_broader_opening_coverage_results
+python -m ml.alphazero_lite.verify_broader_opening_coverage_results \
+  --expected-evidence-digest-sha256 \
+  e1cf047b1e8587d673ae711c11e29eb9125240391d945a581a27ce47ce37cd75
 ```
 
 Treatment yield was 0.8712x control under both canonical and production float32

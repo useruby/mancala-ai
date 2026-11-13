@@ -10,9 +10,32 @@ from unittest.mock import patch
 from ml.alphazero_lite import broader_opening_coverage_pilot as experiment
 from ml.alphazero_lite import run_varied_opponent_pilot_v2 as v2
 from ml.alphazero_lite import varied_opponent_pilot as pilot
+from ml.alphazero_lite import (
+    verify_broader_opening_coverage_results as results_verifier,
+)
 
 
 class BroaderOpeningFreezeTests(unittest.TestCase):
+    def test_results_verifier_fails_read_only_without_run_marker(self):
+        with tempfile.TemporaryDirectory() as directory:
+            data = Path(directory)
+            (data / "pairs").mkdir()
+            (data / "attempts").mkdir()
+            (data / "freeze.json").write_bytes(
+                (experiment.DATA / "freeze.json").read_bytes()
+            )
+            files_before = sorted(path.relative_to(data) for path in data.rglob("*"))
+
+            with self.assertRaisesRegex(
+                ValueError, "pilot_v2_run_identity_marker_missing"
+            ):
+                results_verifier.verify(data, "0" * 64)
+
+            self.assertEqual(
+                sorted(path.relative_to(data) for path in data.rglob("*")),
+                files_before,
+            )
+
     def test_prior_frozen_runner_sources_keep_registered_bytes(self):
         self.assertEqual(
             experiment.sha(

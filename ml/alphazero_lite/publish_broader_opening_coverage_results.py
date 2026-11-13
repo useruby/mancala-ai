@@ -33,6 +33,8 @@ def evidence_manifest(data: Path) -> dict[str, Any]:
             *(pilot.ROOT / source for source in pilot.SOURCE_PATHS),
         )
     ]
+    marker = data / "pairs/run-identity.v2"
+    named_paths.append((marker, marker.relative_to(pilot.ROOT).as_posix()))
     named_paths += [
         (path, path.relative_to(pilot.ROOT).as_posix())
         for path in sorted((data / "pairs").glob("*.json"))
