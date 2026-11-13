@@ -1,0 +1,2718 @@
+[
+  {
+    "canonical_identity": "e50351ed4e453baae7fa1ec0017444063f7037d9a176501acea0f64f047f863f",
+    "match_id": "matched-0000",
+    "opening_id": "matched-0000-treatment",
+    "prefix_moves": [
+      4,
+      5,
+      1,
+      0,
+      3,
+      5,
+      1
+    ],
+    "production_float32_identity": "aafe2d06a9caedea781be2c754895d009d216040a7c6827ea99c1c6e2e4623a0",
+    "signature": {
+      "active_stones": 42,
+      "prefix_length": 7,
+      "side_to_move": 0
+    },
+    "source_opening_index": 117,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        6,
+        0,
+        6,
+        2,
+        7,
+        3
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        2,
+        1,
+        7,
+        6,
+        2,
+        0
+      ],
+      "player_store": 3
+    }
+  },
+  {
+    "canonical_identity": "cdf5831d404ef788506590f939d6e87f08daeb30793db1108e5f1f49fff1c176",
+    "match_id": "matched-0001",
+    "opening_id": "matched-0001-treatment",
+    "prefix_moves": [
+      1,
+      1,
+      3,
+      4,
+      0,
+      2,
+      1,
+      5,
+      1,
+      1
+    ],
+    "production_float32_identity": "ef55a955ba4647932dd923118cd907e17ea1389923697be75fd90b1433307e7a",
+    "signature": {
+      "active_stones": 40,
+      "prefix_length": 10,
+      "side_to_move": 0
+    },
+    "source_opening_index": 81,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        5,
+        0,
+        0,
+        6,
+        1,
+        0
+      ],
+      "opponent_store": 7,
+      "player_pits": [
+        2,
+        0,
+        10,
+        0,
+        8,
+        8
+      ],
+      "player_store": 1
+    }
+  },
+  {
+    "canonical_identity": "71eade406978d4a9b03a5c78f0e4dbe6f5e16ef1cf1f8efd016cf97fab13ce88",
+    "match_id": "matched-0002",
+    "opening_id": "matched-0002-treatment",
+    "prefix_moves": [
+      3,
+      5,
+      0,
+      4,
+      1,
+      2,
+      4,
+      5,
+      3,
+      3,
+      5,
+      3
+    ],
+    "production_float32_identity": "6aae49fb3981a5024af92019754ff7a21f1324a9249bbd133153b21ba1028a00",
+    "signature": {
+      "active_stones": 32,
+      "prefix_length": 12,
+      "side_to_move": 1
+    },
+    "source_opening_index": 442,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        0,
+        6,
+        1,
+        0,
+        2,
+        0
+      ],
+      "opponent_store": 5,
+      "player_pits": [
+        3,
+        2,
+        9,
+        0,
+        9,
+        0
+      ],
+      "player_store": 11
+    }
+  },
+  {
+    "canonical_identity": "a61e28ebd22367bb47e04fe0d0b117af6d0aa048c12f5b1c5efdc7b553f1e0e4",
+    "match_id": "matched-0003",
+    "opening_id": "matched-0003-treatment",
+    "prefix_moves": [
+      1,
+      5,
+      1,
+      4
+    ],
+    "production_float32_identity": "8951c8440bfcab8da15f14ac05def07b16a980cf056c9d5dd87905c7b73ff3ac",
+    "signature": {
+      "active_stones": 46,
+      "prefix_length": 4,
+      "side_to_move": 0
+    },
+    "source_opening_index": 90,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        4,
+        4,
+        4,
+        4,
+        0,
+        1
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        6,
+        1,
+        7,
+        5,
+        5,
+        5
+      ],
+      "player_store": 0
+    }
+  },
+  {
+    "canonical_identity": "a3a09fce80daf2ff4bd74a18b6f6bf0fee1078b14889e004842d51ebc68b5f77",
+    "match_id": "matched-0004",
+    "opening_id": "matched-0004-treatment",
+    "prefix_moves": [
+      1,
+      0,
+      3,
+      1,
+      2,
+      3,
+      4,
+      2,
+      1,
+      4,
+      4
+    ],
+    "production_float32_identity": "24342be751b11c738fa9f4b60b0e00e65441c6d1d1bd99bb62fee49434635877",
+    "signature": {
+      "active_stones": 41,
+      "prefix_length": 11,
+      "side_to_move": 1
+    },
+    "source_opening_index": 277,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        4,
+        1,
+        0,
+        2,
+        0,
+        8
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        8,
+        1,
+        4,
+        3,
+        0,
+        10
+      ],
+      "player_store": 3
+    }
+  },
+  {
+    "canonical_identity": "566792a5552333ce3a3d689c6ffa8dbdd85ade20d258cad4b95ab73933a163c4",
+    "match_id": "matched-0005",
+    "opening_id": "matched-0005-treatment",
+    "prefix_moves": [
+      0,
+      1,
+      2,
+      0,
+      5,
+      4,
+      0
+    ],
+    "production_float32_identity": "954f6d2a2de445c84522687fba428a739bda8c22962ad375357767cff46f933a",
+    "signature": {
+      "active_stones": 45,
+      "prefix_length": 7,
+      "side_to_move": 1
+    },
+    "source_opening_index": 175,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        2,
+        7,
+        7,
+        0,
+        7
+      ],
+      "opponent_store": 1,
+      "player_pits": [
+        0,
+        7,
+        1,
+        7,
+        6,
+        0
+      ],
+      "player_store": 2
+    }
+  },
+  {
+    "canonical_identity": "b30d0b2fc949bb5e8af768e76af65f2e3d933150d0fff5f9505d3d0fee3e1585",
+    "match_id": "matched-0006",
+    "opening_id": "matched-0006-treatment",
+    "prefix_moves": [
+      3,
+      4,
+      5,
+      3,
+      0,
+      5,
+      1
+    ],
+    "production_float32_identity": "4f7ab23fb30a1efdd19bce56e8df381c224952410223b5425f9023c44cdd47ad",
+    "signature": {
+      "active_stones": 41,
+      "prefix_length": 7,
+      "side_to_move": 1
+    },
+    "source_opening_index": 171,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        7,
+        6,
+        5,
+        0,
+        1,
+        6
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        0,
+        0,
+        6,
+        2,
+        7,
+        1
+      ],
+      "player_store": 5
+    }
+  },
+  {
+    "canonical_identity": "5a4cc822df2b9884ad1de54a66493849fbc0dba6a5e55bd7b98a63aa0bcddf55",
+    "match_id": "matched-0007",
+    "opening_id": "matched-0007-treatment",
+    "prefix_moves": [
+      3,
+      3,
+      0,
+      0,
+      1,
+      4,
+      5,
+      3,
+      2,
+      4
+    ],
+    "production_float32_identity": "37c819ba29d4892f949c58a0c98286849f196e98507a0f5b7d9c269b2b31d2d8",
+    "signature": {
+      "active_stones": 40,
+      "prefix_length": 10,
+      "side_to_move": 0
+    },
+    "source_opening_index": 296,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        2,
+        7,
+        7,
+        2,
+        0,
+        1
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        2,
+        2,
+        1,
+        2,
+        4,
+        10
+      ],
+      "player_store": 5
+    }
+  },
+  {
+    "canonical_identity": "a41721bc1006f07bfa47fd89599ae5b1325db78c817c4e9a4d6b2bcb7635457b",
+    "match_id": "matched-0008",
+    "opening_id": "matched-0008-treatment",
+    "prefix_moves": [
+      0,
+      4,
+      0,
+      3,
+      1,
+      4,
+      5
+    ],
+    "production_float32_identity": "f4e6881c81e2d57937b0ac4efc89f71bd9b16bcc7de878ac4afee29d5aa378e9",
+    "signature": {
+      "active_stones": 44,
+      "prefix_length": 7,
+      "side_to_move": 1
+    },
+    "source_opening_index": 86,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        6,
+        6,
+        5,
+        1,
+        0,
+        7
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        1,
+        0,
+        6,
+        6,
+        6,
+        0
+      ],
+      "player_store": 2
+    }
+  },
+  {
+    "canonical_identity": "aa81cb417d36ca471323fd2ba59e7961745b76db9d00e083a286c2edafee59a9",
+    "match_id": "matched-0009",
+    "opening_id": "matched-0009-treatment",
+    "prefix_moves": [
+      2,
+      1,
+      3,
+      3,
+      4,
+      2,
+      0,
+      1,
+      4
+    ],
+    "production_float32_identity": "b63e9f1c01d1bade861935dac3371f9e92b9880538cc7e41c6d5d06e47fa9b7f",
+    "signature": {
+      "active_stones": 42,
+      "prefix_length": 9,
+      "side_to_move": 0
+    },
+    "source_opening_index": 75,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        6,
+        6,
+        0,
+        0,
+        8
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        6,
+        0,
+        0,
+        1,
+        8,
+        7
+      ],
+      "player_store": 4
+    }
+  },
+  {
+    "canonical_identity": "4515418862d53b94770a91cb5720fa0250b2bca3572cb88eb683b4ba1d4a32b6",
+    "match_id": "matched-0010",
+    "opening_id": "matched-0010-treatment",
+    "prefix_moves": [
+      3,
+      0,
+      4,
+      4,
+      5,
+      4,
+      0,
+      3,
+      1,
+      2,
+      0
+    ],
+    "production_float32_identity": "ebf9c2f81751e244ab724488eefa8f0c4775f0b31a969d4e274d96122c8742db",
+    "signature": {
+      "active_stones": 38,
+      "prefix_length": 11,
+      "side_to_move": 1
+    },
+    "source_opening_index": 206,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        8,
+        0,
+        1,
+        2,
+        9
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        0,
+        2,
+        10,
+        2,
+        2,
+        1
+      ],
+      "player_store": 7
+    }
+  },
+  {
+    "canonical_identity": "afc70e169d827db988048610a391ef3a69a276afc338abd1606c963efb7a1044",
+    "match_id": "matched-0011",
+    "opening_id": "matched-0011-treatment",
+    "prefix_moves": [
+      3,
+      5,
+      2,
+      3,
+      4
+    ],
+    "production_float32_identity": "a89e8436eb1df936dba1e7052cd944a61fbc3d542d3ee5b21d70771a116ea3d6",
+    "signature": {
+      "active_stones": 43,
+      "prefix_length": 5,
+      "side_to_move": 1
+    },
+    "source_opening_index": 167,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        7,
+        5,
+        5,
+        1,
+        5,
+        1
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        6,
+        5,
+        0,
+        1,
+        0,
+        7
+      ],
+      "player_store": 3
+    }
+  },
+  {
+    "canonical_identity": "24999795d85b105ee68de1d9a894ef4d6b84b1dc207b252755bd89badf2de214",
+    "match_id": "matched-0012",
+    "opening_id": "matched-0012-treatment",
+    "prefix_moves": [
+      1,
+      2,
+      5,
+      5,
+      2,
+      1,
+      1
+    ],
+    "production_float32_identity": "04513a61802e2d989bc6da5dc317a789590b72b8d19a582997759407a0987691",
+    "signature": {
+      "active_stones": 44,
+      "prefix_length": 7,
+      "side_to_move": 1
+    },
+    "source_opening_index": 273,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        5,
+        0,
+        1,
+        8,
+        6,
+        1
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        5,
+        0,
+        7,
+        6,
+        5,
+        0
+      ],
+      "player_store": 1
+    }
+  },
+  {
+    "canonical_identity": "b446167b809d32ca4b7736df6eca6118d6dc93a181033c6bf3f336dedf5d9257",
+    "match_id": "matched-0013",
+    "opening_id": "matched-0013-treatment",
+    "prefix_moves": [
+      3,
+      5,
+      0,
+      2,
+      0
+    ],
+    "production_float32_identity": "f652ed51237ff0ca63315aa777329b203397676bbed6804c2ea8ce7f72f25ca3",
+    "signature": {
+      "active_stones": 45,
+      "prefix_length": 5,
+      "side_to_move": 0
+    },
+    "source_opening_index": 131,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        5,
+        1,
+        6,
+        6,
+        2
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        0,
+        6,
+        6,
+        1,
+        6,
+        6
+      ],
+      "player_store": 1
+    }
+  },
+  {
+    "canonical_identity": "e046ebd84a3f424acda08f095cc0648fa2ae6d0bdc380c623f778b9deb21a234",
+    "match_id": "matched-0014",
+    "opening_id": "matched-0014-treatment",
+    "prefix_moves": [
+      0,
+      4,
+      0,
+      5,
+      2,
+      3,
+      3
+    ],
+    "production_float32_identity": "42d2cff616805ce9b2cab8e10c852de91985cf5ca9eab9b9bd3bd8ffb3dd0879",
+    "signature": {
+      "active_stones": 43,
+      "prefix_length": 7,
+      "side_to_move": 1
+    },
+    "source_opening_index": 93,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        6,
+        6,
+        5,
+        1,
+        1,
+        1
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        2,
+        8,
+        0,
+        0,
+        7,
+        6
+      ],
+      "player_store": 2
+    }
+  },
+  {
+    "canonical_identity": "eb0a1b0587155a2fd119d2e9fd4ac600be466b18a5335dbde2df1aeb2527c98f",
+    "match_id": "matched-0015",
+    "opening_id": "matched-0015-treatment",
+    "prefix_moves": [
+      2,
+      1,
+      0,
+      5,
+      5,
+      3,
+      2,
+      2,
+      0,
+      0
+    ],
+    "production_float32_identity": "878c25680255c3d55c44fbbceb9dcf8c543b3025226ab867d0d5ffd2c53470a4",
+    "signature": {
+      "active_stones": 40,
+      "prefix_length": 10,
+      "side_to_move": 0
+    },
+    "source_opening_index": 314,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        8,
+        0,
+        7,
+        7,
+        1
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        0,
+        3,
+        1,
+        1,
+        9,
+        3
+      ],
+      "player_store": 4
+    }
+  },
+  {
+    "canonical_identity": "535f75e9949faf5d84456808a0f59ec7decb8ad0c2aa0bffb1a855836c49b3ca",
+    "match_id": "matched-0016",
+    "opening_id": "matched-0016-treatment",
+    "prefix_moves": [
+      2,
+      3,
+      5,
+      5,
+      3,
+      2,
+      0,
+      5,
+      4,
+      2,
+      0
+    ],
+    "production_float32_identity": "d1cebbcf9b2ce54c107cfbacde7c511bdc07106b14d7a9348117a8e8632acb2f",
+    "signature": {
+      "active_stones": 33,
+      "prefix_length": 11,
+      "side_to_move": 1
+    },
+    "source_opening_index": 198,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        2,
+        8,
+        0,
+        3,
+        8,
+        0
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        0,
+        7,
+        1,
+        1,
+        1,
+        2
+      ],
+      "player_store": 11
+    }
+  },
+  {
+    "canonical_identity": "573868d886426f43925251789daeb906b7430165da28ed90039993c7d79cba8e",
+    "match_id": "matched-0017",
+    "opening_id": "matched-0017-treatment",
+    "prefix_moves": [
+      4,
+      0,
+      1,
+      3,
+      2,
+      5
+    ],
+    "production_float32_identity": "2c1d705776c680bba6dec49648a68615f4ce7e58735b853a624f30ab18299551",
+    "signature": {
+      "active_stones": 44,
+      "prefix_length": 6,
+      "side_to_move": 0
+    },
+    "source_opening_index": 95,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        1,
+        6,
+        5,
+        0,
+        6,
+        0
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        6,
+        2,
+        1,
+        7,
+        3,
+        7
+      ],
+      "player_store": 2
+    }
+  },
+  {
+    "canonical_identity": "00d97595869d72badf98c562fc2348ed96230fcc25777a9e271c1ec513c42bfd",
+    "match_id": "matched-0018",
+    "opening_id": "matched-0018-treatment",
+    "prefix_moves": [
+      5,
+      1,
+      5,
+      3,
+      3,
+      1,
+      2,
+      4,
+      2,
+      1,
+      5
+    ],
+    "production_float32_identity": "d218f5b13bd1f2df9424c25b07c5fc7fcd11ccdf1d037f3e0f0282d36d409d41",
+    "signature": {
+      "active_stones": 39,
+      "prefix_length": 11,
+      "side_to_move": 0
+    },
+    "source_opening_index": 85,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        8,
+        2,
+        0,
+        3,
+        7,
+        0
+      ],
+      "opponent_store": 5,
+      "player_pits": [
+        8,
+        0,
+        7,
+        1,
+        0,
+        3
+      ],
+      "player_store": 4
+    }
+  },
+  {
+    "canonical_identity": "1248dab48692ed09ec2e18863f82cf3a12b0913098efd42b801a4a1bfdaab488",
+    "match_id": "matched-0019",
+    "opening_id": "matched-0019-treatment",
+    "prefix_moves": [
+      4,
+      5,
+      2,
+      1,
+      0,
+      1,
+      5,
+      0,
+      4
+    ],
+    "production_float32_identity": "22995cc17649865d14af003a9b65669cce2efc47fbc4ad0af70ceae8bd6d8221",
+    "signature": {
+      "active_stones": 42,
+      "prefix_length": 9,
+      "side_to_move": 1
+    },
+    "source_opening_index": 116,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        0,
+        2,
+        8,
+        7,
+        7,
+        2
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        5,
+        5,
+        0,
+        5,
+        0,
+        1
+      ],
+      "player_store": 3
+    }
+  },
+  {
+    "canonical_identity": "7fe3e35fe58c045202451338af2c895b2f147fc2b844973c4a771f24dcfa1704",
+    "match_id": "matched-0020",
+    "opening_id": "matched-0020-treatment",
+    "prefix_moves": [
+      3,
+      4,
+      1,
+      4,
+      1,
+      0,
+      2,
+      1,
+      5,
+      4,
+      3
+    ],
+    "production_float32_identity": "128ce70bf580af5e7b2d318f6b667ffe8ce5e9df486c04395bc60c7c7dcb6423",
+    "signature": {
+      "active_stones": 30,
+      "prefix_length": 11,
+      "side_to_move": 0
+    },
+    "source_opening_index": 77,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        1,
+        0,
+        0,
+        4,
+        1
+      ],
+      "opponent_store": 15,
+      "player_pits": [
+        8,
+        2,
+        9,
+        3,
+        1,
+        1
+      ],
+      "player_store": 3
+    }
+  },
+  {
+    "canonical_identity": "a42d486c3096f956fd8fe4e5a24d225cde6071f7b370a87129beefb8173e25cf",
+    "match_id": "matched-0021",
+    "opening_id": "matched-0021-treatment",
+    "prefix_moves": [
+      3,
+      4,
+      2,
+      1,
+      0,
+      1,
+      4,
+      1
+    ],
+    "production_float32_identity": "091ea4c34ea6f6603384df0577f89dfead41234050f588290152ea6f235c5949",
+    "signature": {
+      "active_stones": 43,
+      "prefix_length": 8,
+      "side_to_move": 0
+    },
+    "source_opening_index": 124,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        6,
+        0,
+        7,
+        6,
+        2,
+        7
+      ],
+      "opponent_store": 1,
+      "player_pits": [
+        0,
+        1,
+        2,
+        3,
+        0,
+        9
+      ],
+      "player_store": 4
+    }
+  },
+  {
+    "canonical_identity": "ce38fd7c96d907bcae299bc5eafc16472d20852f7b4b783e611a20ea364a9007",
+    "match_id": "matched-0022",
+    "opening_id": "matched-0022-treatment",
+    "prefix_moves": [
+      4,
+      1,
+      0,
+      2,
+      1
+    ],
+    "production_float32_identity": "5c3029b1e1c3edc0e9d4075a15a998b72d6c02acb0f278749b88e6cca3582acd",
+    "signature": {
+      "active_stones": 45,
+      "prefix_length": 5,
+      "side_to_move": 1
+    },
+    "source_opening_index": 67,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        0,
+        1,
+        6,
+        6,
+        6,
+        6
+      ],
+      "opponent_store": 1,
+      "player_pits": [
+        4,
+        0,
+        1,
+        6,
+        2,
+        7
+      ],
+      "player_store": 2
+    }
+  },
+  {
+    "canonical_identity": "1f9e44e94aac599b798a9cceb1c4e3140cf7d553906835a18db60565f54e590c",
+    "match_id": "matched-0023",
+    "opening_id": "matched-0023-treatment",
+    "prefix_moves": [
+      2,
+      5,
+      3,
+      3,
+      4,
+      1,
+      5,
+      3,
+      2
+    ],
+    "production_float32_identity": "6574044f4edfa5db5f24fd42f9725497ea1d1d395fe1cd1f1fabe3b4ec3d03a6",
+    "signature": {
+      "active_stones": 40,
+      "prefix_length": 9,
+      "side_to_move": 0
+    },
+    "source_opening_index": 109,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        7,
+        6,
+        0,
+        1,
+        1,
+        1
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        8,
+        1,
+        3,
+        0,
+        9,
+        3
+      ],
+      "player_store": 4
+    }
+  },
+  {
+    "canonical_identity": "3b91e96c1ce1341733793786c916aa570bb9da97ca45168ae9bc81b0191dc012",
+    "match_id": "matched-0024",
+    "opening_id": "matched-0024-treatment",
+    "prefix_moves": [
+      5,
+      0,
+      2,
+      1,
+      3,
+      5
+    ],
+    "production_float32_identity": "baca8c93726b0453ab6a31ebb40abab9b3521980eb63842e5244a69684570c4f",
+    "signature": {
+      "active_stones": 44,
+      "prefix_length": 6,
+      "side_to_move": 1
+    },
+    "source_opening_index": 68,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        6,
+        6,
+        0,
+        6,
+        6
+      ],
+      "opponent_store": 1,
+      "player_pits": [
+        5,
+        1,
+        1,
+        6,
+        6,
+        0
+      ],
+      "player_store": 3
+    }
+  },
+  {
+    "canonical_identity": "41243160545231a8799408b3f4489de6290439216b9392ee1c5aa9d13334cc00",
+    "match_id": "matched-0025",
+    "opening_id": "matched-0025-treatment",
+    "prefix_moves": [
+      0,
+      2,
+      1,
+      1,
+      3,
+      1,
+      4,
+      5,
+      5,
+      1
+    ],
+    "production_float32_identity": "315e3790598de620de58c833c3253797a458b0a2e06549c2d1aea66f71fb4952",
+    "signature": {
+      "active_stones": 42,
+      "prefix_length": 10,
+      "side_to_move": 0
+    },
+    "source_opening_index": 144,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        7,
+        0,
+        6,
+        9,
+        8,
+        1
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        1,
+        1,
+        7,
+        1,
+        1,
+        0
+      ],
+      "player_store": 4
+    }
+  },
+  {
+    "canonical_identity": "a498f9f3112b30555431343cf1766985a7221ffae0f11d06b33acbdc063eab4c",
+    "match_id": "matched-0026",
+    "opening_id": "matched-0026-treatment",
+    "prefix_moves": [
+      5,
+      1,
+      4,
+      4,
+      5,
+      4,
+      2,
+      2,
+      0,
+      3
+    ],
+    "production_float32_identity": "e20bffdde2b4e15385b22e98c6d8d05c219ee004e72a5af3fd4e65f315578987",
+    "signature": {
+      "active_stones": 39,
+      "prefix_length": 10,
+      "side_to_move": 1
+    },
+    "source_opening_index": 150,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        4,
+        2,
+        7,
+        2,
+        2
+      ],
+      "opponent_store": 5,
+      "player_pits": [
+        8,
+        7,
+        0,
+        0,
+        2,
+        4
+      ],
+      "player_store": 4
+    }
+  },
+  {
+    "canonical_identity": "d73731e3a79084c5da88cfb998c087b76a2468951b44b4cebea4db8625d41014",
+    "match_id": "matched-0027",
+    "opening_id": "matched-0027-treatment",
+    "prefix_moves": [
+      5,
+      3,
+      3,
+      5,
+      1,
+      0,
+      1,
+      4,
+      4,
+      1
+    ],
+    "production_float32_identity": "ff61a8b614370e2f92a21c81767673d948eb34b308829ef7effbdb609227cd62",
+    "signature": {
+      "active_stones": 39,
+      "prefix_length": 10,
+      "side_to_move": 0
+    },
+    "source_opening_index": 110,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        7,
+        0,
+        7,
+        2,
+        2,
+        2
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        2,
+        1,
+        9,
+        3,
+        0,
+        4
+      ],
+      "player_store": 5
+    }
+  },
+  {
+    "canonical_identity": "dbac526349b29434f8d886295a7a23c7e88a0e4f4cb71aff000e18ba346f0812",
+    "match_id": "matched-0028",
+    "opening_id": "matched-0028-treatment",
+    "prefix_moves": [
+      5,
+      3,
+      3,
+      1,
+      0,
+      2,
+      2,
+      1,
+      4
+    ],
+    "production_float32_identity": "0ca18974a92d0f90efb8fe3a1ec42ae2258a43518a2ceb37d0cadfcd897ab505",
+    "signature": {
+      "active_stones": 38,
+      "prefix_length": 9,
+      "side_to_move": 1
+    },
+    "source_opening_index": 421,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        2,
+        1,
+        1,
+        4,
+        8,
+        8
+      ],
+      "opponent_store": 6,
+      "player_pits": [
+        6,
+        5,
+        0,
+        0,
+        0,
+        3
+      ],
+      "player_store": 4
+    }
+  },
+  {
+    "canonical_identity": "1e4503fbcd513480301f0aac1c5a3f28d11eb4473ba3307285818585f2b8faa8",
+    "match_id": "matched-0029",
+    "opening_id": "matched-0029-treatment",
+    "prefix_moves": [
+      5,
+      1,
+      2,
+      3,
+      4,
+      4,
+      0
+    ],
+    "production_float32_identity": "1863e89f85784eaff00ad6dfadf4364d73d096fc6238d17b69561cb9b1187888",
+    "signature": {
+      "active_stones": 41,
+      "prefix_length": 7,
+      "side_to_move": 0
+    },
+    "source_opening_index": 378,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        2,
+        2,
+        7,
+        1,
+        8
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        7,
+        6,
+        5,
+        1,
+        0,
+        2
+      ],
+      "player_store": 3
+    }
+  },
+  {
+    "canonical_identity": "b93596242fbe3dd09d564e49b9cbb18b54ff80f4b1e04e03f17982e3b8a2f2ff",
+    "match_id": "matched-0030",
+    "opening_id": "matched-0030-treatment",
+    "prefix_moves": [
+      4,
+      3,
+      5,
+      3,
+      1,
+      5,
+      4,
+      4,
+      5,
+      1,
+      1
+    ],
+    "production_float32_identity": "61ee6599048c4651d6c10d4dc452d4b62d33456213b013cb10dad66058c3f1e0",
+    "signature": {
+      "active_stones": 34,
+      "prefix_length": 11,
+      "side_to_move": 0
+    },
+    "source_opening_index": 212,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        0,
+        6,
+        1,
+        1,
+        2
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        8,
+        0,
+        8,
+        8,
+        0,
+        0
+      ],
+      "player_store": 10
+    }
+  },
+  {
+    "canonical_identity": "384ee6590c94709e9263e630d7d56a7c15fdb79dd7ec666783e6a76c21cff84e",
+    "match_id": "matched-0031",
+    "opening_id": "matched-0031-treatment",
+    "prefix_moves": [
+      0,
+      5,
+      3,
+      3,
+      5,
+      0,
+      4,
+      3,
+      1,
+      1,
+      0,
+      0
+    ],
+    "production_float32_identity": "8db9a09d74b102a010cf0acaa61637334ec2768b39161978fb5120064a639340",
+    "signature": {
+      "active_stones": 40,
+      "prefix_length": 12,
+      "side_to_move": 1
+    },
+    "source_opening_index": 163,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        0,
+        2,
+        8,
+        3,
+        1,
+        4
+      ],
+      "opponent_store": 5,
+      "player_pits": [
+        0,
+        1,
+        9,
+        2,
+        9,
+        1
+      ],
+      "player_store": 3
+    }
+  },
+  {
+    "canonical_identity": "4f51832bd308d9a535a4c35cddec8d61bd6dfd46d6f732f654656f66f4148a05",
+    "match_id": "matched-0032",
+    "opening_id": "matched-0032-treatment",
+    "prefix_moves": [
+      5,
+      5,
+      4,
+      3,
+      2
+    ],
+    "production_float32_identity": "7d8b2830652aa2380d202625533b67470e94d2e066e188d4082b86994e0272bc",
+    "signature": {
+      "active_stones": 43,
+      "prefix_length": 5,
+      "side_to_move": 1
+    },
+    "source_opening_index": 533,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        7,
+        6,
+        5,
+        0,
+        5,
+        1
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        6,
+        5,
+        0,
+        5,
+        1,
+        2
+      ],
+      "player_store": 3
+    }
+  },
+  {
+    "canonical_identity": "8b9a1d4dab5a910a6438f18c7b5fa66a13770d57555eac198cae86992439d07b",
+    "match_id": "matched-0033",
+    "opening_id": "matched-0033-treatment",
+    "prefix_moves": [
+      4,
+      3,
+      2,
+      4,
+      2,
+      4,
+      1,
+      4,
+      3
+    ],
+    "production_float32_identity": "500544ae91ef3c96ed74fc2393d4adf6ea0d5916cf8971af62a6a327e8f83685",
+    "signature": {
+      "active_stones": 42,
+      "prefix_length": 9,
+      "side_to_move": 0
+    },
+    "source_opening_index": 188,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        5,
+        5,
+        0,
+        0,
+        1,
+        7
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        6,
+        0,
+        2,
+        7,
+        0,
+        9
+      ],
+      "player_store": 3
+    }
+  },
+  {
+    "canonical_identity": "19ecf7dda0674a6ff7ed1ea80c423cc17dcb4916ea1a8f00fcd8350173f9ac65",
+    "match_id": "matched-0034",
+    "opening_id": "matched-0034-treatment",
+    "prefix_moves": [
+      3,
+      3,
+      5,
+      3,
+      1,
+      5,
+      3,
+      4
+    ],
+    "production_float32_identity": "a239c8c5611be2107d15bdf7de7fdd034609bd441a3bf5bb02bf46fdd659e5d2",
+    "signature": {
+      "active_stones": 36,
+      "prefix_length": 8,
+      "side_to_move": 0
+    },
+    "source_opening_index": 172,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        5,
+        5,
+        0,
+        0,
+        1
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        7,
+        2,
+        7,
+        1,
+        7,
+        1
+      ],
+      "player_store": 9
+    }
+  },
+  {
+    "canonical_identity": "5f6c85dc6cd178d9ec36d980950b8fbe1fc2b6e74dfd0b7945f02237fb60c7a7",
+    "match_id": "matched-0035",
+    "opening_id": "matched-0035-treatment",
+    "prefix_moves": [
+      1,
+      5,
+      4,
+      4,
+      2,
+      0,
+      4,
+      0,
+      4,
+      3
+    ],
+    "production_float32_identity": "0029a1b263460f4438eb9aba4ba52530319311b0a79fd8c603a6be37ef83c73c",
+    "signature": {
+      "active_stones": 40,
+      "prefix_length": 10,
+      "side_to_move": 1
+    },
+    "source_opening_index": 111,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        8,
+        7,
+        6,
+        0,
+        3
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        0,
+        3,
+        1,
+        0,
+        1,
+        10
+      ],
+      "player_store": 5
+    }
+  },
+  {
+    "canonical_identity": "7d50aefdc44dba87a89cc551307313b324cc8fa947c4f43e9d29fc87497fedcc",
+    "match_id": "matched-0036",
+    "opening_id": "matched-0036-treatment",
+    "prefix_moves": [
+      0,
+      4,
+      2,
+      3,
+      5,
+      1,
+      0,
+      4,
+      3,
+      1,
+      4,
+      3
+    ],
+    "production_float32_identity": "3fb90a5afba8283ac48f3bf1eb459f206cbb0d69832767c60f80559ada2d2111",
+    "signature": {
+      "active_stones": 38,
+      "prefix_length": 12,
+      "side_to_move": 0
+    },
+    "source_opening_index": 88,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        2,
+        1,
+        10,
+        0,
+        2,
+        10
+      ],
+      "opponent_store": 6,
+      "player_pits": [
+        4,
+        7,
+        0,
+        0,
+        0,
+        2
+      ],
+      "player_store": 4
+    }
+  },
+  {
+    "canonical_identity": "5ddc9dd96224ea81872fa67a62b313d0075c10b57e88c2b6e9a5bf28fa39b082",
+    "match_id": "matched-0037",
+    "opening_id": "matched-0037-treatment",
+    "prefix_moves": [
+      3,
+      3,
+      1,
+      5,
+      2,
+      1,
+      0,
+      1,
+      1,
+      2,
+      4
+    ],
+    "production_float32_identity": "635863fcea54b4727dd19d8acff4a37b407a19254d75e20ad2dfaded67654833",
+    "signature": {
+      "active_stones": 37,
+      "prefix_length": 11,
+      "side_to_move": 1
+    },
+    "source_opening_index": 100,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        1,
+        1,
+        2,
+        9,
+        3
+      ],
+      "opponent_store": 5,
+      "player_pits": [
+        7,
+        1,
+        1,
+        3,
+        0,
+        8
+      ],
+      "player_store": 6
+    }
+  },
+  {
+    "canonical_identity": "6ce8b4703f2ee59a0856f13ab88de073f832205c99ed2e15f997e57a057024e3",
+    "match_id": "matched-0038",
+    "opening_id": "matched-0038-treatment",
+    "prefix_moves": [
+      5,
+      0,
+      4,
+      1,
+      5,
+      2,
+      5,
+      0,
+      2,
+      1,
+      5,
+      1
+    ],
+    "production_float32_identity": "9fb3a543b8e2f6a19c7feb9307b076b35ac6fcd5904bee4372844930a4abaefc",
+    "signature": {
+      "active_stones": 37,
+      "prefix_length": 12,
+      "side_to_move": 1
+    },
+    "source_opening_index": 161,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        1,
+        0,
+        7,
+        7,
+        0
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        2,
+        0,
+        5,
+        8,
+        4,
+        2
+      ],
+      "player_store": 8
+    }
+  },
+  {
+    "canonical_identity": "0348e1db19c1c2daf90cdfc9e97efd694f6d434aab99a0b517753178cf943984",
+    "match_id": "matched-0039",
+    "opening_id": "matched-0039-treatment",
+    "prefix_moves": [
+      2,
+      5,
+      4,
+      3,
+      5,
+      1,
+      3,
+      1
+    ],
+    "production_float32_identity": "11dcafb2860a764ef6a01095b1c34347a89e836c37c3ee49b26713c74fdd3f41",
+    "signature": {
+      "active_stones": 41,
+      "prefix_length": 8,
+      "side_to_move": 1
+    },
+    "source_opening_index": 136,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        7,
+        6,
+        5,
+        0,
+        1,
+        1
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        7,
+        0,
+        3,
+        2,
+        7,
+        2
+      ],
+      "player_store": 4
+    }
+  },
+  {
+    "canonical_identity": "4822abfd5efb6a93f3bf42b60f1de073fe4ec1b02d3bde457e1d109c272eb876",
+    "match_id": "matched-0040",
+    "opening_id": "matched-0040-treatment",
+    "prefix_moves": [
+      5,
+      3,
+      4,
+      0,
+      5,
+      5,
+      3,
+      4,
+      1,
+      1
+    ],
+    "production_float32_identity": "e982bc6ddc662704051b32f86a6e0b7578d2e542353cc4ca327cc73f198348af",
+    "signature": {
+      "active_stones": 38,
+      "prefix_length": 10,
+      "side_to_move": 0
+    },
+    "source_opening_index": 367,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        2,
+        0,
+        7,
+        2,
+        1,
+        2
+      ],
+      "opponent_store": 5,
+      "player_pits": [
+        8,
+        1,
+        8,
+        2,
+        3,
+        2
+      ],
+      "player_store": 5
+    }
+  },
+  {
+    "canonical_identity": "347bdba99d2e5a3a582eba65b329c318abacde3edca5b665020812a94e73bc42",
+    "match_id": "matched-0041",
+    "opening_id": "matched-0041-treatment",
+    "prefix_moves": [
+      4,
+      5,
+      3,
+      3,
+      1,
+      0,
+      2,
+      1
+    ],
+    "production_float32_identity": "dcbd39724168f4e0320b2f6ff8f86e4e2c69adb34907a31eab2567d5409f8836",
+    "signature": {
+      "active_stones": 40,
+      "prefix_length": 8,
+      "side_to_move": 0
+    },
+    "source_opening_index": 182,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        7,
+        0,
+        6,
+        1,
+        6,
+        2
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        1,
+        1,
+        0,
+        3,
+        4,
+        9
+      ],
+      "player_store": 5
+    }
+  },
+  {
+    "canonical_identity": "f13ca9f1599af7b6aab9d8f4af478437d9f586e8d689a1859859bcf7359b1bf4",
+    "match_id": "matched-0042",
+    "opening_id": "matched-0042-treatment",
+    "prefix_moves": [
+      0,
+      0,
+      3,
+      4,
+      2,
+      1,
+      4,
+      2,
+      5
+    ],
+    "production_float32_identity": "276ef9f3f0c52273ef65e802982884d115026974dc22c472f389f6f9403de655",
+    "signature": {
+      "active_stones": 41,
+      "prefix_length": 9,
+      "side_to_move": 1
+    },
+    "source_opening_index": 152,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        4,
+        2,
+        1,
+        9,
+        4,
+        8
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        3,
+        8,
+        1,
+        1,
+        0,
+        0
+      ],
+      "player_store": 4
+    }
+  },
+  {
+    "canonical_identity": "661110b45fc0406aac6bb84f89e220eac21b958787d5a22aaf067a1e547dad33",
+    "match_id": "matched-0043",
+    "opening_id": "matched-0043-treatment",
+    "prefix_moves": [
+      0,
+      1,
+      3,
+      4,
+      4
+    ],
+    "production_float32_identity": "775eea604118b16d6dc51617d78c200f19004465ed76f5dc98d4aa3e7869febf",
+    "signature": {
+      "active_stones": 45,
+      "prefix_length": 5,
+      "side_to_move": 1
+    },
+    "source_opening_index": 103,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        6,
+        2,
+        6,
+        6,
+        0,
+        6
+      ],
+      "opponent_store": 1,
+      "player_pits": [
+        1,
+        6,
+        6,
+        0,
+        0,
+        6
+      ],
+      "player_store": 2
+    }
+  },
+  {
+    "canonical_identity": "6665cd8fa9622b7f889ef2bdc9c653a716c950f8e499e903b1c314b1c1ea91c6",
+    "match_id": "matched-0044",
+    "opening_id": "matched-0044-treatment",
+    "prefix_moves": [
+      0,
+      5,
+      5,
+      4,
+      4
+    ],
+    "production_float32_identity": "93cf2e89d79d4a4d3f55f75faa00f61ae99ffda9cd52b5f17c0884b4ed05bf27",
+    "signature": {
+      "active_stones": 44,
+      "prefix_length": 5,
+      "side_to_move": 1
+    },
+    "source_opening_index": 92,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        6,
+        6,
+        6,
+        4,
+        0,
+        1
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        2,
+        7,
+        6,
+        5,
+        0,
+        1
+      ],
+      "player_store": 2
+    }
+  },
+  {
+    "canonical_identity": "0fd114c736864c3fa46e20f17b43ab7a02d4432eed85b6814a50da782796a8d6",
+    "match_id": "matched-0045",
+    "opening_id": "matched-0045-treatment",
+    "prefix_moves": [
+      1,
+      5,
+      2,
+      4,
+      3,
+      3,
+      0,
+      1,
+      0,
+      4,
+      3
+    ],
+    "production_float32_identity": "af4d865efe0fa2bc1114a638976e4a5816c5036dbe3bd17ec09ef5cd4aa7558b",
+    "signature": {
+      "active_stones": 35,
+      "prefix_length": 11,
+      "side_to_move": 0
+    },
+    "source_opening_index": 678,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        7,
+        0,
+        6,
+        0,
+        0,
+        4
+      ],
+      "opponent_store": 10,
+      "player_pits": [
+        0,
+        0,
+        1,
+        1,
+        8,
+        8
+      ],
+      "player_store": 3
+    }
+  },
+  {
+    "canonical_identity": "dc7906290786f36174f6e20cd83b090b6fcfc2b6232b0474f4ef3c4119ffe76b",
+    "match_id": "matched-0046",
+    "opening_id": "matched-0046-treatment",
+    "prefix_moves": [
+      5,
+      3,
+      3,
+      5,
+      5,
+      2
+    ],
+    "production_float32_identity": "815ddddca8b202fe622a2df744b5143753011ff6c3b7156115b2fc79e8b400b0",
+    "signature": {
+      "active_stones": 42,
+      "prefix_length": 6,
+      "side_to_move": 1
+    },
+    "source_opening_index": 207,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        7,
+        5,
+        5,
+        0,
+        5,
+        0
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        6,
+        5,
+        0,
+        2,
+        6,
+        1
+      ],
+      "player_store": 4
+    }
+  },
+  {
+    "canonical_identity": "5b76a3096901a2c73a8314c9b2df30a8d5a0aefb43258628a81ae411440ded99",
+    "match_id": "matched-0047",
+    "opening_id": "matched-0047-treatment",
+    "prefix_moves": [
+      4,
+      2,
+      1,
+      0,
+      2,
+      5,
+      0,
+      4
+    ],
+    "production_float32_identity": "f21b5d09873b6c221f5bd43f06bbe474be7808a99df5a956d6aa11df42755d71",
+    "signature": {
+      "active_stones": 43,
+      "prefix_length": 8,
+      "side_to_move": 1
+    },
+    "source_opening_index": 106,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        0,
+        3,
+        3,
+        8,
+        8,
+        7
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        4,
+        4,
+        0,
+        5,
+        0,
+        1
+      ],
+      "player_store": 3
+    }
+  },
+  {
+    "canonical_identity": "bedd7564db513490cc14c1e75e8785b14d44996ff45256b4ce915b59d9d45294",
+    "match_id": "matched-0048",
+    "opening_id": "matched-0048-treatment",
+    "prefix_moves": [
+      0,
+      2,
+      5,
+      3,
+      4,
+      2,
+      3,
+      5,
+      5
+    ],
+    "production_float32_identity": "4ce62531445bf2aefbf7525469aff964cfe8fe10158dcef08d326bebb132afa6",
+    "signature": {
+      "active_stones": 40,
+      "prefix_length": 9,
+      "side_to_move": 0
+    },
+    "source_opening_index": 232,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        7,
+        7,
+        3,
+        1,
+        2,
+        0
+      ],
+      "opponent_store": 5,
+      "player_pits": [
+        4,
+        8,
+        0,
+        1,
+        7,
+        0
+      ],
+      "player_store": 3
+    }
+  },
+  {
+    "canonical_identity": "b30172f6d6d51632b2d20738ec11787e7a8382676f812057a2fdbc150e5b3eed",
+    "match_id": "matched-0049",
+    "opening_id": "matched-0049-treatment",
+    "prefix_moves": [
+      2,
+      1,
+      3,
+      0,
+      5,
+      2,
+      0,
+      5,
+      2,
+      3
+    ],
+    "production_float32_identity": "6436c7433abd4f2f7807844eac9a6807c90dd7138cf13003b132f1dfa354ccb9",
+    "signature": {
+      "active_stones": 42,
+      "prefix_length": 10,
+      "side_to_move": 1
+    },
+    "source_opening_index": 244,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        2,
+        7,
+        1,
+        4,
+        9,
+        3
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        3,
+        3,
+        0,
+        0,
+        9,
+        1
+      ],
+      "player_store": 3
+    }
+  },
+  {
+    "canonical_identity": "07668ae5f11053bcfc2e01140f154987bf5667132b83df470ac4416cdd6eaa35",
+    "match_id": "matched-0050",
+    "opening_id": "matched-0050-treatment",
+    "prefix_moves": [
+      4,
+      5,
+      3,
+      1,
+      5
+    ],
+    "production_float32_identity": "36f12fbd1636f7c851ad0e9b2e99205dd9dd48dfc6e8aa9525943df44ec7a57b",
+    "signature": {
+      "active_stones": 43,
+      "prefix_length": 5,
+      "side_to_move": 1
+    },
+    "source_opening_index": 542,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        6,
+        0,
+        5,
+        5,
+        5,
+        0
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        5,
+        5,
+        5,
+        0,
+        1,
+        6
+      ],
+      "player_store": 2
+    }
+  },
+  {
+    "canonical_identity": "04a4dbf80fcbf55d6f64cc64e0ec538002ce1b306be3222eb3198905ab1f37f4",
+    "match_id": "matched-0051",
+    "opening_id": "matched-0051-treatment",
+    "prefix_moves": [
+      4,
+      1,
+      5,
+      2,
+      3
+    ],
+    "production_float32_identity": "f6b38074cddb7d70f7ad98b5aabd1191f1ffb247b7db8e7b2553a0fbd8135be2",
+    "signature": {
+      "active_stones": 43,
+      "prefix_length": 5,
+      "side_to_move": 0
+    },
+    "source_opening_index": 157,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        6,
+        0,
+        5,
+        0,
+        6,
+        1
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        6,
+        6,
+        0,
+        6,
+        1,
+        6
+      ],
+      "player_store": 2
+    }
+  },
+  {
+    "canonical_identity": "efce7fb96920c592b6e78bf3baf35704d05570e934839d0e4bc0e53bbb139946",
+    "match_id": "matched-0052",
+    "opening_id": "matched-0052-treatment",
+    "prefix_moves": [
+      2,
+      1,
+      1,
+      3,
+      0,
+      4
+    ],
+    "production_float32_identity": "3c53fd7ecf3d0f010ad7a31707689f70b87f09efc5e21301cb48ffbd2801fab2",
+    "signature": {
+      "active_stones": 45,
+      "prefix_length": 6,
+      "side_to_move": 1
+    },
+    "source_opening_index": 104,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        3,
+        8,
+        7,
+        7,
+        6
+      ],
+      "opponent_store": 0,
+      "player_pits": [
+        4,
+        0,
+        1,
+        0,
+        0,
+        8
+      ],
+      "player_store": 3
+    }
+  },
+  {
+    "canonical_identity": "7062d4b002817f81b954c436c50435bbbbdc38459586583f089df506257772c8",
+    "match_id": "matched-0053",
+    "opening_id": "matched-0053-treatment",
+    "prefix_moves": [
+      3,
+      0,
+      2,
+      5,
+      0,
+      1,
+      5,
+      4,
+      3,
+      1
+    ],
+    "production_float32_identity": "cd487c055f29ce6898df0c340f3c659b45cf6ba56f4dd6e47c0d95cd91a4065e",
+    "signature": {
+      "active_stones": 42,
+      "prefix_length": 10,
+      "side_to_move": 1
+    },
+    "source_opening_index": 285,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        8,
+        7,
+        0,
+        8,
+        1
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        6,
+        0,
+        4,
+        5,
+        0,
+        2
+      ],
+      "player_store": 4
+    }
+  },
+  {
+    "canonical_identity": "eec6eb598eb9ebafd9fd5263b4f03e4a8cbae356769b1bce0c019527404546b0",
+    "match_id": "matched-0054",
+    "opening_id": "matched-0054-treatment",
+    "prefix_moves": [
+      4,
+      0,
+      1,
+      2,
+      3,
+      3,
+      2,
+      1,
+      1,
+      4,
+      3,
+      1
+    ],
+    "production_float32_identity": "dd3f2ce59c475f084a0919e3cd3b63975be18a2e50fa620b92e22135bee078d8",
+    "signature": {
+      "active_stones": 40,
+      "prefix_length": 12,
+      "side_to_move": 1
+    },
+    "source_opening_index": 235,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        2,
+        0,
+        1,
+        1,
+        0,
+        9
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        8,
+        0,
+        4,
+        0,
+        5,
+        10
+      ],
+      "player_store": 4
+    }
+  },
+  {
+    "canonical_identity": "0f8146a67fd54a41de35ebbc6635e20d77b1287a0837f5c24468595fb51f969e",
+    "match_id": "matched-0055",
+    "opening_id": "matched-0055-treatment",
+    "prefix_moves": [
+      4,
+      3,
+      2,
+      3,
+      4,
+      5,
+      4,
+      1,
+      5,
+      4,
+      0,
+      3
+    ],
+    "production_float32_identity": "394c13210eedbf3daa944734943f0c638d02acc7005481685b47cf4a7f39b5fc",
+    "signature": {
+      "active_stones": 29,
+      "prefix_length": 12,
+      "side_to_move": 1
+    },
+    "source_opening_index": 552,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        0,
+        0,
+        6,
+        2,
+        1,
+        9
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        7,
+        1,
+        2,
+        0,
+        0,
+        1
+      ],
+      "player_store": 16
+    }
+  },
+  {
+    "canonical_identity": "94e3700486d3942dbf497d2edd63da65b04cf4af1e4f12e0361f4d79151f91c6",
+    "match_id": "matched-0056",
+    "opening_id": "matched-0056-treatment",
+    "prefix_moves": [
+      3,
+      4,
+      1,
+      0,
+      5,
+      4,
+      0,
+      5,
+      1
+    ],
+    "production_float32_identity": "6ce52077f50fc165688ac94a0b5e91f302cc23ae16d2c0812041b804c4487e6b",
+    "signature": {
+      "active_stones": 40,
+      "prefix_length": 9,
+      "side_to_move": 0
+    },
+    "source_opening_index": 271,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        0,
+        0,
+        7,
+        7,
+        3,
+        1
+      ],
+      "opponent_store": 5,
+      "player_pits": [
+        2,
+        2,
+        7,
+        3,
+        0,
+        8
+      ],
+      "player_store": 3
+    }
+  },
+  {
+    "canonical_identity": "57efdcbb519b6d19a6e9580ff81646de586bc24ded6effa672f0023a6513970b",
+    "match_id": "matched-0057",
+    "opening_id": "matched-0057-treatment",
+    "prefix_moves": [
+      2,
+      0,
+      2,
+      1,
+      5,
+      4,
+      2,
+      0,
+      1,
+      2,
+      5,
+      2
+    ],
+    "production_float32_identity": "4cc9ecea694965b8fcaa4bedc57d00c8019b579d2d069aa5641d4866c045cf85",
+    "signature": {
+      "active_stones": 42,
+      "prefix_length": 12,
+      "side_to_move": 1
+    },
+    "source_opening_index": 281,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        2,
+        0,
+        9,
+        2,
+        9
+      ],
+      "opponent_store": 2,
+      "player_pits": [
+        1,
+        0,
+        0,
+        10,
+        8,
+        0
+      ],
+      "player_store": 4
+    }
+  },
+  {
+    "canonical_identity": "226b47ff8e31865f8029a78922068beae56c021b49f6065c5a78400718699044",
+    "match_id": "matched-0058",
+    "opening_id": "matched-0058-treatment",
+    "prefix_moves": [
+      4,
+      2,
+      3,
+      2,
+      1,
+      4,
+      5,
+      1,
+      3,
+      1,
+      4
+    ],
+    "production_float32_identity": "5a9e786b9d2087e8bc5cd50e9437d86ef1d46c09b889c0af6fdf5fbf200433f6",
+    "signature": {
+      "active_stones": 39,
+      "prefix_length": 11,
+      "side_to_move": 1
+    },
+    "source_opening_index": 66,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        7,
+        0,
+        4,
+        2,
+        8,
+        8
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        7,
+        0,
+        1,
+        0,
+        0,
+        2
+      ],
+      "player_store": 6
+    }
+  },
+  {
+    "canonical_identity": "8a9f81bd14b295c6c680cd7778b419f66d079caeb56b36a5e262f8820b4c511d",
+    "match_id": "matched-0059",
+    "opening_id": "matched-0059-treatment",
+    "prefix_moves": [
+      3,
+      2,
+      1,
+      5,
+      2,
+      0,
+      4,
+      4,
+      2,
+      2,
+      0,
+      1
+    ],
+    "production_float32_identity": "548e50f50e04847b9453273eb9863aff2e6735f8d3252563e8924dead6f6e01f",
+    "signature": {
+      "active_stones": 40,
+      "prefix_length": 12,
+      "side_to_move": 1
+    },
+    "source_opening_index": 251,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        1,
+        5,
+        1,
+        11,
+        2,
+        8
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        2,
+        0,
+        1,
+        4,
+        2,
+        3
+      ],
+      "player_store": 5
+    }
+  },
+  {
+    "canonical_identity": "f3fd8cbd7939a9842a0cc5d271dc976e8bca80199640d9a303bc2f1df4e30969",
+    "match_id": "matched-0060",
+    "opening_id": "matched-0060-treatment",
+    "prefix_moves": [
+      2,
+      1,
+      0,
+      3,
+      4,
+      1,
+      1,
+      0,
+      5,
+      2,
+      3
+    ],
+    "production_float32_identity": "2fbc15a6ea2064ea7d83682821d6b9485e31dc273cdfb61464e627e66a7e9f35",
+    "signature": {
+      "active_stones": 30,
+      "prefix_length": 11,
+      "side_to_move": 1
+    },
+    "source_opening_index": 662,
+    "state": {
+      "current_player": 1,
+      "opponent_pits": [
+        0,
+        1,
+        0,
+        8,
+        3,
+        1
+      ],
+      "opponent_store": 3,
+      "player_pits": [
+        1,
+        2,
+        5,
+        0,
+        9,
+        0
+      ],
+      "player_store": 15
+    }
+  },
+  {
+    "canonical_identity": "b7a8c832973e650814b3024c7f9e4d7dcb7e0c715b5b30e2d0a0549d5a67160a",
+    "match_id": "matched-0061",
+    "opening_id": "matched-0061-treatment",
+    "prefix_moves": [
+      0,
+      3,
+      3,
+      1,
+      3,
+      4,
+      3,
+      5,
+      2,
+      1,
+      5
+    ],
+    "production_float32_identity": "0c4ca290991e554fadaa7ffb068d2375e66392316e9c8d8afc38fb15c0bda792",
+    "signature": {
+      "active_stones": 40,
+      "prefix_length": 11,
+      "side_to_move": 0
+    },
+    "source_opening_index": 261,
+    "state": {
+      "current_player": 0,
+      "opponent_pits": [
+        8,
+        2,
+        0,
+        2,
+        10,
+        0
+      ],
+      "opponent_store": 4,
+      "player_pits": [
+        3,
+        1,
+        8,
+        2,
+        2,
+        2
+      ],
+      "player_store": 4
+    }
+  }
+]
