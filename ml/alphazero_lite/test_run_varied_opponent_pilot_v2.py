@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 import json
 import hashlib
+import sys
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
@@ -137,7 +138,82 @@ class PairProbeLifecycleTests(unittest.TestCase):
             runner.load_v2_freeze(
                 Path("docs/data/varied-opponent-coverage-pilot/freeze.json"),
                 Path.cwd(),
+                expected_digest="8da846678e89568e17e7bd81270287ef373e1f8acdfcbc892317d08385ad4c36",
             )
+
+    def test_self_rehashed_substitute_fails_external_digest_before_cli_side_effects(
+        self,
+    ):
+        registered_path = Path("docs/data/varied-opponent-pilot-v2/freeze.json")
+        registered = json.loads(registered_path.read_text())
+        expected_digest = (
+            "fc6dee8b0d5e04190a6326b4d55242196ee1f9901d2a2196ae5b03f6bfa200a1"
+        )
+        self.assertEqual(registered["freeze_sha256"], expected_digest)
+        substituted = dict(registered)
+        substituted["request_manifest_sha256"] = "0" * 64
+        substituted_body = {
+            key: value for key, value in substituted.items() if key != "freeze_sha256"
+        }
+        substituted["freeze_sha256"] = hashlib.sha256(
+            runner.canonical_json(substituted_body)
+        ).hexdigest()
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            freeze_path = root / "substituted-freeze.json"
+            freeze_path.write_text(json.dumps(substituted))
+            output_path = root / "replay.json"
+            with (
+                patch.object(
+                    runner,
+                    "replay_frozen_requests",
+                    side_effect=AssertionError("probe replay must not launch"),
+                ) as replay,
+                self.assertRaisesRegex(
+                    ValueError, "pilot_v2_freeze_external_digest_mismatch"
+                ),
+            ):
+                runner.replay_main(
+                    [
+                        "--freeze-v2",
+                        str(freeze_path),
+                        "--expected-freeze-v2-sha256",
+                        expected_digest,
+                        "--output",
+                        str(output_path),
+                    ]
+                )
+            replay.assert_not_called()
+            self.assertFalse(output_path.exists())
+
+            checkpoint_path = root / "pairs"
+            with (
+                patch.object(
+                    sys,
+                    "argv",
+                    [
+                        "runner",
+                        "--freeze-v2",
+                        str(freeze_path),
+                        "--expected-freeze-v2-sha256",
+                        expected_digest,
+                        "--checkpoint-dir",
+                        str(checkpoint_path),
+                    ],
+                ),
+                patch.object(
+                    runner,
+                    "run_checkpointed_pairs",
+                    side_effect=AssertionError("generation must not dispatch"),
+                ) as run_pairs,
+                self.assertRaisesRegex(
+                    ValueError, "pilot_v2_freeze_external_digest_mismatch"
+                ),
+            ):
+                runner.main()
+            run_pairs.assert_not_called()
+            self.assertFalse(checkpoint_path.exists())
 
     def test_both_game_callbacks_use_the_same_probe_instance(self):
         observed = []

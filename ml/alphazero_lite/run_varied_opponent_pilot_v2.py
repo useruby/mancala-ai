@@ -29,7 +29,9 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def load_v2_freeze(path: Path, source_root: Path) -> dict[str, Any]:
+def load_v2_freeze(
+    path: Path, source_root: Path, *, expected_digest: str
+) -> dict[str, Any]:
     """Authenticate the versioned execution contract and its runner source."""
     freeze = json.loads(path.read_text())
     recorded_digest = freeze.pop("freeze_sha256", None)
@@ -37,6 +39,8 @@ def load_v2_freeze(path: Path, source_root: Path) -> dict[str, Any]:
     freeze["freeze_sha256"] = recorded_digest
     if recorded_digest != actual_digest:
         raise ValueError("pilot_v2_freeze_digest_mismatch")
+    if actual_digest != expected_digest:
+        raise ValueError("pilot_v2_freeze_external_digest_mismatch")
     if freeze.get("schema") != "varied_opponent_pilot_execution_freeze_v2":
         raise ValueError("pilot_v2_freeze_schema_mismatch")
     if freeze.get("runner_source") != RUNNER_RELATIVE_PATH:
@@ -448,6 +452,7 @@ def main() -> None:
         type=Path,
         default=Path("docs/data/varied-opponent-pilot-v2/freeze.json"),
     )
+    parser.add_argument("--expected-freeze-v2-sha256", required=True)
     parser.add_argument("--checkpoint-dir", type=Path, required=True)
     parser.add_argument("--resume", action="store_true")
     parser.add_argument(
@@ -459,7 +464,11 @@ def main() -> None:
     )
     args = parser.parse_args()
     source_root = Path(__file__).resolve().parents[2]
-    freeze = load_v2_freeze(args.freeze_v2, source_root)
+    freeze = load_v2_freeze(
+        args.freeze_v2,
+        source_root,
+        expected_digest=args.expected_freeze_v2_sha256,
+    )
     frozen_runner.verify_resource_bindings(freeze)
     base_freeze = frozen_runner.load_freeze(
         source_root / freeze["parent_freeze"]["path"],
@@ -504,6 +513,7 @@ def replay_main(argv: list[str]) -> None:
         type=Path,
         default=Path("docs/data/varied-opponent-pilot-v2/freeze.json"),
     )
+    parser.add_argument("--expected-freeze-v2-sha256", required=True)
     parser.add_argument(
         "--manifest",
         type=Path,
@@ -522,7 +532,11 @@ def replay_main(argv: list[str]) -> None:
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
     source_root = Path(__file__).resolve().parents[2]
-    freeze = load_v2_freeze(args.freeze_v2, source_root)
+    freeze = load_v2_freeze(
+        args.freeze_v2,
+        source_root,
+        expected_digest=args.expected_freeze_v2_sha256,
+    )
     manifest = json.loads(args.manifest.read_text())
     body = {key: value for key, value in manifest.items() if key != "manifest_sha256"}
     actual_digest = hashlib.sha256(canonical_json(body)).hexdigest()
