@@ -26,16 +26,30 @@ which runs first by pair, starting with per-game.
 
 ## Results
 
+### Original run
+
 | Probe lifetime | Reaped native child CPU | Startup wall | Warmup wall | Query wall |
 |---|---:|---:|---:|---:|
 | Fresh warmed probe per game | 971.651 s | 0.198 s | 965.180 s | 0.181 s |
 | One warmed probe per seat-swapped pair | 485.656 s | 0.097 s | 482.183 s | 0.139 s |
 
-Reusing the probe per pair reduced total reaped native-child CPU by **50.02%**.
-There were **zero** between-variant legal-action margin or selected-move
-mismatches, zero mismatches against the archived margins where retained, and
-zero mismatches against the archived move on any exact-root turn. Per-pair CPU
-and full mismatch evidence are in `probe-reuse-benchmark.json`.
+This initial run preceded the explicit legal-action coverage validation.
+
+### Corrected run with legal-action coverage validation
+
+| Probe lifetime | Reaped native child CPU | Startup wall | Warmup wall | Query wall |
+|---|---:|---:|---:|---:|
+| Fresh warmed probe per game | 971.297 s | 0.127 s | 967.531 s | 0.192 s |
+| One warmed probe per seat-swapped pair | 485.850 s | 0.059 s | 483.829 s | 0.146 s |
+
+Reusing the probe per pair reduced total reaped native-child CPU by **49.98%**
+in the corrected run. Every native reply was checked for exact legal-action
+coverage before decision comparison. There were **zero** between-variant
+legal-action margin or selected-move mismatches, zero mismatches against
+archived margins where retained, and zero mismatches against the archived move
+on any exact-root turn. Per-pair CPU and mismatch evidence are in
+`probe-reuse-benchmark-corrected.json`; the original measurements remain in
+`probe-reuse-benchmark.json`.
 
 The preregistered threshold is met. This supports a narrowly scoped data-
 games in a seat-swapped pair. It does not change #580's decision: a probe
@@ -53,6 +67,8 @@ systemd-run --user --scope --quiet \
   --property=MemoryMax=38654705664 --property=AllowedCPUs=14-31 --nice=19 -- \
   taskset -c 14-31 python -m ml.alphazero_lite.benchmark_exact_root_probe_reuse benchmark \
   --manifest docs/data/varied-opponent-coverage-pilot/probe-reuse-manifest.json \
+  --probe model-artifact/runtime/kalah_v1_tablebase \
+  --tablebase model-artifact/runtime/kalah_v1_21.kvtb \
   --output docs/data/varied-opponent-coverage-pilot/probe-reuse-benchmark-reproduced.json
 python -m unittest ml.alphazero_lite.test_benchmark_exact_root_probe_reuse
 ```
@@ -62,4 +78,7 @@ reproduction result file; it does not rebuild or overwrite the freeze or
 published benchmark evidence. Runtime assets are authenticated by SHA-256, not
 by their original absolute locations. To use relocated copies, pass their paths
 with `--probe PATH` and `--tablebase PATH`; both hashes must still match the
-manifest. The benchmark does not replay or launch games.
+manifest. Both CLI modes require a caller-supplied new output path (`--output`
+for `benchmark`, `--manifest-output` for `manifest`) and reject existing paths
+before starting work; file creation is exclusive. The benchmark does not replay
+or launch games.

@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import sys
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from ml.alphazero_lite import benchmark_exact_root_probe_reuse as benchmark
@@ -112,6 +115,44 @@ class LegalActionCoverageTests(unittest.TestCase):
                 benchmark.benchmark(
                     manifest, benchmark.Path("probe"), benchmark.Path("tb")
                 )
+
+
+class CliOutputPathTests(unittest.TestCase):
+    def test_manifest_mode_rejects_existing_output_before_reconstruction(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "manifest.json"
+            output.write_text("published")
+            argv = [
+                "benchmark_exact_root_probe_reuse",
+                "manifest",
+                "--manifest-output",
+                str(output),
+            ]
+            with (
+                patch.object(sys, "argv", argv),
+                patch.object(benchmark, "build_manifest") as build_manifest,
+            ):
+                with self.assertRaises(SystemExit):
+                    benchmark.main()
+            build_manifest.assert_not_called()
+            self.assertEqual(output.read_text(), "published")
+
+    def test_benchmark_mode_rejects_existing_output_before_loading_manifest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "result.json"
+            output.write_text("published")
+            argv = [
+                "benchmark_exact_root_probe_reuse",
+                "benchmark",
+                "--manifest",
+                str(Path(directory) / "missing-manifest.json"),
+                "--output",
+                str(output),
+            ]
+            with patch.object(sys, "argv", argv):
+                with self.assertRaises(SystemExit):
+                    benchmark.main()
+            self.assertEqual(output.read_text(), "published")
 
 
 if __name__ == "__main__":

@@ -408,7 +408,6 @@ def main() -> None:
     parser.add_argument(
         "--output",
         type=Path,
-        default=DATA / "probe-reuse-benchmark-reproduced.json",
     )
     parser.add_argument(
         "--manifest-output",
@@ -426,30 +425,26 @@ def main() -> None:
         default=ROOT / "model-artifact/runtime/kalah_v1_21.kvtb",
     )
     args = parser.parse_args()
-    if args.mode == "manifest":
-        if args.manifest_output is None:
-            parser.error("manifest mode requires --manifest-output")
-        if (
-            args.manifest_output.resolve()
-            == (DATA / "probe-reuse-manifest.json").resolve()
-        ):
-            parser.error("refusing to overwrite the committed request manifest")
-        result = build_manifest(args.artifacts)
-        args.manifest_output.write_text(
-            json.dumps(result, indent=2, sort_keys=True) + "\n"
+    output_path = args.manifest_output if args.mode == "manifest" else args.output
+    if output_path is None:
+        parser.error(
+            "manifest mode requires --manifest-output"
+            if args.mode == "manifest"
+            else "benchmark mode requires --output"
         )
+    if output_path.exists() or output_path.is_symlink():
+        parser.error(f"output path already exists: {output_path}")
+    if args.mode == "manifest":
+        result = build_manifest(args.artifacts)
+        with args.manifest_output.open("x", encoding="utf-8") as handle:
+            handle.write(json.dumps(result, indent=2, sort_keys=True) + "\n")
     else:
         manifest = json.loads(args.manifest.read_text())
         scope = validate_frozen_benchmark(manifest, args.probe, args.tablebase)
         result = benchmark(manifest, args.probe, args.tablebase)
         result["resource_scope"] = scope["live_resources"]
-        protected_paths = {
-            (DATA / "probe-reuse-benchmark.json").resolve(),
-            args.manifest.resolve(),
-        }
-        if args.output.resolve() in protected_paths:
-            parser.error("refusing to overwrite the published benchmark evidence")
-        args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
+        with args.output.open("x", encoding="utf-8") as handle:
+            handle.write(json.dumps(result, indent=2, sort_keys=True) + "\n")
     print(
         json.dumps(
             {
