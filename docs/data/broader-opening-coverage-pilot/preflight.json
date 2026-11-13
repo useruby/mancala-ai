@@ -19,7 +19,7 @@
       "weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
     }
   },
-  "freeze_sha256": "726b0d04923155ac4a34c3249b7d7e479a48edcbcd8c9cd7b2402c38eb6a62ed",
+  "freeze_sha256": "c0ed1ac6adfec1726bd77b2c94fc763f3c9524f0f428c2d8d0444e7190d627f8",
   "games": 248,
   "games_launched": 0,
   "pair_concurrency": 1,

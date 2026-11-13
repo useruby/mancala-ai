@@ -239,7 +239,7 @@ def validate_game_specs(specs: list[dict[str, Any]]) -> None:
             if spec["opponent"] != "P":
                 raise ValueError("control_must_be_P_vs_P")
         elif spec["arm"] == "treatment":
-            if spec["opponent"] not in OPPONENTS | {"P"}:
+            if spec["opponent"] not in OPPONENTS:
                 raise ValueError("invalid_treatment_opponent")
         else:
             raise ValueError("invalid_arm")

@@ -8423,7 +8423,7 @@
   },
   "execution_source_hashes": {
     "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
-    "ml/alphazero_lite/broader_opening_coverage_pilot.py": "ec9914228907f7b1141bdc48f1a415013d2507026c6a815576334177e17cea1a",
+    "ml/alphazero_lite/broader_opening_coverage_pilot.py": "a06bf8d40bb7c98d07cfae139dfd308957d6040940c8dd24123f6a7aa4979b29",
     "ml/alphazero_lite/classic_mcts.py": "9643d859e22fad8ef83211fb38256a30aa15f245775408310c147d7db65e61b9",
     "ml/alphazero_lite/endgame_tablebase.py": "fe00e7b48277e2f8a5795232f78b25df4d29449b7b5dc819a09771999b2350f5",
     "ml/alphazero_lite/eval_cache.py": "7f9da64a0ec2b3c00418727d8d5d0de5257037d47dc42cd2b8e72071fb70b8f6",
@@ -8439,16 +8439,16 @@
     "ml/alphazero_lite/report_validation.py": "5d1c02e8b1ac11b1224153769b6d843a046381ef0d64206d33f6b70c30399699",
     "ml/alphazero_lite/root_prior_transforms.py": "05892bb9d8af2e0551b3d45ced7a2c905db771a00283f04430ee6f49017afe0c",
     "ml/alphazero_lite/run_varied_opponent_pilot.py": "effe9d493dd9da5d4dce76d4a91c4015dbf828c15ce01e3dbb8db3766b4d0e92",
-    "ml/alphazero_lite/run_varied_opponent_pilot_v2.py": "b52e5a09771504d1215147661df0a365ccacb17c01b68ae97986438972cb5cb4",
+    "ml/alphazero_lite/run_varied_opponent_pilot_v2.py": "ba93a0aeeade6298c5a4f0d2a48f0d42125e9af8ff157361c1d5a585fcb0b1e7",
     "ml/alphazero_lite/runtime_search_policy.py": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
     "ml/alphazero_lite/search_ablation.py": "6c9a6b9bf85eb4826c1ba33964d5f8675f1402bd6cbd6008a06b6c15d05d4193",
     "ml/alphazero_lite/seed551_controlled_policy_strength.py": "c589240e2352273e0b86c48c3b37f5fa9737cfc2423255b67d74e7e177f59e63",
     "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
     "ml/alphazero_lite/shadow_root_q.py": "93563da902a4020a312fa02c175e6115ac98e9a03b0679ea0f6109434aab8b13",
     "ml/alphazero_lite/value_transforms.py": "d63bf9772389614cae22e3a599d2151bd0b4f7d1dfbb7f8e5079bb01c6e5a21b",
-    "ml/alphazero_lite/varied_opponent_pilot.py": "c835ef46de3f9ee1b68861b2337ca3916b1d381c573348115b1d9630ff57abd3"
+    "ml/alphazero_lite/varied_opponent_pilot.py": "41f125962f0c07777f0c4d4d6c12c456a0495c5e5e006fb891ebb5f862a81289"
   },
-  "freeze_sha256": "726b0d04923155ac4a34c3249b7d7e479a48edcbcd8c9cd7b2402c38eb6a62ed",
+  "freeze_sha256": "c0ed1ac6adfec1726bd77b2c94fc763f3c9524f0f428c2d8d0444e7190d627f8",
   "matching": {
     "control_canonical_identity_count": 64,
     "control_count": 64,

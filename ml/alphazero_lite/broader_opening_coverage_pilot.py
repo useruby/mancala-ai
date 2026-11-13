@@ -7,9 +7,12 @@ is exposed only through the explicitly registered ``run`` subcommand.
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import hashlib
 import json
+import os
 import random
+import time
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
@@ -65,6 +68,79 @@ SOURCE_PATHS = (
 SEED = 823611
 PAIR_CONCURRENCY = 1
 IDENTITIES = ("canonical-state", "production-kalah_v3-float32")
+
+
+def parse_cpu_set(value: str) -> set[int]:
+    cpus: set[int] = set()
+    for part in value.split(","):
+        if not part:
+            continue
+        if "-" in part:
+            start, end = (int(item) for item in part.split("-", 1))
+            cpus.update(range(start, end + 1))
+        else:
+            cpus.add(int(part))
+    return cpus
+
+
+def live_resource_snapshot(
+    *,
+    proc_cgroup: Path = Path("/proc/self/cgroup"),
+    cgroup_root: Path = Path("/sys/fs/cgroup"),
+    affinity: set[int] | None = None,
+    nice: int | None = None,
+) -> dict[str, Any]:
+    """Read effective cgroup-v2 limits and process CPU scheduling controls."""
+    relative = None
+    for line in proc_cgroup.read_text().splitlines():
+        hierarchy, controllers, path = line.split(":", 2)
+        if hierarchy == "0" and not controllers:
+            relative = path.lstrip("/")
+            break
+    if relative is None:
+        raise ValueError("broader_pilot_cgroup_v2_membership_missing")
+    cgroup = cgroup_root / relative
+    cpu_max = (cgroup / "cpu.max").read_text().split()
+    if len(cpu_max) != 2 or cpu_max[0] == "max":
+        quota_percent = None
+    else:
+        quota_percent = int(cpu_max[0]) / int(cpu_max[1]) * 100.0
+    cpuset_path = cgroup / "cpuset.cpus.effective"
+    if not cpuset_path.is_file():
+        cpuset_path = cgroup / "cpuset.cpus"
+    actual_affinity = set(os.sched_getaffinity(0)) if affinity is None else affinity
+    actual_nice = os.getpriority(os.PRIO_PROCESS, 0) if nice is None else nice
+    return {
+        "cpu_quota_percent": quota_percent,
+        "cpu_weight": int((cgroup / "cpu.weight").read_text().strip()),
+        "memory_max_bytes": int((cgroup / "memory.max").read_text().strip()),
+        "allowed_cpus": parse_cpu_set(cpuset_path.read_text().strip()),
+        "process_affinity": set(actual_affinity),
+        "nice": int(actual_nice),
+    }
+
+
+def enforce_live_resources(
+    limits: dict[str, Any], *, observed: dict[str, Any] | None = None
+) -> dict[str, Any]:
+    """Fail closed unless the invocation is already inside its frozen scope."""
+    actual = live_resource_snapshot() if observed is None else observed
+    expected = {
+        "cpu_quota_percent": float(str(limits["cpu_quota"]).rstrip("%")),
+        "cpu_weight": int(limits["cpu_weight"]),
+        "memory_max_bytes": int(limits["memory_max_bytes"]),
+        "allowed_cpus": parse_cpu_set(str(limits["allowed_cpus"])),
+        "process_affinity": parse_cpu_set(str(limits["allowed_cpus"])),
+        "nice": int(limits["nice"]),
+    }
+    mismatches = {
+        key: {"expected": value, "observed": actual.get(key)}
+        for key, value in expected.items()
+        if actual.get(key) != value
+    }
+    if mismatches:
+        raise ValueError(f"broader_pilot_live_resource_scope_mismatch:{mismatches}")
+    return actual
 
 
 def canonical_json(value: Any) -> bytes:
@@ -190,9 +266,14 @@ def select_matched_openings(
     return matched_controls, selected, audit
 
 
-def load_inventory() -> dict[str, set[str]]:
+def load_inventory(
+    path: Path = INVENTORY_PATH, *, expected_sha256: str | None = None
+) -> dict[str, set[str]]:
+    actual_sha256 = sha(path)
+    if expected_sha256 is not None and actual_sha256 != expected_sha256:
+        raise ValueError("broader_pilot_novelty_inventory_hash_mismatch")
     inventory: dict[str, set[str]] = {"canonical": set(), "kalah_v3_float32": set()}
-    for line in INVENTORY_PATH.read_text().splitlines():
+    for line in path.read_text().splitlines():
         if not line:
             continue
         row = json.loads(line)
@@ -257,7 +338,7 @@ def build() -> dict[str, Any]:
                         "search_workers": 1,
                     }
                 )
-    pilot.validate_game_specs(assignments)
+    validate_pilot_specs(assignments)
     if len(assignments) != 248 or len(control_rows) != 62 or len(treatment_rows) != 62:
         raise ValueError("assignment_count_mismatch")
     for index, (control, treatment_row) in enumerate(
@@ -377,8 +458,269 @@ def jobs_from_freeze(freeze: dict[str, Any]) -> list[dict[str, Any]]:
     jobs = [{"game_specs": rows} for _, rows in sorted(grouped.items())]
     if len(jobs) != 124 or sum(len(job["game_specs"]) for job in jobs) != 248:
         raise ValueError("broader_pilot_jobs_count_mismatch")
-    pilot.validate_game_specs([spec for job in jobs for spec in job["game_specs"]])
+    validate_pilot_specs([spec for job in jobs for spec in job["game_specs"]])
     return jobs
+
+
+def validate_pilot_specs(specs: list[dict[str, Any]]) -> None:
+    """Validate P-vs-P assignments without changing the shared #580 validator."""
+    if any(spec.get("opponent") != "P" for spec in specs):
+        raise ValueError("broader_pilot_opponent_must_be_P")
+    normalized = [
+        {
+            **spec,
+            "opponent": "P" if spec["arm"] == "control" else "initializer",
+        }
+        for spec in specs
+    ]
+    pilot.validate_game_specs(normalized)
+
+
+def verify_pilot_pair_result(job: dict[str, Any], result: dict[str, Any]) -> None:
+    """Replay and reconcile a P-vs-P pair under the unmodified shared verifier."""
+    specs = job.get("game_specs", [])
+    games = result.get("games")
+    validate_pilot_specs(specs)
+    if len(specs) != 2 or not isinstance(games, list) or len(games) != 2:
+        raise ValueError("pair_checkpoint_game_count_mismatch")
+    expected = {str(spec["game_id"]): spec for spec in specs}
+    observed: dict[str, dict[str, Any]] = {}
+    adapted_games = []
+    for game in games:
+        game_copy = json.loads(json.dumps(game))
+        spec = game_copy.get("spec")
+        game_id = str(spec.get("game_id", "")) if isinstance(spec, dict) else ""
+        if game_id in observed or game_id not in expected:
+            raise ValueError("pair_checkpoint_game_assignment_mismatch")
+        if spec != expected[game_id]:
+            raise ValueError("pair_checkpoint_game_assignment_mismatch")
+        observed[game_id] = spec
+        if spec["arm"] == "treatment":
+            # The shared verifier only knows historical opponent labels. Adapt
+            # verifier copies after exact P assignment equality; persisted rows
+            # and checkpoints continue to record opponent=P.
+            spec["opponent"] = "initializer"
+            for row in game_copy.get("rows", []):
+                row["opponent"] = "initializer"
+        adapted_games.append(game_copy)
+    if observed.keys() != expected.keys():
+        raise ValueError("pair_checkpoint_game_assignment_mismatch")
+    adapted_job = {
+        "game_specs": [
+            {
+                **spec,
+                "opponent": "P" if spec["arm"] == "control" else "initializer",
+            }
+            for spec in specs
+        ]
+    }
+    adapted_result = {**result, "games": adapted_games}
+    pilot.verify_pair_result(adapted_job, adapted_result)
+
+
+def load_pilot_pair_checkpoints(
+    checkpoint_dir: Path, jobs: list[dict[str, Any]]
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    expected = {str(job["game_specs"][0]["pair_id"]): job for job in jobs}
+    if len(expected) != len(jobs):
+        raise ValueError("pair_assignment_duplicate_id")
+    completed = []
+    for path in (
+        sorted(checkpoint_dir.glob("*.json")) if checkpoint_dir.exists() else []
+    ):
+        payload = json.loads(path.read_text())
+        if payload.get("schema") != "varied_opponent_pair_checkpoint_v1":
+            raise ValueError("pair_checkpoint_schema_mismatch")
+        job, result = payload.get("assignment"), payload.get("result")
+        if not isinstance(job, dict) or not isinstance(result, dict):
+            raise ValueError("pair_checkpoint_payload_invalid")
+        producing_attempt = payload.get("producing_attempt")
+        if not isinstance(producing_attempt, int) or producing_attempt < 1:
+            raise ValueError("pair_checkpoint_attempt_number_invalid")
+        pair_id = str(job.get("game_specs", [{}])[0].get("pair_id", ""))
+        if pair_id not in expected or job != expected[pair_id]:
+            raise ValueError("pair_checkpoint_assignment_conflict")
+        if path != pilot.pair_checkpoint_path(checkpoint_dir, pair_id):
+            raise ValueError("pair_checkpoint_path_mismatch")
+        verify_pilot_pair_result(job, result)
+        completed.append(result)
+    done = {str(result["pair_id"]) for result in completed}
+    return completed, [job for pair_id, job in expected.items() if pair_id not in done]
+
+
+def commit_pilot_pair(
+    checkpoint_dir: Path,
+    job: dict[str, Any],
+    result: dict[str, Any],
+    *,
+    identity: dict[str, Any],
+    attempt_number: int,
+) -> Path:
+    if not isinstance(attempt_number, int) or attempt_number < 1:
+        raise ValueError("pair_checkpoint_attempt_number_invalid")
+    verify_pilot_pair_result(job, result)
+    if result.get("execution_identity") != identity:
+        raise ValueError("pilot_v2_result_identity_mismatch")
+    payload = {
+        "schema": "varied_opponent_pair_checkpoint_v1",
+        "assignment": json.loads(json.dumps(job, sort_keys=True)),
+        "producing_attempt": attempt_number,
+        "execution_identity": identity,
+        "result": result,
+    }
+    path = pilot.pair_checkpoint_path(
+        checkpoint_dir, str(job["game_specs"][0]["pair_id"])
+    )
+    if path.exists():
+        if json.loads(path.read_text()) != payload:
+            raise ValueError("pair_checkpoint_conflict")
+    else:
+        pilot.write_json_atomic(path, payload)
+    return path
+
+
+def play_pair_with_probe(
+    job: dict[str, Any],
+    evaluators: Any,
+    *,
+    accounting_start: tuple[int, int] | None = None,
+) -> dict[str, Any]:
+    """Run a P-vs-P matched pair using v2's warmed probe lifecycle."""
+    specs = job["game_specs"]
+    validate_pilot_specs(specs)
+    policy = evaluators.runtime_policy
+    assets = policy["runtime_assets"]
+    threshold = int(policy["effective_search_policy"]["exact_root_threshold"])
+    process_start, child_start = accounting_start or (
+        time.process_time_ns(),
+        pilot.reaped_child_cpu_ns(),
+    )
+    games = []
+    with v2.warmed_probe(
+        assets["native_probe"]["path"], assets["tablebase"]["path"]
+    ) as probe:
+        exact_root = v2.exact_root_callback(probe, threshold)
+        for spec in specs:
+            games.append(
+                pilot.play_game(
+                    spec,
+                    p_evaluator=evaluators.p,
+                    opponent_evaluator=evaluators.p,
+                    search_turn=lambda game, evaluator, rng, ply, retain: (
+                        pilot.production_search_turn(
+                            game,
+                            evaluator,
+                            rng,
+                            ply,
+                            retain,
+                            exact_root=exact_root,
+                        )
+                    ),
+                    max_moves=pilot.MAX_MOVES,
+                )
+            )
+    child_cpu = pilot.reaped_child_cpu_ns() - child_start
+    if child_cpu < 0:
+        raise ValueError("reaped_child_cpu_counter_regressed")
+    process_cpu = time.process_time_ns() - process_start
+    result = {
+        "pair_id": str(specs[0]["pair_id"]),
+        "arm": str(specs[0]["arm"]),
+        "games": games,
+        "pair_process_cpu_time_ns": process_cpu,
+        "native_child_cpu_time_ns": child_cpu,
+        "pair_cpu_time_ns": process_cpu + child_cpu,
+    }
+    verify_pilot_pair_result(job, result)
+    return result
+
+
+def _run_pilot_attempt(
+    job: dict[str, Any],
+    artifacts: str,
+    attempt_path: Path,
+    identity: dict[str, Any],
+) -> dict[str, Any]:
+    pilot.write_json_atomic(
+        attempt_path,
+        {
+            "pair_id": str(job["game_specs"][0]["pair_id"]),
+            "status": "started",
+            "assignment": job,
+            "execution_identity": identity,
+        },
+    )
+    accounting_start = (time.process_time_ns(), pilot.reaped_child_cpu_ns())
+    pilot._initialize_pair_process(artifacts)
+    if pilot._PROCESS_EVALUATORS is None:
+        raise RuntimeError("pair_process_evaluators_not_initialized")
+    result = play_pair_with_probe(
+        job, pilot._PROCESS_EVALUATORS, accounting_start=accounting_start
+    )
+    result["execution_identity"] = identity
+    return result
+
+
+def run_checkpointed_pairs(
+    jobs: list[dict[str, Any]],
+    artifacts: Path,
+    checkpoint_dir: Path,
+    attempt_dir: Path,
+    identity: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """Use one worker process and the established v2 attempt/checkpoint protocol."""
+    v2.bind_run_directory(checkpoint_dir, attempt_dir, identity)
+    committed, pending = load_pilot_pair_checkpoints(checkpoint_dir, jobs)
+    committed_by_id = {str(result["pair_id"]): result for result in committed}
+    attempt_dir.mkdir(parents=True, exist_ok=True)
+    numbers = pilot.reconcile_pair_attempts(
+        attempt_dir, jobs, committed_by_id, checkpoint_dir
+    )
+    with concurrent.futures.ProcessPoolExecutor(
+        max_workers=PAIR_CONCURRENCY, max_tasks_per_child=1
+    ) as pool:
+        future_jobs = {}
+        for job in pending:
+            pair_id = str(job["game_specs"][0]["pair_id"])
+            number = numbers[pair_id]
+            attempt_path = pilot.pair_attempt_path(attempt_dir, pair_id, number)
+            pilot.write_json_atomic(
+                attempt_path,
+                {
+                    "pair_id": pair_id,
+                    "status": "dispatched",
+                    "assignment": job,
+                    "execution_identity": identity,
+                },
+            )
+            future_jobs[
+                pool.submit(
+                    _run_pilot_attempt, job, str(artifacts), attempt_path, identity
+                )
+            ] = (job, attempt_path, number)
+        for future in concurrent.futures.as_completed(future_jobs):
+            job, attempt_path, number = future_jobs[future]
+            result = future.result()
+            checkpoint = commit_pilot_pair(
+                checkpoint_dir,
+                job,
+                result,
+                identity=identity,
+                attempt_number=number,
+            )
+            pilot.write_json_atomic(
+                attempt_path,
+                {
+                    "pair_id": result["pair_id"],
+                    "status": "completed",
+                    "assignment": job,
+                    "execution_identity": identity,
+                    "checkpoint_sha256": pilot.sha256(checkpoint),
+                    "pair_cpu_time_ns": result["pair_cpu_time_ns"],
+                },
+            )
+            committed.append(result)
+    return committed
 
 
 def coverage_identity_set(
@@ -454,6 +796,8 @@ def main() -> None:
         print(write_freeze())
         return
     freeze = load_freeze(args.freeze, args.expected_freeze_sha256)
+    if args.command == "run":
+        enforce_live_resources(freeze["runtime_limits"])
     if args.command == "preflight":
         result = preflight(freeze, args.tablebase, args.artifacts)
         (DATA / "preflight.json").write_text(
@@ -481,13 +825,12 @@ def main() -> None:
             "probe_lifetime": v2.PAIR_LIFETIME,
             "checkpoint_schema": "varied_opponent_pair_checkpoint_v1",
         }
-        results = v2.run_checkpointed_pairs(
+        results = run_checkpointed_pairs(
             jobs,
             args.artifacts,
             args.checkpoint_dir,
             args.checkpoint_dir.parent / "attempts",
             identity,
-            max_workers=PAIR_CONCURRENCY,
         )
         print(
             json.dumps(
@@ -515,7 +858,7 @@ def analyze(
         "checkpoint_schema": "varied_opponent_pair_checkpoint_v1",
     }
     v2.bind_run_directory(checkpoint_dir, attempt_dir, identity)
-    committed, pending = pilot.load_pair_checkpoints(checkpoint_dir, jobs)
+    committed, pending = load_pilot_pair_checkpoints(checkpoint_dir, jobs)
     if pending:
         raise ValueError("broader_pilot_checkpoints_incomplete")
     by_id = {str(pair["pair_id"]): pair for pair in committed}
@@ -530,7 +873,8 @@ def analyze(
             for row in freeze["control_manifest"] + freeze["treatment_manifest"]
         },
     }
-    inventory = load_inventory()
+    inventory_hash = freeze["source_hashes"]["published_exclusion_inventory"]
+    inventory = load_inventory(expected_sha256=inventory_hash)
     totals = pilot.summarize_pair_accounting(committed)
     arms = {}
     for arm in ("control", "treatment"):
@@ -582,6 +926,7 @@ def analyze(
         "schema": "broader_opening_coverage_analysis_v1",
         "freeze_sha256": freeze["freeze_sha256"],
         "scope": "62 matchable openings per arm only",
+        "published_inventory_sha256": inventory_hash,
         "pairs_reconciled": len(committed),
         "attempt_accounting": "reconciled by v2 runner",
         "accounting": totals,

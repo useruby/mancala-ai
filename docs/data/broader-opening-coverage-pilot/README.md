@@ -30,7 +30,10 @@ collisions, and exact signature equality for each matched pair.
 
 ## Frozen run and metric
 
-The v2 pair worker owns one warmed exact-root probe per seat-swapped pair and is
+The pilot-specific harness uses the unchanged shared #580/#582 modules and the
+validated v2 warmed-probe lifecycle. Its P-vs-P adapter and single-worker
+scheduler live in this new harness, leaving both shared frozen runners
+byte-for-byte intact. Each pair owns one warmed exact-root probe; execution is
 bound to **pair concurrency 1** and one search worker per game. Search, target,
 runtime assets, CPU quota, CPU weight, memory cap, CPU set, and nice level are
 identical between arms and fixed in `freeze.json`. Assignment seeds are matched
@@ -65,17 +68,26 @@ the result is the registered digest above; then verify the copy's digest again.
 Native probe, tablebase, model components, runner sources,
 assignments, and both opening manifests are hash-bound by the freeze.
 
+Before creating run identity, checkpoint, or attempt evidence, launch and resume
+verify the live cgroup CPU quota, CPU weight, memory maximum, effective CPU set,
+process affinity, and nice level against the frozen limits. Direct invocation
+outside the registered systemd/taskset scope fails closed. Analysis verifies the
+exact published novelty-inventory bytes against the freeze digest before reading
+identities; mutation aborts analysis.
+
 The recorded no-games preflight is `preflight.json` and reports 124 pairs, 248
 games, concurrency 1, and `games_launched: 0`. `synthetic-checks.json` records
 the passing synthetic test command and outcomes. Synthetic tests cover deterministic
 matching, both identity schemes, supplied-opening exclusion in both arms, P
-against P in treatment, and v2 checkpoint/resume skipping a verified pair.
+against P in treatment, preservation of prior runner hashes, resource-scope
+rejection before evidence creation, exact novelty-inventory authentication, and
+v2 checkpoint/resume skipping a verified pair.
 
 After the freeze merges, launch with the digest independently reviewed from
 `freeze.json`:
 
 ```bash
-export PILOT_FREEZE_SHA256=726b0d04923155ac4a34c3249b7d7e479a48edcbcd8c9cd7b2402c38eb6a62ed
+export PILOT_FREEZE_SHA256=c0ed1ac6adfec1726bd77b2c94fc763f3c9524f0f428c2d8d0444e7190d627f8
 export AZLITE_KALAH_V1_TABLEBASE=.tmp/broader-opening-coverage/kalah_v1_21.kvtb
 systemd-run --user --scope --quiet \
   --property=CPUQuota=1800% --property=CPUWeight=100 \

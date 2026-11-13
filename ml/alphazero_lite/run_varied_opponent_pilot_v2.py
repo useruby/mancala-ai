@@ -158,9 +158,7 @@ def play_pair_with_probe(
             opponent = None
             if spec["arm"] == "treatment":
                 opponent = (
-                    evaluators.p
-                    if spec["opponent"] == "P"
-                    else evaluators.initializer
+                    evaluators.initializer
                     if spec["opponent"] == "initializer"
                     else evaluators.t512
                 )
@@ -362,8 +360,6 @@ def run_checkpointed_pairs(
     checkpoint_dir: Path,
     attempt_dir: Path,
     identity: dict[str, Any],
-    *,
-    max_workers: int = pilot.PAIR_CONCURRENCY,
 ) -> list[dict[str, Any]]:
     """Run and atomically commit complete pairs, failing closed on interrupted attempts."""
     bind_run_directory(checkpoint_dir, attempt_dir, identity)
@@ -374,7 +370,7 @@ def run_checkpointed_pairs(
         attempt_dir, jobs, committed_by_id, checkpoint_dir
     )
     with concurrent.futures.ProcessPoolExecutor(
-        max_workers=max_workers, max_tasks_per_child=1
+        max_workers=pilot.PAIR_CONCURRENCY, max_tasks_per_child=1
     ) as pool:
         future_jobs = {}
         for job in pending:

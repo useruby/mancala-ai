@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import tempfile
 import unittest
+from contextlib import nullcontext
 from pathlib import Path
 from unittest.mock import patch
 
@@ -12,6 +13,20 @@ from ml.alphazero_lite import varied_opponent_pilot as pilot
 
 
 class BroaderOpeningFreezeTests(unittest.TestCase):
+    def test_prior_frozen_runner_sources_keep_registered_bytes(self):
+        self.assertEqual(
+            experiment.sha(
+                experiment.ROOT / "ml/alphazero_lite/run_varied_opponent_pilot_v2.py"
+            ),
+            "ba93a0aeeade6298c5a4f0d2a48f0d42125e9af8ff157361c1d5a585fcb0b1e7",
+        )
+        self.assertEqual(
+            experiment.sha(
+                experiment.ROOT / "ml/alphazero_lite/varied_opponent_pilot.py"
+            ),
+            "41f125962f0c07777f0c4d4d6c12c456a0495c5e5e006fb891ebb5f862a81289",
+        )
+
     def test_deterministic_matching_and_identity_checks(self):
         controls = json.loads(experiment.CONTROL_PATH.read_text())
         pool = [
@@ -81,28 +96,17 @@ class BroaderOpeningFreezeTests(unittest.TestCase):
         ]
         observed = []
 
-        class Probe:
-            def __init__(self, *_args, **_kwargs):
-                pass
-
-            def warm(self):
-                pass
-
-            def close(self):
-                pass
-
         def play(_spec, **kwargs):
             observed.append(kwargs["opponent_evaluator"])
             return {"spec": _spec}
 
         with (
             patch.object(pilot, "play_game", side_effect=play),
-            patch.object(pilot, "verify_pair_result"),
+            patch.object(experiment, "verify_pilot_pair_result"),
+            patch.object(v2, "warmed_probe", return_value=nullcontext(object())),
         ):
             evaluators = self._evaluators()
-            v2.play_pair_with_probe(
-                {"game_specs": specs}, evaluators, probe_factory=Probe
-            )
+            experiment.play_pair_with_probe({"game_specs": specs}, evaluators)
         self.assertEqual(observed, [evaluators.p, evaluators.p])
 
     @staticmethod
@@ -163,8 +167,8 @@ class BroaderOpeningFreezeTests(unittest.TestCase):
             pairs.mkdir()
             attempts.mkdir()
             v2.bind_run_directory(pairs, attempts, identity)
-            with patch.object(pilot, "verify_pair_result"):
-                checkpoint = v2.commit_v2_pair(
+            with patch.object(experiment, "verify_pilot_pair_result"):
+                checkpoint = experiment.commit_pilot_pair(
                     pairs, job, result, identity=identity, attempt_number=1
                 )
             attempt = pilot.pair_attempt_path(attempts, "synthetic-pair", 1)
@@ -179,18 +183,120 @@ class BroaderOpeningFreezeTests(unittest.TestCase):
                     "pair_cpu_time_ns": 10,
                 },
             )
-            with patch.object(pilot, "verify_pair_result"):
-                committed = v2.run_checkpointed_pairs(
+            with patch.object(experiment, "verify_pilot_pair_result"):
+                committed = experiment.run_checkpointed_pairs(
                     [job],
                     root,
                     pairs,
                     attempts,
                     identity,
-                    max_workers=1,
                 )
             self.assertEqual([row["pair_id"] for row in committed], ["synthetic-pair"])
             self.assertEqual(len(list(pairs.glob("*.json"))), 1)
             self.assertEqual(len(list(attempts.glob("*.json"))), 1)
+
+    def test_novelty_inventory_mutation_is_rejected(self):
+        original_digest = experiment.sha(experiment.INVENTORY_PATH)
+        with tempfile.TemporaryDirectory() as directory:
+            mutated = Path(directory) / "identity-inventory.json"
+            mutated.write_bytes(experiment.INVENTORY_PATH.read_bytes() + b"\n")
+            with self.assertRaisesRegex(
+                ValueError, "broader_pilot_novelty_inventory_hash_mismatch"
+            ):
+                experiment.load_inventory(mutated, expected_sha256=original_digest)
+
+    def test_resource_scope_requires_all_frozen_live_limits(self):
+        freeze = json.loads((experiment.DATA / "freeze.json").read_text())
+        limits = freeze["runtime_limits"]
+        valid = {
+            "cpu_quota_percent": 1800.0,
+            "cpu_weight": 100,
+            "memory_max_bytes": 38654705664,
+            "allowed_cpus": set(range(14, 32)),
+            "process_affinity": set(range(14, 32)),
+            "nice": 19,
+        }
+        self.assertEqual(
+            experiment.enforce_live_resources(limits, observed=valid), valid
+        )
+        for key, value in (
+            ("cpu_quota_percent", 1900.0),
+            ("cpu_weight", 99),
+            ("memory_max_bytes", 38654705663),
+            ("allowed_cpus", set(range(13, 32))),
+            ("process_affinity", set(range(14, 31))),
+            ("nice", 18),
+        ):
+            with self.subTest(key=key):
+                mismatched = {**valid, key: value}
+                with self.assertRaisesRegex(
+                    ValueError, "broader_pilot_live_resource_scope_mismatch"
+                ):
+                    experiment.enforce_live_resources(limits, observed=mismatched)
+
+    def test_live_resource_reader_uses_cgroup_and_process_limits(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            proc_cgroup = root / "proc-cgroup"
+            proc_cgroup.write_text("0::/user.slice/pilot.scope\n")
+            cgroup = root / "cgroup" / "user.slice/pilot.scope"
+            cgroup.mkdir(parents=True)
+            (cgroup / "cpu.max").write_text("1800000 100000\n")
+            (cgroup / "cpu.weight").write_text("100\n")
+            (cgroup / "memory.max").write_text("38654705664\n")
+            (cgroup / "cpuset.cpus.effective").write_text("14-31\n")
+            snapshot = experiment.live_resource_snapshot(
+                proc_cgroup=proc_cgroup,
+                cgroup_root=root / "cgroup",
+                affinity=set(range(14, 32)),
+                nice=19,
+            )
+        self.assertEqual(
+            snapshot,
+            {
+                "cpu_quota_percent": 1800.0,
+                "cpu_weight": 100,
+                "memory_max_bytes": 38654705664,
+                "allowed_cpus": set(range(14, 32)),
+                "process_affinity": set(range(14, 32)),
+                "nice": 19,
+            },
+        )
+
+    def test_run_rejects_out_of_scope_before_writing_evidence(self):
+        freeze = json.loads((experiment.DATA / "freeze.json").read_text())
+        observed = {
+            "cpu_quota_percent": 1800.0,
+            "cpu_weight": 1,
+            "memory_max_bytes": 38654705664,
+            "allowed_cpus": set(range(14, 32)),
+            "process_affinity": set(range(14, 32)),
+            "nice": 19,
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            checkpoint_dir = Path(directory) / "pairs"
+            args = [
+                "broader-opening-coverage-pilot",
+                "run",
+                "--freeze",
+                str(experiment.DATA / "freeze.json"),
+                "--expected-freeze-sha256",
+                freeze["freeze_sha256"],
+                "--checkpoint-dir",
+                str(checkpoint_dir),
+            ]
+            with (
+                patch("sys.argv", args),
+                patch.object(
+                    experiment, "live_resource_snapshot", return_value=observed
+                ),
+                self.assertRaisesRegex(
+                    ValueError, "broader_pilot_live_resource_scope_mismatch"
+                ),
+            ):
+                experiment.main()
+            self.assertFalse(checkpoint_dir.exists())
+            self.assertFalse((Path(directory) / "attempts").exists())
 
 
 if __name__ == "__main__":
