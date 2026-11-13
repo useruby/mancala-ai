@@ -1,0 +1,56 @@
+{
+  "schema": "probe_reuse_generation_validation_results_v1",
+  "freeze": "docs/data/seed583-probe-reuse-generation-validation/freeze.json",
+  "freeze_sha256": "edbc5c72031064dde8cb5491efc4e9e2130300acc35325cfcd6ca92bc8371b77",
+  "preflight": {
+    "status": "preflight_passed_no_games_launched",
+    "games_launched": 0,
+    "pairs": 16,
+    "games_across_both_runners": 64,
+    "pair_concurrency": 1,
+    "workers_per_game": 1
+  },
+  "outputs": {
+    "games_per_runner": 32,
+    "games_total": 64,
+    "retained_training_rows_per_runner": 473,
+    "total_trajectory_moves_per_runner": 926,
+    "winner_counts_by_player_per_runner": {
+      "0": 11,
+      "1": 21
+    },
+    "trajectory_outcome_training_row_mismatches": 0
+  },
+  "attempts": {
+    "completed_receipts": 32,
+    "verified_checkpoints": 32,
+    "unreconciled_attempts": 0
+  },
+  "cpu_time_seconds": {
+    "v1": {
+      "pair_process_cpu": 54.865563946,
+      "reaped_native_child_cpu": 119.682054,
+      "total_pair_cpu": 174.547617946,
+      "sum_of_per_pair_wall_time": 153.936382463
+    },
+    "v2": {
+      "pair_process_cpu": 54.836106257,
+      "reaped_native_child_cpu": 59.841325,
+      "total_pair_cpu": 114.677431257,
+      "sum_of_per_pair_wall_time": 92.831865809
+    }
+  },
+  "v2_total_pair_cpu_reduction": 0.3430020265731848,
+  "adoption_gate": {
+    "zero_output_mismatches": true,
+    "all_attempts_reconciled": true,
+    "at_least_20_percent_lower_total_pair_cpu": true,
+    "passed": true
+  },
+  "raw_evidence": {
+    "directory": "docs/data/seed583-probe-reuse-generation-validation/evidence",
+    "files": 65,
+    "sha256_of_sorted_lines_sha256_two_spaces_relative_path_newline": "0edfb1dce65247f1427b6f7679008e9c471b63df114dc1449ef34d5b5dbd0276"
+  },
+  "scope_note": "This is a runner validation on a frozen #580 subset, not an expansion of the varied-opponent pilot. #580 remains unchanged; no training, serving changes, or sealed-suite access occurred. #483 remains closed."
+}

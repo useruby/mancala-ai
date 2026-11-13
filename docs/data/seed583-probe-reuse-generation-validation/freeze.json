@@ -1,0 +1,799 @@
+{
+  "adoption_gate": {
+    "all_attempts_reconciled": true,
+    "minimum_total_pair_cpu_reduction": 0.2,
+    "zero_output_mismatches": true
+  },
+  "cpu_accounting": "pair_process_cpu_time_ns plus reaped native_child_cpu_time_ns; wall time reported separately",
+  "freeze_sha256": "edbc5c72031064dde8cb5491efc4e9e2130300acc35325cfcd6ca92bc8371b77",
+  "game_count_across_both_runners": 64,
+  "pair_count": 16,
+  "pairs": [
+    {
+      "game_specs": [
+        {
+          "arm": "control",
+          "designated_p_seat": 0,
+          "game_id": "control-opening-0000-P0",
+          "opening_id": "opening-0000",
+          "opening_moves": [
+            5,
+            2,
+            4,
+            1,
+            1,
+            5,
+            4
+          ],
+          "opponent": "P",
+          "pair_id": "control-opening-0000",
+          "search_workers": 1,
+          "seed": 126363436
+        },
+        {
+          "arm": "control",
+          "designated_p_seat": 1,
+          "game_id": "control-opening-0000-P1",
+          "opening_id": "opening-0000",
+          "opening_moves": [
+            5,
+            2,
+            4,
+            1,
+            1,
+            5,
+            4
+          ],
+          "opponent": "P",
+          "pair_id": "control-opening-0000",
+          "search_workers": 1,
+          "seed": 126363436
+        }
+      ]
+    },
+    {
+      "game_specs": [
+        {
+          "arm": "control",
+          "designated_p_seat": 0,
+          "game_id": "control-opening-0001-P0",
+          "opening_id": "opening-0001",
+          "opening_moves": [
+            4,
+            0,
+            2,
+            0,
+            2,
+            1,
+            5,
+            1,
+            4,
+            5
+          ],
+          "opponent": "P",
+          "pair_id": "control-opening-0001",
+          "search_workers": 1,
+          "seed": 135198021
+        },
+        {
+          "arm": "control",
+          "designated_p_seat": 1,
+          "game_id": "control-opening-0001-P1",
+          "opening_id": "opening-0001",
+          "opening_moves": [
+            4,
+            0,
+            2,
+            0,
+            2,
+            1,
+            5,
+            1,
+            4,
+            5
+          ],
+          "opponent": "P",
+          "pair_id": "control-opening-0001",
+          "search_workers": 1,
+          "seed": 135198021
+        }
+      ]
+    },
+    {
+      "game_specs": [
+        {
+          "arm": "control",
+          "designated_p_seat": 0,
+          "game_id": "control-opening-0002-P0",
+          "opening_id": "opening-0002",
+          "opening_moves": [
+            0,
+            5,
+            0,
+            0,
+            5,
+            2,
+            1,
+            3,
+            1,
+            2
+          ],
+          "opponent": "P",
+          "pair_id": "control-opening-0002",
+          "search_workers": 1,
+          "seed": 51391120
+        },
+        {
+          "arm": "control",
+          "designated_p_seat": 1,
+          "game_id": "control-opening-0002-P1",
+          "opening_id": "opening-0002",
+          "opening_moves": [
+            0,
+            5,
+            0,
+            0,
+            5,
+            2,
+            1,
+            3,
+            1,
+            2
+          ],
+          "opponent": "P",
+          "pair_id": "control-opening-0002",
+          "search_workers": 1,
+          "seed": 51391120
+        }
+      ]
+    },
+    {
+      "game_specs": [
+        {
+          "arm": "control",
+          "designated_p_seat": 0,
+          "game_id": "control-opening-0003-P0",
+          "opening_id": "opening-0003",
+          "opening_moves": [
+            5,
+            4,
+            3,
+            1,
+            0,
+            4,
+            3,
+            1,
+            0,
+            3,
+            1,
+            4
+          ],
+          "opponent": "P",
+          "pair_id": "control-opening-0003",
+          "search_workers": 1,
+          "seed": 89914408
+        },
+        {
+          "arm": "control",
+          "designated_p_seat": 1,
+          "game_id": "control-opening-0003-P1",
+          "opening_id": "opening-0003",
+          "opening_moves": [
+            5,
+            4,
+            3,
+            1,
+            0,
+            4,
+            3,
+            1,
+            0,
+            3,
+            1,
+            4
+          ],
+          "opponent": "P",
+          "pair_id": "control-opening-0003",
+          "search_workers": 1,
+          "seed": 89914408
+        }
+      ]
+    },
+    {
+      "game_specs": [
+        {
+          "arm": "control",
+          "designated_p_seat": 0,
+          "game_id": "control-opening-0004-P0",
+          "opening_id": "opening-0004",
+          "opening_moves": [
+            0,
+            5,
+            0,
+            3
+          ],
+          "opponent": "P",
+          "pair_id": "control-opening-0004",
+          "search_workers": 1,
+          "seed": 1377127820
+        },
+        {
+          "arm": "control",
+          "designated_p_seat": 1,
+          "game_id": "control-opening-0004-P1",
+          "opening_id": "opening-0004",
+          "opening_moves": [
+            0,
+            5,
+            0,
+            3
+          ],
+          "opponent": "P",
+          "pair_id": "control-opening-0004",
+          "search_workers": 1,
+          "seed": 1377127820
+        }
+      ]
+    },
+    {
+      "game_specs": [
+        {
+          "arm": "control",
+          "designated_p_seat": 0,
+          "game_id": "control-opening-0005-P0",
+          "opening_id": "opening-0005",
+          "opening_moves": [
+            5,
+            0,
+            1,
+            1,
+            5,
+            3,
+            4,
+            0,
+            1,
+            0,
+            5
+          ],
+          "opponent": "P",
+          "pair_id": "control-opening-0005",
+          "search_workers": 1,
+          "seed": 2095315070
+        },
+        {
+          "arm": "control",
+          "designated_p_seat": 1,
+          "game_id": "control-opening-0005-P1",
+          "opening_id": "opening-0005",
+          "opening_moves": [
+            5,
+            0,
+            1,
+            1,
+            5,
+            3,
+            4,
+            0,
+            1,
+            0,
+            5
+          ],
+          "opponent": "P",
+          "pair_id": "control-opening-0005",
+          "search_workers": 1,
+          "seed": 2095315070
+        }
+      ]
+    },
+    {
+      "game_specs": [
+        {
+          "arm": "control",
+          "designated_p_seat": 0,
+          "game_id": "control-opening-0007-P0",
+          "opening_id": "opening-0007",
+          "opening_moves": [
+            5,
+            3,
+            3,
+            4,
+            5,
+            0,
+            4
+          ],
+          "opponent": "P",
+          "pair_id": "control-opening-0007",
+          "search_workers": 1,
+          "seed": 680394639
+        },
+        {
+          "arm": "control",
+          "designated_p_seat": 1,
+          "game_id": "control-opening-0007-P1",
+          "opening_id": "opening-0007",
+          "opening_moves": [
+            5,
+            3,
+            3,
+            4,
+            5,
+            0,
+            4
+          ],
+          "opponent": "P",
+          "pair_id": "control-opening-0007",
+          "search_workers": 1,
+          "seed": 680394639
+        }
+      ]
+    },
+    {
+      "game_specs": [
+        {
+          "arm": "control",
+          "designated_p_seat": 0,
+          "game_id": "control-opening-0008-P0",
+          "opening_id": "opening-0008",
+          "opening_moves": [
+            0,
+            3,
+            2,
+            2,
+            5,
+            0,
+            4,
+            3,
+            1,
+            5
+          ],
+          "opponent": "P",
+          "pair_id": "control-opening-0008",
+          "search_workers": 1,
+          "seed": 446531489
+        },
+        {
+          "arm": "control",
+          "designated_p_seat": 1,
+          "game_id": "control-opening-0008-P1",
+          "opening_id": "opening-0008",
+          "opening_moves": [
+            0,
+            3,
+            2,
+            2,
+            5,
+            0,
+            4,
+            3,
+            1,
+            5
+          ],
+          "opponent": "P",
+          "pair_id": "control-opening-0008",
+          "search_workers": 1,
+          "seed": 446531489
+        }
+      ]
+    },
+    {
+      "game_specs": [
+        {
+          "arm": "treatment",
+          "designated_p_seat": 0,
+          "game_id": "treatment-opening-0000-P0",
+          "opening_id": "opening-0000",
+          "opening_moves": [
+            5,
+            2,
+            4,
+            1,
+            1,
+            5,
+            4
+          ],
+          "opponent": "initializer",
+          "pair_id": "treatment-opening-0000",
+          "search_workers": 1,
+          "seed": 126363436
+        },
+        {
+          "arm": "treatment",
+          "designated_p_seat": 1,
+          "game_id": "treatment-opening-0000-P1",
+          "opening_id": "opening-0000",
+          "opening_moves": [
+            5,
+            2,
+            4,
+            1,
+            1,
+            5,
+            4
+          ],
+          "opponent": "initializer",
+          "pair_id": "treatment-opening-0000",
+          "search_workers": 1,
+          "seed": 126363436
+        }
+      ]
+    },
+    {
+      "game_specs": [
+        {
+          "arm": "treatment",
+          "designated_p_seat": 0,
+          "game_id": "treatment-opening-0001-P0",
+          "opening_id": "opening-0001",
+          "opening_moves": [
+            4,
+            0,
+            2,
+            0,
+            2,
+            1,
+            5,
+            1,
+            4,
+            5
+          ],
+          "opponent": "T512",
+          "pair_id": "treatment-opening-0001",
+          "search_workers": 1,
+          "seed": 135198021
+        },
+        {
+          "arm": "treatment",
+          "designated_p_seat": 1,
+          "game_id": "treatment-opening-0001-P1",
+          "opening_id": "opening-0001",
+          "opening_moves": [
+            4,
+            0,
+            2,
+            0,
+            2,
+            1,
+            5,
+            1,
+            4,
+            5
+          ],
+          "opponent": "T512",
+          "pair_id": "treatment-opening-0001",
+          "search_workers": 1,
+          "seed": 135198021
+        }
+      ]
+    },
+    {
+      "game_specs": [
+        {
+          "arm": "treatment",
+          "designated_p_seat": 0,
+          "game_id": "treatment-opening-0002-P0",
+          "opening_id": "opening-0002",
+          "opening_moves": [
+            0,
+            5,
+            0,
+            0,
+            5,
+            2,
+            1,
+            3,
+            1,
+            2
+          ],
+          "opponent": "T512",
+          "pair_id": "treatment-opening-0002",
+          "search_workers": 1,
+          "seed": 51391120
+        },
+        {
+          "arm": "treatment",
+          "designated_p_seat": 1,
+          "game_id": "treatment-opening-0002-P1",
+          "opening_id": "opening-0002",
+          "opening_moves": [
+            0,
+            5,
+            0,
+            0,
+            5,
+            2,
+            1,
+            3,
+            1,
+            2
+          ],
+          "opponent": "T512",
+          "pair_id": "treatment-opening-0002",
+          "search_workers": 1,
+          "seed": 51391120
+        }
+      ]
+    },
+    {
+      "game_specs": [
+        {
+          "arm": "treatment",
+          "designated_p_seat": 0,
+          "game_id": "treatment-opening-0003-P0",
+          "opening_id": "opening-0003",
+          "opening_moves": [
+            5,
+            4,
+            3,
+            1,
+            0,
+            4,
+            3,
+            1,
+            0,
+            3,
+            1,
+            4
+          ],
+          "opponent": "initializer",
+          "pair_id": "treatment-opening-0003",
+          "search_workers": 1,
+          "seed": 89914408
+        },
+        {
+          "arm": "treatment",
+          "designated_p_seat": 1,
+          "game_id": "treatment-opening-0003-P1",
+          "opening_id": "opening-0003",
+          "opening_moves": [
+            5,
+            4,
+            3,
+            1,
+            0,
+            4,
+            3,
+            1,
+            0,
+            3,
+            1,
+            4
+          ],
+          "opponent": "initializer",
+          "pair_id": "treatment-opening-0003",
+          "search_workers": 1,
+          "seed": 89914408
+        }
+      ]
+    },
+    {
+      "game_specs": [
+        {
+          "arm": "treatment",
+          "designated_p_seat": 0,
+          "game_id": "treatment-opening-0004-P0",
+          "opening_id": "opening-0004",
+          "opening_moves": [
+            0,
+            5,
+            0,
+            3
+          ],
+          "opponent": "initializer",
+          "pair_id": "treatment-opening-0004",
+          "search_workers": 1,
+          "seed": 1377127820
+        },
+        {
+          "arm": "treatment",
+          "designated_p_seat": 1,
+          "game_id": "treatment-opening-0004-P1",
+          "opening_id": "opening-0004",
+          "opening_moves": [
+            0,
+            5,
+            0,
+            3
+          ],
+          "opponent": "initializer",
+          "pair_id": "treatment-opening-0004",
+          "search_workers": 1,
+          "seed": 1377127820
+        }
+      ]
+    },
+    {
+      "game_specs": [
+        {
+          "arm": "treatment",
+          "designated_p_seat": 0,
+          "game_id": "treatment-opening-0005-P0",
+          "opening_id": "opening-0005",
+          "opening_moves": [
+            5,
+            0,
+            1,
+            1,
+            5,
+            3,
+            4,
+            0,
+            1,
+            0,
+            5
+          ],
+          "opponent": "initializer",
+          "pair_id": "treatment-opening-0005",
+          "search_workers": 1,
+          "seed": 2095315070
+        },
+        {
+          "arm": "treatment",
+          "designated_p_seat": 1,
+          "game_id": "treatment-opening-0005-P1",
+          "opening_id": "opening-0005",
+          "opening_moves": [
+            5,
+            0,
+            1,
+            1,
+            5,
+            3,
+            4,
+            0,
+            1,
+            0,
+            5
+          ],
+          "opponent": "initializer",
+          "pair_id": "treatment-opening-0005",
+          "search_workers": 1,
+          "seed": 2095315070
+        }
+      ]
+    },
+    {
+      "game_specs": [
+        {
+          "arm": "treatment",
+          "designated_p_seat": 0,
+          "game_id": "treatment-opening-0007-P0",
+          "opening_id": "opening-0007",
+          "opening_moves": [
+            5,
+            3,
+            3,
+            4,
+            5,
+            0,
+            4
+          ],
+          "opponent": "T512",
+          "pair_id": "treatment-opening-0007",
+          "search_workers": 1,
+          "seed": 680394639
+        },
+        {
+          "arm": "treatment",
+          "designated_p_seat": 1,
+          "game_id": "treatment-opening-0007-P1",
+          "opening_id": "opening-0007",
+          "opening_moves": [
+            5,
+            3,
+            3,
+            4,
+            5,
+            0,
+            4
+          ],
+          "opponent": "T512",
+          "pair_id": "treatment-opening-0007",
+          "search_workers": 1,
+          "seed": 680394639
+        }
+      ]
+    },
+    {
+      "game_specs": [
+        {
+          "arm": "treatment",
+          "designated_p_seat": 0,
+          "game_id": "treatment-opening-0008-P0",
+          "opening_id": "opening-0008",
+          "opening_moves": [
+            0,
+            3,
+            2,
+            2,
+            5,
+            0,
+            4,
+            3,
+            1,
+            5
+          ],
+          "opponent": "T512",
+          "pair_id": "treatment-opening-0008",
+          "search_workers": 1,
+          "seed": 446531489
+        },
+        {
+          "arm": "treatment",
+          "designated_p_seat": 1,
+          "game_id": "treatment-opening-0008-P1",
+          "opening_id": "opening-0008",
+          "opening_moves": [
+            0,
+            3,
+            2,
+            2,
+            5,
+            0,
+            4,
+            3,
+            1,
+            5
+          ],
+          "opponent": "T512",
+          "pair_id": "treatment-opening-0008",
+          "search_workers": 1,
+          "seed": 446531489
+        }
+      ]
+    }
+  ],
+  "parent_freeze": {
+    "path": "docs/data/varied-opponent-coverage-pilot/freeze.json",
+    "sha256": "8da846678e89568e17e7bd81270287ef373e1f8acdfcbc892317d08385ad4c36"
+  },
+  "runner_order": "alternate_first_runner_by_sorted_pair_id_starting_v1",
+  "runner_sha256": {
+    "ml/alphazero_lite/run_varied_opponent_pilot.py": "effe9d493dd9da5d4dce76d4a91c4015dbf828c15ce01e3dbb8db3766b4d0e92",
+    "ml/alphazero_lite/run_varied_opponent_pilot_v2.py": "ba93a0aeeade6298c5a4f0d2a48f0d42125e9af8ff157361c1d5a585fcb0b1e7",
+    "ml/alphazero_lite/validate_varied_opponent_probe_reuse.py": "dc6efda588e956d0598893c91fb19aa39a69fe6b3d17d2859077e5d4d32f2fea",
+    "ml/alphazero_lite/varied_opponent_pilot.py": "41f125962f0c07777f0c4d4d6c12c456a0495c5e5e006fb891ebb5f862a81289"
+  },
+  "runner_sources": {
+    "harness": "ml/alphazero_lite/validate_varied_opponent_probe_reuse.py",
+    "pilot": "ml/alphazero_lite/varied_opponent_pilot.py",
+    "v1": "ml/alphazero_lite/run_varied_opponent_pilot.py",
+    "v2": "ml/alphazero_lite/run_varied_opponent_pilot_v2.py"
+  },
+  "runtime_assets": {
+    "native_probe": {
+      "path": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
+      "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48"
+    },
+    "tablebase": {
+      "path": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
+      "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+    }
+  },
+  "runtime_limits": {
+    "allowed_cpus": "14-31",
+    "cpu_quota": "1800%",
+    "cpu_weight": "100",
+    "memory_max_bytes": 38654705664,
+    "nice": 19,
+    "pair_concurrency": 1,
+    "torch_interop_threads": 1,
+    "torch_intraop_threads": 1,
+    "workers_per_game": 1
+  },
+  "schema": "probe_reuse_generation_validation_freeze_v1",
+  "selected_openings": {
+    "T512": [
+      "opening-0001",
+      "opening-0002",
+      "opening-0007",
+      "opening-0008"
+    ],
+    "initializer": [
+      "opening-0000",
+      "opening-0003",
+      "opening-0004",
+      "opening-0005"
+    ]
+  },
+  "subset_rule": "four initializer and four T512 treatment openings, each with its original matched control pair"
+}
