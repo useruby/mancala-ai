@@ -1,0 +1,1406 @@
+{
+  "digest_sha256": "41e31773338580fe8a952b8aeaa25f4fabc6b1746fefc660cdaa5d33df413949",
+  "files": [
+    {
+      "bytes": 258966,
+      "path": "docs/data/broader-opening-coverage-pilot/freeze.json",
+      "sha256": "26cab4aa2583edabccd40df3abfb87de1ee66c23cecc92572e4537ba4c4d89b7"
+    },
+    {
+      "bytes": 97887,
+      "path": "docs/data/broader-opening-coverage-pilot/game-assignments.json",
+      "sha256": "1d2d0e39a4c648c6fb5cc898d49b06e51317347cb4b6dd6ce80a2e6cf55e8f2c"
+    },
+    {
+      "bytes": 50708,
+      "path": "docs/data/broader-opening-coverage-pilot/control-openings.json",
+      "sha256": "f824d62e49529b9d2606081cdce5ccdcfbd2b01a4eb84665fc018ad25be1925f"
+    },
+    {
+      "bytes": 50893,
+      "path": "docs/data/broader-opening-coverage-pilot/treatment-openings.json",
+      "sha256": "2cc6422b41ebf2f4c372eec7b0cde56f57aec45ee3825339925f896abf70e99d"
+    },
+    {
+      "bytes": 2627,
+      "path": "docs/data/broader-opening-coverage-pilot/preflight.json",
+      "sha256": "b9e5b265a60e0544ff1ee7c942f42b0361109a92cb34a69c8136b7f504eafbe1"
+    },
+    {
+      "bytes": 36258512,
+      "path": "docs/data/seed556-560-exclusion-inventory/identity-inventory.json",
+      "sha256": "8b5bf0ca78a9d370a91d9cb309cfa7f39c4fec8e2fba3576a8483727c0a6cb52"
+    },
+    {
+      "bytes": 656048,
+      "path": "docs/data/seed556-560-exclusion-inventory/source-manifest.json",
+      "sha256": "ad691da4dc0272c6a37f077f961023443d05295321d54cb7c339c51a9391d5ce"
+    },
+    {
+      "bytes": 43768,
+      "path": "ml/alphazero_lite/broader_opening_coverage_pilot.py",
+      "sha256": "57c50eed2b060316b5a72a589d021e45ff5fd3133c1f6ae8b1b1bac7e4d27144"
+    },
+    {
+      "bytes": 20715,
+      "path": "ml/alphazero_lite/run_varied_opponent_pilot_v2.py",
+      "sha256": "ba93a0aeeade6298c5a4f0d2a48f0d42125e9af8ff157361c1d5a585fcb0b1e7"
+    },
+    {
+      "bytes": 58505,
+      "path": "ml/alphazero_lite/varied_opponent_pilot.py",
+      "sha256": "41f125962f0c07777f0c4d4d6c12c456a0495c5e5e006fb891ebb5f862a81289"
+    },
+    {
+      "bytes": 4314,
+      "path": "ml/alphazero_lite/run_varied_opponent_pilot.py",
+      "sha256": "effe9d493dd9da5d4dce76d4a91c4015dbf828c15ce01e3dbb8db3766b4d0e92"
+    },
+    {
+      "bytes": 131833,
+      "path": "ml/alphazero_lite/arena.py",
+      "sha256": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2"
+    },
+    {
+      "bytes": 158215,
+      "path": "ml/alphazero_lite/self_play.py",
+      "sha256": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c"
+    },
+    {
+      "bytes": 7805,
+      "path": "ml/alphazero_lite/kalah_rules.py",
+      "sha256": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036"
+    },
+    {
+      "bytes": 1286,
+      "path": "ml/alphazero_lite/input_encodings.py",
+      "sha256": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe"
+    },
+    {
+      "bytes": 6210,
+      "path": "ml/alphazero_lite/exact_root_policy_targets.py",
+      "sha256": "2aca4c1e2e9e9e199fb1d951b143c506785c23121531e26628a59c9afaf79898"
+    },
+    {
+      "bytes": 5220,
+      "path": "ml/alphazero_lite/exact_root_decision.py",
+      "sha256": "c806a7c3c3a8fd7d7be800f59fc568c670889164a46c7acbde8ff92473776905"
+    },
+    {
+      "bytes": 4988,
+      "path": "ml/alphazero_lite/native_exact_root_tablebase.py",
+      "sha256": "bf241fa772efd122355b0706fff9035ee40f6cb9ac913fdd829444f359d62f15"
+    },
+    {
+      "bytes": 29578,
+      "path": "ml/alphazero_lite/classic_mcts.py",
+      "sha256": "9643d859e22fad8ef83211fb38256a30aa15f245775408310c147d7db65e61b9"
+    },
+    {
+      "bytes": 5986,
+      "path": "ml/alphazero_lite/runtime_search_policy.py",
+      "sha256": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9"
+    },
+    {
+      "bytes": 827,
+      "path": "ml/alphazero_lite/eval_cache.py",
+      "sha256": "7f9da64a0ec2b3c00418727d8d5d0de5257037d47dc42cd2b8e72071fb70b8f6"
+    },
+    {
+      "bytes": 5774,
+      "path": "ml/alphazero_lite/endgame_tablebase.py",
+      "sha256": "fe00e7b48277e2f8a5795232f78b25df4d29449b7b5dc819a09771999b2350f5"
+    },
+    {
+      "bytes": 3660,
+      "path": "ml/alphazero_lite/opening_cache.py",
+      "sha256": "8ba33240d25c4cad54011b1f2712d0326ad09952c63515a4b794c585de5195ed"
+    },
+    {
+      "bytes": 2800,
+      "path": "ml/alphazero_lite/opponent_pool.py",
+      "sha256": "8852d67f26d2805c9123b2506d2e0b9229aee4638e0044b9ec482941c4bd299f"
+    },
+    {
+      "bytes": 1057,
+      "path": "ml/alphazero_lite/search_ablation.py",
+      "sha256": "6c9a6b9bf85eb4826c1ba33964d5f8675f1402bd6cbd6008a06b6c15d05d4193"
+    },
+    {
+      "bytes": 8994,
+      "path": "ml/alphazero_lite/value_transforms.py",
+      "sha256": "d63bf9772389614cae22e3a599d2151bd0b4f7d1dfbb7f8e5079bb01c6e5a21b"
+    },
+    {
+      "bytes": 7477,
+      "path": "ml/alphazero_lite/evaluation_seed_contract.py",
+      "sha256": "be5ed17519f86040cdac2a2380d4dd907015b927c6b80fedc85f7d668b9422c3"
+    },
+    {
+      "bytes": 4479,
+      "path": "ml/alphazero_lite/report_validation.py",
+      "sha256": "5d1c02e8b1ac11b1224153769b6d843a046381ef0d64206d33f6b70c30399699"
+    },
+    {
+      "bytes": 19898,
+      "path": "ml/alphazero_lite/root_prior_transforms.py",
+      "sha256": "05892bb9d8af2e0551b3d45ced7a2c905db771a00283f04430ee6f49017afe0c"
+    },
+    {
+      "bytes": 12482,
+      "path": "ml/alphazero_lite/policy_prior_localization.py",
+      "sha256": "33cdcd8082389f5e1eba20856ee55328fd8c39942ccb1b5b0dbbf3c4d63313a5"
+    },
+    {
+      "bytes": 5861,
+      "path": "ml/alphazero_lite/shadow_root_q.py",
+      "sha256": "93563da902a4020a312fa02c175e6115ac98e9a03b0679ea0f6109434aab8b13"
+    },
+    {
+      "bytes": 13066,
+      "path": "ml/alphazero_lite/seed551_controlled_policy_strength.py",
+      "sha256": "c589240e2352273e0b86c48c3b37f5fa9737cfc2423255b67d74e7e177f59e63"
+    },
+    {
+      "bytes": 69731,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/00db58a767896429c9873c548c7ce776fdd5b0f8839b34766e0d812a13806099.json",
+      "sha256": "51faceb8eef68cf0f8195cc56e4fa15119e027f9f1bafc6a43227b1099517592"
+    },
+    {
+      "bytes": 71871,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/01048fd047769f2c729ba40d83722196f9929a97faec99c7cafc194ad0695c87.json",
+      "sha256": "3999ba7e9f1c07360e78d46b2b43d9969a504306cf618fa2cf46d573339473dc"
+    },
+    {
+      "bytes": 81417,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/02bc5795854b6427a1ce06275aa0d604f42e743fa0a4f9e3f16a30f9e8c91fdd.json",
+      "sha256": "934b4283a2a02068ad15706ae1be93d77427df6bfad79ede0df78414c9e5c3f4"
+    },
+    {
+      "bytes": 75942,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/04bc7c4820ec5f064b7a6e439f88d3b89f090d2ce1b45784243686b8a89c935e.json",
+      "sha256": "2af4407de516ccbd2a60016a624c12c38c7bd5ea8dd3ae01c676bb8a8fa474f4"
+    },
+    {
+      "bytes": 67854,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/05fd361239824303b733d3fed3794e0bfc420813d60cd81425939609298eee53.json",
+      "sha256": "1a843a270492927f95768cab9341fa39ca238c463ea4ebd244f21105f92031b3"
+    },
+    {
+      "bytes": 76605,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/06d1f34a91680e8b07c20f639f6919297902aebf1e41829884cf158f9bd96bcb.json",
+      "sha256": "c9230bb859eeea442c93531d20588612193f75f3b5e8f6cd4edd547b6645abde"
+    },
+    {
+      "bytes": 75977,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/09adb4820b59a9a9297628951e5807c4e09539d46703e1db5cf095b217bc948a.json",
+      "sha256": "8438319917550b933919914aaf5fc7e5a78c95adb83d3492e4489b7d73a9b63d"
+    },
+    {
+      "bytes": 86682,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/0af7810c4e5626a3592d9db16e4c2564650d2fa0fb3067459adc4025c199cf1b.json",
+      "sha256": "99718739d4561181931a475dcf734645c666f7549be677a29a75d69fd5e167aa"
+    },
+    {
+      "bytes": 70620,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/0e3939415815ff27762ad78ef3b2024eb594789c638324e55710d1d391bea3cd.json",
+      "sha256": "e25749cc3a737e375a7aaf4e96de7333b9f367027333aa1308afdcf4b1240735"
+    },
+    {
+      "bytes": 48174,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/102a1807f91cd3d07e911dcf92911be562921b71b15179fd92c4054bbc2de188.json",
+      "sha256": "ce954e2b6e9d350f75e3f0f69b1aa8040b1955a1f321cbf30acf9696189c2e77"
+    },
+    {
+      "bytes": 85215,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/10af275a190e47636476c6710c40daeaf395ddf1353b9b477b3bf17e9e572ef7.json",
+      "sha256": "9a0a43cc1027713b43900965aee1752973dd9baf479a01f201ba089346b4afb9"
+    },
+    {
+      "bytes": 59296,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/12cbc38b02b8d4a5439c630dbf2a27ed3e4b38bac0d395ace06b97633396595b.json",
+      "sha256": "a440d4205be770e42a9b287feddb6cd5797e45d98c1b4abb393d7ec7709a64e9"
+    },
+    {
+      "bytes": 52436,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/135bd62f23e6f86455854c83d7ea502d2ea68d16401ef09d72a6c3aa971f1211.json",
+      "sha256": "89a2012e7d972d4cad62d90af8abdd6beb6ba335c91a76023aac25659639eadb"
+    },
+    {
+      "bytes": 51979,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/1717720e37020f9105972c44aff44ac093345ea5351b56283000ffdb1bae0dff.json",
+      "sha256": "fb56b5d3139f2d537081ba6433db8b1a40f0d628666364871259ae4c481eb50d"
+    },
+    {
+      "bytes": 64823,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/182998901d803f06bb0fe05bf42882be9485c1ef08f779a062ff773e9216bd82.json",
+      "sha256": "9b4243bfe96f359a6725ffca803d963b3b14ce4475fdeee0f435df787e8c9c6a"
+    },
+    {
+      "bytes": 59350,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/1c47d97f854e28ef5f6481a871a0ee6ada0b1cc8fd8bdf8a03c940f1b1604394.json",
+      "sha256": "94efe6852b9aa943fd8146794fe3404e214273229d013c516047e642665ba6f4"
+    },
+    {
+      "bytes": 64033,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/1cc905ef27ca1a64aa6086ed7599be9ce854fe26437dd51c3ab95c0bfd47a255.json",
+      "sha256": "14643a27e43135eb0133b55e53c956033c580c778c63865c8f0cbfef2ad94774"
+    },
+    {
+      "bytes": 64678,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/2469bb23d12fbce87bbc95da3c071daf5c5bcd0f69fbc48dd0cc8160b450c43c.json",
+      "sha256": "dc367587a46fbce9efed51582aa8ec59bcb4025f9c0e8f8635a4464af1ac34ae"
+    },
+    {
+      "bytes": 91520,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/25938bdfb4b8773b7a4c699bcefabb465df20b471d55720b3bc79433df739e95.json",
+      "sha256": "fec1ee2dd3e99be47fdef358785205def1b9ba9ccf42a51ed2c6a1db82878573"
+    },
+    {
+      "bytes": 75116,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/260bbd75dff52ac1ad10f81ac42ed0fb989358fee156d1043c6791871891538a.json",
+      "sha256": "97a4a6895780ecaeea9d6e6785e2a57a1eea8cd2c6ccf04b798f9ee1c8544978"
+    },
+    {
+      "bytes": 38983,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/268f90df3a8ea35d59baa88588a3038647327ef6300919d4552d123c7d748a81.json",
+      "sha256": "2b77d57ae16a8b9fe43d22cab657bedb59a57d9cfdc54e9a231f1db188b2c03b"
+    },
+    {
+      "bytes": 90868,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/28e18eec17c45b53cd33750ddc5a85edd0fd8ddca1888e72f82fd12a4cfb58b6.json",
+      "sha256": "8084c9b58048597861fef1b2efa6525fa7cf7992cdd0a744c412bbccb79f3464"
+    },
+    {
+      "bytes": 78092,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/2ad226a7534218243cd97a78b15b997a9e1118de96d964e335e5c192afa43b8c.json",
+      "sha256": "0534eda38fbe5c2080c0c768b7739e6f742c029978522a73027c861de95d06b4"
+    },
+    {
+      "bytes": 83533,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/2cbd4c8670232673ef25a391a7b067ed288b9b858edd447bdf60bbdadeb6fde8.json",
+      "sha256": "55c17c7c2de11b130867d788d78e5393f173114b7e7e3d29cdef39c5aa942ab8"
+    },
+    {
+      "bytes": 67161,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/2d84c6650b8dfa65def84c28ffb1bc52cf81810ec0849afe985f532d273ada4c.json",
+      "sha256": "c0fa0b26ac7c3f2a556fff1aaae60b1cb252acce5952effcfa4dcb9c8ded0055"
+    },
+    {
+      "bytes": 80829,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/3169548da6f528c516c697fde814b20879335cb42dfef3793f3f2f74a3b5ffc3.json",
+      "sha256": "a9fd412b925d30bf61b570b9a4c0534bf701369d1a4d42110354d1a6c9945e3b"
+    },
+    {
+      "bytes": 44955,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/3609d184f0c35fa3bbd5c97fccfe683565307a72057d0d60e6e02df94831a142.json",
+      "sha256": "73b11e634e0c8cc993a1d60ecd28b19cfa05e5465303b7bbaca22f1de2b6a80e"
+    },
+    {
+      "bytes": 51579,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/365630605984788323bda6a62a0287b9818bf380db7f9b45b3d38b7d176a9f93.json",
+      "sha256": "92d5879c71ee5a60f9bb98294732b87fa8bdbc5054ced135040aba43100e546e"
+    },
+    {
+      "bytes": 58184,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/37a79218f88f68d3dc2542fd93ff08c6d9d6dc8cf9cc16f1ee756f90c9d17f44.json",
+      "sha256": "392fbbffe156861dfd44776ad4031e8d5c8c805437b4349f2352e5ff8ec9d6d4"
+    },
+    {
+      "bytes": 83086,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/3e09559c29e1390d4de24ff35bdd66e3c3da96578125d9d8e5cac7573121ea27.json",
+      "sha256": "c2dff3a3f23e481abd199fc75e366c4b243c6d7ffba341da46063cc85ae06a99"
+    },
+    {
+      "bytes": 73217,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/3fcf173c0d40456fa5ca891917582168e13db1b29181ed800b55377ca5da7ed2.json",
+      "sha256": "6db7ec7954e6020064fe06e5f7a7de440d333a02ea97b8ca05db84179f79bb95"
+    },
+    {
+      "bytes": 56305,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/4032379ae6ad528231d8413d56213ac7510e7dbc71b7a773fe4b37fc8b3bfc59.json",
+      "sha256": "35b650bf6ed43c0ebee097b6ddf5d9337c63cbab5d19bb6ef7d7b8acdaa83c4b"
+    },
+    {
+      "bytes": 72785,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/43a420d3db201b8cf9c81def7eeaa9663f058897b4b44e387d903cc946655f52.json",
+      "sha256": "6388dc2f315d093beccdb80a943ce198a254fc4b810a7d00ed951e1ffd8b9a1f"
+    },
+    {
+      "bytes": 36182,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/443b82add97f5b964bf11b96dc3dbe5484eb0553efeeda8618a864fa4f28385c.json",
+      "sha256": "6cd738cf034afae72e711b97f96311d209c6ca24808df0ba6649d3709b632d53"
+    },
+    {
+      "bytes": 81573,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/46254396a293db5839af5c95ca7477f9726f9dc305a74ad65fb910909ab34ae2.json",
+      "sha256": "d028259ea44943f3b5fdcd7e8b111d38e3c3d41350baa2edf56b769ed4e640d4"
+    },
+    {
+      "bytes": 69530,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/4a75d70b1fe60e5280b95b67701be790c5e279deab16f4899a507f0b2c8da074.json",
+      "sha256": "b3e3b1346fc5ccf9f788ce55e21f07bc8fa3846018dc550cbe1152cfea9ebf45"
+    },
+    {
+      "bytes": 67863,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/4c10b6a7e6fa1e0bd075ba75573322b61f423fa0af45a6b58007e114795bcca8.json",
+      "sha256": "0c10baed26f2e4d60217d905cf9fef419299b122f6729b905075e08b4122bb5a"
+    },
+    {
+      "bytes": 48968,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/4e783b94b4ce243e2dfa362015deb477d1f6e410807cecad30ae8f6a23fa5ecd.json",
+      "sha256": "5280590940503c11ebfc3d6375fc1b1a049b65d8edeb91ce25974db8b157a881"
+    },
+    {
+      "bytes": 62228,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/5520d368f76f150c2a123591f14568911621fcaa1624be30ca3513937d238edd.json",
+      "sha256": "49ce5b22f9bd0704ecd3cd98d8094f0be65d7b32d37b43a2c503e2669d7223b0"
+    },
+    {
+      "bytes": 79466,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/57000ac64b9d4b835da1e682aabbcb0a74a46046034c16757c93842aa86fb1b5.json",
+      "sha256": "888455b7945a91bf2ccba1275dcf5df1350e3fdc2d72d73e94144e6087e52070"
+    },
+    {
+      "bytes": 72717,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/5769d549e36dc56a1e5844e354d672b5194d280eb30ddca20db3f0767206e5ab.json",
+      "sha256": "9e7358e272783dfa0a1d529882293f1a06a19d49a430fc72e92292dde49c338b"
+    },
+    {
+      "bytes": 63640,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/58738fd6ee367079364757f9c13174329d79878b7e8102bb14b1d16fb4d4687d.json",
+      "sha256": "03755a24accd29dbfd7c07d9ac2f1cbfe4c1747d60211fa87269a1eb22d0377d"
+    },
+    {
+      "bytes": 42978,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/5904ad3df9f331ce163e32023d962aa8ada92996280479aa924cadfb63fdac59.json",
+      "sha256": "09988d0dfc2eab7d67024bbf63461904acd2d3a89be555bf882a00942ce5510d"
+    },
+    {
+      "bytes": 55738,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/5bcee6a0dd7400bd27af38780c58492f670ae7f6e6d9554b2165ba26cc047f69.json",
+      "sha256": "8189ccd558ba5a1feecf26f3b13e99e5151bdf2152364893d936a9f2c1d669d7"
+    },
+    {
+      "bytes": 68391,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/5bd542291d39209165f10342626be4b0333ec739ef47820f0a5f6993b6610b13.json",
+      "sha256": "9770e048fdca7e8e3b346520a7c7addd54a41fce82817c00f3aac6cbe8dcc01e"
+    },
+    {
+      "bytes": 63003,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/5cb2ffefd4155764761109e3b645f7a8b7c4a67f6206f0fb999a63e8c6edfb89.json",
+      "sha256": "0e10df178a9839c7ea2b9a8eb50dbe05f2785ba75cec596e13cb42b1af0830f4"
+    },
+    {
+      "bytes": 77273,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/5d85404bdb7b1305eb6ae1edb43c4f5f5a7e359d06f2d8b79674f052c13cdf39.json",
+      "sha256": "b051c48f0731c45dddede9e4ddf237e456bea0e22bf41f393f29047d084e0598"
+    },
+    {
+      "bytes": 64456,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/5ebb5ac518e4d828b0a6df7504b884cdf88dbbe936dff82f6d76a578620a0bec.json",
+      "sha256": "28b51510d48544164238bd51ef7a651b530121c6357ee4dfe511d662390851ff"
+    },
+    {
+      "bytes": 43894,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/5fbed14ef5ef9225fe8a00978f4420f8fcf5c498ce3fe2df0e165d8699dc4f67.json",
+      "sha256": "7b20a1289711ea63dac75d96961ed63223f210c6ac8a06b648454516ab9787e6"
+    },
+    {
+      "bytes": 83634,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/5fe33814b18d59fc65ebf5aee38914f9cb15b15ac965b18146e692d4459cc47b.json",
+      "sha256": "93fdf1bd3cc42a91b1b432a0b4f0d3db2c7d5b3d31a6e669a166c614121e7246"
+    },
+    {
+      "bytes": 62306,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/6062ba3f9237545fe7c67b55085204f0c13f4ca136d6d737e13021e33f27009e.json",
+      "sha256": "43de970cd227d12c7128e8383cdc786f9b373ff3d5bfbf4f7744d8d11a685c2e"
+    },
+    {
+      "bytes": 50890,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/6161e68ce017180a257ceb76eb88771d1e3ff2a98a26cff152c9acf636a3083b.json",
+      "sha256": "76627f764f4cdc9ba89be2366debb2408d15df52838fd77ad0bad030b8d5f2ca"
+    },
+    {
+      "bytes": 77022,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/62e903fd47794423d7bfbd93f7ccd54791cd12074f39ed121d92265ed15ef2ab.json",
+      "sha256": "f45d295a8390586bd34b89c53f10ff6acf745cd79c401e9c6373c59c5c600b1f"
+    },
+    {
+      "bytes": 54852,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/64be96ac7870e0f015ffa4ed1e1cd7216f4b15615e2c2b61e073a43074eb4bad.json",
+      "sha256": "8818094ba9bb71b0b13d412ce480821c267b0bb1cb65f4796197ebfa041ac36d"
+    },
+    {
+      "bytes": 65971,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/6577de868d641a88cbbb2f5180dd73ed2fb958a215b59aab4eeeb35e4f1de50d.json",
+      "sha256": "acca789996581ff38c53b08c374987083f3d912d1c8c57a63887ba386cfeb994"
+    },
+    {
+      "bytes": 19376,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/6b195ed1c694b331c2ec8ed1d2bfb01cd1b5a3f45a13b02ae0cd3173f80a203c.json",
+      "sha256": "c03089e1d529875fb8b29e1a4e027d3b47eafb256b9114a5d1da8c3ddf063384"
+    },
+    {
+      "bytes": 64837,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/6e018d79be68e513050afe359ab2d195ac4e66806216cc37f1416e76f358c6a7.json",
+      "sha256": "1a6f2f5ccd16cafdf00cb248973dc4367bb79b708ade2de954233c958cc1d5e5"
+    },
+    {
+      "bytes": 87797,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/6ea0a89a2f23b41b4a8b9ec9601210ecdd13bf3e7efaa3fef712d971af81ea25.json",
+      "sha256": "883628d6c042c94dc208758e7fbe733eb7537f856bc80aee49784ef0490cf257"
+    },
+    {
+      "bytes": 54590,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/7078fb6d143faca2125e34f59c3abce3bf30dafe4441e69f676ee41ebb667b97.json",
+      "sha256": "a4eb347034bd261d767bc116bc61b96843a9d74515b95d2d0c4c8185c86ff931"
+    },
+    {
+      "bytes": 74467,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/71334527f1644e107c5dc8f643b1c4a4d0ed6711dca7935aa28c30e384121c11.json",
+      "sha256": "ddb31f1abd7ace9111d9391367d1e60f563b200f38d30bcd862d35f9c8c40365"
+    },
+    {
+      "bytes": 69335,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/730a6d998fa59b8aee8561ae3fe1e3a5f45357139be6bac963427edfe05a5e9a.json",
+      "sha256": "d2680f104406664cc1e45730e84ea95d903eeb0f1f269becd4e980d0b644daaa"
+    },
+    {
+      "bytes": 61149,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/736e5ae266b8a7859d749c05a15a50800369d25d567321c457b4c8020958eb71.json",
+      "sha256": "8b2d0998fb698331cb1a56c6089f1a737833c6b79eca166ab0bc64005eca5eae"
+    },
+    {
+      "bytes": 41228,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/75dc161f0861f0d551a7ff8475602bb774af45971c9385a029142fd60328eb37.json",
+      "sha256": "14583810b430c554a60eea86e4014d285afb5a870620d7582e53c686cb8f1af7"
+    },
+    {
+      "bytes": 73779,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/7600cd91e4f4cf76997c85e9d82a84bdb437601bea832589933cebdd14426e8b.json",
+      "sha256": "ea559ce567e6d18aa0191511d416b03536851ca5646e3c1ba75885724f9d2cb1"
+    },
+    {
+      "bytes": 55975,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/77bc9e22a6bcd3e153cea55ddedd6d100a56e5fe13edeb6f44a3dc0846a1087c.json",
+      "sha256": "7c426b4e58fb9a9578aab48c75de668069cdb08636dbb922d023801e98e15132"
+    },
+    {
+      "bytes": 27490,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/7886969439f9c7897e02ccdb10b7f7f9913b315ff0cf64318711581deb3b518b.json",
+      "sha256": "94a23460378881a9189c04cdaa3c808ec66d62a17a6bfc62048e41b3290dc102"
+    },
+    {
+      "bytes": 68331,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/793a02d524c93b6284febfd6861c2049fe3a270b4230c6fabb0207756486307f.json",
+      "sha256": "36e6510bfa0e6748e89fe39dc46178c92787e82f1eb7b005da940bd023b99702"
+    },
+    {
+      "bytes": 100070,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/79b80732d7f6bcf14fc2902abb456eb7888053f3f1d4e3524f245d8bfe59fc60.json",
+      "sha256": "f504fe1dca7827982292592c350dd38e8df023d134cc60435b364f1d078fb540"
+    },
+    {
+      "bytes": 79202,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/7a2b39754b260580c891fcecf7c26718945f17a3f857a5fb3b1df02cc0e5f1a2.json",
+      "sha256": "158da79f68d681da7b42286973b07f652b8ada4cfc2cbf99f589da9633dbbc56"
+    },
+    {
+      "bytes": 66868,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/7b091457388248e779dd8def05131c6c229d70a37a7f622cead63f31524a8e61.json",
+      "sha256": "2136d17132f75001cfae4b1f5c0ec3ff4bdc143caa273a8e52a1c281538883eb"
+    },
+    {
+      "bytes": 36535,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/7dd5665b2d50a6df89b6dfc75f269906aafa1dd80a8512930857d9f1fe118ae2.json",
+      "sha256": "a103b86d98e3f8d30087797eb6336a3f3615c783a13d3b8b61ee118d89a00ba2"
+    },
+    {
+      "bytes": 43422,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/7ffa7f8d4a3ec70de5e0057d30866c32b86a538b37394147e17ff19079aec7da.json",
+      "sha256": "61ed5be49cb07f3e277809e6cfa3d8351d3cd17bb6712a4cd8cc038544eccea9"
+    },
+    {
+      "bytes": 61555,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/87939ded8815e38f2e7fde6b5ea8c630e0b9612304825dfea2b7503c28cad4f7.json",
+      "sha256": "f9f07ee3de753fb5660fb9b733739f30656e49532207c5fd1bed30ac8b4b499f"
+    },
+    {
+      "bytes": 67279,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/8a621897fca89afba2f33b6ce1fb464d5022900f41be6948855ee82d3e2d4718.json",
+      "sha256": "2d7d90be2b2f311b8c84f2c71cd5282e1dd1cb4115c3b05bab7b3ab8d645f2b3"
+    },
+    {
+      "bytes": 83262,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/8aa79d37be050dc90e93bfec0a88c73a42a67020c264914e1a83a5192eee4fa9.json",
+      "sha256": "c05b5694cc9d86612f44f5a6b391ab666bb3920d95858d5300b11f31b77a7747"
+    },
+    {
+      "bytes": 78350,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/8ae1cb12725e8cc62f5f3145d2b239f1c6d2045a171be5751d7bb18048c818e4.json",
+      "sha256": "b7de3ec53e2586c70df899cc1b3c747af44baa761316a00ebe0fc108c6ba66bb"
+    },
+    {
+      "bytes": 75070,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/9104a129663c6fa1f9acc06b9371fb2f8a8b84d0cf64ba2e7faaecc4519beac5.json",
+      "sha256": "fa8bd0272d8e4005658e2b90795a51f84a6f9cf3263f40a11bbd880e02265bd6"
+    },
+    {
+      "bytes": 63228,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/93f15b9361973265b579dabdfdfe27dac31be6085fcb12f79f906091aa29e4a2.json",
+      "sha256": "1c2ffb3cf89bebe0c7a4a5541de981d88545414fe21e73277a87fc4755b46b8d"
+    },
+    {
+      "bytes": 38614,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/94009186a383436458f1d8e6b389a9fd6c838bdbae70f3cbcd47afab09e1ecbd.json",
+      "sha256": "bb283a73a0618c0493746b38191538ac3b2e2f85433c776e851fa1bf317b0768"
+    },
+    {
+      "bytes": 93863,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/96ff9c4167a6e695f311c86c55f708993c17d6dd69899006fbe181a168f8b4ac.json",
+      "sha256": "c484dd1d60d251903e5d0eee57716557e942ee2372add8e309ff0186ee49fb95"
+    },
+    {
+      "bytes": 60275,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/9ce531d2c8c77f5617c92200d23604a242ccb7294c2ca9272dd067a74d582b29.json",
+      "sha256": "f7ea96bef0230690a3b3c22f52493e66d41bdba15d590f285bc0ff83a1ef0a44"
+    },
+    {
+      "bytes": 88596,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/9d1b300b1d2547a7ee6b4570cd65cf29cdb00f945615c9a0b5622d7d29bfcdad.json",
+      "sha256": "ed3cc59dd8f049c586776c1a7f7cac4dec6f196fa2301063104f97263bd78944"
+    },
+    {
+      "bytes": 49383,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/a3c62eca9ee4fab2deb4a5c014bc58cc658f9fa387413fa37cd7711b715fb4a3.json",
+      "sha256": "eec78c10e7054b39c19cfd44342473c621cff5e80963055cade83da470f79c80"
+    },
+    {
+      "bytes": 60739,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/a55e3e437934b67419c44acbfa632a1ee3a4cc594f8b4bdd3bfa4db982092465.json",
+      "sha256": "11424b2bed33dbc8b065c0463d1b1083db1e5e25bb8450a0b1653ba9da11373a"
+    },
+    {
+      "bytes": 55457,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/a91691a33ed5dd724c1f53f10d7f7f1909409e2dab3a73c0cfe47fbe0d12a0fe.json",
+      "sha256": "dbb6e892793bc4542ca977d346fee445f41b37c9b837fd76f2438fe73b442140"
+    },
+    {
+      "bytes": 70716,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/a9ae093e4b0af638e332ee41813103cc2eda81d9fce6978371852f48c8a06f6f.json",
+      "sha256": "1f3ad8a5d582448c2b841a5de4cea26e2078e5b6e71da443247870efb3054010"
+    },
+    {
+      "bytes": 74959,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/aae1234d95bb9a546cdfe51fb9c450d9c410a13c3f63081b94c82c5ca9c1d827.json",
+      "sha256": "b24ac285031ffe567502e1bde5463c2dae05aff8bd9e3ff92e7e9e396c24392f"
+    },
+    {
+      "bytes": 80559,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/aaef442ebcc4c39131266ed87229114f7d1d206b77cbed790577136337aba1b4.json",
+      "sha256": "ef41dc5367d79b2ec2111c783d88b5e5767092af23ad408ba60a939f41f83679"
+    },
+    {
+      "bytes": 71770,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/ac91d8cef123467456d27271c746edb408665d68cd2ca098fbd6134ee3eb9fa2.json",
+      "sha256": "68129f7b492ebfb5b6fba61fbb6a84a087e7ca9d416b1a7773e67b88586ea512"
+    },
+    {
+      "bytes": 56944,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/adf174d6f819275e0b5df56396c8aa4795da8c77305a6a6ec4d0dad7e71e18c0.json",
+      "sha256": "49e2ce91fa8a2d6ef4da0c4dd7c9c34662831a610b8a794cc47caa14a7c04a52"
+    },
+    {
+      "bytes": 25851,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/ae91d8feeada0f68027981f7075d13eb65c78f7529fc6d65f0f96f8c477d4385.json",
+      "sha256": "f3cc1992e5795e75bbd3648a6cc14eb09e50a2155504e23f7705ec5edd319717"
+    },
+    {
+      "bytes": 50815,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/b03373945bbc8c95a7d712d084a01f0e88d7681f8656e446f342cf122cd9a31b.json",
+      "sha256": "1fcfe7b80fd28256e55180cadaba2380bb64aacd32d9393969d91bbc9ef4a98f"
+    },
+    {
+      "bytes": 52048,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/b06defe1b59c1359dcc56b84698568d7e6ee760a998bf0824e4c8089de570775.json",
+      "sha256": "f86fb19aef95eee1a86933a7b4b181871035f098b14f7977b0b5a2e6a88593f8"
+    },
+    {
+      "bytes": 64110,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/b0e3ac6be12f828991ce05291cfbb035e4d786f99e228609112f92365bb2e2e0.json",
+      "sha256": "759f41d6e7b72d992a636d95a571ecbbb76fc21bf2752953ee34ffd812033713"
+    },
+    {
+      "bytes": 74462,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/b17c3a32e36d44f4fb163735be5c33d2ca34222379e4aee2a5b2668cf8155328.json",
+      "sha256": "ead731404ea9f16ff789b0ef388cedaebc2f8a91799f85dbaf9931406d546bda"
+    },
+    {
+      "bytes": 52089,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/b986cf6ba69fc036dac716ebd2bb677ff70d53dc6ffd49c7c4067ac0c9d7a492.json",
+      "sha256": "bf436b75eac39cb589458f6c79f2576ffa05ccdf37e662799532cfa798a03e0f"
+    },
+    {
+      "bytes": 107763,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/c817e286321e35b57e7e6914a716eb451a5e467bb154d0c1c4fdb7b696fb3b96.json",
+      "sha256": "ced31d6b56de03c0088163ea5937cbb78a6a9f2f9468090fb6b215e2929e225f"
+    },
+    {
+      "bytes": 73963,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/c8bcc6f3ebf5bcd2f308b06e727913b11ee744f9e47f840a8d63b956826783fe.json",
+      "sha256": "5885a487f512ef516e4dd6a33e896f31aed223db6f13f16593ddcd80eb42b9b3"
+    },
+    {
+      "bytes": 65087,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/d1679a78c6b813c59332ecc8174d77e9f3bed8d83352054c726fd67f4f576b47.json",
+      "sha256": "6dd78a78d517030402ae90e0e059b02004425f474c61656176e1c4f09ef6e61a"
+    },
+    {
+      "bytes": 59409,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/d3fec9f8f8e6aa5b260c8d9334f58008d48cc0e415b9a87eba969316df731f35.json",
+      "sha256": "62333c4dc66d10f17296bc9dc596183747397d23be2c989c055aee5b1ce081d2"
+    },
+    {
+      "bytes": 55421,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/d675b7e76a740f44886a7736b6cfc5627dffa1dab15d1971c691e843cf00f92f.json",
+      "sha256": "b42276e4e4c032417246ff0d240723f06f4c6bb99e570114e3a42ac120a8e84c"
+    },
+    {
+      "bytes": 61722,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/d815faa3127d78e8b4ba64ec0cd1cd72b02c4f5d228dad73d3f3da58a38c21be.json",
+      "sha256": "6a413fdb0b3acea29042b64d535346977a6db84a42b7de1a257e9b76cd41529d"
+    },
+    {
+      "bytes": 54267,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/d86d75ab3e894a040ab435d056c8bfb131f503615e7c17766e83439fd1446dde.json",
+      "sha256": "191c3f8bb33de515ee20711d5dfba3fc8f16f0ba6c03e12b94fb649d14dceacf"
+    },
+    {
+      "bytes": 67787,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/d99597c4b433b73fab53fff22f18e580d2e8e3817071ef3b1e3d631790e2ffee.json",
+      "sha256": "68288e620e239dacfdb905dcd48c63642dfa12b86726a973d6a8cb9220508514"
+    },
+    {
+      "bytes": 19397,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/db1e059f8d77731ecc146c5c82ed6e303a374e552f244438f2d5bd11379dc19a.json",
+      "sha256": "d367827050501a6cd0f635ac30ac90be8ca051acb6973ff4961c953ad6b8ebde"
+    },
+    {
+      "bytes": 84928,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/db9de85cee64325fb24bbe33ab768e6a67fc1925a6740542c3e091fe170cc1da.json",
+      "sha256": "fdda13af664f558d19cafd6ac7ce84dcd1dbc36107d72192448be217e983987b"
+    },
+    {
+      "bytes": 42655,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/dc71614ddc36f7affb3d1f38cf57d0d789f8fa6695d2ef108be6c4c47fd9399f.json",
+      "sha256": "ed01565346fe904dc9a617b06f6305d805c9d386873d67d976c027d799b8a47b"
+    },
+    {
+      "bytes": 72614,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/dd5a0b9a92ee60e897a7b2558cbac924da01dda79f4827274d4ace1a06f8ebf9.json",
+      "sha256": "76cc43771c5bb5e15aad947be920847e40af346b5c0926295ede6440ea1f4657"
+    },
+    {
+      "bytes": 81126,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/dd741c1d5f2f4e662e1395f9cf88e0f2d327987d8d4f2b41ec75ec07e37357ea.json",
+      "sha256": "96b60d9fb86e294cfe0567d1915f3788097118e69496f9a53b3450a38ac7dd35"
+    },
+    {
+      "bytes": 69112,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/dfc69a0dcb34a2f807aa015f7357a17c193df8917c42e0bd7df180179d48a43d.json",
+      "sha256": "b75cc1daf197bdff19ff97fd72a8dd0b6f9ec3211bf0fa86ddaa53f547646070"
+    },
+    {
+      "bytes": 65203,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/e03b775e5db5b48dab16e2384cd4be1bb976eed421e1f3240f9994598f8bb761.json",
+      "sha256": "f035bc211e90e1feceeb72f9236c631a325d308b3ffd8653dbd71dfdbd5221f2"
+    },
+    {
+      "bytes": 64848,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/e125fafdadc449f723960e23f1dffd6581fbb472956cd5e74dfce8c8545b1d7c.json",
+      "sha256": "21e546f63add7a7b9218b802553d8be8030646026bf2437021cf3ff929c33aa2"
+    },
+    {
+      "bytes": 52348,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/e1d22524bbbd51e87ad85095508a1bf7925e01849693170e9c47d719b29d4d0a.json",
+      "sha256": "3c179d48e8007c2243ce3f5333ad639bf49911fc1df147ac7b3471f424b797d9"
+    },
+    {
+      "bytes": 52759,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/e5a283ebc5636d685ab38b281dc2acb7a02f4b062f9f222ed89a32d7cfccb0e1.json",
+      "sha256": "ee7e8b10818ff997f0b9933b5caf3037a7c20fa86b224869bbbf2de38c4f7306"
+    },
+    {
+      "bytes": 112382,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/e60cc6c667f27a332226895941030b89b5c9ef1ae8d82d5522990eb9fcbe6df8.json",
+      "sha256": "62daee68fd975eaee0ce5c44e882100ddd6d966d0fda66ea21ec9e35af4adc12"
+    },
+    {
+      "bytes": 83722,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/f10198ae09f40c367fda1ef6ab16755ea99bca5a61ed59b1ec966125e6dc48f8.json",
+      "sha256": "dad1f6ff0f844c6ac655d7395d4da6913a541aa16eea1641be29df66ab606d14"
+    },
+    {
+      "bytes": 58991,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/f1a0227f8edd53a08cc2c6e008c999b04b6f7ca5aec8227744332f4139c306b9.json",
+      "sha256": "88a75a2b70cbdbcde4f86fba51c6ea56036cba03e6113a3e18252d6b9f7cc2b3"
+    },
+    {
+      "bytes": 49967,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/f237957310d22809a651dd4ea713fbaf73453d5119c119f0f8fee436d7e93995.json",
+      "sha256": "818fb8f3af9e2c522260ba925fe1778f81d5d632712daae0b7612b1f9dc17400"
+    },
+    {
+      "bytes": 49327,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/f488559b02561b95640e93781438ddd4839a202cc872c158a96da3cb2d1c27b8.json",
+      "sha256": "35b382971bf338a0b2b0ac7dae2f5593132a776f82345d3ff48ae97746cdb735"
+    },
+    {
+      "bytes": 87329,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/f6a0e3c083f0f3ee969b4682fcf28a39788d6891c604100e37d15745ea3d34c9.json",
+      "sha256": "427ee8cc0fbe9f15b43320fc3a40e4adb61108144eaca59d96c9e432fb0e8747"
+    },
+    {
+      "bytes": 92294,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+      "sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0"
+    },
+    {
+      "bytes": 82913,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/f75ea56848b368a5e7fe3ce63d5de1350c42c59c9392b5d9ad4f3ebb5d90d59b.json",
+      "sha256": "9fd3b5db8a0a62cae02a5d7d30d74ee75870f72b76308e4a7cb31d89d5914755"
+    },
+    {
+      "bytes": 96276,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/f97187ffb286f4754e9a2d21a19312dbdd748c4bc7070d0aa8b1c52f9598f7d1.json",
+      "sha256": "4858ff01905ceb051513274e3db6c2664eb91392c5d495c8e31e7fac2e2bf11c"
+    },
+    {
+      "bytes": 73635,
+      "path": "docs/data/broader-opening-coverage-pilot/pairs/ff9a038ee0c47aa7775964334506f4a65f80241bb5da5cb8291e23f6ac2433c2.json",
+      "sha256": "0438761222ff3460db02fe28645974d4577e6a3ead522cff383eb7e3f8d51c1e"
+    },
+    {
+      "bytes": 1197,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/00db58a767896429c9873c548c7ce776fdd5b0f8839b34766e0d812a13806099.attempt-0001.json",
+      "sha256": "1b77c4058ee15087f5f5dfbab9365ff5f8f3fbf7cb9f208e8a7a25774cc13d06"
+    },
+    {
+      "bytes": 1239,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/01048fd047769f2c729ba40d83722196f9929a97faec99c7cafc194ad0695c87.attempt-0001.json",
+      "sha256": "6a41a0ae456d34f235ec699bcc81c77d6b18deee96a28f1416f66a41f2379c0e"
+    },
+    {
+      "bytes": 1253,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/02bc5795854b6427a1ce06275aa0d604f42e743fa0a4f9e3f16a30f9e8c91fdd.attempt-0001.json",
+      "sha256": "8eaa8bfa2b79848fe3531fc840bc16c2bcc4c1e77bfbc14cc51f94079fa3fbff"
+    },
+    {
+      "bytes": 1233,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/04bc7c4820ec5f064b7a6e439f88d3b89f090d2ce1b45784243686b8a89c935e.attempt-0001.json",
+      "sha256": "dfebd3d1d61589d02578a31938ef7ab8ae8311a37a8d9aa15d59ffd974c3fc66"
+    },
+    {
+      "bytes": 1247,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/05fd361239824303b733d3fed3794e0bfc420813d60cd81425939609298eee53.attempt-0001.json",
+      "sha256": "be426d097733441b7029a23cbc3faf1061af9848607bf188788438d535bcaf70"
+    },
+    {
+      "bytes": 1205,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/06d1f34a91680e8b07c20f639f6919297902aebf1e41829884cf158f9bd96bcb.attempt-0001.json",
+      "sha256": "f62ac4be204f6d8a4cd891e7540e75dcb297debc172718a42bcf662be1e9cb53"
+    },
+    {
+      "bytes": 1263,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/09adb4820b59a9a9297628951e5807c4e09539d46703e1db5cf095b217bc948a.attempt-0001.json",
+      "sha256": "47c9bab764e641d3fc4f9f7c79a57dc587abbcc7e5fba234349ca6574e20cfd1"
+    },
+    {
+      "bytes": 1227,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/0af7810c4e5626a3592d9db16e4c2564650d2fa0fb3067459adc4025c199cf1b.attempt-0001.json",
+      "sha256": "0b799ea5d71bcd13c6bdabc6c3820113afc7a619f14194e1a69004af9afe154a"
+    },
+    {
+      "bytes": 1247,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/0e3939415815ff27762ad78ef3b2024eb594789c638324e55710d1d391bea3cd.attempt-0001.json",
+      "sha256": "b2a54e424e009b5555711c39bd0438353c729a1ca78d160b747b7b28fb495251"
+    },
+    {
+      "bytes": 1257,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/102a1807f91cd3d07e911dcf92911be562921b71b15179fd92c4054bbc2de188.attempt-0001.json",
+      "sha256": "a8b8cf7df454778744a4e35f0a6fa230f7bc5d8c9c1bd185438450587a243fc3"
+    },
+    {
+      "bytes": 1205,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/10af275a190e47636476c6710c40daeaf395ddf1353b9b477b3bf17e9e572ef7.attempt-0001.json",
+      "sha256": "750535cd9ae1eb1a61d39b3feaa2d1f6e0f13c58cebb5b0080bb88fe0112cd96"
+    },
+    {
+      "bytes": 1233,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/12cbc38b02b8d4a5439c630dbf2a27ed3e4b38bac0d395ace06b97633396595b.attempt-0001.json",
+      "sha256": "f4ed3cd8bc3a1ff83961f06c9f15f00c8ea2cfedb5c7070e5e22d79de27d5eda"
+    },
+    {
+      "bytes": 1241,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/135bd62f23e6f86455854c83d7ea502d2ea68d16401ef09d72a6c3aa971f1211.attempt-0001.json",
+      "sha256": "c990e7a20979581be7c128942c9107590d9af9011e97c93ca031407baabd2370"
+    },
+    {
+      "bytes": 1241,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/1717720e37020f9105972c44aff44ac093345ea5351b56283000ffdb1bae0dff.attempt-0001.json",
+      "sha256": "645b686250afe89383e64910c17eb777d328c9036898fec976fddcd4ddcee526"
+    },
+    {
+      "bytes": 1215,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/182998901d803f06bb0fe05bf42882be9485c1ef08f779a062ff773e9216bd82.attempt-0001.json",
+      "sha256": "1f279ad75f12e538a8c96abb39973cd7640a43ab269b341d508b952730012669"
+    },
+    {
+      "bytes": 1215,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/1c47d97f854e28ef5f6481a871a0ee6ada0b1cc8fd8bdf8a03c940f1b1604394.attempt-0001.json",
+      "sha256": "7501441ce53483917bb51720bb67852c612a31fe8408e1871c66d19037e7d869"
+    },
+    {
+      "bytes": 1223,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/1cc905ef27ca1a64aa6086ed7599be9ce854fe26437dd51c3ab95c0bfd47a255.attempt-0001.json",
+      "sha256": "69563a1acb37c1dfad014b6568f3119bf5aacd08e640226e2a1575c0be19df88"
+    },
+    {
+      "bytes": 1215,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/2469bb23d12fbce87bbc95da3c071daf5c5bcd0f69fbc48dd0cc8160b450c43c.attempt-0001.json",
+      "sha256": "1e8adad3440f7bd8d1f32e8c37cfc3b1da4e042569920490f3ae87ede9bd218f"
+    },
+    {
+      "bytes": 1215,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/25938bdfb4b8773b7a4c699bcefabb465df20b471d55720b3bc79433df739e95.attempt-0001.json",
+      "sha256": "5579f709afdcfabbd9511d9edb6da7607427f71075522a3508f1a1b5e3d99e00"
+    },
+    {
+      "bytes": 1233,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/260bbd75dff52ac1ad10f81ac42ed0fb989358fee156d1043c6791871891538a.attempt-0001.json",
+      "sha256": "77be67d2dc636bbb76276e2ed32453123f371d9354aade5c15b03ae29bc60d08"
+    },
+    {
+      "bytes": 1221,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/268f90df3a8ea35d59baa88588a3038647327ef6300919d4552d123c7d748a81.attempt-0001.json",
+      "sha256": "54ef0ad163db15a166fb1f4c885a4722c41ec254cfbb0c54cfde35b252b7d56d"
+    },
+    {
+      "bytes": 1229,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/28e18eec17c45b53cd33750ddc5a85edd0fd8ddca1888e72f82fd12a4cfb58b6.attempt-0001.json",
+      "sha256": "96534a6ff1e7180f4ab0e763f8fc1ce38e850b04d0a506bcd65b1f6c57920ab6"
+    },
+    {
+      "bytes": 1199,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/2ad226a7534218243cd97a78b15b997a9e1118de96d964e335e5c192afa43b8c.attempt-0001.json",
+      "sha256": "e03e520e6b1e93ac38cb111cca6b68dcf409988661d5ad54f7e57603054b197b"
+    },
+    {
+      "bytes": 1223,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/2cbd4c8670232673ef25a391a7b067ed288b9b858edd447bdf60bbdadeb6fde8.attempt-0001.json",
+      "sha256": "8bce789cdf08aacb9d8ef4695ae143b279ed5fd079e49cd5c029bfeb293b15b6"
+    },
+    {
+      "bytes": 1265,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/2d84c6650b8dfa65def84c28ffb1bc52cf81810ec0849afe985f532d273ada4c.attempt-0001.json",
+      "sha256": "e233a8c1c7ec6ea1558c0f75e56c044009c7a72cec261526d6a1c54de95c16e1"
+    },
+    {
+      "bytes": 1227,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/3169548da6f528c516c697fde814b20879335cb42dfef3793f3f2f74a3b5ffc3.attempt-0001.json",
+      "sha256": "b5a33e91c5deecd8dc46c8dcb8d5222b8bbf0a9d974074cac0f1eae347b72a08"
+    },
+    {
+      "bytes": 1247,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/3609d184f0c35fa3bbd5c97fccfe683565307a72057d0d60e6e02df94831a142.attempt-0001.json",
+      "sha256": "b2b858f8de5458fc7143c2e3109f6f22ec6820696d2e91e1635e842ada5e7d49"
+    },
+    {
+      "bytes": 1235,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/365630605984788323bda6a62a0287b9818bf380db7f9b45b3d38b7d176a9f93.attempt-0001.json",
+      "sha256": "c9a8d26c48cfc74a8040bb9fd508e55ebbc8131f0315ed8ee2f739bf84e03c41"
+    },
+    {
+      "bytes": 1215,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/37a79218f88f68d3dc2542fd93ff08c6d9d6dc8cf9cc16f1ee756f90c9d17f44.attempt-0001.json",
+      "sha256": "ee7800f6188d7510c0e54b979b014b34bb97984ad098db4bfe458ec4c4b919eb"
+    },
+    {
+      "bytes": 1217,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/3e09559c29e1390d4de24ff35bdd66e3c3da96578125d9d8e5cac7573121ea27.attempt-0001.json",
+      "sha256": "a1016a5695ff36b0e414533a46c90333a7f86a18bfc6a4a716496a5cba5bdd17"
+    },
+    {
+      "bytes": 1235,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/3fcf173c0d40456fa5ca891917582168e13db1b29181ed800b55377ca5da7ed2.attempt-0001.json",
+      "sha256": "058d89e554e39c8d993a192079bb907367cf7c129f5b1e1205e9842dd434201d"
+    },
+    {
+      "bytes": 1205,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/4032379ae6ad528231d8413d56213ac7510e7dbc71b7a773fe4b37fc8b3bfc59.attempt-0001.json",
+      "sha256": "1ba219edfa4cc9b103fd5a1ce40d4bf81a3d438434d28595a12d160d09f20fc2"
+    },
+    {
+      "bytes": 1247,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/43a420d3db201b8cf9c81def7eeaa9663f058897b4b44e387d903cc946655f52.attempt-0001.json",
+      "sha256": "1635ea3abf32a23bb03eb5c1bf4bbb9b169ef19019661cae9c0d6d161ef02f3a"
+    },
+    {
+      "bytes": 1239,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/443b82add97f5b964bf11b96dc3dbe5484eb0553efeeda8618a864fa4f28385c.attempt-0001.json",
+      "sha256": "4dec63380505f1628e02e0dbd5610ebc21df0156b8506dfb2936fcca49cce032"
+    },
+    {
+      "bytes": 1257,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/46254396a293db5839af5c95ca7477f9726f9dc305a74ad65fb910909ab34ae2.attempt-0001.json",
+      "sha256": "bce9795998963de88d77f3501b00f5ada373b498b9d268f9e5bebd813e28290d"
+    },
+    {
+      "bytes": 1239,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/4a75d70b1fe60e5280b95b67701be790c5e279deab16f4899a507f0b2c8da074.attempt-0001.json",
+      "sha256": "828774ccc7533ee7a852348beade96e568bf8aa93803af37f02d82b084b8df49"
+    },
+    {
+      "bytes": 1229,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/4c10b6a7e6fa1e0bd075ba75573322b61f423fa0af45a6b58007e114795bcca8.attempt-0001.json",
+      "sha256": "5bcbbe5c6f1831f3a6c2670b5b6166078fca5a83e9b2e089cb5102f9ac45d4b0"
+    },
+    {
+      "bytes": 1265,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/4e783b94b4ce243e2dfa362015deb477d1f6e410807cecad30ae8f6a23fa5ecd.attempt-0001.json",
+      "sha256": "c23ffd8d6c81e6bb8e2d852335964f23de1847a958d47c0107b24724a677b84a"
+    },
+    {
+      "bytes": 1253,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/5520d368f76f150c2a123591f14568911621fcaa1624be30ca3513937d238edd.attempt-0001.json",
+      "sha256": "675180d9e8c87306451bc0e620b4c003513a5349d35afa50eb00c5c29c9ab22e"
+    },
+    {
+      "bytes": 1245,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/57000ac64b9d4b835da1e682aabbcb0a74a46046034c16757c93842aa86fb1b5.attempt-0001.json",
+      "sha256": "94f0613577f6aad2afd2b32719077ddbafa766b4e5e9fb2bd70b7f04182b17e7"
+    },
+    {
+      "bytes": 1245,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/5769d549e36dc56a1e5844e354d672b5194d280eb30ddca20db3f0767206e5ab.attempt-0001.json",
+      "sha256": "5e34994e488067db0caeea565e3a67537c5649400f22582cbaa6ec6b6190881f"
+    },
+    {
+      "bytes": 1259,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/58738fd6ee367079364757f9c13174329d79878b7e8102bb14b1d16fb4d4687d.attempt-0001.json",
+      "sha256": "3068cc0aee42f65435e31abb268f9b46d9372153358a40f8bd2676eb2307ab56"
+    },
+    {
+      "bytes": 1263,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/5904ad3df9f331ce163e32023d962aa8ada92996280479aa924cadfb63fdac59.attempt-0001.json",
+      "sha256": "ac16b9af9829ca4b60379f4d1c8abf65627d8179007315e5dde0f13b62abfd0d"
+    },
+    {
+      "bytes": 1239,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/5bcee6a0dd7400bd27af38780c58492f670ae7f6e6d9554b2165ba26cc047f69.attempt-0001.json",
+      "sha256": "a3d9fed30f64e544cc450a2efed4e7b97ea2d18396eea6cb9e8d8e7d2730d425"
+    },
+    {
+      "bytes": 1229,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/5bd542291d39209165f10342626be4b0333ec739ef47820f0a5f6993b6610b13.attempt-0001.json",
+      "sha256": "3a87a3a5d9b1d67dd4a13147e829f3f03b6a190dd1a45bc425986cb9dd844196"
+    },
+    {
+      "bytes": 1253,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/5cb2ffefd4155764761109e3b645f7a8b7c4a67f6206f0fb999a63e8c6edfb89.attempt-0001.json",
+      "sha256": "065fbeb2c0d2730aa9bd098900bf0495c19f2b383093e884131de329dc43488d"
+    },
+    {
+      "bytes": 1245,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/5d85404bdb7b1305eb6ae1edb43c4f5f5a7e359d06f2d8b79674f052c13cdf39.attempt-0001.json",
+      "sha256": "2e6a03cbb72fc33d9193ec1a6bba1d37650854e56ff294e0e51b0295025e1974"
+    },
+    {
+      "bytes": 1245,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/5ebb5ac518e4d828b0a6df7504b884cdf88dbbe936dff82f6d76a578620a0bec.attempt-0001.json",
+      "sha256": "57ed07670b7c733b0b0b9d1a62216d6422ecf040c104fcb308cde44455399f77"
+    },
+    {
+      "bytes": 1245,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/5fbed14ef5ef9225fe8a00978f4420f8fcf5c498ce3fe2df0e165d8699dc4f67.attempt-0001.json",
+      "sha256": "43b52526a0097158401229d90a0d25806953c9daa24709c8f017568b9d19480b"
+    },
+    {
+      "bytes": 1263,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/5fe33814b18d59fc65ebf5aee38914f9cb15b15ac965b18146e692d4459cc47b.attempt-0001.json",
+      "sha256": "3676780056d3c21ab4340fa88871056d84d6c86245607ccf0919764b6de91653"
+    },
+    {
+      "bytes": 1233,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/6062ba3f9237545fe7c67b55085204f0c13f4ca136d6d737e13021e33f27009e.attempt-0001.json",
+      "sha256": "762971c345a6248a16ef77f261e2d0bba6e0331244a789a0426425ca359da970"
+    },
+    {
+      "bytes": 1241,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/6161e68ce017180a257ceb76eb88771d1e3ff2a98a26cff152c9acf636a3083b.attempt-0001.json",
+      "sha256": "cffb5a71850a6b24583205cf52a432540e898138d388b5dc37f5011e1abaad9b"
+    },
+    {
+      "bytes": 1251,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/62e903fd47794423d7bfbd93f7ccd54791cd12074f39ed121d92265ed15ef2ab.attempt-0001.json",
+      "sha256": "89198b409c00c791a5334441ee69d1f1b8fd9b4e07081339ac914fd5baa56a14"
+    },
+    {
+      "bytes": 1223,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/64be96ac7870e0f015ffa4ed1e1cd7216f4b15615e2c2b61e073a43074eb4bad.attempt-0001.json",
+      "sha256": "d66ca4d2d0da39b89dcb3f25932039710a353376eb2412881a7773cae2f910d3"
+    },
+    {
+      "bytes": 1233,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/6577de868d641a88cbbb2f5180dd73ed2fb958a215b59aab4eeeb35e4f1de50d.attempt-0001.json",
+      "sha256": "2bd7eed9d64f6c236480e746729eae6151fffc1ae8b8a2d33728a35fa19d0c18"
+    },
+    {
+      "bytes": 1259,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/6b195ed1c694b331c2ec8ed1d2bfb01cd1b5a3f45a13b02ae0cd3173f80a203c.attempt-0001.json",
+      "sha256": "8aebe625849cadf7d731c770b0fc47f44f40bc82902e2c917a38f0048915924d"
+    },
+    {
+      "bytes": 1233,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/6e018d79be68e513050afe359ab2d195ac4e66806216cc37f1416e76f358c6a7.attempt-0001.json",
+      "sha256": "77e65f613c90371f4ecfce160eb906809516f0cc0bd2be8c378e5930302870f0"
+    },
+    {
+      "bytes": 1241,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/6ea0a89a2f23b41b4a8b9ec9601210ecdd13bf3e7efaa3fef712d971af81ea25.attempt-0001.json",
+      "sha256": "0573c14423688dde6645951902ad889a0c551f4cd42d0860f01e6f93c9e2fa69"
+    },
+    {
+      "bytes": 1233,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/7078fb6d143faca2125e34f59c3abce3bf30dafe4441e69f676ee41ebb667b97.attempt-0001.json",
+      "sha256": "1b9fa6a379c60c532698764df78b8f4a93383c878011685eb24f243b434297fc"
+    },
+    {
+      "bytes": 1259,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/71334527f1644e107c5dc8f643b1c4a4d0ed6711dca7935aa28c30e384121c11.attempt-0001.json",
+      "sha256": "a2374c1bc0775cdd7398fe20c9f1adfa62c3776255419a40cc0f6446503e8d0a"
+    },
+    {
+      "bytes": 1265,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/730a6d998fa59b8aee8561ae3fe1e3a5f45357139be6bac963427edfe05a5e9a.attempt-0001.json",
+      "sha256": "e313dc627148de0fc7927b4e7d5e3132f889401ed030ccef99dbd16e5faf1a77"
+    },
+    {
+      "bytes": 1223,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/736e5ae266b8a7859d749c05a15a50800369d25d567321c457b4c8020958eb71.attempt-0001.json",
+      "sha256": "c1076018481cb3ed2bc5cb4633376113f9bb2ab02c9753d424159c4ef3248826"
+    },
+    {
+      "bytes": 1235,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/75dc161f0861f0d551a7ff8475602bb774af45971c9385a029142fd60328eb37.attempt-0001.json",
+      "sha256": "18cedc5b10e1c4611837fe9058c19e136bd06d3686d04a0b401c537f49b6f304"
+    },
+    {
+      "bytes": 1227,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/7600cd91e4f4cf76997c85e9d82a84bdb437601bea832589933cebdd14426e8b.attempt-0001.json",
+      "sha256": "42b1de7d038d232a3c8caa8b5652222ba70eb306ce937c2742453e624f7c3d4b"
+    },
+    {
+      "bytes": 1257,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/77bc9e22a6bcd3e153cea55ddedd6d100a56e5fe13edeb6f44a3dc0846a1087c.attempt-0001.json",
+      "sha256": "5e3425c055921b7ee70a98aff228ea95ee5ca194780924c71670ec26d8b0fada"
+    },
+    {
+      "bytes": 1239,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/7886969439f9c7897e02ccdb10b7f7f9913b315ff0cf64318711581deb3b518b.attempt-0001.json",
+      "sha256": "16b365f37c8ef58fd6220d00043a9888093d8384c553f30a1a9f9671c2cd40bb"
+    },
+    {
+      "bytes": 1233,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/793a02d524c93b6284febfd6861c2049fe3a270b4230c6fabb0207756486307f.attempt-0001.json",
+      "sha256": "64850b61d62899809b59d8c1225cda51a5ee879b0eb67a7c0b4158c3c2c115cb"
+    },
+    {
+      "bytes": 1227,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/79b80732d7f6bcf14fc2902abb456eb7888053f3f1d4e3524f245d8bfe59fc60.attempt-0001.json",
+      "sha256": "212e5f9f87c911a51ac218ec7c8efeddb5dc0b52b3b66dbe42dab92c9e492d03"
+    },
+    {
+      "bytes": 1223,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/7a2b39754b260580c891fcecf7c26718945f17a3f857a5fb3b1df02cc0e5f1a2.attempt-0001.json",
+      "sha256": "9681e23982b4ea6d97c87ecb08349febd3526764fe23e06b4a5ac7f6249618c4"
+    },
+    {
+      "bytes": 1205,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/7b091457388248e779dd8def05131c6c229d70a37a7f622cead63f31524a8e61.attempt-0001.json",
+      "sha256": "fc9297630a949a7ec21a999026f8b12af02c927d8dd079b7e558bdf684e6315e"
+    },
+    {
+      "bytes": 1239,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/7dd5665b2d50a6df89b6dfc75f269906aafa1dd80a8512930857d9f1fe118ae2.attempt-0001.json",
+      "sha256": "582eca44d01b02ec2c5b3fc45f6d32b3699d6418ea1999c458b56b3ce67c7f6f"
+    },
+    {
+      "bytes": 1247,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/7ffa7f8d4a3ec70de5e0057d30866c32b86a538b37394147e17ff19079aec7da.attempt-0001.json",
+      "sha256": "59a74906018eeb30b104212e9b06fed9c913a44f5122197ab0adb35a7d6993fb"
+    },
+    {
+      "bytes": 1221,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/87939ded8815e38f2e7fde6b5ea8c630e0b9612304825dfea2b7503c28cad4f7.attempt-0001.json",
+      "sha256": "1c292d3d2d94bc75b26eb6cf0329eca5d2add2657f57860cec4924ba77477dae"
+    },
+    {
+      "bytes": 1223,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/8a621897fca89afba2f33b6ce1fb464d5022900f41be6948855ee82d3e2d4718.attempt-0001.json",
+      "sha256": "ef56c34cf95afe70a112f2d461ad8b66d895d19a5442eee3bd7d7510e8539a19"
+    },
+    {
+      "bytes": 1205,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/8aa79d37be050dc90e93bfec0a88c73a42a67020c264914e1a83a5192eee4fa9.attempt-0001.json",
+      "sha256": "eb4ec50136869e5b5283b933e036a39e335fbfbac5bed5c6093e1b03d762398d"
+    },
+    {
+      "bytes": 1251,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/8ae1cb12725e8cc62f5f3145d2b239f1c6d2045a171be5751d7bb18048c818e4.attempt-0001.json",
+      "sha256": "4315851601b8f04d5727c395d69d1d3f1b5170dc25c73b755f77e8461ddb7581"
+    },
+    {
+      "bytes": 1227,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/9104a129663c6fa1f9acc06b9371fb2f8a8b84d0cf64ba2e7faaecc4519beac5.attempt-0001.json",
+      "sha256": "8bf52340d391fd7debff232ff9ccc8342108042ae80644e787a4a33e0d2c405e"
+    },
+    {
+      "bytes": 1239,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/93f15b9361973265b579dabdfdfe27dac31be6085fcb12f79f906091aa29e4a2.attempt-0001.json",
+      "sha256": "f4d91260a60d2b81daf840ef6d1ab1054c377bda08719d570ae065dd7d5ac095"
+    },
+    {
+      "bytes": 1263,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/94009186a383436458f1d8e6b389a9fd6c838bdbae70f3cbcd47afab09e1ecbd.attempt-0001.json",
+      "sha256": "af7a25cf4a9ebe3a182b06ee2e45821e22da3d1a910f6ae681352a0189cd26c9"
+    },
+    {
+      "bytes": 1235,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/96ff9c4167a6e695f311c86c55f708993c17d6dd69899006fbe181a168f8b4ac.attempt-0001.json",
+      "sha256": "b19bfa7fff1ed288a2e6a7e9da0beeeb9351019c233d8442480a77722b73bb0c"
+    },
+    {
+      "bytes": 1259,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/9ce531d2c8c77f5617c92200d23604a242ccb7294c2ca9272dd067a74d582b29.attempt-0001.json",
+      "sha256": "9175ed0d9416ee37986ab4c46a759b45323a7504d9481741cca300fe6e915a64"
+    },
+    {
+      "bytes": 1205,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/9d1b300b1d2547a7ee6b4570cd65cf29cdb00f945615c9a0b5622d7d29bfcdad.attempt-0001.json",
+      "sha256": "4842b198065b9724cec06cbe1789fcbc3f1d832cc0db15a686f71646ebb2e8ee"
+    },
+    {
+      "bytes": 1215,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/a3c62eca9ee4fab2deb4a5c014bc58cc658f9fa387413fa37cd7711b715fb4a3.attempt-0001.json",
+      "sha256": "9244f21d84fe6a5274fba570cd5455b0a0cbb7cb783f3b3b424201c6b23d921e"
+    },
+    {
+      "bytes": 1257,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/a55e3e437934b67419c44acbfa632a1ee3a4cc594f8b4bdd3bfa4db982092465.attempt-0001.json",
+      "sha256": "5ab609a7a602294bc260c78ea59b8c8181e40e868963967552a0fc5bcca36eb8"
+    },
+    {
+      "bytes": 1263,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/a91691a33ed5dd724c1f53f10d7f7f1909409e2dab3a73c0cfe47fbe0d12a0fe.attempt-0001.json",
+      "sha256": "958e80792a9909fc0314dd1bfc534561bbc866dc53dfbe72e4b6ef3c915e8b70"
+    },
+    {
+      "bytes": 1229,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/a9ae093e4b0af638e332ee41813103cc2eda81d9fce6978371852f48c8a06f6f.attempt-0001.json",
+      "sha256": "4598ffdd6696bb70f2d193759232065863d32a646028e92c56be4df6e822e577"
+    },
+    {
+      "bytes": 1239,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/aae1234d95bb9a546cdfe51fb9c450d9c410a13c3f63081b94c82c5ca9c1d827.attempt-0001.json",
+      "sha256": "4cebb531175c23e6638cd8aeeec203a3b284ea02953ddfa22708df84330c7eb3"
+    },
+    {
+      "bytes": 1209,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/aaef442ebcc4c39131266ed87229114f7d1d206b77cbed790577136337aba1b4.attempt-0001.json",
+      "sha256": "1d11a179b349e0b43d77047fec1f6921e46922821486d84eef56dd7923d77ac6"
+    },
+    {
+      "bytes": 1229,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/ac91d8cef123467456d27271c746edb408665d68cd2ca098fbd6134ee3eb9fa2.attempt-0001.json",
+      "sha256": "ebdef593de5fcb120cdf7ed25ff1143761bb81896af2d8c639723d989b58a208"
+    },
+    {
+      "bytes": 1235,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/adf174d6f819275e0b5df56396c8aa4795da8c77305a6a6ec4d0dad7e71e18c0.attempt-0001.json",
+      "sha256": "b96c134e642cb71d58fa9e11a6c96b12181039e8bef07d7798d4e53f3345a818"
+    },
+    {
+      "bytes": 1245,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/ae91d8feeada0f68027981f7075d13eb65c78f7529fc6d65f0f96f8c477d4385.attempt-0001.json",
+      "sha256": "dbc5ea1017e41c8bb56254004b2c4076c8fe2a60ff3ad3e86efa1b8767f973e4"
+    },
+    {
+      "bytes": 1227,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/b03373945bbc8c95a7d712d084a01f0e88d7681f8656e446f342cf122cd9a31b.attempt-0001.json",
+      "sha256": "9ba45e740e940c3c3f76475f7d794c056bc85f2336629b9de7dd0cc9f29f2393"
+    },
+    {
+      "bytes": 1251,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/b06defe1b59c1359dcc56b84698568d7e6ee760a998bf0824e4c8089de570775.attempt-0001.json",
+      "sha256": "a0d3fb2841dfa4148f0f0a8219b5521c5a12eadbbd6248228125f2862fc2cd72"
+    },
+    {
+      "bytes": 1245,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/b0e3ac6be12f828991ce05291cfbb035e4d786f99e228609112f92365bb2e2e0.attempt-0001.json",
+      "sha256": "9fde779a446145d71e29213d926900b2079a497ae29afcbd0ea8c24d8c837139"
+    },
+    {
+      "bytes": 1235,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/b17c3a32e36d44f4fb163735be5c33d2ca34222379e4aee2a5b2668cf8155328.attempt-0001.json",
+      "sha256": "af1dfeb6b2feed7448064daf822c3f0f2e2327b90140f18e75e9a255c74d8bc9"
+    },
+    {
+      "bytes": 1241,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/b986cf6ba69fc036dac716ebd2bb677ff70d53dc6ffd49c7c4067ac0c9d7a492.attempt-0001.json",
+      "sha256": "dc926dcc031255aa380a1b4ad3441376df09c1dd2f0e2aa3f0af43a8c7408573"
+    },
+    {
+      "bytes": 1217,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/c817e286321e35b57e7e6914a716eb451a5e467bb154d0c1c4fdb7b696fb3b96.attempt-0001.json",
+      "sha256": "3985ccb302ce4b4117b701903d5fc40a389d71f3922b15a3031c2f3a397fcd70"
+    },
+    {
+      "bytes": 1245,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/c8bcc6f3ebf5bcd2f308b06e727913b11ee744f9e47f840a8d63b956826783fe.attempt-0001.json",
+      "sha256": "6389b53f5204940d39b55d64ff8fab08da60e2ef8c9826469a42e03e9b421abb"
+    },
+    {
+      "bytes": 1233,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/d1679a78c6b813c59332ecc8174d77e9f3bed8d83352054c726fd67f4f576b47.attempt-0001.json",
+      "sha256": "b313fc1a69aa5afd881081d62532ad9c2f5f92f90d5b4eddf522e33f082c38aa"
+    },
+    {
+      "bytes": 1211,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/d3fec9f8f8e6aa5b260c8d9334f58008d48cc0e415b9a87eba969316df731f35.attempt-0001.json",
+      "sha256": "a56d2bbeb21b8f816ba3afa2b2588cf98d7d7e052998755c68a240022f5da739"
+    },
+    {
+      "bytes": 1239,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/d675b7e76a740f44886a7736b6cfc5627dffa1dab15d1971c691e843cf00f92f.attempt-0001.json",
+      "sha256": "4f30c3ee518aa02362cf89caa8a7a251a745d783387b5339fa979f60ad004c3f"
+    },
+    {
+      "bytes": 1253,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/d815faa3127d78e8b4ba64ec0cd1cd72b02c4f5d228dad73d3f3da58a38c21be.attempt-0001.json",
+      "sha256": "4a075828dd3af307b7488aa9c4c03e19affd130e317bd7964da789f72d7046b4"
+    },
+    {
+      "bytes": 1253,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/d86d75ab3e894a040ab435d056c8bfb131f503615e7c17766e83439fd1446dde.attempt-0001.json",
+      "sha256": "6193a755c8460ff3e5bc67cc74512e58a8d2028a70d3656f4ea3d5d3cc1cc550"
+    },
+    {
+      "bytes": 1223,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/d99597c4b433b73fab53fff22f18e580d2e8e3817071ef3b1e3d631790e2ffee.attempt-0001.json",
+      "sha256": "3b8b063cd7062118d253c7be30c74654938b3a0f5d4f76be16851815f2198fe4"
+    },
+    {
+      "bytes": 1235,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/db1e059f8d77731ecc146c5c82ed6e303a374e552f244438f2d5bd11379dc19a.attempt-0001.json",
+      "sha256": "1250a37e9592d017d7a928692be78a51a8b365d64aec4683e5471aa0d8695e69"
+    },
+    {
+      "bytes": 1227,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/db9de85cee64325fb24bbe33ab768e6a67fc1925a6740542c3e091fe170cc1da.attempt-0001.json",
+      "sha256": "b10ebcb4239c79e7dad1096d9514e7ee02976a9e05c812c842a8c3e10d2c1aed"
+    },
+    {
+      "bytes": 1259,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/dc71614ddc36f7affb3d1f38cf57d0d789f8fa6695d2ef108be6c4c47fd9399f.attempt-0001.json",
+      "sha256": "6b3f33f0012423000e64d5c7170f51736271a08cdf7106632a86015ecd87760c"
+    },
+    {
+      "bytes": 1223,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/dd5a0b9a92ee60e897a7b2558cbac924da01dda79f4827274d4ace1a06f8ebf9.attempt-0001.json",
+      "sha256": "84ed9e5ae81d36d2b77b6f7e23e622c272b8576ef9bd1f0f92fb03311c669a2f"
+    },
+    {
+      "bytes": 1215,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/dd741c1d5f2f4e662e1395f9cf88e0f2d327987d8d4f2b41ec75ec07e37357ea.attempt-0001.json",
+      "sha256": "372a3686960ada2074b43d99487e22a8b7d48e91b4502cd3b933d3cd5c017d90"
+    },
+    {
+      "bytes": 1253,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/dfc69a0dcb34a2f807aa015f7357a17c193df8917c42e0bd7df180179d48a43d.attempt-0001.json",
+      "sha256": "aa408f680fa8220e4e1296376d8b565bee6ac1e6fbc6768f90653c854416dbf5"
+    },
+    {
+      "bytes": 1247,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/e03b775e5db5b48dab16e2384cd4be1bb976eed421e1f3240f9994598f8bb761.attempt-0001.json",
+      "sha256": "170809f95221af9f965d384099d85eaa0ddc2742a9341de7e22b749b9a4f5371"
+    },
+    {
+      "bytes": 1209,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/e125fafdadc449f723960e23f1dffd6581fbb472956cd5e74dfce8c8545b1d7c.attempt-0001.json",
+      "sha256": "53b10e6ec789b638706604baae371c80a9c5134ae59b311cef98861d1535ec49"
+    },
+    {
+      "bytes": 1223,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/e1d22524bbbd51e87ad85095508a1bf7925e01849693170e9c47d719b29d4d0a.attempt-0001.json",
+      "sha256": "03761a7be2db883427e9fd2d089b88dc264885c583f71620923c2b1bd445bdc7"
+    },
+    {
+      "bytes": 1245,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/e5a283ebc5636d685ab38b281dc2acb7a02f4b062f9f222ed89a32d7cfccb0e1.attempt-0001.json",
+      "sha256": "d184124a7ceeb5b2fe23c64587e247e9dbc085b187d3a790231b7d0dc13b322c"
+    },
+    {
+      "bytes": 1233,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/e60cc6c667f27a332226895941030b89b5c9ef1ae8d82d5522990eb9fcbe6df8.attempt-0001.json",
+      "sha256": "e245d7828421b2403f16e6c6cfb9b4a8a3662aaccd2f9b0920fb5a82a15a3061"
+    },
+    {
+      "bytes": 1257,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/f10198ae09f40c367fda1ef6ab16755ea99bca5a61ed59b1ec966125e6dc48f8.attempt-0001.json",
+      "sha256": "05af41485ded3e95914067a1b35f1268289ba24575b85981a850cc3962d24545"
+    },
+    {
+      "bytes": 1257,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/f1a0227f8edd53a08cc2c6e008c999b04b6f7ca5aec8227744332f4139c306b9.attempt-0001.json",
+      "sha256": "0d0299373c547d0dfe8102e765f19076abe1384fa48d8257d0ef078f4f71d635"
+    },
+    {
+      "bytes": 1241,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/f237957310d22809a651dd4ea713fbaf73453d5119c119f0f8fee436d7e93995.attempt-0001.json",
+      "sha256": "1e30c13e2a098d19dd4c05da6f6b9792c40a942d6d526d85a2116ba8cc844f90"
+    },
+    {
+      "bytes": 1251,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/f488559b02561b95640e93781438ddd4839a202cc872c158a96da3cb2d1c27b8.attempt-0001.json",
+      "sha256": "9956dd364da48bf8098abf545cd123d14849cc935ee30855a67bace87569da21"
+    },
+    {
+      "bytes": 1241,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/f6a0e3c083f0f3ee969b4682fcf28a39788d6891c604100e37d15745ea3d34c9.attempt-0001.json",
+      "sha256": "56c5cb3d90dfcc2eb4698184c7a270d80cbf0004f189098d6dddee47ac3c3bc1"
+    },
+    {
+      "bytes": 1205,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.attempt-0001.json",
+      "sha256": "860c7dc295455fc2554573d54836c84243508669e2904fc6163fd0999335ae08"
+    },
+    {
+      "bytes": 1245,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/f75ea56848b368a5e7fe3ce63d5de1350c42c59c9392b5d9ad4f3ebb5d90d59b.attempt-0001.json",
+      "sha256": "745b5f8a466abfec118938eda58898695e9edbf777deddefb2d5393a5cfa4119"
+    },
+    {
+      "bytes": 1211,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/f97187ffb286f4754e9a2d21a19312dbdd748c4bc7070d0aa8b1c52f9598f7d1.attempt-0001.json",
+      "sha256": "de6ded1bf273f8bd83564e41efec01b1e5843cb444d5a3e820579bb92873b5a5"
+    },
+    {
+      "bytes": 1221,
+      "path": "docs/data/broader-opening-coverage-pilot/attempts/ff9a038ee0c47aa7775964334506f4a65f80241bb5da5cb8291e23f6ac2433c2.attempt-0001.json",
+      "sha256": "6f52e505a490dc0bce1c4e106ee86d2068a3b48d30e9cc6bacdacb4afbea7a7b"
+    }
+  ],
+  "schema": "broader_opening_pilot_raw_evidence_digest_v1"
+}
