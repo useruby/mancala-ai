@@ -151,7 +151,12 @@ def pair_jobs(specs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return jobs
 
 
-def verify_freeze(freeze: dict[str, Any], source_root: Path = ROOT) -> None:
+def verify_freeze(
+    freeze: dict[str, Any],
+    source_root: Path = ROOT,
+    *,
+    allow_historical_snapshot: bool = False,
+) -> None:
     if hashlib.sha256(canonical(freeze_body(freeze))).hexdigest() != freeze.get(
         "freeze_sha256"
     ):
@@ -164,7 +169,7 @@ def verify_freeze(freeze: dict[str, Any], source_root: Path = ROOT) -> None:
     for relative, expected in freeze["runner_sha256"].items():
         current = source_root / relative
         actual = digest(current) if current.is_file() else None
-        if actual != expected and relative == RELATIVE:
+        if actual != expected and allow_historical_snapshot and relative == RELATIVE:
             snapshot = (
                 source_root / OUTPUT_ROOT / "execution-source-snapshot" / relative
             )
@@ -362,6 +367,17 @@ def verify_output_pair(
 
 def verify_evidence(freeze: dict[str, Any], output_root: Path) -> dict[str, Any]:
     differences = []
+    outputs = {
+        name: {
+            "games": 0,
+            "retained_training_rows": 0,
+            "trajectory_moves": 0,
+            "winner_counts_by_player": {},
+        }
+        for name in ("v1", "v2")
+    }
+    completed_receipts = 0
+    verified_checkpoints = 0
     accounting = {
         name: {
             "pair_process_cpu_time_ns": 0,
@@ -399,12 +415,29 @@ def verify_evidence(freeze: dict[str, Any], output_root: Path) -> dict[str, Any]
             ):
                 raise ValueError(f"attempt_receipt_unreconciled:{variant}:{pair_id}")
             result = payload["result"]
+            if result["pair_cpu_time_ns"] != (
+                result["pair_process_cpu_time_ns"] + result["native_child_cpu_time_ns"]
+            ):
+                raise ValueError(f"pair_cpu_accounting_mismatch:{variant}:{pair_id}")
+            completed_receipts += 1
+            verified_checkpoints += 1
             pair_results[variant] = result
             summary = accounting[variant]
             summary["pair_process_cpu_time_ns"] += result["pair_process_cpu_time_ns"]
             summary["native_child_cpu_time_ns"] += result["native_child_cpu_time_ns"]
             summary["pair_cpu_time_ns"] += result["pair_cpu_time_ns"]
             summary["wall_time_ns"] += result.get("validation_wall_time_ns", 0)
+            output = outputs[variant]
+            for game in result["games"]:
+                rows = game["rows"]
+                if game["accepted_rows"] != len(rows):
+                    raise ValueError(f"retained_row_count_mismatch:{variant}:{pair_id}")
+                output["games"] += 1
+                output["retained_training_rows"] += len(rows)
+                output["trajectory_moves"] += len(game["trajectory"])
+                winner = str(game["winner"])
+                winners = output["winner_counts_by_player"]
+                winners[winner] = winners.get(winner, 0) + 1
         differences.extend(
             {"pair_id": pair_id, **mismatch}
             for mismatch in verify_output_pair(pair_results["v1"], pair_results["v2"])
@@ -430,10 +463,15 @@ def verify_evidence(freeze: dict[str, Any], output_root: Path) -> dict[str, Any]
     )
     reduction = (v1_cpu - v2_cpu) / v1_cpu if v1_cpu else None
     return {
+        "freeze_sha256": freeze["freeze_sha256"],
         "pair_count": 16,
-        "game_count_per_runner": 32,
+        "game_count_per_runner": outputs["v1"]["games"],
         "output_mismatches": differences,
         "attempts_reconciled": True,
+        "completed_receipts": completed_receipts,
+        "verified_checkpoints": verified_checkpoints,
+        "unreconciled_attempts": 0,
+        "outputs": outputs,
         "accounting": accounting,
         "v2_total_pair_cpu_reduction": reduction,
         "adoption_gate_passed": not differences

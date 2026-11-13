@@ -41,7 +41,7 @@ The 64 games are 32 unique assignments run once by each runner.
 
 ## Verification and raw evidence
 
-The read-only verifier checks the freeze/source bindings, checkpoint
+The read-only verifier checks the frozen execution-source snapshot, checkpoint
 assignments, attempt-to-checkpoint receipts, attempt reconciliation, and exact
 semantic equality of trajectories, outcomes, search settings, and retained
 training rows. Timing and runner metadata are excluded from semantic
@@ -49,13 +49,15 @@ comparison. It reported zero mismatches and a 0.343002 CPU reduction ratio.
 
 Raw pair checkpoints, completed attempt receipts, and execution order are in
 [`evidence/`](data/seed583-probe-reuse-generation-validation/evidence/).
-The evidence directory contains 65 files; the aggregate inventory digest is
-recorded in `results.json`. Summary metrics and gate status are in
+The evidence directory contains 65 files; its independently published
+inventory digest is
+`0edfb1dce65247f1427b6f7679008e9c471b63df114dc1449ef34d5b5dbd0276`.
+Summary metrics and gate status are in
 [`results.json`](data/seed583-probe-reuse-generation-validation/results.json).
 Reproduce verification from the repository root:
 
 ```bash
-.venv/bin/python -m ml.alphazero_lite.verify_seed583_probe_reuse_generation --freeze docs/data/seed583-probe-reuse-generation-validation/freeze.json --expected-freeze-sha256 edbc5c72031064dde8cb5491efc4e9e2130300acc35325cfcd6ca92bc8371b77 --evidence docs/data/seed583-probe-reuse-generation-validation/evidence --results docs/data/seed583-probe-reuse-generation-validation/results.json
+.venv/bin/python -m ml.alphazero_lite.verify_seed583_probe_reuse_generation --freeze docs/data/seed583-probe-reuse-generation-validation/freeze.json --expected-freeze-sha256 edbc5c72031064dde8cb5491efc4e9e2130300acc35325cfcd6ca92bc8371b77 --expected-evidence-inventory-sha256 0edfb1dce65247f1427b6f7679008e9c471b63df114dc1449ef34d5b5dbd0276 --evidence docs/data/seed583-probe-reuse-generation-validation/evidence --results docs/data/seed583-probe-reuse-generation-validation/results.json
 ```
 
 **Recommendation:** authorize v2 for future generation runs subject to the

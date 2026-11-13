@@ -5,6 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from ml.alphazero_lite import validate_varied_opponent_probe_reuse as validation
 
 
@@ -79,3 +81,20 @@ def test_semantic_comparison_catches_trajectory_and_retained_row_mismatch() -> N
     assert validation.verify_output_pair(
         {"games": [game]}, {"games": [changed_settings]}
     )
+
+
+def test_historical_snapshot_is_not_accepted_by_live_freeze_check() -> None:
+    freeze_path = validation.ROOT / validation.OUTPUT_ROOT / "freeze.json"
+    freeze = validation.json.loads(freeze_path.read_text())
+    with pytest.raises(ValueError, match="validation_source_hash_mismatch"):
+        validation.verify_freeze(freeze)
+    with pytest.raises(ValueError, match="validation_source_hash_mismatch"):
+        validation.preflight(freeze, Path("unused-artifacts"))
+    with pytest.raises(ValueError, match="validation_source_hash_mismatch"):
+        validation.execute(
+            freeze_path,
+            Path("unused-artifacts"),
+            Path("unused-output"),
+            freeze["freeze_sha256"],
+        )
+    validation.verify_freeze(freeze, allow_historical_snapshot=True)
