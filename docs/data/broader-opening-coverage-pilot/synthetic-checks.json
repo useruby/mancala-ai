@@ -1,0 +1,15 @@
+{
+  "schema": "broader_opening_coverage_synthetic_checks_v1",
+  "command": "/home/alex/azlite-venv/bin/python -m pytest ml/alphazero_lite/test_broader_opening_coverage_pilot.py ml/alphazero_lite/test_run_varied_opponent_pilot_v2.py -q",
+  "result": "passed",
+  "summary": "13 passed, 3 subtests passed",
+  "checks": {
+    "deterministic_matching_and_canonical_identity": "passed; 62 unique controls and treatments, no cross-arm identity overlap, exact three-field signatures, two frozen unmatched controls",
+    "deterministic_matching_and_production_float32_identity": "passed; 62 unique controls and treatments, no cross-arm identity overlap, exact three-field signatures, two frozen unmatched controls",
+    "supplied_opening_exclusion_control_and_treatment_both_identity_schemes": "passed",
+    "treatment_opponent_is_designated_P": "passed",
+    "v2_checkpoint_resume_skips_verified_pair_without_replay": "passed",
+    "v2_probe_lifecycle_and_external_freeze_digest_regressions": "passed"
+  },
+  "games_launched": 0
+}
