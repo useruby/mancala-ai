@@ -1299,7 +1299,7 @@
     }
   ],
   "game_count": 256,
-  "manifest_sha256": "d62bf636b5c7c10f09d2b7048ee4b109cc74fbe78a43c9ed12a1cef58801513a",
+  "manifest_sha256": "d5bf560e2932b58c643cce872c17d4608bbb358cc9e7372979b898d1228302af",
   "pair_count": 128,
   "pair_order": [
     "control-opening-0000",
@@ -150027,11 +150027,9 @@
   ],
   "runtime": {
     "native_probe": {
-      "path": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_tablebase",
       "sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48"
     },
     "tablebase": {
-      "path": "/home/alex/Mancala/ai/model-artifact/runtime/kalah_v1_21.kvtb",
       "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
     }
   },

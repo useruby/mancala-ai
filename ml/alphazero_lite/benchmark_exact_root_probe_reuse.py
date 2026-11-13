@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "docs/data/varied-opponent-coverage-pilot"
 FREEZE_SHA = "8da846678e89568e17e7bd81270287ef373e1f8acdfcbc892317d08385ad4c36"
 EVIDENCE_SHA = "7c8d32ced1fd56ae71f261b9dcbc482b5248a62ce825409513bb9ad78aed2c0c"
-MANIFEST_SHA = "d62bf636b5c7c10f09d2b7048ee4b109cc74fbe78a43c9ed12a1cef58801513a"
+MANIFEST_SHA = "d5bf560e2932b58c643cce872c17d4608bbb358cc9e7372979b898d1228302af"
 
 
 def _child_cpu_ns() -> int:
@@ -151,7 +151,10 @@ def build_manifest(artifact_root: Path) -> dict[str, Any]:
         "schema": "exact_root_probe_reuse_manifest_v1",
         "freeze_sha256": FREEZE_SHA,
         "evidence_manifest_sha256": EVIDENCE_SHA,
-        "runtime": evaluators.runtime_policy["runtime_assets"],
+        "runtime": {
+            name: {"sha256": asset["sha256"]}
+            for name, asset in evaluators.runtime_policy["runtime_assets"].items()
+        },
         "execution_freeze": {
             "pair_concurrency": 1,
             "workers_per_game": 1,
@@ -181,6 +184,14 @@ def build_manifest(artifact_root: Path) -> dict[str, Any]:
 def _decide(probe: NativeExactRootTablebase, request: dict[str, Any]) -> dict[str, Any]:
     game = KalahGame.from_state(request["state"])
     margins = probe.root_action_margins(game, int(game.current_player))
+    legal_moves = {int(move) for move in request["legal_moves"]}
+    observed_moves = {int(move) for move in margins}
+    if observed_moves != legal_moves:
+        raise ValueError(
+            "native_probe_legal_action_coverage_mismatch:"
+            f"missing={sorted(legal_moves - observed_moves)}:"
+            f"unexpected={sorted(observed_moves - legal_moves)}"
+        )
     priors = request["tie_break_priors"]
     optimal = [
         action for action, margin in margins.items() if margin == max(margins.values())
@@ -296,6 +307,12 @@ def benchmark(
     for request in requests:
         key = str(request["game_id"]) + f":{request['ply']}"
         left, right = base_outputs[key], treatment_outputs[key]
+        expected_moves = {str(int(move)) for move in request["legal_moves"]}
+        for lifetime, result in (("per_game", left), ("per_pair", right)):
+            if set(result["action_margins"]) != expected_moves:
+                raise ValueError(
+                    f"benchmark_legal_action_coverage_mismatch:{lifetime}:{key}"
+                )
         if left != right:
             mismatches.append(
                 {
@@ -389,7 +406,14 @@ def main() -> None:
         "--manifest", type=Path, default=DATA / "probe-reuse-manifest.json"
     )
     parser.add_argument(
-        "--output", type=Path, default=DATA / "probe-reuse-benchmark.json"
+        "--output",
+        type=Path,
+        default=DATA / "probe-reuse-benchmark-reproduced.json",
+    )
+    parser.add_argument(
+        "--manifest-output",
+        type=Path,
+        help="required for manifest mode; writes a separate manifest file",
     )
     parser.add_argument(
         "--probe",
@@ -403,13 +427,28 @@ def main() -> None:
     )
     args = parser.parse_args()
     if args.mode == "manifest":
+        if args.manifest_output is None:
+            parser.error("manifest mode requires --manifest-output")
+        if (
+            args.manifest_output.resolve()
+            == (DATA / "probe-reuse-manifest.json").resolve()
+        ):
+            parser.error("refusing to overwrite the committed request manifest")
         result = build_manifest(args.artifacts)
-        args.manifest.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
+        args.manifest_output.write_text(
+            json.dumps(result, indent=2, sort_keys=True) + "\n"
+        )
     else:
         manifest = json.loads(args.manifest.read_text())
         scope = validate_frozen_benchmark(manifest, args.probe, args.tablebase)
         result = benchmark(manifest, args.probe, args.tablebase)
         result["resource_scope"] = scope["live_resources"]
+        protected_paths = {
+            (DATA / "probe-reuse-benchmark.json").resolve(),
+            args.manifest.resolve(),
+        }
+        if args.output.resolve() in protected_paths:
+            parser.error("refusing to overwrite the published benchmark evidence")
         args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     print(
         json.dumps(

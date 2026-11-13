@@ -2,7 +2,7 @@
   "archived_margin_mismatches": [],
   "archived_move_mismatches": [],
   "decision_mismatches": [],
-  "manifest_sha256": "d62bf636b5c7c10f09d2b7048ee4b109cc74fbe78a43c9ed12a1cef58801513a",
+  "manifest_sha256": "d5bf560e2932b58c643cce872c17d4608bbb358cc9e7372979b898d1228302af",
   "native_child_cpu_ns": {
     "per_game": 971650598000,
     "per_pair": 485655560000,

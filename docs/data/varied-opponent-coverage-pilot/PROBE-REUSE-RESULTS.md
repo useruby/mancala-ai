@@ -14,7 +14,7 @@ order, including games with no exact-root requests. It contains 3,354 exact-root
 requests with pair/game/ply, state, legal actions, archived move, and evaluator
 priors for the side to move. It cross-checks all 1,707 retained designated-P
 exact-root rows for state, legal actions, selected move, and priors. Manifest
-SHA-256: `d62bf636b5c7c10f09d2b7048ee4b109cc74fbe78a43c9ed12a1cef58801513a`.
+SHA-256: `d5bf560e2932b58c643cce872c17d4608bbb358cc9e7372979b898d1228302af`.
 
 The manifest binds native probe SHA-256
 `d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48` and
@@ -44,19 +44,22 @@ against varied opponents. #483 remains closed.
 
 ## Reproduction
 
-From the repository root, reconstruct and freeze the requests, then benchmark:
+From the repository root, reproduce the benchmark from the committed manifest:
 
 ```bash
 git lfs pull --include=model-artifact/runtime/kalah_v1_21.kvtb
-python -m ml.alphazero_lite.benchmark_exact_root_probe_reuse manifest
 systemd-run --user --scope --quiet \
   --property=CPUQuota=1800% --property=CPUWeight=100 \
   --property=MemoryMax=38654705664 --property=AllowedCPUs=14-31 --nice=19 -- \
   taskset -c 14-31 python -m ml.alphazero_lite.benchmark_exact_root_probe_reuse benchmark \
-  --manifest docs/data/varied-opponent-coverage-pilot/probe-reuse-manifest.json
+  --manifest docs/data/varied-opponent-coverage-pilot/probe-reuse-manifest.json \
+  --output docs/data/varied-opponent-coverage-pilot/probe-reuse-benchmark-reproduced.json
 python -m unittest ml.alphazero_lite.test_benchmark_exact_root_probe_reuse
 ```
 
-The verifier recomputes the published evidence digest before building the
-manifest. The benchmark command reads only the frozen manifest and local native
-runtime inputs; it does not replay or launch games.
+The command reads the committed, digest-pinned manifest and writes to a separate
+reproduction result file; it does not rebuild or overwrite the freeze or
+published benchmark evidence. Runtime assets are authenticated by SHA-256, not
+by their original absolute locations. To use relocated copies, pass their paths
+with `--probe PATH` and `--tablebase PATH`; both hashes must still match the
+manifest. The benchmark does not replay or launch games.
