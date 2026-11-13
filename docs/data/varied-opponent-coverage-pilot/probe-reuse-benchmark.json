@@ -1,0 +1,567 @@
+{
+  "archived_margin_mismatches": [],
+  "archived_move_mismatches": [],
+  "decision_mismatches": [],
+  "manifest_sha256": "d5bf560e2932b58c643cce872c17d4608bbb358cc9e7372979b898d1228302af",
+  "native_child_cpu_ns": {
+    "per_game": 971650598000,
+    "per_pair": 485655560000,
+    "reduction_fraction": 0.500174691396629
+  },
+  "per_pair_native_child_cpu_ns": {
+    "control-opening-0000": {
+      "per_game": 7395860000,
+      "per_pair": 3725341000
+    },
+    "control-opening-0001": {
+      "per_game": 7432469000,
+      "per_pair": 3841381000
+    },
+    "control-opening-0002": {
+      "per_game": 7365354000,
+      "per_pair": 3732610000
+    },
+    "control-opening-0003": {
+      "per_game": 7681537000,
+      "per_pair": 3783731000
+    },
+    "control-opening-0004": {
+      "per_game": 7670132000,
+      "per_pair": 3781314000
+    },
+    "control-opening-0005": {
+      "per_game": 7633558000,
+      "per_pair": 3723937000
+    },
+    "control-opening-0006": {
+      "per_game": 7513645000,
+      "per_pair": 3781416000
+    },
+    "control-opening-0007": {
+      "per_game": 7626196000,
+      "per_pair": 3772056000
+    },
+    "control-opening-0008": {
+      "per_game": 7656040000,
+      "per_pair": 3798357000
+    },
+    "control-opening-0009": {
+      "per_game": 7523065000,
+      "per_pair": 3796575000
+    },
+    "control-opening-0010": {
+      "per_game": 7670494000,
+      "per_pair": 3818436000
+    },
+    "control-opening-0011": {
+      "per_game": 7661784000,
+      "per_pair": 3806377000
+    },
+    "control-opening-0012": {
+      "per_game": 7646578000,
+      "per_pair": 3832442000
+    },
+    "control-opening-0013": {
+      "per_game": 7599850000,
+      "per_pair": 3740836000
+    },
+    "control-opening-0014": {
+      "per_game": 7594444000,
+      "per_pair": 3785282000
+    },
+    "control-opening-0015": {
+      "per_game": 7545381000,
+      "per_pair": 3788564000
+    },
+    "control-opening-0016": {
+      "per_game": 7537988000,
+      "per_pair": 3798393000
+    },
+    "control-opening-0017": {
+      "per_game": 7570070000,
+      "per_pair": 3904402000
+    },
+    "control-opening-0018": {
+      "per_game": 7542094000,
+      "per_pair": 3769252000
+    },
+    "control-opening-0019": {
+      "per_game": 7638673000,
+      "per_pair": 3768034000
+    },
+    "control-opening-0020": {
+      "per_game": 7664662000,
+      "per_pair": 3806965000
+    },
+    "control-opening-0021": {
+      "per_game": 7652747000,
+      "per_pair": 3851919000
+    },
+    "control-opening-0022": {
+      "per_game": 7587544000,
+      "per_pair": 3783189000
+    },
+    "control-opening-0023": {
+      "per_game": 7549012000,
+      "per_pair": 3786539000
+    },
+    "control-opening-0024": {
+      "per_game": 7488906000,
+      "per_pair": 3781976000
+    },
+    "control-opening-0025": {
+      "per_game": 7567372000,
+      "per_pair": 3771407000
+    },
+    "control-opening-0026": {
+      "per_game": 7634715000,
+      "per_pair": 3828222000
+    },
+    "control-opening-0027": {
+      "per_game": 7644928000,
+      "per_pair": 3893860000
+    },
+    "control-opening-0028": {
+      "per_game": 7546600000,
+      "per_pair": 3811270000
+    },
+    "control-opening-0029": {
+      "per_game": 7625588000,
+      "per_pair": 3772128000
+    },
+    "control-opening-0030": {
+      "per_game": 7552738000,
+      "per_pair": 3776553000
+    },
+    "control-opening-0031": {
+      "per_game": 7635823000,
+      "per_pair": 3808738000
+    },
+    "control-opening-0032": {
+      "per_game": 7708942000,
+      "per_pair": 3757620000
+    },
+    "control-opening-0033": {
+      "per_game": 7503885000,
+      "per_pair": 3795136000
+    },
+    "control-opening-0034": {
+      "per_game": 7550469000,
+      "per_pair": 3763881000
+    },
+    "control-opening-0035": {
+      "per_game": 7702058000,
+      "per_pair": 3748252000
+    },
+    "control-opening-0036": {
+      "per_game": 7262012000,
+      "per_pair": 3809324000
+    },
+    "control-opening-0037": {
+      "per_game": 7549805000,
+      "per_pair": 3721681000
+    },
+    "control-opening-0038": {
+      "per_game": 7519462000,
+      "per_pair": 3782130000
+    },
+    "control-opening-0039": {
+      "per_game": 7514880000,
+      "per_pair": 3772185000
+    },
+    "control-opening-0040": {
+      "per_game": 7588156000,
+      "per_pair": 3800331000
+    },
+    "control-opening-0041": {
+      "per_game": 7597217000,
+      "per_pair": 3784505000
+    },
+    "control-opening-0042": {
+      "per_game": 7514678000,
+      "per_pair": 3768169000
+    },
+    "control-opening-0043": {
+      "per_game": 7645783000,
+      "per_pair": 3792789000
+    },
+    "control-opening-0044": {
+      "per_game": 7617743000,
+      "per_pair": 3760846000
+    },
+    "control-opening-0045": {
+      "per_game": 7562757000,
+      "per_pair": 3858092000
+    },
+    "control-opening-0046": {
+      "per_game": 7678701000,
+      "per_pair": 3771279000
+    },
+    "control-opening-0047": {
+      "per_game": 7523948000,
+      "per_pair": 3777695000
+    },
+    "control-opening-0048": {
+      "per_game": 7688394000,
+      "per_pair": 3783659000
+    },
+    "control-opening-0049": {
+      "per_game": 7682459000,
+      "per_pair": 3782228000
+    },
+    "control-opening-0050": {
+      "per_game": 7617722000,
+      "per_pair": 3835415000
+    },
+    "control-opening-0051": {
+      "per_game": 7615382000,
+      "per_pair": 3767399000
+    },
+    "control-opening-0052": {
+      "per_game": 7530752000,
+      "per_pair": 3789305000
+    },
+    "control-opening-0053": {
+      "per_game": 7567778000,
+      "per_pair": 3801227000
+    },
+    "control-opening-0054": {
+      "per_game": 7515822000,
+      "per_pair": 3763138000
+    },
+    "control-opening-0055": {
+      "per_game": 7566151000,
+      "per_pair": 3763918000
+    },
+    "control-opening-0056": {
+      "per_game": 7548494000,
+      "per_pair": 3791205000
+    },
+    "control-opening-0057": {
+      "per_game": 7544927000,
+      "per_pair": 3794053000
+    },
+    "control-opening-0058": {
+      "per_game": 7556163000,
+      "per_pair": 3789954000
+    },
+    "control-opening-0059": {
+      "per_game": 7690705000,
+      "per_pair": 3776260000
+    },
+    "control-opening-0060": {
+      "per_game": 7539095000,
+      "per_pair": 3822361000
+    },
+    "control-opening-0061": {
+      "per_game": 7683324000,
+      "per_pair": 3769238000
+    },
+    "control-opening-0062": {
+      "per_game": 7559467000,
+      "per_pair": 3762875000
+    },
+    "control-opening-0063": {
+      "per_game": 7627238000,
+      "per_pair": 3791353000
+    },
+    "treatment-opening-0000": {
+      "per_game": 7599234000,
+      "per_pair": 3705149000
+    },
+    "treatment-opening-0001": {
+      "per_game": 7409003000,
+      "per_pair": 3658712000
+    },
+    "treatment-opening-0002": {
+      "per_game": 7793621000,
+      "per_pair": 3791278000
+    },
+    "treatment-opening-0003": {
+      "per_game": 7620132000,
+      "per_pair": 3778078000
+    },
+    "treatment-opening-0004": {
+      "per_game": 7528347000,
+      "per_pair": 3777458000
+    },
+    "treatment-opening-0005": {
+      "per_game": 7590654000,
+      "per_pair": 3853259000
+    },
+    "treatment-opening-0006": {
+      "per_game": 7605696000,
+      "per_pair": 3805973000
+    },
+    "treatment-opening-0007": {
+      "per_game": 7613082000,
+      "per_pair": 3932165000
+    },
+    "treatment-opening-0008": {
+      "per_game": 7548327000,
+      "per_pair": 3744427000
+    },
+    "treatment-opening-0009": {
+      "per_game": 7742741000,
+      "per_pair": 3792493000
+    },
+    "treatment-opening-0010": {
+      "per_game": 7548607000,
+      "per_pair": 3845264000
+    },
+    "treatment-opening-0011": {
+      "per_game": 7537765000,
+      "per_pair": 3765185000
+    },
+    "treatment-opening-0012": {
+      "per_game": 7534682000,
+      "per_pair": 3866799000
+    },
+    "treatment-opening-0013": {
+      "per_game": 7543352000,
+      "per_pair": 3761148000
+    },
+    "treatment-opening-0014": {
+      "per_game": 7564623000,
+      "per_pair": 3833253000
+    },
+    "treatment-opening-0015": {
+      "per_game": 7614313000,
+      "per_pair": 3799781000
+    },
+    "treatment-opening-0016": {
+      "per_game": 7583393000,
+      "per_pair": 3767199000
+    },
+    "treatment-opening-0017": {
+      "per_game": 7560685000,
+      "per_pair": 3923645000
+    },
+    "treatment-opening-0018": {
+      "per_game": 7732077000,
+      "per_pair": 3754353000
+    },
+    "treatment-opening-0019": {
+      "per_game": 7568822000,
+      "per_pair": 3763739000
+    },
+    "treatment-opening-0020": {
+      "per_game": 7459821000,
+      "per_pair": 3768855000
+    },
+    "treatment-opening-0021": {
+      "per_game": 7661233000,
+      "per_pair": 3808556000
+    },
+    "treatment-opening-0022": {
+      "per_game": 7527518000,
+      "per_pair": 3793872000
+    },
+    "treatment-opening-0023": {
+      "per_game": 7504349000,
+      "per_pair": 3775185000
+    },
+    "treatment-opening-0024": {
+      "per_game": 7589894000,
+      "per_pair": 3932016000
+    },
+    "treatment-opening-0025": {
+      "per_game": 7596368000,
+      "per_pair": 3782874000
+    },
+    "treatment-opening-0026": {
+      "per_game": 7571171000,
+      "per_pair": 3863457000
+    },
+    "treatment-opening-0027": {
+      "per_game": 7581532000,
+      "per_pair": 3812844000
+    },
+    "treatment-opening-0028": {
+      "per_game": 7576110000,
+      "per_pair": 3787550000
+    },
+    "treatment-opening-0029": {
+      "per_game": 7558546000,
+      "per_pair": 3773087000
+    },
+    "treatment-opening-0030": {
+      "per_game": 7589331000,
+      "per_pair": 3757994000
+    },
+    "treatment-opening-0031": {
+      "per_game": 7592098000,
+      "per_pair": 3774635000
+    },
+    "treatment-opening-0032": {
+      "per_game": 7570785000,
+      "per_pair": 3821596000
+    },
+    "treatment-opening-0033": {
+      "per_game": 7566494000,
+      "per_pair": 3765617000
+    },
+    "treatment-opening-0034": {
+      "per_game": 7610385000,
+      "per_pair": 3750474000
+    },
+    "treatment-opening-0035": {
+      "per_game": 7640596000,
+      "per_pair": 3949210000
+    },
+    "treatment-opening-0036": {
+      "per_game": 7637691000,
+      "per_pair": 3760191000
+    },
+    "treatment-opening-0037": {
+      "per_game": 7607012000,
+      "per_pair": 3745446000
+    },
+    "treatment-opening-0038": {
+      "per_game": 7491954000,
+      "per_pair": 3773974000
+    },
+    "treatment-opening-0039": {
+      "per_game": 7646270000,
+      "per_pair": 3781234000
+    },
+    "treatment-opening-0040": {
+      "per_game": 7672174000,
+      "per_pair": 3774304000
+    },
+    "treatment-opening-0041": {
+      "per_game": 7628840000,
+      "per_pair": 3874274000
+    },
+    "treatment-opening-0042": {
+      "per_game": 7539156000,
+      "per_pair": 3802486000
+    },
+    "treatment-opening-0043": {
+      "per_game": 7467862000,
+      "per_pair": 3859152000
+    },
+    "treatment-opening-0044": {
+      "per_game": 7654566000,
+      "per_pair": 3840386000
+    },
+    "treatment-opening-0045": {
+      "per_game": 7732919000,
+      "per_pair": 3783889000
+    },
+    "treatment-opening-0046": {
+      "per_game": 7809537000,
+      "per_pair": 3744552000
+    },
+    "treatment-opening-0047": {
+      "per_game": 7629685000,
+      "per_pair": 3747058000
+    },
+    "treatment-opening-0048": {
+      "per_game": 7532676000,
+      "per_pair": 3766397000
+    },
+    "treatment-opening-0049": {
+      "per_game": 7754826000,
+      "per_pair": 3762754000
+    },
+    "treatment-opening-0050": {
+      "per_game": 7579984000,
+      "per_pair": 3803298000
+    },
+    "treatment-opening-0051": {
+      "per_game": 7694541000,
+      "per_pair": 3807910000
+    },
+    "treatment-opening-0052": {
+      "per_game": 7546240000,
+      "per_pair": 3814632000
+    },
+    "treatment-opening-0053": {
+      "per_game": 7560043000,
+      "per_pair": 3801850000
+    },
+    "treatment-opening-0054": {
+      "per_game": 7532033000,
+      "per_pair": 3820784000
+    },
+    "treatment-opening-0055": {
+      "per_game": 7714952000,
+      "per_pair": 3786258000
+    },
+    "treatment-opening-0056": {
+      "per_game": 7601494000,
+      "per_pair": 3782013000
+    },
+    "treatment-opening-0057": {
+      "per_game": 7683906000,
+      "per_pair": 3830438000
+    },
+    "treatment-opening-0058": {
+      "per_game": 7579813000,
+      "per_pair": 3747288000
+    },
+    "treatment-opening-0059": {
+      "per_game": 7630069000,
+      "per_pair": 3837372000
+    },
+    "treatment-opening-0060": {
+      "per_game": 7686693000,
+      "per_pair": 3801975000
+    },
+    "treatment-opening-0061": {
+      "per_game": 7558126000,
+      "per_pair": 3837812000
+    },
+    "treatment-opening-0062": {
+      "per_game": 7527052000,
+      "per_pair": 3822690000
+    },
+    "treatment-opening-0063": {
+      "per_game": 7684881000,
+      "per_pair": 3838958000
+    }
+  },
+  "requests": 3354,
+  "resource_scope": {
+    "affinity": [
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "cpu_max": "1800000 100000",
+    "cpu_weight": 100,
+    "cpuset_cpus_effective": null,
+    "memory_max_bytes": 38654705664,
+    "nice": 19
+  },
+  "schema": "exact_root_probe_reuse_benchmark_v1",
+  "threshold_passed": true,
+  "wall_times": {
+    "per_game": {
+      "query_wall_ns": 181471208,
+      "startup_wall_ns": 197966062,
+      "warmup_wall_ns": 965180433523
+    },
+    "per_pair": {
+      "query_wall_ns": 138565944,
+      "startup_wall_ns": 97425069,
+      "warmup_wall_ns": 482182616606
+    }
+  }
+}
