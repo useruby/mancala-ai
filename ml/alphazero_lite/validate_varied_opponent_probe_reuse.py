@@ -6,6 +6,7 @@ import argparse
 import concurrent.futures
 import hashlib
 import json
+import os
 import subprocess
 import sys
 import time
@@ -79,14 +80,25 @@ def build_freeze(source_root: Path = ROOT) -> dict[str, Any]:
     if counts != {"control": 8, "initializer": 4, "T512": 4}:
         raise ValueError("subset_arm_counts_mismatch")
 
-    artifacts = (
-        source_root
-        / "docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts"
+    v2_freeze = json.loads(
+        (source_root / "docs/data/varied-opponent-pilot-v2/freeze.json").read_text()
     )
-    effective = pilot.effective_runtime_policy(artifacts)
+    tablebase = Path(
+        os.environ.get(
+            "AZLITE_KALAH_V1_TABLEBASE",
+            source_root / "model-artifact/runtime/kalah_v1_21.kvtb",
+        )
+    )
+    asset_paths = {
+        "native_probe": source_root / "model-artifact/runtime/kalah_v1_tablebase",
+        "tablebase": tablebase,
+    }
     assets = {
-        name: {"path": value["path"], "sha256": value["sha256"]}
-        for name, value in effective["runtime_assets"].items()
+        name: {
+            "path": str(path.resolve()),
+            "sha256": v2_freeze["runtime_assets"][name]["sha256"],
+        }
+        for name, path in asset_paths.items()
     }
     freeze: dict[str, Any] = {
         "schema": "probe_reuse_generation_validation_freeze_v1",
