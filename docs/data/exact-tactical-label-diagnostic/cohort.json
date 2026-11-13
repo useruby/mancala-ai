@@ -1,5 +1,5 @@
 {
-  "cohort_sha256": "9f19af438a5c6103cc8ed2cfbe023360dece1b90db5d696d07f0489129ef61ff",
+  "cohort_sha256": "0cf229a69d9ee895dc1aa75991a154f92f6881699cc118e0c0d6e4bef47a52f8",
   "deduplication": {
     "candidate_rows": 793,
     "opening_groups": 116,
@@ -10430,12 +10430,18 @@
     "no_games_training_or_serving_changes": true,
     "per_action_wall_seconds": 5,
     "per_root_wall_seconds": 30,
-    "search": "full-depth alpha-beta; only exact completed margins count as certified; timeout is unresolved",
+    "search": "full-depth alpha-beta with exact tablebase values at descendant states of 21 or fewer active stones; only exact completed margins count as certified; timeout is unresolved",
     "tt_entries": 500000
+  },
+  "solver_source_sha256": {
+    "diagnostic": "6035e1fab581120fe7d344ffd83560ce5c71796d0d1781571cfb114f524770cf",
+    "exact_kalah_solver": "be26271ebdeb54a4be8729235390d6c70e9a2edbabcbf78e356b1e89ca10e245",
+    "native_root_tablebase_adapter": "bf241fa772efd122355b0706fff9035ee40f6cb9ac913fdd829444f359d62f15"
   },
   "source_evidence_digest_sha256": "e1cf047b1e8587d673ae711c11e29eb9125240391d945a581a27ce47ce37cd75",
   "source_freeze_sha256": "3f2ccca4fae605f826b4fb00e0adb6f88c8c87ad8ca1373152aea051133f75b5",
   "source_pr": 585,
+  "tablebase_binary_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
   "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
-  "tablebase_use": "authenticated Kalah v1 21-stone tablebase is eligible for descendants; root-level callback is not integrated in this first bounded solver implementation"
+  "tablebase_use": "exact native Kalah v1 21-stone tablebase values terminate descendant search at every eligible nonterminal state"
 }

@@ -24,6 +24,8 @@ from ml.alphazero_lite.exact_kalah_solver import (
     ExactState,
     SearchTimeout,
 )
+from ml.alphazero_lite.kalah_rules import KalahGame
+from ml.alphazero_lite.native_exact_root_tablebase import NativeExactRootTablebase
 
 ROOT = Path(__file__).resolve().parents[2]
 ARCHIVE = ROOT / "docs/data/broader-opening-coverage-pilot"
@@ -35,11 +37,39 @@ ARCHIVE_FREEZE_SHA256 = (
     "3f2ccca4fae605f826b4fb00e0adb6f88c8c87ad8ca1373152aea051133f75b5"
 )
 TABLEBASE_SHA256 = "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7"
+TABLEBASE_BINARY_SHA256 = (
+    "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48"
+)
 COHORT_SIZE = 256
 SELECTION_SEED = "585-exact-tactical-v1"
 PER_ROOT_SECONDS = 30
 PER_ACTION_SECONDS = 5
 MAX_TT_ENTRIES = 500_000
+
+
+class TablebaseBoundedSolver(ExactKalahSolver):
+    """Use exact KVTB values at every eligible nonterminal descendant."""
+
+    def __init__(self, tablebase: NativeExactRootTablebase, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.tablebase = tablebase
+
+    def _search(self, state: ExactState, alpha: int, beta: int) -> int:
+        if sum(state.pits) <= 21 and not state.is_terminal():
+            key = state.key()
+            entry = self._lookup(key)
+            if entry is not None and entry[1] == 0:
+                return entry[0]
+            game = KalahGame.from_state(state.to_game_state())
+            margins = self.tablebase.root_action_margins(game, perspective_player=0)
+            value = (
+                max(margins.values())
+                if state.current_player == 0
+                else min(margins.values())
+            )
+            self._store(key, value, 0)
+            return value
+        return super()._search(state, alpha, beta)
 
 
 def _json(path: Path) -> Any:
@@ -106,6 +136,9 @@ def freeze() -> dict[str, Any]:
     tablebase = ROOT / "model-artifact/runtime/kalah_v1_21.kvtb"
     if _sha(tablebase) != TABLEBASE_SHA256:
         raise ValueError("authenticated_tablebase_hash_mismatch")
+    binary = ROOT / "model-artifact/runtime/kalah_v1_tablebase"
+    if _sha(binary) != TABLEBASE_BINARY_SHA256:
+        raise ValueError("authenticated_tablebase_binary_hash_mismatch")
 
     candidates = [
         item
@@ -179,7 +212,17 @@ def freeze() -> dict[str, Any]:
         "source_evidence_digest_sha256": ARCHIVE_EVIDENCE_SHA256,
         "source_freeze_sha256": ARCHIVE_FREEZE_SHA256,
         "tablebase_sha256": TABLEBASE_SHA256,
-        "tablebase_use": "authenticated Kalah v1 21-stone tablebase is eligible for descendants; root-level callback is not integrated in this first bounded solver implementation",
+        "tablebase_binary_sha256": TABLEBASE_BINARY_SHA256,
+        "tablebase_use": "exact native Kalah v1 21-stone tablebase values terminate descendant search at every eligible nonterminal state",
+        "solver_source_sha256": {
+            "diagnostic": _sha(Path(__file__).resolve()),
+            "exact_kalah_solver": _sha(
+                ROOT / "ml/alphazero_lite/exact_kalah_solver.py"
+            ),
+            "native_root_tablebase_adapter": _sha(
+                ROOT / "ml/alphazero_lite/native_exact_root_tablebase.py"
+            ),
+        },
         "selection_seed": SELECTION_SEED,
         "selection_rule": "Within each opening_id select by SHA256(seed:opening_group:row_id), then round-robin sorted opening groups; require uniqueness under canonical-state and production kalah_v3-float32 identities.",
         "deduplication": {
@@ -192,7 +235,7 @@ def freeze() -> dict[str, Any]:
             "per_action_wall_seconds": PER_ACTION_SECONDS,
             "tt_entries": MAX_TT_ENTRIES,
             "move_order": "ascending",
-            "search": "full-depth alpha-beta; only exact completed margins count as certified; timeout is unresolved",
+            "search": "full-depth alpha-beta with exact tablebase values at descendant states of 21 or fewer active stones; only exact completed margins count as certified; timeout is unresolved",
             "no_games_training_or_serving_changes": True,
         },
         "roots": roots,
@@ -213,78 +256,81 @@ def solve() -> dict[str, Any]:
     tablebase = ROOT / "model-artifact/runtime/kalah_v1_21.kvtb"
     if _sha(tablebase) != TABLEBASE_SHA256:
         raise ValueError("authenticated_tablebase_hash_mismatch")
+    binary = ROOT / "model-artifact/runtime/kalah_v1_tablebase"
+    if _sha(binary) != TABLEBASE_BINARY_SHA256:
+        raise ValueError("authenticated_tablebase_binary_hash_mismatch")
     evidence = []
-    for root in cohort["roots"]:
-        start = time.monotonic()
-        state = ExactState.from_game_state(root["state"])
-        actions: dict[str, Any] = {}
-        for move in root["legal_moves"]:
-            remaining = min(
-                root["per_action_seconds"],
-                max(0.001, root["budget_seconds"] - (time.monotonic() - start)),
+    with NativeExactRootTablebase(binary, tablebase) as native:
+        for root in cohort["roots"]:
+            start = time.monotonic()
+            state = ExactState.from_game_state(root["state"])
+            actions: dict[str, Any] = {}
+            solver = TablebaseBoundedSolver(
+                native, tt_size=root["tt_entries"], move_order="ascending"
             )
-            solver = ExactKalahSolver(
-                tt_size=root["tt_entries"], move_order="ascending"
-            )
-            try:
-                margin = solver.solve(
-                    state.play(int(move)), time_limit_seconds=remaining
+            for move in root["legal_moves"]:
+                remaining = min(
+                    root["per_action_seconds"],
+                    max(0.001, root["budget_seconds"] - (time.monotonic() - start)),
                 )
-                actions[str(move)] = {
-                    "lower": margin,
-                    "upper": margin,
-                    "exact": True,
-                    "nodes": solver.nodes,
-                }
-            except SearchTimeout:
-                actions[str(move)] = {
-                    "lower": None,
-                    "upper": None,
-                    "exact": False,
-                    "nodes": solver.nodes,
-                }
-            finally:
-                solver.close()
-            if time.monotonic() - start >= root["budget_seconds"]:
-                for pending in root["legal_moves"][
-                    root["legal_moves"].index(move) + 1 :
-                ]:
-                    actions[str(pending)] = {
+                try:
+                    margin = solver.solve(
+                        state.play(int(move)), time_limit_seconds=remaining
+                    )
+                    actions[str(move)] = {
+                        "lower": margin,
+                        "upper": margin,
+                        "exact": True,
+                        "nodes": solver.nodes,
+                    }
+                except SearchTimeout:
+                    actions[str(move)] = {
                         "lower": None,
                         "upper": None,
                         "exact": False,
-                        "nodes": 0,
+                        "nodes": solver.nodes,
                     }
-                break
-        archived = actions[str(root["archived_move"])]
-        sign = 1 if int(root["state"]["current_player"]) == 0 else -1
-        proving_moves = [
-            int(move)
-            for move, bounds in actions.items()
-            if move != str(root["archived_move"])
-            and bounds["exact"]
-            and archived["exact"]
-            and sign * bounds["lower"] > sign * archived["upper"]
-        ]
-        complete = all(bounds["exact"] for bounds in actions.values())
-        exact_margins = [
-            bounds["lower"] for bounds in actions.values() if bounds["exact"]
-        ]
-        best = (max if sign == 1 else min)(exact_margins, default=None)
-        evidence.append(
-            {
-                "index": root["index"],
-                "actions": actions,
-                "archived_move": root["archived_move"],
-                "proven_inferior": bool(proving_moves),
-                "proving_moves": proving_moves,
-                "certified_best_action": complete,
-                "best_margin": best,
-                "archived_margin": archived["lower"] if archived["exact"] else None,
-                "status": "solved" if complete else "unresolved",
-                "elapsed_seconds": time.monotonic() - start,
-            }
-        )
+                if time.monotonic() - start >= root["budget_seconds"]:
+                    for pending in root["legal_moves"][
+                        root["legal_moves"].index(move) + 1 :
+                    ]:
+                        actions[str(pending)] = {
+                            "lower": None,
+                            "upper": None,
+                            "exact": False,
+                            "nodes": 0,
+                        }
+                    break
+            solver.close()
+            archived = actions[str(root["archived_move"])]
+            sign = 1 if int(root["state"]["current_player"]) == 0 else -1
+            proving_moves = [
+                int(move)
+                for move, bounds in actions.items()
+                if move != str(root["archived_move"])
+                and bounds["exact"]
+                and archived["exact"]
+                and sign * bounds["lower"] > sign * archived["upper"]
+            ]
+            complete = all(bounds["exact"] for bounds in actions.values())
+            exact_margins = [
+                bounds["lower"] for bounds in actions.values() if bounds["exact"]
+            ]
+            best = (max if sign == 1 else min)(exact_margins, default=None)
+            evidence.append(
+                {
+                    "index": root["index"],
+                    "actions": actions,
+                    "archived_move": root["archived_move"],
+                    "proven_inferior": bool(proving_moves),
+                    "proving_moves": proving_moves,
+                    "certified_best_action": complete,
+                    "best_margin": best,
+                    "archived_margin": archived["lower"] if archived["exact"] else None,
+                    "status": "solved" if complete else "unresolved",
+                    "elapsed_seconds": time.monotonic() - start,
+                }
+            )
     result = {
         "schema": "exact_tactical_label_evidence_v1",
         "cohort_sha256": recorded_hash,
