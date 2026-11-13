@@ -253,6 +253,16 @@ def solve() -> dict[str, Any]:
     recorded_hash = cohort.pop("cohort_sha256")
     if hashlib.sha256(_stable(cohort)).hexdigest() != recorded_hash:
         raise ValueError("cohort_hash_mismatch")
+    source_paths = {
+        "diagnostic": Path(__file__).resolve(),
+        "exact_kalah_solver": ROOT / "ml/alphazero_lite/exact_kalah_solver.py",
+        "native_root_tablebase_adapter": ROOT
+        / "ml/alphazero_lite/native_exact_root_tablebase.py",
+    }
+    if {name: _sha(path) for name, path in source_paths.items()} != cohort[
+        "solver_source_sha256"
+    ]:
+        raise ValueError("frozen_solver_source_hash_mismatch")
     tablebase = ROOT / "model-artifact/runtime/kalah_v1_21.kvtb"
     if _sha(tablebase) != TABLEBASE_SHA256:
         raise ValueError("authenticated_tablebase_hash_mismatch")
@@ -260,8 +270,16 @@ def solve() -> dict[str, Any]:
     if _sha(binary) != TABLEBASE_BINARY_SHA256:
         raise ValueError("authenticated_tablebase_binary_hash_mismatch")
     evidence = []
+    progress_path = OUT / "evidence-progress.json"
+    if progress_path.is_file():
+        progress = _json(progress_path)
+        if progress.get("cohort_sha256") != recorded_hash:
+            raise ValueError("solver_progress_cohort_mismatch")
+        evidence = list(progress.get("roots", []))
+        if len(evidence) > len(cohort["roots"]):
+            raise ValueError("solver_progress_root_count_invalid")
     with NativeExactRootTablebase(binary, tablebase) as native:
-        for root in cohort["roots"]:
+        for root in cohort["roots"][len(evidence) :]:
             start = time.monotonic()
             state = ExactState.from_game_state(root["state"])
             actions: dict[str, Any] = {}
@@ -331,6 +349,14 @@ def solve() -> dict[str, Any]:
                     "elapsed_seconds": time.monotonic() - start,
                 }
             )
+            progress_record = {
+                "schema": "exact_tactical_label_progress_v1",
+                "cohort_sha256": recorded_hash,
+                "roots": evidence,
+            }
+            progress_path.write_bytes(
+                json.dumps(progress_record, sort_keys=True, indent=2).encode() + b"\n"
+            )
     result = {
         "schema": "exact_tactical_label_evidence_v1",
         "cohort_sha256": recorded_hash,
@@ -373,7 +399,8 @@ def verify() -> dict[str, Any]:
         if result["proven_inferior"]:
             actual = result["archived_margin"]
             best = result["best_margin"]
-            if actual is None or best is None or actual >= best:
+            sign = 1 if int(root["state"]["current_player"]) == 0 else -1
+            if actual is None or best is None or sign * actual >= sign * best:
                 raise ValueError("inferiority_not_certified")
             # Outcome classes are from the perspective of the player to move.
             player = int(root["state"]["current_player"])

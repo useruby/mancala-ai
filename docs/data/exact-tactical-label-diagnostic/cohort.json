@@ -1,5 +1,5 @@
 {
-  "cohort_sha256": "0cf229a69d9ee895dc1aa75991a154f92f6881699cc118e0c0d6e4bef47a52f8",
+  "cohort_sha256": "6fcabe67cc4b36e41c1b084f330e9ac56524ac5e8a684160353b925750f583ab",
   "deduplication": {
     "candidate_rows": 793,
     "opening_groups": 116,
@@ -10434,7 +10434,7 @@
     "tt_entries": 500000
   },
   "solver_source_sha256": {
-    "diagnostic": "6035e1fab581120fe7d344ffd83560ce5c71796d0d1781571cfb114f524770cf",
+    "diagnostic": "91b0a5710d05eda5adaeb743cee387a2bcfd057893be8f89fe3b5aa430eda1d5",
     "exact_kalah_solver": "be26271ebdeb54a4be8729235390d6c70e9a2edbabcbf78e356b1e89ca10e245",
     "native_root_tablebase_adapter": "bf241fa772efd122355b0706fff9035ee40f6cb9ac913fdd829444f359d62f15"
   },
