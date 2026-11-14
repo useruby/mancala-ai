@@ -1,0 +1,85 @@
+{
+  "schema": "seed588-retrospective-raw-prior-freeze-v1",
+  "status": "preparation-only-review-required",
+  "protocol_sha256": "9fd9eaf9b35a28ac6f3e6105a99699ac21adadafa901cc1e6111d4e4dd1ab3b9",
+  "cohort": {
+    "source": "docs/data/seed559-fixed-position-feasibility/run-0003/cohort-manifest.json",
+    "roots": 512,
+    "membership_sha256": "f2e03fb9491474056e7a7cb3ace225cd2310f9069c9e48600d45039ed63158fb",
+    "one_root_per_opening": true,
+    "selection": "all roots, no post-hoc filtering",
+    "active_pit_stones": "recomputed from state; inclusive range 17..21"
+  },
+  "source_evidence_sha256": {
+    "cohort-manifest.json": "f2e03fb9491474056e7a7cb3ace225cd2310f9069c9e48600d45039ed63158fb",
+    "execution-freeze.json": "3b1ab386c33534130c7e15df024f21ef75359ccd00d453e4c6aea104c8181927",
+    "oracle-records.jsonl": "83bec1bb348cbc6d1183112363f27d0612ee204a48d14ee5dbb7530e9b5fb8c2",
+    "search-records.jsonl": "b2653c41fe34328386ae432a3e019568eba9df7c5dc82a596a18917e8c8fb12e"
+  },
+  "artifacts": {
+    "T512": "authenticated artifact hashes in #559 execution-freeze.json; source copy #556 screen-0005/runtime-artifacts/T512",
+    "P": "authenticated serving P artifact hashes in #559 execution-freeze.json; source copy #556 screen-0005/runtime-artifacts/P-E4"
+  },
+  "execution": {
+    "T512_forward_evaluations": 512,
+    "P_archived_prior_parity_evaluations": 512,
+    "PUCT": false,
+    "MCTS": false,
+    "search_workers": 0,
+    "native_oracle_execution": false,
+    "reuse_archived_P_after_parity_only": true,
+    "parity_max_abs_tolerance": 0.000001,
+    "parity_legal_action_mask": "exact",
+    "output_dtype": "float32",
+    "failed_parity": "stop; do not use archived predictions or change tolerance/cohort"
+  },
+  "runtime": {
+    "python": "3.12.8",
+    "numpy": "2.2.6",
+    "torch": "2.7.1+cpu",
+    "device": "cpu",
+    "pythonhashseed": "588",
+    "omp_num_threads": "1",
+    "mkl_num_threads": "1",
+    "torch_num_threads": 1,
+    "deterministic_algorithms": true,
+    "source": "proposed execution runtime based on the #512 runtime record; executor authorization must attest the actual environment and source dependency hashes before inference"
+  },
+  "analysis": {
+    "primary": "paired mean T512-minus-P probability mass on exact-optimal actions",
+    "secondary": [
+      "paired top-prior exact regret",
+      "exact-optimal top-prior selection rate",
+      "WDL downgrade rate"
+    ],
+    "bootstrap": {
+      "unit": "opening cluster",
+      "resamples": 20000,
+      "seed": 58820261114,
+      "quantiles": [0.025, 0.975],
+      "interpolation": "linear"
+    },
+    "advance_condition": "positive primary point estimate; primary 95% interval lower bound > 0; mean top-prior regret T512-P <= 0"
+  },
+  "historical_overlap": {
+    "verified": ["#559 construction excludes #557 and #418 canonical-state matches"],
+    "not_verified": ["Seed 461 continuations", "other uncovered historical populations", "complete historical non-overlap under both canonical and production float32 identities"],
+    "implication": "retrospective exploratory association only; no generalization or full-game strength claim"
+  },
+  "stopping_conditions": [
+    "any source, artifact, membership, legal action, active-stone, oracle, or runtime mismatch",
+    "P prior parity failure",
+    "non-finite output",
+    "missing or duplicate root",
+    "T512 evaluation count other than 512"
+  ],
+  "scope": {
+    "training": false,
+    "games": false,
+    "MCTS": false,
+    "sealed_suite_access": false,
+    "serving_P_changes": false,
+    "model_promotion": false,
+    "issue_483": "closed"
+  }
+}
