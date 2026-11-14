@@ -13,6 +13,7 @@ import hashlib
 import json
 import os
 import select
+import subprocess
 import time
 from pathlib import Path
 from typing import Any
@@ -58,6 +59,39 @@ class DeadlineNativeExactRootTablebase(NativeExactRootTablebase):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self._stdout_buffer = ""
+        self._probe_poisoned = False
+
+    def _launch_fresh_probe(self) -> None:
+        binary, tablebase = self.binary, self.tablebase
+        calls = self.calls
+        NativeExactRootTablebase.__init__(self, binary, tablebase)
+        self.calls = calls
+        self._stdout_buffer = ""
+        self._probe_poisoned = False
+
+    def _retire_timed_out_probe(self) -> None:
+        self._probe_poisoned = True
+        process = self.process
+        if process.poll() is None:
+            try:
+                process.terminate()
+            except ProcessLookupError:
+                pass
+            try:
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait()
+        for stream in (process.stdin, process.stdout):
+            if stream is not None:
+                try:
+                    stream.close()
+                except (OSError, ValueError):
+                    pass
+
+    def _raise_probe_timeout(self) -> None:
+        self._retire_timed_out_probe()
+        raise TimeoutError("native exact-root probe deadline exceeded")
 
     def root_action_margins(
         self,
@@ -86,6 +120,8 @@ class DeadlineNativeExactRootTablebase(NativeExactRootTablebase):
         *,
         timeout_seconds: float | None = None,
     ) -> object:
+        if self._probe_poisoned:
+            self._launch_fresh_probe()
         if self.process.poll() is not None:
             raise RuntimeError("native exact-root probe exited")
         assert self.process.stdin is not None and self.process.stdout is not None
@@ -100,17 +136,17 @@ class DeadlineNativeExactRootTablebase(NativeExactRootTablebase):
         while "\n" not in self._stdout_buffer:
             remaining = None if deadline is None else deadline - time.monotonic()
             if remaining is not None and remaining <= 0:
-                raise TimeoutError("native exact-root probe deadline exceeded")
+                self._raise_probe_timeout()
             readable, _, _ = select.select([self.process.stdout], [], [], remaining)
             if not readable:
-                raise TimeoutError("native exact-root probe deadline exceeded")
+                self._raise_probe_timeout()
             chunk = os.read(self.process.stdout.fileno(), 65536)
             if not chunk:
                 raise RuntimeError("native exact-root probe closed stdout")
             self._stdout_buffer += chunk.decode()
         line, self._stdout_buffer = self._stdout_buffer.split("\n", 1)
         if deadline is not None and time.monotonic() > deadline:
-            raise TimeoutError("native exact-root probe deadline exceeded")
+            self._raise_probe_timeout()
         response = json.loads(line)
         return response.get("actions")
 
@@ -171,6 +207,13 @@ def _sha(path: Path) -> str:
 
 def _stable(value: Any) -> bytes:
     return json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+
+
+def _reject_published_output(path: Path) -> Path:
+    output = path.resolve()
+    if output == OUT.resolve():
+        raise ValueError("published_output_directory_is_read_only")
+    return output
 
 
 def _state_from_row(row: dict[str, Any]) -> dict[str, Any]:
@@ -283,7 +326,7 @@ def _build_frozen_roots() -> tuple[list[dict[str, Any]], dict[str, int]]:
     }
 
 
-def freeze() -> dict[str, Any]:
+def freeze(output_dir: Path) -> dict[str, Any]:
     # Full source authentication and replay are performed by the independently
     # published #585 verifier before this command; bind its externally supplied
     # digest plus all source file hashes into our own freeze.
@@ -297,6 +340,9 @@ def freeze() -> dict[str, Any]:
     if _sha(binary) != TABLEBASE_BINARY_SHA256:
         raise ValueError("authenticated_tablebase_binary_hash_mismatch")
 
+    output_dir = _reject_published_output(output_dir)
+    if output_dir.exists():
+        raise ValueError("freeze_output_directory_must_be_new")
     roots, deduplication = _build_frozen_roots()
     cohort = {
         "schema": "exact_tactical_label_cohort_v1",
@@ -329,15 +375,21 @@ def freeze() -> dict[str, Any]:
         "roots": roots,
     }
     cohort["cohort_sha256"] = hashlib.sha256(_stable(cohort)).hexdigest()
-    OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / "cohort.json").write_bytes(
+    output_dir.mkdir(parents=True)
+    (output_dir / "cohort.json").write_bytes(
         json.dumps(cohort, sort_keys=True, indent=2).encode() + b"\n"
     )
     return cohort
 
 
-def solve() -> dict[str, Any]:
-    cohort = _json(OUT / "cohort.json")
+def solve(output_dir: Path) -> dict[str, Any]:
+    output_dir = _reject_published_output(output_dir)
+    if any(
+        (output_dir / name).exists()
+        for name in ("evidence.json", "tablebase-recheck.json")
+    ):
+        raise ValueError("solver_final_evidence_already_exists")
+    cohort = _json(output_dir / "cohort.json")
     recorded_hash = cohort.pop("cohort_sha256")
     if hashlib.sha256(_stable(cohort)).hexdigest() != recorded_hash:
         raise ValueError("cohort_hash_mismatch")
@@ -358,7 +410,7 @@ def solve() -> dict[str, Any]:
     if _sha(binary) != TABLEBASE_BINARY_SHA256:
         raise ValueError("authenticated_tablebase_binary_hash_mismatch")
     evidence = []
-    progress_path = OUT / "evidence-progress.json"
+    progress_path = output_dir / "evidence-progress.json"
     if progress_path.is_file():
         progress = _json(progress_path)
         if progress.get("cohort_sha256") != recorded_hash:
@@ -451,16 +503,20 @@ def solve() -> dict[str, Any]:
         "roots": evidence,
     }
     result["evidence_sha256"] = hashlib.sha256(_stable(result)).hexdigest()
-    (OUT / "evidence.json").write_bytes(
+    (output_dir / "evidence.json").write_bytes(
         json.dumps(result, sort_keys=True, indent=2).encode() + b"\n"
     )
     return result
 
 
-def recheck_exact_claims() -> dict[str, Any]:
+def recheck_exact_claims(output_dir: Path) -> dict[str, Any]:
     """Re-solve every previously exact action claim with hardened tablebase IO."""
-    cohort = _json(OUT / "cohort.json")
-    evidence = _json(OUT / "evidence.json")
+    output_dir = _reject_published_output(output_dir)
+    recheck_path = output_dir / "tablebase-recheck.json"
+    if recheck_path.exists():
+        raise ValueError("tablebase_recheck_output_already_exists")
+    cohort = _json(output_dir / "cohort.json")
+    evidence = _json(output_dir / "evidence.json")
     cohort_hash = cohort.pop("cohort_sha256")
     evidence_hash = evidence.pop("evidence_sha256")
     if hashlib.sha256(_stable(cohort)).hexdigest() != cohort_hash:
@@ -537,7 +593,7 @@ def recheck_exact_claims() -> dict[str, Any]:
         "claims": checked,
     }
     recheck["recheck_sha256"] = hashlib.sha256(_stable(recheck)).hexdigest()
-    (OUT / "tablebase-recheck.json").write_bytes(
+    recheck_path.write_bytes(
         json.dumps(recheck, sort_keys=True, indent=2).encode() + b"\n"
     )
     return recheck
@@ -611,18 +667,27 @@ def main() -> None:
     parser.add_argument(
         "command", choices=("freeze", "solve", "recheck-exact-claims", "verify")
     )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        help="required new output directory for freeze, solve, and recheck commands",
+    )
     args = parser.parse_args()
+    if args.command == "verify":
+        if args.output_dir is not None:
+            parser.error(
+                "verify reads the pinned publication and accepts no output directory"
+            )
+        print(json.dumps(verify(), indent=2, sort_keys=True))
+        return
+    if args.output_dir is None:
+        parser.error(f"{args.command} requires --output-dir with a new run directory")
     result = {
         "freeze": freeze,
         "solve": solve,
         "recheck-exact-claims": recheck_exact_claims,
-        "verify": verify,
-    }[args.command]()
-    print(
-        json.dumps(
-            result if args.command != "verify" else result, indent=2, sort_keys=True
-        )
-    )
+    }[args.command](args.output_dir)
+    print(json.dumps(result, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

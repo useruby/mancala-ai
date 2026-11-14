@@ -68,22 +68,18 @@ Evidence SHA-256:
 The unchanged five-claim tablebase recheck is pinned by SHA-256
 `39efdb46a31b1f8abd50c696f70964886271957cff9a152c98c86f12bb6695db`.
 
-## Reproduce and verify
+## Read-only verification
 
-The source tree and authenticated tablebase must match the hashes in the frozen
-cohort. Materialize the registered Git LFS tablebase before verifying. To
-continue from the saved root checkpoint or reproduce the run:
+Materialize the registered Git LFS tablebase, then verify the publication. This
+command only reads the frozen cohort, original evidence, separate tablebase
+recheck, #585 source archive and authenticated assets; it does not run a solver
+or write result files:
 
 ```bash
-python -m ml.alphazero_lite.exact_tactical_label_diagnostic solve
-python -m ml.alphazero_lite.exact_tactical_label_diagnostic recheck-exact-claims
 python -m ml.alphazero_lite.verify_exact_tactical_label_diagnostic
-python -m unittest ml.alphazero_lite.test_exact_tactical_label_diagnostic_regressions -v
 ```
 
-`solve` verifies the frozen cohort, solver source, native probe, and tablebase
-before searching. It resumes after the last fully recorded root. The verifier
-first replays and authenticates #585, rebuilds the deterministic ordered cohort
+The verifier replays and authenticates #585, rebuilds the deterministic ordered cohort
 from authenticated source rows, and compares every state, legal-action set and
 archived move. It recomputes externally pinned cohort and evidence digests,
 checks tablebase hashes, reconstructs both state identities, verifies the
@@ -91,3 +87,28 @@ legal-action set, root budgets, exact margin intervals and inferior-move proofs,
 then validates the separate five-claim tablebase recheck and reconstructs gate
 counts and certified outcome downgrades. The original `evidence.json` bytes and
 digest are preserved; the recheck is an additional artifact.
+
+## Optional rerun
+
+The published run is frozen to its original solver source hash. A rerun must use
+a fresh, nonexistent output directory, so it cannot overwrite this publication
+or its pinned recheck. Replace the example path with a unique directory that
+does not already exist. Run all stages against that same rerun directory to
+resume its checkpoint and write rerun outputs there:
+
+```bash
+python -m ml.alphazero_lite.exact_tactical_label_diagnostic freeze \
+  --output-dir docs/data/exact-tactical-label-diagnostic-rerun-001
+python -m ml.alphazero_lite.exact_tactical_label_diagnostic solve \
+  --output-dir docs/data/exact-tactical-label-diagnostic-rerun-001
+python -m ml.alphazero_lite.exact_tactical_label_diagnostic recheck-exact-claims \
+  --output-dir docs/data/exact-tactical-label-diagnostic-rerun-001
+```
+
+`freeze`, `solve`, and `recheck-exact-claims` require `--output-dir` and reject
+the published diagnostic directory. `freeze` requires a nonexistent path;
+`solve` verifies the rerun cohort, solver source, native probe, and tablebase,
+can resume its own partial progress, and refuses to replace a completed
+`evidence.json`; recheck refuses to replace an existing recheck file. The
+synthetic regressions are run separately with
+`python -m unittest ml.alphazero_lite.test_exact_tactical_label_diagnostic_regressions -v`.

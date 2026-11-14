@@ -33,6 +33,9 @@ EXPECTED_FROZEN_ADAPTER_SOURCE_SHA256 = (
 EXPECTED_TABLEBASE_RECHECK_SHA256 = (
     "39efdb46a31b1f8abd50c696f70964886271957cff9a152c98c86f12bb6695db"
 )
+EXPECTED_PUBLISHED_RECHECK_DIAGNOSTIC_SOURCE_SHA256 = (
+    "7dd49ba964748805dc86484e0ac561f99141ea41ba1c17e3c21dea17837fffd9"
+)
 
 
 def _stable(value: Any) -> bytes:
@@ -108,9 +111,7 @@ def verify() -> dict[str, Any]:
     ):
         raise ValueError("authenticated_tablebase_hash_mismatch")
     current_recheck_sources = {
-        "diagnostic": _sha(
-            ROOT / "ml/alphazero_lite/exact_tactical_label_diagnostic.py"
-        ),
+        "diagnostic": EXPECTED_PUBLISHED_RECHECK_DIAGNOSTIC_SOURCE_SHA256,
         "exact_kalah_solver": _sha(ROOT / "ml/alphazero_lite/exact_kalah_solver.py"),
         "native_root_tablebase_adapter": _sha(
             ROOT / "ml/alphazero_lite/native_exact_root_tablebase.py"
