@@ -1,0 +1,62 @@
+{
+  "artifacts": {
+    "P": {
+      "metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+      "model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+      "weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+    },
+    "T512": {
+      "metadata.json": "b37f3aa75d828b9b9a0743930c73c8e168b159f6b37434eba1d9871e769af1b8",
+      "model.npz": "8940cbff36976801e74542f5ee2d6c5caffe0cafd57c7e787cdb375f3bbe485e",
+      "search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+      "weights.json": "70af73e6f8ee3f4fb76981584c1f2068a4b669300be90bd71cfdd8f71b369997"
+    }
+  },
+  "authorization_sha256": "90da9b071f0f43063d4e77809679adc555052ca6c351ca9d2126e4baee51b1cd",
+  "execution_freeze_sha256": "fea0ba1e910184db2717228e238d26bd55c7b1f95427b1b24026a9bf1714001c",
+  "games": false,
+  "implementation_sha256": {
+    "docs/data/seed588-retrospective-raw-prior/README.md": "d86a69bd62eb00e4583808bb54588c0783754817b5ea0167aa09e4098e954b2a",
+    "docs/data/seed588-retrospective-raw-prior/execution-freeze.json": "a45e432ce17a46ca7f30980ed3031a0010e3a3049e6fb60ed3e8e5a938aed8fd",
+    "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "ml/alphazero_lite/input_encodings.py": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/run_seed588_raw_prior.py": "c04c9823c70f36688030716f47cbbae08578fff88e1a497769e5261431ee6361",
+    "ml/alphazero_lite/seed557_retrospective.py": "78dbc90f3339a41f932fd07594237fd7a90606251db5e0c49b0070b0586cc3f2",
+    "ml/alphazero_lite/seed588_raw_prior_analysis.py": "69aabdaa87c71786abe9248344009a05d36bb1e7b90257b4798c1919d5103237",
+    "ml/alphazero_lite/seed588_raw_prior_diagnostic.py": "4fb060a83e185008a479696c90535d8cef87e07dae5afe80f88a908021caf695",
+    "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
+    "ml/alphazero_lite/test_seed588_raw_prior_execution.py": "04287e7fdc47eb8f22ec5450ace553291a7f1164f557fc6e7db16a914c41ddeb",
+    "ml/alphazero_lite/verify_seed588_raw_prior_result.py": "fd37d585fcace79b09d3d64a02f5cff660418c9446d25c0c7cf8226dfdc09fef"
+  },
+  "mcts": false,
+  "p_parity_forward_evaluations": 512,
+  "p_parity_passed": true,
+  "parity_max_abs_difference": 0.0,
+  "result_files_sha256": {
+    "analysis.json": "117427c80f409067044f694606a85aeeb01b8b7e0ed829157bcda8acf042df15",
+    "p-parity.jsonl": "dfa400a60db7cdd10a8f0cadc5de47d81841e0197127cf82e1bd8da287f4811b",
+    "root-results.jsonl": "f9747856428140d2806a2509b5aa38410a72a3bbb9f1eced4e46f20228121a40",
+    "t512-predictions.jsonl": "e08df6e4878af758b5fb3e09014d60d2a1ae36702e7cf6a21edd20ca7a5ede13"
+  },
+  "runtime": {
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONHASHSEED": "588",
+    "device": "cpu",
+    "execution_threads": 1,
+    "numpy": "2.2.6",
+    "python": "3.12.8"
+  },
+  "schema": "seed588-raw-prior-run-v1",
+  "source_evidence_sha256": {
+    "cohort-manifest.json": "f2e03fb9491474056e7a7cb3ace225cd2310f9069c9e48600d45039ed63158fb",
+    "execution-freeze.json": "3b1ab386c33534130c7e15df024f21ef75359ccd00d453e4c6aea104c8181927",
+    "oracle-records.jsonl": "83bec1bb348cbc6d1183112363f27d0612ee204a48d14ee5dbb7530e9b5fb8c2",
+    "search-records.jsonl": "b2653c41fe34328386ae432a3e019568eba9df7c5dc82a596a18917e8c8fb12e"
+  },
+  "t512_forward_evaluations": 512,
+  "training": false
+}

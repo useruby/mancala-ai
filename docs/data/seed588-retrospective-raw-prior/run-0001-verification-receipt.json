@@ -1,0 +1,66 @@
+{
+  "schema": "seed588-independent-result-verification-receipt-v1",
+  "status": "verified",
+  "verified_at": "2026-11-14",
+  "verifier": "ml.alphazero_lite.verify_seed588_raw_prior_result",
+  "verification_performed_inference": false,
+  "physical_copy": {
+    "type": "separate git worktree physical copy",
+    "path_at_verification": "/home/alex/tmp/seed588-physical-verifier",
+    "checkout_commit": "2893a0adc71f09e04d3784ca78f4a2a5700aff8f"
+  },
+  "execution_freeze_sha256": "fea0ba1e910184db2717228e238d26bd55c7b1f95427b1b24026a9bf1714001c",
+  "run_manifest_sha256": "5b838e273cec56f3e8b8fe2c0a5fcf3db41c4e5180281135d14e597d1a085c67",
+  "authorization_sha256": "90da9b071f0f43063d4e77809679adc555052ca6c351ca9d2126e4baee51b1cd",
+  "authorization_basis": "project-owner authorization; not independent review",
+  "counts": {
+    "source_roots": 512,
+    "p_parity_roots": 512,
+    "t512_roots": 512
+  },
+  "p_parity": {
+    "passed": true,
+    "max_abs_difference": 0.0,
+    "legal_action_masks_exact": true
+  },
+  "paired_point_estimates": {
+    "t512_minus_p_optimal_action_prior_mass": -0.03132684840315836,
+    "t512_minus_p_top_prior_exact_regret": 0.0546875,
+    "t512_minus_p_exact_optimal_selection_rate": -0.009765625,
+    "t512_minus_p_wdl_downgrade_rate": 0.00390625
+  },
+  "paired_bootstrap_95_linear": {
+    "t512_minus_p_optimal_action_prior_mass": [
+      -0.0366386507176788,
+      -0.026088261074267722
+    ],
+    "t512_minus_p_top_prior_exact_regret": [
+      -0.08203125,
+      0.1953125
+    ],
+    "t512_minus_p_exact_optimal_selection_rate": [
+      -0.029296875,
+      0.009765625
+    ],
+    "t512_minus_p_wdl_downgrade_rate": [
+      -0.00390625,
+      0.01171875
+    ]
+  },
+  "arm_point_estimates": {
+    "p_exact_optimal_selection_rate": 0.728515625,
+    "t512_exact_optimal_selection_rate": 0.71875,
+    "p_wdl_downgrade_rate": 0.072265625,
+    "t512_wdl_downgrade_rate": 0.076171875,
+    "p_mean_top_prior_exact_regret": 1.4375,
+    "t512_mean_top_prior_exact_regret": 1.4921875
+  },
+  "registered_decision": "do_not_propose_search_followup",
+  "model_promotion": false,
+  "generalization_claim": false,
+  "mcts": false,
+  "games": false,
+  "training": false,
+  "sealed_suite_access": false,
+  "issue_483_reopened": false
+}

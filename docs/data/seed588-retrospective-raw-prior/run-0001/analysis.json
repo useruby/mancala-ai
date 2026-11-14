@@ -1,0 +1,53 @@
+{
+  "arm_point_estimates": {
+    "p_optimal_mass": 0.6440546203304693,
+    "p_optimal_selection": 0.728515625,
+    "p_top_prior_regret": 1.4375,
+    "p_wdl_downgrade": 0.072265625,
+    "t512_optimal_mass": 0.612727771927311,
+    "t512_optimal_selection": 0.71875,
+    "t512_top_prior_regret": 1.4921875,
+    "t512_wdl_downgrade": 0.076171875
+  },
+  "bootstrap": {
+    "cluster": "opening_index",
+    "interpolation": "linear",
+    "quantiles": [
+      0.025,
+      0.975
+    ],
+    "resamples": 20000,
+    "rng": "random.Random; randrange with replacement",
+    "seed": 58820261114
+  },
+  "decision": "do_not_propose_search_followup",
+  "generalization_claim": false,
+  "mean_p_top_prior_exact_regret": 1.4375,
+  "mean_t512_top_prior_exact_regret": 1.4921875,
+  "model_promotion": false,
+  "paired_bootstrap_95_linear": {
+    "optimal_mass_delta": [
+      -0.0366386507176788,
+      -0.026088261074267722
+    ],
+    "optimal_selection_delta": [
+      -0.029296875,
+      0.009765625
+    ],
+    "top_prior_regret_delta": [
+      -0.08203125,
+      0.1953125
+    ],
+    "wdl_downgrade_delta": [
+      -0.00390625,
+      0.01171875
+    ]
+  },
+  "paired_point_estimates": {
+    "optimal_mass_delta": -0.03132684840315836,
+    "optimal_selection_delta": -0.009765625,
+    "top_prior_regret_delta": 0.0546875,
+    "wdl_downgrade_delta": 0.00390625
+  },
+  "roots": 512
+}
