@@ -1,0 +1,32 @@
+{
+  "schema": "seed594-execution-freeze-v1",
+  "status": "authorized-for-pretraining",
+  "authorization": {
+    "type": "explicit-project-owner-authorization",
+    "authorized_by": "project owner",
+    "approval_record": "explicit project-owner instruction accompanying the PR #595 update request",
+    "scope": "one 512-update Seed 594 exact-oracle policy-distillation treatment only",
+    "independent_human_review": "not-performed",
+    "training_may_start": true
+  },
+  "bindings": {
+    "configuration_sha256": "18b6150367a1309173cd5158f5bcd8a97a94d5edc73cce90f5cdb7a246a87bea",
+    "pretraining_freeze_sha256": "c00d6c9fc980adac9a39db526e5a2e4e3776dc7a3344ad1fe3905a03dc9fd1c7",
+    "runner_sha256": "bf644ef2a98fe1f1946f1a2b94eb2667e80dcc79a6b06fcbe0cc9f0a2a9fc1de",
+    "target_file_sha256": "85b1f6ca7fe44ae0d0c6db08cc0ce338a9e3398b4aead09c1388935a8d69b4c2",
+    "target_canonical_sha256": "00cf696db627a441598a5c1d3e4ca8842e26fa68550588c1f6fc31aa36b36a28",
+    "training_cohort_sha256": "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243",
+    "oracle_records_sha256": "75453e744a86b9dc8471628e0d133fa7d478550af9c8089ed8661426436a8480",
+    "qualification_membership_sha256": "6447d6ae98a750de4046992fd84e53998843dd1f2f20706375de4c91fa798efc",
+    "model_hashes": {
+      "P-E4/metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+      "P-E4/model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "P-E4/search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+      "P-E4/weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136",
+      "initializer/metadata.json": "f3b9a7d665be7b1219b4a3412bf4a499e5bafd525905b50d93deac4e6ad9ccef",
+      "initializer/model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+      "initializer/search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+      "initializer/weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+    }
+  }
+}

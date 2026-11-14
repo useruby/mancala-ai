@@ -386,14 +386,21 @@ def prepare_target_file(root: Path = ROOT) -> dict[str, Any]:
     }
 
 
-def train_frozen(output_dir: Path, *, root: Path = ROOT) -> dict[str, Any]:
-    """Run the frozen 512-update schedule only after a distinct authorization freeze."""
-    verify_pretraining_freeze(root)
-    if output_dir.exists():
-        raise ValueError("output_directory_exists")
+def verify_execution_freeze(root: Path = ROOT) -> dict[str, Any]:
+    """Require the explicit owner authorization and every exact execution binding."""
     authorization = json.loads(
         (root / DATA.relative_to(ROOT) / "execution-freeze.json").read_bytes()
     )
+    owner_authorization = authorization.get("authorization", {})
+    if (
+        authorization.get("schema") != "seed594-execution-freeze-v1"
+        or authorization.get("status") != "authorized-for-pretraining"
+        or owner_authorization.get("type") != "explicit-project-owner-authorization"
+        or owner_authorization.get("training_may_start") is not True
+        or owner_authorization.get("independent_human_review") != "not-performed"
+        or owner_authorization.get("authorized_by") != "project owner"
+    ):
+        raise ValueError("execution_not_authorized")
     expected_authorization = {
         "configuration_sha256": sha256_bytes((root / CONFIG_PATH).read_bytes()),
         "pretraining_freeze_sha256": sha256_bytes((root / FREEZE_PATH).read_bytes()),
@@ -413,12 +420,17 @@ def train_frozen(output_dir: Path, *, root: Path = ROOT) -> dict[str, Any]:
         "qualification_membership_sha256": INPUT_HASHES[QUALIFICATION_PATH],
         "model_hashes": MODEL_HASHES,
     }
-    if (
-        authorization.get("schema") != "seed594-execution-freeze-v1"
-        or authorization.get("status") != "authorized-for-pretraining"
-        or authorization.get("bindings") != expected_authorization
-    ):
+    if authorization.get("bindings") != expected_authorization:
         raise ValueError("execution_not_authorized")
+    return authorization
+
+
+def train_frozen(output_dir: Path, *, root: Path = ROOT) -> dict[str, Any]:
+    """Run the frozen 512-update schedule only after a distinct authorization freeze."""
+    verify_pretraining_freeze(root)
+    if output_dir.exists():
+        raise ValueError("output_directory_exists")
+    verify_execution_freeze(root)
     cohort, rows = load_frozen_targets(root)
     train.set_seed(571)
     model = train.PolicyValueNet(
