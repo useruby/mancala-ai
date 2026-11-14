@@ -1,7 +1,7 @@
 {
   "schema": "seed588-retrospective-raw-prior-freeze-v1",
   "status": "preparation-only-review-required",
-  "protocol_sha256": "9ccab3195da0217a26540f1bd1592225881371b4a8bd4b6f2e3069cc3039d582",
+  "protocol_sha256": "9fd9eaf9b35a28ac6f3e6105a99699ac21adadafa901cc1e6111d4e4dd1ab3b9",
   "cohort": {
     "source": "docs/data/seed559-fixed-position-feasibility/run-0003/cohort-manifest.json",
     "roots": 512,
@@ -43,7 +43,7 @@
     "mkl_num_threads": "1",
     "torch_num_threads": 1,
     "deterministic_algorithms": true,
-    "source": "#559 frozen execution runtime; verify environment lock before inference"
+    "source": "proposed execution runtime based on the #512 runtime record; executor authorization must attest the actual environment and source dependency hashes before inference"
   },
   "analysis": {
     "primary": "paired mean T512-minus-P probability mass on exact-optimal actions",

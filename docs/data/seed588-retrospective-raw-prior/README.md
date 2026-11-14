@@ -43,11 +43,11 @@ forward pass per root (512 total), with no batching-based semantic changes, no
 MCTS, search, value-head use, or native oracle execution. The parity passes
 establish that archived P priors match frozen serving P before those archived
 values are used in the comparison.
-Record full six-action float32 policy output in the network's player-relative
-pit encoding (indices 0–5). Convert through the current-player offset when
-joining to the authenticated absolute-action cohort/oracle records; illegal
-actions are excluded from all metrics. This relative/absolute mapping must be
-checked before inference.
+Oracle margins, archived P priors, and model priors are indexed by
+player-relative legal actions (indices 0–5). Validate these against the rules
+engine's relative legal moves. Convert through the current-player offset only
+when validating the cohort's `legal_absolute_actions` field. Do not reinterpret
+oracle or prior vector indices as absolute pit indices.
 
 Archived P priors may be reused only after the reviewed runner reproduces them
 under the frozen P artifact, model input encoding, legal-action encoding,
