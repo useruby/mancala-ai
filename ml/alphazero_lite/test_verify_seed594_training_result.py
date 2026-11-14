@@ -75,6 +75,84 @@ def test_verifies_synthetic_complete_result(synthetic_result):
     assert receipt["initializer_sha256"] == seed594.MODEL_HASHES["P-E4/model.npz"]
 
 
+def _rewrite_checkpoint_and_identity(output, arrays, *, dtype_updates=None):
+    checkpoint = output / "seed594-exact-oracle-update-512.npz"
+    np.savez(checkpoint, **arrays)
+    identity_path = output / "checkpoint-identity.json"
+    identity = json.loads(identity_path.read_bytes())
+    identity["sha256"] = seed594.sha256_bytes(checkpoint.read_bytes())
+    if dtype_updates:
+        for name, value in dtype_updates.items():
+            identity["tensors"][name]["dtype"] = str(value.dtype)
+    identity_path.write_text(json.dumps(identity))
+
+
+def _checkpoint_arrays(output):
+    checkpoint = output / "seed594-exact-oracle-update-512.npz"
+    with np.load(checkpoint, allow_pickle=False) as archive:
+        return {name: archive[name].copy() for name in archive.files}
+
+
+def test_modified_trainable_checkpoint_tensor_is_accepted(synthetic_result):
+    arrays = _checkpoint_arrays(synthetic_result)
+    arrays["w_policy"].flat[0] += 0.25
+    _rewrite_checkpoint_and_identity(synthetic_result, arrays)
+    receipt = verify_training_result(synthetic_result, root=seed594.ROOT)
+    assert receipt["status"] == "verified"
+
+
+def test_modified_frozen_tensor_is_rejected_with_updated_identity(synthetic_result):
+    arrays = _checkpoint_arrays(synthetic_result)
+    arrays["w_value"].flat[0] += 0.25
+    _rewrite_checkpoint_and_identity(synthetic_result, arrays)
+    with pytest.raises(ValueError, match="frozen_parameter_changed:w_value"):
+        verify_training_result(synthetic_result, root=seed594.ROOT)
+
+
+def test_changed_checkpoint_dtype_is_rejected_with_updated_identity(synthetic_result):
+    arrays = _checkpoint_arrays(synthetic_result)
+    arrays["w_policy"] = arrays["w_policy"].astype(np.float64)
+    _rewrite_checkpoint_and_identity(
+        synthetic_result, arrays, dtype_updates={"w_policy": arrays["w_policy"]}
+    )
+    with pytest.raises(ValueError, match="checkpoint_tensor_dtype_mismatch:w_policy"):
+        verify_training_result(synthetic_result, root=seed594.ROOT)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        lambda authorization: authorization.update(status="pending-independent-review"),
+        lambda authorization: authorization["authorization"].update(
+            training_may_start=False
+        ),
+    ],
+)
+def test_incomplete_execution_authorization_is_rejected(tmp_path, mutation):
+    authorization_path = (
+        tmp_path / seed594.DATA.relative_to(seed594.ROOT) / "execution-freeze.json"
+    )
+    authorization_path.parent.mkdir(parents=True)
+    authorization = json.loads(
+        (
+            seed594.ROOT
+            / seed594.DATA.relative_to(seed594.ROOT)
+            / "execution-freeze.json"
+        ).read_bytes()
+    )
+    mutation(authorization)
+    authorization_path.write_text(json.dumps(authorization))
+    with pytest.raises(ValueError, match="execution_not_authorized"):
+        seed594.verify_execution_freeze(tmp_path)
+
+
+def test_execution_freeze_records_owner_approval_without_independent_review_claim():
+    authorization = seed594.verify_execution_freeze()
+    assert authorization["authorization"]["authorized_by"] == "project owner"
+    assert authorization["authorization"]["training_may_start"] is True
+    assert authorization["authorization"]["independent_human_review"] == "not-performed"
+
+
 @pytest.mark.parametrize(
     "mutation, message",
     [

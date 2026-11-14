@@ -1,10 +1,11 @@
-"""Read-only verifier for a completed Seed 594 training treatment."""
+"""Read-only structural/integrity verifier; does not numerically replay training."""
 
 from __future__ import annotations
 
 import argparse
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +19,9 @@ from ml.alphazero_lite.seed594_exact_oracle_distillation import (
     MODEL_HASHES,
     RUNTIME,
     sha256_bytes,
+    verify_hashes,
+    verify_pretraining_freeze,
+    verify_execution_freeze,
 )
 
 
@@ -29,8 +33,51 @@ def _fail(reason: str) -> None:
     raise ValueError(reason)
 
 
+def _checkpoint_parameter_groups(
+    model: train.PolicyValueNet, checkpoint_keys: set[str]
+) -> dict[str, str]:
+    """Map serialized checkpoint keys from actual model parameter names."""
+    names = {name for name, _ in model.named_parameters()}
+    mapping: dict[str, str] = {}
+    fixed = {
+        "input_layer.weight": ("w_input", "trainable"),
+        "input_layer.bias": ("b_input", "trainable"),
+        "policy_hidden_layer.weight": ("w_policy_hidden", "trainable"),
+        "policy_hidden_layer.bias": ("b_policy_hidden", "trainable"),
+        "policy_head.weight": ("w_policy", "trainable"),
+        "policy_head.bias": ("b_policy", "trainable"),
+        "value_head.weight": ("w_value", "frozen"),
+        "value_head.bias": ("b_value", "frozen"),
+        "value_hidden_layer.weight": ("w_value_hidden", "frozen"),
+        "value_hidden_layer.bias": ("b_value_hidden", "frozen"),
+    }
+    for name in names:
+        if name in fixed:
+            checkpoint_key, group = fixed[name]
+        else:
+            match = re.fullmatch(r"residual_layers\.(\d+)\.(\d)\.(weight|bias)", name)
+            if match is None:
+                _fail(f"unexpected_model_parameter:{name}")
+            block, layer, kind = match.groups()
+            checkpoint_key = f"{'w' if kind == 'weight' else 'b'}_residual_{int(block) + 1}_{int(layer) + 1}"
+            group = "trainable"
+        if checkpoint_key in mapping:
+            _fail(f"duplicate_checkpoint_parameter_mapping:{checkpoint_key}")
+        mapping[checkpoint_key] = group
+    if set(mapping) != checkpoint_keys:
+        _fail("unexpected_checkpoint_keys")
+    if set(mapping.values()) != {"trainable", "frozen"}:
+        _fail("checkpoint_parameter_groups_incomplete")
+    return mapping
+
+
 def verify_training_result(output: Path, *, root: Path) -> dict[str, Any]:
-    """Validate a result directory without mutating it or running inference."""
+    """Validate artifacts and their frozen bindings without numerical replay."""
+    # Authenticate every input, source, target, and model hash in the frozen
+    # pretraining record before considering any supplied training output.
+    verify_hashes(root)
+    verify_pretraining_freeze(root)
+    verify_execution_freeze(root)
     freeze = _json(root / FREEZE_PATH)
     config = _json(root / CONFIG_PATH)
     order = config["training"]["batch_order"]
@@ -85,11 +132,14 @@ def verify_training_result(output: Path, *, root: Path) -> dict[str, Any]:
         actual_arrays = {name: archive[name] for name in archive.files}
     if set(actual_arrays) != set(arrays):
         _fail("checkpoint_tensor_names_mismatch")
+    groups = _checkpoint_parameter_groups(model, set(actual_arrays))
     tensor_identities: dict[str, dict[str, Any]] = {}
     for name, expected in arrays.items():
         value = actual_arrays[name]
         if value.shape != expected.shape:
             _fail(f"checkpoint_tensor_shape_mismatch:{name}")
+        if value.dtype != expected.dtype:
+            _fail(f"checkpoint_tensor_dtype_mismatch:{name}")
         if not np.isfinite(value).all():
             _fail(f"checkpoint_tensor_nonfinite:{name}")
         tensor_identities[name] = {
@@ -99,13 +149,11 @@ def verify_training_result(output: Path, *, root: Path) -> dict[str, Any]:
     if identity.get("tensors") != tensor_identities:
         _fail("checkpoint_tensor_identity_mismatch")
 
-    # The value pathway is frozen by the registered trainable-prefix contract.
     for name, original in arrays.items():
-        if not name.startswith(
-            ("input_layer.", "residual_layers.", "policy_hidden_layer.", "policy_head.")
+        if groups[name] == "frozen" and not np.array_equal(
+            actual_arrays[name], original
         ):
-            if not np.array_equal(actual_arrays[name], original):
-                _fail(f"frozen_parameter_changed:{name}")
+            _fail(f"frozen_parameter_changed:{name}")
 
     receipt = {
         "schema": "seed594-training-result-verification-v1",
@@ -121,6 +169,7 @@ def verify_training_result(output: Path, *, root: Path) -> dict[str, Any]:
         "initializer_sha256": MODEL_HASHES["P-E4/model.npz"],
         "frozen_parameters_unchanged": True,
         "tensor_count": len(actual_arrays),
+        "verification_scope": "structural-and-integrity-only-no-numerical-replay",
     }
     return receipt
 

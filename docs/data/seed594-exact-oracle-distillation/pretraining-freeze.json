@@ -2,7 +2,7 @@
   "schema": "seed594-exact-oracle-pretraining-freeze-v1",
   "status": "frozen-pretraining-not-authorized",
   "configuration_sha256": "18b6150367a1309173cd5158f5bcd8a97a94d5edc73cce90f5cdb7a246a87bea",
-  "runner_sha256": "d21fd25dc0d3dc0bfa670595712f126e5900e84b5b76c7337753b8bb6a4b7475",
+  "runner_sha256": "bf644ef2a98fe1f1946f1a2b94eb2667e80dcc79a6b06fcbe0cc9f0a2a9fc1de",
   "authenticated_input_hashes": {
     "docs/data/seed557-retrospective-diagnostic/cohort.json": "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243",
     "docs/data/seed557-retrospective-diagnostic/oracle-records.jsonl": "75453e744a86b9dc8471628e0d133fa7d478550af9c8089ed8661426436a8480",

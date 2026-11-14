@@ -73,6 +73,13 @@ PYTHONHASHSEED=571 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
 python -m pytest ml/alphazero_lite/test_seed594_exact_oracle_distillation.py
 ```
 
-The future training entry point requires an additional separately reviewed
-execution freeze with status `authorized-for-pretraining`. This preparation
-does not authorize invoking `--run`.
+The training entry point requires the separate `execution-freeze.json`, with
+status `authorized-for-pretraining`, exact frozen bindings, and
+`authorization.training_may_start: true`. It records explicit project-owner
+approval; independent human review was not performed and is not claimed.
+
+The post-training result verifier is structural/integrity-only. It authenticates
+the frozen inputs, sources, targets, and initializer; checks the complete update
+and prescribed batch trace; validates checkpoint keys, shapes, dtypes, finite
+values, identities, and unchanged frozen tensors. It does not replay optimizer
+updates or otherwise establish numerical reproducibility of the training trace.

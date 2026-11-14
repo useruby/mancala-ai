@@ -1,17 +1,18 @@
 {
   "schema": "seed594-execution-freeze-v1",
-  "status": "pending-independent-review",
+  "status": "authorized-for-pretraining",
   "authorization": {
     "type": "explicit-project-owner-authorization",
     "authorized_by": "project owner",
+    "approval_record": "explicit project-owner instruction accompanying the PR #595 update request",
     "scope": "one 512-update Seed 594 exact-oracle policy-distillation treatment only",
-    "independent_human_review": "pending",
-    "training_may_start": false
+    "independent_human_review": "not-performed",
+    "training_may_start": true
   },
   "bindings": {
     "configuration_sha256": "18b6150367a1309173cd5158f5bcd8a97a94d5edc73cce90f5cdb7a246a87bea",
-    "pretraining_freeze_sha256": "3e234ef65d9435a097e6c692670f8d9973e02a5145c4e79ef7c397cda400fa05",
-    "runner_sha256": "d21fd25dc0d3dc0bfa670595712f126e5900e84b5b76c7337753b8bb6a4b7475",
+    "pretraining_freeze_sha256": "c00d6c9fc980adac9a39db526e5a2e4e3776dc7a3344ad1fe3905a03dc9fd1c7",
+    "runner_sha256": "bf644ef2a98fe1f1946f1a2b94eb2667e80dcc79a6b06fcbe0cc9f0a2a9fc1de",
     "target_file_sha256": "85b1f6ca7fe44ae0d0c6db08cc0ce338a9e3398b4aead09c1388935a8d69b4c2",
     "target_canonical_sha256": "00cf696db627a441598a5c1d3e4ca8842e26fa68550588c1f6fc31aa36b36a28",
     "training_cohort_sha256": "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243",
