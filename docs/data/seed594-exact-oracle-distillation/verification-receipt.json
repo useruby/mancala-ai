@@ -1,0 +1,66 @@
+{
+  "schema": "seed594-preparation-verification-receipt-v1",
+  "status": "verified-preparation-only",
+  "runtime": {
+    "python": "3.12.8",
+    "numpy": "2.2.6",
+    "torch": "2.7.1+cpu",
+    "device": "cpu",
+    "threads": 1,
+    "pythonhashseed": "571",
+    "omp_num_threads": "1",
+    "mkl_num_threads": "1",
+    "deterministic_algorithms": true,
+    "runtime_source": "/home/alex/Mancala/ai-seed571-results/.tmp/seed571-py3128/bin/python"
+  },
+  "authenticated_files": 22,
+  "bindings": {
+    "training_cohort_sha256": "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243",
+    "exact_oracle_records_sha256": "75453e744a86b9dc8471628e0d133fa7d478550af9c8089ed8661426436a8480",
+    "qualification_membership_file_sha256": "6447d6ae98a750de4046992fd84e53998843dd1f2f20706375de4c91fa798efc",
+    "qualification_membership_identity": "94e126af6ea88fb99a4230f84e5cf2a20248daa39ea66d25b68730ea0426d668",
+    "seed571_configuration_sha256": "0941e5d658a65c006f8ccae7b84f13437ebe3476e2c4c61b1fd26733c0882ea8",
+    "seed594_configuration_sha256": "18b6150367a1309173cd5158f5bcd8a97a94d5edc73cce90f5cdb7a246a87bea",
+    "seed594_pretraining_freeze_sha256": "3e234ef65d9435a097e6c692670f8d9973e02a5145c4e79ef7c397cda400fa05",
+    "seed594_runner_sha256": "d21fd25dc0d3dc0bfa670595712f126e5900e84b5b76c7337753b8bb6a4b7475",
+    "exact_targets_canonical_sha256": "00cf696db627a441598a5c1d3e4ca8842e26fa68550588c1f6fc31aa36b36a28",
+    "exact_targets_file_sha256": "85b1f6ca7fe44ae0d0c6db08cc0ce338a9e3398b4aead09c1388935a8d69b4c2"
+  },
+  "exact_targets": {
+    "roots": 256,
+    "one_to_one_state_join": true,
+    "complete_legal_action_coverage": true,
+    "player_relative_action_slots": true,
+    "seat_0_roots": 141,
+    "seat_1_roots": 115,
+    "unique_optima": 187,
+    "tied_optima": 69,
+    "all_targets_normalized": true,
+    "puct_or_live_oracle_invoked": false
+  },
+  "qualification_separation": {
+    "training_roots": 256,
+    "qualification_roots": 423,
+    "opening_overlap": 0,
+    "canonical_identity_overlap": 0,
+    "production_float32_identity_overlap": 0,
+    "qualification_oracle_labels_predictions_or_results_read": false
+  },
+  "verification_commands": [
+    "PYTHONHASHSEED=571 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /home/alex/Mancala/ai-seed571-results/.tmp/seed571-py3128/bin/python -m ml.alphazero_lite.seed594_exact_oracle_distillation --verify-only",
+    "PYTHONHASHSEED=571 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /home/alex/Mancala/ai-seed571-results/.tmp/seed571-py3128/bin/python -m pytest ml/alphazero_lite/test_seed594_exact_oracle_distillation.py -q",
+    "PYTHONHASHSEED=571 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /home/alex/Mancala/ai-seed571-results/.tmp/seed571-py3128/bin/python -m ml.alphazero_lite.verify_seed557_retrospective",
+    "PYTHONHASHSEED=571 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /home/alex/Mancala/ai-seed571-results/.tmp/seed571-py3128/bin/python -m ml.alphazero_lite.seed570_qualification_cohort --membership docs/data/seed570-policy-prior-distillation/qualification-membership.json",
+    "ruff format ml/alphazero_lite/seed594_exact_oracle_distillation.py ml/alphazero_lite/test_seed594_exact_oracle_distillation.py",
+    "ruff check ml/alphazero_lite/seed594_exact_oracle_distillation.py ml/alphazero_lite/test_seed594_exact_oracle_distillation.py"
+  ],
+  "results": {
+    "seed594_preflight": "passed; no training or inference",
+    "focused_tests": "22 passed",
+    "seed557_source_verifier": "verified: 256 roots, complete oracle coverage, 1024 game batches",
+    "seed570_membership_verifier": "ready: 423 roots, 89 opening exclusions; zero canonical/float32 collisions",
+    "ruff": "passed"
+  },
+  "training_or_qualification_run": false,
+  "historical_seed571_files_modified": false
+}
