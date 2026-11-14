@@ -1,7 +1,7 @@
 {
   "schema": "seed588-retrospective-raw-prior-freeze-v1",
   "status": "preparation-only-review-required",
-  "protocol_sha256": "9fd9eaf9b35a28ac6f3e6105a99699ac21adadafa901cc1e6111d4e4dd1ab3b9",
+  "protocol_sha256": "d86a69bd62eb00e4583808bb54588c0783754817b5ea0167aa09e4098e954b2a",
   "cohort": {
     "source": "docs/data/seed559-fixed-position-feasibility/run-0003/cohort-manifest.json",
     "roots": 512,
