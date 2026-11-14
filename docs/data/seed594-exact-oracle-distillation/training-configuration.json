@@ -1,0 +1,61 @@
+{
+  "schema": "seed594-exact-oracle-policy-distillation-config-v1",
+  "parent_contract": "seed571-policy-distillation-config-v1",
+  "training_membership": {
+    "path": "docs/data/seed557-retrospective-diagnostic/cohort.json",
+    "sha256": "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243",
+    "roots": 256
+  },
+  "exact_oracle": {
+    "path": "docs/data/seed557-retrospective-diagnostic/oracle-records.jsonl",
+    "sha256": "75453e744a86b9dc8471628e0d133fa7d478550af9c8089ed8661426436a8480",
+    "root_records": 256,
+    "join": "exact canonical state hash, one record per frozen training root",
+    "coverage": "complete equality among actual legal moves, oracle legal_moves, and action_margins keys",
+    "action_coordinates": "player-relative policy moves 0..5",
+    "target": "uniform mass over every legal action attaining maximum exact final-score margin; zero elsewhere",
+    "target_file": "docs/data/seed594-exact-oracle-distillation/exact-targets.jsonl"
+  },
+  "qualification_identity_only": {
+    "path": "docs/data/seed570-policy-prior-distillation/qualification-membership.json",
+    "sha256": "6447d6ae98a750de4046992fd84e53998843dd1f2f20706375de4c91fa798efc",
+    "roots": 423,
+    "allowed_use": "opening/canonical/production-float32 exclusion checks only",
+    "qualification_targets_predictions_and_results_consumed": false
+  },
+  "model": {
+    "architecture": "residual_v3",
+    "input_encoding": "kalah_v3",
+    "hidden_sizes": [96, 3],
+    "initialization": "exact authenticated serving P-E4 checkpoint",
+    "trainable": ["input_layer.*", "residual_layers.*", "policy_hidden_layer.*", "policy_head.*"],
+    "frozen": ["value hidden/head", "all remaining model parameters"]
+  },
+  "training": {
+    "seed": 571,
+    "batch_size": 32,
+    "updates": 512,
+    "batch_order": [31, 62, 98, 245, 149, 141, 88, 58, 111, 142, 6, 222, 116, 114, 185, 1, 19, 206, 252, 214, 26, 197, 216, 186, 105, 34, 238, 234, 154, 209, 235, 250, 128, 69, 167, 140, 150, 226, 122, 181, 152, 184, 109, 77, 60, 191, 40, 97, 233, 65, 7, 33, 190, 173, 110, 56, 52, 249, 162, 136, 30, 189, 187, 75, 44, 215, 177, 156, 202, 231, 21, 63, 82, 232, 166, 223, 210, 224, 70, 86, 102, 28, 164, 35, 144, 219, 112, 15, 72, 61, 193, 17, 64, 176, 228, 127, 151, 146, 208, 237, 118, 84, 130, 143, 159, 80, 211, 121, 117, 93, 183, 192, 51, 203, 49, 87, 253, 147, 91, 115, 170, 27, 171, 199, 90, 47, 240, 101, 126, 95, 53, 41, 81, 236, 55, 172, 38, 68, 103, 194, 182, 157, 94, 25, 255, 180, 9, 175, 200, 74, 244, 89, 129, 104, 3, 132, 212, 96, 108, 229, 0, 42, 57, 196, 131, 227, 4, 241, 76, 204, 218, 225, 174, 37, 161, 48, 16, 160, 24, 106, 217, 73, 168, 11, 137, 2, 23, 18, 39, 124, 145, 123, 22, 133, 119, 138, 178, 246, 59, 54, 243, 134, 36, 205, 165, 239, 179, 242, 188, 50, 79, 120, 153, 254, 213, 220, 12, 198, 100, 99, 10, 248, 83, 71, 113, 163, 251, 8, 207, 155, 125, 20, 247, 92, 67, 195, 5, 139, 85, 46, 43, 135, 45, 230, 148, 14, 32, 169, 13, 107, 201, 158, 29, 221, 66, 78],
+    "batch_order_rule": "random.Random(571) shuffle of 0..255, in contiguous blocks of 32 cycled for 512 updates",
+    "optimizer": "Adam",
+    "learning_rate": 0.00001,
+    "betas": [0.9, 0.999],
+    "epsilon": 1e-8,
+    "weight_decay": 0,
+    "loss": "mean legal-action masked soft-target cross entropy",
+    "gradient_clip_norm": 1.0,
+    "regularization": "none",
+    "candidate": "update 512 only"
+  },
+  "runtime": {
+    "python": "3.12.8",
+    "numpy": "2.2.6",
+    "torch": "2.7.1+cpu",
+    "device": "cpu",
+    "threads": 1,
+    "pythonhashseed": "571",
+    "omp_num_threads": "1",
+    "mkl_num_threads": "1",
+    "deterministic_algorithms": true
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "schema": "seed594-exact-oracle-pretraining-freeze-v1",
+  "status": "frozen-pretraining-not-authorized",
+  "configuration_sha256": "18b6150367a1309173cd5158f5bcd8a97a94d5edc73cce90f5cdb7a246a87bea",
+  "runner_sha256": "d21fd25dc0d3dc0bfa670595712f126e5900e84b5b76c7337753b8bb6a4b7475",
+  "authenticated_input_hashes": {
+    "docs/data/seed557-retrospective-diagnostic/cohort.json": "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243",
+    "docs/data/seed557-retrospective-diagnostic/oracle-records.jsonl": "75453e744a86b9dc8471628e0d133fa7d478550af9c8089ed8661426436a8480",
+    "docs/data/seed570-policy-prior-distillation/qualification-membership.json": "6447d6ae98a750de4046992fd84e53998843dd1f2f20706375de4c91fa798efc",
+    "docs/data/seed570-policy-prior-distillation/training-configuration.json": "0941e5d658a65c006f8ccae7b84f13437ebe3476e2c4c61b1fd26733c0882ea8"
+  },
+  "model_artifact_hashes": {
+    "P-E4/metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+    "P-E4/model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+    "P-E4/search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+    "P-E4/weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136",
+    "initializer/metadata.json": "f3b9a7d665be7b1219b4a3412bf4a499e5bafd525905b50d93deac4e6ad9ccef",
+    "initializer/model.npz": "7b0491f93570cf87bade59a4797795734d061f9dc9db4f38c25378fb3fc2d94c",
+    "initializer/search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+    "initializer/weights.json": "f06e3e1e46815e674bd64a9437a8d8eb3a76f62632f3cbaab19771454551d00c"
+  },
+  "implementation_hashes": {
+    "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
+    "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/input_encodings.py": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe",
+    "ml/alphazero_lite/seed557_retrospective.py": "78dbc90f3339a41f932fd07594237fd7a90606251db5e0c49b0070b0586cc3f2",
+    "ml/alphazero_lite/seed551_controlled_policy_strength.py": "c589240e2352273e0b86c48c3b37f5fa9737cfc2423255b67d74e7e177f59e63",
+    "ml/alphazero_lite/seed571_policy_distillation.py": "186f93e674b6aeeb6396c3df59449c174660494e7924b2f315003c1ada660c4c",
+    "ml/alphazero_lite/exact_root_policy_targets.py": "2aca4c1e2e9e9e199fb1d951b143c506785c23121531e26628a59c9afaf79898"
+  },
+  "target_identity": {
+    "canonical_sha256": "00cf696db627a441598a5c1d3e4ca8842e26fa68550588c1f6fc31aa36b36a28",
+    "file_sha256": "85b1f6ca7fe44ae0d0c6db08cc0ce338a9e3398b4aead09c1388935a8d69b4c2",
+    "root_count": 256,
+    "source_cohort_sha256": "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243",
+    "source_oracle_sha256": "75453e744a86b9dc8471628e0d133fa7d478550af9c8089ed8661426436a8480"
+  },
+  "raw_policy_gate": {
+    "qualification_roots": 423,
+    "membership_sha256": "6447d6ae98a750de4046992fd84e53998843dd1f2f20706375de4c91fa798efc",
+    "paired_opening_cluster_resamples": 20000,
+    "rng_seed": 594,
+    "quantiles": [0.025, 0.975],
+    "quantile_method": "numpy linear",
+    "advance_if": [
+      "mean candidate-minus-P raw regret <= -0.10 seeds",
+      "paired 95% CI upper endpoint strictly below zero",
+      "candidate WDL downgrade rate <= serving P WDL downgrade rate"
+    ],
+    "failure_action": "stop; do not run Stage 2"
+  },
+  "scope": {
+    "training": false,
+    "qualification_inference": false,
+    "search": false,
+    "arena_games": false,
+    "sealed_suite": false,
+    "serving_changes": false,
+    "seed588_failed_decision_unchanged": true,
+    "issue_483": "closed"
+  }
+}
