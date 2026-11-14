@@ -1,0 +1,102 @@
+{
+  "schema": "seed588-execution-readiness-freeze-v1",
+  "status": "frozen-pending-review-no-inference",
+  "protocol": {
+    "path": "docs/data/seed588-retrospective-raw-prior/README.md",
+    "sha256": "6d83dd343a1d12ed040097ad673218e71a36c0895702cc6255e58e300437a23c"
+  },
+  "preparation_freeze": {
+    "path": "docs/data/seed588-retrospective-raw-prior/execution-freeze.json",
+    "sha256": "30e3f1d0587f366f9d3917723612e88a740129d1e9a59d1b62e2dfd45156926d"
+  },
+  "source_evidence_sha256": {
+    "cohort-manifest.json": "f2e03fb9491474056e7a7cb3ace225cd2310f9069c9e48600d45039ed63158fb",
+    "execution-freeze.json": "3b1ab386c33534130c7e15df024f21ef75359ccd00d453e4c6aea104c8181927",
+    "oracle-records.jsonl": "83bec1bb348cbc6d1183112363f27d0612ee204a48d14ee5dbb7530e9b5fb8c2",
+    "search-records.jsonl": "b2653c41fe34328386ae432a3e019568eba9df7c5dc82a596a18917e8c8fb12e"
+  },
+  "artifacts": {
+    "T512": {
+      "source": "docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts/T512",
+      "metadata.json": "b37f3aa75d828b9b9a0743930c73c8e168b159f6b37434eba1d9871e769af1b8",
+      "model.npz": "8940cbff36976801e74542f5ee2d6c5caffe0cafd57c7e787cdb375f3bbe485e",
+      "search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+      "weights.json": "70af73e6f8ee3f4fb76981584c1f2068a4b669300be90bd71cfdd8f71b369997"
+    },
+    "P": {
+      "source": "docs/data/seed556-exploratory-arena/screen-0005/runtime-artifacts/P-E4",
+      "metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+      "model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "search_policy.json": "280c33d88266969da72a7984dabdcfea180bacb5cb690cb759af1ebdbaac65bc",
+      "weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+    }
+  },
+  "implementation_sha256": {
+    "ml/alphazero_lite/run_seed588_raw_prior.py": "d5294629babf86ff9e65928c09e2330f48f68c3a5d338ca93da401cad51a0193",
+    "ml/alphazero_lite/seed588_raw_prior_diagnostic.py": "4fb060a83e185008a479696c90535d8cef87e07dae5afe80f88a908021caf695",
+    "ml/alphazero_lite/seed588_raw_prior_analysis.py": "69aabdaa87c71786abe9248344009a05d36bb1e7b90257b4798c1919d5103237",
+    "ml/alphazero_lite/verify_seed588_raw_prior_result.py": "4a6d900e72ebf3f678a967de859f0b22f6b05f155ca55654507a2c3d5523ee17",
+    "ml/alphazero_lite/test_seed588_raw_prior_execution.py": "69406ddb8997ef09a0d2a955ba0ffed27890a1e582424cf643d02dff8e740182",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
+    "ml/alphazero_lite/seed557_retrospective.py": "78dbc90f3339a41f932fd07594237fd7a90606251db5e0c49b0070b0586cc3f2",
+    "docs/data/seed588-retrospective-raw-prior/README.md": "6d83dd343a1d12ed040097ad673218e71a36c0895702cc6255e58e300437a23c",
+    "docs/data/seed588-retrospective-raw-prior/execution-freeze.json": "30e3f1d0587f366f9d3917723612e88a740129d1e9a59d1b62e2dfd45156926d"
+  },
+  "runtime": {
+    "python": "3.12.8",
+    "numpy": "2.2.6",
+    "device": "cpu",
+    "PYTHONHASHSEED": "588",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "execution_threads": 1
+  },
+  "forward_contract": {
+    "P_prior_parity_evaluations": 512,
+    "T512_policy_evaluations": 512,
+    "parity_max_abs_tolerance": 0.000001,
+    "legal_mask": "exact player-relative indices 0..5",
+    "all_P_parity_before_any_T512": true,
+    "PUCT": false,
+    "MCTS": false,
+    "games": false,
+    "training": false
+  },
+  "analysis": {
+    "bootstrap_resamples": 20000,
+    "seed": 58820261114,
+    "rng": "random.Random; randrange with replacement",
+    "quantiles": [0.025, 0.975],
+    "interpolation": "linear"
+  },
+  "authorization": {
+    "required_schema": "seed588-reviewed-execution-authorization-v1",
+    "required_status": "reviewed_and_authorized",
+    "trust": "executor CLI requires an independently supplied SHA-256 of the reviewed authorization record",
+    "authorization_record_committed": false
+  },
+  "historical_overlap": {
+    "verified": ["#559 excluded #557 and #418 canonical-state matches"],
+    "unresolved": ["Seed 461 continuations", "other uncovered historical populations"],
+    "generalization_or_strength_claim": false
+  },
+  "output": {
+    "exclusive_create": true,
+    "complete_per_root_files": [
+      "p-parity.jsonl",
+      "t512-predictions.jsonl",
+      "root-results.jsonl",
+      "analysis.json",
+      "run-manifest.json"
+    ],
+    "independent_verifier_requires_trusted_run_manifest_sha256": true
+  },
+  "scope": {
+    "sealed_suite_access": false,
+    "model_promotion": false,
+    "issue_483": "closed"
+  }
+}
