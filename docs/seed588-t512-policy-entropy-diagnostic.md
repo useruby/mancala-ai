@@ -27,10 +27,24 @@ top action uses maximum prior with lowest legal action index as the tie-break.
 Optimal-action mass sums the prior over every action tied at the exact best
 margin. Results are unweighted root means.
 
-| Cohort | Roots | Mean H(P) | Mean H(T512) | Top-action agreement | Optimal mass P | Optimal mass T512 | T512−P mass |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| #557 | 256 | 0.74040 | 0.87006 | 91.80% | 0.58977 | 0.56025 | −0.02951 |
-| #591 | 512 | 0.72238 | 0.84414 | 92.58% | 0.64405 | 0.61273 | −0.03133 |
+| #557 policy | Mean entropy (nats) | Mean optimal-action prior mass | Exact-optimal top-action rate |
+|---|---:|---:|---:|
+| Serving P | 0.74040 | 0.58977 | 65.63% |
+| C128 | 0.86574 | 0.55363 | 62.89% |
+| T512 | 0.87006 | 0.56025 | 62.50% |
+
+| Paired contrast | Entropy difference | Optimal-mass difference |
+|---|---:|---:|
+| C128 − P | +0.12534 nats | −0.03614 |
+| T512 − C128 | +0.00432 nats | +0.00663 |
+| T512 − P | +0.12966 nats | −0.02951 |
+
+Top-action agreement on these same roots was 91.41% for C128 vs P, 95.70% for
+T512 vs C128, and 91.80% for T512 vs P. On #591 (512 roots), P/T512 mean
+entropy was 0.72238/0.84414 nats, top-action agreement 92.58%, and optimal-action
+prior mass 0.64405/0.61273. Thus #591 reproduces the serving-P/T512 contrast,
+while #557's three-policy comparison localizes most of that entropy gap to the
+C128-versus-P contrast.
 
 The exploratory *global* entropy match applies one scalar temperature to every
 T512 root, `q(a) ∝ p(a)^(1/τ)` over legal actions, choosing `τ` so mean T512
@@ -48,14 +62,13 @@ This recovers about 90% of the observed optimal-mass gap while preserving every
 T512 ranking. It is a retrospective descriptive fit on these cohorts, not a
 calibration value for deployment or future evaluation.
 
-The top-action outcome summaries are less separated than optimal-action mass:
-the exact-optimal top-action rates were P 65.63% vs T512 62.50% on #557 and
-72.85% vs 71.88% on #591. On #591, the paired selection-rate difference was
-−0.98 percentage points with the recorded bootstrap interval [−2.93, +0.98]
-points. Lower optimal-action *mass* is not proof that T512 chooses inferior
-top actions; it mixes ranking with confidence/spread. The high pairwise
-top-action agreement also means that rankings do differ on a minority of roots,
-so the whole gap cannot be dismissed as temperature alone.
+The controlled 256-root incremental contrast is T512−C128: entropy +0.00432
+nats, optimal-action prior mass +0.00663, and top-action agreement 95.70%.
+Their exact-optimal top-action rates are 62.89% for C128 and 62.50% for T512.
+No interval for these contrasts was registered. Lower optimal-action *mass* is
+not proof that a policy chooses inferior top actions; it mixes ranking with
+confidence/spread. Top actions do differ on some roots, so the complete gap
+cannot be dismissed as temperature alone.
 
 ## What the T512 training record shows
 
@@ -67,6 +80,15 @@ seed-554 runner SHA-256 is
 `5e770a2cf6e69d43a460a3a0044532d9aa086ff8762b68417c4b5351c5882925`.
 The training-input binding and all 12 control/treatment derivative shard hashes
 were rechecked read-only.
+
+The #557 serving P artifact identifies as `seed505-E4`; it is not either
+seed-554 training arm. C128 and T512 were both initialized from the same
+seed-542 initializer and trained with fresh Adam states on the same data and
+schedule. Therefore the large C128−P contrast (+0.12534 nats) mixes different
+model lineage/initialization and training/checkpoint histories; it is not an
+estimate of the T512-specific teacher-budget effect. The within-seed-554
+T512−C128 contrast (+0.00432 nats) is the controlled target-replacement
+contrast on #557.
 
 - **Targets:** for each unique training state above 16 active stones, replace
   the control's 128-simulation PUCT visit target with the paired 512-simulation
@@ -99,36 +121,32 @@ were rechecked read-only.
 
 On those already-recorded development predictions, mean entropy is 0.78014 for
 T512 and 0.77453 for C128; mean legal-logit standard deviation is 0.92599 vs
-0.95490. This independent-of-#557/#559 development comparison supports a
-small-spread difference, but does not isolate its cause or show playing
-strength. The label-entropy result rules out “T512 learned softer targets” as a
-direct explanation. More likely candidates are the different high-stone
-ranking/gradient directions interacting with the shared value trunk, frequent
-gradient clipping, and a finite fixed update endpoint. There is no explicit
-policy-temperature or logit-scale regularizer to constrain the final spread.
-These are plausible mechanisms, not causal findings.
+0.95490. This comparison is consistent with a small incremental T512 spread
+effect on that development set, but neither it nor the #557 paired result
+isolates a causal mechanism or shows playing strength. It also cannot explain
+the much larger P-versus-C128 difference. The label-entropy result rules out
+“T512 learned softer targets” as a direct explanation. Shared trunk/value
+gradients, frequent clipping, and selecting only the fixed update-108 endpoint
+are possible influences; there is no explicit policy-temperature or logit-scale
+regularizer. These are candidates, not causal findings.
 
-## One falsifiable, inexpensive intervention
+## Next existing evidence; defer new-root calibration
 
-**Hypothesis:** most of the repeatable T512 entropy excess is a global policy
-logit-scale shift induced by the high-stone label change and shared clipped
-optimization, rather than a wholesale change in action ranking. The archived
-global scalar fits support this: they explain about 90% of the mass gap without
-changing top actions, while leaving a small residual ranking-dependent gap.
+Defer the proposed new-root temperature experiment. The most informative
+existing evidence to inspect next is the paired #554 update trace and saved
+checkpoints at updates 27, 54, 81, and 108:
+`control-updates.jsonl`, `treatment-updates.jsonl`, and the corresponding
+`control-update-*.npz` / `treatment-update-*.npz`. A read-only comparison of
+policy-head weight/bias norms, shared-trunk tensor deltas, and recorded
+pre-/post-clipping gradients can show when the C128/T512 trajectories first
+separate. Existing development predictions are available only for the
+initializer and final checkpoints, so those update checkpoints have not been
+shown here to change raw-policy entropy. This inspection needs no forward pass
+and would distinguish a late checkpoint effect from an accumulated
+training-path effect more directly than another root cohort.
 
-**One experiment:** test a single post-hoc global T512 policy temperature, with
-no weight updates. Before viewing predictions, select 256 new distinct-opening
-calibration roots and 256 disjoint validation roots from a separately sourced
-self-play archive, balanced across legal-action counts and active-stone strata;
-exclude canonical and production-float32 matches to #557/#559. Fit one `τ` on
-calibration roots only by matching T512's mean legal-action entropy to serving
-P. Freeze that `τ` and all validation membership before evaluation. On the
-held-out validation roots, report raw and calibrated entropy gap and top-action
-agreement; accept the scale hypothesis only if the absolute mean entropy gap
-falls by at least 75% and to ≤0.01 nats, with exact top-action invariance under
-the transform. Otherwise reject a single global scale correction. Do not use
-#557/#559 outcomes or oracle margins to fit or select `τ`.
-
-This is a policy-calibration diagnostic only—not a search experiment, strength
-claim, or promotion path. It does not reopen or alter Seed 588's failed
-registered decision.
+The descriptive temperature alignment is not demonstrated probability
+calibration and does not establish playing-strength improvement. No new
+experiment is proposed here. Seed 588's failed registered decision is
+preserved; this analysis does not authorize search, promotion, serving changes,
+or holdout access.
