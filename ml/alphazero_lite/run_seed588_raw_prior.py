@@ -54,6 +54,7 @@ def frozen_dependencies(root: Path = ROOT) -> dict[str, str]:
         "ml/alphazero_lite/kalah_rules.py",
         "ml/alphazero_lite/arena.py",
         "ml/alphazero_lite/self_play.py",
+        "ml/alphazero_lite/input_encodings.py",
         "ml/alphazero_lite/seed557_retrospective.py",
         "docs/data/seed588-retrospective-raw-prior/README.md",
         "docs/data/seed588-retrospective-raw-prior/execution-freeze.json",
@@ -82,6 +83,12 @@ def verify_execution_freeze(root: Path = ROOT) -> dict[str, Any]:
         raise ExecutionBlocked("protocol_binding_mismatch")
     if freeze.get("source_evidence_sha256") != EXPECTED_INPUTS:
         raise ExecutionBlocked("freeze_source_binding_mismatch")
+    if freeze.get("forward_backend") != {
+        "implementation": "NumPy arena.ArtifactEvaluator using authenticated weights.json",
+        "pytorch_required": False,
+        "historical_preparation_pytorch_pin_enforced": False,
+    }:
+        raise ExecutionBlocked("freeze_forward_backend_mismatch")
     artifact_bindings = freeze.get("artifacts", {})
     if set(artifact_bindings) != set(EXPECTED_ARTIFACTS):
         raise ExecutionBlocked("freeze_artifact_set_mismatch")
@@ -251,7 +258,7 @@ def execute(
         raise FileExistsError(f"output_must_not_exist:{output}")
     if not output.parent.is_dir():
         raise FileNotFoundError(f"output_parent_missing:{output.parent}")
-    verify_authorization(
+    authorization = verify_authorization(
         root=root,
         authorization_path=authorization_path,
         trusted_sha256=trusted_authorization_sha256,
@@ -354,9 +361,11 @@ def execute(
     manifest = {
         "schema": "seed588-raw-prior-run-v1",
         "execution_freeze_sha256": sha256_file(root / FREEZE_PATH.relative_to(ROOT)),
+        "implementation_sha256": authorization["source_and_implementation_sha256"],
         "source_evidence_sha256": EXPECTED_INPUTS,
         "artifacts": EXPECTED_ARTIFACTS,
         "authorization_sha256": trusted_authorization_sha256,
+        "runtime": authorization["runtime"],
         "p_parity_forward_evaluations": len(parity),
         "t512_forward_evaluations": len(results),
         "parity_max_abs_difference": max(row["max_abs_difference"] for row in parity),

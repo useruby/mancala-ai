@@ -22,6 +22,20 @@ from ml.alphazero_lite.seed588_raw_prior_diagnostic import (
 ROOT = Path(__file__).resolve().parents[2]
 BOOTSTRAP_RESAMPLES = 20_000
 BOOTSTRAP_SEED = 58_820_261_114
+RESULT_IMPLEMENTATION_PATHS = (
+    "ml/alphazero_lite/run_seed588_raw_prior.py",
+    "ml/alphazero_lite/seed588_raw_prior_diagnostic.py",
+    "ml/alphazero_lite/seed588_raw_prior_analysis.py",
+    "ml/alphazero_lite/verify_seed588_raw_prior_result.py",
+    "ml/alphazero_lite/test_seed588_raw_prior_execution.py",
+    "ml/alphazero_lite/kalah_rules.py",
+    "ml/alphazero_lite/arena.py",
+    "ml/alphazero_lite/self_play.py",
+    "ml/alphazero_lite/input_encodings.py",
+    "ml/alphazero_lite/seed557_retrospective.py",
+    "docs/data/seed588-retrospective-raw-prior/README.md",
+    "docs/data/seed588-retrospective-raw-prior/execution-freeze.json",
+)
 
 
 def _sha_file(path: Path) -> str:
@@ -30,6 +44,43 @@ def _sha_file(path: Path) -> str:
         for block in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def verify_frozen_implementation(root: Path, freeze: dict[str, Any]) -> dict[str, str]:
+    """Independently hash the checked-out executor, verifier, and dependencies."""
+    expected = freeze.get("implementation_sha256")
+    if not isinstance(expected, dict) or set(expected) != set(
+        RESULT_IMPLEMENTATION_PATHS
+    ):
+        raise VerificationError("frozen_implementation_manifest_shape")
+    observed = {name: _sha_file(root / name) for name in RESULT_IMPLEMENTATION_PATHS}
+    if observed != expected:
+        raise VerificationError("checked_out_implementation_hash_mismatch")
+    if freeze.get("source_evidence_sha256") != EXPECTED_INPUTS:
+        raise VerificationError("freeze_source_evidence_binding")
+    protocol_path = root / "docs/data/seed588-retrospective-raw-prior/README.md"
+    preparation_path = (
+        root / "docs/data/seed588-retrospective-raw-prior/execution-freeze.json"
+    )
+    if freeze.get("protocol", {}).get("sha256") != _sha_file(protocol_path):
+        raise VerificationError("freeze_protocol_hash_mismatch")
+    if freeze.get("preparation_freeze", {}).get("sha256") != _sha_file(
+        preparation_path
+    ):
+        raise VerificationError("preparation_freeze_hash_mismatch")
+    return observed
+
+
+def verify_frozen_artifacts(freeze: dict[str, Any]) -> None:
+    """Require the executable freeze's P/T512 identities to match #559 pins."""
+    artifacts = freeze.get("artifacts")
+    if not isinstance(artifacts, dict) or set(artifacts) != set(EXPECTED_ARTIFACTS):
+        raise VerificationError("freeze_artifact_set")
+    for model, record in artifacts.items():
+        if {
+            key: value for key, value in record.items() if key != "source"
+        } != EXPECTED_ARTIFACTS[model]:
+            raise VerificationError(f"freeze_artifact_identity:{model}")
 
 
 def validate_membership(
@@ -157,8 +208,10 @@ def verify_result(
     root: Path,
     package: Path,
     trusted_manifest_sha256: str,
+    authorization_path: Path,
+    trusted_authorization_sha256: str,
 ) -> dict[str, Any]:
-    """Verify external manifest trust, source parity, membership, and metrics."""
+    """Verify reviewed authorization, freeze implementation, evidence, and metrics."""
     if not trusted_manifest_sha256:
         raise VerificationError("trusted_run_manifest_digest_required")
     package = package if package.is_absolute() else root / package
@@ -167,15 +220,51 @@ def verify_result(
     if _sha(manifest_bytes) != trusted_manifest_sha256:
         raise VerificationError("run_manifest_trust_digest_mismatch")
     manifest = json.loads(manifest_bytes)
+    authorization_bytes = authorization_path.read_bytes()
+    if _sha(authorization_bytes) != trusted_authorization_sha256:
+        raise VerificationError("trusted_authorization_digest_mismatch")
+    authorization = json.loads(authorization_bytes)
+    if (
+        authorization.get("schema") != "seed588-reviewed-execution-authorization-v1"
+        or authorization.get("status") != "reviewed_and_authorized"
+        or not authorization.get("review_url")
+        or not authorization.get("reviewed_by")
+    ):
+        raise VerificationError("authorization_not_reviewed")
     if manifest.get("schema") != "seed588-raw-prior-run-v1":
         raise VerificationError("run_manifest_schema")
     if manifest.get("source_evidence_sha256") != EXPECTED_INPUTS:
         raise VerificationError("run_source_binding")
-    expected_freeze = (
+    freeze_path = (
         root / "docs/data/seed588-retrospective-raw-prior/execution-freeze-v2.json"
     )
-    if manifest.get("execution_freeze_sha256") != _sha_file(expected_freeze):
+    freeze_bytes = freeze_path.read_bytes()
+    freeze_hash = _sha(freeze_bytes)
+    if manifest.get("execution_freeze_sha256") != freeze_hash:
         raise VerificationError("run_execution_freeze_binding")
+    freeze = json.loads(freeze_bytes)
+    frozen_implementation = verify_frozen_implementation(root, freeze)
+    verify_frozen_artifacts(freeze)
+    if freeze.get("forward_backend") != {
+        "implementation": "NumPy arena.ArtifactEvaluator using authenticated weights.json",
+        "pytorch_required": False,
+        "historical_preparation_pytorch_pin_enforced": False,
+    }:
+        raise VerificationError("freeze_forward_backend_mismatch")
+    if manifest.get("implementation_sha256") != frozen_implementation:
+        raise VerificationError("run_implementation_binding")
+    if authorization.get("execution_freeze_sha256") != freeze_hash:
+        raise VerificationError("authorization_execution_freeze_binding")
+    if authorization.get("source_and_implementation_sha256") != frozen_implementation:
+        raise VerificationError("authorization_implementation_binding")
+    if authorization.get("source_evidence_sha256") != EXPECTED_INPUTS:
+        raise VerificationError("authorization_source_binding")
+    if authorization.get("artifacts") != EXPECTED_ARTIFACTS:
+        raise VerificationError("authorization_artifact_binding")
+    if authorization.get("runtime") != freeze.get("runtime"):
+        raise VerificationError("authorization_runtime_binding")
+    if manifest.get("runtime") != authorization.get("runtime"):
+        raise VerificationError("run_runtime_binding")
     if manifest.get("artifacts") != EXPECTED_ARTIFACTS:
         raise VerificationError("run_artifact_binding")
     if manifest.get("p_parity_passed") is not True:
@@ -187,14 +276,7 @@ def verify_result(
         raise VerificationError("run_forward_count")
     if manifest.get("mcts") or manifest.get("games") or manifest.get("training"):
         raise VerificationError("run_scope_violation")
-    authorization_digest = manifest.get("authorization_sha256")
-    if (
-        not isinstance(authorization_digest, str)
-        or len(authorization_digest) != 64
-        or any(
-            character not in "0123456789abcdef" for character in authorization_digest
-        )
-    ):
+    if manifest.get("authorization_sha256") != trusted_authorization_sha256:
         raise VerificationError("run_authorization_binding")
     file_bindings = manifest.get("result_files_sha256")
     required_files = {
@@ -306,12 +388,18 @@ def main() -> None:
     parser.add_argument("--root", type=Path, default=ROOT)
     parser.add_argument("--package", type=Path, required=True)
     parser.add_argument("--trusted-run-manifest-sha256", required=True)
+    parser.add_argument("--authorization", type=Path, required=True)
+    parser.add_argument("--trusted-authorization-sha256", required=True)
     args = parser.parse_args()
+    if not args.authorization.is_absolute():
+        args.authorization = args.root / args.authorization
     try:
         result = verify_result(
             root=args.root,
             package=args.package,
             trusted_manifest_sha256=args.trusted_run_manifest_sha256,
+            authorization_path=args.authorization,
+            trusted_authorization_sha256=args.trusted_authorization_sha256,
         )
     except (OSError, ValueError, KeyError) as exc:
         parser.exit(2, f"result verification failed: {exc}\n")

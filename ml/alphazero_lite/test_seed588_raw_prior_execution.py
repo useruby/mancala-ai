@@ -16,9 +16,32 @@ from ml.alphazero_lite.verify_seed588_raw_prior_result import (
     VerificationError,
     _root_metrics,
     validate_membership,
+    verify_frozen_artifacts,
+    verify_frozen_implementation,
     verify_result,
 )
 from ml.alphazero_lite.seed588_raw_prior_diagnostic import _jsonl
+
+
+def _authorization(scratch_dir: Path) -> tuple[Path, str, dict[str, object]]:
+    freeze_path = runner.ROOT / runner.FREEZE_PATH.relative_to(runner.ROOT)
+    freeze_bytes = freeze_path.read_bytes()
+    freeze = json.loads(freeze_bytes)
+    authorization = {
+        "schema": runner.AUTH_SCHEMA,
+        "status": "reviewed_and_authorized",
+        "review_url": "https://example.invalid/review/approved",
+        "reviewed_by": "synthetic-independent-reviewer",
+        "execution_freeze_sha256": hashlib.sha256(freeze_bytes).hexdigest(),
+        "source_and_implementation_sha256": runner.frozen_dependencies(),
+        "source_evidence_sha256": runner.EXPECTED_INPUTS,
+        "artifacts": runner.EXPECTED_ARTIFACTS,
+        "runtime": freeze["runtime"],
+    }
+    path = scratch_dir / "reviewed-authorization.json"
+    raw = json.dumps(authorization, sort_keys=True).encode()
+    path.write_bytes(raw)
+    return path, hashlib.sha256(raw).hexdigest(), authorization
 
 
 @pytest.fixture
@@ -68,6 +91,22 @@ def test_authorization_rejects_altered_execution_freeze(
             authorization_path=path,
             trusted_sha256=hashlib.sha256(raw).hexdigest(),
         )
+
+
+def test_result_verifier_rejects_input_encoding_hash_change() -> None:
+    freeze = json.loads(runner.FREEZE_PATH.read_bytes())
+    freeze["implementation_sha256"]["ml/alphazero_lite/input_encodings.py"] = "0" * 64
+    with pytest.raises(
+        VerificationError, match="checked_out_implementation_hash_mismatch"
+    ):
+        verify_frozen_implementation(runner.ROOT, freeze)
+
+
+def test_result_verifier_rejects_altered_frozen_artifact_identity() -> None:
+    freeze = json.loads(runner.FREEZE_PATH.read_bytes())
+    freeze["artifacts"]["T512"]["model.npz"] = "0" * 64
+    with pytest.raises(VerificationError, match="freeze_artifact_identity:T512"):
+        verify_frozen_artifacts(freeze)
 
 
 def test_prior_parity_rejects_action_index_shift_and_excess_error() -> None:
@@ -132,7 +171,15 @@ def test_executor_runs_all_p_parity_before_any_t512(
     monkeypatch.setattr(
         runner, "_read_inputs", lambda _root: (roots, archived, oracles)
     )
-    monkeypatch.setattr(runner, "verify_authorization", lambda **_kwargs: {})
+    freeze = json.loads(runner.FREEZE_PATH.read_bytes())
+    monkeypatch.setattr(
+        runner,
+        "verify_authorization",
+        lambda **_kwargs: {
+            "source_and_implementation_sha256": runner.frozen_dependencies(),
+            "runtime": freeze["runtime"],
+        },
+    )
     monkeypatch.setattr(runner, "analyze", lambda _rows: {"synthetic": True})
     events: list[str] = []
 
@@ -204,6 +251,9 @@ def test_independent_result_verifier_detects_prediction_tampering(
 ) -> None:
     package = scratch_dir / "run"
     package.mkdir()
+    authorization_path, authorization_digest, authorization = _authorization(
+        scratch_dir
+    )
     filenames = (
         "p-parity.jsonl",
         "t512-predictions.jsonl",
@@ -219,8 +269,10 @@ def test_independent_result_verifier_detects_prediction_tampering(
         ),
         "source_evidence_sha256": runner.EXPECTED_INPUTS,
         "artifacts": runner.EXPECTED_ARTIFACTS,
+        "implementation_sha256": authorization["source_and_implementation_sha256"],
         "p_parity_passed": True,
-        "authorization_sha256": "1" * 64,
+        "authorization_sha256": authorization_digest,
+        "runtime": authorization["runtime"],
         "p_parity_forward_evaluations": 512,
         "t512_forward_evaluations": 512,
         "mcts": False,
@@ -236,12 +288,24 @@ def test_independent_result_verifier_detects_prediction_tampering(
     trusted_digest = hashlib.sha256(raw).hexdigest()
     (package / "t512-predictions.jsonl").write_text("tampered\n")
     with pytest.raises(
+        VerificationError, match="trusted_authorization_digest_mismatch"
+    ):
+        verify_result(
+            root=runner.ROOT,
+            package=package,
+            trusted_manifest_sha256=trusted_digest,
+            authorization_path=authorization_path,
+            trusted_authorization_sha256="0" * 64,
+        )
+    with pytest.raises(
         VerificationError, match="result_file_hash:t512-predictions.jsonl"
     ):
         verify_result(
             root=runner.ROOT,
             package=package,
             trusted_manifest_sha256=trusted_digest,
+            authorization_path=authorization_path,
+            trusted_authorization_sha256=authorization_digest,
         )
 
 
@@ -260,6 +324,9 @@ def test_independent_result_verifier_recomputes_complete_synthetic_package(
     }
     package = scratch_dir / "complete-synthetic-package"
     package.mkdir()
+    authorization_path, authorization_digest, authorization = _authorization(
+        scratch_dir
+    )
     parity, predictions, root_rows = [], [], []
     for root in cohort:
         key = root["state_hash"]
@@ -311,9 +378,11 @@ def test_independent_result_verifier_recomputes_complete_synthetic_package(
     manifest = {
         "schema": "seed588-raw-prior-run-v1",
         "execution_freeze_sha256": runner.sha256_file(runner.FREEZE_PATH),
+        "implementation_sha256": authorization["source_and_implementation_sha256"],
         "source_evidence_sha256": runner.EXPECTED_INPUTS,
         "artifacts": runner.EXPECTED_ARTIFACTS,
-        "authorization_sha256": "2" * 64,
+        "authorization_sha256": authorization_digest,
+        "runtime": authorization["runtime"],
         "p_parity_forward_evaluations": 512,
         "t512_forward_evaluations": 512,
         "parity_max_abs_difference": 0.0,
@@ -337,6 +406,8 @@ def test_independent_result_verifier_recomputes_complete_synthetic_package(
         root=runner.ROOT,
         package=package,
         trusted_manifest_sha256=hashlib.sha256(manifest_bytes).hexdigest(),
+        authorization_path=authorization_path,
+        trusted_authorization_sha256=authorization_digest,
     )
     assert result["status"] == "verified"
     assert result["p_parity_roots"] == result["t512_roots"] == 512

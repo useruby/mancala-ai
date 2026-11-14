@@ -49,6 +49,13 @@ engine's relative legal moves. Convert through the current-player offset only
 when validating the cohort's `legal_absolute_actions` field. Do not reinterpret
 oracle or prior vector indices as absolute pit indices.
 
+The original preparation record carries a PyTorch `2.7.1+cpu` pin from its
+historical runtime template. The executable v2 path intentionally does not
+enforce or import PyTorch: `arena.ArtifactEvaluator` performs inference with
+NumPy from the authenticated `weights.json` files. The `.npz` files remain
+SHA-256 authenticated as part of artifact identity, but are not loaded by this
+evaluator. The executable runtime therefore pins Python and NumPy only.
+
 Archived P priors may be reused only after the reviewed runner reproduces them
 under the frozen P artifact, model input encoding, legal-action encoding,
 masking, normalization, and float32 semantics for all 512 roots within the
@@ -132,13 +139,16 @@ package from a separate physical copy:
 ```bash
 python -m ml.alphazero_lite.verify_seed588_raw_prior_result \
   --package docs/data/seed588-retrospective-raw-prior/run-0001 \
-  --trusted-run-manifest-sha256 INDEPENDENTLY_RECORDED_SHA256
+  --trusted-run-manifest-sha256 INDEPENDENTLY_RECORDED_SHA256 \
+  --authorization path/to/reviewed-authorization.json \
+  --trusted-authorization-sha256 REVIEWER_SUPPLIED_SHA256
 ```
 
 The verifier rechecks source/artifact bindings, parity, all 512 output rows,
-and independently recomputes the per-root outcomes, paired statistics,
-bootstrap intervals, and decision. Neither command permits MCTS, games,
-training, sealed-suite access, or model promotion.
+the reviewed authorization, and the implementation/dependency SHA-256 map
+against the executable freeze; it independently recomputes per-root outcomes,
+paired statistics, bootstrap intervals, and the decision. Neither command
+permits MCTS, games, training, sealed-suite access, or model promotion.
 
 No training, games, MCTS, sealed-suite access, or model promotion is part of
 this protocol.
