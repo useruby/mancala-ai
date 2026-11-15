@@ -49,3 +49,12 @@ for both models before qualification access (three fixtures per model; maximum
 absolute probability differences were `1.1920928955078125e-07` for P-E4 and
 `5.960464477539063e-08` for Seed 594; illegal-action probabilities were exactly
 zero).
+
+The exact authorization-bound preparation freeze used for run 0001 is preserved
+as `execution-freeze.json` in this directory and has SHA-256
+`d70b3a11c950b331ada5b20d74b0b7d15acaed9eeff56e9b83ef1dffb42bbcb8`. After
+execution, CI identified formatter-only changes in the runner and its test; the
+current preparation freeze now pins those formatted source bytes. No evaluation
+code behavior, checkpoint identity, membership, threshold, or run evidence was
+changed, and the original authorization remains bound to the preserved run
+freeze.

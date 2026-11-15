@@ -137,7 +137,9 @@ def test_candidate_checkpoint_identity_is_independently_authenticated(
         stage1.verify_synthetic_export_parity()
 
 
-def test_qualification_runner_requires_owner_authorization_with_freeze_binding() -> None:
+def test_qualification_runner_requires_owner_authorization_with_freeze_binding() -> (
+    None
+):
     with pytest.raises(
         PermissionError, match="bound_project_owner_execution_authorization_required"
     ):
@@ -160,8 +162,13 @@ def test_owner_authorization_records_review_waiver_without_claiming_review(
         "maximum_evaluations": 1,
         "scope": "Seed 594 vs serving P-E4 on the existing 423-root #570 membership",
         "prohibited_actions": [
-            "reruns", "retraining", "parameter tuning", "PUCT", "arena games",
-            "sealed-suite access", "serving changes",
+            "reruns",
+            "retraining",
+            "parameter tuning",
+            "PUCT",
+            "arena games",
+            "sealed-suite access",
+            "serving changes",
         ],
     }
 

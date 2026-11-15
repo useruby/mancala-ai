@@ -274,20 +274,29 @@ def evaluate_membership_roots(*, authorization: dict[str, Any]) -> list[dict[str
     synthetic parity gate passes; it performs one forward per model/root and no
     search or games.
     """
-    freeze_path = ROOT / "docs/data/seed594-stage1-raw-policy/execution-freeze.json"
+    freeze_path = _authorization_freeze_path(authorization)
     if (
-        authorization.get("schema")
-        != "seed594-stage1-owner-execution-authorization-v1"
+        authorization.get("schema") != "seed594-stage1-owner-execution-authorization-v1"
         or authorization.get("status") != "owner_authorized_with_review_waiver"
         or authorization.get("authorized_by") != "project owner"
         or authorization.get("qualification_inference_authorized") is not True
         or authorization.get("independent_human_review") != "waived_by_project_owner"
-        or authorization.get("prior_chatgpt_technical_review_is_independent") is not False
+        or authorization.get("prior_chatgpt_technical_review_is_independent")
+        is not False
         or authorization.get("execution_freeze_sha256") != sha256_file(freeze_path)
         or authorization.get("maximum_evaluations") != 1
-        or authorization.get("scope") != "Seed 594 vs serving P-E4 on the existing 423-root #570 membership"
+        or authorization.get("scope")
+        != "Seed 594 vs serving P-E4 on the existing 423-root #570 membership"
         or authorization.get("prohibited_actions")
-        != ["reruns", "retraining", "parameter tuning", "PUCT", "arena games", "sealed-suite access", "serving changes"]
+        != [
+            "reruns",
+            "retraining",
+            "parameter tuning",
+            "PUCT",
+            "arena games",
+            "sealed-suite access",
+            "serving changes",
+        ]
     ):
         raise PermissionError("bound_project_owner_execution_authorization_required")
     verify_preparation_freeze()
@@ -350,6 +359,21 @@ def evaluate_membership_roots(*, authorization: dict[str, Any]) -> list[dict[str
             )
             output.append({"state_hash": state_hash, **metrics})
     return output
+
+
+def _authorization_freeze_path(authorization: dict[str, Any]) -> Path:
+    """Resolve the freeze artifact bound by the recorded execution authorization."""
+    package = ROOT / "docs/data/seed594-stage1-raw-policy"
+    candidates = (
+        package / "execution-freeze.json",
+        package / "run-0001/execution-freeze.json",
+    )
+    for candidate in candidates:
+        if candidate.is_file() and authorization.get(
+            "execution_freeze_sha256"
+        ) == sha256_file(candidate):
+            return candidate
+    return candidates[0]
 
 
 def verify_paired_result_membership(
@@ -425,7 +449,7 @@ def execute_and_publish_once(
         raise FileExistsError("qualification_output_already_exists_no_rerun")
     authorization_bytes = authorization_path.read_bytes()
     authorization = json.loads(authorization_bytes)
-    freeze_path = ROOT / "docs/data/seed594-stage1-raw-policy/execution-freeze.json"
+    freeze_path = _authorization_freeze_path(authorization)
     if authorization.get("execution_freeze_sha256") != sha256_file(freeze_path):
         raise PermissionError("authorization_execution_freeze_binding_mismatch")
     output_dir.mkdir(parents=True)
@@ -440,9 +464,7 @@ def execute_and_publish_once(
         for row in rows
     )
     (output_dir / "root-results.jsonl").write_bytes(result_bytes)
-    mapping_bytes = (
-        json.dumps(membership, sort_keys=True, indent=2) + "\n"
-    ).encode()
+    mapping_bytes = (json.dumps(membership, sort_keys=True, indent=2) + "\n").encode()
     (output_dir / "verified-membership-mapping.json").write_bytes(mapping_bytes)
 
     analysis = analyze_root_results(rows)
