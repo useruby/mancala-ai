@@ -1,0 +1,37 @@
+{
+  "arm": "A",
+  "checkpoint_sha256": "eec38be82dce5e7791c3b5c0bd414be86d8d83fb66a81390d1283300564e2067",
+  "frozen_parameter_integrity": "receipt asserted; runtime snapshot is produced by executor",
+  "parameter_groups": {
+    "frozen": [
+      "value_hidden_layer.weight",
+      "value_hidden_layer.bias",
+      "value_head.weight",
+      "value_head.bias"
+    ],
+    "trainable": [
+      "residual_layers.0.0.weight",
+      "residual_layers.0.0.bias",
+      "residual_layers.0.1.weight",
+      "residual_layers.0.1.bias",
+      "residual_layers.1.0.weight",
+      "residual_layers.1.0.bias",
+      "residual_layers.1.1.weight",
+      "residual_layers.1.1.bias",
+      "residual_layers.2.0.weight",
+      "residual_layers.2.0.bias",
+      "residual_layers.2.1.weight",
+      "residual_layers.2.1.bias",
+      "input_layer.weight",
+      "input_layer.bias",
+      "policy_hidden_layer.weight",
+      "policy_hidden_layer.bias",
+      "policy_head.weight",
+      "policy_head.bias"
+    ]
+  },
+  "passed": true,
+  "states": 256,
+  "trace_sha256": "8789eae8d484f6166284063f8bbccaf4f2abae4c0073528ddbd6fcb258f2fdee",
+  "updates": 512
+}
