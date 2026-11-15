@@ -1,0 +1,48 @@
+{
+  "schema": "seed599-training-execution-freeze-v1",
+  "status": "frozen-training-not-authorized",
+  "arms": {
+    "A": {
+      "configuration_sha256": "413a8a2b128391580a505dfa71e5772e44fd3c8c955577558ffdf92324f4f41a"
+    },
+    "B": {
+      "configuration_sha256": "8dd20557ac93d7d3c72bb94b50d35e868e85ee6f68bdd84699ee312b54e26405"
+    }
+  },
+  "source_sha256": {
+    "ml/alphazero_lite/seed599_training_executor.py": "dbe00f084ff1ac76f68eb4baf76247df4499d2ba6d59281f2b4948714a8aef3c",
+    "ml/alphazero_lite/verify_seed599_training_result.py": "a749f9ed3d3234c1c3e261b7c4d589e562a00e7c951d0e254e7eadc41f3c70ee",
+    "ml/alphazero_lite/seed599_replay_coverage.py": "7eaccb6457c627853e490e25cdba9d3885d9d64725c4bb7b2295da18e6417931"
+  },
+  "runtime": {
+    "python": "3.14.7",
+    "numpy": "2.5.2",
+    "torch": "2.13.0+cu130",
+    "device": "cpu",
+    "threads": 1,
+    "pythonhashseed": "599",
+    "omp_num_threads": "1",
+    "mkl_num_threads": "1",
+    "deterministic_algorithms": true
+  },
+  "training_contract": {
+    "parent_checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+    "updates_per_arm": 512,
+    "batch_size": 32,
+    "optimizer": "Adam from each arm's frozen configuration",
+    "trainable_prefixes": [
+      "input_layer.",
+      "residual_layers.",
+      "policy_hidden_layer.",
+      "policy_head."
+    ],
+    "frozen_prefixes": ["value_hidden_layer.", "value_head."],
+    "execution_mode": "cpu, one torch thread, deterministic algorithms"
+  },
+  "authorization": {
+    "required": true,
+    "separate_record": "training-authorization.json",
+    "binding_field": "execution_freeze_sha256",
+    "must_be_explicit_project_owner": true
+  }
+}
