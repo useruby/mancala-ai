@@ -155,6 +155,18 @@ def compare_root_policies(
     # perspective_player, which was the side to move for every root.
     margins = {int(action): int(value) for action, value in action_margins.items()}
     best = max(margins.values())
+    optimal_actions = sorted(
+        action for action, margin in margins.items() if margin == best
+    )
+    p_values = np.asarray(p_policy, dtype=np.float64)
+    candidate_values = np.asarray(candidate_policy, dtype=np.float64)
+    if (
+        not np.isfinite(p_values).all()
+        or not np.isfinite(candidate_values).all()
+        or np.any(p_values < 0)
+        or np.any(candidate_values < 0)
+    ):
+        raise ValueError("invalid_policy_probabilities")
 
     def rank(value: int) -> int:
         return 1 if value > 0 else -1 if value < 0 else 0
@@ -166,6 +178,15 @@ def compare_root_policies(
         "opening_index": int(opening_index),
         "p_action": p_top,
         "candidate_action": candidate_top,
+        "exact_optimal_actions": optimal_actions,
+        "p_exact_optimal_top_action": p_top in optimal_actions,
+        "candidate_exact_optimal_top_action": candidate_top in optimal_actions,
+        "p_exact_optimal_prior_mass": float(
+            sum(p_values[action] for action in optimal_actions)
+        ),
+        "candidate_exact_optimal_prior_mass": float(
+            sum(candidate_values[action] for action in optimal_actions)
+        ),
         "p_regret": best - margins[p_top],
         "candidate_regret": best - margins[candidate_top],
         "p_wdl_rank": p_rank,
@@ -326,6 +347,67 @@ def evaluate_membership_roots(*, authorization: dict[str, Any]) -> list[dict[str
     return output
 
 
+def verify_paired_result_membership(
+    result_rows: list[dict[str, Any]], membership_roots: list[dict[str, Any]]
+) -> dict[str, Any]:
+    """Require exact one-to-one state-hash/opening mapping to frozen membership."""
+    if len(membership_roots) != 423:
+        raise ValueError("membership_population_mismatch")
+    expected: dict[int, str] = {}
+    expected_hashes: set[str] = set()
+    for root in membership_roots:
+        opening = root["opening_index"]
+        state_hash = root["state_hash"]
+        if type(opening) is not int or not isinstance(state_hash, str):
+            raise ValueError("membership_identity_field_type_mismatch")
+        if opening in expected or state_hash in expected_hashes:
+            raise ValueError("membership_contains_duplicate_identity")
+        expected[opening] = state_hash
+        expected_hashes.add(state_hash)
+    if len(result_rows) != 423:
+        raise ValueError("result_population_mismatch")
+    seen_openings: set[int] = set()
+    seen_hashes: set[str] = set()
+    for row in result_rows:
+        opening = row["opening_index"]
+        state_hash = row["state_hash"]
+        if type(opening) is not int or not isinstance(state_hash, str):
+            raise ValueError("result_identity_field_type_mismatch")
+        if opening in seen_openings or state_hash in seen_hashes:
+            raise ValueError("result_contains_duplicate_identity")
+        seen_openings.add(opening)
+        seen_hashes.add(state_hash)
+        if expected.get(opening) != state_hash:
+            raise ValueError("result_membership_mapping_mismatch")
+    if seen_openings != set(expected) or seen_hashes != expected_hashes:
+        raise ValueError("result_membership_incomplete")
+    return {
+        "status": "verified",
+        "root_count": 423,
+        "state_hashes": sorted(seen_hashes),
+        "opening_to_state_hash": {
+            str(opening): expected[opening] for opening in sorted(expected)
+        },
+    }
+
+
+def verify_results_against_authenticated_membership(
+    result_rows: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Authenticate #570 membership, then verify every published result identity."""
+    verify_preparation_freeze()
+    membership_path = (
+        ROOT
+        / "docs/data/seed570-policy-prior-distillation/qualification-membership.json"
+    )
+    roots = json.loads(membership_path.read_bytes())["roots"]
+    checked = verify_paired_result_membership(result_rows, roots)
+    checked["membership_sha256"] = (
+        "94e126af6ea88fb99a4230f84e5cf2a20248daa39ea66d25b68730ea0426d668"
+    )
+    return checked
+
+
 def verify_preparation_freeze() -> dict[str, Any]:
     """Verify frozen bytes, then parity, then membership/oracle coverage.
 
@@ -343,6 +425,17 @@ def verify_preparation_freeze() -> dict[str, Any]:
         "P-E4": P_SHA256,
     }:
         raise ValueError("preparation_checkpoint_identity_mismatch")
+    deviation = freeze.get("access_order_deviation", {})
+    if (
+        deviation.get("public_membership_file_opened_before_synthetic_parity_checks")
+        is not True
+        or deviation.get("historical_deviation_preserved") is not True
+        or deviation.get("qualification_inference_performed") is not False
+        or deviation.get("qualification_outcome_analysis_performed") is not False
+        or deviation.get("cohort_characterization")
+        != "existing-preexisting-membership-not-fresh-or-sealed"
+    ):
+        raise ValueError("access_order_deviation_disclosure_mismatch")
     analysis = freeze.get("analysis", {})
     if (
         analysis.get("mean_gate")
@@ -355,6 +448,15 @@ def verify_preparation_freeze() -> dict[str, Any]:
         or analysis.get("bootstrap_quantiles") != [0.025, 0.975]
         or analysis.get("bootstrap_clusters")
         != "423 opening indices, one retained root per opening"
+        or analysis.get("result_membership_verification")
+        != "exact 423 state hashes and opening-index-to-state-hash mapping; reject omission, substitution, duplicate hash/opening, or mismapped opening"
+        or set(analysis.get("per_model_metrics", {}))
+        != {
+            "exact_optimal_top_action_rate",
+            "exact_optimal_prior_probability_mass",
+            "exact_regret",
+            "wdl_downgrade",
+        }
     ):
         raise ValueError("preparation_analysis_binding_mismatch")
     limits = freeze.get("execution_limits", {})
@@ -457,6 +559,22 @@ def analyze_root_results(rows: list[dict[str, Any]]) -> dict[str, Any]:
     bootstrap = paired_opening_bootstrap(rows)
     return {
         **bootstrap,
+        "p_mean_exact_regret": float(np.mean([row["p_regret"] for row in rows])),
+        "candidate_mean_exact_regret": float(
+            np.mean([row["candidate_regret"] for row in rows])
+        ),
+        "p_exact_optimal_top_action_rate": float(
+            np.mean([bool(row["p_exact_optimal_top_action"]) for row in rows])
+        ),
+        "candidate_exact_optimal_top_action_rate": float(
+            np.mean([bool(row["candidate_exact_optimal_top_action"]) for row in rows])
+        ),
+        "p_exact_optimal_prior_probability_mass": float(
+            np.mean([row["p_exact_optimal_prior_mass"] for row in rows])
+        ),
+        "candidate_exact_optimal_prior_probability_mass": float(
+            np.mean([row["candidate_exact_optimal_prior_mass"] for row in rows])
+        ),
         "candidate_wdl_downgrade_rate": float(
             np.mean([bool(row["candidate_wdl_downgrade"]) for row in rows])
         ),

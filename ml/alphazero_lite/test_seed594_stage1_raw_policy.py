@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+from typing import Any
+
 import numpy as np
 import pytest
 
@@ -76,6 +79,26 @@ def test_tied_exact_optima_and_policy_choose_lowest_action_deterministically() -
     assert row["p_action"] == 0
     assert row["candidate_action"] == 2
     assert row["p_regret"] == row["candidate_regret"] == 0
+    assert row["exact_optimal_actions"] == [0, 2]
+    assert row["p_exact_optimal_top_action"] is True
+    assert row["candidate_exact_optimal_top_action"] is True
+    assert row["p_exact_optimal_prior_mass"] == pytest.approx(1.0)
+    assert row["candidate_exact_optimal_prior_mass"] == pytest.approx(0.5)
+
+
+def test_nonoptimal_top_action_and_prior_mass_are_both_reported() -> None:
+    row = stage1.compare_root_policies(
+        opening_index=15,
+        current_player=0,
+        p_policy=[0.8, 0.2, 0, 0, 0, 0],
+        candidate_policy=[0.1, 0.9, 0, 0, 0, 0],
+        legal_actions=[0, 1],
+        action_margins={0: 0, 1: 4},
+    )
+    assert row["p_exact_optimal_top_action"] is False
+    assert row["candidate_exact_optimal_top_action"] is True
+    assert row["p_exact_optimal_prior_mass"] == pytest.approx(0.2)
+    assert row["candidate_exact_optimal_prior_mass"] == pytest.approx(0.9)
 
 
 def test_player_one_oracle_margins_are_already_in_acting_player_perspective() -> None:
@@ -202,3 +225,106 @@ def test_analysis_rejects_incomplete_or_duplicate_paired_results() -> None:
     }
     with pytest.raises(ValueError, match="incomplete_or_duplicate_opening_results"):
         stage1.analyze_root_results([row] * 423)
+
+
+def _synthetic_membership() -> list[dict[str, Any]]:
+    return [
+        {"opening_index": opening, "state_hash": f"state-{opening:03d}"}
+        for opening in range(423)
+    ]
+
+
+def test_paired_result_membership_checks_all_hashes_and_opening_mappings() -> None:
+    membership = _synthetic_membership()
+    results = list(reversed(membership))
+    checked = stage1.verify_paired_result_membership(results, membership)
+    assert checked["root_count"] == 423
+    assert checked["state_hashes"] == sorted(row["state_hash"] for row in membership)
+    assert checked["opening_to_state_hash"] == {
+        str(row["opening_index"]): row["state_hash"] for row in membership
+    }
+
+
+@pytest.mark.parametrize(
+    ("mutation", "error"),
+    [
+        ("omit", "result_population_mismatch"),
+        ("duplicate", "result_contains_duplicate_identity"),
+        ("duplicate_hash", "result_contains_duplicate_identity"),
+        ("duplicate_opening", "result_contains_duplicate_identity"),
+        ("substitute", "result_membership_mapping_mismatch"),
+        ("swap_openings", "result_membership_mapping_mismatch"),
+        ("noninteger_opening", "result_identity_field_type_mismatch"),
+    ],
+)
+def test_paired_result_membership_mutations_fail_closed(
+    mutation: str, error: str
+) -> None:
+    membership = _synthetic_membership()
+    results = [dict(row) for row in membership]
+    if mutation == "omit":
+        results.pop()
+    elif mutation == "duplicate":
+        results[-1] = dict(results[0])
+    elif mutation == "duplicate_hash":
+        results[-1]["state_hash"] = results[0]["state_hash"]
+    elif mutation == "duplicate_opening":
+        results[-1]["opening_index"] = results[0]["opening_index"]
+    elif mutation == "substitute":
+        results[17]["state_hash"] = "not-a-member"
+    elif mutation == "noninteger_opening":
+        results[17]["opening_index"] = 17.5
+    else:
+        results[17]["opening_index"], results[18]["opening_index"] = (
+            results[18]["opening_index"],
+            results[17]["opening_index"],
+        )
+    with pytest.raises(ValueError, match=error):
+        stage1.verify_paired_result_membership(results, membership)
+
+
+def test_aggregate_reports_exact_optimal_metrics_for_both_models() -> None:
+    rows = []
+    for opening in range(423):
+        rows.append(
+            {
+                "opening_index": opening,
+                "candidate_regret": 1.0,
+                "p_regret": 2.0,
+                "candidate_exact_optimal_top_action": opening % 2 == 0,
+                "p_exact_optimal_top_action": opening % 4 == 0,
+                "candidate_exact_optimal_prior_mass": 0.75,
+                "p_exact_optimal_prior_mass": 0.25,
+                "candidate_wdl_downgrade": False,
+                "p_wdl_downgrade": True,
+            }
+        )
+    analysis = stage1.analyze_root_results(rows)
+    assert analysis["p_exact_optimal_top_action_rate"] == pytest.approx(106 / 423)
+    assert analysis["candidate_exact_optimal_top_action_rate"] == pytest.approx(
+        212 / 423
+    )
+    assert analysis["p_exact_optimal_prior_probability_mass"] == pytest.approx(0.25)
+    assert analysis["candidate_exact_optimal_prior_probability_mass"] == pytest.approx(
+        0.75
+    )
+    assert analysis["p_mean_exact_regret"] == pytest.approx(2.0)
+    assert analysis["candidate_mean_exact_regret"] == pytest.approx(1.0)
+    assert analysis["p_wdl_downgrade_rate"] == pytest.approx(1.0)
+    assert analysis["candidate_wdl_downgrade_rate"] == pytest.approx(0.0)
+
+
+def test_freeze_retains_historical_access_order_disclosure() -> None:
+    freeze = json.loads(
+        (
+            stage1.ROOT / "docs/data/seed594-stage1-raw-policy/execution-freeze.json"
+        ).read_bytes()
+    )
+    deviation = freeze["access_order_deviation"]
+    assert (
+        deviation["public_membership_file_opened_before_synthetic_parity_checks"]
+        is True
+    )
+    assert deviation["historical_deviation_preserved"] is True
+    assert deviation["qualification_inference_performed"] is False
+    assert deviation["qualification_outcome_analysis_performed"] is False

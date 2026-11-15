@@ -12,11 +12,14 @@ or the registered decision gate.
 
 During initial artifact discovery, the public #570 `qualification-membership.json`
 file was opened before the required synthetic parity check. This was an
-access-order deviation. After that discovery, synthetic export/inference parity
-was completed before any further qualification package or oracle inspection.
-No qualification inference, qualification outcome analysis, PUCT search, game,
-or sealed-suite access was performed. The existing cohort was not selected or
-altered in this preparation.
+historical access-order deviation and is preserved as an explicit field in the
+execution freeze. During this initial discovery, no qualification roots were
+fed to either model and no qualification outcomes or metrics were examined.
+After that discovery, synthetic export/inference parity was completed before
+any further qualification package or oracle inspection. No qualification
+inference, qualification outcome analysis, PUCT search, game, or sealed-suite
+access was performed. The existing cohort was not selected or altered in this
+preparation and is not characterized as fresh or sealed.
 
 ## Synthetic-only parity
 
@@ -64,6 +67,19 @@ player-relative action index. WDL downgrade is the rate at which the selected
 action's exact outcome rank (`win=1`, `draw=0`, `loss=-1`, by acting-player
 perspective margin) is below the best legal outcome rank. Candidate and P rates
 are compared on the same root set.
+
+Each root records the full exact-optimal action set, whether each model's
+deterministic top action is exact-optimal, and each model's prior mass over all
+exact-optimal actions. Aggregate reports include both models' exact-optimal
+top-action rates, mean exact-optimal prior mass, mean exact regret, and WDL
+downgrade counts/rates. The original regret-difference bootstrap and three-part
+advancement gate remain unchanged.
+
+`verify_paired_result_membership` checks all 423 result state hashes against
+their exact #570 opening indices and rejects missing, substituted, duplicate,
+or mismapped rows. `verify_results_against_authenticated_membership` first
+re-verifies the frozen #570 package and then returns the complete checked hash
+list and opening-to-state mapping for inclusion with published results.
 
 The paired CI resamples the 423 opening clusters with replacement using
 `numpy.random.default_rng(594)`, 20,000 resamples, and NumPy `quantile(method="linear")`

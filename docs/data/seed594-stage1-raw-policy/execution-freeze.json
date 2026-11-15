@@ -6,10 +6,17 @@
     "Seed 594": "7fddf5d6cba7eea4e7b8e06ba89c5b936d28727470934a51c603a739768e9bdd",
     "P-E4": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad"
   },
+  "access_order_deviation": {
+    "public_membership_file_opened_before_synthetic_parity_checks": true,
+    "historical_deviation_preserved": true,
+    "qualification_inference_performed": false,
+    "qualification_outcome_analysis_performed": false,
+    "cohort_characterization": "existing-preexisting-membership-not-fresh-or-sealed"
+  },
   "pre_parity_file_sha256": {
-    "docs/data/seed594-stage1-raw-policy/README.md": "eed4e45c22a516fbf9dbecd46912ac9cd4d7942cf329322897d6353389b2e709",
-    "ml/alphazero_lite/seed594_stage1_raw_policy.py": "9470cc45eb144474a436712af1effb5b4806acbc37aa7597b6c04b2541e842b3",
-    "ml/alphazero_lite/test_seed594_stage1_raw_policy.py": "53e1a9bc8f8a49d82aa448186fa9c8e57c9c9e4196ed735b5ce34f19d7c3a756",
+    "docs/data/seed594-stage1-raw-policy/README.md": "c8d3731c15eed0634b9028b9abfba49c696c36a929c9a668148070e31539973f",
+    "ml/alphazero_lite/seed594_stage1_raw_policy.py": "3b35bd05a84197c12a521a89e68b99d6dbdc38777ee5ebc13ab0fcfca85fdd37",
+    "ml/alphazero_lite/test_seed594_stage1_raw_policy.py": "b4ddc44caf78a1aac7b6788f6da8bf0d644b1025e45dcf4910d52b0576081687",
     "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
     "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
     "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
@@ -59,6 +66,13 @@
     "bootstrap_rng": "numpy.default_rng(594)",
     "bootstrap_quantiles": [0.025, 0.975],
     "bootstrap_quantile_method": "linear",
+    "per_model_metrics": {
+      "exact_optimal_top_action_rate": "fraction of roots where deterministic top action is in the complete exact-optimal action set",
+      "exact_optimal_prior_probability_mass": "mean normalized raw-policy probability mass summed over all exact-optimal legal actions",
+      "exact_regret": "mean best-action-margin minus selected-action-margin, with P and candidate also reported separately",
+      "wdl_downgrade": "count and rate of selected outcome rank below best legal outcome rank"
+    },
+    "result_membership_verification": "exact 423 state hashes and opening-index-to-state-hash mapping; reject omission, substitution, duplicate hash/opening, or mismapped opening",
     "gate_mutation": "none; all three conditions required; incomplete or duplicate paired data fails closed"
   },
   "runtime": {
