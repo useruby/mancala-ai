@@ -14,9 +14,9 @@
     "cohort_characterization": "existing-preexisting-membership-not-fresh-or-sealed"
   },
   "pre_parity_file_sha256": {
-    "docs/data/seed594-stage1-raw-policy/README.md": "c8d3731c15eed0634b9028b9abfba49c696c36a929c9a668148070e31539973f",
-    "ml/alphazero_lite/seed594_stage1_raw_policy.py": "3b35bd05a84197c12a521a89e68b99d6dbdc38777ee5ebc13ab0fcfca85fdd37",
-    "ml/alphazero_lite/test_seed594_stage1_raw_policy.py": "b4ddc44caf78a1aac7b6788f6da8bf0d644b1025e45dcf4910d52b0576081687",
+    "docs/data/seed594-stage1-raw-policy/README.md": "c6643e6d04a2afec8e4131961743e1b44a3213fd314208639159eb4d07e86835",
+    "ml/alphazero_lite/seed594_stage1_raw_policy.py": "ee3d81b2ada181f7de26224d7bf247ff4acd99865c2421849a3dc3197bb72e25",
+    "ml/alphazero_lite/test_seed594_stage1_raw_policy.py": "fcd72f4148242808c1dd209c21ca4faf2ba42e4395652ea43c244ea4da1bb1e8",
     "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
     "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
     "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",

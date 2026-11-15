@@ -1,0 +1,22 @@
+{
+  "candidate_exact_optimal_prior_probability_mass": 0.6097302971403024,
+  "candidate_exact_optimal_top_action_rate": 0.7257683215130024,
+  "candidate_mean_exact_regret": 1.4515366430260048,
+  "candidate_wdl_downgrade_count": 31,
+  "candidate_wdl_downgrade_rate": 0.07328605200945626,
+  "mean_candidate_minus_p_regret": 0.14657210401891252,
+  "opening_clusters": 423,
+  "p_exact_optimal_prior_probability_mass": 0.6581970120016816,
+  "p_exact_optimal_top_action_rate": 0.7470449172576832,
+  "p_mean_exact_regret": 1.3049645390070923,
+  "p_wdl_downgrade_count": 28,
+  "p_wdl_downgrade_rate": 0.06619385342789598,
+  "paired_opening_bootstrap_ci95": [
+    -0.07565011820330969,
+    0.3877068557919622
+  ],
+  "quantile_method": "linear",
+  "resamples": 20000,
+  "rng": "numpy.default_rng(594)",
+  "seed": 594
+}

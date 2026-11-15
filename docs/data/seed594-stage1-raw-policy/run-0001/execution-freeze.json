@@ -1,0 +1,96 @@
+{
+  "schema": "seed594-stage1-raw-policy-preparation-freeze-v1",
+  "status": "prepared-pending-independent-review-no-inference",
+  "base_revision": "7c2d36ea1ee09987d0b6f7a8f972bf03e9c5525e",
+  "checkpoint_identity": {
+    "Seed 594": "7fddf5d6cba7eea4e7b8e06ba89c5b936d28727470934a51c603a739768e9bdd",
+    "P-E4": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad"
+  },
+  "access_order_deviation": {
+    "public_membership_file_opened_before_synthetic_parity_checks": true,
+    "historical_deviation_preserved": true,
+    "qualification_inference_performed": false,
+    "qualification_outcome_analysis_performed": false,
+    "cohort_characterization": "existing-preexisting-membership-not-fresh-or-sealed"
+  },
+  "pre_parity_file_sha256": {
+    "docs/data/seed594-stage1-raw-policy/README.md": "c6643e6d04a2afec8e4131961743e1b44a3213fd314208639159eb4d07e86835",
+    "ml/alphazero_lite/seed594_stage1_raw_policy.py": "71aeffe9bc7f388854708de551860e50c001cef602f397f87b1db20b712ca067",
+    "ml/alphazero_lite/test_seed594_stage1_raw_policy.py": "80f98166598516caf0d128f931f42e187d770bb48a3ac47250a2bf810f441757",
+    "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/input_encodings.py": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe",
+    "ml/alphazero_lite/native_exact_root_tablebase.py": "bf241fa772efd122355b0706fff9035ee40f6cb9ac913fdd829444f359d62f15",
+    "docs/data/seed552-c108-serving-p/runtime-artifacts/P-E4/metadata.json": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+    "docs/data/seed552-c108-serving-p/runtime-artifacts/P-E4/model.npz": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+    "docs/data/seed552-c108-serving-p/runtime-artifacts/P-E4/weights.json": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136",
+    "docs/data/seed552-c108-serving-p/runtime-artifacts/P-E4/search_policy.json": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "docs/data/seed594-exact-oracle-distillation/run-0001/seed594-exact-oracle-update-512.npz": "7fddf5d6cba7eea4e7b8e06ba89c5b936d28727470934a51c603a739768e9bdd",
+    "docs/data/seed594-exact-oracle-distillation/run-0001/checkpoint-identity.json": "9a3acf566ae9c84f4e973234c9d0bc99b65c0040a9cbf3624ec8e42877d6155a",
+    "docs/data/seed594-exact-oracle-distillation/training-configuration.json": "18b6150367a1309173cd5158f5bcd8a97a94d5edc73cce90f5cdb7a246a87bea",
+    "docs/data/seed594-exact-oracle-distillation/exact-targets.jsonl": "85b1f6ca7fe44ae0d0c6db08cc0ce338a9e3398b4aead09c1388935a8d69b4c2"
+  },
+  "post_parity_identity_sha256": {
+    "docs/data/seed570-policy-prior-distillation/qualification-membership.json": "6447d6ae98a750de4046992fd84e53998843dd1f2f20706375de4c91fa798efc",
+    "docs/data/seed559-fixed-position-feasibility/run-0003/cohort-manifest.json": "f2e03fb9491474056e7a7cb3ace225cd2310f9069c9e48600d45039ed63158fb",
+    "docs/data/seed559-fixed-position-feasibility/run-0003/oracle-records.jsonl": "83bec1bb348cbc6d1183112363f27d0612ee204a48d14ee5dbb7530e9b5fb8c2",
+    "ml/alphazero_lite/seed570_qualification_cohort.py": "4a37b4ea4d89bc7fe00469d712c3ed4fa2cfe1762f54b8d98ff8edafeaf75a17"
+  },
+  "parity_contract": {
+    "synthetic_states": 3,
+    "model_pairs": ["P-E4 PyTorch versus frozen serving evaluator and export", "Seed 594 PyTorch versus exported evaluator"],
+    "input_encoding": "kalah_v3",
+    "legal_mask": "exact legal player-relative action indices 0..5; illegal probabilities exactly zero",
+    "tie_breaking": "lowest legal player-relative action index among exactly equal maximum probabilities",
+    "maximum_absolute_probability_difference": 1e-6,
+    "qualification_roots_read_before_parity": false
+  },
+  "qualification_contract": {
+    "existing_membership": "docs/data/seed570-policy-prior-distillation/qualification-membership.json",
+    "population": 423,
+    "membership_sha256": "94e126af6ea88fb99a4230f84e5cf2a20248daa39ea66d25b68730ea0426d668",
+    "exact_action_oracle": "docs/data/seed559-fixed-position-feasibility/run-0003/oracle-records.jsonl",
+    "oracle_identity_sha256": "83bec1bb348cbc6d1183112363f27d0612ee204a48d14ee5dbb7530e9b5fb8c2",
+    "oracle_contract": "complete legal-action margin coverage per retained state hash; identity and coverage verification only before review",
+    "fresh_or_sealed_holdout_claim": false
+  },
+  "analysis": {
+    "exact_regret": "#559 native oracle action margins are recorded from the requested perspective_player, which equals root side to move; best legal action margin minus chosen action margin",
+    "mean_gate": "mean candidate-minus-P exact regret <= -0.10 seeds",
+    "paired_ci_gate": "95% opening-cluster bootstrap interval upper endpoint < 0",
+    "wdl_gate": "candidate WDL downgrade rate <= P WDL downgrade rate; action WDL rank is sign of acting-player-perspective exact margin (win=1, draw=0, loss=-1), downgrade means below best legal WDL rank",
+    "bootstrap_clusters": "423 opening indices, one retained root per opening",
+    "bootstrap_resamples": 20000,
+    "bootstrap_rng": "numpy.default_rng(594)",
+    "bootstrap_quantiles": [0.025, 0.975],
+    "bootstrap_quantile_method": "linear",
+    "per_model_metrics": {
+      "exact_optimal_top_action_rate": "fraction of roots where deterministic top action is in the complete exact-optimal action set",
+      "exact_optimal_prior_probability_mass": "mean normalized raw-policy probability mass summed over all exact-optimal legal actions",
+      "exact_regret": "mean best-action-margin minus selected-action-margin, with P and candidate also reported separately",
+      "wdl_downgrade": "count and rate of selected outcome rank below best legal outcome rank"
+    },
+    "result_membership_verification": "exact 423 state hashes and opening-index-to-state-hash mapping; reject omission, substitution, duplicate hash/opening, or mismapped opening",
+    "gate_mutation": "none; all three conditions required; incomplete or duplicate paired data fails closed"
+  },
+  "runtime": {
+    "python": "3.14.7",
+    "numpy": "2.5.2",
+    "torch": "2.13.0+cpu",
+    "device": "cpu",
+    "execution_threads": 1,
+    "PYTHONHASHSEED": "571",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1"
+  },
+  "execution_limits": {
+    "qualification_inference": false,
+    "puct": false,
+    "games": false,
+    "sealed_suite_access": false,
+    "execution_authorized": false
+  }
+}

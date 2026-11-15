@@ -137,11 +137,47 @@ def test_candidate_checkpoint_identity_is_independently_authenticated(
         stage1.verify_synthetic_export_parity()
 
 
-def test_qualification_runner_requires_review_bound_authorization() -> None:
+def test_qualification_runner_requires_owner_authorization_with_freeze_binding() -> (
+    None
+):
     with pytest.raises(
-        PermissionError, match="reviewed_execution_authorization_required"
+        PermissionError, match="bound_project_owner_execution_authorization_required"
     ):
         stage1.evaluate_membership_roots(authorization={})
+
+
+def test_owner_authorization_records_review_waiver_without_claiming_review(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    authorization = {
+        "schema": "seed594-stage1-owner-execution-authorization-v1",
+        "status": "owner_authorized_with_review_waiver",
+        "authorized_by": "project owner",
+        "qualification_inference_authorized": True,
+        "independent_human_review": "waived_by_project_owner",
+        "prior_chatgpt_technical_review_is_independent": False,
+        "execution_freeze_sha256": stage1.sha256_file(
+            stage1.ROOT / "docs/data/seed594-stage1-raw-policy/execution-freeze.json"
+        ),
+        "maximum_evaluations": 1,
+        "scope": "Seed 594 vs serving P-E4 on the existing 423-root #570 membership",
+        "prohibited_actions": [
+            "reruns",
+            "retraining",
+            "parameter tuning",
+            "PUCT",
+            "arena games",
+            "sealed-suite access",
+            "serving changes",
+        ],
+    }
+
+    def stop_after_authorization() -> None:
+        raise RuntimeError("authorization_accepted")
+
+    monkeypatch.setattr(stage1, "verify_preparation_freeze", stop_after_authorization)
+    with pytest.raises(RuntimeError, match="authorization_accepted"):
+        stage1.evaluate_membership_roots(authorization=authorization)
 
 
 def test_bootstrap_reconstruction_matches_registered_numpy_procedure() -> None:
