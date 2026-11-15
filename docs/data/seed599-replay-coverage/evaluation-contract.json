@@ -1,18 +1,54 @@
 {
   "bootstrap": {
-    "method": "paired opening-cluster bootstrap",
-    "quantile_method": "linear",
-    "quantiles": [
+    "coverage_two_sided_quantiles": [
       0.025,
       0.975
     ],
+    "method": "paired opening-cluster bootstrap; resample openings and preserve both seat outcomes within each opening",
+    "numpy_api": "numpy.quantile(method='linear')",
+    "primary_one_sided_lower_quantile": 0.05,
+    "quantile_method": "linear",
     "resamples": 20000,
     "seed": 599
   },
-  "comparisons": [
-    "A versus serving P-E4",
-    "B versus serving P-E4"
-  ],
+  "comparison_contract": {
+    "coverage_comparison": {
+      "bootstrap_interval": "paired two-sided 95% percentile confidence interval",
+      "difference": "B minus A seat-averaged game score",
+      "opening_groups": "same frozen 1,024 openings",
+      "pass_rule": "lower endpoint strictly greater than zero",
+      "per_opening_cluster": "difference between B and A mean designated-player score over both seat assignments"
+    },
+    "outcome_classification": {
+      "both_conditions_pass": "strength_pass and coverage_pass",
+      "coverage_only": "coverage_pass and not strength_pass",
+      "neither_condition_passes": "not strength_pass and not coverage_pass",
+      "strength_only": "strength_pass and not coverage_pass"
+    },
+    "possible_outcomes": [
+      "both_conditions_pass",
+      "strength_only",
+      "coverage_only",
+      "neither_condition_passes"
+    ],
+    "primary_strength": {
+      "bootstrap_bound": "one-sided paired 95% percentile lower confidence bound",
+      "candidate": "B",
+      "metric": "seat-averaged game score",
+      "opponent": "serving P-E4",
+      "pass_rule": "lower bound strictly greater than 0.50",
+      "per_opening_cluster": "mean of B designated-player score over both seat assignments"
+    },
+    "score_mapping": {
+      "draw": 0.5,
+      "loss": 0.0,
+      "win": 1.0
+    },
+    "secondary_generalization": {
+      "cohort": "registered provenance-held-out source opening groups",
+      "metric": "held-out masked policy cross-entropy"
+    }
+  },
   "match_settings": {
     "c_puct": 1.25,
     "exact_leaf_solving": false,
@@ -47,8 +83,9 @@
   },
   "status": "frozen-evaluation-not-authorized",
   "thresholds": {
-    "generalization": "B held-out masked policy cross-entropy on provenance-held-out source opening groups must be lower than A; report paired opening-cluster 95% interval",
-    "strength": "lower 95% paired bootstrap bound for B minus A seat-averaged score > -0.02; report both arms versus P-E4"
+    "coverage_comparison": "paired two-sided 95% interval for B minus A seat-averaged score on the same openings; lower endpoint strictly > 0",
+    "primary_strength": "one-sided paired 95% lower confidence bound for B versus serving P-E4 seat-averaged score strictly > 0.50",
+    "secondary_generalization": "report held-out masked policy cross-entropy for A and B; diagnostic only, not a pass gate"
   },
   "trajectory_overlap": "report exact canonical and float32 overlap counts against both training arms; not yet observed",
   "value_evaluator": "serving P-E4, unchanged and common to all policies"

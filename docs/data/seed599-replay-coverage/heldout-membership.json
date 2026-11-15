@@ -5324,7 +5324,7 @@
       "player_store": 3
     },
     "float32_identity": "ce825b5213edf799d9facae283974972c4cef8de508e466593df585816a7a7da",
-    "game_id": "control-opening-0057-P1",
+    "game_id": "control-matched-0055-P1",
     "legal_moves": [
       0,
       1,
@@ -5332,12 +5332,12 @@
       5
     ],
     "move_index": 0,
-    "opening_id": "opening-0057",
+    "opening_id": "matched-0055-control",
     "phase": "17_to_32",
-    "row_id": "control-opening-0057-P1:0000",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/8a53c91229bbb07706587c4b2a6fe32c4f5b0dfa0e7888a765ef275b744bf15e.json",
-    "source_artifact_sha256": "559dff162e13d6f84a3137413e0ca0aa07e7c3dfa5c586aabd646f1226f82b3a",
+    "row_id": "control-matched-0055-P1:0000",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/3609d184f0c35fa3bbd5c97fccfe683565307a72057d0d60e6e02df94831a142.json",
+    "source_artifact_sha256": "73b11e634e0c8cc993a1d60ecd28b19cfa05e5465303b7bbaca22f1de2b6a80e",
     "state": [
       0.14583333333333334,
       0.14583333333333334,
@@ -7658,7 +7658,7 @@
       "player_store": 3
     },
     "float32_identity": "05bd366a6506a96041c1bd4c4e52e570f9f42ee7fb19e3abf21ded9cc67de758",
-    "game_id": "control-opening-0009-P1",
+    "game_id": "control-matched-0008-P1",
     "legal_moves": [
       0,
       1,
@@ -7667,12 +7667,12 @@
       4
     ],
     "move_index": 3,
-    "opening_id": "opening-0009",
+    "opening_id": "matched-0008-control",
     "phase": "17_to_32",
-    "row_id": "control-opening-0009-P1:0003",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/d5d9e88c02a29715aeece0ff478a4268451c684c3c991c3dd2b26fbb6e423ecd.json",
-    "source_artifact_sha256": "f8c3ec86a04085cc364c4edc4dd83e1baa0e2d8df59b2651bcfa90f9d4e10d06",
+    "row_id": "control-matched-0008-P1:0003",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/2469bb23d12fbce87bbc95da3c071daf5c5bcd0f69fbc48dd0cc8160b450c43c.json",
+    "source_artifact_sha256": "dc367587a46fbce9efed51582aa8ec59bcb4025f9c0e8f8635a4464af1ac34ae",
     "state": [
       0.041666666666666664,
       0.0625,
@@ -10553,18 +10553,18 @@
       "player_store": 13
     },
     "float32_identity": "82d45683df6eaef624680867ecf0d2b510ad11d863037e352dcffb2b079111ea",
-    "game_id": "control-opening-0012-P0",
+    "game_id": "control-matched-0011-P0",
     "legal_moves": [
       1,
       4
     ],
     "move_index": 24,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "17_to_32",
-    "row_id": "control-opening-0012-P0:0024",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P0:0024",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.0,
       0.22916666666666666,
@@ -18473,7 +18473,7 @@
       "player_store": 9
     },
     "float32_identity": "b1a68a058c818f57c9243ee6086d018139d1baf16afba2b542556e4435cd90ca",
-    "game_id": "control-opening-0012-P0",
+    "game_id": "control-matched-0011-P0",
     "legal_moves": [
       0,
       1,
@@ -18481,12 +18481,12 @@
       4
     ],
     "move_index": 17,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "17_to_32",
-    "row_id": "control-opening-0012-P0:0017",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P0:0017",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.020833333333333332,
       0.20833333333333334,
@@ -24040,7 +24040,7 @@
       "player_store": 7
     },
     "float32_identity": "5b3e6404b91d982c4cc9021000e218df2e794c12cb6d10405d1e0b3fd3e3c8cb",
-    "game_id": "control-opening-0012-P0",
+    "game_id": "control-matched-0011-P0",
     "legal_moves": [
       0,
       1,
@@ -24049,12 +24049,12 @@
       4
     ],
     "move_index": 15,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "17_to_32",
-    "row_id": "control-opening-0012-P0:0015",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P0:0015",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.020833333333333332,
       0.20833333333333334,
@@ -24760,7 +24760,7 @@
       "player_store": 6
     },
     "float32_identity": "1883d4eab761e9cd96d69230a176d36ed2cd94718df70838a0d9e51156f9ee7c",
-    "game_id": "control-opening-0012-P0",
+    "game_id": "control-matched-0011-P0",
     "legal_moves": [
       1,
       2,
@@ -24768,12 +24768,12 @@
       5
     ],
     "move_index": 13,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "17_to_32",
-    "row_id": "control-opening-0012-P0:0013",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P0:0013",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.0,
       0.1875,
@@ -25481,7 +25481,7 @@
       "player_store": 8
     },
     "float32_identity": "19f23f5ef411242bb5cd059b0ab4264d28302d766f713003fa71f15c736bf1d6",
-    "game_id": "control-opening-0012-P0",
+    "game_id": "control-matched-0011-P0",
     "legal_moves": [
       0,
       1,
@@ -25490,12 +25490,12 @@
       5
     ],
     "move_index": 16,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "17_to_32",
-    "row_id": "control-opening-0012-P0:0016",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P0:0016",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.020833333333333332,
       0.20833333333333334,
@@ -28449,7 +28449,7 @@
       "player_store": 2
     },
     "float32_identity": "6bd7ca7d3b7e17aaf92aeea49c992cff64862ad7fd48c67639fa414d964d7759",
-    "game_id": "control-opening-0009-P0",
+    "game_id": "control-matched-0008-P0",
     "legal_moves": [
       0,
       1,
@@ -28457,12 +28457,12 @@
       5
     ],
     "move_index": 7,
-    "opening_id": "opening-0009",
+    "opening_id": "matched-0008-control",
     "phase": "17_to_32",
-    "row_id": "control-opening-0009-P0:0007",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/d5d9e88c02a29715aeece0ff478a4268451c684c3c991c3dd2b26fbb6e423ecd.json",
-    "source_artifact_sha256": "f8c3ec86a04085cc364c4edc4dd83e1baa0e2d8df59b2651bcfa90f9d4e10d06",
+    "row_id": "control-matched-0008-P0:0007",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/2469bb23d12fbce87bbc95da3c071daf5c5bcd0f69fbc48dd0cc8160b450c43c.json",
+    "source_artifact_sha256": "dc367587a46fbce9efed51582aa8ec59bcb4025f9c0e8f8635a4464af1ac34ae",
     "state": [
       0.041666666666666664,
       0.0625,
@@ -30342,18 +30342,18 @@
       "player_store": 14
     },
     "float32_identity": "23519a15c92a5e41ee2e56b9259006a28b4d8296b72ea1702ec18a6f7a335353",
-    "game_id": "control-opening-0012-P0",
+    "game_id": "control-matched-0011-P0",
     "legal_moves": [
       1,
       5
     ],
     "move_index": 26,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "17_to_32",
-    "row_id": "control-opening-0012-P0:0026",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P0:0026",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.0,
       0.22916666666666666,
@@ -31514,19 +31514,19 @@
       "player_store": 13
     },
     "float32_identity": "6302af0eb892fc29a4996643525e1a139a6389019956a53321084fe0cce8f1a7",
-    "game_id": "control-opening-0012-P0",
+    "game_id": "control-matched-0011-P0",
     "legal_moves": [
       0,
       1,
       4
     ],
     "move_index": 22,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "17_to_32",
-    "row_id": "control-opening-0012-P0:0022",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P0:0022",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.020833333333333332,
       0.20833333333333334,
@@ -34208,7 +34208,7 @@
       "player_store": 2
     },
     "float32_identity": "12200e1165ebaa21f955436cbca3baf9675b01fa3af4b00428e9f3bbcb8d60a1",
-    "game_id": "control-opening-0009-P0",
+    "game_id": "control-matched-0008-P0",
     "legal_moves": [
       0,
       1,
@@ -34217,12 +34217,12 @@
       4
     ],
     "move_index": 2,
-    "opening_id": "opening-0009",
+    "opening_id": "matched-0008-control",
     "phase": "17_to_32",
-    "row_id": "control-opening-0009-P0:0002",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/d5d9e88c02a29715aeece0ff478a4268451c684c3c991c3dd2b26fbb6e423ecd.json",
-    "source_artifact_sha256": "f8c3ec86a04085cc364c4edc4dd83e1baa0e2d8df59b2651bcfa90f9d4e10d06",
+    "row_id": "control-matched-0008-P0:0002",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/2469bb23d12fbce87bbc95da3c071daf5c5bcd0f69fbc48dd0cc8160b450c43c.json",
+    "source_artifact_sha256": "dc367587a46fbce9efed51582aa8ec59bcb4025f9c0e8f8635a4464af1ac34ae",
     "state": [
       0.041666666666666664,
       0.0625,
@@ -45917,7 +45917,7 @@
       "player_store": 4
     },
     "float32_identity": "e1b2c054fb99062d69fdc43fdfa64eb7875416b0153377d6feb156e8666f4290",
-    "game_id": "treatment-opening-0015-P1",
+    "game_id": "control-matched-0014-P1",
     "legal_moves": [
       0,
       1,
@@ -45926,12 +45926,12 @@
       4
     ],
     "move_index": 3,
-    "opening_id": "opening-0015",
+    "opening_id": "matched-0014-control",
     "phase": "above_32",
-    "row_id": "treatment-opening-0015-P1:0003",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/a54242c74bd3bec833ab75b0167c7d10b4ccf907c0c690396b578f1e26844a35.json",
-    "source_artifact_sha256": "7e2225af00316b8430910188d6e67b674dab938ae9b00ebfef6b41da66efa94c",
+    "row_id": "control-matched-0014-P1:0003",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/1c47d97f854e28ef5f6481a871a0ee6ada0b1cc8fd8bdf8a03c940f1b1604394.json",
+    "source_artifact_sha256": "94efe6852b9aa943fd8146794fe3404e214273229d013c516047e642665ba6f4",
     "state": [
       0.041666666666666664,
       0.0,
@@ -46920,7 +46920,7 @@
       "player_store": 4
     },
     "float32_identity": "d70313a5af3655952ab338509118dbbfb4f4547a0e5fcc0a0ccbaf6ce3864589",
-    "game_id": "control-opening-0063-P0",
+    "game_id": "control-matched-0061-P0",
     "legal_moves": [
       0,
       1,
@@ -46928,12 +46928,12 @@
       4
     ],
     "move_index": 1,
-    "opening_id": "opening-0063",
+    "opening_id": "matched-0061-control",
     "phase": "above_32",
-    "row_id": "control-opening-0063-P0:0001",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/1b1cad5adae364a4e3f937990cd41733d407a0abf144167aff57b864f1d1f64a.json",
-    "source_artifact_sha256": "20ef35115a3dab77fa8a0a4e37a2695bae67f1813aecf3328b6e7f5d2349aa99",
+    "row_id": "control-matched-0061-P0:0001",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/aae1234d95bb9a546cdfe51fb9c450d9c410a13c3f63081b94c82c5ca9c1d827.json",
+    "source_artifact_sha256": "b24ac285031ffe567502e1bde5463c2dae05aff8bd9e3ff92e7e9e396c24392f",
     "state": [
       0.14583333333333334,
       0.041666666666666664,
@@ -47102,7 +47102,7 @@
       "player_store": 5
     },
     "float32_identity": "97a5804e2b5e43d2336331ff95c62860555539d053c1bf38ea64e5889c6c86ce",
-    "game_id": "control-opening-0012-P0",
+    "game_id": "control-matched-0011-P0",
     "legal_moves": [
       0,
       1,
@@ -47112,12 +47112,12 @@
       5
     ],
     "move_index": 8,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "above_32",
-    "row_id": "control-opening-0012-P0:0008",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P0:0008",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.020833333333333332,
       0.1875,
@@ -47194,7 +47194,7 @@
       "player_store": 5
     },
     "float32_identity": "37bbde04b0bf306fe841ad99e187a00e338df0bb1c9e51740b03b7db67342dc1",
-    "game_id": "control-opening-0005-P1",
+    "game_id": "control-matched-0004-P1",
     "legal_moves": [
       0,
       1,
@@ -47203,12 +47203,12 @@
       5
     ],
     "move_index": 0,
-    "opening_id": "opening-0005",
+    "opening_id": "matched-0004-control",
     "phase": "above_32",
-    "row_id": "control-opening-0005-P1:0000",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/d1781cefbdd8d3d2ac24ffe29037eb4dc6a0891418e4959ce89c1d4caa3a1871.json",
-    "source_artifact_sha256": "8aac73274b6ea53b27821dc03ae65deba58deb2636725e7d7b46f9f2fd0a358b",
+    "row_id": "control-matched-0004-P1:0000",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/5bcee6a0dd7400bd27af38780c58492f670ae7f6e6d9554b2165ba26cc047f69.json",
+    "source_artifact_sha256": "8189ccd558ba5a1feecf26f3b13e99e5151bdf2152364893d936a9f2c1d669d7",
     "state": [
       0.0,
       0.0,
@@ -47285,7 +47285,7 @@
       "player_store": 8
     },
     "float32_identity": "34e5abcdbae99962e81c61de3db6ecd788cd6b331b4865e1e72b6d31ec249625",
-    "game_id": "control-opening-0036-P0",
+    "game_id": "control-matched-0034-P0",
     "legal_moves": [
       0,
       2,
@@ -47294,12 +47294,12 @@
       5
     ],
     "move_index": 0,
-    "opening_id": "opening-0036",
+    "opening_id": "matched-0034-control",
     "phase": "above_32",
-    "row_id": "control-opening-0036-P0:0000",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/756452aa19c6fa25439e4a8266dcb71b00e7d8701225249030a85fc700e8a7f2.json",
-    "source_artifact_sha256": "e2a6a0f962edbce02e080fab210e549a25e1da1b65d53efe1a9c38e3d7d33036",
+    "row_id": "control-matched-0034-P0:0000",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/268f90df3a8ea35d59baa88588a3038647327ef6300919d4552d123c7d748a81.json",
+    "source_artifact_sha256": "2b77d57ae16a8b9fe43d22cab657bedb59a57d9cfdc54e9a231f1db188b2c03b",
     "state": [
       0.041666666666666664,
       0.0,
@@ -48102,7 +48102,7 @@
       "player_store": 3
     },
     "float32_identity": "688d4679f1a398e4afca3ce58a63cf528b685d9078c7d5dd1a7221bd8b939f9e",
-    "game_id": "control-opening-0012-P1",
+    "game_id": "control-matched-0011-P1",
     "legal_moves": [
       0,
       1,
@@ -48110,12 +48110,12 @@
       4
     ],
     "move_index": 1,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "above_32",
-    "row_id": "control-opening-0012-P1:0001",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P1:0001",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.125,
       0.10416666666666667,
@@ -48466,7 +48466,7 @@
       "player_store": 13
     },
     "float32_identity": "8af7b2059e90e5160cf841547b13c4fbbe63e7c1bbe4082e1e7381266b1a1826",
-    "game_id": "control-opening-0017-P1",
+    "game_id": "control-matched-0016-P1",
     "legal_moves": [
       0,
       1,
@@ -48474,12 +48474,12 @@
       5
     ],
     "move_index": 0,
-    "opening_id": "opening-0017",
+    "opening_id": "matched-0016-control",
     "phase": "above_32",
-    "row_id": "control-opening-0017-P1:0000",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/d167e20d8ca75d5acbfa617ad8d6a89c0b1b37cabae4c263cc05fd1f266c04a3.json",
-    "source_artifact_sha256": "e9fce1787b09af798471df6aec42db30127ea942d7aa2f5ca1b96643c02ba8b3",
+    "row_id": "control-matched-0016-P1:0000",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/7dd5665b2d50a6df89b6dfc75f269906aafa1dd80a8512930857d9f1fe118ae2.json",
+    "source_artifact_sha256": "a103b86d98e3f8d30087797eb6336a3f3615c783a13d3b8b61ee118d89a00ba2",
     "state": [
       0.14583333333333334,
       0.0,
@@ -52003,7 +52003,7 @@
       "player_store": 4
     },
     "float32_identity": "80250a53e0998e75b25216817fce42c39314fb18724df982fc973937d29f4a5e",
-    "game_id": "treatment-opening-0015-P1",
+    "game_id": "control-matched-0014-P1",
     "legal_moves": [
       0,
       1,
@@ -52013,12 +52013,12 @@
       5
     ],
     "move_index": 2,
-    "opening_id": "opening-0015",
+    "opening_id": "matched-0014-control",
     "phase": "above_32",
-    "row_id": "treatment-opening-0015-P1:0002",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/a54242c74bd3bec833ab75b0167c7d10b4ccf907c0c690396b578f1e26844a35.json",
-    "source_artifact_sha256": "7e2225af00316b8430910188d6e67b674dab938ae9b00ebfef6b41da66efa94c",
+    "row_id": "control-matched-0014-P1:0002",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/1c47d97f854e28ef5f6481a871a0ee6ada0b1cc8fd8bdf8a03c940f1b1604394.json",
+    "source_artifact_sha256": "94efe6852b9aa943fd8146794fe3404e214273229d013c516047e642665ba6f4",
     "state": [
       0.041666666666666664,
       0.0,
@@ -54272,7 +54272,7 @@
       "player_store": 3
     },
     "float32_identity": "a2702b1aa753a0b178ad662fcaf7d3ce87698fcd7361b1cd271bbf6904a267a6",
-    "game_id": "control-opening-0015-P1",
+    "game_id": "control-matched-0014-P1",
     "legal_moves": [
       0,
       1,
@@ -54281,12 +54281,12 @@
       4
     ],
     "move_index": 0,
-    "opening_id": "opening-0015",
+    "opening_id": "matched-0014-control",
     "phase": "above_32",
-    "row_id": "control-opening-0015-P1:0000",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/a9b23ffcd6a32b38d265e0e5ea96f16b2344fb80d8a6c6e6fc22df7f3f44567f.json",
-    "source_artifact_sha256": "bd39b478b6869776ca0b5d60997171da1d4411a06d48274bca8c262a332c61ab",
+    "row_id": "control-matched-0014-P1:0000",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/1c47d97f854e28ef5f6481a871a0ee6ada0b1cc8fd8bdf8a03c940f1b1604394.json",
+    "source_artifact_sha256": "94efe6852b9aa943fd8146794fe3404e214273229d013c516047e642665ba6f4",
     "state": [
       0.020833333333333332,
       0.0,
@@ -58630,7 +58630,7 @@
       "player_store": 5
     },
     "float32_identity": "4c6dd3a3ec632b711f82d66468e7af04e8c37eaac43710b355821edfc9fabd30",
-    "game_id": "control-opening-0005-P0",
+    "game_id": "control-matched-0004-P0",
     "legal_moves": [
       0,
       1,
@@ -58640,12 +58640,12 @@
       5
     ],
     "move_index": 1,
-    "opening_id": "opening-0005",
+    "opening_id": "matched-0004-control",
     "phase": "above_32",
-    "row_id": "control-opening-0005-P0:0001",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/d1781cefbdd8d3d2ac24ffe29037eb4dc6a0891418e4959ce89c1d4caa3a1871.json",
-    "source_artifact_sha256": "8aac73274b6ea53b27821dc03ae65deba58deb2636725e7d7b46f9f2fd0a358b",
+    "row_id": "control-matched-0004-P0:0001",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/5bcee6a0dd7400bd27af38780c58492f670ae7f6e6d9554b2165ba26cc047f69.json",
+    "source_artifact_sha256": "8189ccd558ba5a1feecf26f3b13e99e5151bdf2152364893d936a9f2c1d669d7",
     "state": [
       0.020833333333333332,
       0.020833333333333332,
@@ -59085,7 +59085,7 @@
       "player_store": 3
     },
     "float32_identity": "48dd8eb4abad8f7a58ac30c208904a31f7ec2607690a27442117961097852272",
-    "game_id": "control-opening-0015-P0",
+    "game_id": "control-matched-0014-P0",
     "legal_moves": [
       0,
       2,
@@ -59094,12 +59094,12 @@
       5
     ],
     "move_index": 1,
-    "opening_id": "opening-0015",
+    "opening_id": "matched-0014-control",
     "phase": "above_32",
-    "row_id": "control-opening-0015-P0:0001",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/a9b23ffcd6a32b38d265e0e5ea96f16b2344fb80d8a6c6e6fc22df7f3f44567f.json",
-    "source_artifact_sha256": "bd39b478b6869776ca0b5d60997171da1d4411a06d48274bca8c262a332c61ab",
+    "row_id": "control-matched-0014-P0:0001",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/1c47d97f854e28ef5f6481a871a0ee6ada0b1cc8fd8bdf8a03c940f1b1604394.json",
+    "source_artifact_sha256": "94efe6852b9aa943fd8146794fe3404e214273229d013c516047e642665ba6f4",
     "state": [
       0.041666666666666664,
       0.0,
@@ -60539,7 +60539,7 @@
       "player_store": 2
     },
     "float32_identity": "aa610e00672f685ac21fdabfd74fcce3a201a1494b92c768d99b48d1a61c65f4",
-    "game_id": "control-opening-0043-P0",
+    "game_id": "control-matched-0041-P0",
     "legal_moves": [
       0,
       1,
@@ -60548,12 +60548,12 @@
       5
     ],
     "move_index": 0,
-    "opening_id": "opening-0043",
+    "opening_id": "matched-0041-control",
     "phase": "above_32",
-    "row_id": "control-opening-0043-P0:0000",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/62cb312f9cf6dba9b126dd3fa3ceeb0729fb3e848591606810680fcb62ac5b47.json",
-    "source_artifact_sha256": "cd6114c455322900ad49bad36e01ce8cdf13e0b31928d27daac13cbbb32da88e",
+    "row_id": "control-matched-0041-P0:0000",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/e1d22524bbbd51e87ad85095508a1bf7925e01849693170e9c47d719b29d4d0a.json",
+    "source_artifact_sha256": "3c179d48e8007c2243ce3f5333ad639bf49911fc1df147ac7b3471f424b797d9",
     "state": [
       0.041666666666666664,
       0.041666666666666664,
@@ -60992,7 +60992,7 @@
       "player_store": 3
     },
     "float32_identity": "61a30dfd3e08a06e76604ee8561a33fe5b7799196b85d6481b58a50ee6265909",
-    "game_id": "control-opening-0012-P0",
+    "game_id": "control-matched-0011-P0",
     "legal_moves": [
       0,
       1,
@@ -61002,12 +61002,12 @@
       5
     ],
     "move_index": 2,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "above_32",
-    "row_id": "control-opening-0012-P0:0002",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P0:0002",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.14583333333333334,
       0.125,
@@ -61991,7 +61991,7 @@
       "player_store": 3
     },
     "float32_identity": "4ef9f40d6aaff37e7b583b1aa2a1565e40ce12eec23c53042ef05ca2d0829411",
-    "game_id": "control-opening-0063-P0",
+    "game_id": "control-matched-0061-P0",
     "legal_moves": [
       0,
       1,
@@ -62000,12 +62000,12 @@
       5
     ],
     "move_index": 0,
-    "opening_id": "opening-0063",
+    "opening_id": "matched-0061-control",
     "phase": "above_32",
-    "row_id": "control-opening-0063-P0:0000",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/1b1cad5adae364a4e3f937990cd41733d407a0abf144167aff57b864f1d1f64a.json",
-    "source_artifact_sha256": "20ef35115a3dab77fa8a0a4e37a2695bae67f1813aecf3328b6e7f5d2349aa99",
+    "row_id": "control-matched-0061-P0:0000",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/aae1234d95bb9a546cdfe51fb9c450d9c410a13c3f63081b94c82c5ca9c1d827.json",
+    "source_artifact_sha256": "b24ac285031ffe567502e1bde5463c2dae05aff8bd9e3ff92e7e9e396c24392f",
     "state": [
       0.14583333333333334,
       0.041666666666666664,
@@ -63170,7 +63170,7 @@
       "player_store": 5
     },
     "float32_identity": "11d2a4eb7cc94b671f3cc849c8185ccffebb2df457dc04874ade83142d22fb7d",
-    "game_id": "control-opening-0001-P0",
+    "game_id": "control-matched-0001-P0",
     "legal_moves": [
       0,
       1,
@@ -63180,12 +63180,12 @@
       5
     ],
     "move_index": 0,
-    "opening_id": "opening-0001",
+    "opening_id": "matched-0001-control",
     "phase": "above_32",
-    "row_id": "control-opening-0001-P0:0000",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/78681838c9fd22a0d01565ce7d6ed7312dd8306778ea6c35764706c962ef0bf0.json",
-    "source_artifact_sha256": "a8d437ae7ed59a63b54c74db0c5f165f672cbbed6f7cd6398bee36f2048b04fc",
+    "row_id": "control-matched-0001-P0:0000",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/75dc161f0861f0d551a7ff8475602bb774af45971c9385a029142fd60328eb37.json",
+    "source_artifact_sha256": "14583810b430c554a60eea86e4014d285afb5a870620d7582e53c686cb8f1af7",
     "state": [
       0.0625,
       0.041666666666666664,
@@ -64169,7 +64169,7 @@
       "player_store": 10
     },
     "float32_identity": "c6fd8de8cecd21f6bf48ab7b4039ae964d800778092438f67bed75eb043ff98c",
-    "game_id": "control-opening-0036-P1",
+    "game_id": "control-matched-0034-P1",
     "legal_moves": [
       0,
       1,
@@ -64178,12 +64178,12 @@
       4
     ],
     "move_index": 2,
-    "opening_id": "opening-0036",
+    "opening_id": "matched-0034-control",
     "phase": "above_32",
-    "row_id": "control-opening-0036-P1:0002",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/756452aa19c6fa25439e4a8266dcb71b00e7d8701225249030a85fc700e8a7f2.json",
-    "source_artifact_sha256": "e2a6a0f962edbce02e080fab210e549a25e1da1b65d53efe1a9c38e3d7d33036",
+    "row_id": "control-matched-0034-P1:0002",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/268f90df3a8ea35d59baa88588a3038647327ef6300919d4552d123c7d748a81.json",
+    "source_artifact_sha256": "2b77d57ae16a8b9fe43d22cab657bedb59a57d9cfdc54e9a231f1db188b2c03b",
     "state": [
       0.041666666666666664,
       0.0,
@@ -64533,7 +64533,7 @@
       "player_store": 4
     },
     "float32_identity": "1f77ece6ab3290b6bf6974df70d3effa5063912aefa85c57186aae74a5c8bd8d",
-    "game_id": "control-opening-0012-P0",
+    "game_id": "control-matched-0011-P0",
     "legal_moves": [
       0,
       1,
@@ -64542,12 +64542,12 @@
       4
     ],
     "move_index": 5,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "above_32",
-    "row_id": "control-opening-0012-P0:0005",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P0:0005",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.16666666666666666,
       0.14583333333333334,
@@ -65618,7 +65618,7 @@
       "player_store": 2
     },
     "float32_identity": "c3c02fedfe26a0f99d675fda3cb9383a88956bb432cb884feed36b1877918587",
-    "game_id": "control-opening-0009-P1",
+    "game_id": "control-matched-0008-P1",
     "legal_moves": [
       0,
       1,
@@ -65628,12 +65628,12 @@
       5
     ],
     "move_index": 0,
-    "opening_id": "opening-0009",
+    "opening_id": "matched-0008-control",
     "phase": "above_32",
-    "row_id": "control-opening-0009-P1:0000",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/d5d9e88c02a29715aeece0ff478a4268451c684c3c991c3dd2b26fbb6e423ecd.json",
-    "source_artifact_sha256": "f8c3ec86a04085cc364c4edc4dd83e1baa0e2d8df59b2651bcfa90f9d4e10d06",
+    "row_id": "control-matched-0008-P1:0000",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/2469bb23d12fbce87bbc95da3c071daf5c5bcd0f69fbc48dd0cc8160b450c43c.json",
+    "source_artifact_sha256": "dc367587a46fbce9efed51582aa8ec59bcb4025f9c0e8f8635a4464af1ac34ae",
     "state": [
       0.020833333333333332,
       0.041666666666666664,
@@ -66163,7 +66163,7 @@
       "player_store": 2
     },
     "float32_identity": "384badce64443cca5413a1768a1faac801798a166c850597e7593b00f697b998",
-    "game_id": "control-opening-0009-P1",
+    "game_id": "control-matched-0008-P1",
     "legal_moves": [
       1,
       2,
@@ -66172,12 +66172,12 @@
       5
     ],
     "move_index": 1,
-    "opening_id": "opening-0009",
+    "opening_id": "matched-0008-control",
     "phase": "above_32",
-    "row_id": "control-opening-0009-P1:0001",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/d5d9e88c02a29715aeece0ff478a4268451c684c3c991c3dd2b26fbb6e423ecd.json",
-    "source_artifact_sha256": "f8c3ec86a04085cc364c4edc4dd83e1baa0e2d8df59b2651bcfa90f9d4e10d06",
+    "row_id": "control-matched-0008-P1:0001",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/2469bb23d12fbce87bbc95da3c071daf5c5bcd0f69fbc48dd0cc8160b450c43c.json",
+    "source_artifact_sha256": "dc367587a46fbce9efed51582aa8ec59bcb4025f9c0e8f8635a4464af1ac34ae",
     "state": [
       0.020833333333333332,
       0.041666666666666664,
@@ -66891,7 +66891,7 @@
       "player_store": 9
     },
     "float32_identity": "1a2eb5d7ef72273fc7eb6367b343451f88ddfbe5bd0860208269adc65e14a6c4",
-    "game_id": "control-opening-0036-P0",
+    "game_id": "control-matched-0034-P0",
     "legal_moves": [
       0,
       2,
@@ -66899,12 +66899,12 @@
       4
     ],
     "move_index": 1,
-    "opening_id": "opening-0036",
+    "opening_id": "matched-0034-control",
     "phase": "above_32",
-    "row_id": "control-opening-0036-P0:0001",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/756452aa19c6fa25439e4a8266dcb71b00e7d8701225249030a85fc700e8a7f2.json",
-    "source_artifact_sha256": "e2a6a0f962edbce02e080fab210e549a25e1da1b65d53efe1a9c38e3d7d33036",
+    "row_id": "control-matched-0034-P0:0001",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/268f90df3a8ea35d59baa88588a3038647327ef6300919d4552d123c7d748a81.json",
+    "source_artifact_sha256": "2b77d57ae16a8b9fe43d22cab657bedb59a57d9cfdc54e9a231f1db188b2c03b",
     "state": [
       0.041666666666666664,
       0.0,
@@ -67794,7 +67794,7 @@
       "player_store": 3
     },
     "float32_identity": "274d384bea18cdc089ef091f411c182dfa4cf8f0167c882d935dd7b299a9e58c",
-    "game_id": "control-opening-0012-P1",
+    "game_id": "control-matched-0011-P1",
     "legal_moves": [
       0,
       1,
@@ -67803,12 +67803,12 @@
       5
     ],
     "move_index": 0,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "above_32",
-    "row_id": "control-opening-0012-P1:0000",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P1:0000",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.125,
       0.10416666666666667,
@@ -70164,7 +70164,7 @@
       "player_store": 4
     },
     "float32_identity": "7e96db603a51907347b61acc0446109f8dfc36ac48387bd8492cfd71e60cff12",
-    "game_id": "control-opening-0061-P1",
+    "game_id": "control-matched-0059-P1",
     "legal_moves": [
       0,
       1,
@@ -70174,12 +70174,12 @@
       5
     ],
     "move_index": 0,
-    "opening_id": "opening-0061",
+    "opening_id": "matched-0059-control",
     "phase": "above_32",
-    "row_id": "control-opening-0061-P1:0000",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/c020b624479f46c5dc6efbce0cc796ef2ae5f911faf251ef51e2095e3bf3ec33.json",
-    "source_artifact_sha256": "ab7f227d7a341587d8182d511f76628fadaf560201d3918ee8e77fcd5f1273e6",
+    "row_id": "control-matched-0059-P1:0000",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/e03b775e5db5b48dab16e2384cd4be1bb976eed421e1f3240f9994598f8bb761.json",
+    "source_artifact_sha256": "f035bc211e90e1feceeb72f9236c631a325d308b3ffd8653dbd71dfdbd5221f2",
     "state": [
       0.041666666666666664,
       0.08333333333333333,
@@ -75904,18 +75904,18 @@
       "player_store": 18
     },
     "float32_identity": "1d1cdd7814b4800c63087c56ab5286470ce6e7680af8614fcb590e538eca6db0",
-    "game_id": "control-opening-0012-P0",
+    "game_id": "control-matched-0011-P0",
     "legal_moves": [
       2,
       3
     ],
     "move_index": 38,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "at_most_16",
-    "row_id": "control-opening-0012-P0:0038",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P0:0038",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.0,
       0.0,
@@ -78855,17 +78855,17 @@
       "player_store": 19
     },
     "float32_identity": "2322ad6e7f2759fad248cc1eeabd1e0f170871735c63f75f68257880376b878c",
-    "game_id": "control-opening-0012-P0",
+    "game_id": "control-matched-0011-P0",
     "legal_moves": [
       2
     ],
     "move_index": 47,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "at_most_16",
-    "row_id": "control-opening-0012-P0:0047",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P0:0047",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.0,
       0.0,
@@ -80304,17 +80304,17 @@
       "player_store": 29
     },
     "float32_identity": "344429ad2ae8353bc1d0d41a9bfac68f4cbaf31de4f33dd0c0719c81246d52dd",
-    "game_id": "control-opening-0036-P1",
+    "game_id": "treatment-matched-0027-P1",
     "legal_moves": [
       4
     ],
-    "move_index": 34,
-    "opening_id": "opening-0036",
+    "move_index": 45,
+    "opening_id": "matched-0027-treatment",
     "phase": "at_most_16",
-    "row_id": "control-opening-0036-P1:0034",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/756452aa19c6fa25439e4a8266dcb71b00e7d8701225249030a85fc700e8a7f2.json",
-    "source_artifact_sha256": "e2a6a0f962edbce02e080fab210e549a25e1da1b65d53efe1a9c38e3d7d33036",
+    "row_id": "treatment-matched-0027-P1:0045",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/62e903fd47794423d7bfbd93f7ccd54791cd12074f39ed121d92265ed15ef2ab.json",
+    "source_artifact_sha256": "f45d295a8390586bd34b89c53f10ff6acf745cd79c401e9c6373c59c5c600b1f",
     "state": [
       0.0,
       0.0,
@@ -83820,18 +83820,18 @@
       "player_store": 23
     },
     "float32_identity": "4524577462848092fd0c80cf3186b3010f02a350631abd7c9e66286f77161082",
-    "game_id": "control-opening-0002-P0",
+    "game_id": "control-matched-0059-P0",
     "legal_moves": [
       3,
       4
     ],
-    "move_index": 25,
-    "opening_id": "opening-0002",
+    "move_index": 27,
+    "opening_id": "matched-0059-control",
     "phase": "at_most_16",
-    "row_id": "control-opening-0002-P0:0025",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/cb3a9f9d49af7bb2ce43d2bc4416e93838b36b8d92b3ea45510834cebe8f6853.json",
-    "source_artifact_sha256": "daf43de44d21d28dbf4f752f9a81d0a607d0339092033db9fabb95d8ff1170ef",
+    "row_id": "control-matched-0059-P0:0027",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/e03b775e5db5b48dab16e2384cd4be1bb976eed421e1f3240f9994598f8bb761.json",
+    "source_artifact_sha256": "f035bc211e90e1feceeb72f9236c631a325d308b3ffd8653dbd71dfdbd5221f2",
     "state": [
       0.0,
       0.0,
@@ -87485,17 +87485,17 @@
       "player_store": 23
     },
     "float32_identity": "e3c61f10f858f38c4cecebb42236d2c9ed98613c41f4b398756128434d0e0b8c",
-    "game_id": "control-opening-0002-P0",
+    "game_id": "control-matched-0059-P0",
     "legal_moves": [
       4
     ],
-    "move_index": 27,
-    "opening_id": "opening-0002",
+    "move_index": 29,
+    "opening_id": "matched-0059-control",
     "phase": "at_most_16",
-    "row_id": "control-opening-0002-P0:0027",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/cb3a9f9d49af7bb2ce43d2bc4416e93838b36b8d92b3ea45510834cebe8f6853.json",
-    "source_artifact_sha256": "daf43de44d21d28dbf4f752f9a81d0a607d0339092033db9fabb95d8ff1170ef",
+    "row_id": "control-matched-0059-P0:0029",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/e03b775e5db5b48dab16e2384cd4be1bb976eed421e1f3240f9994598f8bb761.json",
+    "source_artifact_sha256": "f035bc211e90e1feceeb72f9236c631a325d308b3ffd8653dbd71dfdbd5221f2",
     "state": [
       0.0,
       0.0,
@@ -88514,17 +88514,17 @@
       "player_store": 27
     },
     "float32_identity": "4e41a1d06bec42fe7d1c655aaa226d627c112733cdd5b7f231c0946ecdfac645",
-    "game_id": "control-opening-0036-P1",
+    "game_id": "treatment-matched-0027-P1",
     "legal_moves": [
       3
     ],
-    "move_index": 29,
-    "opening_id": "opening-0036",
+    "move_index": 40,
+    "opening_id": "matched-0027-treatment",
     "phase": "at_most_16",
-    "row_id": "control-opening-0036-P1:0029",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/756452aa19c6fa25439e4a8266dcb71b00e7d8701225249030a85fc700e8a7f2.json",
-    "source_artifact_sha256": "e2a6a0f962edbce02e080fab210e549a25e1da1b65d53efe1a9c38e3d7d33036",
+    "row_id": "treatment-matched-0027-P1:0040",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/62e903fd47794423d7bfbd93f7ccd54791cd12074f39ed121d92265ed15ef2ab.json",
+    "source_artifact_sha256": "f45d295a8390586bd34b89c53f10ff6acf745cd79c401e9c6373c59c5c600b1f",
     "state": [
       0.0,
       0.0,
@@ -90912,7 +90912,7 @@
       "player_store": 16
     },
     "float32_identity": "3aa7059f8011795d77c64192a072fb0480b6494727b386c6d3cf7e7fee8e6219",
-    "game_id": "control-opening-0012-P0",
+    "game_id": "control-matched-0011-P0",
     "legal_moves": [
       2,
       3,
@@ -90920,12 +90920,12 @@
       5
     ],
     "move_index": 34,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "at_most_16",
-    "row_id": "control-opening-0012-P0:0034",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P0:0034",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.0,
       0.0,
@@ -92151,19 +92151,19 @@
       "player_store": 17
     },
     "float32_identity": "9e8a8ce351b20b846aa23912653e7314f629e799d358e5dc87fca1c2ee90d606",
-    "game_id": "control-opening-0012-P0",
+    "game_id": "control-matched-0011-P0",
     "legal_moves": [
       2,
       3,
       5
     ],
     "move_index": 37,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "at_most_16",
-    "row_id": "control-opening-0012-P0:0037",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P0:0037",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.0,
       0.0,
@@ -96151,18 +96151,18 @@
       "player_store": 21
     },
     "float32_identity": "86e7c40ed2c6dfa1896fef883de5e8c3b3a9a27714b59c1025881fd8cbe2163e",
-    "game_id": "treatment-opening-0002-P0",
+    "game_id": "treatment-matched-0040-P0",
     "legal_moves": [
       2,
       5
     ],
-    "move_index": 37,
-    "opening_id": "opening-0002",
+    "move_index": 40,
+    "opening_id": "matched-0040-treatment",
     "phase": "at_most_16",
-    "row_id": "treatment-opening-0002-P0:0037",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/83d701a5fcc420e1208ec75c0d7821f6f3693ee586f17301ac00d8ab3ded3313.json",
-    "source_artifact_sha256": "f2a24177ebbd31b9a378ae6665a2886462eeed29de9034363dd20a20f8212e75",
+    "row_id": "treatment-matched-0040-P0:0040",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/b06defe1b59c1359dcc56b84698568d7e6ee760a998bf0824e4c8089de570775.json",
+    "source_artifact_sha256": "f86fb19aef95eee1a86933a7b4b181871035f098b14f7977b0b5a2e6a88593f8",
     "state": [
       0.0,
       0.0,
@@ -99928,18 +99928,18 @@
       "player_store": 29
     },
     "float32_identity": "ae25f644b0f0ec0da393da40164c2322297dbe6cc8f8100f147bc1a5feb42b39",
-    "game_id": "control-opening-0036-P1",
+    "game_id": "treatment-matched-0027-P1",
     "legal_moves": [
       4,
       5
     ],
-    "move_index": 33,
-    "opening_id": "opening-0036",
+    "move_index": 44,
+    "opening_id": "matched-0027-treatment",
     "phase": "at_most_16",
-    "row_id": "control-opening-0036-P1:0033",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/756452aa19c6fa25439e4a8266dcb71b00e7d8701225249030a85fc700e8a7f2.json",
-    "source_artifact_sha256": "e2a6a0f962edbce02e080fab210e549a25e1da1b65d53efe1a9c38e3d7d33036",
+    "row_id": "treatment-matched-0027-P1:0044",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/62e903fd47794423d7bfbd93f7ccd54791cd12074f39ed121d92265ed15ef2ab.json",
+    "source_artifact_sha256": "f45d295a8390586bd34b89c53f10ff6acf745cd79c401e9c6373c59c5c600b1f",
     "state": [
       0.0,
       0.0,
@@ -100652,17 +100652,17 @@
       "player_store": 25
     },
     "float32_identity": "7e758fae96114a6aab864c8ce883a81516de4830efd0e7f3f0914c9ac86b5f09",
-    "game_id": "control-opening-0030-P1",
+    "game_id": "treatment-opening-0025-P1",
     "legal_moves": [
       5
     ],
     "move_index": 40,
-    "opening_id": "opening-0030",
+    "opening_id": "opening-0025",
     "phase": "at_most_16",
-    "row_id": "control-opening-0030-P1:0040",
+    "row_id": "treatment-opening-0025-P1:0040",
     "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/bc85105882edf9954896bd2b9684881e5ab5ce7f901298a9aebb1f350e7ffbcd.json",
-    "source_artifact_sha256": "8dd3bbfe382e25a9aa8b999088e2f750ff43dc553cc67a99446d07da47734d8d",
+    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/c0610b3724c4c2eefdc256a5539aa50bad33430f0de1ffe8f4fc284fa0a61162.json",
+    "source_artifact_sha256": "56e995d7cff65b7b7bf69dde35be0abaea64c16b792b087156468efdeb698f3f",
     "state": [
       0.0,
       0.0,
@@ -103232,18 +103232,18 @@
       "player_store": 18
     },
     "float32_identity": "9fa398eee38bcba178fea49a4b55b026e36dac1f1142514734ef853e65da5617",
-    "game_id": "control-opening-0012-P0",
+    "game_id": "control-matched-0011-P0",
     "legal_moves": [
       2,
       5
     ],
     "move_index": 46,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "at_most_16",
-    "row_id": "control-opening-0012-P0:0046",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P0:0046",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.0,
       0.0,
@@ -111652,17 +111652,17 @@
       "player_store": 19
     },
     "float32_identity": "e8f2e62ab08758fae7b3eecef2a04ba68e97fe1e37e0fbc8bb73fc7c08e7c5d5",
-    "game_id": "control-opening-0012-P0",
+    "game_id": "control-matched-0011-P0",
     "legal_moves": [
       3
     ],
     "move_index": 50,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "at_most_16",
-    "row_id": "control-opening-0012-P0:0050",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P0:0050",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.0,
       0.0,
@@ -113438,17 +113438,17 @@
       "player_store": 22
     },
     "float32_identity": "e7d6b010b85a8cacbc4347c273e03a1e59bd7e52214688dd8bff7609f720ef34",
-    "game_id": "treatment-opening-0002-P0",
+    "game_id": "treatment-matched-0040-P0",
     "legal_moves": [
       2
     ],
-    "move_index": 38,
-    "opening_id": "opening-0002",
+    "move_index": 41,
+    "opening_id": "matched-0040-treatment",
     "phase": "at_most_16",
-    "row_id": "treatment-opening-0002-P0:0038",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/83d701a5fcc420e1208ec75c0d7821f6f3693ee586f17301ac00d8ab3ded3313.json",
-    "source_artifact_sha256": "f2a24177ebbd31b9a378ae6665a2886462eeed29de9034363dd20a20f8212e75",
+    "row_id": "treatment-matched-0040-P0:0041",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/b06defe1b59c1359dcc56b84698568d7e6ee760a998bf0824e4c8089de570775.json",
+    "source_artifact_sha256": "f86fb19aef95eee1a86933a7b4b181871035f098b14f7977b0b5a2e6a88593f8",
     "state": [
       0.0,
       0.0,
@@ -114256,17 +114256,17 @@
       "player_store": 25
     },
     "float32_identity": "f74331fbfbd89552133732c4c7df05f9fa293c9f430eeb2ebf29285d497121b4",
-    "game_id": "control-opening-0030-P1",
+    "game_id": "treatment-opening-0025-P1",
     "legal_moves": [
       4
     ],
     "move_index": 38,
-    "opening_id": "opening-0030",
+    "opening_id": "opening-0025",
     "phase": "at_most_16",
-    "row_id": "control-opening-0030-P1:0038",
+    "row_id": "treatment-opening-0025-P1:0038",
     "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/bc85105882edf9954896bd2b9684881e5ab5ce7f901298a9aebb1f350e7ffbcd.json",
-    "source_artifact_sha256": "8dd3bbfe382e25a9aa8b999088e2f750ff43dc553cc67a99446d07da47734d8d",
+    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/c0610b3724c4c2eefdc256a5539aa50bad33430f0de1ffe8f4fc284fa0a61162.json",
+    "source_artifact_sha256": "56e995d7cff65b7b7bf69dde35be0abaea64c16b792b087156468efdeb698f3f",
     "state": [
       0.0,
       0.0,
@@ -114774,18 +114774,18 @@
       "player_store": 18
     },
     "float32_identity": "60ec3b7cae896c01621fee1155cc6c312674f666edd6007d7f271e59415918b0",
-    "game_id": "control-opening-0012-P0",
+    "game_id": "control-matched-0011-P0",
     "legal_moves": [
       2,
       4
     ],
     "move_index": 41,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "at_most_16",
-    "row_id": "control-opening-0012-P0:0041",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P0:0041",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.0,
       0.0,
@@ -116224,19 +116224,19 @@
       "player_store": 17
     },
     "float32_identity": "22ce320426e09f67c9c4587e9efe55451c9fde877a475d8eb082393952a87d4d",
-    "game_id": "control-opening-0012-P0",
+    "game_id": "control-matched-0011-P0",
     "legal_moves": [
       2,
       3,
       4
     ],
     "move_index": 35,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "at_most_16",
-    "row_id": "control-opening-0012-P0:0035",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P0:0035",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.0,
       0.0,
@@ -117363,17 +117363,17 @@
       "player_store": 29
     },
     "float32_identity": "27beb9766edfb6f12c0dff264944735b47acfab6f3285ea073c7b69aa63f47f8",
-    "game_id": "control-opening-0036-P1",
+    "game_id": "treatment-matched-0027-P1",
     "legal_moves": [
       5
     ],
-    "move_index": 36,
-    "opening_id": "opening-0036",
+    "move_index": 47,
+    "opening_id": "matched-0027-treatment",
     "phase": "at_most_16",
-    "row_id": "control-opening-0036-P1:0036",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/756452aa19c6fa25439e4a8266dcb71b00e7d8701225249030a85fc700e8a7f2.json",
-    "source_artifact_sha256": "e2a6a0f962edbce02e080fab210e549a25e1da1b65d53efe1a9c38e3d7d33036",
+    "row_id": "treatment-matched-0027-P1:0047",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/62e903fd47794423d7bfbd93f7ccd54791cd12074f39ed121d92265ed15ef2ab.json",
+    "source_artifact_sha256": "f45d295a8390586bd34b89c53f10ff6acf745cd79c401e9c6373c59c5c600b1f",
     "state": [
       0.0,
       0.0,
@@ -125372,17 +125372,17 @@
       "player_store": 15
     },
     "float32_identity": "2b7f477940a3eb7a4a217c43e3b25133c2088cf21eba78f28be439730f4e58cc",
-    "game_id": "control-opening-0012-P0",
+    "game_id": "control-matched-0011-P0",
     "legal_moves": [
       1
     ],
     "move_index": 27,
-    "opening_id": "opening-0012",
+    "opening_id": "matched-0011-control",
     "phase": "at_most_16",
-    "row_id": "control-opening-0012-P0:0027",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json",
-    "source_artifact_sha256": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+    "row_id": "control-matched-0011-P0:0027",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json",
+    "source_artifact_sha256": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
     "state": [
       0.0,
       0.22916666666666666,
@@ -127683,17 +127683,17 @@
       "player_store": 24
     },
     "float32_identity": "403442e0bf7ba9eb099fd1424caba5a892afba36d3c599ab41ed57e0a191c84b",
-    "game_id": "control-opening-0002-P0",
+    "game_id": "control-matched-0059-P0",
     "legal_moves": [
       5
     ],
-    "move_index": 28,
-    "opening_id": "opening-0002",
+    "move_index": 30,
+    "opening_id": "matched-0059-control",
     "phase": "at_most_16",
-    "row_id": "control-opening-0002-P0:0028",
-    "source": "#580",
-    "source_artifact": "docs/data/varied-opponent-coverage-pilot/pairs/cb3a9f9d49af7bb2ce43d2bc4416e93838b36b8d92b3ea45510834cebe8f6853.json",
-    "source_artifact_sha256": "daf43de44d21d28dbf4f752f9a81d0a607d0339092033db9fabb95d8ff1170ef",
+    "row_id": "control-matched-0059-P0:0030",
+    "source": "#585",
+    "source_artifact": "docs/data/broader-opening-coverage-pilot/pairs/e03b775e5db5b48dab16e2384cd4be1bb976eed421e1f3240f9994598f8bb761.json",
+    "source_artifact_sha256": "f035bc211e90e1feceeb72f9236c631a325d308b3ffd8653dbd71dfdbd5221f2",
     "state": [
       0.0,
       0.0,

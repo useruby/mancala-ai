@@ -51,10 +51,12 @@ frozen in `batch-schedule-A.json` and `batch-schedule-B.json` and hash-bound by
 their respective configurations.
 
 `heldout-membership.json` reserves a deterministic fifth of source opening
-groups before training selection. Training and this generalization benchmark are
-provenance-disjoint, including states repeated across group boundaries. The
-registered generalization statistic is masked policy cross-entropy on this
-held-out cohort, paired by opening group.
+groups before training selection. Each held-out example is sourced from an
+occurrence inside one of those exact groups, not from a global canonical-state
+representative. If the same state or float32 input appears in a held-out and a
+non-held-out group, it is retained only in held-out and excluded from both
+training arms. The registered secondary generalization diagnostic is held-out
+masked policy cross-entropy, paired by opening group; it is not a decision gate.
 
 `evaluation-contract.json` and `evaluation-openings.json` register 1,024 unique
 legal random 12-ply openings from seed 599, paired seat swaps for A-vs-P-E4 and
@@ -62,9 +64,14 @@ B-vs-P-E4, and unchanged common serving P-E4 values. The frozen search uses 128
 simulations per side, `c_puct=1.25`, deterministic root policy, a 200-ply cap,
 and native exact-root threshold 16 with the serving margin objective and
 prior/index tie rule. Model, sidecar, native-probe, and tablebase hashes are
-recorded. The contract fixes 20,000 paired opening-cluster bootstrap resamples
-with seed 599, a B-minus-A strength non-inferiority margin of 0.02, and lower
-held-out policy cross-entropy as the generalization gate.
+recorded. Each comparison uses two seat assignments per opening, with wins,
+draws, and losses scored 1, 0.5, and 0. The primary gate is B versus serving
+P-E4: the one-sided paired 95% lower confidence bound on seat-averaged score
+must be strictly above 0.50. The coverage comparison is B minus A score on the
+same opening groups; its paired two-sided 95% confidence interval must have a
+lower endpoint strictly above zero. Both use 20,000 opening-cluster bootstrap
+resamples with seed 599 and NumPy linear quantiles. Outcomes are classified
+separately as both conditions pass, strength only, coverage only, or neither.
 Opening-start identity overlap with training is rejected during generation;
 trajectory-level overlap is necessarily pending evaluation and must be
 reported from observed game traces.

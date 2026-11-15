@@ -81,6 +81,77 @@ class Seed599PreparationTests(unittest.TestCase):
         _unique, conflicts = seed599.deduplicate([first, second])
         self.assertEqual(conflicts, 1)
 
+    def test_cross_group_duplicate_is_attributed_to_heldout_occurrence(self) -> None:
+        base = {
+            "canonical_identity": "same-canonical",
+            "float32_identity": "same-float32",
+            "target_sha256": "same-target",
+            "source": "#580",
+            "game_id": "game-a",
+            "row_id": "row-a",
+            "phase": "above_32",
+        }
+        training_occurrence = {**base, "opening_id": "training-opening"}
+        heldout_occurrence = {
+            **base,
+            "opening_id": "heldout-opening",
+            "game_id": "game-b",
+            "row_id": "row-b",
+        }
+
+        training, heldout = seed599.split_provenance_records(
+            [training_occurrence, heldout_occurrence],
+            {("#580", "heldout-opening")},
+        )
+
+        self.assertEqual(training, {})
+        self.assertEqual(len(heldout), 1)
+        self.assertEqual(heldout[0]["opening_id"], "heldout-opening")
+        self.assertEqual(heldout[0]["game_id"], "game-b")
+
+    def test_float32_duplicate_across_groups_is_excluded_from_training(self) -> None:
+        heldout = {
+            "canonical_identity": "heldout-canonical",
+            "float32_identity": "shared-float32",
+            "target_sha256": "target-a",
+            "source": "#580",
+            "game_id": "game-heldout",
+            "row_id": "row-heldout",
+            "opening_id": "heldout-opening",
+            "phase": "above_32",
+        }
+        training = {
+            **heldout,
+            "canonical_identity": "training-canonical",
+            "target_sha256": "target-b",
+            "game_id": "game-training",
+            "row_id": "row-training",
+            "opening_id": "training-opening",
+        }
+
+        training_by_identity, heldout_rows = seed599.split_provenance_records(
+            [training, heldout], {("#580", "heldout-opening")}
+        )
+
+        self.assertEqual(training_by_identity, {})
+        self.assertEqual(
+            [row["opening_id"] for row in heldout_rows], ["heldout-opening"]
+        )
+
+    def test_split_validation_rejects_training_overlap_under_both_identities(
+        self,
+    ) -> None:
+        heldout = {
+            "canonical_identity": "heldout-canonical",
+            "float32_identity": "heldout-float32",
+        }
+        with self.assertRaisesRegex(ValueError, "heldout_treatment_canonical_overlap"):
+            seed599.validate_training_heldout_disjointness([{**heldout}], [], [heldout])
+        with self.assertRaisesRegex(ValueError, "heldout_control_float32_overlap"):
+            seed599.validate_training_heldout_disjointness(
+                [], [{**heldout, "canonical_identity": "other-canonical"}], [heldout]
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

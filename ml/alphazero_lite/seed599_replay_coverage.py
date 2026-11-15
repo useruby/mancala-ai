@@ -149,6 +149,74 @@ def deduplicate(records: list[dict[str, Any]]) -> tuple[dict[str, dict[str, Any]
     return by_identity, conflicts
 
 
+def split_provenance_records(
+    records: list[dict[str, Any]], heldout_groups: set[tuple[str, str]]
+) -> tuple[dict[str, dict[str, Any]], list[dict[str, Any]]]:
+    """Assign duplicate states to held-out provenance before training selection.
+
+    Held-out examples are represented only by an occurrence from a registered
+    held-out source opening group. Any canonical or float32 identity seen in
+    that cohort is excluded from training, including occurrences in other
+    opening groups.
+    """
+    heldout_occurrences = [
+        row for row in records if (row["source"], row["opening_id"]) in heldout_groups
+    ]
+    heldout_by_canonical, heldout_conflicts = deduplicate(heldout_occurrences)
+    if heldout_conflicts:
+        raise ValueError(f"heldout_conflicting_duplicate_targets:{heldout_conflicts}")
+    # A float32 collision must not cause the same model input to enter both the
+    # held-out benchmark and either training arm. Select a stable held-out
+    # representative when distinct canonical encodings share an input vector.
+    heldout_by_float: dict[str, dict[str, Any]] = {}
+    for row in sorted(
+        heldout_by_canonical.values(),
+        key=lambda item: (
+            item["source"],
+            item["opening_id"],
+            item["game_id"],
+            item["row_id"],
+        ),
+    ):
+        heldout_by_float.setdefault(row["float32_identity"], row)
+    heldout = sorted(
+        heldout_by_float.values(),
+        key=lambda row: (row["phase"], row["canonical_identity"]),
+    )
+    blocked_canonical = {row["canonical_identity"] for row in heldout_occurrences}
+    blocked_float32 = {row["float32_identity"] for row in heldout_occurrences}
+    training_occurrences = [
+        row
+        for row in records
+        if (row["source"], row["opening_id"]) not in heldout_groups
+        and row["canonical_identity"] not in blocked_canonical
+        and row["float32_identity"] not in blocked_float32
+    ]
+    training, training_conflicts = deduplicate(training_occurrences)
+    if training_conflicts:
+        raise ValueError(f"training_conflicting_duplicate_targets:{training_conflicts}")
+    return training, heldout
+
+
+def validate_training_heldout_disjointness(
+    treatment: list[dict[str, Any]],
+    control: list[dict[str, Any]],
+    heldout: list[dict[str, Any]],
+) -> None:
+    """Reject overlap under canonical and production float32 identities."""
+    heldout_canonical = {row["canonical_identity"] for row in heldout}
+    heldout_float32 = {row["float32_identity"] for row in heldout}
+    if len(heldout_canonical) != len(heldout):
+        raise ValueError("heldout_canonical_identity_duplicate")
+    if len(heldout_float32) != len(heldout):
+        raise ValueError("heldout_float32_identity_duplicate")
+    for arm, rows in (("treatment", treatment), ("control", control)):
+        if heldout_canonical & {row["canonical_identity"] for row in rows}:
+            raise ValueError(f"heldout_{arm}_canonical_overlap")
+        if heldout_float32 & {row["float32_identity"] for row in rows}:
+            raise ValueError(f"heldout_{arm}_float32_overlap")
+
+
 def select_membership(
     by_identity: dict[str, dict[str, Any]],
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
@@ -356,6 +424,35 @@ def batch_schedule(size: int) -> list[list[int]]:
     return schedule[:512]
 
 
+def compact_preparation(output: dict[str, Any]) -> dict[str, Any]:
+    """Summarize large frozen manifests by their existing content digests."""
+    compact = dict(output)
+    training = dict(output["training"])
+    for arm, key in (("A", "control"), ("B", "treatment")):
+        rows = training.pop(key)
+        training[f"{key}_manifest"] = {
+            "states": len(rows),
+            "sha256": hashlib.sha256(canonical_bytes(rows)).hexdigest(),
+        }
+    compact["training"] = training
+
+    heldout = dict(output["heldout"])
+    heldout_rows = heldout.pop("states")
+    heldout["membership_manifest"] = {
+        "states": len(heldout_rows),
+        "sha256": hashlib.sha256(canonical_bytes(heldout_rows)).hexdigest(),
+    }
+    compact["heldout"] = heldout
+
+    evaluation = dict(output["evaluation"])
+    opening_rows = evaluation.pop("opening_manifest")
+    evaluation["opening_manifest_sha256"] = hashlib.sha256(
+        canonical_bytes(opening_rows)
+    ).hexdigest()
+    compact["evaluation"] = evaluation
+    return compact
+
+
 def build(root: Path = ROOT) -> dict[str, Any]:
     records, verification = authenticated_records(root)
     verification["training_contract"] = verify_parent_and_parameter_groups(root)
@@ -371,26 +468,13 @@ def build(root: Path = ROOT) -> dict[str, Any]:
             ).hexdigest(),
         )[: (len(provenance_groups) + 4) // 5]
     )
-    heldout_ids = {
-        row["canonical_identity"]
-        for row in records
-        if (row["source"], row["opening_id"]) in heldout_groups
-    }
-    training_candidates = {
-        identity: row
-        for identity, row in identities.items()
-        if identity not in heldout_ids
-        and (row["source"], row["opening_id"]) not in heldout_groups
-    }
+    training_candidates, heldout = split_provenance_records(records, heldout_groups)
     selected, control = select_membership(training_candidates)
-    heldout = sorted(
-        (row for identity, row in identities.items() if identity in heldout_ids),
-        key=lambda row: (row["phase"], row["canonical_identity"]),
-    )
-    if {row["canonical_identity"] for row in selected} & {
-        row["canonical_identity"] for row in heldout
-    }:
-        raise ValueError("training_holdout_state_overlap")
+    validate_training_heldout_disjointness(selected, control, heldout)
+    if any((row["source"], row["opening_id"]) not in heldout_groups for row in heldout):
+        raise ValueError("heldout_example_outside_registered_provenance")
+    for row in heldout:
+        validate_target_record(row)
     openings = generate_openings(selected)
     phase_rows = Counter(record["phase"] for record in records)
     distinct_games = {record["game_id"] for record in records}
@@ -459,13 +543,52 @@ def build(root: Path = ROOT) -> dict[str, Any]:
             "states": heldout,
             "states_by_phase": dict(Counter(row["phase"] for row in heldout)),
             "provenance_disjoint_from_training": True,
+            "training_overlap_counts": {
+                "treatment_canonical": 0,
+                "treatment_production_float32": 0,
+                "control_canonical": 0,
+                "control_production_float32": 0,
+            },
         },
         "evaluation": {
             "opening_seed": SEED,
             "opening_count": len(openings),
             "opening_generation": "independent legal uniform-random 12-ply prefixes; unique canonical starts; reject starts matching selected training states in canonical or production float32 identity",
             "opening_manifest": openings,
-            "comparisons": ["A versus serving P-E4", "B versus serving P-E4"],
+            "comparison_contract": {
+                "primary_strength": {
+                    "candidate": "B",
+                    "opponent": "serving P-E4",
+                    "metric": "seat-averaged game score",
+                    "per_opening_cluster": "mean of B designated-player score over both seat assignments",
+                    "bootstrap_bound": "one-sided paired 95% percentile lower confidence bound",
+                    "pass_rule": "lower bound strictly greater than 0.50",
+                },
+                "coverage_comparison": {
+                    "difference": "B minus A seat-averaged game score",
+                    "opening_groups": "same frozen 1,024 openings",
+                    "per_opening_cluster": "difference between B and A mean designated-player score over both seat assignments",
+                    "bootstrap_interval": "paired two-sided 95% percentile confidence interval",
+                    "pass_rule": "lower endpoint strictly greater than zero",
+                },
+                "secondary_generalization": {
+                    "metric": "held-out masked policy cross-entropy",
+                    "cohort": "registered provenance-held-out source opening groups",
+                },
+                "score_mapping": {"win": 1.0, "draw": 0.5, "loss": 0.0},
+                "possible_outcomes": [
+                    "both_conditions_pass",
+                    "strength_only",
+                    "coverage_only",
+                    "neither_condition_passes",
+                ],
+                "outcome_classification": {
+                    "both_conditions_pass": "strength_pass and coverage_pass",
+                    "strength_only": "strength_pass and not coverage_pass",
+                    "coverage_only": "coverage_pass and not strength_pass",
+                    "neither_condition_passes": "not strength_pass and not coverage_pass",
+                },
+            },
             "value_evaluator": "serving P-E4, unchanged and common to all policies",
             "search": "serving PUCT configuration including native exact-root behavior",
             "match_settings": {
@@ -496,15 +619,18 @@ def build(root: Path = ROOT) -> dict[str, Any]:
             },
             "seating": "paired seat-swapped games for every opening and comparison",
             "bootstrap": {
-                "method": "paired opening-cluster bootstrap",
+                "method": "paired opening-cluster bootstrap; resample openings and preserve both seat outcomes within each opening",
                 "resamples": 20000,
                 "seed": SEED,
-                "quantiles": [0.025, 0.975],
+                "primary_one_sided_lower_quantile": 0.05,
+                "coverage_two_sided_quantiles": [0.025, 0.975],
                 "quantile_method": "linear",
+                "numpy_api": "numpy.quantile(method='linear')",
             },
             "thresholds": {
-                "strength": "lower 95% paired bootstrap bound for B minus A seat-averaged score > -0.02; report both arms versus P-E4",
-                "generalization": "B held-out masked policy cross-entropy on provenance-held-out source opening groups must be lower than A; report paired opening-cluster 95% interval",
+                "primary_strength": "one-sided paired 95% lower confidence bound for B versus serving P-E4 seat-averaged score strictly > 0.50",
+                "coverage_comparison": "paired two-sided 95% interval for B minus A seat-averaged score on the same openings; lower endpoint strictly > 0",
+                "secondary_generalization": "report held-out masked policy cross-entropy for A and B; diagnostic only, not a pass gate",
             },
             "trajectory_overlap": "report exact canonical and float32 overlap counts against both training arms; not yet observed",
         },
@@ -516,7 +642,7 @@ def write_preparation(root: Path = ROOT) -> dict[str, Any]:
     destination = root / "docs/data/seed599-replay-coverage"
     destination.mkdir(parents=True, exist_ok=True)
     for filename, payload in (
-        ("preparation.json", output),
+        ("preparation.json", compact_preparation(output)),
         ("treatment-membership.json", output["training"]["treatment"]),
         ("control-membership.json", output["training"]["control"]),
         ("evaluation-openings.json", output["evaluation"]["opening_manifest"]),
@@ -570,7 +696,7 @@ def read_only_preflight(root: Path = ROOT) -> dict[str, Any]:
     directory = root / "docs/data/seed599-replay-coverage"
     expected = build(root)
     persisted = json.loads((directory / "preparation.json").read_bytes())
-    if canonical_bytes(persisted) != canonical_bytes(expected):
+    if canonical_bytes(persisted) != canonical_bytes(compact_preparation(expected)):
         raise ValueError("preparation_manifest_mismatch")
     memberships = {
         "treatment-membership.json": expected["training"]["treatment"],
