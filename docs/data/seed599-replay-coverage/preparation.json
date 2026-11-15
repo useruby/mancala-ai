@@ -1,0 +1,1606 @@
+{
+  "evaluation": {
+    "bootstrap": {
+      "coverage_two_sided_quantiles": [
+        0.025,
+        0.975
+      ],
+      "method": "paired opening-cluster bootstrap; resample openings and preserve both seat outcomes within each opening",
+      "numpy_api": "numpy.quantile(method='linear')",
+      "primary_one_sided_lower_quantile": 0.05,
+      "quantile_method": "linear",
+      "resamples": 20000,
+      "seed": 599
+    },
+    "comparison_contract": {
+      "coverage_comparison": {
+        "bootstrap_interval": "paired two-sided 95% percentile confidence interval",
+        "difference": "B minus A seat-averaged game score",
+        "opening_groups": "same frozen 1,024 openings",
+        "pass_rule": "lower endpoint strictly greater than zero",
+        "per_opening_cluster": "difference between B and A mean designated-player score over both seat assignments"
+      },
+      "outcome_classification": {
+        "both_conditions_pass": "strength_pass and coverage_pass",
+        "coverage_only": "coverage_pass and not strength_pass",
+        "neither_condition_passes": "not strength_pass and not coverage_pass",
+        "strength_only": "strength_pass and not coverage_pass"
+      },
+      "possible_outcomes": [
+        "both_conditions_pass",
+        "strength_only",
+        "coverage_only",
+        "neither_condition_passes"
+      ],
+      "primary_strength": {
+        "bootstrap_bound": "one-sided paired 95% percentile lower confidence bound",
+        "candidate": "B",
+        "metric": "seat-averaged game score",
+        "opponent": "serving P-E4",
+        "pass_rule": "lower bound strictly greater than 0.50",
+        "per_opening_cluster": "mean of B designated-player score over both seat assignments"
+      },
+      "score_mapping": {
+        "draw": 0.5,
+        "loss": 0.0,
+        "win": 1.0
+      },
+      "secondary_generalization": {
+        "cohort": "registered provenance-held-out source opening groups",
+        "metric": "held-out masked policy cross-entropy"
+      }
+    },
+    "match_settings": {
+      "c_puct": 1.25,
+      "exact_leaf_solving": false,
+      "exact_root_enabled": true,
+      "exact_root_objective": "final_score_margin",
+      "exact_root_threshold": 16,
+      "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+      "fpu_mode": "zero",
+      "max_plies": 200,
+      "noise": false,
+      "normalize_values": false,
+      "reuse_subtree": false,
+      "root_policy_mode": "deterministic",
+      "root_temperature": 0.0,
+      "simulations_per_side": 128,
+      "tactical_root_bias": 0.0,
+      "workers": 1
+    },
+    "opening_count": 1024,
+    "opening_generation": "independent legal uniform-random 12-ply prefixes; unique canonical starts; reject starts matching selected training states in canonical or production float32 identity",
+    "opening_manifest_sha256": "6ed3c99b35c6f51d03ea59ee2c9ed1c5fb52cf76a51b4cccd50f74ba8f962962",
+    "opening_seed": 599,
+    "search": "serving PUCT configuration including native exact-root behavior",
+    "seating": "paired seat-swapped games for every opening and comparison",
+    "serving_p_e4": {
+      "metadata_sha256": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+      "model_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+      "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "weights_sha256": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+    },
+    "thresholds": {
+      "coverage_comparison": "paired two-sided 95% interval for B minus A seat-averaged score on the same openings; lower endpoint strictly > 0",
+      "primary_strength": "one-sided paired 95% lower confidence bound for B versus serving P-E4 seat-averaged score strictly > 0.50",
+      "secondary_generalization": "report held-out masked policy cross-entropy for A and B; diagnostic only, not a pass gate"
+    },
+    "trajectory_overlap": "report exact canonical and float32 overlap counts against both training arms; not yet observed",
+    "value_evaluator": "serving P-E4, unchanged and common to all policies"
+  },
+  "heldout": {
+    "membership_manifest": {
+      "sha256": "4e74d57244ab55b69751c38e4097860c25e541a8db60a2109f2ebd64c3eb81a8",
+      "states": 1353
+    },
+    "provenance_disjoint_from_training": true,
+    "source_opening_groups": [
+      [
+        "#580",
+        "opening-0004"
+      ],
+      [
+        "#580",
+        "opening-0006"
+      ],
+      [
+        "#580",
+        "opening-0010"
+      ],
+      [
+        "#580",
+        "opening-0013"
+      ],
+      [
+        "#580",
+        "opening-0016"
+      ],
+      [
+        "#580",
+        "opening-0022"
+      ],
+      [
+        "#580",
+        "opening-0023"
+      ],
+      [
+        "#580",
+        "opening-0025"
+      ],
+      [
+        "#580",
+        "opening-0034"
+      ],
+      [
+        "#580",
+        "opening-0037"
+      ],
+      [
+        "#580",
+        "opening-0050"
+      ],
+      [
+        "#580",
+        "opening-0052"
+      ],
+      [
+        "#580",
+        "opening-0058"
+      ],
+      [
+        "#580",
+        "opening-0060"
+      ],
+      [
+        "#585",
+        "matched-0001-control"
+      ],
+      [
+        "#585",
+        "matched-0001-treatment"
+      ],
+      [
+        "#585",
+        "matched-0004-control"
+      ],
+      [
+        "#585",
+        "matched-0008-control"
+      ],
+      [
+        "#585",
+        "matched-0011-control"
+      ],
+      [
+        "#585",
+        "matched-0014-control"
+      ],
+      [
+        "#585",
+        "matched-0016-control"
+      ],
+      [
+        "#585",
+        "matched-0019-treatment"
+      ],
+      [
+        "#585",
+        "matched-0021-control"
+      ],
+      [
+        "#585",
+        "matched-0025-treatment"
+      ],
+      [
+        "#585",
+        "matched-0026-treatment"
+      ],
+      [
+        "#585",
+        "matched-0027-treatment"
+      ],
+      [
+        "#585",
+        "matched-0034-control"
+      ],
+      [
+        "#585",
+        "matched-0035-treatment"
+      ],
+      [
+        "#585",
+        "matched-0040-treatment"
+      ],
+      [
+        "#585",
+        "matched-0041-control"
+      ],
+      [
+        "#585",
+        "matched-0042-treatment"
+      ],
+      [
+        "#585",
+        "matched-0044-treatment"
+      ],
+      [
+        "#585",
+        "matched-0045-treatment"
+      ],
+      [
+        "#585",
+        "matched-0052-treatment"
+      ],
+      [
+        "#585",
+        "matched-0055-control"
+      ],
+      [
+        "#585",
+        "matched-0059-control"
+      ],
+      [
+        "#585",
+        "matched-0060-treatment"
+      ],
+      [
+        "#585",
+        "matched-0061-control"
+      ]
+    ],
+    "states_by_phase": {
+      "17_to_32": 508,
+      "above_32": 278,
+      "at_most_16": 567
+    },
+    "training_overlap_counts": {
+      "control_canonical": 0,
+      "control_production_float32": 0,
+      "treatment_canonical": 0,
+      "treatment_production_float32": 0
+    }
+  },
+  "inventory": {
+    "conflicting_targets": 0,
+    "eligible_rows": 7794,
+    "opening_groups": 188,
+    "phase_bin_row_counts": {
+      "17_to_32": 2803,
+      "above_32": 1606,
+      "at_most_16": 3385
+    },
+    "phase_bin_unique_counts": {
+      "17_to_32": 2430,
+      "above_32": 1189,
+      "at_most_16": 3021
+    },
+    "source_games": 504,
+    "unique_canonical_states": 6640,
+    "unique_float32_states": 6640
+  },
+  "schema": "seed599_replay_coverage_preparation_v1",
+  "seed": 599,
+  "source_verification": {
+    "#580": {
+      "accounting": {
+        "control": {
+          "accepted_rows": 1961,
+          "capped_games": 0,
+          "complete_games": 128,
+          "cpu_hours": 0.3736385096777778,
+          "cpu_time_ns": 1345098634840,
+          "games": 128,
+          "incomplete_games": 0,
+          "native_child_cpu_time_ns": 1065615393000,
+          "pairs": 64
+        },
+        "treatment": {
+          "accepted_rows": 1971,
+          "capped_games": 0,
+          "complete_games": 128,
+          "cpu_hours": 0.36641917784694444,
+          "cpu_time_ns": 1319109040249,
+          "games": 128,
+          "incomplete_games": 0,
+          "native_child_cpu_time_ns": 1049971886000,
+          "pairs": 64
+        }
+      },
+      "assignments": {
+        "games": 256,
+        "seat_swapped_pairs": 128
+      },
+      "attempts": {
+        "completed": 128,
+        "records": 128,
+        "retries": 0
+      },
+      "coverage": {
+        "canonical_state_sha256": {
+          "control": {
+            "cpu_hours": 0.3736385096777778,
+            "distinct_positions": 402,
+            "positions_per_cpu_hour": 1075.9062291161606
+          },
+          "control_only_positions": 113,
+          "raw_eligible_rows": {
+            "control": 402,
+            "treatment": 411
+          },
+          "shared_positions": 289,
+          "treatment": {
+            "cpu_hours": 0.36641917784694444,
+            "distinct_positions": 411,
+            "positions_per_cpu_hour": 1121.666181380051
+          },
+          "treatment_control_yield_ratio": 1.0425315432010107,
+          "treatment_only_positions": 122
+        },
+        "kalah_v3_float32_sha256": {
+          "control": {
+            "cpu_hours": 0.3736385096777778,
+            "distinct_positions": 402,
+            "positions_per_cpu_hour": 1075.9062291161606
+          },
+          "control_only_positions": 113,
+          "raw_eligible_rows": {
+            "control": 402,
+            "treatment": 411
+          },
+          "shared_positions": 289,
+          "treatment": {
+            "cpu_hours": 0.36641917784694444,
+            "distinct_positions": 411,
+            "positions_per_cpu_hour": 1121.666181380051
+          },
+          "treatment_control_yield_ratio": 1.0425315432010107,
+          "treatment_only_positions": 122
+        }
+      },
+      "decision": "do_not_propose_larger_generation_run",
+      "freeze_sha256": "8da846678e89568e17e7bd81270287ef373e1f8acdfcbc892317d08385ad4c36",
+      "matched_opening_opponent_results": {
+        "T512": {
+          "openings": [
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0001",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 0,
+                "win": 2
+              },
+              "opening_id": "opening-0002",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 0,
+                "win": 2
+              },
+              "opening_id": "opening-0007",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 0,
+                "win": 2
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0008",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0009",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0012",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 0,
+                "win": 2
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0013",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0015",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 2,
+                "win": 0
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 0,
+                "win": 2
+              },
+              "opening_id": "opening-0017",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 0,
+                "win": 2
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0018",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0019",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0022",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 0,
+                "win": 2
+              },
+              "opening_id": "opening-0023",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 2,
+                "win": 0
+              },
+              "opening_id": "opening-0027",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 2,
+                "win": 0
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 1,
+                "loss": 0,
+                "win": 1
+              },
+              "opening_id": "opening-0029",
+              "treatment_p_outcomes": {
+                "draw": 1,
+                "loss": 0,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 1,
+                "loss": 1,
+                "win": 0
+              },
+              "opening_id": "opening-0030",
+              "treatment_p_outcomes": {
+                "draw": 1,
+                "loss": 1,
+                "win": 0
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0031",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0033",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0034",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0038",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 0,
+                "win": 2
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0040",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0041",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0044",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0049",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 2,
+                "win": 0
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 2,
+                "win": 0
+              },
+              "opening_id": "opening-0050",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 2,
+                "win": 0
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0051",
+              "treatment_p_outcomes": {
+                "draw": 1,
+                "loss": 0,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0053",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0055",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0056",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0057",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 0,
+                "win": 2
+              },
+              "opening_id": "opening-0058",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 2,
+                "win": 0
+              },
+              "opening_id": "opening-0060",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            }
+          ],
+          "same_opening_control_p_outcomes": {
+            "draw": 2,
+            "loss": 29,
+            "win": 33
+          },
+          "treatment_p_outcomes": {
+            "draw": 3,
+            "loss": 30,
+            "win": 31
+          }
+        },
+        "initializer": {
+          "openings": [
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0000",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0003",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0004",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0005",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0006",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0010",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0011",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0014",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 0,
+                "win": 2
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0016",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 2,
+                "win": 0
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0020",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 0,
+                "win": 2
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0021",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 2,
+                "win": 0
+              },
+              "opening_id": "opening-0024",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0025",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 2,
+                "win": 0
+              },
+              "opening_id": "opening-0026",
+              "treatment_p_outcomes": {
+                "draw": 1,
+                "loss": 0,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0028",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 1,
+                "loss": 0,
+                "win": 1
+              },
+              "opening_id": "opening-0032",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 0,
+                "win": 2
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 0,
+                "win": 2
+              },
+              "opening_id": "opening-0035",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0036",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0037",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 0,
+                "win": 2
+              },
+              "opening_id": "opening-0039",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 0,
+                "win": 2
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0042",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0043",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 2,
+                "win": 0
+              },
+              "opening_id": "opening-0045",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 2,
+                "win": 0
+              },
+              "opening_id": "opening-0046",
+              "treatment_p_outcomes": {
+                "draw": 1,
+                "loss": 0,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 1,
+                "loss": 1,
+                "win": 0
+              },
+              "opening_id": "opening-0047",
+              "treatment_p_outcomes": {
+                "draw": 1,
+                "loss": 1,
+                "win": 0
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 2,
+                "win": 0
+              },
+              "opening_id": "opening-0048",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 2,
+                "win": 0
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0052",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 0,
+                "win": 2
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 0,
+                "win": 2
+              },
+              "opening_id": "opening-0054",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 2,
+                "win": 0
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 0,
+                "win": 2
+              },
+              "opening_id": "opening-0059",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0061",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0062",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            },
+            {
+              "control_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              },
+              "opening_id": "opening-0063",
+              "treatment_p_outcomes": {
+                "draw": 0,
+                "loss": 1,
+                "win": 1
+              }
+            }
+          ],
+          "same_opening_control_p_outcomes": {
+            "draw": 2,
+            "loss": 32,
+            "win": 30
+          },
+          "treatment_p_outcomes": {
+            "draw": 3,
+            "loss": 28,
+            "win": 33
+          }
+        }
+      },
+      "raw_evidence": {
+        "attempt_records": 128,
+        "pair_checkpoints": 128,
+        "path_sha256_manifest_sha256": "7c8d32ced1fd56ae71f261b9dcbc482b5248a62ce825409513bb9ad78aed2c0c"
+      },
+      "replay": {
+        "accepted_rows": 3932,
+        "capped": 0,
+        "complete": 256,
+        "games": 256,
+        "incomplete": 0
+      },
+      "schema": "varied_opponent_coverage_pilot_verified_results_v1"
+    },
+    "#585": {
+      "decision": "do_not_propose_larger_run",
+      "evidence_digest_sha256": "e1cf047b1e8587d673ae711c11e29eb9125240391d945a581a27ce47ce37cd75",
+      "freeze_sha256": "3f2ccca4fae605f826b4fb00e0adb6f88c8c87ad8ca1373152aea051133f75b5",
+      "pairs_replayed_and_reconciled": 124,
+      "passed": true
+    },
+    "source_artifacts": {
+      "docs/data/broader-opening-coverage-pilot/pairs/00db58a767896429c9873c548c7ce776fdd5b0f8839b34766e0d812a13806099.json": "51faceb8eef68cf0f8195cc56e4fa15119e027f9f1bafc6a43227b1099517592",
+      "docs/data/broader-opening-coverage-pilot/pairs/01048fd047769f2c729ba40d83722196f9929a97faec99c7cafc194ad0695c87.json": "3999ba7e9f1c07360e78d46b2b43d9969a504306cf618fa2cf46d573339473dc",
+      "docs/data/broader-opening-coverage-pilot/pairs/02bc5795854b6427a1ce06275aa0d604f42e743fa0a4f9e3f16a30f9e8c91fdd.json": "934b4283a2a02068ad15706ae1be93d77427df6bfad79ede0df78414c9e5c3f4",
+      "docs/data/broader-opening-coverage-pilot/pairs/04bc7c4820ec5f064b7a6e439f88d3b89f090d2ce1b45784243686b8a89c935e.json": "2af4407de516ccbd2a60016a624c12c38c7bd5ea8dd3ae01c676bb8a8fa474f4",
+      "docs/data/broader-opening-coverage-pilot/pairs/05fd361239824303b733d3fed3794e0bfc420813d60cd81425939609298eee53.json": "1a843a270492927f95768cab9341fa39ca238c463ea4ebd244f21105f92031b3",
+      "docs/data/broader-opening-coverage-pilot/pairs/06d1f34a91680e8b07c20f639f6919297902aebf1e41829884cf158f9bd96bcb.json": "c9230bb859eeea442c93531d20588612193f75f3b5e8f6cd4edd547b6645abde",
+      "docs/data/broader-opening-coverage-pilot/pairs/09adb4820b59a9a9297628951e5807c4e09539d46703e1db5cf095b217bc948a.json": "8438319917550b933919914aaf5fc7e5a78c95adb83d3492e4489b7d73a9b63d",
+      "docs/data/broader-opening-coverage-pilot/pairs/0af7810c4e5626a3592d9db16e4c2564650d2fa0fb3067459adc4025c199cf1b.json": "99718739d4561181931a475dcf734645c666f7549be677a29a75d69fd5e167aa",
+      "docs/data/broader-opening-coverage-pilot/pairs/0e3939415815ff27762ad78ef3b2024eb594789c638324e55710d1d391bea3cd.json": "e25749cc3a737e375a7aaf4e96de7333b9f367027333aa1308afdcf4b1240735",
+      "docs/data/broader-opening-coverage-pilot/pairs/102a1807f91cd3d07e911dcf92911be562921b71b15179fd92c4054bbc2de188.json": "ce954e2b6e9d350f75e3f0f69b1aa8040b1955a1f321cbf30acf9696189c2e77",
+      "docs/data/broader-opening-coverage-pilot/pairs/10af275a190e47636476c6710c40daeaf395ddf1353b9b477b3bf17e9e572ef7.json": "9a0a43cc1027713b43900965aee1752973dd9baf479a01f201ba089346b4afb9",
+      "docs/data/broader-opening-coverage-pilot/pairs/12cbc38b02b8d4a5439c630dbf2a27ed3e4b38bac0d395ace06b97633396595b.json": "a440d4205be770e42a9b287feddb6cd5797e45d98c1b4abb393d7ec7709a64e9",
+      "docs/data/broader-opening-coverage-pilot/pairs/135bd62f23e6f86455854c83d7ea502d2ea68d16401ef09d72a6c3aa971f1211.json": "89a2012e7d972d4cad62d90af8abdd6beb6ba335c91a76023aac25659639eadb",
+      "docs/data/broader-opening-coverage-pilot/pairs/1717720e37020f9105972c44aff44ac093345ea5351b56283000ffdb1bae0dff.json": "fb56b5d3139f2d537081ba6433db8b1a40f0d628666364871259ae4c481eb50d",
+      "docs/data/broader-opening-coverage-pilot/pairs/182998901d803f06bb0fe05bf42882be9485c1ef08f779a062ff773e9216bd82.json": "9b4243bfe96f359a6725ffca803d963b3b14ce4475fdeee0f435df787e8c9c6a",
+      "docs/data/broader-opening-coverage-pilot/pairs/1c47d97f854e28ef5f6481a871a0ee6ada0b1cc8fd8bdf8a03c940f1b1604394.json": "94efe6852b9aa943fd8146794fe3404e214273229d013c516047e642665ba6f4",
+      "docs/data/broader-opening-coverage-pilot/pairs/1cc905ef27ca1a64aa6086ed7599be9ce854fe26437dd51c3ab95c0bfd47a255.json": "14643a27e43135eb0133b55e53c956033c580c778c63865c8f0cbfef2ad94774",
+      "docs/data/broader-opening-coverage-pilot/pairs/2469bb23d12fbce87bbc95da3c071daf5c5bcd0f69fbc48dd0cc8160b450c43c.json": "dc367587a46fbce9efed51582aa8ec59bcb4025f9c0e8f8635a4464af1ac34ae",
+      "docs/data/broader-opening-coverage-pilot/pairs/25938bdfb4b8773b7a4c699bcefabb465df20b471d55720b3bc79433df739e95.json": "fec1ee2dd3e99be47fdef358785205def1b9ba9ccf42a51ed2c6a1db82878573",
+      "docs/data/broader-opening-coverage-pilot/pairs/260bbd75dff52ac1ad10f81ac42ed0fb989358fee156d1043c6791871891538a.json": "97a4a6895780ecaeea9d6e6785e2a57a1eea8cd2c6ccf04b798f9ee1c8544978",
+      "docs/data/broader-opening-coverage-pilot/pairs/268f90df3a8ea35d59baa88588a3038647327ef6300919d4552d123c7d748a81.json": "2b77d57ae16a8b9fe43d22cab657bedb59a57d9cfdc54e9a231f1db188b2c03b",
+      "docs/data/broader-opening-coverage-pilot/pairs/28e18eec17c45b53cd33750ddc5a85edd0fd8ddca1888e72f82fd12a4cfb58b6.json": "8084c9b58048597861fef1b2efa6525fa7cf7992cdd0a744c412bbccb79f3464",
+      "docs/data/broader-opening-coverage-pilot/pairs/2ad226a7534218243cd97a78b15b997a9e1118de96d964e335e5c192afa43b8c.json": "0534eda38fbe5c2080c0c768b7739e6f742c029978522a73027c861de95d06b4",
+      "docs/data/broader-opening-coverage-pilot/pairs/2cbd4c8670232673ef25a391a7b067ed288b9b858edd447bdf60bbdadeb6fde8.json": "55c17c7c2de11b130867d788d78e5393f173114b7e7e3d29cdef39c5aa942ab8",
+      "docs/data/broader-opening-coverage-pilot/pairs/2d84c6650b8dfa65def84c28ffb1bc52cf81810ec0849afe985f532d273ada4c.json": "c0fa0b26ac7c3f2a556fff1aaae60b1cb252acce5952effcfa4dcb9c8ded0055",
+      "docs/data/broader-opening-coverage-pilot/pairs/3169548da6f528c516c697fde814b20879335cb42dfef3793f3f2f74a3b5ffc3.json": "a9fd412b925d30bf61b570b9a4c0534bf701369d1a4d42110354d1a6c9945e3b",
+      "docs/data/broader-opening-coverage-pilot/pairs/3609d184f0c35fa3bbd5c97fccfe683565307a72057d0d60e6e02df94831a142.json": "73b11e634e0c8cc993a1d60ecd28b19cfa05e5465303b7bbaca22f1de2b6a80e",
+      "docs/data/broader-opening-coverage-pilot/pairs/365630605984788323bda6a62a0287b9818bf380db7f9b45b3d38b7d176a9f93.json": "92d5879c71ee5a60f9bb98294732b87fa8bdbc5054ced135040aba43100e546e",
+      "docs/data/broader-opening-coverage-pilot/pairs/37a79218f88f68d3dc2542fd93ff08c6d9d6dc8cf9cc16f1ee756f90c9d17f44.json": "392fbbffe156861dfd44776ad4031e8d5c8c805437b4349f2352e5ff8ec9d6d4",
+      "docs/data/broader-opening-coverage-pilot/pairs/3e09559c29e1390d4de24ff35bdd66e3c3da96578125d9d8e5cac7573121ea27.json": "c2dff3a3f23e481abd199fc75e366c4b243c6d7ffba341da46063cc85ae06a99",
+      "docs/data/broader-opening-coverage-pilot/pairs/3fcf173c0d40456fa5ca891917582168e13db1b29181ed800b55377ca5da7ed2.json": "6db7ec7954e6020064fe06e5f7a7de440d333a02ea97b8ca05db84179f79bb95",
+      "docs/data/broader-opening-coverage-pilot/pairs/4032379ae6ad528231d8413d56213ac7510e7dbc71b7a773fe4b37fc8b3bfc59.json": "35b650bf6ed43c0ebee097b6ddf5d9337c63cbab5d19bb6ef7d7b8acdaa83c4b",
+      "docs/data/broader-opening-coverage-pilot/pairs/43a420d3db201b8cf9c81def7eeaa9663f058897b4b44e387d903cc946655f52.json": "6388dc2f315d093beccdb80a943ce198a254fc4b810a7d00ed951e1ffd8b9a1f",
+      "docs/data/broader-opening-coverage-pilot/pairs/443b82add97f5b964bf11b96dc3dbe5484eb0553efeeda8618a864fa4f28385c.json": "6cd738cf034afae72e711b97f96311d209c6ca24808df0ba6649d3709b632d53",
+      "docs/data/broader-opening-coverage-pilot/pairs/46254396a293db5839af5c95ca7477f9726f9dc305a74ad65fb910909ab34ae2.json": "d028259ea44943f3b5fdcd7e8b111d38e3c3d41350baa2edf56b769ed4e640d4",
+      "docs/data/broader-opening-coverage-pilot/pairs/4a75d70b1fe60e5280b95b67701be790c5e279deab16f4899a507f0b2c8da074.json": "b3e3b1346fc5ccf9f788ce55e21f07bc8fa3846018dc550cbe1152cfea9ebf45",
+      "docs/data/broader-opening-coverage-pilot/pairs/4c10b6a7e6fa1e0bd075ba75573322b61f423fa0af45a6b58007e114795bcca8.json": "0c10baed26f2e4d60217d905cf9fef419299b122f6729b905075e08b4122bb5a",
+      "docs/data/broader-opening-coverage-pilot/pairs/4e783b94b4ce243e2dfa362015deb477d1f6e410807cecad30ae8f6a23fa5ecd.json": "5280590940503c11ebfc3d6375fc1b1a049b65d8edeb91ce25974db8b157a881",
+      "docs/data/broader-opening-coverage-pilot/pairs/5520d368f76f150c2a123591f14568911621fcaa1624be30ca3513937d238edd.json": "49ce5b22f9bd0704ecd3cd98d8094f0be65d7b32d37b43a2c503e2669d7223b0",
+      "docs/data/broader-opening-coverage-pilot/pairs/57000ac64b9d4b835da1e682aabbcb0a74a46046034c16757c93842aa86fb1b5.json": "888455b7945a91bf2ccba1275dcf5df1350e3fdc2d72d73e94144e6087e52070",
+      "docs/data/broader-opening-coverage-pilot/pairs/5769d549e36dc56a1e5844e354d672b5194d280eb30ddca20db3f0767206e5ab.json": "9e7358e272783dfa0a1d529882293f1a06a19d49a430fc72e92292dde49c338b",
+      "docs/data/broader-opening-coverage-pilot/pairs/58738fd6ee367079364757f9c13174329d79878b7e8102bb14b1d16fb4d4687d.json": "03755a24accd29dbfd7c07d9ac2f1cbfe4c1747d60211fa87269a1eb22d0377d",
+      "docs/data/broader-opening-coverage-pilot/pairs/5904ad3df9f331ce163e32023d962aa8ada92996280479aa924cadfb63fdac59.json": "09988d0dfc2eab7d67024bbf63461904acd2d3a89be555bf882a00942ce5510d",
+      "docs/data/broader-opening-coverage-pilot/pairs/5bcee6a0dd7400bd27af38780c58492f670ae7f6e6d9554b2165ba26cc047f69.json": "8189ccd558ba5a1feecf26f3b13e99e5151bdf2152364893d936a9f2c1d669d7",
+      "docs/data/broader-opening-coverage-pilot/pairs/5bd542291d39209165f10342626be4b0333ec739ef47820f0a5f6993b6610b13.json": "9770e048fdca7e8e3b346520a7c7addd54a41fce82817c00f3aac6cbe8dcc01e",
+      "docs/data/broader-opening-coverage-pilot/pairs/5cb2ffefd4155764761109e3b645f7a8b7c4a67f6206f0fb999a63e8c6edfb89.json": "0e10df178a9839c7ea2b9a8eb50dbe05f2785ba75cec596e13cb42b1af0830f4",
+      "docs/data/broader-opening-coverage-pilot/pairs/5d85404bdb7b1305eb6ae1edb43c4f5f5a7e359d06f2d8b79674f052c13cdf39.json": "b051c48f0731c45dddede9e4ddf237e456bea0e22bf41f393f29047d084e0598",
+      "docs/data/broader-opening-coverage-pilot/pairs/5ebb5ac518e4d828b0a6df7504b884cdf88dbbe936dff82f6d76a578620a0bec.json": "28b51510d48544164238bd51ef7a651b530121c6357ee4dfe511d662390851ff",
+      "docs/data/broader-opening-coverage-pilot/pairs/5fbed14ef5ef9225fe8a00978f4420f8fcf5c498ce3fe2df0e165d8699dc4f67.json": "7b20a1289711ea63dac75d96961ed63223f210c6ac8a06b648454516ab9787e6",
+      "docs/data/broader-opening-coverage-pilot/pairs/5fe33814b18d59fc65ebf5aee38914f9cb15b15ac965b18146e692d4459cc47b.json": "93fdf1bd3cc42a91b1b432a0b4f0d3db2c7d5b3d31a6e669a166c614121e7246",
+      "docs/data/broader-opening-coverage-pilot/pairs/6062ba3f9237545fe7c67b55085204f0c13f4ca136d6d737e13021e33f27009e.json": "43de970cd227d12c7128e8383cdc786f9b373ff3d5bfbf4f7744d8d11a685c2e",
+      "docs/data/broader-opening-coverage-pilot/pairs/6161e68ce017180a257ceb76eb88771d1e3ff2a98a26cff152c9acf636a3083b.json": "76627f764f4cdc9ba89be2366debb2408d15df52838fd77ad0bad030b8d5f2ca",
+      "docs/data/broader-opening-coverage-pilot/pairs/62e903fd47794423d7bfbd93f7ccd54791cd12074f39ed121d92265ed15ef2ab.json": "f45d295a8390586bd34b89c53f10ff6acf745cd79c401e9c6373c59c5c600b1f",
+      "docs/data/broader-opening-coverage-pilot/pairs/64be96ac7870e0f015ffa4ed1e1cd7216f4b15615e2c2b61e073a43074eb4bad.json": "8818094ba9bb71b0b13d412ce480821c267b0bb1cb65f4796197ebfa041ac36d",
+      "docs/data/broader-opening-coverage-pilot/pairs/6577de868d641a88cbbb2f5180dd73ed2fb958a215b59aab4eeeb35e4f1de50d.json": "acca789996581ff38c53b08c374987083f3d912d1c8c57a63887ba386cfeb994",
+      "docs/data/broader-opening-coverage-pilot/pairs/6b195ed1c694b331c2ec8ed1d2bfb01cd1b5a3f45a13b02ae0cd3173f80a203c.json": "c03089e1d529875fb8b29e1a4e027d3b47eafb256b9114a5d1da8c3ddf063384",
+      "docs/data/broader-opening-coverage-pilot/pairs/6e018d79be68e513050afe359ab2d195ac4e66806216cc37f1416e76f358c6a7.json": "1a6f2f5ccd16cafdf00cb248973dc4367bb79b708ade2de954233c958cc1d5e5",
+      "docs/data/broader-opening-coverage-pilot/pairs/6ea0a89a2f23b41b4a8b9ec9601210ecdd13bf3e7efaa3fef712d971af81ea25.json": "883628d6c042c94dc208758e7fbe733eb7537f856bc80aee49784ef0490cf257",
+      "docs/data/broader-opening-coverage-pilot/pairs/7078fb6d143faca2125e34f59c3abce3bf30dafe4441e69f676ee41ebb667b97.json": "a4eb347034bd261d767bc116bc61b96843a9d74515b95d2d0c4c8185c86ff931",
+      "docs/data/broader-opening-coverage-pilot/pairs/71334527f1644e107c5dc8f643b1c4a4d0ed6711dca7935aa28c30e384121c11.json": "ddb31f1abd7ace9111d9391367d1e60f563b200f38d30bcd862d35f9c8c40365",
+      "docs/data/broader-opening-coverage-pilot/pairs/730a6d998fa59b8aee8561ae3fe1e3a5f45357139be6bac963427edfe05a5e9a.json": "d2680f104406664cc1e45730e84ea95d903eeb0f1f269becd4e980d0b644daaa",
+      "docs/data/broader-opening-coverage-pilot/pairs/736e5ae266b8a7859d749c05a15a50800369d25d567321c457b4c8020958eb71.json": "8b2d0998fb698331cb1a56c6089f1a737833c6b79eca166ab0bc64005eca5eae",
+      "docs/data/broader-opening-coverage-pilot/pairs/75dc161f0861f0d551a7ff8475602bb774af45971c9385a029142fd60328eb37.json": "14583810b430c554a60eea86e4014d285afb5a870620d7582e53c686cb8f1af7",
+      "docs/data/broader-opening-coverage-pilot/pairs/7600cd91e4f4cf76997c85e9d82a84bdb437601bea832589933cebdd14426e8b.json": "ea559ce567e6d18aa0191511d416b03536851ca5646e3c1ba75885724f9d2cb1",
+      "docs/data/broader-opening-coverage-pilot/pairs/77bc9e22a6bcd3e153cea55ddedd6d100a56e5fe13edeb6f44a3dc0846a1087c.json": "7c426b4e58fb9a9578aab48c75de668069cdb08636dbb922d023801e98e15132",
+      "docs/data/broader-opening-coverage-pilot/pairs/7886969439f9c7897e02ccdb10b7f7f9913b315ff0cf64318711581deb3b518b.json": "94a23460378881a9189c04cdaa3c808ec66d62a17a6bfc62048e41b3290dc102",
+      "docs/data/broader-opening-coverage-pilot/pairs/793a02d524c93b6284febfd6861c2049fe3a270b4230c6fabb0207756486307f.json": "36e6510bfa0e6748e89fe39dc46178c92787e82f1eb7b005da940bd023b99702",
+      "docs/data/broader-opening-coverage-pilot/pairs/79b80732d7f6bcf14fc2902abb456eb7888053f3f1d4e3524f245d8bfe59fc60.json": "f504fe1dca7827982292592c350dd38e8df023d134cc60435b364f1d078fb540",
+      "docs/data/broader-opening-coverage-pilot/pairs/7a2b39754b260580c891fcecf7c26718945f17a3f857a5fb3b1df02cc0e5f1a2.json": "158da79f68d681da7b42286973b07f652b8ada4cfc2cbf99f589da9633dbbc56",
+      "docs/data/broader-opening-coverage-pilot/pairs/7b091457388248e779dd8def05131c6c229d70a37a7f622cead63f31524a8e61.json": "2136d17132f75001cfae4b1f5c0ec3ff4bdc143caa273a8e52a1c281538883eb",
+      "docs/data/broader-opening-coverage-pilot/pairs/7dd5665b2d50a6df89b6dfc75f269906aafa1dd80a8512930857d9f1fe118ae2.json": "a103b86d98e3f8d30087797eb6336a3f3615c783a13d3b8b61ee118d89a00ba2",
+      "docs/data/broader-opening-coverage-pilot/pairs/7ffa7f8d4a3ec70de5e0057d30866c32b86a538b37394147e17ff19079aec7da.json": "61ed5be49cb07f3e277809e6cfa3d8351d3cd17bb6712a4cd8cc038544eccea9",
+      "docs/data/broader-opening-coverage-pilot/pairs/87939ded8815e38f2e7fde6b5ea8c630e0b9612304825dfea2b7503c28cad4f7.json": "f9f07ee3de753fb5660fb9b733739f30656e49532207c5fd1bed30ac8b4b499f",
+      "docs/data/broader-opening-coverage-pilot/pairs/8a621897fca89afba2f33b6ce1fb464d5022900f41be6948855ee82d3e2d4718.json": "2d7d90be2b2f311b8c84f2c71cd5282e1dd1cb4115c3b05bab7b3ab8d645f2b3",
+      "docs/data/broader-opening-coverage-pilot/pairs/8aa79d37be050dc90e93bfec0a88c73a42a67020c264914e1a83a5192eee4fa9.json": "c05b5694cc9d86612f44f5a6b391ab666bb3920d95858d5300b11f31b77a7747",
+      "docs/data/broader-opening-coverage-pilot/pairs/8ae1cb12725e8cc62f5f3145d2b239f1c6d2045a171be5751d7bb18048c818e4.json": "b7de3ec53e2586c70df899cc1b3c747af44baa761316a00ebe0fc108c6ba66bb",
+      "docs/data/broader-opening-coverage-pilot/pairs/9104a129663c6fa1f9acc06b9371fb2f8a8b84d0cf64ba2e7faaecc4519beac5.json": "fa8bd0272d8e4005658e2b90795a51f84a6f9cf3263f40a11bbd880e02265bd6",
+      "docs/data/broader-opening-coverage-pilot/pairs/93f15b9361973265b579dabdfdfe27dac31be6085fcb12f79f906091aa29e4a2.json": "1c2ffb3cf89bebe0c7a4a5541de981d88545414fe21e73277a87fc4755b46b8d",
+      "docs/data/broader-opening-coverage-pilot/pairs/94009186a383436458f1d8e6b389a9fd6c838bdbae70f3cbcd47afab09e1ecbd.json": "bb283a73a0618c0493746b38191538ac3b2e2f85433c776e851fa1bf317b0768",
+      "docs/data/broader-opening-coverage-pilot/pairs/96ff9c4167a6e695f311c86c55f708993c17d6dd69899006fbe181a168f8b4ac.json": "c484dd1d60d251903e5d0eee57716557e942ee2372add8e309ff0186ee49fb95",
+      "docs/data/broader-opening-coverage-pilot/pairs/9ce531d2c8c77f5617c92200d23604a242ccb7294c2ca9272dd067a74d582b29.json": "f7ea96bef0230690a3b3c22f52493e66d41bdba15d590f285bc0ff83a1ef0a44",
+      "docs/data/broader-opening-coverage-pilot/pairs/9d1b300b1d2547a7ee6b4570cd65cf29cdb00f945615c9a0b5622d7d29bfcdad.json": "ed3cc59dd8f049c586776c1a7f7cac4dec6f196fa2301063104f97263bd78944",
+      "docs/data/broader-opening-coverage-pilot/pairs/a3c62eca9ee4fab2deb4a5c014bc58cc658f9fa387413fa37cd7711b715fb4a3.json": "eec78c10e7054b39c19cfd44342473c621cff5e80963055cade83da470f79c80",
+      "docs/data/broader-opening-coverage-pilot/pairs/a55e3e437934b67419c44acbfa632a1ee3a4cc594f8b4bdd3bfa4db982092465.json": "11424b2bed33dbc8b065c0463d1b1083db1e5e25bb8450a0b1653ba9da11373a",
+      "docs/data/broader-opening-coverage-pilot/pairs/a91691a33ed5dd724c1f53f10d7f7f1909409e2dab3a73c0cfe47fbe0d12a0fe.json": "dbb6e892793bc4542ca977d346fee445f41b37c9b837fd76f2438fe73b442140",
+      "docs/data/broader-opening-coverage-pilot/pairs/a9ae093e4b0af638e332ee41813103cc2eda81d9fce6978371852f48c8a06f6f.json": "1f3ad8a5d582448c2b841a5de4cea26e2078e5b6e71da443247870efb3054010",
+      "docs/data/broader-opening-coverage-pilot/pairs/aae1234d95bb9a546cdfe51fb9c450d9c410a13c3f63081b94c82c5ca9c1d827.json": "b24ac285031ffe567502e1bde5463c2dae05aff8bd9e3ff92e7e9e396c24392f",
+      "docs/data/broader-opening-coverage-pilot/pairs/aaef442ebcc4c39131266ed87229114f7d1d206b77cbed790577136337aba1b4.json": "ef41dc5367d79b2ec2111c783d88b5e5767092af23ad408ba60a939f41f83679",
+      "docs/data/broader-opening-coverage-pilot/pairs/ac91d8cef123467456d27271c746edb408665d68cd2ca098fbd6134ee3eb9fa2.json": "68129f7b492ebfb5b6fba61fbb6a84a087e7ca9d416b1a7773e67b88586ea512",
+      "docs/data/broader-opening-coverage-pilot/pairs/adf174d6f819275e0b5df56396c8aa4795da8c77305a6a6ec4d0dad7e71e18c0.json": "49e2ce91fa8a2d6ef4da0c4dd7c9c34662831a610b8a794cc47caa14a7c04a52",
+      "docs/data/broader-opening-coverage-pilot/pairs/ae91d8feeada0f68027981f7075d13eb65c78f7529fc6d65f0f96f8c477d4385.json": "f3cc1992e5795e75bbd3648a6cc14eb09e50a2155504e23f7705ec5edd319717",
+      "docs/data/broader-opening-coverage-pilot/pairs/b03373945bbc8c95a7d712d084a01f0e88d7681f8656e446f342cf122cd9a31b.json": "1fcfe7b80fd28256e55180cadaba2380bb64aacd32d9393969d91bbc9ef4a98f",
+      "docs/data/broader-opening-coverage-pilot/pairs/b06defe1b59c1359dcc56b84698568d7e6ee760a998bf0824e4c8089de570775.json": "f86fb19aef95eee1a86933a7b4b181871035f098b14f7977b0b5a2e6a88593f8",
+      "docs/data/broader-opening-coverage-pilot/pairs/b0e3ac6be12f828991ce05291cfbb035e4d786f99e228609112f92365bb2e2e0.json": "759f41d6e7b72d992a636d95a571ecbbb76fc21bf2752953ee34ffd812033713",
+      "docs/data/broader-opening-coverage-pilot/pairs/b17c3a32e36d44f4fb163735be5c33d2ca34222379e4aee2a5b2668cf8155328.json": "ead731404ea9f16ff789b0ef388cedaebc2f8a91799f85dbaf9931406d546bda",
+      "docs/data/broader-opening-coverage-pilot/pairs/b986cf6ba69fc036dac716ebd2bb677ff70d53dc6ffd49c7c4067ac0c9d7a492.json": "bf436b75eac39cb589458f6c79f2576ffa05ccdf37e662799532cfa798a03e0f",
+      "docs/data/broader-opening-coverage-pilot/pairs/c817e286321e35b57e7e6914a716eb451a5e467bb154d0c1c4fdb7b696fb3b96.json": "ced31d6b56de03c0088163ea5937cbb78a6a9f2f9468090fb6b215e2929e225f",
+      "docs/data/broader-opening-coverage-pilot/pairs/c8bcc6f3ebf5bcd2f308b06e727913b11ee744f9e47f840a8d63b956826783fe.json": "5885a487f512ef516e4dd6a33e896f31aed223db6f13f16593ddcd80eb42b9b3",
+      "docs/data/broader-opening-coverage-pilot/pairs/d1679a78c6b813c59332ecc8174d77e9f3bed8d83352054c726fd67f4f576b47.json": "6dd78a78d517030402ae90e0e059b02004425f474c61656176e1c4f09ef6e61a",
+      "docs/data/broader-opening-coverage-pilot/pairs/d3fec9f8f8e6aa5b260c8d9334f58008d48cc0e415b9a87eba969316df731f35.json": "62333c4dc66d10f17296bc9dc596183747397d23be2c989c055aee5b1ce081d2",
+      "docs/data/broader-opening-coverage-pilot/pairs/d675b7e76a740f44886a7736b6cfc5627dffa1dab15d1971c691e843cf00f92f.json": "b42276e4e4c032417246ff0d240723f06f4c6bb99e570114e3a42ac120a8e84c",
+      "docs/data/broader-opening-coverage-pilot/pairs/d815faa3127d78e8b4ba64ec0cd1cd72b02c4f5d228dad73d3f3da58a38c21be.json": "6a413fdb0b3acea29042b64d535346977a6db84a42b7de1a257e9b76cd41529d",
+      "docs/data/broader-opening-coverage-pilot/pairs/d86d75ab3e894a040ab435d056c8bfb131f503615e7c17766e83439fd1446dde.json": "191c3f8bb33de515ee20711d5dfba3fc8f16f0ba6c03e12b94fb649d14dceacf",
+      "docs/data/broader-opening-coverage-pilot/pairs/d99597c4b433b73fab53fff22f18e580d2e8e3817071ef3b1e3d631790e2ffee.json": "68288e620e239dacfdb905dcd48c63642dfa12b86726a973d6a8cb9220508514",
+      "docs/data/broader-opening-coverage-pilot/pairs/db1e059f8d77731ecc146c5c82ed6e303a374e552f244438f2d5bd11379dc19a.json": "d367827050501a6cd0f635ac30ac90be8ca051acb6973ff4961c953ad6b8ebde",
+      "docs/data/broader-opening-coverage-pilot/pairs/db9de85cee64325fb24bbe33ab768e6a67fc1925a6740542c3e091fe170cc1da.json": "fdda13af664f558d19cafd6ac7ce84dcd1dbc36107d72192448be217e983987b",
+      "docs/data/broader-opening-coverage-pilot/pairs/dc71614ddc36f7affb3d1f38cf57d0d789f8fa6695d2ef108be6c4c47fd9399f.json": "ed01565346fe904dc9a617b06f6305d805c9d386873d67d976c027d799b8a47b",
+      "docs/data/broader-opening-coverage-pilot/pairs/dd5a0b9a92ee60e897a7b2558cbac924da01dda79f4827274d4ace1a06f8ebf9.json": "76cc43771c5bb5e15aad947be920847e40af346b5c0926295ede6440ea1f4657",
+      "docs/data/broader-opening-coverage-pilot/pairs/dd741c1d5f2f4e662e1395f9cf88e0f2d327987d8d4f2b41ec75ec07e37357ea.json": "96b60d9fb86e294cfe0567d1915f3788097118e69496f9a53b3450a38ac7dd35",
+      "docs/data/broader-opening-coverage-pilot/pairs/dfc69a0dcb34a2f807aa015f7357a17c193df8917c42e0bd7df180179d48a43d.json": "b75cc1daf197bdff19ff97fd72a8dd0b6f9ec3211bf0fa86ddaa53f547646070",
+      "docs/data/broader-opening-coverage-pilot/pairs/e03b775e5db5b48dab16e2384cd4be1bb976eed421e1f3240f9994598f8bb761.json": "f035bc211e90e1feceeb72f9236c631a325d308b3ffd8653dbd71dfdbd5221f2",
+      "docs/data/broader-opening-coverage-pilot/pairs/e125fafdadc449f723960e23f1dffd6581fbb472956cd5e74dfce8c8545b1d7c.json": "21e546f63add7a7b9218b802553d8be8030646026bf2437021cf3ff929c33aa2",
+      "docs/data/broader-opening-coverage-pilot/pairs/e1d22524bbbd51e87ad85095508a1bf7925e01849693170e9c47d719b29d4d0a.json": "3c179d48e8007c2243ce3f5333ad639bf49911fc1df147ac7b3471f424b797d9",
+      "docs/data/broader-opening-coverage-pilot/pairs/e5a283ebc5636d685ab38b281dc2acb7a02f4b062f9f222ed89a32d7cfccb0e1.json": "ee7e8b10818ff997f0b9933b5caf3037a7c20fa86b224869bbbf2de38c4f7306",
+      "docs/data/broader-opening-coverage-pilot/pairs/e60cc6c667f27a332226895941030b89b5c9ef1ae8d82d5522990eb9fcbe6df8.json": "62daee68fd975eaee0ce5c44e882100ddd6d966d0fda66ea21ec9e35af4adc12",
+      "docs/data/broader-opening-coverage-pilot/pairs/f10198ae09f40c367fda1ef6ab16755ea99bca5a61ed59b1ec966125e6dc48f8.json": "dad1f6ff0f844c6ac655d7395d4da6913a541aa16eea1641be29df66ab606d14",
+      "docs/data/broader-opening-coverage-pilot/pairs/f1a0227f8edd53a08cc2c6e008c999b04b6f7ca5aec8227744332f4139c306b9.json": "88a75a2b70cbdbcde4f86fba51c6ea56036cba03e6113a3e18252d6b9f7cc2b3",
+      "docs/data/broader-opening-coverage-pilot/pairs/f237957310d22809a651dd4ea713fbaf73453d5119c119f0f8fee436d7e93995.json": "818fb8f3af9e2c522260ba925fe1778f81d5d632712daae0b7612b1f9dc17400",
+      "docs/data/broader-opening-coverage-pilot/pairs/f488559b02561b95640e93781438ddd4839a202cc872c158a96da3cb2d1c27b8.json": "35b382971bf338a0b2b0ac7dae2f5593132a776f82345d3ff48ae97746cdb735",
+      "docs/data/broader-opening-coverage-pilot/pairs/f6a0e3c083f0f3ee969b4682fcf28a39788d6891c604100e37d15745ea3d34c9.json": "427ee8cc0fbe9f15b43320fc3a40e4adb61108144eaca59d96c9e432fb0e8747",
+      "docs/data/broader-opening-coverage-pilot/pairs/f6d4383cae7fef1f6f3d93f4b2f40301cf371480569c3273956c01f4548cef29.json": "2bf2ffcf47b45d024ac011571b1c7ecb5148159b2aa730e2bdaa72e988925ed0",
+      "docs/data/broader-opening-coverage-pilot/pairs/f75ea56848b368a5e7fe3ce63d5de1350c42c59c9392b5d9ad4f3ebb5d90d59b.json": "9fd3b5db8a0a62cae02a5d7d30d74ee75870f72b76308e4a7cb31d89d5914755",
+      "docs/data/broader-opening-coverage-pilot/pairs/f97187ffb286f4754e9a2d21a19312dbdd748c4bc7070d0aa8b1c52f9598f7d1.json": "4858ff01905ceb051513274e3db6c2664eb91392c5d495c8e31e7fac2e2bf11c",
+      "docs/data/broader-opening-coverage-pilot/pairs/ff9a038ee0c47aa7775964334506f4a65f80241bb5da5cb8291e23f6ac2433c2.json": "0438761222ff3460db02fe28645974d4577e6a3ead522cff383eb7e3f8d51c1e",
+      "docs/data/varied-opponent-coverage-pilot/pairs/015fc8583d790e38ed8cc0814c67d424814e2f0fcf1ff12dd9f80acd4bf03cfd.json": "9bae18e6cb23fc69c656268d3c19d047f27e3a7bb6011ddb61b352c67487225d",
+      "docs/data/varied-opponent-coverage-pilot/pairs/02724940f479e9f74d80c285b3436675b61934f78501fbcabfd7231cc4a3064c.json": "0b50817921e42e2d78214683b0ff23a3ec512270e3187698ebfa362825f91364",
+      "docs/data/varied-opponent-coverage-pilot/pairs/085fe6b994cb56cbccc3b631dce4b71d52527849f477868a0c141cbbfda1346d.json": "1ce3bb211dda1e1624a32dbfa96166a92c77f67d875b41044fc74f6a73e21a9b",
+      "docs/data/varied-opponent-coverage-pilot/pairs/08ef4720ce84b7e2297408df330233010c95263eb861fc64851349005d3a08f7.json": "9ef4f3e0611f0d626ad4687283b93cd570afcf6fe21a02d74178f0521ccee6b8",
+      "docs/data/varied-opponent-coverage-pilot/pairs/099715bfa1fe108a4064161f6b5e19bd42baf4980e4ac7afe995418dbda5fdbc.json": "2fcf61661d29065a5dedb7df438d6e8c67b07f68dcbda8cbfe4df2cfe4e4b55e",
+      "docs/data/varied-opponent-coverage-pilot/pairs/0d96f8e9a19fdba9ad9120f21e1ba411b5d8a037b8f466f58117eb99cd73891a.json": "242f4b1fb6ad9ff5dc982dc6c7d01b65aa8109dbd1af95b96c839f4ce5a99b30",
+      "docs/data/varied-opponent-coverage-pilot/pairs/1092cb1880d270a93f3b3b5ce22ac85cfb2e4089d6452a7af1a17db937f40e7b.json": "6323636be41dfd0e355d8775ab73680cb6c19277ea2c925dedd20c0ff9f890f7",
+      "docs/data/varied-opponent-coverage-pilot/pairs/109572eaa4c6813ff2682a58748576a9646958d36c6f5fa54eae1384d0a7cd74.json": "a0886ae77d4fae1ebfeb78b3c31230a8f938276e9fe944c0b326a9bc838a4e28",
+      "docs/data/varied-opponent-coverage-pilot/pairs/11991afa36139ba62c33f90d0783450bcc8632c7f6db6254432ed8106b54d230.json": "9507a08e46f515607d5a916966a5a8b187e15894c0cd6677a26a7d90208d8250",
+      "docs/data/varied-opponent-coverage-pilot/pairs/12a9bff9e06e8d07e61da6b08a20d985033135d9bc1cfd8e2d897b8aebe89149.json": "120b353fd7d219c9fe02a2fe42f45217a27f1af8d96c902365bfd8c98bbac87a",
+      "docs/data/varied-opponent-coverage-pilot/pairs/18c390281aa0585b738c6d610deccb14e8306ae75bdb326b1a15277fc4dbd390.json": "120064dabd919664231f778a690161a8a61c9c6e7a4c1cf455ca68bf42308ec8",
+      "docs/data/varied-opponent-coverage-pilot/pairs/1a638e5506dfad786e17af6c41cfc57f248e4953445a65fc399d4fd63c97e300.json": "1ecee2d07b8ca13cbc384d63a547ae6042c261eb1f426073fd4b27aa83da3391",
+      "docs/data/varied-opponent-coverage-pilot/pairs/1a8b1aacacd43abd7fa96d9b17df838db02da5dd0931e3171b0357beb109a68b.json": "52df74ee4f1f83d28e6ad917ce666e8333685743c16b9d8f5b9921a9e2bf2e8f",
+      "docs/data/varied-opponent-coverage-pilot/pairs/1b1cad5adae364a4e3f937990cd41733d407a0abf144167aff57b864f1d1f64a.json": "20ef35115a3dab77fa8a0a4e37a2695bae67f1813aecf3328b6e7f5d2349aa99",
+      "docs/data/varied-opponent-coverage-pilot/pairs/1c419d081c8e168ae2340bdf1d1343a53125f0515a90a9cd17e12fa3696cff93.json": "c6cf2ee531f46a0d26e6794ce2f9bdb5372cd79e83bf2c6a48e083990d7ab6f6",
+      "docs/data/varied-opponent-coverage-pilot/pairs/1da550be81cb006f28618fb08852299398bb2bd8a44daca6fe64501078a72b1e.json": "cad36e04ba23b5495a34e318382ebaafec9e018344710c8ce3031f269cfc65d7",
+      "docs/data/varied-opponent-coverage-pilot/pairs/207bcc7bf4909f40452240ef49b678794fb95bc386fd9ccce20e88a2a7ddf4a3.json": "cd01a844e745f8423a62db952f4ebddd6fb6a0a399c20ea070fc4e36a3ec17dd",
+      "docs/data/varied-opponent-coverage-pilot/pairs/216c71791cdc232813b471301c345bec479affcc6ea7dc37c2fd1dea09ae5b85.json": "d91b9c250aea4b48ede95dd64384132a84ee92b2805013bdab8012f7258a0c23",
+      "docs/data/varied-opponent-coverage-pilot/pairs/21bdaa9ebffe13ebe87e43ed6891d3af6eddd88f4e9813b4c62618778eee70ae.json": "bfe138e643a415673653dac7e051c8c8b3cfbf73be4f7c193c7bb56b02750c4e",
+      "docs/data/varied-opponent-coverage-pilot/pairs/230c335dd0917c0dd50d1192ef71a13a0b85be16e067dbd54dee59242724e817.json": "4c8e3670abdce59d0ca04b78fdf2b3347fde2e3bfd8de610f4c28301d2410776",
+      "docs/data/varied-opponent-coverage-pilot/pairs/23edc1f662b5baf73fc562d48fbdf36a0258ab081df3668729f94e88a12bcd2b.json": "ce16da2c349c7346dd461caa1d565afad25c659e135fc62e9e7e30229680a29a",
+      "docs/data/varied-opponent-coverage-pilot/pairs/27236c69c043280199643187f1103ca51f73e34116f19e570bc229ec5ea8856b.json": "ad0274e6afbd46371f443dab754f37cad0de0747cfc8ef79678817d881ef6ea9",
+      "docs/data/varied-opponent-coverage-pilot/pairs/28749ff6e073511316e1e36114d722f6e02b1845c0410aa4b198d9459119f725.json": "182871c4428fd5c20f5d76487126c17b6d7a9c0fcba16ec0684b45b744f76e44",
+      "docs/data/varied-opponent-coverage-pilot/pairs/29c590c6050dc54db7be95ac97808388c3a1a1d610b46abe12ab77b4254e33ad.json": "a595407e32686dffb86c0b998636635e729b76271888a61fe270e66f4866162e",
+      "docs/data/varied-opponent-coverage-pilot/pairs/2d55187336088d4101ca76ddcb755422cd711331d90ec108551fb7c4b62a2164.json": "6755a8e6590915436a89dab5eeb1f707ee39adb343b1976b717467d1290690f0",
+      "docs/data/varied-opponent-coverage-pilot/pairs/2ee3acb398e4028149ac7fd0e02a9d14e94e073f4e416ac2e4b23a7301b8a025.json": "3e48c90c59748beba2c49c746df927d8b2219db253052cc69824c46375918f8c",
+      "docs/data/varied-opponent-coverage-pilot/pairs/2f3755378d4aaa010bb4830693801b6fa19c53f17b969126a7942a693ca69879.json": "73b3fda0b9e22e040141d1fa13cfa760bd20b27dae0d4df85d996f61da5ab216",
+      "docs/data/varied-opponent-coverage-pilot/pairs/3322fb0438b5bef39c0197371725bcfb0ec4c6e069b97b599388efcb2bf5f802.json": "982b1d690ab570ccc1738080cb9dc965ef3bbd97b0d8416a0962389c52037d71",
+      "docs/data/varied-opponent-coverage-pilot/pairs/36f1bde8277ecb94840703a32bb2700f44533440720ac16ffd9f1bbcd893a002.json": "0cf435257c3ccd6c001320e09acfaedeafb7d1e361dc375529272a6f7c4eae50",
+      "docs/data/varied-opponent-coverage-pilot/pairs/370c66a631c93720be276246685940045801baea824305c77a1b04f5981f878b.json": "9f2a7c652f20fbbfa718d9072d58d64171e09596f1153d6c4db25b293948e977",
+      "docs/data/varied-opponent-coverage-pilot/pairs/3982c940a1321d835aeeb128464f67a63b93e07885a5c3186b56d8eaab044e8c.json": "a2c8b5c3856827c77c7f6d7a4c672b03b123b2ad464f54b738fca3960ea86aa2",
+      "docs/data/varied-opponent-coverage-pilot/pairs/3afd50bb2a36148cfa5a6ae70aff9a9120cb4d6c808d8ee07569fb11d2308ebd.json": "99e8b3a56a49610bea3f1a1ee93053b48d0527fedf2d9a3429d52a93c0783ee5",
+      "docs/data/varied-opponent-coverage-pilot/pairs/3c0c9135476ebc7f159279ceef7824a8af89b758990b87b59bd3dd2f99b6fb85.json": "4de1e0ed51cbe68f3b241803120bad3d70cea5f87e116e862bcaab7271d5bd84",
+      "docs/data/varied-opponent-coverage-pilot/pairs/3e422db4843912eba00dd39442ae8d4a10091fd27a9d997aa5629f7219ea7c4f.json": "cdf56af9d4690047cdb805ab60311363fb1b0186bac7a4641fa476fc4fabfbf8",
+      "docs/data/varied-opponent-coverage-pilot/pairs/3e60f30fc6f5460695fb876844a64ec3842d1f6ebcf19f2855508a4a64a6c2ea.json": "1abf4b70c6a43566cfba5e407bdc9a38efa8307085c4adf3a27cb739cc32f154",
+      "docs/data/varied-opponent-coverage-pilot/pairs/3ea40704f7359ed965a3d39fa405411d8c96978912aa2ef982bbdaac3da5501d.json": "efc88a631935d5959953a6af4b496891c2cbce8469d22b08f284af37a8ec77cc",
+      "docs/data/varied-opponent-coverage-pilot/pairs/413c8fd2696dddf729b78ef2a0b2906d7b7113df42b34956281b1b931854e949.json": "b4026ba05c808dd297a9d5a3aea46beb732711f9fccda9d5ef145251eb2592ef",
+      "docs/data/varied-opponent-coverage-pilot/pairs/430a82b80d6fa980748f36c8107ea4bd0837a591d1489e0a87f8ee50c86d8524.json": "596ae4cf3532d5ef5e939e3797001d7bf3ec2101a00a43ad373809b3a02b75ce",
+      "docs/data/varied-opponent-coverage-pilot/pairs/47ac43be1a0d71a15c5cb80abc91773c14ec52a3858405cf562fe0d9df205979.json": "d2dae27cc4bf58a2e14d082592a8040f24c43edee2d85b2eb34f9a36583279b4",
+      "docs/data/varied-opponent-coverage-pilot/pairs/48ba65b907fd172d6cbe97dc4c1a9b0ea88a630ec92e34d2a56368e1f5b029dd.json": "f4132d60939e194746b09246c02323b95a89b33fac639bdd617ed1fa18f9bb02",
+      "docs/data/varied-opponent-coverage-pilot/pairs/496533a4e241408bb4a6591d0292bc8c9dbe238f912170136abd8819aebad50e.json": "7d84b94871e5bb62e150e941529cff8f2ede1c94ada523cb9ff8b20c839f317d",
+      "docs/data/varied-opponent-coverage-pilot/pairs/4dc50753a15bf46989a4b83f86cd9459e34ede3fe69d5e8aeb0f3f0d59394984.json": "bea8ce847357dc07b05a1e6acfb7891c14b71b8a12eb0a014e293a5a187d9c12",
+      "docs/data/varied-opponent-coverage-pilot/pairs/4ebedba0df346692769bd35009029de37e5940c39068b32cfd84e4ff0513b5e0.json": "7bc93da4ebcedbc6d72af4c02b2a042dfb09449c2563399527bcf0b7639e07ae",
+      "docs/data/varied-opponent-coverage-pilot/pairs/4fbe9caa61f03a5d39e89528e194c8d4d178c75e7c79c6084551fee0f1ab09a6.json": "9c99318be1d86925e6c94752e3647876943b2c1b580a62a4be0fef85ba88d7f6",
+      "docs/data/varied-opponent-coverage-pilot/pairs/507c18d1dc800a25dc97bf4ef514cdf332cccc923091cfe8aed051092638f650.json": "b652f0c79c752631791f0e22e0ca71ac824f72829e475cf956db26ccc2f6e4b4",
+      "docs/data/varied-opponent-coverage-pilot/pairs/531b28a0f12fbf9d65127f716265e3524d22e6b0325f0a050b7d08b41575c0a0.json": "689a3bd20f041a4a8a3f05663d48216327d68324cde38ff7d2bf9705edb3ba97",
+      "docs/data/varied-opponent-coverage-pilot/pairs/54644ba5c330e3a95b99b3104fdc0be347b74e381bfc408cc59f5d26cb136c83.json": "cd0f4c10d92f5519e01633e15f6fc85b8a848a6eb5e926c390e3127d8cdfb3bc",
+      "docs/data/varied-opponent-coverage-pilot/pairs/56ec60110a9c75a793454fb64d9c756c278fa15a5a11928d393a6ee7146b6fa4.json": "7f1a75cdb3250df2a4accaa0e8c6dd6b765961622e6ab8d464a62305e6799318",
+      "docs/data/varied-opponent-coverage-pilot/pairs/591e994af474065cc6c16667e9ebba1145d350d953d736b91b29b30b16363ee3.json": "754ef288688abf04c71a4d4edb79fd9e887db5f8357837cb2d55682c9159e62c",
+      "docs/data/varied-opponent-coverage-pilot/pairs/5d9c81d3b3f169164c880e3f3c8e4cbb50a803f6af1cdeb22bdeb1d56ebff4f9.json": "6e8caccecf567f474298d0542607daf5dea4088157a381af090311deb0ce4685",
+      "docs/data/varied-opponent-coverage-pilot/pairs/5ddd52e73f983fb34e0c06466e20332201f6ea467c5fdb8433a09aedf28057c3.json": "359de78040257c8f8e7cd8d0dfd15c4927f89d1a4238901b1002af5cd406f722",
+      "docs/data/varied-opponent-coverage-pilot/pairs/62cb312f9cf6dba9b126dd3fa3ceeb0729fb3e848591606810680fcb62ac5b47.json": "cd6114c455322900ad49bad36e01ce8cdf13e0b31928d27daac13cbbb32da88e",
+      "docs/data/varied-opponent-coverage-pilot/pairs/64656073f1aadc4ed83433db9cc45d5c80c25bb6ce2c21ee0088b9a57c4d42a2.json": "0febb3e430e0519748c5865c2246ffbac04331523cfdd1342d1efd4970ad270a",
+      "docs/data/varied-opponent-coverage-pilot/pairs/64eef9546890157cd3d8e5c058fc0f780c89e0e96c74b8d173c71448ae3c9c8a.json": "ea2b241c5d6c9747296d53258635292ddea157f0a962164d7a539a47e9fe1049",
+      "docs/data/varied-opponent-coverage-pilot/pairs/67134769b2308884db24cb3ada88cbed47807bb2e48b7547786164fda0b37ebd.json": "4daf9e900e339aa7dda4d95f0da2e925d6312fbf53f09b6339750c84d5d7fc9a",
+      "docs/data/varied-opponent-coverage-pilot/pairs/67f0c9796741b5d209ab3bf94b06686e13b4a46ae6c0639ac1022641d4dad736.json": "d7a743e67287db453178e789a3bb8f36d832d5b89debde8a4950d0e924d480d2",
+      "docs/data/varied-opponent-coverage-pilot/pairs/6836d68fa7da1f6682d2be88db27f2c8984485b6d4c9d99a200aefd1d6b1650e.json": "35d8f89cef64d8e4cf131fc4b5e3a5d1c568ad6b971a789ae13cc91ac6ef698e",
+      "docs/data/varied-opponent-coverage-pilot/pairs/69346d17424755f169e1702d602e94a16432e77ce56de80f03907090a2a857d2.json": "24d8aae4908470abcc52348f58f74ba3a17923f381f9be1bc396fcf5cdf3f913",
+      "docs/data/varied-opponent-coverage-pilot/pairs/725909e342ce88289f5c52a5f2059b9787f2b0de857188698acbfe678fc78e24.json": "ec2fa6fc31f120b59443d3087c12d16723f072903f5be51280b479d4288bd4ee",
+      "docs/data/varied-opponent-coverage-pilot/pairs/726b701b80eddc54f1fa3af87b9f245c0bd4eea66edb5a57802c765659dc9964.json": "25fe3d8fd0c91fe6404cb31babac624938c1f870e4f87439f70a10ffd5d0a09c",
+      "docs/data/varied-opponent-coverage-pilot/pairs/7431d57752f2ede552f4282bbe02186c73bd3d44b72527673a759a78ef58194c.json": "181f75ca2a74b6a295bc16439310e04c8128a8a894e69d5766d4263570067924",
+      "docs/data/varied-opponent-coverage-pilot/pairs/756452aa19c6fa25439e4a8266dcb71b00e7d8701225249030a85fc700e8a7f2.json": "e2a6a0f962edbce02e080fab210e549a25e1da1b65d53efe1a9c38e3d7d33036",
+      "docs/data/varied-opponent-coverage-pilot/pairs/75e18f752b55c987af7ce9c488d870cc1be7cd7101b72d1be89eff435a7bfbf8.json": "2513e2920d29bc6764705c02d0cecb805ad8f3d956880028ed221b34813cf334",
+      "docs/data/varied-opponent-coverage-pilot/pairs/765b2764ffb912e0e07d4c9c411b84210363f570b89a1d26e12a82e11d389709.json": "78659fb4f7bcd957951c85d92e7395a29d4dc25d8b8102072fdb824c3cf060db",
+      "docs/data/varied-opponent-coverage-pilot/pairs/7728c3d86dc5315235b2d50386e5eff111524a8223ea61c4e5fabc8569214b12.json": "95db74cf8cc29417333e61f2327ee3ad42b4ed3ba95e87003494e4b28e5b7411",
+      "docs/data/varied-opponent-coverage-pilot/pairs/78681838c9fd22a0d01565ce7d6ed7312dd8306778ea6c35764706c962ef0bf0.json": "a8d437ae7ed59a63b54c74db0c5f165f672cbbed6f7cd6398bee36f2048b04fc",
+      "docs/data/varied-opponent-coverage-pilot/pairs/78683832c662ef26846503d72a69dbe44103e7a71c28545a8eb716641b08232e.json": "1f4bb432b6c007afbcd797166ce3bb1f0f2ef2568fc64072b1762dc67ed2e3ee",
+      "docs/data/varied-opponent-coverage-pilot/pairs/7f6220bdd493397472da5e7d2a2ffa42363b5d20269ca63d3f10a22e7f81b2a8.json": "bc50c2218cb2be89e4c98f647023030f845fdc4e1c4a26f9167e097ad6889bab",
+      "docs/data/varied-opponent-coverage-pilot/pairs/80d84530e68e2ff6313e51778dfab40da0bb0846660d882865547274b15a9a13.json": "dc5c60f0f76b294b9a6db58e6224cb3b564467eecfd47648dc053c13ced78dd9",
+      "docs/data/varied-opponent-coverage-pilot/pairs/810ab21856b6b0d530f6fcbb84082f29f13b57bbb2daf667caf85017359ced7b.json": "6a3eb403af323c134cf0e5b3b7b26d5d3b51f7b41557f68bc3dddc66daee0fb4",
+      "docs/data/varied-opponent-coverage-pilot/pairs/813541d602949b7c702256bcefb9007d8d34d07a498ad2479b55597b8fea6e20.json": "789d0b97095ee57845300838e461cbe26bc9c44c23a800de52669729afa26e81",
+      "docs/data/varied-opponent-coverage-pilot/pairs/8359b89e2d404ac2c83b9a08289f2806f471583098c3fb4cc9c1eb31d0615835.json": "6340ef5f6a3c4cde7ff20038bfceff19e880bc9e6ba877950ebf97d7fe854c6b",
+      "docs/data/varied-opponent-coverage-pilot/pairs/83d701a5fcc420e1208ec75c0d7821f6f3693ee586f17301ac00d8ab3ded3313.json": "f2a24177ebbd31b9a378ae6665a2886462eeed29de9034363dd20a20f8212e75",
+      "docs/data/varied-opponent-coverage-pilot/pairs/87fc62404b7b258232d30d9e4b6b4143ac85dc461c69d48a7028bd7c77d12e40.json": "124f95db18f5f80a33b0a7101453fb396be32dc5702a1d3d538049e0b914d78c",
+      "docs/data/varied-opponent-coverage-pilot/pairs/88bc672115a4cb4413736b7771cdb87a355cd32f50bce8d23a161e2430eedf08.json": "5ff2a7476bbe8aea0026c05ff638ce4cac8a70be487d1f574ce875b79bb17fcc",
+      "docs/data/varied-opponent-coverage-pilot/pairs/8a0853edfdfc0ca97b7c29cf53ac92d8eeb9dc0bde30997f59b2bb245e38074f.json": "a017c925537d77ef04e7ae082793608b6ad215bbc6a9b9ca6eb989572cc059b3",
+      "docs/data/varied-opponent-coverage-pilot/pairs/8a53c91229bbb07706587c4b2a6fe32c4f5b0dfa0e7888a765ef275b744bf15e.json": "559dff162e13d6f84a3137413e0ca0aa07e7c3dfa5c586aabd646f1226f82b3a",
+      "docs/data/varied-opponent-coverage-pilot/pairs/8c9eca500afd209ec1549ece79793c621f23202aa7d68d8ac41643ac1625ecb1.json": "c8bc49b9b9ed0b935d293aaefc0a2a6ddb8b6aa9d292a56c6507392a71ca1067",
+      "docs/data/varied-opponent-coverage-pilot/pairs/930d9dba913fb839df5b621d3e8ba92cdcd511dee2d647ef6d0edef99fff1ac8.json": "d16c6b111c62a9f0ebfb5fa7d1d21aa41b53d14c603420dfd720226e7908189e",
+      "docs/data/varied-opponent-coverage-pilot/pairs/97f0830213fbaa6fe5c06ad24e44ca58b54f0ec6c897c1a6442e909bb66ac198.json": "458b1c40080fbcc871f06da1c9193d691f6c6dc7f660808ba6ea1f7b5e268e4a",
+      "docs/data/varied-opponent-coverage-pilot/pairs/98eafb0ffb2c4e8aff109f6f4fb803f241092b19ba3f46d91ff12547cea55a78.json": "bc532258a9e12bf4baadce9e70856ab143296f4c23d43e5733271128c1d2687e",
+      "docs/data/varied-opponent-coverage-pilot/pairs/993c105437554cb9041ae8981728b54426d8166cb7367a70f48708dd388ba355.json": "6748745f0e933f5086ec5b1aad30f1437714a636a1b966b0702e2c2d2706ea5d",
+      "docs/data/varied-opponent-coverage-pilot/pairs/99bfb190099ad287e3aa7b5490b054f3e6ad05e1f9497578d0bcc15ae65c757d.json": "ce2649fe9501fac4593225765efcf7ba33b341c4ec903a5b2c93e12f1c5cb4d3",
+      "docs/data/varied-opponent-coverage-pilot/pairs/9a3e03384c852afde6157907860acdea877bcc4832fc98043549fb1d4c36cac0.json": "3f2b162549e38e7e4a958102ad68701f24552e12c2290d0bb6adcc4ac40fbf73",
+      "docs/data/varied-opponent-coverage-pilot/pairs/9b29b1de0b8c9f45407108669bf5fdbcc54413555002922979ba0a43e57f543d.json": "faa36115a433c1df4a1700834bc1dea65b2b570728a926fbdd81fde6f1619b22",
+      "docs/data/varied-opponent-coverage-pilot/pairs/9c9f05fef13c627784069414ea9f72efcaa14c4b7be6b4072b84b61bf42c51e4.json": "d69b62073f8dbeb2c4c849aee3225da70d930a416949cf6406f6a5bd1561ec4e",
+      "docs/data/varied-opponent-coverage-pilot/pairs/a1455192a99ebfc929ed134c15076792ec7e0243d97f0a44812b834fb8c87822.json": "be6e43fce74f78469b3d1583e1d78f66d57e3affb4f0fec1be0398979db5db3c",
+      "docs/data/varied-opponent-coverage-pilot/pairs/a54242c74bd3bec833ab75b0167c7d10b4ccf907c0c690396b578f1e26844a35.json": "7e2225af00316b8430910188d6e67b674dab938ae9b00ebfef6b41da66efa94c",
+      "docs/data/varied-opponent-coverage-pilot/pairs/a6f9b37782c17c020f4330b25b85779083efa7f8d9cab9e94203ca3654a15a50.json": "76a194ed6a3cd17603db1494e545f5b9d8c0d5315e4caf272a630198c2d9fd71",
+      "docs/data/varied-opponent-coverage-pilot/pairs/a9b23ffcd6a32b38d265e0e5ea96f16b2344fb80d8a6c6e6fc22df7f3f44567f.json": "bd39b478b6869776ca0b5d60997171da1d4411a06d48274bca8c262a332c61ab",
+      "docs/data/varied-opponent-coverage-pilot/pairs/aa9ba2113ef2b4d17f317c3955b67eaf7cfa3db3e828b09a8bc3246593f9ff28.json": "6183afafb16bb396780389ad7fcdd790c67bb2146420a7888dbe64418b9d15c7",
+      "docs/data/varied-opponent-coverage-pilot/pairs/abc9722a1f2abe5cedcaba7997d35d97f778c4682d7c75035e95f7951d022182.json": "25e57ff2fbd65a6f9f7bb06c9d94c5805f92584613171c70dedceff5b61ad613",
+      "docs/data/varied-opponent-coverage-pilot/pairs/b2309df970d7894cd85fb666269c24c6923e6723ccf668698e13eb9e22102d5f.json": "0c69eac8354694f989e5f5e83d0372fe4e6b4406145c7d2314f7d9f1a30d9f14",
+      "docs/data/varied-opponent-coverage-pilot/pairs/b2cb0e1bd808e99275a6fc8c23145b241bc405f3d1878dd1d7b5134176eb87c3.json": "c62c2c584f0c8d412e785c00a15530ac0846fd25274c50e67a085698de924968",
+      "docs/data/varied-opponent-coverage-pilot/pairs/bb4b69d58374beaadc2cbe4a22c750f497a634a0e8bacd7684b23fb1ecf1614b.json": "0d30c8179dd7870c7227384c25f59c7f9e05aff4f1e24af9d7a2f7b132e6511d",
+      "docs/data/varied-opponent-coverage-pilot/pairs/bc85105882edf9954896bd2b9684881e5ab5ce7f901298a9aebb1f350e7ffbcd.json": "8dd3bbfe382e25a9aa8b999088e2f750ff43dc553cc67a99446d07da47734d8d",
+      "docs/data/varied-opponent-coverage-pilot/pairs/c020b624479f46c5dc6efbce0cc796ef2ae5f911faf251ef51e2095e3bf3ec33.json": "ab7f227d7a341587d8182d511f76628fadaf560201d3918ee8e77fcd5f1273e6",
+      "docs/data/varied-opponent-coverage-pilot/pairs/c0610b3724c4c2eefdc256a5539aa50bad33430f0de1ffe8f4fc284fa0a61162.json": "56e995d7cff65b7b7bf69dde35be0abaea64c16b792b087156468efdeb698f3f",
+      "docs/data/varied-opponent-coverage-pilot/pairs/c9dee6e5e0205e4a7f198ce12631ddf5d87be66ce12323568639a85f9d5659be.json": "d9f79fe9726f2c423431ab84adebcdc886592ff51e91724bd805c0ca705145bc",
+      "docs/data/varied-opponent-coverage-pilot/pairs/caad588a08190313cdbe6ce0cde092009f97e82d500a4413328079a0284a5364.json": "f1b0d44cdedd592f2182903edcf2852fe9a6de71620707cb10c6ac9f809fd576",
+      "docs/data/varied-opponent-coverage-pilot/pairs/cb3a9f9d49af7bb2ce43d2bc4416e93838b36b8d92b3ea45510834cebe8f6853.json": "daf43de44d21d28dbf4f752f9a81d0a607d0339092033db9fabb95d8ff1170ef",
+      "docs/data/varied-opponent-coverage-pilot/pairs/cb4f0afdce96b8c772fe736d501e7c456dcb42d983cf8e3da1d410bd37c51496.json": "decc69de628c8f1478aa1f6883850f319c047e128f9888e9c2ed037fd748ec22",
+      "docs/data/varied-opponent-coverage-pilot/pairs/cb9f4bf215b6270c068dc996cb6feeab1d47aa008e1b145932220b297105e126.json": "53f57bb6d30fe395cb868b0580ad21140fa0ef639b7f381388622637cf84e7b0",
+      "docs/data/varied-opponent-coverage-pilot/pairs/cc028112cabe800fc4313f3347990a3b217b9117717f96dcbb245fc7dbba9b13.json": "d6cc2efe3f6f500a337ead2d79b69ac084659fef2c28ba38aa7b72db750567b7",
+      "docs/data/varied-opponent-coverage-pilot/pairs/cca814e490d0e113cf5d29a26a509840e52fd55d2b99e79f0f7bc12253b38cf9.json": "c39c893dddee82152591a6ebdfe38bef5bef20514497e749ebc08d4ba272edf4",
+      "docs/data/varied-opponent-coverage-pilot/pairs/d091ff672dd3bfcfc273423122fbc649e9ec7b6fc15200b6b030f60a75391d33.json": "04ac91ab793f4ed225b21c71a51a74e86b849b11df83af61741dc80f09f3488a",
+      "docs/data/varied-opponent-coverage-pilot/pairs/d11ae266a0a4925e53276604490595ddfa1af50961de5a715e47cbc57642d463.json": "06de06e7a9e7dc467834fd76858b10e9250a82aa73f2650319e24a64f8b7adda",
+      "docs/data/varied-opponent-coverage-pilot/pairs/d167e20d8ca75d5acbfa617ad8d6a89c0b1b37cabae4c263cc05fd1f266c04a3.json": "e9fce1787b09af798471df6aec42db30127ea942d7aa2f5ca1b96643c02ba8b3",
+      "docs/data/varied-opponent-coverage-pilot/pairs/d1781cefbdd8d3d2ac24ffe29037eb4dc6a0891418e4959ce89c1d4caa3a1871.json": "8aac73274b6ea53b27821dc03ae65deba58deb2636725e7d7b46f9f2fd0a358b",
+      "docs/data/varied-opponent-coverage-pilot/pairs/d200821b34dfd84ca36b36c3af3ed172aa3102bf137a74d30395d82f86ffef37.json": "54a046c7679d663aeaabe0a6ea32205f5627c68d3496b86f33944b481fe9fa81",
+      "docs/data/varied-opponent-coverage-pilot/pairs/d430759171da4720fa0dd824d49118426d7ccfb072ed1ab41e7bd44f0e1dac9c.json": "abe6ab2d800166e8bb21feb130f0b80f361c82b130f8df35c36a4a7db0eade5f",
+      "docs/data/varied-opponent-coverage-pilot/pairs/d5d9e88c02a29715aeece0ff478a4268451c684c3c991c3dd2b26fbb6e423ecd.json": "f8c3ec86a04085cc364c4edc4dd83e1baa0e2d8df59b2651bcfa90f9d4e10d06",
+      "docs/data/varied-opponent-coverage-pilot/pairs/d6bd48c440fe09d6ec9baded18f3f9569663b5c0855a39e7a5ddeee256662a70.json": "b50b61389dcd94b8cc3439dd64f2adc803fa8d80d2432213873dad1692d0fd33",
+      "docs/data/varied-opponent-coverage-pilot/pairs/d700459a3ce3f578c5d5f04334191f34f337ff678806f2a72e463b4a50fd9367.json": "6d9128409f2a390fbeb81d5fe870887ea7166b9a8451ca18649308f799495ea7",
+      "docs/data/varied-opponent-coverage-pilot/pairs/d96663e9db63403445648d9f5018233c093ecd2fedda90b120a7abe52c298f19.json": "e610811ea4e3634a81b5ce940dfb393458b839a59755d1d00a2ef389c83afa3f",
+      "docs/data/varied-opponent-coverage-pilot/pairs/db22a3795da803f197439d225f6a6635cc6c8cd98ad1fb679e05d5f3520682e2.json": "a6576c0242888d3a8a7eca5b405a0688348bb896b141640873865cc1857ae9df",
+      "docs/data/varied-opponent-coverage-pilot/pairs/dcffc1b9cd4b757aa7256e46dd94376bbcab9ae798106d070c3368295aad09a4.json": "b97edbcfcf93ba264acfff30565ad4bc375a4d8b20281e1cc6a7949278875ea8",
+      "docs/data/varied-opponent-coverage-pilot/pairs/de81512974603ddc60d7510dcfbf6e192a9c9a016998d3678392a39be0c9805a.json": "ca40fe6e8e60f091a482fd0eeb3730046f21d2ac0c6e5e0142b660208d3697f6",
+      "docs/data/varied-opponent-coverage-pilot/pairs/df40b702b438b3a1cfeb4afef1b21a8f15a5ba76a03d17adf3c4fc1be48e5934.json": "4dd94cc8b275617befc88aef19e9e533c44f337ca735f96786b717a74e85d565",
+      "docs/data/varied-opponent-coverage-pilot/pairs/eac39f3266221c6ffc2abea2bb7428f5d5f1507b6589f7db9ce4bdd4305b4318.json": "2ac681d140891e6712e961e47dbfe8e2414b370838dcba17d62460b860258409",
+      "docs/data/varied-opponent-coverage-pilot/pairs/ec7585db7448577d22500bb031effd8d9d0265885872e13f1c9ad63a0a2dfa25.json": "2950da66e56dfa32011e1a260c2618c0409359ae8130c612c57358613f5603d6",
+      "docs/data/varied-opponent-coverage-pilot/pairs/ed8ad491121cae135bd13bb503aa507f2bc62f9903aa2202d75c1520e0e6670c.json": "d223c20765d4014d9943132f9e41fabe937469dda19899e7e641919d1ad6a164",
+      "docs/data/varied-opponent-coverage-pilot/pairs/ed9adab9588f9f7c40571edde5a99f50c8d3791f0cbe077e4d66bcebc72588d9.json": "6285f268cd20aa721bd8537141e3f2c7c4553904d93b5c75f03ff01444e578ae",
+      "docs/data/varied-opponent-coverage-pilot/pairs/eedea19a1d123e9b23cc75166cff77dda681f29ebde4fde2c57f57430b13598f.json": "7f92de412b4227eaed5d9da6f80b45203b369b769ff975ddd9586417b0512abe",
+      "docs/data/varied-opponent-coverage-pilot/pairs/f1b07aa0ae5228c66f0d6c3baf0f22d831eb3920b4125e50c7cac708d3fa402d.json": "2b1e5746647a4de141543fa9c5856115455161eb89f55441ce66e8a5abcb152d",
+      "docs/data/varied-opponent-coverage-pilot/pairs/f46a030525582e2d0e6409a036d4216e646637dc109c097e1187908ac7280165.json": "f5cb03875a3ed7712203b5fb20027f575f742c4182d29f2b2ab28003496f9f1d",
+      "docs/data/varied-opponent-coverage-pilot/pairs/f5216f7e8fb006b9690cf4030641c49020dc48b90371bb3a3ddc2c74eb423f50.json": "07434ff5dfe860e8478595d20ecf5b2f7708cb5611e1baf34f054d520ad8fdd1",
+      "docs/data/varied-opponent-coverage-pilot/pairs/f56f78748657d4de02b67b0cd953af2a724bd706aaa9cdea0e4eca9ffc7b6c28.json": "11b98cf60db8e23868d5497dc192ed83cdec3c5e6f6281ca3fe5e9b44dea627e"
+    },
+    "training_contract": {
+      "frozen_parameters_unchanged": true,
+      "optimizer_schedule": "Adam fixed lr 1e-5; no scheduler; 512 updates",
+      "parameter_groups": {
+        "frozen": [
+          "value_hidden_layer.weight",
+          "value_hidden_layer.bias",
+          "value_head.weight",
+          "value_head.bias"
+        ],
+        "trainable": [
+          "residual_layers.0.0.weight",
+          "residual_layers.0.0.bias",
+          "residual_layers.0.1.weight",
+          "residual_layers.0.1.bias",
+          "residual_layers.1.0.weight",
+          "residual_layers.1.0.bias",
+          "residual_layers.1.1.weight",
+          "residual_layers.1.1.bias",
+          "residual_layers.2.0.weight",
+          "residual_layers.2.0.bias",
+          "residual_layers.2.1.weight",
+          "residual_layers.2.1.bias",
+          "input_layer.weight",
+          "input_layer.bias",
+          "policy_hidden_layer.weight",
+          "policy_hidden_layer.bias",
+          "policy_head.weight",
+          "policy_head.bias"
+        ]
+      },
+      "parent_checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "serving_evaluation_asset_sha256": {
+        "metadata": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+        "model": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+        "native_probe": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+        "search_policy": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+        "weights": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+      }
+    }
+  },
+  "status": "prepared-training-and-evaluation-not-authorized",
+  "training": {
+    "common": {
+      "architecture": {
+        "hidden_sizes": [
+          96,
+          3
+        ],
+        "input_size": 27,
+        "model_type": "residual_v3"
+      },
+      "batch_order": "Python random.Random(599) shuffle of local membership indexes per pass; consume batches of 32 and cycle passes until exactly 512 updates; see frozen batch-schedule files",
+      "batch_size": 32,
+      "frozen_parameter_groups": [
+        "value_hidden_layer.",
+        "value_head."
+      ],
+      "gradient_clip_norm": 1.0,
+      "loss": "masked policy cross-entropy only; no value loss",
+      "optimizer": {
+        "betas": [
+          0.9,
+          0.999
+        ],
+        "eps": 1e-08,
+        "lr": 1e-05,
+        "name": "Adam",
+        "scheduler": "none",
+        "weight_decay": 0.0
+      },
+      "parent_checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "rng_seed": 599,
+      "runtime": {
+        "deterministic_algorithms": true,
+        "device": "cpu",
+        "torch_threads": 1
+      },
+      "trainable_prefixes": [
+        "input_layer.",
+        "residual_layers.",
+        "policy_hidden_layer.",
+        "policy_head."
+      ],
+      "updates": 512
+    },
+    "control_counts": {
+      "17_to_32": 128,
+      "above_32": 64,
+      "at_most_16": 64
+    },
+    "control_manifest": {
+      "sha256": "f26cbbd6dc3bbc97f1d7c9cb0c4d41f661d22fd4ce938fe5cc073c239b7cac92",
+      "states": 256
+    },
+    "treatment_counts": {
+      "17_to_32": 1024,
+      "above_32": 512,
+      "at_most_16": 512
+    },
+    "treatment_manifest": {
+      "sha256": "95ecc180e28945702e08815de7a5210e1bce036afdaf76d194bbd774589a4516",
+      "states": 2048
+    }
+  }
+}
