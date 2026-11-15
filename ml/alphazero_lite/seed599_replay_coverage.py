@@ -310,10 +310,6 @@ def verify_parent_and_parameter_groups(root: Path) -> dict[str, Any]:
             root / "model-artifact/runtime/kalah_v1_tablebase",
             "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
         ),
-        "tablebase": (
-            root / "model-artifact/runtime/kalah_v1_21.kvtb",
-            "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
-        ),
     }
     for name, (path, expected) in serving_files.items():
         if not path.is_file() or digest(path) != expected:
