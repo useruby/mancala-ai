@@ -29,6 +29,12 @@ FREEZE = DATA / "training-execution-freeze.json"
 AUTHORIZATION = DATA / "training-authorization.json"
 PARENT = Path("docs/data/seed552-c108-serving-p/runtime-artifacts/P-E4/model.npz")
 PARENT_SHA256 = "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad"
+TRAINING_DEPENDENCIES = {
+    "ml/alphazero_lite/train.py",
+    "ml/alphazero_lite/self_play.py",
+    "ml/alphazero_lite/kalah_rules.py",
+    "ml/alphazero_lite/input_encodings.py",
+}
 TRAINABLE = ("input_layer.", "residual_layers.", "policy_hidden_layer.", "policy_head.")
 FROZEN = ("value_hidden_layer.", "value_head.")
 
@@ -59,15 +65,20 @@ def load_freeze(root: Path = ROOT) -> tuple[dict[str, Any], bytes]:
         raise ValueError("execution_freeze_schema_mismatch")
     if freeze.get("status") != "frozen-training-not-authorized":
         raise ValueError("execution_freeze_status_mismatch")
-    if root == ROOT:
-        for relative, expected in freeze.get("source_sha256", {}).items():
+    source_hashes = freeze.get("source_sha256", {})
+    if root == ROOT or source_hashes:
+        for relative, expected in source_hashes.items():
             if sha256(root / relative) != expected:
                 raise ValueError(f"execution_source_hash_mismatch:{relative}")
-        if set(freeze.get("source_sha256", {})) != {
-            "ml/alphazero_lite/seed599_training_executor.py",
-            "ml/alphazero_lite/verify_seed599_training_result.py",
-            "ml/alphazero_lite/seed599_replay_coverage.py",
-        }:
+        if (
+            set(source_hashes)
+            != {
+                "ml/alphazero_lite/seed599_training_executor.py",
+                "ml/alphazero_lite/verify_seed599_training_result.py",
+                "ml/alphazero_lite/seed599_replay_coverage.py",
+            }
+            | TRAINING_DEPENDENCIES
+        ):
             raise ValueError("execution_source_hash_set_mismatch")
     return freeze, raw
 
@@ -146,6 +157,11 @@ def _check_runtime(expected: dict[str, Any]) -> None:
 
 def train_arm(arm: str, output: Path, *, root: Path = ROOT) -> dict[str, Any]:
     """Run exactly one registered arm; refuse before mkdir unless authorized."""
+    if arm not in ("A", "B"):
+        raise ValueError("invalid_training_arm")
+    expected_output = root / DATA / f"training-run-{arm}"
+    if output.expanduser().resolve() != expected_output.resolve():
+        raise ValueError("noncanonical_output_directory")
     if output.exists():
         raise ValueError("output_directory_exists")
     freeze, _raw = load_freeze(root)

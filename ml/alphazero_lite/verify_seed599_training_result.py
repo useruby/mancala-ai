@@ -103,7 +103,7 @@ def verify_result(arm: str, output: Path, *, root: Path = ROOT) -> dict[str, Any
             record.get("gradient_norm", np.nan)
         ):
             raise ValueError(f"training_trace_nonfinite:{update}")
-    if digest(root / PARENT.relative_to(ROOT)) != PARENT_SHA256:
+    if digest(root / PARENT) != PARENT_SHA256:
         raise ValueError("parent_checkpoint_hash_mismatch")
     parent_model = train.PolicyValueNet(
         hidden_sizes=(96, 3), model_type="residual_v3", input_size=27
@@ -111,7 +111,7 @@ def verify_result(arm: str, output: Path, *, root: Path = ROOT) -> dict[str, Any
     result_model = train.PolicyValueNet(
         hidden_sizes=(96, 3), model_type="residual_v3", input_size=27
     ).cpu()
-    if train.load_checkpoint_into_model(parent_model, root / PARENT.relative_to(ROOT)):
+    if train.load_checkpoint_into_model(parent_model, root / PARENT):
         raise ValueError("parent_checkpoint_tensor_identity_mismatch")
     if train.load_checkpoint_into_model(result_model, checkpoint):
         raise ValueError("checkpoint_tensor_identity_mismatch")
