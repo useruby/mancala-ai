@@ -1,0 +1,34 @@
+{
+  "schema": "seed594-stage1-owner-execution-authorization-v1",
+  "status": "owner_authorized_with_review_waiver",
+  "authorization_recorded_on": "2026-11-15",
+  "authorized_by": "project owner",
+  "authorization_source": "explicit user-provided declaration in this execution session",
+  "authorization_statement": "As project owner of useruby/mancala-ai, I authorize exactly one Seed 594 Stage 1 raw-policy qualification on the existing 423-root #570 membership. I approve proceeding without independent human review.",
+  "independent_human_review": "waived_by_project_owner",
+  "prior_chatgpt_technical_review_is_independent": false,
+  "qualification_inference_authorized": true,
+  "maximum_evaluations": 1,
+  "scope": "Seed 594 vs serving P-E4 on the existing 423-root #570 membership",
+  "execution_freeze_sha256": "d70b3a11c950b331ada5b20d74b0b7d15acaed9eeff56e9b83ef1dffb42bbcb8",
+  "preserved_checkpoint_sha256": {
+    "Seed 594": "7fddf5d6cba7eea4e7b8e06ba89c5b936d28727470934a51c603a739768e9bdd",
+    "P-E4": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad"
+  },
+  "preserved_gate": {
+    "mean_candidate_minus_p_regret_maximum": -0.10,
+    "paired_95_percent_ci_upper_strictly_below": 0,
+    "candidate_wdl_downgrade_rate_must_not_exceed_p": true,
+    "bootstrap_resamples": 20000,
+    "bootstrap_seed": 594
+  },
+  "prohibited_actions": [
+    "reruns",
+    "retraining",
+    "parameter tuning",
+    "PUCT",
+    "arena games",
+    "sealed-suite access",
+    "serving changes"
+  ]
+}

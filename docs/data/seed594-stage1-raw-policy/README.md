@@ -1,7 +1,7 @@
 # Seed 594 — Stage 1 raw-policy preparation
 
-Status: **prepared, pending independent review; no qualification execution
-authorized**. This package compares deterministic raw policy actions from Seed
+Status: **prepared; project owner has authorized exactly one qualification
+execution with an explicit independent-review waiver**. This package compares deterministic raw policy actions from Seed
 594 with frozen serving P-E4 at the existing 423 #570 qualification roots.
 The cohort is the pre-existing #570 membership; it is not described here as a
 fresh holdout or as sealed. This preparation did not change its membership,
@@ -92,9 +92,12 @@ gate is unchanged:
 
 All checks are required to keep/advance; missing or duplicate results fail
 closed. `evaluate_membership_roots` is the frozen one-forward-per-model runner;
-it requires a review-bound authorization whose SHA-256 names this exact
-execution freeze. No qualification predictions or results are included in
-this package.
+it requires the recorded project-owner authorization whose SHA-256 binding
+names this exact execution freeze. The owner explicitly waived independent
+human review. The previous ChatGPT technical review is not represented as
+independent human approval. The authorization permits exactly one evaluation
+and prohibits reruns, retraining, tuning, PUCT, games, sealed-suite access, and
+serving changes.
 
 ## Verification
 

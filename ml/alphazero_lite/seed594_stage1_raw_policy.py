@@ -267,7 +267,7 @@ def verify_synthetic_export_parity() -> dict[str, Any]:
 
 
 def evaluate_membership_roots(*, authorization: dict[str, Any]) -> list[dict[str, Any]]:
-    """Execute frozen raw-policy scoring; do not call before review/authorization.
+    """Execute frozen raw-policy scoring after the bound owner authorization.
 
     This function is deliberately not called by preparation verification. It
     loads only the authenticated #570 membership and #559 oracle after the
@@ -277,14 +277,19 @@ def evaluate_membership_roots(*, authorization: dict[str, Any]) -> list[dict[str
     freeze_path = ROOT / "docs/data/seed594-stage1-raw-policy/execution-freeze.json"
     if (
         authorization.get("schema")
-        != "seed594-stage1-reviewed-execution-authorization-v1"
-        or authorization.get("status") != "reviewed_and_authorized"
+        != "seed594-stage1-owner-execution-authorization-v1"
+        or authorization.get("status") != "owner_authorized_with_review_waiver"
+        or authorization.get("authorized_by") != "project owner"
         or authorization.get("qualification_inference_authorized") is not True
-        or not authorization.get("review_url")
-        or not authorization.get("reviewed_by")
+        or authorization.get("independent_human_review") != "waived_by_project_owner"
+        or authorization.get("prior_chatgpt_technical_review_is_independent") is not False
         or authorization.get("execution_freeze_sha256") != sha256_file(freeze_path)
+        or authorization.get("maximum_evaluations") != 1
+        or authorization.get("scope") != "Seed 594 vs serving P-E4 on the existing 423-root #570 membership"
+        or authorization.get("prohibited_actions")
+        != ["reruns", "retraining", "parameter tuning", "PUCT", "arena games", "sealed-suite access", "serving changes"]
     ):
-        raise PermissionError("reviewed_execution_authorization_required")
+        raise PermissionError("bound_project_owner_execution_authorization_required")
     verify_preparation_freeze()
     membership_path = (
         ROOT
@@ -406,6 +411,81 @@ def verify_results_against_authenticated_membership(
         "94e126af6ea88fb99a4230f84e5cf2a20248daa39ea66d25b68730ea0426d668"
     )
     return checked
+
+
+def execute_and_publish_once(
+    *, authorization_path: Path, output_dir: Path
+) -> dict[str, Any]:
+    """Run once, verify every pairing before aggregation, and publish evidence.
+
+    The create-only output directory is reserved before the sole evaluator call;
+    its existence permanently prevents a second invocation from rerunning.
+    """
+    if output_dir.exists():
+        raise FileExistsError("qualification_output_already_exists_no_rerun")
+    authorization_bytes = authorization_path.read_bytes()
+    authorization = json.loads(authorization_bytes)
+    freeze_path = ROOT / "docs/data/seed594-stage1-raw-policy/execution-freeze.json"
+    if authorization.get("execution_freeze_sha256") != sha256_file(freeze_path):
+        raise PermissionError("authorization_execution_freeze_binding_mismatch")
+    output_dir.mkdir(parents=True)
+
+    # The only qualification inference call in this routine.
+    rows = evaluate_membership_roots(authorization=authorization)
+
+    # Identity/mapping verification must finish before any aggregate metric.
+    membership = verify_results_against_authenticated_membership(rows)
+    result_bytes = b"".join(
+        (json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n").encode()
+        for row in rows
+    )
+    (output_dir / "root-results.jsonl").write_bytes(result_bytes)
+    mapping_bytes = (
+        json.dumps(membership, sort_keys=True, indent=2) + "\n"
+    ).encode()
+    (output_dir / "verified-membership-mapping.json").write_bytes(mapping_bytes)
+
+    analysis = analyze_root_results(rows)
+    decision = qualify_gate(analysis)
+    (output_dir / "analysis.json").write_text(
+        json.dumps(analysis, sort_keys=True, indent=2) + "\n", encoding="utf-8"
+    )
+    (output_dir / "decision.json").write_text(
+        json.dumps(decision, sort_keys=True, indent=2) + "\n", encoding="utf-8"
+    )
+    manifest = {
+        "schema": "seed594-stage1-raw-policy-results-v1",
+        "status": "completed",
+        "evaluation_count": 1,
+        "execution_freeze_sha256": sha256_file(freeze_path),
+        "authorization_sha256": hashlib.sha256(authorization_bytes).hexdigest(),
+        "membership_sha256": membership["membership_sha256"],
+        "mapping_verification": {
+            "status": membership["status"],
+            "root_count": membership["root_count"],
+            "state_hashes": membership["state_hashes"],
+            "opening_to_state_hash": membership["opening_to_state_hash"],
+        },
+        "checkpoint_identities": {
+            "Seed 594": SEED594_SHA256,
+            "P-E4": P_SHA256,
+        },
+        "root_results_sha256": hashlib.sha256(result_bytes).hexdigest(),
+        "mapping_sha256": hashlib.sha256(mapping_bytes).hexdigest(),
+        "analysis": analysis,
+        "decision": decision,
+        "authorization": {
+            "authorized_by": authorization["authorized_by"],
+            "independent_human_review": authorization["independent_human_review"],
+            "prior_chatgpt_technical_review_is_independent": authorization[
+                "prior_chatgpt_technical_review_is_independent"
+            ],
+        },
+    }
+    (output_dir / "manifest.json").write_text(
+        json.dumps(manifest, sort_keys=True, indent=2) + "\n", encoding="utf-8"
+    )
+    return manifest
 
 
 def verify_preparation_freeze() -> dict[str, Any]:

@@ -1,0 +1,8 @@
+{
+  "checks": {
+    "ci_upper_below_zero": false,
+    "mean_regret_improvement": false,
+    "no_wdl_downgrade_increase": false
+  },
+  "decision": "reject"
+}
