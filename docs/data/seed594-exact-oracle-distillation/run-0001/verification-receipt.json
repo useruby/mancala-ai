@@ -1,0 +1,14 @@
+{
+  "batch_order_sha256": "b45809074f29dceeccda51328c08c3ed720cf45be4f8d901ee2dbf02f087c170",
+  "checkpoint_sha256": "7fddf5d6cba7eea4e7b8e06ba89c5b936d28727470934a51c603a739768e9bdd",
+  "frozen_parameters_unchanged": true,
+  "initializer_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+  "schema": "seed594-training-result-verification-v1",
+  "status": "verified",
+  "target_canonical_sha256": "00cf696db627a441598a5c1d3e4ca8842e26fa68550588c1f6fc31aa36b36a28",
+  "target_file_sha256": "85b1f6ca7fe44ae0d0c6db08cc0ce338a9e3398b4aead09c1388935a8d69b4c2",
+  "tensor_count": 22,
+  "trace_sha256": "ef50d48aa1615b04582b7d78c307d92e6c970788875698c1ba15c0ab1feada25",
+  "updates": 512,
+  "verification_scope": "structural-and-integrity-only-no-numerical-replay"
+}
