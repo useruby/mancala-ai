@@ -1,0 +1,55 @@
+{
+  "architecture": {
+    "hidden_sizes": [
+      96,
+      3
+    ],
+    "input_size": 27,
+    "model_type": "residual_v3"
+  },
+  "arm": "A",
+  "batch_order": "Python random.Random(599) shuffle of local membership indexes per pass; consume batches of 32 and cycle passes until exactly 512 updates; see frozen batch-schedule files",
+  "batch_schedule_sha256": "7e3a8af23340f3d2ee15a2e75086c253f67ff54c5887f361466c204f16a60daf",
+  "batch_size": 32,
+  "frozen_parameter_groups": [
+    "value_hidden_layer.",
+    "value_head."
+  ],
+  "gradient_clip_norm": 1.0,
+  "loss": "masked policy cross-entropy only; no value loss",
+  "membership_sha256": "f26cbbd6dc3bbc97f1d7c9cb0c4d41f661d22fd4ce938fe5cc073c239b7cac92",
+  "optimizer": {
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "lr": 1e-05,
+    "name": "Adam",
+    "scheduler": "none",
+    "weight_decay": 0.0
+  },
+  "parent_checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+  "phase_counts": {
+    "17_to_32": 128,
+    "above_32": 64,
+    "at_most_16": 64
+  },
+  "rng_seed": 599,
+  "runtime": {
+    "deterministic_algorithms": true,
+    "device": "cpu",
+    "torch_threads": 1
+  },
+  "schema": "seed599_training_configuration_v1",
+  "states": 256,
+  "status": "frozen-pretraining-not-authorized",
+  "target_construction": "reconstruct_policy_target from authenticated #580/#585 teacher evidence",
+  "trainable_prefixes": [
+    "input_layer.",
+    "residual_layers.",
+    "policy_hidden_layer.",
+    "policy_head."
+  ],
+  "updates": 512
+}

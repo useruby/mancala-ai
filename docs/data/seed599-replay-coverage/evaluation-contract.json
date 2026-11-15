@@ -1,0 +1,55 @@
+{
+  "bootstrap": {
+    "method": "paired opening-cluster bootstrap",
+    "quantile_method": "linear",
+    "quantiles": [
+      0.025,
+      0.975
+    ],
+    "resamples": 20000,
+    "seed": 599
+  },
+  "comparisons": [
+    "A versus serving P-E4",
+    "B versus serving P-E4"
+  ],
+  "match_settings": {
+    "c_puct": 1.25,
+    "exact_leaf_solving": false,
+    "exact_root_enabled": true,
+    "exact_root_objective": "final_score_margin",
+    "exact_root_threshold": 16,
+    "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+    "fpu_mode": "zero",
+    "max_plies": 200,
+    "noise": false,
+    "normalize_values": false,
+    "reuse_subtree": false,
+    "root_policy_mode": "deterministic",
+    "root_temperature": 0.0,
+    "simulations_per_side": 128,
+    "tactical_root_bias": 0.0,
+    "workers": 1
+  },
+  "opening_count": 1024,
+  "opening_generation": "independent legal uniform-random 12-ply prefixes; unique canonical starts; reject starts matching selected training states in canonical or production float32 identity",
+  "opening_manifest_sha256": "6ed3c99b35c6f51d03ea59ee2c9ed1c5fb52cf76a51b4cccd50f74ba8f962962",
+  "opening_seed": 599,
+  "search": "serving PUCT configuration including native exact-root behavior",
+  "seating": "paired seat-swapped games for every opening and comparison",
+  "serving_p_e4": {
+    "metadata_sha256": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+    "model_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "weights_sha256": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136"
+  },
+  "status": "frozen-evaluation-not-authorized",
+  "thresholds": {
+    "generalization": "B held-out masked policy cross-entropy on provenance-held-out source opening groups must be lower than A; report paired opening-cluster 95% interval",
+    "strength": "lower 95% paired bootstrap bound for B minus A seat-averaged score > -0.02; report both arms versus P-E4"
+  },
+  "trajectory_overlap": "report exact canonical and float32 overlap counts against both training arms; not yet observed",
+  "value_evaluator": "serving P-E4, unchanged and common to all policies"
+}
