@@ -1,0 +1,52 @@
+{
+  "schema": "seed599-training-execution-freeze-v1",
+  "status": "frozen-training-not-authorized",
+  "arms": {
+    "A": {
+      "configuration_sha256": "413a8a2b128391580a505dfa71e5772e44fd3c8c955577558ffdf92324f4f41a"
+    },
+    "B": {
+      "configuration_sha256": "8dd20557ac93d7d3c72bb94b50d35e868e85ee6f68bdd84699ee312b54e26405"
+    }
+  },
+  "source_sha256": {
+    "ml/alphazero_lite/seed599_training_executor.py": "6a5be1578ce8fc99be1329978e291df4818e488d15b643267add353f156ea470",
+    "ml/alphazero_lite/verify_seed599_training_result.py": "335fa8ac0cc7f89a77dff40de7330d455eff91c933ca05563381ef39cd5a5910",
+    "ml/alphazero_lite/seed599_replay_coverage.py": "7eaccb6457c627853e490e25cdba9d3885d9d64725c4bb7b2295da18e6417931",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/input_encodings.py": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe"
+  },
+  "runtime": {
+    "python": "3.14.7",
+    "numpy": "2.5.2",
+    "torch": "2.13.0+cu130",
+    "device": "cpu",
+    "threads": 1,
+    "pythonhashseed": "599",
+    "omp_num_threads": "1",
+    "mkl_num_threads": "1",
+    "deterministic_algorithms": true
+  },
+  "training_contract": {
+    "parent_checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+    "updates_per_arm": 512,
+    "batch_size": 32,
+    "optimizer": "Adam from each arm's frozen configuration",
+    "trainable_prefixes": [
+      "input_layer.",
+      "residual_layers.",
+      "policy_hidden_layer.",
+      "policy_head."
+    ],
+    "frozen_prefixes": ["value_hidden_layer.", "value_head."],
+    "execution_mode": "cpu, one torch thread, deterministic algorithms"
+  },
+  "authorization": {
+    "required": true,
+    "separate_record": "training-authorization.json",
+    "binding_field": "execution_freeze_sha256",
+    "must_be_explicit_project_owner": true
+  }
+}
