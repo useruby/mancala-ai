@@ -1,0 +1,11 @@
+{
+  "schema": "seed599-evaluation-owner-authorization-v1",
+  "status": "authorized-for-evaluation",
+  "execution_freeze_sha256": "467cb1ecf4acb47013fce9cd9418b3ac6b1d3929752713e9bd029fceabbcea11",
+  "authorization": {
+    "authorized_by": "project owner",
+    "run_games": true,
+    "scope": "One complete frozen Seed 599 evaluation: 4096 games, with verified safe resume only",
+    "independent_human_review_claimed": false
+  }
+}

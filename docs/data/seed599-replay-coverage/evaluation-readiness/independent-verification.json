@@ -1,0 +1,117 @@
+{
+  "A_score": 0.483154296875,
+  "B_minus_A_score": 0.013916015625,
+  "B_minus_A_two_sided_95_interval": [
+    0.000732421875,
+    0.027099609375
+  ],
+  "B_one_sided_95_lower": 0.48779296875,
+  "B_score": 0.4970703125,
+  "B_strength_pass": false,
+  "arm_scores_vs_serving_p_e4": {
+    "A": 0.483154296875,
+    "B": 0.4970703125
+  },
+  "bootstrap": {
+    "method": "paired opening-cluster bootstrap; resample openings and preserve both seat outcomes within each opening",
+    "quantile_method": "linear",
+    "resamples": 20000,
+    "seed": 599,
+    "unit": "opening; both seat outcomes retained within each opening"
+  },
+  "coverage_pass": true,
+  "execution_accounting": {
+    "games": 4096,
+    "games_per_pair": 2,
+    "pair_assignments": 2048,
+    "pair_parallelism": 18,
+    "search_workers_per_game": 1,
+    "seat_swapped_pairs": 2048
+  },
+  "game_count": 4096,
+  "held_out_policy_cross_entropy": {
+    "available": true,
+    "evidence_sha256": "d2742ae52d9fa6a3416b7ea5b2fd7095f2a844b3e0e5fb50751d8cea851ecec4",
+    "role": "secondary diagnostic only; not a decision gate",
+    "values": {
+      "A": 0.6977924297224092,
+      "B": 0.662916541666083,
+      "B_minus_A": -0.03487588805632613,
+      "paired_opening_group_B_minus_A_mean": -0.03575151962496871
+    }
+  },
+  "outcome_categories": {
+    "both_conditions_pass": false,
+    "coverage_only": true,
+    "neither_condition_passes": false,
+    "strength_only": false
+  },
+  "outcome_category": "coverage_only",
+  "status": "verified_complete",
+  "trajectory_overlap": {
+    "comparisons": {
+      "A": {
+        "vs_training_A": {
+          "canonical": {
+            "non_overlapping_distinct_positions": 49137,
+            "observed_distinct_positions_denominator": 49140,
+            "overlapping_distinct_positions": 3,
+            "training_membership_distinct_positions_denominator": 256
+          },
+          "float32": {
+            "non_overlapping_distinct_positions": 49137,
+            "observed_distinct_positions_denominator": 49140,
+            "overlapping_distinct_positions": 3,
+            "training_membership_distinct_positions_denominator": 256
+          }
+        },
+        "vs_training_B": {
+          "canonical": {
+            "non_overlapping_distinct_positions": 49086,
+            "observed_distinct_positions_denominator": 49140,
+            "overlapping_distinct_positions": 54,
+            "training_membership_distinct_positions_denominator": 2048
+          },
+          "float32": {
+            "non_overlapping_distinct_positions": 49086,
+            "observed_distinct_positions_denominator": 49140,
+            "overlapping_distinct_positions": 54,
+            "training_membership_distinct_positions_denominator": 2048
+          }
+        }
+      },
+      "B": {
+        "vs_training_A": {
+          "canonical": {
+            "non_overlapping_distinct_positions": 44915,
+            "observed_distinct_positions_denominator": 44920,
+            "overlapping_distinct_positions": 5,
+            "training_membership_distinct_positions_denominator": 256
+          },
+          "float32": {
+            "non_overlapping_distinct_positions": 44915,
+            "observed_distinct_positions_denominator": 44920,
+            "overlapping_distinct_positions": 5,
+            "training_membership_distinct_positions_denominator": 256
+          }
+        },
+        "vs_training_B": {
+          "canonical": {
+            "non_overlapping_distinct_positions": 44862,
+            "observed_distinct_positions_denominator": 44920,
+            "overlapping_distinct_positions": 58,
+            "training_membership_distinct_positions_denominator": 2048
+          },
+          "float32": {
+            "non_overlapping_distinct_positions": 44862,
+            "observed_distinct_positions_denominator": 44920,
+            "overlapping_distinct_positions": 58,
+            "training_membership_distinct_positions_denominator": 2048
+          }
+        }
+      }
+    },
+    "definition": "unique opening-root and replay-observed states compared by exact canonical and production kalah_v3 float32 identities; no games or outcomes are filtered",
+    "gate": false
+  }
+}
