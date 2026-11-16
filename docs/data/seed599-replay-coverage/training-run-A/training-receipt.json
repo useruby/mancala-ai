@@ -1,0 +1,21 @@
+{
+  "arm": "A",
+  "batch_schedule_sha256": "7e3a8af23340f3d2ee15a2e75086c253f67ff54c5887f361466c204f16a60daf",
+  "checkpoint": "seed599-arm-A-update-512.npz",
+  "checkpoint_sha256": "eec38be82dce5e7791c3b5c0bd414be86d8d83fb66a81390d1283300564e2067",
+  "execution_freeze_sha256": "bd141778461d7046b067966d7fb87188e5b0a2630d82655a321059b4ce17cad9",
+  "frozen_parameter_names": [
+    "value_head.bias",
+    "value_head.weight",
+    "value_hidden_layer.bias",
+    "value_hidden_layer.weight"
+  ],
+  "frozen_parameters_unchanged": true,
+  "membership_sha256": "f26cbbd6dc3bbc97f1d7c9cb0c4d41f661d22fd4ce938fe5cc073c239b7cac92",
+  "parent_checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+  "schema": "seed599-training-result-v1",
+  "states": 256,
+  "trace": "training-trace.jsonl",
+  "trace_sha256": "8789eae8d484f6166284063f8bbccaf4f2abae4c0073528ddbd6fcb258f2fdee",
+  "updates": 512
+}

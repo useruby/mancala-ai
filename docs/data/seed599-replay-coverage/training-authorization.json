@@ -1,0 +1,15 @@
+{
+  "schema": "seed599-training-owner-authorization-v1",
+  "status": "authorized-for-training",
+  "execution_freeze_sha256": "bd141778461d7046b067966d7fb87188e5b0a2630d82655a321059b4ce17cad9",
+  "authorization": {
+    "type": "explicit-project-owner-authorization",
+    "authorized_by": "project owner",
+    "training_may_start": true,
+    "scope": {
+      "arm_A": "exactly one execution; 256 registered states; 512 Adam updates",
+      "arm_B": "exactly one execution; 2048 registered states; 512 Adam updates"
+    },
+    "independent_human_review_claimed": false
+  }
+}
