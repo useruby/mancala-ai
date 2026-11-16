@@ -1,0 +1,88 @@
+{
+  "arms": {
+    "A": {
+      "arm": "A",
+      "checkpoint_sha256": "eec38be82dce5e7791c3b5c0bd414be86d8d83fb66a81390d1283300564e2067",
+      "frozen_parameter_integrity": {
+        "executor_runtime_assertion": "executor in-run frozen-parameter torch.equal assertion recorded as unchanged in the authenticated receipt",
+        "independent_tensor_equality": "all registered frozen parameters compared with torch.equal against the authenticated parent checkpoint",
+        "numerical_training_replay": "not performed"
+      },
+      "parameter_groups": {
+        "frozen": [
+          "value_hidden_layer.weight",
+          "value_hidden_layer.bias",
+          "value_head.weight",
+          "value_head.bias"
+        ],
+        "trainable": [
+          "residual_layers.0.0.weight",
+          "residual_layers.0.0.bias",
+          "residual_layers.0.1.weight",
+          "residual_layers.0.1.bias",
+          "residual_layers.1.0.weight",
+          "residual_layers.1.0.bias",
+          "residual_layers.1.1.weight",
+          "residual_layers.1.1.bias",
+          "residual_layers.2.0.weight",
+          "residual_layers.2.0.bias",
+          "residual_layers.2.1.weight",
+          "residual_layers.2.1.bias",
+          "input_layer.weight",
+          "input_layer.bias",
+          "policy_hidden_layer.weight",
+          "policy_hidden_layer.bias",
+          "policy_head.weight",
+          "policy_head.bias"
+        ]
+      },
+      "passed": true,
+      "states": 256,
+      "trace_sha256": "8789eae8d484f6166284063f8bbccaf4f2abae4c0073528ddbd6fcb258f2fdee",
+      "updates": 512
+    },
+    "B": {
+      "arm": "B",
+      "checkpoint_sha256": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+      "frozen_parameter_integrity": {
+        "executor_runtime_assertion": "executor in-run frozen-parameter torch.equal assertion recorded as unchanged in the authenticated receipt",
+        "independent_tensor_equality": "all registered frozen parameters compared with torch.equal against the authenticated parent checkpoint",
+        "numerical_training_replay": "not performed"
+      },
+      "parameter_groups": {
+        "frozen": [
+          "value_hidden_layer.weight",
+          "value_hidden_layer.bias",
+          "value_head.weight",
+          "value_head.bias"
+        ],
+        "trainable": [
+          "residual_layers.0.0.weight",
+          "residual_layers.0.0.bias",
+          "residual_layers.0.1.weight",
+          "residual_layers.0.1.bias",
+          "residual_layers.1.0.weight",
+          "residual_layers.1.0.bias",
+          "residual_layers.1.1.weight",
+          "residual_layers.1.1.bias",
+          "residual_layers.2.0.weight",
+          "residual_layers.2.0.bias",
+          "residual_layers.2.1.weight",
+          "residual_layers.2.1.bias",
+          "input_layer.weight",
+          "input_layer.bias",
+          "policy_hidden_layer.weight",
+          "policy_hidden_layer.bias",
+          "policy_head.weight",
+          "policy_head.bias"
+        ]
+      },
+      "passed": true,
+      "states": 2048,
+      "trace_sha256": "9f22328080756aa0fa2fa066164d36f935643938363059e0d0c711eb6f8f8955",
+      "updates": 512
+    }
+  },
+  "schema": "seed599-evaluation-training-verification-v1",
+  "training_execution_freeze_sha256": "bd141778461d7046b067966d7fb87188e5b0a2630d82655a321059b4ce17cad9"
+}
