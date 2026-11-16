@@ -11,7 +11,7 @@
   "treatment": {
     "name": "B2048",
     "parent_checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
-    "membership_sha256": "95ecc180e28945702e08815de7a521e0bce036afdaf76d194bbd774589a4516",
+    "membership_sha256": "95ecc180e28945702e08815de7a5210e1bce036afdaf76d194bbd774589a4516",
     "target_distribution": "byte-identical Seed 599 B membership targets",
     "architecture": "residual_v3, hidden_sizes=[96,3], input_size=27",
     "trainable_prefixes": ["input_layer.", "residual_layers.", "policy_hidden_layer.", "policy_head."],
