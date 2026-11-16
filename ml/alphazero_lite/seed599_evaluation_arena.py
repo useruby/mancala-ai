@@ -119,8 +119,13 @@ def _verify_pair(
         1,
     }:
         raise ValueError(f"seat_pair_invalid:{arm}:{index}")
-    for game in games:
-        verify_game(root, arm, opening, index, game)
+    for position, game in enumerate(games):
+        verify_game(root, arm, opening, index, position, game)
+    from ml.alphazero_lite.verify_seed599_evaluation import _check_runtime_report
+
+    _check_runtime_report(
+        root, arm, index, report, games, protocol.sha(batch / "opening.jsonl")
+    )
     options = report.get("notes", {})
     exact = protocol.read_json(root / protocol.OUT / "execution-freeze.json")
     if (

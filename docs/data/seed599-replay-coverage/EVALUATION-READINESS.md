@@ -23,7 +23,12 @@ The read-only verifier validates frozen source/runtime/checkpoint identities,
 the exact assignments and seat swaps, each legal trajectory and resulting
 outcome, search settings and evaluator identities, the full assignment count,
 execution accounting, and the registered 20,000-resample paired-opening
-bootstrap. It reports all four registered outcome categories. The primary gate
+bootstrap. It reports A and B seat-averaged scores against P-E4 and, after game
+replay, canonical and production-float32 overlap counts versus both frozen
+training memberships. Each overlap count includes observed-position and
+training-membership denominators; overlap is descriptive only and does not
+filter games or affect advancement. The verifier reports all four registered
+outcome categories. The primary gate
 is B's one-sided 95% lower score bound strictly above 0.50; the paired B-minus-A
 95% interval must have a lower endpoint strictly above zero. Held-out policy
 cross-entropy remains a secondary diagnostic only.
@@ -34,8 +39,8 @@ These values do not affect either advancement gate.
 
 The execution freeze is marked `frozen-awaiting-separate-project-owner-authorization`.
 The runner requires a separate `evaluation-authorization.json` bound to that
-freeze before it can invoke arena games. No evaluation games were run in this
-preparation.
+freeze's exact file-byte SHA-256 before it can invoke arena games. No evaluation
+games were run in this preparation.
 
 Commands:
 
@@ -48,4 +53,7 @@ The frozen execution identity is recorded in
 `evaluation-readiness/execution-freeze.json`. Running
 `python -m ml.alphazero_lite.seed599_evaluation_readiness --run` currently fails
 closed because no separate owner authorization exists.
-Execution-freeze SHA-256: `760c0782a8991cfcc61d47986ad77791b4bdcc72ebb66b7b59ab755c3e95d480`.
+Execution-freeze SHA-256: `467cb1ecf4acb47013fce9cd9418b3ac6b1d3929752713e9bd029fceabbcea11`.
+Superseded pre-execution freeze identities are preserved as
+`evaluation-readiness/execution-freeze-superseded-*.json`; each was superseded
+before authorization or assignment execution.

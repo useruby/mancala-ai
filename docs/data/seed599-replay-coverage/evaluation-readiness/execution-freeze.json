@@ -117,18 +117,35 @@
     "ml/alphazero_lite/root_prior_transforms.py": "05892bb9d8af2e0551b3d45ced7a2c905db771a00283f04430ee6f49017afe0c",
     "ml/alphazero_lite/runtime_search_policy.py": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
     "ml/alphazero_lite/search_ablation.py": "6c9a6b9bf85eb4826c1ba33964d5f8675f1402bd6cbd6008a06b6c15d05d4193",
-    "ml/alphazero_lite/seed599_evaluation_arena.py": "ab257d50753d978bbc7841a06ba3a39c81bf6b01e63406d2fa69982f93f0fc31",
-    "ml/alphazero_lite/seed599_evaluation_readiness.py": "ce171ac88bd7b7f3d14eb2b769ec2f828d958cbc6d25bca4f7c937ce213178fd",
+    "ml/alphazero_lite/seed599_evaluation_arena.py": "539bcd0eb8747483d98192adf6ccd1745af0bd48c103aafa86f80b8efa3f7521",
+    "ml/alphazero_lite/seed599_evaluation_readiness.py": "92fef5ee75222b9dcde97c7e0020e0cb21a3984f8b8892d2039a2f83b591050c",
     "ml/alphazero_lite/seed599_training_executor.py": "6a5be1578ce8fc99be1329978e291df4818e488d15b643267add353f156ea470",
     "ml/alphazero_lite/selective_head_evaluator.py": "11611cf7ae9ee65e4c6180d90fc3903cfcd371e324a3bd8973a154080410e777",
     "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
     "ml/alphazero_lite/shadow_root_q.py": "93563da902a4020a312fa02c175e6115ac98e9a03b0679ea0f6109434aab8b13",
-    "ml/alphazero_lite/test_seed599_evaluation_readiness.py": "d04037e47e10a2f8d2908d1ce6498fd76be050ffa8993975ad7f9ead8011c6a3",
+    "ml/alphazero_lite/test_seed599_evaluation_readiness.py": "5ee7c824ccbcdc2a6c593263591dc796b7ce4720d3f88e7b4ceb68021d4b3fc1",
     "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
     "ml/alphazero_lite/value_transforms.py": "d63bf9772389614cae22e3a599d2151bd0b4f7d1dfbb7f8e5079bb01c6e5a21b",
-    "ml/alphazero_lite/verify_seed599_evaluation.py": "b445ad9c47a3910551b7a90bb5fce445432640c3346905228727e348309ee48c",
+    "ml/alphazero_lite/verify_seed599_evaluation.py": "91b4107721775af706f31d5d9d44ff0c77ae1f1fba780688a59343a7d85ae078",
     "ml/alphazero_lite/verify_seed599_training_result.py": "335fa8ac0cc7f89a77dff40de7330d455eff91c933ca05563381ef39cd5a5910"
   },
   "status": "frozen-awaiting-separate-project-owner-authorization",
-  "training_execution_freeze_sha256": "bd141778461d7046b067966d7fb87188e5b0a2630d82655a321059b4ce17cad9"
+  "supersedes_previous_execution_freeze_sha256": "0bffffebeb681265865db1cb45d8138fdde81ed59fba868605e3fb36ab4efc01",
+  "training_execution_freeze_sha256": "bd141778461d7046b067966d7fb87188e5b0a2630d82655a321059b4ce17cad9",
+  "training_membership_identities": {
+    "A": {
+      "canonical_distinct_count": 256,
+      "float32_distinct_count": 256,
+      "membership_file": "control-membership.json",
+      "membership_sha256": "f26cbbd6dc3bbc97f1d7c9cb0c4d41f661d22fd4ce938fe5cc073c239b7cac92",
+      "row_count": 256
+    },
+    "B": {
+      "canonical_distinct_count": 2048,
+      "float32_distinct_count": 2048,
+      "membership_file": "treatment-membership.json",
+      "membership_sha256": "95ecc180e28945702e08815de7a5210e1bce036afdaf76d194bbd774589a4516",
+      "row_count": 2048
+    }
+  }
 }

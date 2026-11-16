@@ -38,6 +38,7 @@ def verify_game(
     arm: str,
     opening: dict[str, Any],
     opening_index: int,
+    game_position: int,
     row: dict[str, Any],
 ) -> dict[str, Any]:
     game = KalahGame.from_state(INITIAL)
@@ -50,6 +51,14 @@ def verify_game(
             raise ValueError(f"illegal_registered_opening:{opening_index}")
     if game.to_state() != opening["state"]:
         raise ValueError(f"opening_state_mismatch:{opening_index}")
+    opening_canonical: set[str] = set()
+    opening_float32: set[str] = set()
+    _record_position_identities(game.to_state(), opening_canonical, opening_float32)
+    if opening_canonical != {opening["canonical_identity"]} or opening_float32 != {
+        opening["float32_identity"]
+    }:
+        raise ValueError(f"opening_state_identity_mismatch:{opening_index}")
+    validate_game_opening_provenance(opening, opening_index, game_position, row)
     seat = int(row.get("challenger_player", -1))
     if seat not in (0, 1):
         raise ValueError("invalid_challenger_seat")
@@ -59,6 +68,8 @@ def verify_game(
     moves = [int(move) for move in trajectory.split(",") if move != ""]
     if len(moves) != int(row.get("game_length", -1)) or len(moves) > 200:
         raise ValueError("trajectory_length_mismatch")
+    observed_canonical = set(opening_canonical)
+    observed_float32 = set(opening_float32)
     for ply, absolute in enumerate(moves):
         relative = absolute - 6 * game.current_player
         if (
@@ -69,13 +80,56 @@ def verify_game(
             or not game.move(absolute)
         ):
             raise ValueError(f"illegal_trajectory:{opening_index}:{ply}")
+        _record_position_identities(
+            game.to_state(), observed_canonical, observed_float32
+        )
     if not game.over() and len(moves) != 200:
         raise ValueError("game_neither_terminal_nor_at_registered_cap")
     margin = int(game.captured_seeds[seat] - game.captured_seeds[1 - seat])
     winner = "challenger" if margin > 0 else "current" if margin < 0 else "draw"
     if row.get("winner") != winner or int(row.get("margin", 2**31)) != margin:
         raise ValueError(f"trajectory_outcome_mismatch:{opening_index}")
-    return {"winner": winner, "margin": margin, "game_length": len(moves)}
+    return {
+        "winner": winner,
+        "margin": margin,
+        "game_length": len(moves),
+        "canonical_positions": observed_canonical,
+        "float32_positions": observed_float32,
+    }
+
+
+def _record_position_identities(
+    state: dict[str, Any], canonical_ids: set[str], float32_ids: set[str]
+) -> None:
+    from ml.alphazero_lite.self_play import encode_state
+
+    canonical_ids.add(hashlib.sha256(protocol.canonical(state)).hexdigest())
+    encoded = np.asarray(encode_state(state, input_encoding="kalah_v3"), dtype="<f4")
+    float32_ids.add(hashlib.sha256(encoded.tobytes()).hexdigest())
+
+
+def validate_game_opening_provenance(
+    opening: dict[str, Any],
+    opening_index: int,
+    game_position: int,
+    row: dict[str, Any],
+) -> None:
+    expected = {
+        "game_index": game_position,
+        "game_within_opening": game_position,
+        "opening_index": 0,
+        "opening_state_hash": opening["canonical_identity"],
+        "opening_prefix_moves": opening["prefix_moves"],
+        "opening_applied_prefix_length": len(opening["prefix_moves"]),
+        "opening_contract": opening.get(
+            "opening_contract", "legacy_player_relative_v1"
+        ),
+        "challenger_player": game_position,
+    }
+    if any(row.get(field) != value for field, value in expected.items()):
+        raise ValueError(
+            f"game_opening_provenance_mismatch:{opening_index}:{game_position}"
+        )
 
 
 def _assignment_paths(root: Path, arm: str, index: int) -> tuple[Path, Path]:
@@ -208,22 +262,128 @@ def validate_assignment_coverage(
         raise ValueError("missing_or_duplicate_game_assignments")
 
 
+def summarize_trajectory_overlap(
+    observed_by_candidate: dict[str, dict[str, set[str]]],
+    training_memberships: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    """Count identity intersections without excluding or reweighting positions."""
+    comparisons: dict[str, Any] = {}
+    for candidate in protocol.ARMS:
+        comparisons[candidate] = {}
+        for training_arm in protocol.ARMS:
+            metrics: dict[str, Any] = {}
+            for identity_type in ("canonical", "float32"):
+                observed = observed_by_candidate[candidate][identity_type]
+                training = training_memberships[training_arm][
+                    f"{identity_type}_identities"
+                ]
+                overlap = len(observed & training)
+                metrics[identity_type] = {
+                    "observed_distinct_positions_denominator": len(observed),
+                    "training_membership_distinct_positions_denominator": len(training),
+                    "overlapping_distinct_positions": overlap,
+                    "non_overlapping_distinct_positions": len(observed) - overlap,
+                }
+            comparisons[candidate][f"vs_training_{training_arm}"] = metrics
+    return {
+        "gate": False,
+        "definition": "unique opening-root and replay-observed states compared by exact canonical and production kalah_v3 float32 identities; no games or outcomes are filtered",
+        "comparisons": comparisons,
+    }
+
+
+def classify_decision(strength_pass: bool, coverage_pass: bool) -> str:
+    if strength_pass and coverage_pass:
+        return "both_conditions_pass"
+    if strength_pass:
+        return "strength_only"
+    if coverage_pass:
+        return "coverage_only"
+    return "neither_condition_passes"
+
+
+def bootstrap_decision_metrics(
+    a_clusters: np.ndarray,
+    b_clusters: np.ndarray,
+    *,
+    resamples: int,
+    seed: int,
+    lower_quantile: float = 0.05,
+    interval_quantiles: tuple[float, float] = (0.025, 0.975),
+) -> dict[str, Any]:
+    """Registered paired-opening bootstrap; exposed for deterministic fixtures."""
+    if (
+        a_clusters.ndim != 1
+        or b_clusters.ndim != 1
+        or len(a_clusters) != len(b_clusters)
+        or len(a_clusters) < 1
+        or resamples < 1
+    ):
+        raise ValueError("bootstrap_cluster_shape")
+    openings = len(a_clusters)
+    rng = np.random.default_rng(seed)
+    sample_indices = rng.integers(0, openings, size=(resamples, openings))
+    delta = b_clusters - a_clusters
+    b_boot = b_clusters[sample_indices].mean(axis=1)
+    delta_boot = delta[sample_indices].mean(axis=1)
+    lower = float(np.quantile(b_boot, lower_quantile, method="linear"))
+    coverage_interval = [
+        float(value)
+        for value in np.quantile(delta_boot, interval_quantiles, method="linear")
+    ]
+    strength_pass = lower > 0.50
+    coverage_pass = coverage_interval[0] > 0.0
+    return {
+        "A_score": float(a_clusters.mean()),
+        "B_score": float(b_clusters.mean()),
+        "B_one_sided_95_lower": lower,
+        "B_strength_pass": strength_pass,
+        "B_minus_A_score": float(delta.mean()),
+        "B_minus_A_two_sided_95_interval": coverage_interval,
+        "coverage_pass": coverage_pass,
+        "outcome_category": classify_decision(strength_pass, coverage_pass),
+        "outcome_categories": {
+            category: category == classify_decision(strength_pass, coverage_pass)
+            for category in (
+                "both_conditions_pass",
+                "strength_only",
+                "coverage_only",
+                "neither_condition_passes",
+            )
+        },
+    }
+
+
 def _read_rows(path: Path) -> list[dict[str, Any]]:
     return [json.loads(line) for line in path.read_text().splitlines() if line]
 
 
 def _check_runtime_report(
-    root: Path, arm: str, index: int, report: dict[str, Any]
+    root: Path,
+    arm: str,
+    index: int,
+    report: dict[str, Any],
+    games: list[dict[str, Any]],
+    opening_file_sha256: str,
 ) -> None:
     contract = protocol.read_json(root / protocol.PUBLISHED)
     settings = contract["match_settings"]
     notes = report.get("notes", {})
+    validate_report_outcomes(report, games)
+    candidate_path = str(root / protocol.OUT / "candidate-bundles" / arm)
+    serving_path = str(root / protocol.SERVING)
     if (
         report.get("games_played") != 2
         or notes.get("challenger_simulations") != settings["simulations_per_side"]
         or notes.get("current_simulations") != settings["simulations_per_side"]
         or notes.get("workers_used") != settings["workers"]
+        or notes.get("worker_game_counts") != [2]
         or notes.get("base_seed") != 599 + index
+        or notes.get("seed") != 599 + index
+        or notes.get("seed_contract") != "azlite_eval_seed_v2"
+        or notes.get("suite_sha256") != opening_file_sha256
+        or notes.get("challenger_path") != candidate_path
+        or notes.get("current_path") != serving_path
         or notes.get("random_opening_plies") != 0
         or notes.get("exact_root_solve_threshold") != settings["exact_root_threshold"]
         or notes.get("exact_root_objective") != settings["exact_root_objective"]
@@ -248,8 +408,28 @@ def _check_runtime_report(
         notes.get("exact_root_native_probe_sha256") != serving["native_probe_sha256"]
         or notes.get("exact_root_tablebase_sha256") != serving["tablebase_sha256"]
         or notes.get("runtime_search_policy_sha256") != serving["search_policy_sha256"]
+        or notes.get("runtime_search_policy_mode") != "puct_exact_root_hybrid"
     ):
         raise ValueError(f"arena_target_runtime_identity_mismatch:{arm}:{index}")
+
+
+def validate_report_outcomes(
+    report: dict[str, Any], games: list[dict[str, Any]]
+) -> None:
+    challenger_wins = sum(game.get("winner") == "challenger" for game in games)
+    current_wins = sum(game.get("winner") == "current" for game in games)
+    draws = sum(game.get("winner") == "draw" for game in games)
+    expected_score = (challenger_wins + 0.5 * draws) / len(games) if games else 0.0
+    if (
+        report.get("games_played") != len(games)
+        or report.get("wins") != challenger_wins
+        or report.get("losses") != current_wins
+        or report.get("draws") != draws
+        or not np.isclose(
+            float(report.get("score", -1)), expected_score, rtol=0, atol=1e-15
+        )
+    ):
+        raise ValueError("arena_report_outcome_mismatch")
 
 
 def _verify_freeze(root: Path, freeze: dict[str, Any]) -> None:
@@ -274,6 +454,19 @@ def _verify_freeze(root: Path, freeze: dict[str, Any]) -> None:
         }
     ):
         raise ValueError("execution_freeze_settings_mismatch")
+    if freeze.get("training_membership_identities") != (
+        protocol.training_membership_freeze_record(root)
+    ):
+        raise ValueError("execution_freeze_training_membership_identity_mismatch")
+    superseded_sha = freeze.get("supersedes_previous_execution_freeze_sha256")
+    if superseded_sha is not None:
+        archive = (
+            root
+            / protocol.OUT
+            / (f"execution-freeze-superseded-{superseded_sha[:12]}.json")
+        )
+        if not archive.is_file() or protocol.sha(archive) != superseded_sha:
+            raise ValueError("superseded_execution_freeze_archive_mismatch")
     manifest_path = root / protocol.OUT / "candidate-bundles" / "bundle-manifest.json"
     if protocol.sha(manifest_path) != freeze.get("candidate_bundle_manifest_sha256"):
         raise ValueError("candidate_bundle_manifest_freeze_mismatch")
@@ -317,47 +510,32 @@ def _metrics(
     root: Path, evidence: dict[tuple[str, int], list[float]]
 ) -> dict[str, Any]:
     contract = protocol.read_json(root / protocol.PUBLISHED)
-    rng = np.random.default_rng(contract["bootstrap"]["seed"])
     openings = contract["opening_count"]
     b_clusters = np.asarray([np.mean(evidence[("B", i)]) for i in range(openings)])
     a_clusters = np.asarray([np.mean(evidence[("A", i)]) for i in range(openings)])
-    delta = b_clusters - a_clusters
     resamples = int(contract["bootstrap"]["resamples"])
-    samples = rng.integers(0, openings, size=(resamples, openings))
-    b_boot = b_clusters[samples].mean(axis=1)
-    delta_boot = delta[samples].mean(axis=1)
-    lower = float(
-        np.quantile(
-            b_boot,
-            contract["bootstrap"]["primary_one_sided_lower_quantile"],
-            method="linear",
-        )
+    decisions = bootstrap_decision_metrics(
+        a_clusters,
+        b_clusters,
+        resamples=resamples,
+        seed=contract["bootstrap"]["seed"],
+        lower_quantile=contract["bootstrap"]["primary_one_sided_lower_quantile"],
+        interval_quantiles=tuple(contract["bootstrap"]["coverage_two_sided_quantiles"]),
     )
-    delta_interval = [
-        float(x)
-        for x in np.quantile(
-            delta_boot,
-            contract["bootstrap"]["coverage_two_sided_quantiles"],
-            method=contract["bootstrap"]["quantile_method"],
-        )
-    ]
-    strength_pass = lower > 0.50
-    coverage_pass = delta_interval[0] > 0.0
-    categories = {
-        "both_conditions_pass": strength_pass and coverage_pass,
-        "strength_only": strength_pass and not coverage_pass,
-        "coverage_only": coverage_pass and not strength_pass,
-        "neither_condition_passes": not strength_pass and not coverage_pass,
-    }
     return {
-        "B_score": float(b_clusters.mean()),
-        "B_one_sided_95_lower": lower,
-        "B_strength_pass": strength_pass,
-        "B_minus_A_score": float(delta.mean()),
-        "B_minus_A_two_sided_95_interval": delta_interval,
-        "coverage_pass": coverage_pass,
-        "outcome_category": next(name for name, passed in categories.items() if passed),
-        "outcome_categories": categories,
+        "A_score": decisions["A_score"],
+        "B_score": decisions["B_score"],
+        "arm_scores_vs_serving_p_e4": {
+            "A": decisions["A_score"],
+            "B": decisions["B_score"],
+        },
+        "B_one_sided_95_lower": decisions["B_one_sided_95_lower"],
+        "B_strength_pass": decisions["B_strength_pass"],
+        "B_minus_A_score": decisions["B_minus_A_score"],
+        "B_minus_A_two_sided_95_interval": decisions["B_minus_A_two_sided_95_interval"],
+        "coverage_pass": decisions["coverage_pass"],
+        "outcome_category": decisions["outcome_category"],
+        "outcome_categories": decisions["outcome_categories"],
         "bootstrap": {
             "method": contract["bootstrap"]["method"],
             "resamples": resamples,
@@ -403,6 +581,10 @@ def verify_readonly(
     _verify_freeze(root, freeze)
     openings = protocol.read_json(root / protocol.OPENINGS)
     seen: dict[tuple[str, int], list[float]] = {}
+    observed_positions = {
+        arm: {"canonical": set(), "float32": set()} for arm in protocol.ARMS
+    }
+    training_memberships = protocol.training_membership_identity(root)
     completed = 0
     expected_assignment_directories = {
         f"{arm}-opening-{index:04d}"
@@ -460,12 +642,18 @@ def verify_readonly(
             )
             games = _read_rows(games_path)
             report = protocol.read_json(report_path)
-            _check_runtime_report(root, arm, index, report)
+            _check_runtime_report(
+                root, arm, index, report, games, protocol.sha(opening_path)
+            )
             validate_assignment_binding(assignment, arm, index, opening, games)
             points: list[float] = []
-            for game in games:
-                result = verify_game(root, arm, opening, index, game)
+            for position, game in enumerate(games):
+                result = verify_game(root, arm, opening, index, position, game)
                 points.append(score(result["winner"], "challenger"))
+                observed_positions[arm]["canonical"].update(
+                    result["canonical_positions"]
+                )
+                observed_positions[arm]["float32"].update(result["float32_positions"])
             seen[(arm, index)] = points
             completed += 2
     expected = len(protocol.ARMS) * len(openings) * 2
@@ -479,6 +667,9 @@ def verify_readonly(
         }
     validate_assignment_coverage(seen, len(openings))
     metrics = _metrics(root, seen)
+    metrics["trajectory_overlap"] = summarize_trajectory_overlap(
+        observed_positions, training_memberships
+    )
     return {
         "status": "verified_complete",
         "game_count": completed,

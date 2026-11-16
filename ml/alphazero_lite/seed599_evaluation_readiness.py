@@ -1,8 +1,8 @@
 """Frozen Seed 599 strength-evaluation preparation and guarded execution.
 
 Preparation authenticates published evidence and exports policy-only candidate
-bundles.  Game execution is impossible until a separately signed owner record
-binds the execution freeze.
+bundles. Game execution is impossible until a separate owner-authorization
+record binds the exact execution-freeze file bytes.
 """
 
 from __future__ import annotations
@@ -436,6 +436,7 @@ def preflight(root: Path = ROOT) -> dict[str, Any]:
     """Read-only readiness check, including generated candidate exports."""
     root = root.resolve()
     registered = authenticate_registered_inputs(root)
+    training_memberships = training_membership_freeze_record(root)
     report_path = root / OUT / "independent-training-verification-v2.json"
     report = read_json(report_path)
     if report.get("schema") != "seed599-evaluation-training-verification-v1":
@@ -496,6 +497,7 @@ def preflight(root: Path = ROOT) -> dict[str, Any]:
     return {
         "status": "read_only_preflight_passed_not_authorized_for_games",
         "registered_inputs": registered,
+        "training_membership_identities": training_memberships,
         "independent_training_verification_sha256": sha(report_path),
         "candidate_bundle_manifest_sha256": sha(manifest_path),
         "candidate_bundle_manifest": manifest,
@@ -512,18 +514,85 @@ def shutil_copy_create(source: Path, destination: Path) -> None:
 
 def execution_authorized(root: Path, freeze: dict[str, Any]) -> bool:
     """Only a separate explicit owner record bound to this exact freeze opens execution."""
-    authorization = root / OUT / "evaluation-authorization.json"
-    if not authorization.is_file():
+    freeze_path = root / OUT / "execution-freeze.json"
+    authorization_path = root / OUT / "evaluation-authorization.json"
+    if not freeze_path.is_file() or not authorization_path.is_file():
         return False
-    record = read_json(authorization)
+    try:
+        freeze_bytes = freeze_path.read_bytes()
+        frozen_on_disk = json.loads(freeze_bytes)
+        record = read_json(authorization_path)
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        return False
+    if (
+        not isinstance(frozen_on_disk, dict)
+        or not isinstance(record, dict)
+        or freeze != frozen_on_disk
+        or frozen_on_disk.get("schema") != "seed599-evaluation-execution-freeze-v1"
+        or frozen_on_disk.get("status")
+        != "frozen-awaiting-separate-project-owner-authorization"
+        or frozen_on_disk.get("execution_authorized") is not False
+    ):
+        return False
+    exact_freeze_sha256 = hashlib.sha256(freeze_bytes).hexdigest()
     return (
         record.get("schema") == "seed599-evaluation-owner-authorization-v1"
         and record.get("status") == "authorized-for-evaluation"
-        and record.get("execution_freeze_sha256")
-        == hashlib.sha256(canonical(freeze)).hexdigest()
+        and record.get("execution_freeze_sha256") == exact_freeze_sha256
         and record.get("authorization", {}).get("authorized_by") == "project owner"
         and record.get("authorization", {}).get("run_games") is True
     )
+
+
+def training_membership_identity(root: Path = ROOT) -> dict[str, Any]:
+    """Authenticate frozen A/B membership files and return their identity sets."""
+    root = root.resolve()
+    training_freeze = read_json(root / DATA / "training-execution-freeze.json")
+    path_by_arm = {
+        "A": "control-membership.json",
+        "B": "treatment-membership.json",
+    }
+    identities: dict[str, Any] = {}
+    for arm, relative in path_by_arm.items():
+        config_path = root / DATA / f"training-{arm}.json"
+        config = read_json(config_path)
+        if sha(config_path) != training_freeze["arms"][arm]["configuration_sha256"]:
+            raise ValueError(f"training_configuration_identity_mismatch:{arm}")
+        membership_path = root / DATA / relative
+        rows = read_json(membership_path)
+        digest = hashlib.sha256(canonical(rows)).hexdigest()
+        if len(rows) != config["states"] or digest != config["membership_sha256"]:
+            raise ValueError(f"training_membership_identity_mismatch:{arm}")
+        canonical_ids = {str(row["canonical_identity"]) for row in rows}
+        float32_ids = {str(row["float32_identity"]) for row in rows}
+        if (
+            len(canonical_ids) != len(rows)
+            or len(float32_ids) != len(rows)
+            or any(len(identity) != 64 for identity in canonical_ids | float32_ids)
+        ):
+            raise ValueError(f"training_membership_identity_set_invalid:{arm}")
+        identities[arm] = {
+            "membership_file": relative,
+            "membership_sha256": digest,
+            "row_count": len(rows),
+            "canonical_distinct_count": len(canonical_ids),
+            "float32_distinct_count": len(float32_ids),
+            "canonical_identities": canonical_ids,
+            "float32_identities": float32_ids,
+        }
+    return identities
+
+
+def training_membership_freeze_record(root: Path = ROOT) -> dict[str, Any]:
+    """Return the compact, frozen membership identities without state lists."""
+    return {
+        arm: {
+            key: value
+            for key, value in info.items()
+            if key not in {"canonical_identities", "float32_identities"}
+        }
+        for arm, info in training_membership_identity(root).items()
+    }
 
 
 def make_execution_freeze(root: Path = ROOT) -> dict[str, Any]:
@@ -577,6 +646,7 @@ def make_execution_freeze(root: Path = ROOT) -> dict[str, Any]:
             "training_execution_freeze_sha256"
         ],
         "checkpoint_and_serving_identities": authenticated,
+        "training_membership_identities": training_membership_freeze_record(root),
         "candidate_bundle_manifest_sha256": sha(manifest),
         "candidate_bundle_manifest": read_json(manifest),
         "independent_training_verification_sha256": sha(verification_report),
@@ -616,7 +686,37 @@ def create_freeze(root: Path = ROOT) -> dict[str, Any]:
     root = root.resolve()
     freeze = make_execution_freeze(root)
     path = root / OUT / "execution-freeze.json"
-    atomic_create(path, json.dumps(freeze, indent=2, sort_keys=True).encode() + b"\n")
+    prior_sha256: str | None = None
+    if path.exists():
+        prior = path.read_bytes()
+        if prior == json.dumps(freeze, indent=2, sort_keys=True).encode() + b"\n":
+            return freeze
+        authorization = root / OUT / "evaluation-authorization.json"
+        assignments = root / OUT / "assignments"
+        if authorization.exists() or (
+            assignments.exists() and any(assignments.iterdir())
+        ):
+            raise ValueError("cannot_refreeze_after_authorization_or_assignment_start")
+        prior_record = json.loads(prior)
+        if prior_record.get("execution_authorized") is not False:
+            raise ValueError("cannot_supersede_authorized_execution_freeze")
+        archive = (
+            root
+            / OUT
+            / (
+                f"execution-freeze-superseded-{hashlib.sha256(prior).hexdigest()[:12]}.json"
+            )
+        )
+        prior_sha256 = hashlib.sha256(prior).hexdigest()
+        if archive.exists():
+            if archive.read_bytes() != prior:
+                raise ValueError("superseded_execution_freeze_archive_conflict")
+            path.unlink()
+        else:
+            os.replace(path, archive)
+        freeze["supersedes_previous_execution_freeze_sha256"] = prior_sha256
+    payload = json.dumps(freeze, indent=2, sort_keys=True).encode() + b"\n"
+    atomic_create(path, payload)
     return freeze
 
 
