@@ -1,0 +1,56 @@
+{
+  "schema": "seed604-replay-optimization-registration-v1",
+  "status": "prepared-not-authorized",
+  "seed": 604,
+  "hypothesis": "Extending Seed 599 Arm B from 512 to 2048 Adam updates on the identical authenticated 2048-state dataset may convert its replay-coverage advantage into absolute playing strength against serving P-E4.",
+  "control": {
+    "name": "B512",
+    "immutable_seed599_checkpoint": "docs/data/seed599-replay-coverage/training-run-B/seed599-arm-B-update-512.npz",
+    "checkpoint_sha256": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c"
+  },
+  "treatment": {
+    "name": "B2048",
+    "parent_checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+    "membership_sha256": "95ecc180e28945702e08815de7a5210e1bce036afdaf76d194bbd774589a4516",
+    "target_distribution": "byte-identical Seed 599 B membership targets",
+    "architecture": "residual_v3, hidden_sizes=[96,3], input_size=27",
+    "trainable_prefixes": ["input_layer.", "residual_layers.", "policy_hidden_layer.", "policy_head."],
+    "frozen_prefixes": ["value_hidden_layer.", "value_head."],
+    "optimizer": {"name": "Adam", "lr": 0.00001, "betas": [0.9, 0.999], "eps": 1e-8, "weight_decay": 0.0, "scheduler": "none"},
+    "updates": 2048,
+    "batch_size": 32,
+    "batch_schedule_sha256": "397c9c84388fad2cfe6a38d549f1b2a9b52909907e6e19c1bcb81a418551063b",
+    "schedule_definition": "Python random.Random(599), independently shuffle membership indexes per pass, batch in groups of 32; first 512 batches must equal the published Seed 599 B schedule exactly",
+    "start_state": "Reload P-E4 parent checkpoint and create fresh Adam optimizer; do not continue from B512 checkpoint"
+  },
+  "reproducibility_stop": "Before continuing to update 513, rerun from P-E4 with fresh optimizer through update 512 and compare every checkpoint tensor exactly with immutable Seed 599 B512. Stop on any mismatch.",
+  "evaluation": {
+    "status": "cohort-registration-required-before-freeze",
+    "opening_groups": 1024,
+    "games": 4096,
+    "design": "matched opening groups; seat-swapped games for each candidate; B512 and B2048 both play serving P-E4",
+    "serving_value_evaluator": "unchanged serving P-E4 for both candidate policies",
+    "puct": "identical to Seed 599 registered configuration: 128 simulations, c_puct=1.25, one worker per game, deterministic roots, exact-root enabled at 16, other settings unchanged",
+    "bootstrap": {"method": "paired opening-cluster percentile bootstrap preserving seat outcomes", "resamples": 20000, "seed": 604, "quantile": "numpy.quantile(method='linear')"},
+    "primary_gate": "B2048 versus P-E4 one-sided 95% bootstrap lower bound strictly greater than 0.50",
+    "secondary_gate": "paired B2048 minus B512 two-sided 95% interval lower endpoint strictly greater than zero",
+    "interpretation": {
+      "both_pass": "Evidence of absolute strength above parity and a positive optimization benefit over B512.",
+      "strength_only": "B2048 clears the absolute-strength gate; added updates are not shown to improve on B512.",
+      "benefit_only": "B2048 improves on B512, but absolute strength above parity is not established.",
+      "neither_pass": "Neither absolute strength nor positive incremental benefit is established."
+    },
+    "selection": "Seed 599 evaluation outcomes are excluded from confirmatory inference and checkpoint selection."
+  },
+  "source_identities": {
+    "seed599_training_B_config_sha256": "8dd20557ac93d7d3c72bb94b50d35e868e85ee6f68bdd84699ee312b54e26405",
+    "seed599_training_freeze_sha256": "bd141778461d7046b067966d7fb87188e5b0a2630d82655a321059b4ce17cad9",
+    "seed599_evaluation_contract_sha256": "8d29200a27ae87daa7ea9de9a36ebf5a19d1f0f04b4f0237ff48ba1ab1af7bf4",
+    "seed599_evaluation_openings_file_sha256": "3acc395a59d90df57ddf60aa1e9d99aabde220901434f72239eb48a4047bc54a"
+  },
+  "authorization": {
+    "training": "separate explicit owner authorization bound to the training execution freeze",
+    "evaluation": "separate explicit owner authorization bound to the evaluation execution freeze",
+    "currently_authorized": false
+  }
+}
