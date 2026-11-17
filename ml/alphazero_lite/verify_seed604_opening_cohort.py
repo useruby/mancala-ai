@@ -20,7 +20,7 @@ from ml.alphazero_lite.seed604_bounded_exclusions import (
     validate_candidate_against_published_policy,
 )
 
-OUTPUT = Path("docs/data/seed604-evaluation-opening-cohort-v2")
+OUTPUT = Path("docs/data/seed604-evaluation-opening-cohort-v5")
 SOURCE = Path("ml/alphazero_lite/seed604_opening_cohort.py")
 VERIFIER = Path(__file__).relative_to(ROOT)
 INITIAL = {

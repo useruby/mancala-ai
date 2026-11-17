@@ -20,5 +20,8 @@ used as evidence. The `-v3` attempt was also invalidated:
 Python loaded a stale cached generator bytecode, and the verifier rejected the
 manifest because the execution-time generator digest did not match the committed
 source. It remains untouched and is not used. The final fresh attempt uses a
-new `-v4` destination, with the exact cache disabled and bytecode writes
-disabled for generation and verification.
+new `-v5` destination, with the exact cache disabled and bytecode writes
+disabled for generation and verification. That `-v4` verifier invocation also
+revealed its output directory was still pinned to the earlier invalidated
+attempt, so it rejected the `-v4` registration; the attempt is preserved and not
+used.
