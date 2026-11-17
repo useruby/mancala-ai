@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 from pathlib import Path
 from typing import Any
 
@@ -150,6 +151,10 @@ def verify_result(output: Path, *, root: Path = ROOT) -> dict[str, Any]:
         raise ValueError("training_b512_report_hash_mismatch")
     if receipt.get("membership_sha256") != config["membership_sha256"]:
         raise ValueError("training_receipt_membership_mismatch")
+    if receipt.get("registration_sha256") != digest(
+        root / (DATA / "registration.json")
+    ):
+        raise ValueError("training_receipt_registration_mismatch")
     schedule_sha = hashlib.sha256(canonical_bytes(schedule)).hexdigest()
     if receipt.get("schedule_sha256") != schedule_sha:
         raise ValueError("training_receipt_schedule_mismatch")
@@ -196,6 +201,59 @@ def verify_result(output: Path, *, root: Path = ROOT) -> dict[str, Any]:
         or report.get("schedule_sha256") != schedule_sha
     ):
         raise ValueError("b512_tensor_comparison_identity_mismatch")
+    expected_shapes = {
+        "input_layer.weight": [96, 27],
+        "input_layer.bias": [96],
+        "policy_hidden_layer.weight": [96, 96],
+        "policy_hidden_layer.bias": [96],
+        "policy_head.weight": [6, 96],
+        "policy_head.bias": [6],
+        "value_hidden_layer.weight": [48, 96],
+        "value_hidden_layer.bias": [48],
+        "value_head.weight": [1, 48],
+        "value_head.bias": [1],
+    }
+    for block in range(3):
+        for layer in range(2):
+            expected_shapes[f"residual_layers.{block}.{layer}.weight"] = [96, 96]
+            expected_shapes[f"residual_layers.{block}.{layer}.bias"] = [96]
+    if any(
+        item.get("shape") != expected_shapes[item["name"]]
+        or item.get("dtype") != "torch.float32"
+        for item in comparisons
+    ):
+        raise ValueError("b512_tensor_schema_evidence_mismatch")
+    trainable_names = sorted(
+        name for name in expected_names if name.startswith(TRAINABLE)
+    )
+    optimizer_evidence = report.get("optimizer_state")
+    if not isinstance(optimizer_evidence, dict):
+        raise ValueError("b512_optimizer_state_evidence_missing")
+    state_steps = optimizer_evidence.get("step_counters")
+    if (
+        optimizer_evidence.get("parameter_count") != len(trainable_names)
+        or not isinstance(state_steps, list)
+        or [item.get("parameter") for item in state_steps] != trainable_names
+        or any(item.get("step") != 512 for item in state_steps)
+        or not re.fullmatch(r"[0-9a-f]{64}", optimizer_evidence.get("state_sha256", ""))
+        or report.get("optimizer_identity") != "same-live-optimizer-through-update-513"
+    ):
+        raise ValueError("b512_optimizer_state_evidence_invalid")
+    continuity = report.get("optimizer_continuity")
+    if not isinstance(continuity, dict) or continuity.get("same_object_id") is not True:
+        raise ValueError("optimizer_continuity_evidence_missing")
+    before = continuity.get("before_update_513")
+    after = continuity.get("after_update_513")
+    if (
+        before != optimizer_evidence
+        or not isinstance(after, dict)
+        or after.get("parameter_count") != len(trainable_names)
+        or [item.get("parameter") for item in after.get("step_counters", [])]
+        != trainable_names
+        or any(item.get("step") != 513 for item in after.get("step_counters", []))
+        or not re.fullmatch(r"[0-9a-f]{64}", after.get("state_sha256", ""))
+    ):
+        raise ValueError("optimizer_continuity_evidence_invalid")
     raw_lines = trace_path.read_bytes().splitlines()
     if len(raw_lines) != UPDATES:
         raise ValueError("training_trace_count_mismatch")

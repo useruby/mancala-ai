@@ -7,6 +7,15 @@ execution freeze is intentionally not published. Production authorization,
 optimizer updates, checkpoint creation, and evaluation games remain prohibited
 until execution-readiness review and separate project-owner authorization.
 
+Freeze authentication is fail-closed and checks exact values for the registered
+Seed 604 and Seed 599 inputs, runtime, source set and digests, v5 cohort byte
+identities, fixed output contract, update count, and B512 gate contract. The
+runtime is compared with the executor's pinned contract, not accepted from the
+freeze alone. At the B512 boundary, all named model tensors must match exactly;
+all trainable parameters must have finite, complete Adam state at step 512.
+The report fingerprints that state and records the same optimizer's state at
+step 513.
+
 ## Exact runtime requirement
 
 The exact-reproduction runtime is CPython 3.14.7, NumPy 2.5.2, and PyTorch
