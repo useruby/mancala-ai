@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Mapping, Set as AbstractSet
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any
 
 from ml.alphazero_lite import holdback_arena
@@ -26,6 +28,9 @@ SEED599 = Path("docs/data/seed599-replay-coverage")
 SEED561 = Path("docs/data/seed561-historical-exclusion-inventory-v1")
 SEED599_TRAINING_FREEZE_SHA256 = (
     "bd141778461d7046b067966d7fb87188e5b0a2630d82655a321059b4ce17cad9"
+)
+SEED604_REGISTRATION_SHA256 = (
+    "b2a8eb494fefa97ee454cd52760612a92f6f766b053dfb730a6c94bb962e3d71"
 )
 SEED599_EVALUATION_FREEZE_SHA256 = (
     "467cb1ecf4acb47013fce9cd9418b3ac6b1d3929752713e9bd029fceabbcea11"
@@ -69,6 +74,72 @@ REQUIRED_SEED599_POPULATIONS = {
 REQUIRED_POLICY_POPULATIONS = REQUIRED_SEED599_POPULATIONS | {
     "seed561_historical_inventory"
 }
+EXECUTION_STATUS_KEYS = frozenset(
+    {
+        "evaluation_openings_generated",
+        "execution_freeze_created",
+        "training_started",
+        "evaluation_games_started",
+        "authorization_created",
+    }
+)
+_AUTHENTICATED_POLICY_SEAL = object()
+
+
+def _freeze_json(value: Any) -> Any:
+    """Recursively freeze a parsed JSON document for authenticated reuse."""
+    if isinstance(value, dict):
+        return MappingProxyType(
+            {key: _freeze_json(item) for key, item in value.items()}
+        )
+    if isinstance(value, list):
+        return tuple(_freeze_json(item) for item in value)
+    return value
+
+
+class AuthenticatedBoundedPolicy:
+    """Verified exclusion document and immutable identity sets loaded from it."""
+
+    __slots__ = ("document", "_excluded", "_seal")
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if hasattr(self, name):
+            raise AttributeError("authenticated_bounded_policy_is_immutable")
+        object.__setattr__(self, name, value)
+
+    def __init__(
+        self,
+        document: dict[str, Any],
+        identity_sets: dict[str, dict[str, set[str]]],
+        seal: object,
+    ) -> None:
+        if seal is not _AUTHENTICATED_POLICY_SEAL:
+            raise ValueError("bounded_policy_must_be_loaded_and_authenticated")
+        self.document = _freeze_json(document)
+        self._excluded = MappingProxyType(
+            {
+                scheme: frozenset().union(
+                    *(population[scheme] for population in identity_sets.values())
+                )
+                for scheme in ("canonical", "float32")
+            }
+        )
+        self._seal = seal
+
+    def validate_candidate_state(self, state: dict[str, Any]) -> dict[str, str]:
+        """Recompute both identities and reject overlap with authenticated sources."""
+        if self._seal is not _AUTHENTICATED_POLICY_SEAL:
+            raise ValueError("bounded_policy_authentication_seal_invalid")
+        if not isinstance(state, dict):
+            raise TypeError("candidate_state_must_be_a_mapping")
+        canonical = canonical_identity(state)
+        float32 = production_float32_identity(state)
+        _validate_candidate_identities(
+            canonical,
+            float32,
+            self._excluded,
+        )
+        return {"canonical": canonical, "float32": float32}
 
 
 def sha256_bytes(raw: bytes) -> str:
@@ -107,28 +178,10 @@ def verify_source_bytes(path: Path, expected_sha256: str, label: str) -> bytes:
     return raw
 
 
-def verify_identity_union_bindings(
-    policy: dict[str, Any], excluded: dict[str, set[str]]
-) -> None:
-    """Verify supplied identity sets against the recorded set counts and hashes."""
-    expected_unions = policy.get("identity_unions")
-    if not isinstance(expected_unions, dict):
-        raise ValueError("exclusion_identity_union_missing")
-    for scheme in ("canonical", "float32"):
-        identities = excluded.get(scheme)
-        binding = expected_unions.get(scheme)
-        if not isinstance(identities, set) or not isinstance(binding, dict):
-            raise ValueError(f"exclusion_identity_scheme_missing:{scheme}")
-        if len(identities) != binding.get("distinct") or identity_set_sha256(
-            identities
-        ) != binding.get("identity_set_sha256"):
-            raise ValueError(f"exclusion_identity_manifest_mismatch:{scheme}")
-
-
-def validate_candidate_identities(
+def _validate_candidate_identities(
     canonical: str,
     float32: str,
-    excluded: dict[str, set[str]],
+    excluded: Mapping[str, AbstractSet[str]],
 ) -> None:
     """Reject candidate roots colliding in either identity scheme."""
     if "canonical" not in excluded or "float32" not in excluded:
@@ -172,13 +225,18 @@ def _state_identity_sets(
     return {"canonical": canonical, "float32": float32}
 
 
-def build_bounded_policy(root: Path = ROOT) -> dict[str, Any]:
-    """Authenticate registered inputs and report the proposed bounded union.
+def _build_bounded_evidence(
+    root: Path,
+) -> tuple[dict[str, Any], dict[str, dict[str, set[str]]]]:
+    """Authenticate all inputs and build the normalized policy and identity sets.
 
     The Seed 561 verifier is read-only and must pass before its identity indexes
     are accepted. No openings are generated or written.
     """
     root = root.resolve()
+    registration = _read_pinned_json(
+        root, str(DATA / "registration.json"), SEED604_REGISTRATION_SHA256
+    )
     training_freeze = _read_pinned_json(
         root,
         str(SEED599 / "training-execution-freeze.json"),
@@ -404,12 +462,10 @@ def build_bounded_policy(root: Path = ROOT) -> dict[str, Any]:
         for population, ids in identity_sets.items()
         if population != "seed561_historical_inventory"
     }
-    return {
+    policy = {
         "schema": "seed604-bounded-exclusion-policy-v1",
         "status": "proposed-awaiting-project-owner-review",
-        "seed604_registration_sha256": sha256_bytes(
-            (root / DATA / "registration.json").read_bytes()
-        ),
+        "seed604_registration_sha256": SEED604_REGISTRATION_SHA256,
         "boundary": "all authenticated Seed 599 A/B training membership states, Seed 599 held-out states, all 1,024 Seed 599 evaluation opening roots, and the full authenticated Seed 561 bounded historical identity inventory",
         "populations": populations,
         "required_population_names": sorted(REQUIRED_SEED599_POPULATIONS),
@@ -461,10 +517,10 @@ def build_bounded_policy(root: Path = ROOT) -> dict[str, Any]:
         },
         "seed561_historical_scope": {
             "historical_source_families": [
-                "authenticated Seed 482-484 historical snapshots",
-                "Seed 488, 499, 505, 508 evaluation roots and replayed trajectory identities",
+                "Seed 482-484 authenticated historical snapshots",
+                "Seed 488, 499, 505 and 508 evaluation roots and replayed trajectory identities",
                 "Seed 500 pilot and self-play rows",
-                "Seed 562-564 published historical source indexes including Seed 556-560 and Seed 503-504 source families",
+                "Seed 562-564 historical source indexes, including Seed 556-560 and Seed 503-504 source families",
             ],
             "source_scope": "exact Seed 511 registration exclusion_source_sha256 list plus authenticated Seed 562-564 subtotal",
             "distinct_per_scheme": len(historical["canonical"]),
@@ -497,12 +553,309 @@ def build_bounded_policy(root: Path = ROOT) -> dict[str, Any]:
             "authorization_created": False,
         },
     }
+    if registration.get("seed") != 604:
+        raise ValueError("seed604_registration_seed_mismatch")
+    return policy, identity_sets
 
 
-def verify_published_policy(root: Path = ROOT) -> dict[str, Any]:
-    """Recompute authenticated inputs and compare them to the proposed record."""
+def build_bounded_policy(root: Path = ROOT) -> dict[str, Any]:
+    """Build internal evidence; candidate validation never accepts this mapping."""
+    policy, _identity_sets = _build_bounded_evidence(root)
+    return policy
+
+
+def _identity_record(source: dict[str, Any], scheme: str) -> dict[str, Any]:
+    count_key = "canonical_distinct" if scheme == "canonical" else "float32_distinct"
+    digest_key = (
+        "canonical_identity_set_sha256"
+        if scheme == "canonical"
+        else "float32_identity_set_sha256"
+    )
+    return {"distinct": source[count_key], "sha256": source[digest_key]}
+
+
+def _published_sources(internal: dict[str, Any]) -> dict[str, Any]:
+    """Map authenticated internal populations to the published policy schema."""
+    populations = internal["populations"]
+    sources: dict[str, Any] = {}
+    for arm in ("A", "B"):
+        name = f"seed599_training_{arm}"
+        source = populations[name]
+        sources[name] = {
+            "path": source["path"],
+            "source_commit": source["source_commit"],
+            "configuration_path": source["registration_path"],
+            "configuration_sha256": source["registration_sha256"],
+            "training_freeze_path": str(SEED599 / "training-execution-freeze.json"),
+            "training_freeze_sha256": SEED599_TRAINING_FREEZE_SHA256,
+            "file_sha256": source["file_sha256"],
+            "format": "JSON array; extract canonical_state from each training row.",
+            "extraction_rule": (
+                "Recompute canonical SHA-256 from sorted compact JSON canonical_state "
+                "and production float32 SHA-256 from the registered kalah_v3 encoder; "
+                "require any stored identity fields to agree."
+            ),
+            "records": source["records"],
+            "canonical_identity_set": _identity_record(source, "canonical"),
+            "production_float32_identity_set": _identity_record(source, "float32"),
+            "verification_status": (
+                "passed; file bytes, training configuration, freeze binding, stored "
+                "and recomputed identities agree"
+            ),
+        }
+
+    heldout = populations["seed599_heldout"]
+    sources["seed599_heldout"] = {
+        "path": heldout["path"],
+        "source_commit": heldout["source_commit"],
+        "registration_path": heldout["registration_path"],
+        "registration_sha256": heldout["registration_sha256"],
+        "published_membership_sha256": SEED599_HELDOUT_IDENTITY_SHA256,
+        "file_sha256": heldout["file_sha256"],
+        "format": "JSON array of provenance-held-out training examples; extract canonical_state.",
+        "extraction_rule": (
+            "Recompute canonical SHA-256 from sorted compact JSON canonical_state "
+            "and production float32 SHA-256 from the registered kalah_v3 encoder; "
+            "require any stored identity fields to agree."
+        ),
+        "records": heldout["records"],
+        "canonical_identity_set": _identity_record(heldout, "canonical"),
+        "production_float32_identity_set": _identity_record(heldout, "float32"),
+        "verification_status": (
+            "passed; canonical membership bytes match the published preparation "
+            "identity and both schemes were recomputed"
+        ),
+    }
+
+    roots = populations["seed599_evaluation_roots"]
+    sources["seed599_evaluation_roots"] = {
+        "path": roots["path"],
+        "source_commit": roots["source_commit"],
+        "evaluation_contract_path": roots["registration_path"],
+        "evaluation_contract_sha256": roots["registration_sha256"],
+        "evaluation_freeze_path": str(
+            SEED599 / "evaluation-readiness/execution-freeze.json"
+        ),
+        "evaluation_freeze_sha256": SEED599_EVALUATION_FREEZE_SHA256,
+        "file_sha256": roots["file_sha256"],
+        "format": (
+            "JSON array of registered opening roots; extract state and recompute "
+            "identities, checking declared identity fields."
+        ),
+        "extraction_rule": (
+            "Use each authenticated resulting root state; recompute canonical and "
+            "production float32 identities and reject mismatches with declared "
+            "identity fields. Do not use game outcomes."
+        ),
+        "records": roots["records"],
+        "canonical_identity_set": _identity_record(roots, "canonical"),
+        "production_float32_identity_set": _identity_record(roots, "float32"),
+        "verification_status": (
+            "passed; file hash, contract opening-manifest digest, count and "
+            "stored/recomputed identities agree"
+        ),
+    }
+
+    historical = populations["seed561_historical_inventory"]
+    sources["seed561_historical_inventory"] = {
+        "directory": str(SEED561),
+        "source_commit": historical["source_commit"],
+        "publication_commit": "b2f2bb092ededaad07e1c2d7dda57ce0d24d4409",
+        "anchor_commit": "0139cbd70d70184fc86cabd92afafdd849f28ef0",
+        "source_manifest_path": historical["registration_path"],
+        "source_manifest_sha256": historical["registration_sha256"],
+        "registration_sha256": historical["registration_sha256"],
+        "source_scope": (
+            "exact Seed 511 registration exclusion_source_sha256 list plus the "
+            "independently verified Seed 562-564 subtotal"
+        ),
+        "extraction_rule": (
+            "Run the published Seed 561 verifier; load the externally pinned "
+            "distinct canonical and kalah_v3 float32 indexes as separate identity namespaces."
+        ),
+        "file_sha256": historical["file_sha256"],
+        "occurrence_rows_per_scheme": historical["records"],
+        "records": historical["records"],
+        "canonical_index_sha256": historical["canonical_index_sha256"],
+        "canonical_identity_set": _identity_record(historical, "canonical"),
+        "float32_index_sha256": historical["float32_index_sha256"],
+        "production_float32_identity_set": _identity_record(historical, "float32"),
+        "included_families": internal["seed561_historical_scope"][
+            "historical_source_families"
+        ],
+        "verification_status": (
+            "passed using the published Seed 561 verifier and externally pinned "
+            "index loader"
+        ),
+    }
+    return sources
+
+
+def _published_policy_document(internal: dict[str, Any]) -> dict[str, Any]:
+    """Serialize the sole published schema from verified internal evidence."""
+    unions = internal["identity_unions"]
+    canonical_count = unions["canonical"]["distinct"]
+    float32_count = unions["float32"]["distinct"]
+    if canonical_count != float32_count:
+        raise ValueError("bounded_union_scheme_count_mismatch")
+    intersections = internal["seed599_to_seed561_intersections"]
+    return {
+        "schema": "seed604-bounded-exclusion-policy-v1",
+        "status": "proposed-awaiting-project-owner-review",
+        "seed604_registration_sha256": internal["seed604_registration_sha256"],
+        "boundary": (
+            "All authenticated Seed 599 A/B training membership states, Seed 599 "
+            "held-out states, all 1,024 Seed 599 evaluation opening roots, and the "
+            "full authenticated Seed 561 bounded historical identity inventory."
+        ),
+        "identity_rule": {
+            "schemes": [
+                "canonical_state_sha256",
+                "production_kalah_v3_float32_sha256",
+            ],
+            "candidate_requirement": (
+                "Every future Seed 604 opening root must be disjoint from every "
+                "included population in both matching identity schemes; roots must "
+                "also be unique within each scheme."
+            ),
+            "identity_set_sha256": (
+                "SHA-256 of sorted lowercase 64-character identity strings joined "
+                "by LF without a terminal LF."
+            ),
+        },
+        "sources": _published_sources(internal),
+        "observed_overlap_accounting": {
+            "seed599_population_intersections_with_seed561": {
+                "canonical" if scheme == "canonical" else "production_float32": {
+                    name.removeprefix("seed599_"): counts[scheme]
+                    for name, counts in intersections.items()
+                }
+                for scheme in ("canonical", "float32")
+            },
+            "seed599_cross_population_overlaps": internal[
+                "known_overlaps_within_included_seed599_populations"
+            ],
+            "distinct_seed599_union_per_scheme": internal[
+                "seed599_distinct_union_per_scheme"
+            ],
+            "bounded_union_per_scheme": canonical_count,
+            "bounded_union_identity_set_sha256": {
+                "canonical": unions["canonical"]["identity_set_sha256"],
+                "production_float32": unions["float32"]["identity_set_sha256"],
+            },
+        },
+        "limitations": {
+            "seed461_continuation_states": (
+                "unresolved and not included; see PR #605 and "
+                "docs/data/seed604-replay-optimization/exclusion-inventory-audit.json"
+            ),
+            "other_historical_populations": (
+                "outside the exact Seed 511-pinned scope remain uncovered with unknown counts"
+            ),
+            "seed599_evaluation_trajectories": (
+                "not included; this boundary adds the 1,024 authenticated evaluation "
+                "opening roots, not all post-root states from Seed 599 games"
+            ),
+            "claim_boundary": (
+                "Do not claim complete historical independence, a globally untouched "
+                "holdout, or unseen-state generalization. Report conclusions as bounded "
+                "to these authenticated exclusions and the registered paired cohort."
+            ),
+            "seed461_comparison_effect": (
+                "The unresolved states do not prevent the bounded paired B2048-versus-B512 "
+                "or B2048-versus-P-E4 cohort contrasts, but prevent claims that the cohort "
+                "is independent of all historical experience. No missing states may be "
+                "reconstructed by guessing the execution source version."
+            ),
+        },
+        "seed604_experiment_invariants": {
+            "parent_checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+            "B512_checkpoint_sha256": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+            "treatment": (
+                "continue from authenticated P-E4 with fresh Adam; exact Seed 599 "
+                "B512 tensor reproduction before update 513"
+            ),
+            "update_budget": 2048,
+            "comparison": (
+                "B512 and B2048 versus the same serving P-E4; unchanged common P-E4 value evaluator"
+            ),
+            "statistical_gates": (
+                "unchanged from the Seed 604 registration: primary one-sided 95% lower "
+                "bound > 0.50; secondary paired two-sided 95% lower endpoint for B2048 "
+                "minus B512 > 0"
+            ),
+        },
+        "execution_status": {name: False for name in sorted(EXECUTION_STATUS_KEYS)},
+    }
+
+
+def validate_published_policy_document(saved: Any, expected: dict[str, Any]) -> None:
+    """Fail closed on schema, source-registration, index, status or digest changes."""
+    if not isinstance(saved, dict):
+        raise ValueError("bounded_exclusion_policy_invalid_document")
+    if saved.get("schema") != expected.get("schema") or saved.get(
+        "status"
+    ) != expected.get("status"):
+        raise ValueError("bounded_exclusion_policy_schema_or_status_mismatch")
+    status = saved.get("execution_status")
+    if not isinstance(status, dict) or set(status) != EXECUTION_STATUS_KEYS:
+        raise ValueError("bounded_exclusion_policy_execution_status_schema_mismatch")
+    if any(type(value) is not bool or value is not False for value in status.values()):
+        raise ValueError("bounded_exclusion_policy_execution_status_invalid")
+    expected_sources = expected.get("sources", {})
+    saved_sources = saved.get("sources")
+    if not isinstance(saved_sources, dict):
+        raise ValueError("bounded_exclusion_policy_sources_missing")
+    missing = REQUIRED_POLICY_POPULATIONS - saved_sources.keys()
+    if missing:
+        raise ValueError(
+            f"bounded_exclusion_policy_source_registration_missing:{','.join(sorted(missing))}"
+        )
+    if set(saved_sources) != set(expected_sources):
+        raise ValueError("bounded_exclusion_policy_source_registration_set_mismatch")
+    saved_historical = saved_sources["seed561_historical_inventory"]
+    expected_historical = expected_sources["seed561_historical_inventory"]
+    for field in ("canonical_index_sha256", "float32_index_sha256"):
+        if saved_historical.get(field) != expected_historical.get(field):
+            raise ValueError(f"seed561_policy_index_hash_mismatch:{field}")
+    for population, expected_source in expected_sources.items():
+        saved_source = saved_sources[population]
+        if set(saved_source) != set(expected_source):
+            raise ValueError(
+                f"bounded_exclusion_policy_source_field_set_mismatch:{population}"
+            )
+        for field, expected_value in expected_source.items():
+            if saved_source[field] != expected_value:
+                raise ValueError(
+                    f"bounded_exclusion_policy_source_binding_mismatch:{population}:{field}"
+                )
+    if set(saved) != set(expected):
+        raise ValueError("bounded_exclusion_policy_manifest_key_set_mismatch")
+    for key, expected_value in expected.items():
+        if saved[key] != expected_value:
+            if key == "observed_overlap_accounting":
+                observed = saved[key]
+                for accounting_key, accounting_value in expected_value.items():
+                    if observed.get(accounting_key) != accounting_value:
+                        raise ValueError(
+                            "bounded_exclusion_policy_accounting_mismatch:"
+                            f"{accounting_key}:saved={observed.get(accounting_key)!r}:"
+                            f"expected={accounting_value!r}"
+                        )
+            raise ValueError(f"bounded_exclusion_policy_manifest_mismatch:{key}")
+
+
+def load_authenticated_published_policy(
+    root: Path = ROOT,
+) -> AuthenticatedBoundedPolicy:
+    """Load the one registered policy path, authenticate it, and retain its sets.
+
+    Callers cannot provide a policy document or exclusion sets. The returned
+    object can validate multiple candidate roots against the source-backed sets.
+    """
     root = root.resolve()
-    expected = build_bounded_policy(root)
+    internal, identity_sets = _build_bounded_evidence(root)
+    expected = _published_policy_document(internal)
     path = root / DATA / "bounded-exclusion-policy.json"
     if not path.is_file():
         raise ValueError("bounded_exclusion_policy_missing")
@@ -510,153 +863,38 @@ def verify_published_policy(root: Path = ROOT) -> dict[str, Any]:
         saved = json.loads(path.read_bytes())
     except (UnicodeDecodeError, json.JSONDecodeError) as error:
         raise ValueError("bounded_exclusion_policy_invalid_json") from error
-    if (
-        saved.get("schema") != expected["schema"]
-        or saved.get("status") != expected["status"]
-        or saved.get("seed604_registration_sha256")
-        != expected["seed604_registration_sha256"]
-    ):
-        raise ValueError("bounded_exclusion_policy_identity_mismatch")
-    expected_union = expected["identity_unions"]
-    saved_accounting = saved.get("observed_overlap_accounting", {})
-    expected_hashes = saved_accounting.get("bounded_union_identity_set_sha256", {})
-    if (
-        saved_accounting.get("bounded_union_per_scheme")
-        != expected_union["canonical"]["distinct"]
-        or expected_hashes.get("canonical")
-        != expected_union["canonical"]["identity_set_sha256"]
-        or expected_hashes.get("production_float32")
-        != expected_union["float32"]["identity_set_sha256"]
-    ):
-        raise ValueError("bounded_exclusion_policy_union_mismatch")
-    if (
-        saved_accounting.get("distinct_seed599_union_per_scheme")
-        != expected["seed599_distinct_union_per_scheme"]
-        or saved_accounting.get("seed599_cross_population_overlaps")
-        != expected["known_overlaps_within_included_seed599_populations"]
-    ):
-        raise ValueError("bounded_exclusion_policy_overlap_accounting_mismatch")
-    saved_hist_intersections = saved_accounting.get(
-        "seed599_population_intersections_with_seed561", {}
+    validate_published_policy_document(saved, expected)
+    return AuthenticatedBoundedPolicy(
+        saved,
+        identity_sets,
+        _AUTHENTICATED_POLICY_SEAL,
     )
-    expected_hist_intersections = {
-        population.removeprefix("seed599_"): values["canonical"]
-        for population, values in expected["seed599_to_seed561_intersections"].items()
-    }
-    if saved_hist_intersections.get(
-        "canonical"
-    ) != expected_hist_intersections or saved_hist_intersections.get(
-        "production_float32"
-    ) != {
-        population.removeprefix("seed599_"): values["float32"]
-        for population, values in expected["seed599_to_seed561_intersections"].items()
-    }:
-        raise ValueError("bounded_exclusion_policy_historical_overlap_mismatch")
-    saved_sources = saved.get("sources", {})
-    require_complete_population_manifest(saved_sources)
-    if set(saved_sources) != set(expected["populations"]):
-        raise ValueError("bounded_exclusion_policy_population_set_mismatch")
-    limitations = saved.get("limitations", {})
-    if (
-        "unresolved" not in limitations.get("seed461_continuation_states", "")
-        or "unknown counts" not in limitations.get("other_historical_populations", "")
-        or "not included" not in limitations.get("seed599_evaluation_trajectories", "")
-    ):
-        raise ValueError("bounded_exclusion_policy_limitations_incomplete")
-    execution = saved.get("execution_status", {})
-    if any(execution.get(key) is not False for key in execution):
-        raise ValueError("bounded_exclusion_policy_execution_status_invalid")
-    invariants = saved.get("seed604_experiment_invariants", {})
-    if (
-        invariants.get("parent_checkpoint_sha256")
-        != "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad"
-        or invariants.get("B512_checkpoint_sha256")
-        != "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c"
-        or invariants.get("update_budget") != 2048
-        or "unchanged" not in invariants.get("statistical_gates", "")
-    ):
-        raise ValueError("bounded_exclusion_policy_experiment_invariant_mismatch")
-    for population, source in expected["populations"].items():
-        saved_source = saved_sources[population]
-        saved_path = saved_source.get("directory", saved_source.get("path"))
-        saved_registration_path = saved_source.get(
-            "registration_path",
-            saved_source.get(
-                "configuration_path",
-                saved_source.get(
-                    "evaluation_contract_path", saved_source.get("source_manifest_path")
-                ),
-            ),
-        )
-        saved_registration_sha = saved_source.get(
-            "registration_sha256",
-            saved_source.get(
-                "configuration_sha256",
-                saved_source.get(
-                    "evaluation_contract_sha256",
-                    saved_source.get("source_manifest_sha256"),
-                ),
-            ),
-        )
-        if (
-            saved_path != source["path"]
-            or saved_source.get("source_commit") != source["source_commit"]
-            or saved_registration_path != source["registration_path"]
-            or saved_registration_sha != source["registration_sha256"]
-            or not str(saved_source.get("verification_status", "")).startswith("passed")
-        ):
-            raise ValueError(
-                f"bounded_exclusion_policy_provenance_mismatch:{population}"
-            )
-        for key in (
-            "file_sha256",
-            "records",
-            "canonical_identity_set",
-            "production_float32_identity_set",
-        ):
-            expected_key = {
-                "canonical_identity_set": "canonical_identity_set_sha256",
-                "production_float32_identity_set": "float32_identity_set_sha256",
-            }.get(key)
-            if key in {"canonical_identity_set", "production_float32_identity_set"}:
-                count_key = (
-                    "canonical_distinct"
-                    if key == "canonical_identity_set"
-                    else "float32_distinct"
-                )
-                if (
-                    saved_source[key].get("distinct") != source[count_key]
-                    or saved_source[key].get("sha256") != source[expected_key]
-                ):
-                    raise ValueError(
-                        f"bounded_exclusion_policy_source_mismatch:{population}:{key}"
-                    )
-            elif saved_source.get(key) != source.get(key):
-                raise ValueError(
-                    f"bounded_exclusion_policy_source_mismatch:{population}:{key}"
-                )
+
+
+def verify_published_policy(root: Path = ROOT) -> dict[str, Any]:
+    """Recompute and verify the checked-in policy without producing outputs."""
+    authenticated = load_authenticated_published_policy(root)
     return {
         "passed": True,
-        "status": expected["status"],
-        "identity_unions": expected_union,
+        "status": authenticated.document["status"],
+        "identity_unions": dict(
+            authenticated.document["observed_overlap_accounting"][
+                "bounded_union_identity_set_sha256"
+            ]
+        ),
         "evaluation_openings_generated": False,
         "training_or_games_started": False,
     }
 
 
-def verify_candidate_against_bounded_policy(
-    canonical: str,
-    float32: str,
-    policy: dict[str, Any],
-    excluded_identity_sets: dict[str, set[str]],
-) -> None:
-    """Validate source completeness and identity bindings before overlap checks."""
-    populations = policy.get("populations")
-    if not isinstance(populations, dict):
-        raise ValueError("exclusion_population_manifest_missing")
-    require_complete_population_manifest(populations)
-    verify_identity_union_bindings(policy, excluded_identity_sets)
-    validate_candidate_identities(canonical, float32, excluded_identity_sets)
+def validate_candidate_against_published_policy(
+    candidate_state: dict[str, Any],
+    policy: AuthenticatedBoundedPolicy,
+) -> dict[str, str]:
+    """Recompute and validate a root using a loaded authenticated policy object."""
+    if not isinstance(policy, AuthenticatedBoundedPolicy):
+        raise TypeError("candidate_validation_requires_authenticated_published_policy")
+    return policy.validate_candidate_state(candidate_state)
 
 
 def main() -> None:

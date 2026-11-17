@@ -29,6 +29,24 @@ new cohort. Identity-set digests use sorted lowercase SHA-256 strings joined by
 LF without a final LF. Source bytes, registration bindings, extraction rules,
 record counts and per-scheme identity-set hashes are pinned in the JSON policy.
 
+Candidate validation has one supported entry point. First call
+`load_authenticated_published_policy()` from
+`ml.alphazero_lite.seed604_bounded_exclusions`; it reads the fixed
+`bounded-exclusion-policy.json`, authenticates the registered source bytes,
+rebuilds both identity unions, verifies the complete published document, and
+returns a sealed `AuthenticatedBoundedPolicy`. Then call
+`validate_candidate_against_published_policy(candidate_state, policy)` for each
+candidate root. The candidate function recomputes both identities from the state
+and rejects dictionaries and caller-supplied exclusion sets.
+`build_bounded_policy()` is a diagnostic builder for verification output only;
+it is not accepted by candidate validation.
+
+Run the read-only policy verifier from the repository root with:
+
+```bash
+python -m ml.alphazero_lite.seed604_bounded_exclusions
+```
+
 The authenticated bounded union contains 537,698 distinct identities per
 scheme. The 256 A states are a subset of B, so they are separately authenticated
 and reported without double-counting the union. The known Seed 599 evaluation
