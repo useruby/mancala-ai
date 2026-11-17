@@ -1,0 +1,10 @@
+{
+  "files": {
+    "README.md": "64311210cc52c3c67d54a2e39c6e986d0172a47d4378b10f020ac31c3c0279f1",
+    "environment.json": "876962531f2c4c356a0102476b6fcd434d8fd77a3d21cb6eecf966c5b2e7eaf4",
+    "requirements-lock.txt": "5762f889f9719525379f8f1321811df9c52ea3675cdb319492eba15570c94ce4",
+    "runtime-identity.json": "f2d334003cdf51d7cca954853fb9147e02de096e4c701304f11b5300a70d25d5",
+    "synthetic-test-results.json": "6c651265fd6997f8f6caf2c2e518665ab1b01e0641c3fb13df735f2529bd2c52"
+  },
+  "schema": "seed604-runtime-certification-digests-v1"
+}

@@ -1,0 +1,18 @@
+{
+  "cpu_only_execution": true,
+  "environment_variables": {
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "PYTHONHASHSEED": "599"
+  },
+  "numpy": "2.5.2",
+  "python": "CPython==3.14.7",
+  "reproduction": [
+    "python3.14 -m venv .venv",
+    "export PYTHONHASHSEED=599 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1",
+    "python -m pip install --require-hashes --extra-index-url https://download.pytorch.org/whl/cu130 -r requirements-lock.txt",
+    "python -m ml.alphazero_lite.verify_seed604_runtime_certification"
+  ],
+  "torch": "2.13.0+cu130",
+  "torch_wheel_index": "https://download.pytorch.org/whl/cu130/torch/"
+}
