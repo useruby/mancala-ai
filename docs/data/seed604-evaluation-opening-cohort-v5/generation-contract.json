@@ -1,0 +1,41 @@
+{
+  "identities": "canonical_identity and production_float32_identity from seed551_controlled_policy_strength; validate through authenticated published bounded policy interface",
+  "initial_state": {
+    "current_player": 0,
+    "opponent_pits": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "opponent_store": 0,
+    "player_pits": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "player_store": 0
+  },
+  "opening_plies": 12,
+  "ordering": "Candidate indices start at 1; process serially; retain first 1024 candidates passing ordered rejection checks",
+  "reference": "Seed 599 generate_openings semantics in seed599_replay_coverage.py",
+  "rejection_order": [
+    "terminal_or_incomplete",
+    "canonical_exclusion",
+    "float32_exclusion",
+    "canonical_duplicate",
+    "float32_duplicate"
+  ],
+  "rng": "CPython random.Random(604); each candidate uses random.Random(master.randrange(2**63))",
+  "rules_source": "ml/alphazero_lite/kalah_rules.py KalahGame; relative moves mapped with pit_index and applied with move",
+  "sampling": "local_rng.choice(game.possible_moves()) exactly once per legal ply",
+  "schema": "seed604-opening-generation-contract-v1",
+  "seed": 604,
+  "target_count": 1024,
+  "terminal_rule": "Reject a candidate if terminal before completion, at any ply before ply 12, or after ply 12; require exactly 12 legal moves"
+}

@@ -1,0 +1,33 @@
+{
+  "limitations": [
+    "Seed 461 continuation identities remain unresolved and excluded.",
+    "Other out-of-scope historical populations have unknown counts.",
+    "Seed 599 post-root trajectories are not included; only its registered roots are excluded."
+  ],
+  "manifest_sha256": "445052b818b36f84953f73f280b20f7421c441fac6a74a0e2bb309cf907fb410",
+  "receipt_publisher_source_sha256": "a5d35ed462d2dd9b9aeb45000cb7091cc5bf856f898d5b4d760ab8950bb23735",
+  "registration_sha256": "538584c5fb326b28146b4a0b4ff5da9b4e7e1631db4301de1338e6bf486eb4a4",
+  "schema": "seed604-opening-cohort-verification-v1",
+  "status": "passed",
+  "verification": {
+    "accounting": {
+      "accepted_count": 1024,
+      "candidate_count": 1024,
+      "rejected_by_reason": {
+        "canonical_duplicate": 0,
+        "canonical_exclusion": 0,
+        "float32_duplicate": 0,
+        "float32_exclusion": 0,
+        "terminal_or_incomplete": 0
+      }
+    },
+    "exclusion_union_sha256": {
+      "canonical": "cd84d06ac97ed9918ad1727a9abe19d7432272a1f24140ba4ca9317bbcd72aa0",
+      "production_float32": "e369414d72ab36d2c7e9be2280c89a4ecde61fb360c1771879ac8cdc2e8b708a"
+    },
+    "manifest_sha256": "445052b818b36f84953f73f280b20f7421c441fac6a74a0e2bb309cf907fb410",
+    "opening_count": 1024,
+    "passed": true
+  },
+  "verifier_source_sha256": "21b8d9d19bf7d2741f9a01328c18117f7db3dd6aad5763b7851de3af4c349f62"
+}
