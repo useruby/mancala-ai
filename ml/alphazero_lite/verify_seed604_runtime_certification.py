@@ -11,7 +11,7 @@ from typing import Any
 from ml.alphazero_lite.seed604_training_executor import RUNTIME
 
 ROOT = Path(__file__).resolve().parents[2]
-ARTIFACTS = Path("docs/data/seed604-replay-optimization/runtime-certification-v2")
+ARTIFACTS = Path("docs/data/seed604-replay-optimization/runtime-certification-v3")
 SOURCE_PATHS = (
     "ml/alphazero_lite/seed604_training_executor.py",
     "ml/alphazero_lite/seed604_replay_optimization.py",

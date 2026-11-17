@@ -16,7 +16,7 @@ from typing import Any
 from ml.alphazero_lite.seed604_training_executor import RUNTIME, check_runtime
 
 ROOT = Path(__file__).resolve().parents[2]
-DESTINATION = Path("docs/data/seed604-replay-optimization/runtime-certification-v2")
+DESTINATION = Path("docs/data/seed604-replay-optimization/runtime-certification-v3")
 WHEELS = Path(".tmp/seed604-runtime/wheels")
 SOURCE_PATHS = (
     "ml/alphazero_lite/seed604_training_executor.py",
@@ -97,7 +97,12 @@ def _wheel_inventory() -> tuple[list[dict[str, Any]], str]:
                 "version": version,
                 "wheel_filename": wheel.name,
                 "wheel_sha256": digest,
-                "distribution_origin": str(dist.locate_file("")),
+                "distribution_origin": (
+                    "https://download.pytorch.org/whl/cu130/"
+                    if normalized == "torch"
+                    else "https://pypi.org/simple/"
+                ),
+                "installed_distribution_path": str(dist.locate_file("")),
             }
         )
         lock_lines.append(f"{name}=={version} --hash=sha256:{digest}")
@@ -195,7 +200,7 @@ def publish() -> Path:
         + b"\n",
     }
     files["README.md"] = (
-        "# Seed 604 runtime certification v2\n\n"
+        "# Seed 604 runtime certification v3\n\n"
         "Runtime identity verified: required software versions and deterministic settings "
         "authenticated in a fresh process. Synthetic gates verified: all six PyTorch "
         "synthetic tests executed successfully; 12 dependency-light tests also passed. "
