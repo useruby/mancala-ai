@@ -1,0 +1,19 @@
+{
+  "errors": [],
+  "evaluation_games_started": false,
+  "execution_freeze_created": false,
+  "expected_executor_tests": {
+    "dependency_light": 12,
+    "pytorch_synthetic": 6
+  },
+  "failures": [],
+  "modules": [
+    "ml.alphazero_lite.test_seed604_training_executor",
+    "ml.alphazero_lite.test_seed604_bounded_exclusions",
+    "ml.alphazero_lite.test_seed604_replay_optimization",
+    "ml.alphazero_lite.test_seed604_opening_cohort"
+  ],
+  "production_dataset_training": false,
+  "skipped": [],
+  "tests_run": 46
+}
