@@ -32,7 +32,7 @@ INITIAL_STATE = {
     "opponent_store": 0,
     "current_player": 0,
 }
-PUBLICATION = Path("docs/data/seed604-evaluation-opening-cohort-v3")
+PUBLICATION = Path("docs/data/seed604-evaluation-opening-cohort-v4")
 CONTRACT = {
     "schema": "seed604-opening-generation-contract-v1",
     "seed": SEED,

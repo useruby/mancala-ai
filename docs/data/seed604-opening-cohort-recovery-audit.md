@@ -16,6 +16,9 @@ independent verifier committed before generation, with source and rules hashes
 bound into its registration. An initial isolated `-v2` attempt was also
 invalidated and preserved without changes: its generated report marked
 verification as passed before the independent verifier had been run. It is not
-used as evidence. The final recovery publication is the distinct `-v3`
-destination, whose report is added create-only by a separate publisher after the
-read-only verifier succeeds.
+used as evidence. The `-v3` attempt was also invalidated:
+Python loaded a stale cached generator bytecode, and the verifier rejected the
+manifest because the execution-time generator digest did not match the committed
+source. It remains untouched and is not used. The final fresh attempt uses a
+new `-v4` destination, with the exact cache disabled and bytecode writes
+disabled for generation and verification.
