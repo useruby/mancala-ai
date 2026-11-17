@@ -1,0 +1,33 @@
+# Seed 604 B2048 training readiness
+
+Status: **implementation-only; not execution-ready**.
+
+The guarded executor and read-only result verifier are prepared, but the
+execution freeze is intentionally not published. Production authorization,
+optimizer updates, checkpoint creation, and evaluation games remain prohibited
+until execution-readiness review and separate project-owner authorization.
+
+## Exact runtime requirement
+
+The exact-reproduction runtime is CPython 3.14.7, NumPy 2.5.2, and PyTorch
+2.13.0+cu130 executing on CPU, with one PyTorch thread, deterministic
+algorithms enabled, and `PYTHONHASHSEED=599`, `OMP_NUM_THREADS=1`, and
+`MKL_NUM_THREADS=1`. Version substitution is not accepted for the bitwise B512
+gate. This checkout has CPython 3.14.7 and NumPy 2.5.3, but PyTorch is absent;
+the required runtime cannot currently be certified. See
+`ml/alphazero_lite/requirements-seed604-training.txt` for pinned Python package
+versions. The CUDA wheel index/platform availability must be provisioned and
+authenticated separately.
+
+## Authenticated read-only inputs
+
+The Seed 604 preflight authenticates the P-E4 parent, Seed 599 B512 checkpoint,
+Seed 599 B membership, B512 schedule, and deterministic 2,048-update schedule.
+The merged PR #607 opening-manifest SHA-256 is
+`445052b818b36f84953f73f280b20f7421c441fac6a74a0e2bb309cf907fb410`; its
+independent verifier passes and reports the registered bounded exclusion
+unions. No opening cohort or frozen Seed 599 target is regenerated.
+
+The exact update-512 parameter-tensor reproduction has **not** been run or
+claimed. A future authorized run must stop at update 512, compare all tensors
+exactly, then continue with the live Adam state only if every comparison passes.
