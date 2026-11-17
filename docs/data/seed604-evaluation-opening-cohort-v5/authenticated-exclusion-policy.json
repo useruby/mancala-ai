@@ -1,0 +1,195 @@
+{
+  "schema": "seed604-bounded-exclusion-policy-v1",
+  "status": "proposed-awaiting-project-owner-review",
+  "seed604_registration_sha256": "b2a8eb494fefa97ee454cd52760612a92f6f766b053dfb730a6c94bb962e3d71",
+  "boundary": "All authenticated Seed 599 A/B training membership states, Seed 599 held-out states, all 1,024 Seed 599 evaluation opening roots, and the full authenticated Seed 561 bounded historical identity inventory.",
+  "identity_rule": {
+    "schemes": [
+      "canonical_state_sha256",
+      "production_kalah_v3_float32_sha256"
+    ],
+    "candidate_requirement": "Every future Seed 604 opening root must be disjoint from every included population in both matching identity schemes; roots must also be unique within each scheme.",
+    "identity_set_sha256": "SHA-256 of sorted lowercase 64-character identity strings joined by LF without a terminal LF."
+  },
+  "sources": {
+    "seed599_training_A": {
+      "path": "docs/data/seed599-replay-coverage/control-membership.json",
+      "source_commit": "a5557fe4890b919b8f4fa5c009070e02de95085b",
+      "configuration_path": "docs/data/seed599-replay-coverage/training-A.json",
+      "configuration_sha256": "413a8a2b128391580a505dfa71e5772e44fd3c8c955577558ffdf92324f4f41a",
+      "training_freeze_path": "docs/data/seed599-replay-coverage/training-execution-freeze.json",
+      "training_freeze_sha256": "bd141778461d7046b067966d7fb87188e5b0a2630d82655a321059b4ce17cad9",
+      "file_sha256": "5f066de2d3c0e988aec137a8c64d66d89ea66562bc2d011da2cd6319fed21135",
+      "format": "JSON array; extract canonical_state from each training row.",
+      "extraction_rule": "Recompute canonical SHA-256 from sorted compact JSON canonical_state and production float32 SHA-256 from the registered kalah_v3 encoder; require any stored identity fields to agree.",
+      "records": 256,
+      "canonical_identity_set": {
+        "distinct": 256,
+        "sha256": "b1d5499e7c16b4734fbb21c46a5a81dbddfb042d69105fc4ff15b39c7f5b8be9"
+      },
+      "production_float32_identity_set": {
+        "distinct": 256,
+        "sha256": "caf833d6ed8b6e919bb9ae81f48ec3c66670b1cc18979d41674766c9da3a2240"
+      },
+      "verification_status": "passed; file bytes, training configuration, freeze binding, stored and recomputed identities agree"
+    },
+    "seed599_training_B": {
+      "path": "docs/data/seed599-replay-coverage/treatment-membership.json",
+      "source_commit": "a5557fe4890b919b8f4fa5c009070e02de95085b",
+      "configuration_path": "docs/data/seed599-replay-coverage/training-B.json",
+      "configuration_sha256": "8dd20557ac93d7d3c72bb94b50d35e868e85ee6f68bdd84699ee312b54e26405",
+      "training_freeze_path": "docs/data/seed599-replay-coverage/training-execution-freeze.json",
+      "training_freeze_sha256": "bd141778461d7046b067966d7fb87188e5b0a2630d82655a321059b4ce17cad9",
+      "file_sha256": "aa1139a4bd7ed31e35ea7870a0f9c2571db46b4b9fe79ae0f2ff10622e0668d2",
+      "format": "JSON array; extract canonical_state from each training row.",
+      "extraction_rule": "Recompute canonical SHA-256 from sorted compact JSON canonical_state and production float32 SHA-256 from the registered kalah_v3 encoder; require any stored identity fields to agree.",
+      "records": 2048,
+      "canonical_identity_set": {
+        "distinct": 2048,
+        "sha256": "12c6a406a742c956607595ca2ec1b8736a29f2b8c856523efcb2d0f01020669e"
+      },
+      "production_float32_identity_set": {
+        "distinct": 2048,
+        "sha256": "8ab01ab370c9381dad8de55dfff393bc09fe5a4fcecf6c37f262926274ee0488"
+      },
+      "verification_status": "passed; file bytes, training configuration, freeze binding, stored and recomputed identities agree"
+    },
+    "seed599_heldout": {
+      "path": "docs/data/seed599-replay-coverage/heldout-membership.json",
+      "source_commit": "a5557fe4890b919b8f4fa5c009070e02de95085b",
+      "registration_path": "docs/data/seed599-replay-coverage/preparation.json",
+      "registration_sha256": "11c580d2ebb8d4a8fc67b12f7d1f8e6d8bcbffa0d110e6549bf077d259ff751d",
+      "published_membership_sha256": "4e74d57244ab55b69751c38e4097860c25e541a8db60a2109f2ebd64c3eb81a8",
+      "file_sha256": "c1de9881bd8f997254908c188f00165c33d029f477580e0b8b75868cde53edc2",
+      "format": "JSON array of provenance-held-out training examples; extract canonical_state.",
+      "extraction_rule": "Recompute canonical SHA-256 from sorted compact JSON canonical_state and production float32 SHA-256 from the registered kalah_v3 encoder; require any stored identity fields to agree.",
+      "records": 1353,
+      "canonical_identity_set": {
+        "distinct": 1353,
+        "sha256": "36d1a5e18470310791a8a3fa42926da8ad6eeac3bc3e5a26bbba1ae330f3a02d"
+      },
+      "production_float32_identity_set": {
+        "distinct": 1353,
+        "sha256": "f2d5fbfd1685a702eccf5ec923a75d595aa85bf3fd0a61c7f9b05dfd4e7a65d6"
+      },
+      "verification_status": "passed; canonical membership bytes match the published preparation identity and both schemes were recomputed"
+    },
+    "seed599_evaluation_roots": {
+      "path": "docs/data/seed599-replay-coverage/evaluation-openings.json",
+      "source_commit": "7f3f9d4c53877602b15939a766a3a04a60081ee4",
+      "evaluation_contract_path": "docs/data/seed599-replay-coverage/evaluation-contract.json",
+      "evaluation_contract_sha256": "8d29200a27ae87daa7ea9de9a36ebf5a19d1f0f04b4f0237ff48ba1ab1af7bf4",
+      "evaluation_freeze_path": "docs/data/seed599-replay-coverage/evaluation-readiness/execution-freeze.json",
+      "evaluation_freeze_sha256": "467cb1ecf4acb47013fce9cd9418b3ac6b1d3929752713e9bd029fceabbcea11",
+      "file_sha256": "3acc395a59d90df57ddf60aa1e9d99aabde220901434f72239eb48a4047bc54a",
+      "format": "JSON array of registered opening roots; extract state and recompute identities, checking declared identity fields.",
+      "extraction_rule": "Use each authenticated resulting root state; recompute canonical and production float32 identities and reject mismatches with declared identity fields. Do not use game outcomes.",
+      "records": 1024,
+      "canonical_identity_set": {
+        "distinct": 1024,
+        "sha256": "950b184128201124b5ce6b6f43d24c3665b991170ffad9f9c9814362179e0004"
+      },
+      "production_float32_identity_set": {
+        "distinct": 1024,
+        "sha256": "70106d14b663255e39d6e784798abdfd20adddc27e8ff0e51238b0399811c485"
+      },
+      "verification_status": "passed; file hash, contract opening-manifest digest, count and stored/recomputed identities agree"
+    },
+    "seed561_historical_inventory": {
+      "directory": "docs/data/seed561-historical-exclusion-inventory-v1",
+      "source_commit": "2d6c5092e0947ffad59bd631ae7eafbb40eef6e7",
+      "publication_commit": "b2f2bb092ededaad07e1c2d7dda57ce0d24d4409",
+      "anchor_commit": "0139cbd70d70184fc86cabd92afafdd849f28ef0",
+      "source_manifest_path": "docs/data/seed561-historical-exclusion-inventory-v1/source-manifest.json",
+      "source_manifest_sha256": "946fc52c75fa2e6c0499811fcb97ff773ea00ec6ec9b6d1bfb3ec1c2466a95ad",
+      "registration_sha256": "946fc52c75fa2e6c0499811fcb97ff773ea00ec6ec9b6d1bfb3ec1c2466a95ad",
+      "source_scope": "exact Seed 511 registration exclusion_source_sha256 list plus the independently verified Seed 562-564 subtotal",
+      "extraction_rule": "Run the published Seed 561 verifier; load the externally pinned distinct canonical and kalah_v3 float32 indexes as separate identity namespaces.",
+      "file_sha256": "946fc52c75fa2e6c0499811fcb97ff773ea00ec6ec9b6d1bfb3ec1c2466a95ad",
+      "occurrence_rows_per_scheme": 1143823,
+      "records": 1143823,
+      "canonical_index_sha256": "0bbf129eca3f747375eb3bb81417b6b698fa2c733ce1ffcd4431b89d24541f3f",
+      "canonical_identity_set": {
+        "distinct": 534033,
+        "sha256": "624c2bc0f3c4ed7b77fe0c8e2f2258c27dd198b4274a472e0a03484cf055b854"
+      },
+      "float32_index_sha256": "d18d45a0caa028ba956bba78c87ea68c0cfb6378ef93cb303731f6be1f9ce5e3",
+      "production_float32_identity_set": {
+        "distinct": 534033,
+        "sha256": "f737998b37036bcdac2e8f5082114ebd68ccd18ae6d446db002872ad80999a5c"
+      },
+      "included_families": [
+        "Seed 482-484 authenticated historical snapshots",
+        "Seed 488, 499, 505 and 508 evaluation roots and replayed trajectory identities",
+        "Seed 500 pilot and self-play rows",
+        "Seed 562-564 historical source indexes, including Seed 556-560 and Seed 503-504 source families"
+      ],
+      "verification_status": "passed using the published Seed 561 verifier and externally pinned index loader"
+    }
+  },
+  "observed_overlap_accounting": {
+    "seed599_population_intersections_with_seed561": {
+      "canonical": {
+        "training_A": 52,
+        "training_B": 439,
+        "heldout": 320,
+        "evaluation_roots": 1
+      },
+      "production_float32": {
+        "training_A": 52,
+        "training_B": 439,
+        "heldout": 320,
+        "evaluation_roots": 1
+      }
+    },
+    "seed599_cross_population_overlaps": {
+      "canonical": {
+        "A_with_B": 256,
+        "A_with_heldout": 0,
+        "B_with_heldout": 0,
+        "evaluation_roots_with_A": 0,
+        "evaluation_roots_with_B": 0,
+        "evaluation_roots_with_heldout": 0
+      },
+      "float32": {
+        "A_with_B": 256,
+        "A_with_heldout": 0,
+        "B_with_heldout": 0,
+        "evaluation_roots_with_A": 0,
+        "evaluation_roots_with_B": 0,
+        "evaluation_roots_with_heldout": 0
+      }
+    },
+    "distinct_seed599_union_per_scheme": {
+      "canonical": 4425,
+      "float32": 4425
+    },
+    "bounded_union_per_scheme": 537698,
+    "bounded_union_identity_set_sha256": {
+      "canonical": "cd84d06ac97ed9918ad1727a9abe19d7432272a1f24140ba4ca9317bbcd72aa0",
+      "production_float32": "e369414d72ab36d2c7e9be2280c89a4ecde61fb360c1771879ac8cdc2e8b708a"
+    }
+  },
+  "limitations": {
+    "seed461_continuation_states": "unresolved and not included; see PR #605 and docs/data/seed604-replay-optimization/exclusion-inventory-audit.json",
+    "other_historical_populations": "outside the exact Seed 511-pinned scope remain uncovered with unknown counts",
+    "seed599_evaluation_trajectories": "not included; this boundary adds the 1,024 authenticated evaluation opening roots, not all post-root states from Seed 599 games",
+    "claim_boundary": "Do not claim complete historical independence, a globally untouched holdout, or unseen-state generalization. Report conclusions as bounded to these authenticated exclusions and the registered paired cohort.",
+    "seed461_comparison_effect": "The unresolved states do not prevent the bounded paired B2048-versus-B512 or B2048-versus-P-E4 cohort contrasts, but prevent claims that the cohort is independent of all historical experience. No missing states may be reconstructed by guessing the execution source version."
+  },
+  "seed604_experiment_invariants": {
+    "parent_checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+    "B512_checkpoint_sha256": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+    "treatment": "continue from authenticated P-E4 with fresh Adam; exact Seed 599 B512 tensor reproduction before update 513",
+    "update_budget": 2048,
+    "comparison": "B512 and B2048 versus the same serving P-E4; unchanged common P-E4 value evaluator",
+    "statistical_gates": "unchanged from the Seed 604 registration: primary one-sided 95% lower bound > 0.50; secondary paired two-sided 95% lower endpoint for B2048 minus B512 > 0"
+  },
+  "execution_status": {
+    "evaluation_openings_generated": false,
+    "execution_freeze_created": false,
+    "training_started": false,
+    "evaluation_games_started": false,
+    "authorization_created": false
+  }
+}

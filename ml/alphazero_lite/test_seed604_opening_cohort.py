@@ -40,6 +40,14 @@ class Seed604CohortNegativeTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "duplicate_canonical_root"):
             require_distinct_identities([row, dict(row)])
 
+    def test_float32_duplicate_root_rejected(self) -> None:
+        rows = [
+            {"canonical_identity": "a" * 64, "float32_identity": "b" * 64},
+            {"canonical_identity": "c" * 64, "float32_identity": "b" * 64},
+        ]
+        with self.assertRaisesRegex(ValueError, "duplicate_float32_root"):
+            require_distinct_identities(rows)
+
     def test_canonical_only_exclusion_collision_rejected(self) -> None:
         excluded = {"canonical": {"a" * 64}, "float32": set()}
         with self.assertRaisesRegex(

@@ -1,0 +1,20 @@
+{
+  "contract_sha256": "776140d6cd4bef1a426d55c06e258e8385a4736729e858b6352df8dfa3398658",
+  "exclusion_policy_sha256": "1fab32c4cfb959bff9dac88a69e11b8aa05ccc5a287bf43a09797cd978c084cb",
+  "exclusion_union_distinct": 537698,
+  "exclusion_union_sha256": {
+    "canonical": "cd84d06ac97ed9918ad1727a9abe19d7432272a1f24140ba4ca9317bbcd72aa0",
+    "production_float32": "e369414d72ab36d2c7e9be2280c89a4ecde61fb360c1771879ac8cdc2e8b708a"
+  },
+  "generator_source_sha256": "9ee7412b6c5fcece0269861d7dbbed76021d6da2a5f7c12b5a00e9cd56b7fc00",
+  "identity_sets": {
+    "canonical": "1bcb39f50e0fee91a549d4f4225ee45476405dde1e262726c2d1c4445e1f4940",
+    "production_float32": "9cf3a4d7ad0fa8b88c8f6e386e93ed96c2485b97f60e53e7a9e68ce2b624e54a"
+  },
+  "identity_source_sha256": "c589240e2352273e0b86c48c3b37f5fa9737cfc2423255b67d74e7e177f59e63",
+  "manifest_sha256": "445052b818b36f84953f73f280b20f7421c441fac6a74a0e2bb309cf907fb410",
+  "rules_source_sha256": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+  "schema": "seed604-opening-cohort-registration-v1",
+  "source_commit": "b075b36a85e1c13548f2bedbba1e41cd4b6519b9",
+  "verifier_source_sha256": "21b8d9d19bf7d2741f9a01328c18117f7db3dd6aad5763b7851de3af4c349f62"
+}

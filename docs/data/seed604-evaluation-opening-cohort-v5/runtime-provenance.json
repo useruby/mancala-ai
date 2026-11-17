@@ -1,0 +1,17 @@
+{
+  "generator_source_commit": "b075b36a85e1c13548f2bedbba1e41cd4b6519b9",
+  "generator_source_sha256": "9ee7412b6c5fcece0269861d7dbbed76021d6da2a5f7c12b5a00e9cd56b7fc00",
+  "identity_encoder_source_sha256": "c589240e2352273e0b86c48c3b37f5fa9737cfc2423255b67d74e7e177f59e63",
+  "manifest_sha256": "445052b818b36f84953f73f280b20f7421c441fac6a74a0e2bb309cf907fb410",
+  "python_implementation": "CPython",
+  "python_implementation_cache_tag": "cpython-314",
+  "python_random_module_path": "random.py",
+  "python_random_module_sha256": "cf8e72f887d838e273c274b79758b2bf8630a0927112b8876fa3a9e4b9b1756b",
+  "python_version": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+  "registration_sha256": "538584c5fb326b28146b4a0b4ff5da9b4e7e1631db4301de1338e6bf486eb4a4",
+  "rules_source_sha256": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+  "schema": "seed604-opening-cohort-runtime-provenance-v1",
+  "verification_passed": true,
+  "verification_report_sha256": "8de5b13614270312196a5cbc28f23b5cab123a7664d8ca4e9ca951891c3c302b",
+  "verifier_source_sha256": "21b8d9d19bf7d2741f9a01328c18117f7db3dd6aad5763b7851de3af4c349f62"
+}
