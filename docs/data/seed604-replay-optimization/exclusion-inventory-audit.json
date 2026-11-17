@@ -1,0 +1,82 @@
+{
+  "schema": "seed604-historical-exclusion-audit-v1",
+  "status": "incomplete-cohort-generation-blocked",
+  "seed604_registration_sha256": "b2a8eb494fefa97ee454cd52760612a92f6f766b053dfb730a6c94bb962e3d71",
+  "audit_basis": {
+    "seed461_forensic_inventory": {
+      "path": "docs/data/seed485-seed461-forensic-inventory.json",
+      "sha256": "8c9d9e531a7e0f5154317d19b2054814638d3fd114c1bc06f138612e0981a174",
+      "publication_commit": "0c1767676"
+    },
+    "seed461_recovery_ledger": {
+      "path": "docs/data/seed486-seed461-recovery-ledger.json",
+      "sha256": "cc803b7313851e35adf3191437d7c3b91c490f57bbe491e302bbc1024782d238",
+      "publication_commit": "1701142bb"
+    },
+    "seed511_scope_registration": {
+      "path": "docs/data/seed511-fixed-composition-screen-v4/registration.json",
+      "sha256": "89f04c6e1f774d81a7866d3913dd5ffa990b9e04a58f9a7f066b8f19204445c4",
+      "publication_commit": "b2f2bb092"
+    },
+    "seed561_inventory": {
+      "path": "docs/data/seed561-historical-exclusion-inventory-v1",
+      "publication_commit": "b2f2bb092",
+      "source_scope": "exact Seed 511 registration exclusion_source_sha256 list",
+      "verified_union": {
+        "canonical_identities": 534033,
+        "kalah_v3_float32_identities": 534033
+      },
+      "seed461_continuations": "unresolved; not reconstructed or counted",
+      "other_uncovered_historical_populations": "remain uncovered; counts unknown"
+    },
+    "seed599_inputs": {
+      "verified_by": "ml.alphazero_lite.seed604_replay_optimization.read_only_preflight",
+      "parent_checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "training_membership_sha256": "95ecc180e28945702e08815de7a5210e1bce036afdaf76d194bbd774589a4516",
+      "evaluation_openings_sha256": "3acc395a59d90df57ddf60aa1e9d99aabde220901434f72239eb48a4047bc54a",
+      "note": "These authenticated Seed 599 inputs are not a complete historical exclusion inventory."
+    }
+  },
+  "seed461_gap": {
+    "stream_count": 58,
+    "receipt_matched_game_logs": 58,
+    "run_bound_arena_and_rules_source_bindings": 0,
+    "explicit_state_trace_rows": 0,
+    "streams_missing_registration_and_suite_receipts": 10,
+    "streams_missing_resume_chunk_mapping": 58,
+    "uncovered_recorded_trajectory_action_pre_states": 1129643,
+    "unique_uncovered_identity_count": null,
+    "per_stream_evidence_and_unresolved_fields": "docs/data/seed486-seed461-recovery-ledger.json",
+    "missing_evidence": [
+      "For each of the 58 receipt-matched streams, execution-time arena.py and Kalah rules source files or hashes linked to the corresponding game-log receipt by a source snapshot manifest or command/runtime receipt.",
+      "For each stream, an explicit state trace linked to that same game-log receipt, or sufficient source-bound evidence to replay the logged trajectory under its actual writer and rules semantics.",
+      "For each stream, command logs and resume/chunk manifests tying run, suite index, seat initialization, and per-game ranges together.",
+      "For the ten fixed-E4 streams, the missing registration and opening-suite receipt and bytes."
+    ],
+    "fixed_e4_stream_keys": [
+      "order_38411_A",
+      "order_38411_B",
+      "order_38412_A",
+      "order_38412_B",
+      "order_38413_A",
+      "order_38413_B",
+      "order_38414_A",
+      "order_38414_B",
+      "order_38415_A",
+      "order_38415_B"
+    ],
+    "generation_authorized": false
+  },
+  "decision": {
+    "complete_historical_inventory_authenticated": false,
+    "new_openings_generated": false,
+    "reason": "The published Seed 561 inventory explicitly excludes the unresolved Seed 461 continuation population and discloses other historical populations outside the pinned Seed 511 scope with unknown counts. Seed 486 records the exact run-bound artifacts needed to resolve the Seed 461 gap; none are supplied by this audit.",
+    "next_required_action": "Recover and authenticate the run-bound evidence listed in seed486-seed461-recovery-ledger.json, then separately scope and authenticate historical populations outside Seed 511's pinned inventory before generating a Seed 604 cohort."
+  },
+  "execution": {
+    "training_started": false,
+    "evaluation_games_started": false,
+    "seed604_execution_freezes_created": false,
+    "authorization_records_created": false
+  }
+}
