@@ -32,7 +32,7 @@ INITIAL_STATE = {
     "opponent_store": 0,
     "current_player": 0,
 }
-PUBLICATION = Path("docs/data/seed604-evaluation-opening-cohort-v2")
+PUBLICATION = Path("docs/data/seed604-evaluation-opening-cohort-v3")
 CONTRACT = {
     "schema": "seed604-opening-generation-contract-v1",
     "seed": SEED,
@@ -188,6 +188,9 @@ def publication_payloads(root: Path = ROOT) -> dict[str, bytes]:
                 root / "ml/alphazero_lite/seed551_controlled_policy_strength.py"
             ).read_bytes()
         ),
+        "verifier_source_sha256": sha256(
+            (root / "ml/alphazero_lite/verify_seed604_opening_cohort.py").read_bytes()
+        ),
         "contract_sha256": sha256(contract_raw),
         "manifest_sha256": sha256(manifest_raw),
         "exclusion_policy_sha256": sha256(policy_raw),
@@ -203,16 +206,6 @@ def publication_payloads(root: Path = ROOT) -> dict[str, bytes]:
         "generation-contract.json": CONTRACT,
         "opening-manifest.json": manifest,
         "registration.json": registration,
-        "verification-report.json": {
-            "schema": "seed604-opening-cohort-verification-v1",
-            "passed": True,
-            "method": "Independent read-only verifier; deterministic full regeneration and replay.",
-            "limitations": [
-                "Seed 461 continuation identities remain unresolved and excluded.",
-                "Other out-of-scope historical populations have unknown counts.",
-                "Seed 599 post-root trajectories are not included; only its registered roots are excluded.",
-            ],
-        },
     }
     # Policy source is pinned by the registration and re-authenticated at verify time.
     payloads = {

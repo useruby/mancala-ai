@@ -13,4 +13,9 @@ left unchanged.
 Recovery starts at merged PR #606 (`07ad18318919f03c92fe49cf5e337f108ee7c930`)
 in a separate clean Git worktree. The fresh attempt below uses a generator and
 independent verifier committed before generation, with source and rules hashes
-bound into its registration.
+bound into its registration. An initial isolated `-v2` attempt was also
+invalidated and preserved without changes: its generated report marked
+verification as passed before the independent verifier had been run. It is not
+used as evidence. The final recovery publication is the distinct `-v3`
+destination, whose report is added create-only by a separate publisher after the
+read-only verifier succeeds.

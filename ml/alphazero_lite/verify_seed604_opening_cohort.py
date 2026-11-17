@@ -185,8 +185,11 @@ def verify(root: Path = ROOT) -> dict[str, Any]:
         raise ValueError("generator_source_hash_mismatch")
     if source_raw != _bytes(root, f"{base}/generator-source.py"):
         raise ValueError("generator_snapshot_mismatch")
-    if _bytes(root, str(VERIFIER)) != _bytes(root, f"{base}/verifier-source.py"):
+    verifier_raw = _bytes(root, str(VERIFIER))
+    if verifier_raw != _bytes(root, f"{base}/verifier-source.py"):
         raise ValueError("verifier_snapshot_mismatch")
+    if digest(verifier_raw) != registration.get("verifier_source_sha256"):
+        raise ValueError("verifier_source_hash_mismatch")
     source_commit = registration.get("source_commit")
     if not isinstance(source_commit, str) or len(source_commit) != 40:
         raise ValueError("source_commit_missing")
