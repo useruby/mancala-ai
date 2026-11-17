@@ -28,6 +28,12 @@ the required runtime cannot currently be certified. See
 versions. The CUDA wheel index/platform availability must be provisioned and
 authenticated separately.
 
+The synthetic PyTorch gate tests have also been exercised in a separate,
+non-certifying environment using CPython 3.14.7, NumPy 2.5.3, and PyTorch
+2.15.0+cu132 (CUDA unavailable; CPU test operations only). These results test
+the synthetic tensor/Adam guard logic but do not certify the required Seed 599
+bitwise runtime.
+
 ## Authenticated read-only inputs
 
 The Seed 604 preflight authenticates the P-E4 parent, Seed 599 B512 checkpoint,

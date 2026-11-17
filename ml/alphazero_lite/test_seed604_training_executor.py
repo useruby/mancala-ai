@@ -306,7 +306,7 @@ class PyTorchSyntheticGateTests(unittest.TestCase):
         )
         self.assertEqual(continuous["state_sha256"], before["state_sha256"])
         optimizer.zero_grad(set_to_none=True)
-        loss = next(iter(named.values())).square().sum()
+        loss = sum(parameter.square().sum() for parameter in named.values())
         loss.backward()
         optimizer.step()
         after = executor.optimizer_state_evidence(
@@ -314,6 +314,19 @@ class PyTorchSyntheticGateTests(unittest.TestCase):
         )
         self.assertEqual(id(optimizer), identity)
         self.assertEqual({item["step"] for item in after["step_counters"]}, {513})
+
+    def test_missing_gradient_leaves_parameter_step_behind(self) -> None:
+        import torch
+
+        optimizer, named = self._optimizer_after_steps(torch, 512)
+        optimizer.zero_grad(set_to_none=True)
+        first_parameter = next(iter(named.values()))
+        first_parameter.square().sum().backward()
+        optimizer.step()
+        with self.assertRaisesRegex(ValueError, "adam_step_mismatch"):
+            executor.optimizer_state_evidence(
+                optimizer, named, torch, expected_step=513
+            )
 
     def test_optimizer_reset_or_altered_state_is_rejected(self) -> None:
         import torch
