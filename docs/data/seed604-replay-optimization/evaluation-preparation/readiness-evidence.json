@@ -1,0 +1,34 @@
+{
+  "assignment_count": 4096,
+  "checkpoint_identities": {
+    "B2048": {
+      "path": "docs/data/seed604-replay-optimization/training-run-B2048/seed604-B2048-update-2048.npz",
+      "sha256": "e2460325824be6ed5c416022744ffe4f22fe277f7f838fcc47df8732f0a04874"
+    },
+    "B512": {
+      "path": "docs/data/seed599-replay-coverage/training-run-B/seed599-arm-B-update-512.npz",
+      "sha256": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c"
+    }
+  },
+  "evaluation_authorized": false,
+  "execution_freeze_sha256": "3812d07445d61d91afcf2a47b536b0b93cf915774f51a77f17af4aade37a47aa",
+  "games_started": false,
+  "registered_openings": 1024,
+  "schema": "seed604-evaluation-readiness-evidence-v1",
+  "tablebase": {
+    "materialization_provenance": {
+      "cohort_registration_sha256": "538584c5fb326b28146b4a0b4ff5da9b4e7e1631db4301de1338e6bf486eb4a4",
+      "git_lfs_version": "git-lfs/3.7.1 (GitHub; linux amd64; go 1.25.3; git b84b3384)",
+      "gitattributes_sha256": "5b2cf5b64a0b2242d593f78fbf6df48de151e253b6488bafa8b11ea1b1d9f631",
+      "lfs_pointer_oid": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "lfs_pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+      "method": "git lfs pull origin --include=model-artifact/runtime/kalah_v1_21.kvtb --exclude=",
+      "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+      "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+      "tablebase_size": 709635072
+    },
+    "path": "model-artifact/runtime/kalah_v1_21.kvtb",
+    "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "size": 709635072
+  }
+}

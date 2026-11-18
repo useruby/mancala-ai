@@ -1,0 +1,228 @@
+{
+  "assignment_manifest": {
+    "game_count": 4096,
+    "opening_count": 1024,
+    "order": "opening, candidate B512 then B2048, seat 0 then 1",
+    "path": "docs/data/seed604-replay-optimization/evaluation-preparation/assignment-manifest.json",
+    "seed_derivation": "SHA-256 of UTF-8 seed604 NUL opening_id NUL candidate NUL seat; first 8 bytes big-endian modulo 2^31",
+    "sha256": "bcbccf36657092f4320d86afaf7da7b475db059f3172259157c4f9d0298e65c7"
+  },
+  "evaluation_authorized": false,
+  "materialization": {
+    "cohort_registration_sha256": "538584c5fb326b28146b4a0b4ff5da9b4e7e1631db4301de1338e6bf486eb4a4",
+    "git_lfs_version": "git-lfs/3.7.1 (GitHub; linux amd64; go 1.25.3; git b84b3384)",
+    "gitattributes_sha256": "5b2cf5b64a0b2242d593f78fbf6df48de151e253b6488bafa8b11ea1b1d9f631",
+    "lfs_pointer_oid": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "lfs_pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+    "method": "git lfs pull origin --include=model-artifact/runtime/kalah_v1_21.kvtb --exclude=",
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "tablebase_size": 709635072
+  },
+  "output": {
+    "analysis_path": "docs/data/seed604-replay-optimization/evaluation-preparation/analysis.json",
+    "analysis_schema": "seed604-cluster-bootstrap-analysis-v1",
+    "assignment_manifest_path": "docs/data/seed604-replay-optimization/evaluation-preparation/assignment-manifest.json",
+    "attempt_directory_pattern": "results/<game_id>/attempts/attempt-NNNN/",
+    "authorization_path": "docs/data/seed604-replay-optimization/evaluation-preparation/evaluation-authorization.json",
+    "create_only": true,
+    "freeze_path": "docs/data/seed604-replay-optimization/evaluation-preparation/execution-freeze.json",
+    "readiness_path": "docs/data/seed604-replay-optimization/evaluation-preparation/readiness-evidence.json",
+    "result_schema": "seed604-game-result-v1",
+    "results_directory": "docs/data/seed604-replay-optimization/evaluation-preparation/results"
+  },
+  "protocol_document_sha256": "e06bc1d1144714f23f8dce4977a099a62f4fda909c266d6f59402885b768400f",
+  "registration": {
+    "cohort_registration_sha256": "538584c5fb326b28146b4a0b4ff5da9b4e7e1631db4301de1338e6bf486eb4a4",
+    "cohort_runtime_provenance_sha256": "1184daaf53f0a30ef4dbe350a61519ca7d5cf6ab20d3f8018015f01c9de6e902",
+    "cohort_verification_report_sha256": "8de5b13614270312196a5cbc28f23b5cab123a7664d8ca4e9ca951891c3c302b",
+    "gitattributes_sha256": "5b2cf5b64a0b2242d593f78fbf6df48de151e253b6488bafa8b11ea1b1d9f631",
+    "lfs_pointer_oid": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "lfs_pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+    "models": {
+      "B2048": {
+        "path": "docs/data/seed604-replay-optimization/training-run-B2048/seed604-B2048-update-2048.npz",
+        "sha256": "e2460325824be6ed5c416022744ffe4f22fe277f7f838fcc47df8732f0a04874"
+      },
+      "B512": {
+        "path": "docs/data/seed599-replay-coverage/training-run-B/seed599-arm-B-update-512.npz",
+        "sha256": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c"
+      }
+    },
+    "native_probe_sha256": "d898ed68e5d8a5aade35c2f148efd758478ef1c27bed934ba601b9aa353b1e48",
+    "opening_manifest_sha256": "445052b818b36f84953f73f280b20f7421c441fac6a74a0e2bb309cf907fb410",
+    "registration_sha256": "b2a8eb494fefa97ee454cd52760612a92f6f766b053dfb730a6c94bb962e3d71",
+    "search_contract_equal_to_seed599": true,
+    "seed599_evaluation_contract_sha256": "8d29200a27ae87daa7ea9de9a36ebf5a19d1f0f04b4f0237ff48ba1ab1af7bf4",
+    "serving_metadata_sha256": "a9d133043c64ca41e3d77354f4ccf3403ab5f94286608f01589387159ac0258c",
+    "serving_model_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+    "serving_search_policy_sha256": "b13ced03deda6bd2d1737c6d339aececfe0b3730563ca800e36d12944b08fb8d",
+    "serving_weights_sha256": "89dead525a255cff4760867645fd9ce05cb2bbadcf1d72c5ac9089868c4a8136",
+    "tablebase_sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "tablebase_size": 709635072
+  },
+  "runtime": {
+    "dependency_lock_sha256": "5950f891ea746be6058af5fae4c414ac0aca872bec064a7d28c383f795e2fa79",
+    "device": "cpu",
+    "environment": {
+      "CUDA_VISIBLE_DEVICES": "",
+      "MKL_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "PYTHONHASHSEED": "604"
+    },
+    "machine": "x86_64",
+    "numpy": "2.5.3",
+    "pair_parallelism": 18,
+    "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+    "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+    "registered_cpus": 18,
+    "registered_memory_gib": 64,
+    "workers_per_game": 1
+  },
+  "runtime_artifacts": {
+    "B2048": {
+      "directory": "docs/data/seed604-replay-optimization/evaluation-preparation/runtime-artifacts/B2048",
+      "metadata_sha256": "7951c490aa865907da58f3022ee4129ebb597a1d6b951b7b1fdd43fa85e83e59",
+      "model_npz_sha256": "e2460325824be6ed5c416022744ffe4f22fe277f7f838fcc47df8732f0a04874",
+      "weights_json_sha256": "e9cc815184a996f03c2c731d4c1619d1c9923b68d421edd313ab4399e960b3bb"
+    },
+    "B512": {
+      "directory": "docs/data/seed604-replay-optimization/evaluation-preparation/runtime-artifacts/B512",
+      "metadata_sha256": "f25f2e872bef0172d0d0ad5ba35baef09bdae2312f6468542b4a1fa8313feb25",
+      "model_npz_sha256": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+      "weights_json_sha256": "d3effd234fe657fd8be3e3896153441d75ba338e83e83b66d7541936b3c01ccd"
+    }
+  },
+  "schema": "seed604-evaluation-execution-freeze-v1",
+  "search": {
+    "c_puct": 1.25,
+    "exact_leaf_solving": false,
+    "exact_root_enabled": true,
+    "exact_root_objective": "final_score_margin",
+    "exact_root_threshold": 16,
+    "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+    "fpu_mode": "zero",
+    "max_plies": 200,
+    "noise": false,
+    "normalize_values": false,
+    "reuse_subtree": false,
+    "root_policy_mode": "deterministic",
+    "root_temperature": 0.0,
+    "simulations": 128,
+    "tactical_root_bias": 0.0,
+    "workers": 1
+  },
+  "source_sha256": {
+    "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "ml/alphazero_lite/exact_root_decision.py": "c806a7c3c3a8fd7d7be800f59fc568c670889164a46c7acbde8ff92473776905",
+    "ml/alphazero_lite/export_artifact.py": "f720f34c8b77b32a0f20a00ddcd4f428167235bf0f5a52c29ebbde31663ae481",
+    "ml/alphazero_lite/input_encodings.py": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe",
+    "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "ml/alphazero_lite/native_exact_root_tablebase.py": "bf241fa772efd122355b0706fff9035ee40f6cb9ac913fdd829444f359d62f15",
+    "ml/alphazero_lite/requirements-seed599-evaluation.txt": "5950f891ea746be6058af5fae4c414ac0aca872bec064a7d28c383f795e2fa79",
+    "ml/alphazero_lite/runtime_search_policy.py": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
+    "ml/alphazero_lite/seed604_evaluation.py": "e51a416599050a385559c0f0bfe3714cfcffdb7a1659f70a1297bd067e2f170e",
+    "ml/alphazero_lite/seed604_training_executor.py": "6dedc41def9823fe79258ae3706b5bdf189db351aad299453c0dc89293a42ded",
+    "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
+    "ml/alphazero_lite/test_seed604_evaluation.py": "c854e2c378a6c710fcc3d76215ed73c381dd4de94c5a71ac1f2c25400605ec15",
+    "ml/alphazero_lite/train.py": "2dcb42f8dff790d5033e2c9a865f3c24eb1fee6b9b37302200dd176d109dad32",
+    "ml/alphazero_lite/verify_seed604_evaluation.py": "ac6e11bc0d60c2488469bc3cd3b88e40196e455ffbe78588dffb7b75bb0e3cd5",
+    "ml/alphazero_lite/verify_seed604_training_result.py": "8527d08f104664e1b66c9bc0006631f2f5c8733b93024fde3c951ca71978f90e"
+  },
+  "statistics": {
+    "clusters": 1024,
+    "interpretation": {
+      "both_pass": "absolute strength and additional optimization benefit established",
+      "neither": "neither claim established",
+      "primary_only": "absolute strength established; incremental improvement not established",
+      "secondary_only": "incremental improvement established; absolute strength not established"
+    },
+    "primary_lower_quantile": 0.05,
+    "primary_strict_lower_bound_gt": 0.5,
+    "quantile_method": "linear",
+    "resamples": 20000,
+    "secondary_quantiles": [
+      0.025,
+      0.975
+    ],
+    "secondary_strict_lower_endpoint_gt": 0.0,
+    "seed": 604,
+    "unit": "opening group"
+  },
+  "status": "frozen-awaiting-separate-evaluation-authorization",
+  "synthetic_composition_verification": {
+    "B2048": {
+      "extra_turns_checked": 1,
+      "players_checked": [
+        0,
+        1
+      ],
+      "policy_source": "candidate including candidate trunk",
+      "positions_checked": 11,
+      "registered_openings_used": false,
+      "value_source": "serving P-E4 including serving trunk"
+    },
+    "B512": {
+      "extra_turns_checked": 1,
+      "players_checked": [
+        0,
+        1
+      ],
+      "policy_source": "candidate including candidate trunk",
+      "positions_checked": 11,
+      "registered_openings_used": false,
+      "value_source": "serving P-E4 including serving trunk"
+    }
+  },
+  "training_receipt_sha256": "d9a19ee701f2abdf5c73064330b826114911a20b24d2f519c0eea49377047435",
+  "training_verification": {
+    "b512_tensor_comparisons": 22,
+    "checkpoint_sha256": "e2460325824be6ed5c416022744ffe4f22fe277f7f838fcc47df8732f0a04874",
+    "checkpoint_tensor_names": [
+      "b_input",
+      "b_policy",
+      "b_policy_hidden",
+      "b_residual_1_1",
+      "b_residual_1_2",
+      "b_residual_2_1",
+      "b_residual_2_2",
+      "b_residual_3_1",
+      "b_residual_3_2",
+      "b_value",
+      "b_value_hidden",
+      "w_input",
+      "w_policy",
+      "w_policy_hidden",
+      "w_residual_1_1",
+      "w_residual_1_2",
+      "w_residual_2_1",
+      "w_residual_2_2",
+      "w_residual_3_1",
+      "w_residual_3_2",
+      "w_value",
+      "w_value_hidden"
+    ],
+    "frozen_checkpoint_tensors": [
+      "b_value",
+      "b_value_hidden",
+      "w_value",
+      "w_value_hidden"
+    ],
+    "passed": true,
+    "trace_sha256": "ffd63c762307e1297367f1d8a5e9b5a093ec78afeb735784eb049b941b7a4480",
+    "training_groups": {
+      "frozen_prefixes": [
+        "value_hidden_layer.",
+        "value_head."
+      ],
+      "trainable_prefixes": [
+        "input_layer.",
+        "residual_layers.",
+        "policy_hidden_layer.",
+        "policy_head."
+      ]
+    },
+    "updates": 2048
+  }
+}
