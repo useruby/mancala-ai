@@ -379,6 +379,8 @@ def generate_evaluation_openings(
             move = int(rng.choice(legal))
             prefix.append(move)
             game.move(game.pit_index(move))
+        if len(prefix) != 12 or game.over():
+            continue
         state = game.to_state()
         canonical = seed599.canonical_identity(state)
         float32 = seed599.production_float32_identity(state)
@@ -521,7 +523,7 @@ def build(root: Path = ROOT) -> dict[str, Any]:
             "seed": EVALUATION_SEED,
             "opening_count": len(evaluation_openings),
             "games": len(evaluation_openings) * 4,
-            "generation": "12-ply legal prefixes sampled uniformly from legal actions using Python random.Random(6150615); reject canonical or production-float32 overlap with all eligible source states and authenticated Seed 599/604 evaluation opening roots; require uniqueness in both identities",
+            "generation": "Exactly 12 legal moves sampled uniformly from legal actions using Python random.Random(6150615); reject terminal resulting states and canonical or production-float32 overlap with all eligible/held-out source states and authenticated Seed 599/604 evaluation opening roots; require uniqueness in both identities",
             "opening_manifest_sha256": sha256_bytes(
                 canonical_bytes(evaluation_openings)
             ),

@@ -5913,7 +5913,7 @@
     "assignment_count": 4096,
     "assignment_manifest_sha256": "8fb71d6ee30ad6870d403843dbe1a4e798f0218617cee5fce21964372a8514ca",
     "games": 4096,
-    "generation": "12-ply legal prefixes sampled uniformly from legal actions using Python random.Random(6150615); reject canonical or production-float32 overlap with all eligible source states and authenticated Seed 599/604 evaluation opening roots; require uniqueness in both identities",
+    "generation": "Exactly 12 legal moves sampled uniformly from legal actions using Python random.Random(6150615); reject terminal resulting states and canonical or production-float32 overlap with all eligible/held-out source states and authenticated Seed 599/604 evaluation opening roots; require uniqueness in both identities",
     "opening_count": 1024,
     "opening_manifest_sha256": "9bc2bbfca07ea356343c25e94593ab638b16238895fce5062f904d2cc2092cc0",
     "seed": 6150615,

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Callable
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
@@ -13,6 +14,14 @@ from ml.alphazero_lite import seed615_opening_diversity as seed615
 from ml.alphazero_lite.kalah_rules import KalahGame
 
 ROOT = Path(__file__).resolve().parents[2]
+EXPECTED_BOOTSTRAP_SPEC = {
+    "method": "paired opening-cluster percentile bootstrap",
+    "resamples": 20000,
+    "seed": 615,
+    "random_generator": "numpy.random.default_rng(615)",
+    "quantile_method": "numpy.quantile(method='linear')",
+    "resampling": "For each replicate sample 1,024 opening-cluster indices with replacement; apply those opening indices jointly to paired candidate/comparison score vectors and retain both seat-swapped outcomes within each selected opening.",
+}
 
 
 def canonical_bytes(value: Any) -> bytes:
@@ -25,6 +34,111 @@ def read_jsonl(path: Path) -> list[dict[str, Any]]:
 
 def rank(prefix: str, phase: str, key: str) -> str:
     return hashlib.sha256(f"{prefix}:615:{phase}:{key}".encode()).hexdigest()
+
+
+def initial_game() -> KalahGame:
+    return KalahGame.from_state(
+        {
+            "player_pits": [4] * 6,
+            "opponent_pits": [4] * 6,
+            "player_store": 0,
+            "opponent_store": 0,
+            "current_player": 0,
+        }
+    )
+
+
+def validate_opening_prefix(
+    prefix_moves: Any,
+    *,
+    game_factory: Callable[[], KalahGame] | None = None,
+) -> dict[str, Any]:
+    """Replay one registered opening and require exactly 12 legal nonterminal plies."""
+    if not isinstance(prefix_moves, list) or len(prefix_moves) != 12:
+        raise ValueError("evaluation_opening_prefix_length_mismatch")
+    if game_factory is None:
+        game_factory = initial_game
+    game = game_factory()
+    for move in prefix_moves:
+        if game.over():
+            raise ValueError("evaluation_opening_terminal_before_prefix_complete")
+        if type(move) is not int or move not in game.possible_moves():
+            raise ValueError("evaluation_opening_prefix_illegal")
+        game.move(game.pit_index(move))
+    if game.over():
+        raise ValueError("evaluation_opening_terminal")
+    return game.to_state()
+
+
+def validate_registration_contract(
+    registration: dict[str, Any],
+    *,
+    membership_digest: str,
+    opening_digest: str,
+    assignment_digest: str,
+) -> None:
+    """Authenticate registered identities, inference choices, and no-authorization state."""
+    if registration.get("seed") != 615:
+        raise ValueError("registration_seed_mismatch")
+    if registration.get("status") != "proposed-for-review-not-authorized":
+        raise ValueError("registration_status_authorized_or_invalid")
+    feasibility = registration.get("feasibility", {})
+    treatment = registration.get("treatment", {})
+    if (
+        feasibility.get("candidate_membership")
+        != "docs/data/seed615-source-opening-diversity/candidate-membership.jsonl"
+        or feasibility.get("candidate_membership_sha256") != membership_digest
+        or treatment.get("membership_sha256") != membership_digest
+    ):
+        raise ValueError("registered_candidate_membership_digest_mismatch")
+
+    evaluation = registration.get("evaluation", {})
+    cohort = evaluation.get("cohort", {})
+    if evaluation.get("status") != "prospectively-registered-not-authorized":
+        raise ValueError("evaluation_registration_status_invalid")
+    if (
+        cohort.get("path")
+        != "docs/data/seed615-source-opening-diversity/evaluation-openings.jsonl"
+        or cohort.get("canonical_manifest_sha256") != opening_digest
+    ):
+        raise ValueError("registered_evaluation_opening_digest_mismatch")
+    if (
+        cohort.get("assignments_path")
+        != "docs/data/seed615-source-opening-diversity/evaluation-assignments.jsonl"
+        or cohort.get("assignment_manifest_sha256") != assignment_digest
+    ):
+        raise ValueError("registered_evaluation_assignment_digest_mismatch")
+    if evaluation.get("bootstrap") != EXPECTED_BOOTSTRAP_SPEC:
+        raise ValueError("registered_bootstrap_spec_mismatch")
+
+    primary = evaluation.get("primary_confirmatory_test", {})
+    if (
+        primary.get("interval")
+        != "paired two-sided 95% opening-cluster bootstrap confidence interval"
+        or primary.get("contrast")
+        != "treatment minus fixed B512 seat-averaged playing score"
+        or primary.get("resamples") != 20000
+        or primary.get("bootstrap_seed") != 615
+        or primary.get("quantiles") != [0.025, 0.975]
+        or primary.get("pass_rule") != "lower endpoint strictly greater than zero"
+    ):
+        raise ValueError("registered_primary_bootstrap_or_threshold_mismatch")
+    serving_gate = evaluation.get("separate_serving_strength_gate", {})
+    if (
+        serving_gate.get("bound")
+        != "one-sided 95% paired opening-cluster bootstrap lower confidence bound"
+        or serving_gate.get("contrast")
+        != "treatment versus serving P-E4 seat-averaged score"
+        or serving_gate.get("resamples") != 20000
+        or serving_gate.get("bootstrap_seed") != 615
+        or serving_gate.get("lower_quantile") != 0.05
+        or serving_gate.get("pass_rule") != "lower bound strictly greater than 0.50"
+    ):
+        raise ValueError("registered_serving_gate_bootstrap_or_threshold_mismatch")
+
+    authorization = registration.get("authorization", {})
+    if authorization.get("currently_authorized") is not False:
+        raise ValueError("registration_authorized_or_invalid")
 
 
 def verify_candidate_rows(
@@ -112,20 +226,7 @@ def verify_openings(
     for index, row in enumerate(rows):
         if row["opening_id"] != f"seed615-opening-{index:04d}":
             raise ValueError("evaluation_opening_id_mismatch")
-        game = KalahGame.from_state(
-            {
-                "player_pits": [4] * 6,
-                "opponent_pits": [4] * 6,
-                "player_store": 0,
-                "opponent_store": 0,
-                "current_player": 0,
-            }
-        )
-        for move in row["prefix_moves"]:
-            if int(move) not in game.possible_moves():
-                raise ValueError("evaluation_opening_prefix_illegal")
-            game.move(game.pit_index(int(move)))
-        state = game.to_state()
+        state = validate_opening_prefix(row["prefix_moves"])
         canonical = seed599.canonical_identity(state)
         float32 = seed599.production_float32_identity(state)
         if canonical != row["canonical_identity"] or canonical_bytes(
@@ -200,6 +301,17 @@ def verify(root: Path = ROOT) -> dict[str, Any]:
         != "8fb71d6ee30ad6870d403843dbe1a4e798f0218617cee5fce21964372a8514ca"
     ):
         raise ValueError("evaluation_assignment_digest_mismatch")
+    registration = json.loads(
+        (
+            root / "docs/data/seed615-source-opening-diversity/registration.json"
+        ).read_bytes()
+    )
+    validate_registration_contract(
+        registration,
+        membership_digest=membership_digest,
+        opening_digest=opening_digest,
+        assignment_digest=assignment_digest,
+    )
     return {
         "passed": True,
         "training_or_evaluation_started": False,
@@ -209,6 +321,7 @@ def verify(root: Path = ROOT) -> dict[str, Any]:
         "evaluation_opening_manifest_sha256": opening_digest,
         "evaluation_assignments": len(assignments),
         "evaluation_assignment_manifest_sha256": assignment_digest,
+        "registration_authenticated": True,
     }
 
 

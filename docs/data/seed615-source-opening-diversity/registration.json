@@ -82,7 +82,7 @@
       "opening_groups": 1024,
       "games": 4096,
       "generation_seed": 6150615,
-      "generation": "Uniform legal-move sampling for 12-ply prefixes using Python random.Random(6150615); reject canonical and production-float32 overlap with all authenticated eligible/held-out source states and Seed 599/604 registered evaluation roots; require roots unique in both identity schemes.",
+      "generation": "Uniform legal-move sampling for prefixes of exactly 12 legal moves using Python random.Random(6150615); reject terminal resulting states and canonical/production-float32 overlap with all authenticated eligible/held-out source states and Seed 599/604 registered evaluation roots; require roots unique in both identity schemes.",
       "canonical_manifest_sha256": "9bc2bbfca07ea356343c25e94593ab638b16238895fce5062f904d2cc2092cc0",
       "assignment_manifest_sha256": "8fb71d6ee30ad6870d403843dbe1a4e798f0218617cee5fce21964372a8514ca",
       "assignment_order": "opening, B512 then S615, candidate seat 0 then 1",
@@ -114,11 +114,20 @@
       "draw": 0.5,
       "loss": 0.0
     },
+    "bootstrap": {
+      "method": "paired opening-cluster percentile bootstrap",
+      "resamples": 20000,
+      "seed": 615,
+      "random_generator": "numpy.random.default_rng(615)",
+      "quantile_method": "numpy.quantile(method='linear')",
+      "resampling": "For each replicate sample 1,024 opening-cluster indices with replacement; apply those opening indices jointly to paired candidate/comparison score vectors and retain both seat-swapped outcomes within each selected opening."
+    },
     "primary_confirmatory_test": {
       "contrast": "treatment minus fixed B512 seat-averaged playing score",
       "interval": "paired two-sided 95% opening-cluster bootstrap confidence interval",
       "resamples": 20000,
       "bootstrap_seed": 615,
+      "quantiles": [0.025, 0.975],
       "cluster": "opening; preserve the two seat-swapped outcomes for each model comparison",
       "pass_rule": "lower endpoint strictly greater than zero"
     },
@@ -126,6 +135,8 @@
       "contrast": "treatment versus serving P-E4 seat-averaged score",
       "bound": "one-sided 95% paired opening-cluster bootstrap lower confidence bound",
       "resamples": 20000,
+      "bootstrap_seed": 615,
+      "lower_quantile": 0.05,
       "pass_rule": "lower bound strictly greater than 0.50"
     },
     "pre_registration_precision_assessment": {

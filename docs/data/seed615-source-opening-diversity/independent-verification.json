@@ -13,7 +13,9 @@
   "teacher_targets_reconstructed_and_preserved": true,
   "heldout_disjoint_canonical_and_float32": true,
   "evaluation_roots_legal_unique_and_exclusion_checked": true,
+  "evaluation_openings_exactly_12_legal_and_nonterminal": true,
   "evaluation_assignments_and_game_seeds_verified": true,
+  "registration_hashes_statistics_and_unauthorized_status_verified": true,
   "training_started": false,
   "evaluation_started": false
 }

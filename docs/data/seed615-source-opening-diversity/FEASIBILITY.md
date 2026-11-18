@@ -75,7 +75,8 @@ when interpreting any future training contrast.
 
 `registration.json` fixes the existing B512 checkpoint as control and the
 candidate membership digest as treatment. The prepared independent evaluation
-cohort contains 1,024 legal random 12-ply opening roots and is disjoint in both
+cohort contains 1,024 random opening roots, each with exactly 12 legal moves
+and a nonterminal resulting state, and is disjoint in both
 identity schemes from eligible/held-out source states and authenticated Seed
 599/604 evaluation roots. It binds 4,096 seat-swapped games; the cohort is
 recorded in `evaluation-openings.jsonl`, and game seats/seeds are frozen in
@@ -90,8 +91,11 @@ treatment-minus-B512 cluster contrast in
 `[0, 1]` against P-E4, the one-sided 95% Hoeffding radius is 0.0382. These are
 conservative bounds, not predicted intervals or a guarantee to detect a small
 effect. The registered analysis uses 20,000 paired opening-cluster bootstrap
-resamples, preserving both seat outcomes; the design remains the requested
-initial 1,024-opening / 4,096-game design.
+resamples with `numpy.random.default_rng(615)` and
+`numpy.quantile(method="linear")`. For S615 − B512 it uses two-sided quantiles
+`[0.025, 0.975]`; for S615 versus P-E4 it uses the one-sided lower quantile
+`0.05`. Seat-swapped outcomes stay together within each opening cluster. The
+design remains the requested initial 1,024-opening / 4,096-game design.
 
 The primary confirmatory gate is the two-sided paired 95% interval for
 treatment-minus-B512 seat-averaged playing score, with its lower endpoint
