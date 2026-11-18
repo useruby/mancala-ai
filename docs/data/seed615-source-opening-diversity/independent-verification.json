@@ -1,0 +1,19 @@
+{
+  "schema": "seed615-independent-verification-v1",
+  "status": "passed-read-only",
+  "candidate_states": 2048,
+  "candidate_membership_sha256": "5ed236266ed3804a9c0e9f75b7e10b7c81ea6e290f8c72d3cea06dd225a15010",
+  "evaluation_openings": 1024,
+  "evaluation_opening_manifest_sha256": "9bc2bbfca07ea356343c25e94593ab638b16238895fce5062f904d2cc2092cc0",
+  "evaluation_assignments": 4096,
+  "evaluation_assignment_manifest_sha256": "8fb71d6ee30ad6870d403843dbe1a4e798f0218617cee5fce21964372a8514ca",
+  "canonical_unique": true,
+  "production_float32_unique": true,
+  "provenance_eligible": true,
+  "teacher_targets_reconstructed_and_preserved": true,
+  "heldout_disjoint_canonical_and_float32": true,
+  "evaluation_roots_legal_unique_and_exclusion_checked": true,
+  "evaluation_assignments_and_game_seeds_verified": true,
+  "training_started": false,
+  "evaluation_started": false
+}

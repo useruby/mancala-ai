@@ -1,0 +1,145 @@
+{
+  "schema": "seed615-source-opening-diversity-registration-v1",
+  "status": "proposed-for-review-not-authorized",
+  "seed": 615,
+  "base_commit": "52895079610da6d535809a454d2b2502548068f0",
+  "hypothesis": "A phase-matched dataset selected by source-opening-group round-robin coverage may improve playing score over immutable Seed 599 B512 while using the same number of unique states and unchanged authenticated teacher targets.",
+  "feasibility": {
+    "report": "docs/data/seed615-source-opening-diversity/FEASIBILITY.md",
+    "data": "docs/data/seed615-source-opening-diversity/feasibility.json",
+    "recommendation": "train",
+    "candidate_membership": "docs/data/seed615-source-opening-diversity/candidate-membership.jsonl",
+    "candidate_membership_sha256": "5ed236266ed3804a9c0e9f75b7e10b7c81ea6e290f8c72d3cea06dd225a15010",
+    "selection_algorithm": "Within each original phase, order groups by SHA256('seed615-group:615:<phase>:<source>:<opening_id>') and group members by SHA256('seed615-state:615:<phase>:<canonical_identity>'); select one row per group in rounds until quota, skipping exhausted groups; break hash ties lexicographically; fail closed if phase capacity is insufficient; sort final membership by (phase, canonical_identity).",
+    "phase_quotas": {
+      "above_32": 512,
+      "17_to_32": 1024,
+      "at_most_16": 512
+    },
+    "canonical_unique_states": 2048,
+    "production_float32_unique_states": 2048,
+    "disjoint_from_provenance_heldout_in_both_identity_schemes": true,
+    "original_teacher_targets_retained_without_reconstruction_changes": true
+  },
+  "control": {
+    "name": "B512",
+    "checkpoint": "docs/data/seed599-replay-coverage/training-run-B/seed599-arm-B-update-512.npz",
+    "checkpoint_sha256": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+    "membership_sha256": "95ecc180e28945702e08815de7a5210e1bce036afdaf76d194bbd774589a4516",
+    "treatment_status": "fixed immutable checkpoint; no retraining or checkpoint selection"
+  },
+  "treatment": {
+    "name": "Seed 615 source-opening-diversified policy",
+    "membership_sha256": "5ed236266ed3804a9c0e9f75b7e10b7c81ea6e290f8c72d3cea06dd225a15010",
+    "initial_checkpoint": "docs/data/seed552-c108-serving-p/runtime-artifacts/P-E4/model.npz",
+    "initial_checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+    "initialization": "Reload the exact P-E4 checkpoint and create a fresh Adam optimizer.",
+    "architecture": {
+      "model_type": "residual_v3",
+      "hidden_sizes": [96, 3],
+      "input_size": 27
+    },
+    "trainable_parameter_prefixes": [
+      "input_layer.",
+      "residual_layers.",
+      "policy_hidden_layer.",
+      "policy_head."
+    ],
+    "frozen_parameter_prefixes": [
+      "value_hidden_layer.",
+      "value_head."
+    ],
+    "loss": "masked policy cross-entropy only; no value loss",
+    "optimizer": {
+      "name": "Adam",
+      "learning_rate": 0.00001,
+      "betas": [0.9, 0.999],
+      "epsilon": 1e-8,
+      "weight_decay": 0.0,
+      "scheduler": "none"
+    },
+    "updates": 512,
+    "batch_size": 32,
+    "gradient_clip_norm": 1.0,
+    "batch_index_schedule": "Use the published Seed 599 B 512-batch index schedule unchanged for both memberships; indexes address rows in each membership's frozen sorted order.",
+    "batch_index_schedule_sha256": "62edb14805d20af1cc7988d73aba95dcdf9e67842b6ea1d61a12c98a87c28599",
+    "runtime": {
+      "device": "cpu",
+      "threads": 1,
+      "deterministic_algorithms": true
+    },
+    "prohibitions": [
+      "No alternative checkpoint selection.",
+      "No update-budget search or training beyond exactly 512 updates.",
+      "No changes to architecture, frozen value parameters, optimizer, learning rate, batch count, batch-index schedule, or training targets."
+    ]
+  },
+  "evaluation": {
+    "status": "prospectively-registered-not-authorized",
+    "cohort": {
+      "path": "docs/data/seed615-source-opening-diversity/evaluation-openings.jsonl",
+      "assignments_path": "docs/data/seed615-source-opening-diversity/evaluation-assignments.jsonl",
+      "opening_groups": 1024,
+      "games": 4096,
+      "generation_seed": 6150615,
+      "generation": "Uniform legal-move sampling for 12-ply prefixes using Python random.Random(6150615); reject canonical and production-float32 overlap with all authenticated eligible/held-out source states and Seed 599/604 registered evaluation roots; require roots unique in both identity schemes.",
+      "canonical_manifest_sha256": "9bc2bbfca07ea356343c25e94593ab638b16238895fce5062f904d2cc2092cc0",
+      "assignment_manifest_sha256": "8fb71d6ee30ad6870d403843dbe1a4e798f0218617cee5fce21964372a8514ca",
+      "assignment_order": "opening, B512 then S615, candidate seat 0 then 1",
+      "game_seed_derivation": "SHA-256 of UTF-8 seed615 NUL opening_id NUL candidate NUL seat; first 8 bytes big-endian modulo 2^31",
+      "seat_swapped": true
+    },
+    "comparison": "Both fixed B512 and the trained treatment play serving P-E4 on the same registered openings; each opening receives both candidate seats for each comparison.",
+    "search": {
+      "simulations_per_side": 128,
+      "c_puct": 1.25,
+      "workers_per_game": 1,
+      "root_policy_mode": "deterministic",
+      "root_temperature": 0.0,
+      "tactical_root_bias": 0.0,
+      "fpu_mode": "zero",
+      "reuse_subtree": false,
+      "normalize_values": false,
+      "noise": false,
+      "max_plies": 200,
+      "exact_root_enabled": true,
+      "exact_root_threshold": 16,
+      "exact_root_objective": "final_score_margin",
+      "exact_root_tie_rule": "highest_legal_network_prior_then_lowest_move_index",
+      "exact_leaf_solving": false,
+      "value_evaluator": "unchanged serving P-E4 for both candidate policies"
+    },
+    "score_mapping": {
+      "win": 1.0,
+      "draw": 0.5,
+      "loss": 0.0
+    },
+    "primary_confirmatory_test": {
+      "contrast": "treatment minus fixed B512 seat-averaged playing score",
+      "interval": "paired two-sided 95% opening-cluster bootstrap confidence interval",
+      "resamples": 20000,
+      "bootstrap_seed": 615,
+      "cluster": "opening; preserve the two seat-swapped outcomes for each model comparison",
+      "pass_rule": "lower endpoint strictly greater than zero"
+    },
+    "separate_serving_strength_gate": {
+      "contrast": "treatment versus serving P-E4 seat-averaged score",
+      "bound": "one-sided 95% paired opening-cluster bootstrap lower confidence bound",
+      "resamples": 20000,
+      "pass_rule": "lower bound strictly greater than 0.50"
+    },
+    "pre_registration_precision_assessment": {
+      "uses_historical_game_outcomes": false,
+      "primary_contrast_cluster_range": [-1.0, 1.0],
+      "primary_two_sided_95_percent_hoeffding_radius": 0.0849,
+      "treatment_vs_p_e4_cluster_range": [0.0, 1.0],
+      "treatment_vs_p_e4_one_sided_95_percent_hoeffding_radius": 0.0382,
+      "interpretation": "Conservative distribution-free bounds at 1,024 opening clusters; 20,000 bootstrap resamples specify the registered quantile computation and do not reduce sampling uncertainty."
+    }
+  },
+  "authorization": {
+    "training": "requires separate explicit owner authorization bound to a future training execution freeze",
+    "evaluation": "requires separate explicit owner authorization bound to a future evaluation execution freeze",
+    "currently_authorized": false
+  }
+}
