@@ -1,0 +1,27 @@
+{
+  "analysis_sha256": "4c5437bd1d885524da850e4f1a6d605d0c389e06c1ccb9a61359694c3ccb4dfa",
+  "assignment_count": 4096,
+  "capped_games": 0,
+  "commands": 4096,
+  "completed_games": 4096,
+  "evaluation_authorized": true,
+  "freeze_sha256": "3812d07445d61d91afcf2a47b536b0b93cf915774f51a77f17af4aade37a47aa",
+  "game_attempts": 4096,
+  "independent_verifier": "ml.alphazero_lite.verify_seed604_evaluation.verify_manifest",
+  "interpretation": "neither",
+  "opening_records": 4096,
+  "paired_difference_interval": [
+    -0.017822265625,
+    0.003173828125
+  ],
+  "primary_lower_bound": 0.482177734375,
+  "primary_pass": false,
+  "reports": 4096,
+  "result_directory": "results/",
+  "scores": {
+    "B2048": 0.492431640625,
+    "B512": 0.499755859375
+  },
+  "secondary_pass": false,
+  "status": "verified_complete"
+}

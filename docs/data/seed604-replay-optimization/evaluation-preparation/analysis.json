@@ -1,0 +1,23 @@
+{
+  "B2048_minus_B512_interval": [
+    -0.017822265625,
+    0.003173828125
+  ],
+  "B2048_primary_lower_bound": 0.482177734375,
+  "B2048_score": 0.492431640625,
+  "B512_score": 0.499755859375,
+  "bootstrap": {
+    "paired_opening_indices": true,
+    "quantile_method": "linear",
+    "resamples": 20000,
+    "seat_outcomes_preserved": true,
+    "seed": 604
+  },
+  "capped_games": 0,
+  "games": 4096,
+  "interpretation": "neither",
+  "opening_clusters": 1024,
+  "primary_pass": false,
+  "schema": "seed604-cluster-bootstrap-analysis-v1",
+  "secondary_pass": false
+}

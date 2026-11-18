@@ -1,0 +1,11 @@
+{
+  "authorization": {
+    "authorized_by": "project owner",
+    "run_games": true,
+    "statement": "I authorize execution of the frozen Seed 604 playing-strength evaluation bound to freeze SHA-256 3812d07445d61d91afcf2a47b536b0b93cf915774f51a77f17af4aade37a47aa",
+    "type": "explicit-project-owner-authorization"
+  },
+  "evaluation_freeze_sha256": "3812d07445d61d91afcf2a47b536b0b93cf915774f51a77f17af4aade37a47aa",
+  "schema": "seed604-evaluation-authorization-v1",
+  "status": "authorized-for-evaluation"
+}
