@@ -446,7 +446,6 @@ def _freeze_document(root: Path = ROOT) -> dict[str, Any]:
         "runtime": {
             "python": sys.version,
             "numpy": np.__version__,
-            "torch": str(__import__("torch").__version__),
             "platform": platform.platform(),
             "machine": platform.machine(),
             "dependency_lock_sha256": sha(

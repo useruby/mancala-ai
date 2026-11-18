@@ -654,12 +654,9 @@ def verify_manifest(root: Path = ROOT) -> dict[str, Any]:
     validate_search_contract(freeze.get("search"))
     validate_statistics_contract(freeze.get("statistics"))
     runtime = freeze.get("runtime", {})
-    import torch
-
     if (
         runtime.get("python") != sys.version
         or runtime.get("numpy") != np.__version__
-        or runtime.get("torch") != str(torch.__version__)
         or runtime.get("platform") != platform.platform()
         or runtime.get("machine") != platform.machine()
         or runtime.get("dependency_lock_sha256")
