@@ -1,0 +1,33 @@
+{
+  "authorization_sha256": "9887d00e4f957c2f7bd73a1c937ba5c13500a7e9c66ffccbc8302a219332d7f4",
+  "b512_report": "b512-reproduction-report.json",
+  "b512_report_sha256": "38bd6b01207f6103579f43b3d931f1888e314991b2d48f45f4eff34a92508491",
+  "b512_reproduction": "exact-tensor-equality-passed",
+  "checkpoint": "seed604-B2048-update-2048.npz",
+  "checkpoint_sha256": "e2460325824be6ed5c416022744ffe4f22fe277f7f838fcc47df8732f0a04874",
+  "execution_freeze_sha256": "205d8de862758d43d139ee29fe9cdf0dd018f73b2fbe4e165a61b329a9d4549f",
+  "frozen_parameter_integrity": {
+    "value_head.bias": true,
+    "value_head.weight": true,
+    "value_hidden_layer.bias": true,
+    "value_hidden_layer.weight": true
+  },
+  "membership_sha256": "95ecc180e28945702e08815de7a5210e1bce036afdaf76d194bbd774589a4516",
+  "registration_sha256": "b2a8eb494fefa97ee454cd52760612a92f6f766b053dfb730a6c94bb962e3d71",
+  "runtime": {
+    "deterministic_algorithms": true,
+    "device": "cpu",
+    "mkl_num_threads": "1",
+    "numpy": "2.5.2",
+    "omp_num_threads": "1",
+    "python": "3.14.7",
+    "pythonhashseed": "599",
+    "threads": 1,
+    "torch": "2.13.0+cu130"
+  },
+  "schedule_sha256": "397c9c84388fad2cfe6a38d549f1b2a9b52909907e6e19c1bcb81a418551063b",
+  "schema": "seed604-b2048-training-result-v1",
+  "trace": "training-trace.jsonl",
+  "trace_sha256": "ffd63c762307e1297367f1d8a5e9b5a093ec78afeb735784eb049b941b7a4480",
+  "updates": 2048
+}

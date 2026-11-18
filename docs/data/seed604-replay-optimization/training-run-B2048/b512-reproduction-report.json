@@ -1,0 +1,436 @@
+{
+  "b512_checkpoint_sha256": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+  "comparisons": [
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "input_layer.bias",
+      "shape": [
+        96
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "input_layer.weight",
+      "shape": [
+        96,
+        27
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "policy_head.bias",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "policy_head.weight",
+      "shape": [
+        6,
+        96
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "policy_hidden_layer.bias",
+      "shape": [
+        96
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "policy_hidden_layer.weight",
+      "shape": [
+        96,
+        96
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "residual_layers.0.0.bias",
+      "shape": [
+        96
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "residual_layers.0.0.weight",
+      "shape": [
+        96,
+        96
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "residual_layers.0.1.bias",
+      "shape": [
+        96
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "residual_layers.0.1.weight",
+      "shape": [
+        96,
+        96
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "residual_layers.1.0.bias",
+      "shape": [
+        96
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "residual_layers.1.0.weight",
+      "shape": [
+        96,
+        96
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "residual_layers.1.1.bias",
+      "shape": [
+        96
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "residual_layers.1.1.weight",
+      "shape": [
+        96,
+        96
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "residual_layers.2.0.bias",
+      "shape": [
+        96
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "residual_layers.2.0.weight",
+      "shape": [
+        96,
+        96
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "residual_layers.2.1.bias",
+      "shape": [
+        96
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "residual_layers.2.1.weight",
+      "shape": [
+        96,
+        96
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "value_head.bias",
+      "shape": [
+        1
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "value_head.weight",
+      "shape": [
+        1,
+        48
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "value_hidden_layer.bias",
+      "shape": [
+        48
+      ]
+    },
+    {
+      "dtype": "torch.float32",
+      "equal": true,
+      "name": "value_hidden_layer.weight",
+      "shape": [
+        48,
+        96
+      ]
+    }
+  ],
+  "membership_sha256": "95ecc180e28945702e08815de7a5210e1bce036afdaf76d194bbd774589a4516",
+  "optimizer_continuity": {
+    "after_update_513": {
+      "parameter_count": 18,
+      "state_sha256": "a880762ea9e9163f225d92c8f98c35a7716672a9e9674a5fa59d5c503216d1bf",
+      "step_counters": [
+        {
+          "parameter": "input_layer.bias",
+          "step": 513
+        },
+        {
+          "parameter": "input_layer.weight",
+          "step": 513
+        },
+        {
+          "parameter": "policy_head.bias",
+          "step": 513
+        },
+        {
+          "parameter": "policy_head.weight",
+          "step": 513
+        },
+        {
+          "parameter": "policy_hidden_layer.bias",
+          "step": 513
+        },
+        {
+          "parameter": "policy_hidden_layer.weight",
+          "step": 513
+        },
+        {
+          "parameter": "residual_layers.0.0.bias",
+          "step": 513
+        },
+        {
+          "parameter": "residual_layers.0.0.weight",
+          "step": 513
+        },
+        {
+          "parameter": "residual_layers.0.1.bias",
+          "step": 513
+        },
+        {
+          "parameter": "residual_layers.0.1.weight",
+          "step": 513
+        },
+        {
+          "parameter": "residual_layers.1.0.bias",
+          "step": 513
+        },
+        {
+          "parameter": "residual_layers.1.0.weight",
+          "step": 513
+        },
+        {
+          "parameter": "residual_layers.1.1.bias",
+          "step": 513
+        },
+        {
+          "parameter": "residual_layers.1.1.weight",
+          "step": 513
+        },
+        {
+          "parameter": "residual_layers.2.0.bias",
+          "step": 513
+        },
+        {
+          "parameter": "residual_layers.2.0.weight",
+          "step": 513
+        },
+        {
+          "parameter": "residual_layers.2.1.bias",
+          "step": 513
+        },
+        {
+          "parameter": "residual_layers.2.1.weight",
+          "step": 513
+        }
+      ]
+    },
+    "before_update_513": {
+      "parameter_count": 18,
+      "state_sha256": "67346483398669b1d0b9d84038350c0ca0aea6563dfcd1c9557b80675a0bde11",
+      "step_counters": [
+        {
+          "parameter": "input_layer.bias",
+          "step": 512
+        },
+        {
+          "parameter": "input_layer.weight",
+          "step": 512
+        },
+        {
+          "parameter": "policy_head.bias",
+          "step": 512
+        },
+        {
+          "parameter": "policy_head.weight",
+          "step": 512
+        },
+        {
+          "parameter": "policy_hidden_layer.bias",
+          "step": 512
+        },
+        {
+          "parameter": "policy_hidden_layer.weight",
+          "step": 512
+        },
+        {
+          "parameter": "residual_layers.0.0.bias",
+          "step": 512
+        },
+        {
+          "parameter": "residual_layers.0.0.weight",
+          "step": 512
+        },
+        {
+          "parameter": "residual_layers.0.1.bias",
+          "step": 512
+        },
+        {
+          "parameter": "residual_layers.0.1.weight",
+          "step": 512
+        },
+        {
+          "parameter": "residual_layers.1.0.bias",
+          "step": 512
+        },
+        {
+          "parameter": "residual_layers.1.0.weight",
+          "step": 512
+        },
+        {
+          "parameter": "residual_layers.1.1.bias",
+          "step": 512
+        },
+        {
+          "parameter": "residual_layers.1.1.weight",
+          "step": 512
+        },
+        {
+          "parameter": "residual_layers.2.0.bias",
+          "step": 512
+        },
+        {
+          "parameter": "residual_layers.2.0.weight",
+          "step": 512
+        },
+        {
+          "parameter": "residual_layers.2.1.bias",
+          "step": 512
+        },
+        {
+          "parameter": "residual_layers.2.1.weight",
+          "step": 512
+        }
+      ]
+    },
+    "same_object_id": true
+  },
+  "optimizer_identity": "same-live-optimizer-through-update-513",
+  "optimizer_state": {
+    "parameter_count": 18,
+    "state_sha256": "67346483398669b1d0b9d84038350c0ca0aea6563dfcd1c9557b80675a0bde11",
+    "step_counters": [
+      {
+        "parameter": "input_layer.bias",
+        "step": 512
+      },
+      {
+        "parameter": "input_layer.weight",
+        "step": 512
+      },
+      {
+        "parameter": "policy_head.bias",
+        "step": 512
+      },
+      {
+        "parameter": "policy_head.weight",
+        "step": 512
+      },
+      {
+        "parameter": "policy_hidden_layer.bias",
+        "step": 512
+      },
+      {
+        "parameter": "policy_hidden_layer.weight",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.0.0.bias",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.0.0.weight",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.0.1.bias",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.0.1.weight",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.1.0.bias",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.1.0.weight",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.1.1.bias",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.1.1.weight",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.2.0.bias",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.2.0.weight",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.2.1.bias",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.2.1.weight",
+        "step": 512
+      }
+    ]
+  },
+  "parent_checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+  "passed": true,
+  "schedule_sha256": "397c9c84388fad2cfe6a38d549f1b2a9b52909907e6e19c1bcb81a418551063b",
+  "tensor_count": 22,
+  "update": 512
+}
