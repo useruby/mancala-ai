@@ -1,0 +1,10 @@
+{
+  "schema": "seed604-training-owner-authorization-v1",
+  "status": "authorized-for-training",
+  "execution_freeze_sha256": "205d8de862758d43d139ee29fe9cdf0dd018f73b2fbe4e165a61b329a9d4549f",
+  "authorization": {
+    "type": "explicit-project-owner-authorization",
+    "authorized_by": "Aleksei",
+    "training_may_start": true
+  }
+}
