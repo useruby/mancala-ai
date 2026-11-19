@@ -1,0 +1,20 @@
+{
+  "assignment_count": 4096,
+  "checkpoint_identities": {
+    "B512": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+    "P-E4": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+    "S615": "cdf1e36c4c9374f28b182757b12471b3f00567eb59825bb938435cb56cf8d780",
+    "training_receipt_sha256": "0dc4d04a6be2b638abf77bb959e93d82c60355f3f9a449a49d0fef0a8bbb81f3"
+  },
+  "evaluation_authorized": false,
+  "execution_freeze_sha256": "ef977b567c133ce78090c019633b604dcf966132398a5ef135b57c90f202278c",
+  "games_started": false,
+  "registered_openings": 1024,
+  "schema": "seed615-evaluation-readiness-evidence-v1",
+  "tablebase": {
+    "lfs_pointer_sha256": "a82ca3d03265950a23aae8a1088fa86a93db9acea7bca68ea33303292eb0202c",
+    "path": "model-artifact/runtime/kalah_v1_21.kvtb",
+    "sha256": "f126f64be2010abae6bd5f3b369b40a1cb7497b5f6903914c7ba9be0037a41a7",
+    "size": 709635072
+  }
+}
