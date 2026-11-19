@@ -1,0 +1,30 @@
+{
+  "authorization_sha256": "828a3dc94d1a01496806f9b649254a471dce435cbf482cfc43173b06c3ea25b8",
+  "b512_checkpoint_sha256": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+  "batch_schedule_sha256": "62edb14805d20af1cc7988d73aba95dcdf9e67842b6ea1d61a12c98a87c28599",
+  "checkpoint": "seed615-S615-update-512.npz",
+  "checkpoint_sha256": "cdf1e36c4c9374f28b182757b12471b3f00567eb59825bb938435cb56cf8d780",
+  "execution_freeze_sha256": "6ac9d4b4e52a6f4789ce406d9c88badd82e9c8ab7cf4b4d4d8e9c8676cd9910d",
+  "frozen_parameters_unchanged": true,
+  "integrity_report": "training-integrity-report.json",
+  "integrity_report_sha256": "c383411a9ce9b896ef49431e502e0047b26de0e8600042d8b2873ae07c796266",
+  "membership_sha256": "5ed236266ed3804a9c0e9f75b7e10b7c81ea6e290f8c72d3cea06dd225a15010",
+  "owner_authorization_sha256": "9ca525250e126510472a9753d659fc43934e2357afa6ff217cdb88e6dcb2df1a",
+  "parent_checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+  "registration_sha256": "971157eb64fff871633318fc764178dabf40f62647be587fa138a44474956e02",
+  "runtime": {
+    "deterministic_algorithms": true,
+    "device": "cpu",
+    "mkl_num_threads": "1",
+    "numpy": "2.5.2",
+    "omp_num_threads": "1",
+    "python": "3.14.7",
+    "pythonhashseed": "599",
+    "threads": 1,
+    "torch": "2.13.0+cu130"
+  },
+  "schema": "seed615-training-result-v1",
+  "trace": "training-trace.jsonl",
+  "trace_sha256": "8ee2252f6831ea0589a19dff2c1ebc79a0f3c3447764feb9c53086ba599a8b01",
+  "updates": 512
+}

@@ -1,0 +1,10 @@
+{
+  "schema": "seed615-training-owner-authorization-v1",
+  "status": "authorized-for-training",
+  "execution_freeze_sha256": "6ac9d4b4e52a6f4789ce406d9c88badd82e9c8ab7cf4b4d4d8e9c8676cd9910d",
+  "authorization": {
+    "type": "explicit-project-owner-authorization",
+    "authorized_by": "Alexey Artamonov (i@useruby.com)",
+    "training_may_start": true
+  }
+}
