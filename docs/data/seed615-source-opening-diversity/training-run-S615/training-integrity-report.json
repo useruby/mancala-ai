@@ -1,0 +1,136 @@
+{
+  "adam_state": {
+    "parameter_count": 18,
+    "state_sha256": "462e6a07698e7adcfdb90781704f029c06ed260c945a6bfcc079e80505e6b712",
+    "step_counters": [
+      {
+        "parameter": "input_layer.bias",
+        "step": 512
+      },
+      {
+        "parameter": "input_layer.weight",
+        "step": 512
+      },
+      {
+        "parameter": "policy_head.bias",
+        "step": 512
+      },
+      {
+        "parameter": "policy_head.weight",
+        "step": 512
+      },
+      {
+        "parameter": "policy_hidden_layer.bias",
+        "step": 512
+      },
+      {
+        "parameter": "policy_hidden_layer.weight",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.0.0.bias",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.0.0.weight",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.0.1.bias",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.0.1.weight",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.1.0.bias",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.1.0.weight",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.1.1.bias",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.1.1.weight",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.2.0.bias",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.2.0.weight",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.2.1.bias",
+        "step": 512
+      },
+      {
+        "parameter": "residual_layers.2.1.weight",
+        "step": 512
+      }
+    ]
+  },
+  "all_trainable_parameters_moved": true,
+  "b512_equal_tensor_names": [
+    "b_value",
+    "b_value_hidden",
+    "w_value",
+    "w_value_hidden"
+  ],
+  "b512_equality_used_for_selection": false,
+  "b512_exact_tensor_equality": false,
+  "b512_tensor_equality_diagnostic": {
+    "b_input": false,
+    "b_policy": false,
+    "b_policy_hidden": false,
+    "b_residual_1_1": false,
+    "b_residual_1_2": false,
+    "b_residual_2_1": false,
+    "b_residual_2_2": false,
+    "b_residual_3_1": false,
+    "b_residual_3_2": false,
+    "b_value": true,
+    "b_value_hidden": true,
+    "w_input": false,
+    "w_policy": false,
+    "w_policy_hidden": false,
+    "w_residual_1_1": false,
+    "w_residual_1_2": false,
+    "w_residual_2_1": false,
+    "w_residual_2_2": false,
+    "w_residual_3_1": false,
+    "w_residual_3_2": false,
+    "w_value": true,
+    "w_value_hidden": true
+  },
+  "frozen_parameters_unchanged": true,
+  "schema": "seed615-training-integrity-report-v1",
+  "trainable_parameter_movement_diagnostic": {
+    "input_layer.bias": true,
+    "input_layer.weight": true,
+    "policy_head.bias": true,
+    "policy_head.weight": true,
+    "policy_hidden_layer.bias": true,
+    "policy_hidden_layer.weight": true,
+    "residual_layers.0.0.bias": true,
+    "residual_layers.0.0.weight": true,
+    "residual_layers.0.1.bias": true,
+    "residual_layers.0.1.weight": true,
+    "residual_layers.1.0.bias": true,
+    "residual_layers.1.0.weight": true,
+    "residual_layers.1.1.bias": true,
+    "residual_layers.1.1.weight": true,
+    "residual_layers.2.0.bias": true,
+    "residual_layers.2.0.weight": true,
+    "residual_layers.2.1.bias": true,
+    "residual_layers.2.1.weight": true
+  },
+  "updates": 512
+}
