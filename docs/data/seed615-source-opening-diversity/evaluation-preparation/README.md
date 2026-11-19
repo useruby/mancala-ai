@@ -9,7 +9,7 @@ paths and are consumed in-place.
 ## Preparation commands
 
 Use the pinned evaluation environment (`CPython 3.14.7`, NumPy 2.5.3, PyTorch
-2.14.0) and the environment variables bound into `execution-freeze-v3.json`.
+2.14.0) and the environment variables bound into `execution-freeze-v4.json`.
 
 ```sh
 python -m ml.alphazero_lite.seed615_evaluation --preflight
@@ -45,6 +45,9 @@ linear 2.5%/97.5% quantiles and passes only when its lower endpoint is strictly
 above zero. The separate S615-versus-P-E4 lower bound uses the linear 5%
 quantile and passes only when strictly above 0.50. Incremental improvement
 without absolute strength above P-E4 does not authorize automatic promotion.
+The post-execution verifier reconstructs these bootstrap statistics from the
+independently replayed outcomes and validates the entire analysis schema and
+gate decisions without calling the executor's analysis implementation.
 
 ## Authorization and execution policy
 
@@ -53,10 +56,12 @@ The initial local draft `execution-freeze.json` (SHA-256
 published before the implementation audit completed. It is retained unchanged
 as superseded evidence. The intermediate v2 freeze (SHA-256
 `ef977b567c133ce78090c019633b604dcf966132398a5ef135b57c90f202278c`) is also
-retained unchanged as superseded evidence. The final reviewed, source-bound
-freeze is `execution-freeze-v3.json` with paired
-`readiness-evidence-v3.json`. The reviewed freeze is immutable, create-only,
-and explicitly records
+retained unchanged as superseded evidence. The v3 freeze (SHA-256
+`b953d65deeb8a078c7e13f5e0e98436a1b44b945d4f13edd0a97ff5975339eaf`) is
+preserved unchanged and explicitly superseded by v4. The final source-bound
+freeze is `execution-freeze-v4.json` with paired
+`readiness-evidence-v4.json`. The active freeze is immutable, create-only, and
+explicitly records
 `evaluation_authorized: false` and `games_started: false`. The preflight
 verifier rejects authorization records, result directories, and analysis
 artifacts. Execution requires a separately created owner authorization bound

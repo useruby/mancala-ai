@@ -3,16 +3,112 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import random
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import numpy as np
 
 from ml.alphazero_lite import seed615_evaluation as runner
 from ml.alphazero_lite import verify_seed615_evaluation as verifier
 from ml.alphazero_lite.kalah_rules import KalahGame
+
+
+class _BoundaryGame:
+    """Small deterministic game double for exact max-ply boundary regressions."""
+
+    def __init__(self, terminal_at: int | None):
+        self.current_player = 0
+        self.move_count = 0
+        self.terminal_at = terminal_at
+        self.captured_seeds = [30, 18]
+
+    def over(self) -> bool:
+        return self.terminal_at is not None and self.move_count >= self.terminal_at
+
+    def possible_moves(self) -> list[int]:
+        return [] if self.over() else list(range(6))
+
+    def pit_index(self, relative_move: int) -> int:
+        return self.current_player * 6 + relative_move
+
+    def move(self, absolute_move: int) -> bool:
+        if self.over() or absolute_move // 6 != self.current_player:
+            return False
+        self.move_count += 1
+        self.current_player = 1 - self.current_player
+        return True
+
+    def to_state(self) -> dict[str, int]:
+        return {"current_player": self.current_player, "move_count": self.move_count}
+
+
+def synthetic_boundary_case(
+    *, terminal_at: int | None, continuation_plies: int
+) -> tuple[dict[str, object], dict[str, object], dict[str, object]]:
+    def factory() -> _BoundaryGame:
+        return _BoundaryGame(terminal_at)
+
+    game = factory()
+    prefix = [0] * 12
+    for move in prefix:
+        game.move(game.pit_index(move))
+    opening_hash = hashlib.sha256(runner.canonical(game.to_state())).hexdigest()
+    opening = {"opening_id": "boundary-opening", "prefix_moves": prefix}
+    assignment = {
+        "candidate": "S615",
+        "candidate_seat": 0,
+        "game_id": "boundary-game",
+        "game_seed": 31,
+        "opening_id": "boundary-opening",
+        "opening_identity": opening_hash,
+        "opening_index": 0,
+        "opponent": "P-E4",
+    }
+    trajectory = []
+    for _ in range(continuation_plies):
+        if game.over():
+            break
+        absolute_move = game.pit_index(0)
+        trajectory.append(absolute_move)
+        game.move(absolute_move)
+    margin = game.captured_seeds[0] - game.captured_seeds[1]
+    row = {
+        "game_index": 0,
+        "game_within_opening": 0,
+        "opening_index": 0,
+        "opening_state_hash": opening_hash,
+        "opening_prefix_moves": prefix,
+        "opening_applied_prefix_length": len(prefix),
+        "challenger_player": 0,
+        "trajectory": ",".join(map(str, trajectory)),
+        "game_length": len(trajectory),
+        "margin": margin,
+        "winner": "challenger" if margin > 0 else "current" if margin < 0 else "draw",
+    }
+    return assignment, opening, row
+
+
+def synthetic_analysis_records() -> list[dict[str, object]]:
+    rows = []
+    for opening in range(1024):
+        for candidate in ("B512", "S615"):
+            for seat in (0, 1):
+                win = (opening + seat) % (2 if candidate == "B512" else 3) != 0
+                margin = 1 if win else -1
+                rows.append(
+                    {
+                        "opening_index": opening,
+                        "candidate": candidate,
+                        "candidate_seat": seat,
+                        "margin": margin,
+                        "score": 1.0 if win else 0.0,
+                    }
+                )
+    return rows
 
 
 def synthetic_opening() -> dict[str, object]:
@@ -333,8 +429,92 @@ class Seed615EvaluationTests(unittest.TestCase):
     def test_inconsistent_capped_game_is_rejected(self) -> None:
         assignment, data = synthetic_game()
         row = dict(data["game"], trajectory="", game_length=0)
-        with self.assertRaisesRegex(ValueError, "capped_game_length"):
+        with self.assertRaisesRegex(ValueError, "nonterminal_game_before_cap"):
             verifier.verify_game(assignment, data["opening"], row)
+
+    def test_game_cap_boundary_distinguishes_terminal_and_capped(self) -> None:
+        cases = (
+            ("terminal_before_cap", 20, 200, False),
+            ("terminal_on_cap", 212, 200, False),
+            ("nonterminal_at_cap", None, 200, True),
+        )
+        for label, terminal_at, continuation, expected_capped in cases:
+            with self.subTest(label=label):
+                assignment, opening, game_row = synthetic_boundary_case(
+                    terminal_at=terminal_at,
+                    continuation_plies=continuation,
+                )
+                verified = verifier.verify_game(
+                    assignment,
+                    opening,
+                    game_row,
+                    game_factory=lambda: _BoundaryGame(terminal_at),
+                )
+                self.assertEqual(
+                    verified["game_length"],
+                    continuation if label != "terminal_before_cap" else 8,
+                )
+                self.assertIs(verified["capped"], expected_capped)
+
+    def test_nonterminal_game_ending_before_cap_is_rejected(self) -> None:
+        assignment, opening, game_row = synthetic_boundary_case(
+            terminal_at=None,
+            continuation_plies=199,
+        )
+        with self.assertRaisesRegex(ValueError, "nonterminal_game_before_cap"):
+            verifier.verify_game(
+                assignment,
+                opening,
+                game_row,
+                game_factory=lambda: _BoundaryGame(None),
+            )
+
+    def test_independent_analysis_rejects_corrupted_statistical_value(self) -> None:
+        outcomes = synthetic_analysis_records()
+        reference = verifier.reference_analysis(outcomes)
+        document = verifier.analysis_document(reference, capped_games=0)
+        document["results"]["S615_score"] += 0.01
+        with self.assertRaisesRegex(ValueError, "independent_analysis_mismatch"):
+            verifier.validate_analysis_document(document, reference, capped_games=0)
+
+    def test_independent_analysis_rejects_corrupted_metadata_and_schema(self) -> None:
+        reference = verifier.reference_analysis(synthetic_analysis_records())
+        valid = verifier.analysis_document(reference, capped_games=0)
+        invalid_metadata = json.loads(json.dumps(valid))
+        invalid_metadata["bootstrap"]["seed"] = 604
+        with self.assertRaisesRegex(ValueError, "independent_analysis_mismatch"):
+            verifier.validate_analysis_document(
+                invalid_metadata, reference, capped_games=0
+            )
+        invalid_schema = {**valid, "unexpected": True}
+        with self.assertRaisesRegex(ValueError, "analysis_schema_mismatch"):
+            verifier.validate_analysis_document(
+                invalid_schema, reference, capped_games=0
+            )
+
+    def test_independent_analysis_rejects_corrupted_gate_and_promotion_decision(
+        self,
+    ) -> None:
+        reference = verifier.reference_analysis(synthetic_analysis_records())
+        valid = verifier.analysis_document(reference, capped_games=0)
+        invalid_gate = json.loads(json.dumps(valid))
+        invalid_gate["results"]["incremental_improvement_pass"] = False
+        with self.assertRaisesRegex(ValueError, "independent_analysis_mismatch"):
+            verifier.validate_analysis_document(invalid_gate, reference, capped_games=0)
+        invalid_promotion = json.loads(json.dumps(valid))
+        invalid_promotion["results"]["automatic_promotion"] = True
+        with self.assertRaisesRegex(ValueError, "independent_analysis_mismatch"):
+            verifier.validate_analysis_document(
+                invalid_promotion, reference, capped_games=0
+            )
+
+    def test_independent_bootstrap_does_not_call_production_analysis(self) -> None:
+        outcomes = synthetic_analysis_records()
+        with mock.patch.object(
+            runner, "analyze_scores", side_effect=AssertionError("production called")
+        ):
+            reference = verifier.reference_analysis(outcomes)
+        self.assertEqual(reference["interpretation"], "both_pass")
 
     def test_create_only_attempt_policy_does_not_delete_attempt_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

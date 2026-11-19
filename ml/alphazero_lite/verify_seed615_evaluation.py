@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import hashlib
 import json
 from pathlib import Path
 from typing import Any
+
+import numpy as np
 
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite import seed615_evaluation as contract
@@ -111,12 +114,18 @@ def validate_assignment_identity(
 
 
 def verify_game(
-    assignment: dict[str, Any], opening: dict[str, Any], row: dict[str, Any]
+    assignment: dict[str, Any],
+    opening: dict[str, Any],
+    row: dict[str, Any],
+    *,
+    game_factory: Any = None,
 ) -> dict[str, Any]:
     seat = assignment.get("candidate_seat")
     if seat not in (0, 1):
         raise ValueError("invalid_candidate_seat")
-    game = KalahGame.from_state(dict(INITIAL))
+    game = (
+        KalahGame.from_state(dict(INITIAL)) if game_factory is None else game_factory()
+    )
     prefix = opening.get("prefix_moves")
     if not isinstance(prefix, list) or len(prefix) != 12:
         raise ValueError("opening_prefix_invalid")
@@ -157,9 +166,13 @@ def verify_game(
             raise ValueError(f"illegal_trajectory:{ply}")
         if absolute % 6 not in game.possible_moves() or not game.move(absolute):
             raise ValueError(f"illegal_trajectory:{ply}")
-    capped = not game.over()
-    if capped != (len(tokens) == 200):
-        raise ValueError("capped_game_length_mismatch")
+    terminal = game.over()
+    if terminal:
+        capped = False
+    elif len(tokens) == 200:
+        capped = True
+    else:
+        raise ValueError("nonterminal_game_before_cap")
     margin = int(game.captured_seeds[seat] - game.captured_seeds[1 - seat])
     winner = "challenger" if margin > 0 else "current" if margin < 0 else "draw"
     if row.get("margin") != margin or row.get("winner") != winner:
@@ -169,9 +182,116 @@ def verify_game(
         "margin": margin,
         "game_length": len(tokens),
         "capped": capped,
-        "score": contract.score_game(seat, margin),
+        "score": 1.0 if margin > 0 else 0.5 if margin == 0 else 0.0,
         "trajectory_sha256": hashlib.sha256(trajectory.encode()).hexdigest(),
     }
+
+
+def reference_analysis(game_records: list[dict[str, Any]]) -> dict[str, Any]:
+    """Independently compute registered opening-cluster bootstrap statistics."""
+    if len(game_records) != 4096:
+        raise ValueError("incomplete_game_ledger")
+    candidates = ("B512", "S615")
+    expected = {
+        (opening, candidate, seat)
+        for opening in range(1024)
+        for candidate in candidates
+        for seat in (0, 1)
+    }
+    observed: dict[tuple[int, str], dict[int, float]] = {}
+    for row in game_records:
+        opening = row.get("opening_index")
+        candidate = row.get("candidate")
+        seat = row.get("candidate_seat")
+        key = (opening, candidate, seat)
+        if key not in expected or key in observed.setdefault((opening, candidate), {}):
+            raise ValueError("unknown_or_duplicate_analysis_outcome")
+        margin = row.get("margin")
+        if type(margin) is not int:
+            raise ValueError("invalid_analysis_margin")
+        score = 1.0 if margin > 0 else 0.5 if margin == 0 else 0.0
+        if "score" in row and row["score"] != score:
+            raise ValueError("analysis_score_margin_mismatch")
+        observed[(opening, candidate)][seat] = score
+    if len(observed) != 2048 or any(
+        set(seats) != {0, 1} for seats in observed.values()
+    ):
+        raise ValueError("missing_seat_swapped_opening_outcomes")
+    means = {
+        candidate: np.asarray(
+            [
+                (observed[(opening, candidate)][0] + observed[(opening, candidate)][1])
+                / 2.0
+                for opening in range(1024)
+            ],
+            dtype=np.float64,
+        )
+        for candidate in candidates
+    }
+    randomizer = np.random.default_rng(615)
+    selected = randomizer.integers(0, 1024, size=(20000, 1024))
+    paired_delta = means["S615"] - means["B512"]
+    delta_draws = np.mean(paired_delta[selected], axis=1)
+    absolute_draws = np.mean(means["S615"][selected], axis=1)
+    interval = [
+        float(value)
+        for value in np.quantile(delta_draws, [0.025, 0.975], method="linear")
+    ]
+    lower = float(np.quantile(absolute_draws, 0.05, method="linear"))
+    improvement_pass = interval[0] > 0.0
+    absolute_pass = lower > 0.50
+    interpretation = (
+        "both_pass"
+        if improvement_pass and absolute_pass
+        else "incremental_only"
+        if improvement_pass
+        else "absolute_only"
+        if absolute_pass
+        else "neither"
+    )
+    return {
+        "B512_score": float(np.mean(means["B512"])),
+        "S615_score": float(np.mean(means["S615"])),
+        "S615_minus_B512_interval": interval,
+        "S615_vs_P_E4_one_sided_lower_bound": lower,
+        "incremental_improvement_pass": improvement_pass,
+        "absolute_strength_pass": absolute_pass,
+        "interpretation": interpretation,
+        "automatic_promotion": False,
+    }
+
+
+def analysis_document(results: dict[str, Any], *, capped_games: int) -> dict[str, Any]:
+    return {
+        "schema": "seed615-cluster-bootstrap-analysis-v1",
+        "games": 4096,
+        "opening_clusters": 1024,
+        "capped_games": capped_games,
+        "bootstrap": {
+            "resamples": 20000,
+            "seed": 615,
+            "random_generator": "numpy.random.default_rng(615)",
+            "quantile_method": "numpy.quantile(method='linear')",
+            "primary_quantiles": [0.025, 0.975],
+            "serving_lower_quantile": 0.05,
+            "paired_opening_indices": True,
+            "seat_outcomes_preserved": True,
+        },
+        "results": copy.deepcopy(results),
+    }
+
+
+def validate_analysis_document(
+    observed: dict[str, Any],
+    reference_results: dict[str, Any],
+    *,
+    capped_games: int,
+) -> None:
+    expected = analysis_document(reference_results, capped_games=capped_games)
+    if not isinstance(observed, dict) or set(observed) != set(expected):
+        raise ValueError("analysis_schema_mismatch")
+    if observed != expected:
+        raise ValueError("independent_analysis_mismatch")
 
 
 def verify_freeze(
@@ -382,6 +502,7 @@ def verify_results(root: Path = ROOT) -> dict[str, Any]:
         raise ValueError("incomplete_game_ledger")
     observed = set()
     verified_rows = []
+    capped_games = 0
     for result_path in results:
         result = json.loads(result_path.read_bytes())
         game_id = result.get("game_id")
@@ -391,6 +512,7 @@ def verify_results(root: Path = ROOT) -> dict[str, Any]:
         verified_record = verify_one_result(root, assignment)
         observed.add(game_id)
         verified_rows.append(verified_record)
+        capped_games += int(verified_record["capped"])
     for attempt in results_root.glob("*/attempts/*"):
         if (
             attempt.is_dir()
@@ -402,15 +524,12 @@ def verify_results(root: Path = ROOT) -> dict[str, Any]:
             raise ValueError("unreconciled_incomplete_attempt")
     if (root / contract.ANALYSIS).exists():
         analysis = json.loads((root / contract.ANALYSIS).read_bytes())
-        expected_analysis = contract.analyze_scores(verified_rows)
-        if (
-            analysis.get("results") != expected_analysis
-            or analysis.get("games") != 4096
-        ):
-            raise ValueError("analysis_artifact_mismatch")
+        independent = reference_analysis(verified_rows)
+        validate_analysis_document(analysis, independent, capped_games=capped_games)
     return {
         "passed": True,
         "completed_games": len(observed),
+        "capped_games": capped_games,
         "evaluation_authorized": True,
         "analysis_present": (root / contract.ANALYSIS).exists(),
     }

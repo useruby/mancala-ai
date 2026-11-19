@@ -26,9 +26,9 @@ TRAINING = DATA / "training-run-S615"
 SERVING = Path("docs/data/seed552-c108-serving-p/runtime-artifacts/P-E4")
 NATIVE = Path("model-artifact/runtime/kalah_v1_tablebase")
 TABLEBASE = Path("model-artifact/runtime/kalah_v1_21.kvtb")
-FREEZE = OUT / "execution-freeze-v3.json"
-READINESS = OUT / "readiness-evidence-v3.json"
-SUPERSEDED_FREEZE = OUT / "execution-freeze-v2.json"
+FREEZE = OUT / "execution-freeze-v4.json"
+READINESS = OUT / "readiness-evidence-v4.json"
+SUPERSEDED_FREEZE = OUT / "execution-freeze-v3.json"
 AUTHORIZATION = OUT / "evaluation-authorization.json"
 RESULTS = OUT / "results"
 ANALYSIS = OUT / "analysis.json"
@@ -827,7 +827,10 @@ def run(root: Path = ROOT) -> None:
 
 
 def analyze_completed(root: Path = ROOT) -> dict[str, Any]:
-    from ml.alphazero_lite.verify_seed615_evaluation import verify_results
+    from ml.alphazero_lite.verify_seed615_evaluation import (
+        analysis_document,
+        verify_results,
+    )
 
     root = root.resolve()
     verification = verify_results(root)
@@ -837,19 +840,9 @@ def analyze_completed(root: Path = ROOT) -> dict[str, Any]:
         json.loads(path.read_bytes())
         for path in sorted((root / RESULTS).glob("*/result.json"))
     ]
-    summary = {
-        "schema": "seed615-cluster-bootstrap-analysis-v1",
-        "games": 4096,
-        "opening_clusters": 1024,
-        "bootstrap": {
-            "resamples": 20000,
-            "seed": 615,
-            "quantile_method": "linear",
-            "paired_opening_indices": True,
-            "seat_outcomes_preserved": True,
-        },
-        "results": analyze_scores(rows),
-    }
+    summary = analysis_document(
+        analyze_scores(rows), capped_games=verification["capped_games"]
+    )
     atomic_create(
         root / ANALYSIS,
         json.dumps(summary, indent=2, sort_keys=True).encode() + b"\n",
