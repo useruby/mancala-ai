@@ -221,6 +221,8 @@ def audit() -> dict[str, Any]:
                     "opening_index": x.get("opening_index"),
                     "source_path": x.get("source_path"),
                     "source_line": x.get("source_line"),
+                    "source_record_sha256": x.get("source_record_sha256"),
+                    "source_batch_sha256": x.get("source_batch_sha256"),
                 }
                 for x in provenance[state_id]["sources"]
             ],

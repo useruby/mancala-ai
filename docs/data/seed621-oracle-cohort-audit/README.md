@@ -27,6 +27,14 @@ identities, and state-level exclusion/contamination labels. `report.json` binds
 source and membership hashes, totals, prior divergence summaries, and the
 inventory hash.
 
+The independent verifier does not import the audit producer. It authenticates
+the frozen source, membership, and runtime identities, reconstructs cohort to
+oracle joins, independently evaluates legal-masked B512/S615 priors, rebuilds
+every inventory row, and compares row evidence plus all aggregate counts and
+metrics. Its negative tests cover changed oracle margins, altered overlap
+classification, changed prior class despite recomputed publication counts/hash,
+and missing or substituted states.
+
 ## Results and decision
 
 | Measure | Result |

@@ -39,7 +39,7 @@
     "recommendation": "revise",
     "training_contamination_excluded": false
   },
-  "inventory_sha256": "b58445c8d0146cdd9f15a88a66d396bd599824bc0db129306ae1580dd48c5b12",
+  "inventory_sha256": "332792e07accb8856f6cd5c0b65269dcfe55b392c93560369b7b685c2f86ad29",
   "membership_sha256": {
     "B512": "95ecc180e28945702e08815de7a5210e1bce036afdaf76d194bbd774589a4516",
     "S615": "5ed236266ed3804a9c0e9f75b7e10b7c81ea6e290f8c72d3cea06dd225a15010",
