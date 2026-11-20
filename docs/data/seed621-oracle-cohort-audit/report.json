@@ -1,0 +1,78 @@
+{
+  "checkpoint_sha256": {
+    "B512": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+    "S615": "cdf1e36c4c9374f28b182757b12471b3f00567eb59825bb938435cb56cf8d780"
+  },
+  "cohort_policy_metrics": {
+    "seed557": {
+      "agreements": 251,
+      "disagreements": 4,
+      "mean_js_bits": 0.0009523204347460433,
+      "mean_tv": 0.021475920456604878,
+      "n": 255
+    },
+    "seed559": {
+      "agreements": 494,
+      "disagreements": 15,
+      "mean_js_bits": 0.0009955294057182192,
+      "mean_tv": 0.021570757973709075,
+      "n": 509
+    }
+  },
+  "counts": {
+    "agreement": 745,
+    "disagreement": 19,
+    "duplicated_across_cohorts": 0,
+    "eligible_by_exact-membership-rule": 764,
+    "exact_covered": 768,
+    "exact_covered_excluded_by_authenticated_membership": 4,
+    "exclusion_reasons": {
+      "S615_training_state_overlap": 2,
+      "protected_holdout_overlap": 2
+    },
+    "source_records": 768,
+    "unique_states": 768,
+    "unresolved_nonmembership": 764
+  },
+  "decision_gate": {
+    "minimum_64_and_16_each_class_met": true,
+    "recommendation": "revise",
+    "training_contamination_excluded": false
+  },
+  "inventory_sha256": "b58445c8d0146cdd9f15a88a66d396bd599824bc0db129306ae1580dd48c5b12",
+  "membership_sha256": {
+    "B512": "95ecc180e28945702e08815de7a5210e1bce036afdaf76d194bbd774589a4516",
+    "S615": "5ed236266ed3804a9c0e9f75b7e10b7c81ea6e290f8c72d3cea06dd225a15010",
+    "protected_holdout": "4e74d57244ab55b69751c38e4097860c25e541a8db60a2109f2ebd64c3eb81a8"
+  },
+  "read_only": true,
+  "runtime_artifact_sha256": {
+    "B512": {
+      "metadata.json": "510d4d5056d1b68ddd83eed89a4e8da13e9305d2fa39a46eefcebcf13334dce6",
+      "model.npz": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+      "weights.json": "d3effd234fe657fd8be3e3896153441d75ba338e83e83b66d7541936b3c01ccd"
+    },
+    "S615": {
+      "metadata.json": "24e42998824856d0242e04ff8a98431b139375e0bc4540d759373ccb335983b3",
+      "model.npz": "cdf1e36c4c9374f28b182757b12471b3f00567eb59825bb938435cb56cf8d780",
+      "weights.json": "8f36140461390d317e7e5bcf604357ca65fa1b605bd1e9562bf923b840e13433"
+    }
+  },
+  "schema": "seed621-oracle-cohort-audit-v1",
+  "source_artifacts_sha256": {
+    "docs/data/seed556-exploratory-arena/screen-0005/verification-receipt.json": "a318933da72b8ed23cb5487fbbd8e57edd0d1d407ba9bc1f8485b0736fcdfbe7",
+    "docs/data/seed557-retrospective-diagnostic/cohort.json": "f62539cc3e1b1843a2bd9296453d51b895a1c5e693bd9edc3b3291f883398243",
+    "docs/data/seed557-retrospective-diagnostic/execution-freeze.json": "b0892a24872012486ff164d291913e1799737632a816a40c2547210a458bf36d",
+    "docs/data/seed557-retrospective-diagnostic/oracle-identity-verification.json": "45f93ce95bf2bc0c58b8a44bdf072324eddfb2c943dd9678e6895613a5a4f60d",
+    "docs/data/seed557-retrospective-diagnostic/oracle-records.jsonl": "75453e744a86b9dc8471628e0d133fa7d478550af9c8089ed8661426436a8480",
+    "docs/data/seed559-fixed-position-feasibility/run-0003/cohort-manifest.json": "f2e03fb9491474056e7a7cb3ace225cd2310f9069c9e48600d45039ed63158fb",
+    "docs/data/seed559-fixed-position-feasibility/run-0003/execution-freeze.json": "3b1ab386c33534130c7e15df024f21ef75359ccd00d453e4c6aea104c8181927",
+    "docs/data/seed559-fixed-position-feasibility/run-0003/oracle-records.jsonl": "83bec1bb348cbc6d1183112363f27d0612ee204a48d14ee5dbb7530e9b5fb8c2",
+    "docs/data/seed615-source-opening-diversity/evaluation-preparation/execution-freeze-v4.json": "ba30f5e3efadf3358db9f03c7b4eba4f69b23e2f95dcb4089723a1fb9664f32b",
+    "docs/data/seed615-source-opening-diversity/training-run-S615/training-integrity-report.json": "c383411a9ce9b896ef49431e502e0047b26de0e8600042d8b2873ae07c796266",
+    "docs/data/seed615-source-opening-diversity/training-run-S615/training-receipt.json": "0dc4d04a6be2b638abf77bb959e93d82c60355f3f9a449a49d0fef0a8bbb81f3"
+  },
+  "source_commits": {
+    "seed557_and_seed559_reconstruction": "f38838e6ffe20a44c1e8c161a9daed0f1243f0ae"
+  }
+}
