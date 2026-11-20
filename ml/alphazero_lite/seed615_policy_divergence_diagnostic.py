@@ -9,6 +9,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import shutil
+import tempfile
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -268,6 +271,13 @@ def build_divergence(
     actor = game.current_player
     candidate_seat = b_assignment["candidate_seat"]
     legal = game.possible_moves()
+    for label, absolute_move in (("B512", b_move), ("S615", s_move)):
+        if not isinstance(absolute_move, int) or absolute_move not in range(12):
+            raise ValueError(f"first_divergence_move_out_of_range:{label}")
+        if absolute_move // 6 != actor:
+            raise ValueError(f"first_divergence_move_wrong_player:{label}")
+        if absolute_move % 6 not in legal:
+            raise ValueError(f"first_divergence_move_illegal:{label}")
     state = game.to_state()
     stones = sum(game.pits)
     b_consequences = move_consequence_table(state)
@@ -303,6 +313,59 @@ def build_divergence(
 
 def canonical_state_identity(state: dict[str, Any]) -> str:
     return sha256_bytes(canonical_json(state))
+
+
+def publish_create_only(output: Path, payloads: dict[str, bytes]) -> None:
+    """Publish a complete artifact directory with one same-filesystem rename."""
+    output = output.resolve()
+    if output.exists() and (not output.is_dir() or any(output.iterdir())):
+        raise FileExistsError(f"create_only_output_exists:{output}")
+    if any(Path(name).name != name for name in payloads):
+        raise ValueError("publication_filename_must_be_a_basename")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    lock = output.with_name(f".{output.name}.publish-lock")
+    try:
+        lock_fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+    except FileExistsError as error:
+        raise FileExistsError(f"publication_lock_exists:{lock}") from error
+    staging: Path | None = None
+    try:
+        with os.fdopen(lock_fd, "wb") as lock_stream:
+            lock_fd = -1
+            lock_stream.write(f"pid={os.getpid()}\n".encode())
+            lock_stream.flush()
+            os.fsync(lock_stream.fileno())
+        if output.exists() and (not output.is_dir() or any(output.iterdir())):
+            raise FileExistsError(f"create_only_output_exists:{output}")
+        staging = Path(
+            tempfile.mkdtemp(prefix=f".{output.name}.pending-", dir=output.parent)
+        )
+        for name, payload in payloads.items():
+            file_path = staging / name
+            with file_path.open("xb") as stream:
+                stream.write(payload)
+                stream.flush()
+                os.fsync(stream.fileno())
+        directory_fd = os.open(staging, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+        if output.exists():
+            output.rmdir()
+        os.rename(staging, output)
+        staging = None
+        parent_fd = os.open(output.parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+        try:
+            os.fsync(parent_fd)
+        finally:
+            os.close(parent_fd)
+    finally:
+        if staging is not None:
+            shutil.rmtree(staging, ignore_errors=True)
+        if lock_fd >= 0:
+            os.close(lock_fd)
+        lock.unlink(missing_ok=True)
 
 
 def compare_priors(
@@ -386,6 +449,7 @@ def main() -> None:
         )
     for opening in opening_rows:
         state = opening["state"]
+        # The registered primary cohort owns collisions with divergence states.
         primary[canonical_state_identity(state)] = (state, "registered_opening")
     if sum(cohort == "registered_opening" for _, cohort in primary.values()) != 1024:
         raise ValueError("primary_registered_state_cohort_mismatch")
@@ -485,6 +549,7 @@ def main() -> None:
             not row["identical_trajectory"] for row in divergences
         ),
         "prior_states": len(state_records),
+        "cohort_deduplication": "registered_opening_states_take_precedence_over_first_divergence_states",
         "prior_states_by_cohort": dict(Counter(row["cohort"] for row in state_records)),
         "policy_metrics_by_cohort": {
             cohort: {
@@ -567,29 +632,32 @@ def main() -> None:
         name: sha256_bytes(payload) for name, payload in payloads.items()
     }
     summary_payload = json.dumps(summary, sort_keys=True, indent=2).encode() + b"\n"
-    output.mkdir(parents=True, exist_ok=True)
-    for name, payload in payloads.items():
-        (output / name).open("xb").write(payload)
-    (output / "diagnostic.json").open("xb").write(summary_payload)
     policy_summary = summary["policy_metrics_by_cohort"]
     outcome_counts = summary["outcome_difference_counts"]
-    (output / "README.md").open("xb").write(
-        (
-            "# Seed 615 post-hoc policy-divergence retrospective\n\n"
-            "Read-only replay and deterministic inference on authenticated historical evidence. "
-            "This is exploratory and does not alter the registered confirmatory result.\n\n"
-            "## Findings\n\n"
-            f"- **Identical-position priors:** the registered-opening cohort has {policy_summary['registered_opening']['top_action_disagreements']} top-action disagreements across {policy_summary['registered_opening']['states']} states; mean TV is {policy_summary['registered_opening']['mean_total_variation']:.6f} and mean Jensen–Shannon divergence is {policy_summary['registered_opening']['mean_jensen_shannon_bits']:.6f} bits. The deduplicated first-divergence cohort has {policy_summary.get('first_divergence', {}).get('top_action_disagreements', 0)} disagreements across {policy_summary.get('first_divergence', {}).get('states', 0)} states (mean TV {policy_summary.get('first_divergence', {}).get('mean_total_variation', 0):.6f}; JS {policy_summary.get('first_divergence', {}).get('mean_jensen_shannon_bits', 0):.6f} bits).\n"
-            f"- **Recorded trajectories:** {summary['identical_trajectory_pairs']} of {summary['matched_game_pairs']} matched opening/seat game pairs were identical; {summary['different_trajectory_pairs']} first diverged. Of those, {summary['divergence_by_actor'].get('candidate', 0)} first differing turns were by the candidate and {summary['divergence_by_actor'].get('shared_P-E4_opponent', 0)} by P-E4.\n"
-            f"- **Tactical associations:** among first-divergence states, {summary['divergence_tactical_counts']['capture_available']} had an immediate capture available, {summary['divergence_tactical_counts']['extra_turn_available']} had an extra turn available, and {summary['divergence_tactical_counts']['exact_root_eligible']} were within the 16-stone exact-root region. For example, the capture-available stratum's recorded candidate scores were B512 {summary['descriptive_divergence_associations']['capture_available']['True']['B512_candidate_score']:.3f} and S615 {summary['descriptive_divergence_associations']['capture_available']['True']['S615_candidate_score']:.3f}; this descriptive selection is not an action-quality or causal comparison.\n"
-            f"- **Opening outcomes:** S615 was better on {outcome_counts.get('better', 0)} openings, worse on {outcome_counts.get('worse', 0)}, and equal on {outcome_counts.get('equal', 0)}. The frozen aggregate remains B512 {FROZEN_RESULTS['B512_score']}, S615 {FROZEN_RESULTS['S615_score']} (difference {FROZEN_RESULTS['delta']}); paired 95% interval {FROZEN_RESULTS['interval']}; S615 lower bound vs P-E4 {FROZEN_RESULTS['S615_vs_P_E4_lower_bound']}; registered interpretation **neither**.\n"
-            "- **Mechanism:** tactical/phase strata and actor-specific outcome summaries are descriptive associations. They do not identify causal effects or establish action quality; available evidence is insufficient to identify a specific mechanism.\n\n"
-            f"Evidence bindings: freeze `{auth['freeze_sha256']}`; B512 `{CHECKPOINTS['B512']}`; S615 `{CHECKPOINTS['S615']}`; P-E4 `{SERVING}`.\n\n"
-            "Recorded outcome labels `challenger`, `current`, and `draw` are from each game's candidate perspective. `diagnostic.json` contains the full authenticated source-hash map and hashes of all JSONL outputs; each JSONL row carries the same source/checkpoint provenance.\n\n"
-            "The recorded games were independently verified before reconstruction. Matched games share opening and candidate seat, but their numeric seeds differ because candidate identity is part of the seed contract. First action divergence is therefore not uniquely attributable to the model intervention.\n\n"
-            "The training intervention increased effective source-opening-group diversity while also changing actual training-state membership. This evaluation therefore compares a changed sampling/allocation strategy; it does not isolate a single diversity statistic.\n\n"
-            "Policy-prior metrics describe the original network policy distributions on identical states. They do not describe MCTS-selected actions, counterfactual outcomes, or action quality. Tactical indicators use ordinary Kalah consequences only; no new exact solve was run. Post-hoc associations are descriptive, not significance tests or causal evidence. No candidate is selected or promoted.\n"
-        ).encode()
+    readme_payload = (
+        "# Seed 615 post-hoc policy-divergence retrospective\n\n"
+        "Read-only replay and deterministic inference on authenticated historical evidence. "
+        "This is exploratory and does not alter the registered confirmatory result.\n\n"
+        "## Findings\n\n"
+        f"- **Identical-position priors:** the registered-opening cohort has {policy_summary['registered_opening']['top_action_disagreements']} top-action disagreements across {policy_summary['registered_opening']['states']} states; mean TV is {policy_summary['registered_opening']['mean_total_variation']:.6f} and mean Jensen–Shannon divergence is {policy_summary['registered_opening']['mean_jensen_shannon_bits']:.6f} bits. The deduplicated first-divergence cohort has {policy_summary.get('first_divergence', {}).get('top_action_disagreements', 0)} disagreements across {policy_summary.get('first_divergence', {}).get('states', 0)} states (mean TV {policy_summary.get('first_divergence', {}).get('mean_total_variation', 0):.6f}; JS {policy_summary.get('first_divergence', {}).get('mean_jensen_shannon_bits', 0):.6f} bits).\n"
+        f"- **Recorded trajectories:** {summary['identical_trajectory_pairs']} of {summary['matched_game_pairs']} matched opening/seat game pairs were identical; {summary['different_trajectory_pairs']} first diverged. Of those, {summary['divergence_by_actor'].get('candidate', 0)} first differing turns were by the candidate and {summary['divergence_by_actor'].get('shared_P-E4_opponent', 0)} by P-E4.\n"
+        f"- **Tactical associations:** among first-divergence states, {summary['divergence_tactical_counts']['capture_available']} had an immediate capture available, {summary['divergence_tactical_counts']['extra_turn_available']} had an extra turn available, and {summary['divergence_tactical_counts']['exact_root_eligible']} were within the 16-stone exact-root region. For example, the capture-available stratum's recorded candidate scores were B512 {summary['descriptive_divergence_associations']['capture_available']['True']['B512_candidate_score']:.3f} and S615 {summary['descriptive_divergence_associations']['capture_available']['True']['S615_candidate_score']:.3f}; this descriptive selection is not an action-quality or causal comparison.\n"
+        f"- **Opening outcomes:** S615 was better on {outcome_counts.get('better', 0)} openings, worse on {outcome_counts.get('worse', 0)}, and equal on {outcome_counts.get('equal', 0)}. The frozen aggregate remains B512 {FROZEN_RESULTS['B512_score']}, S615 {FROZEN_RESULTS['S615_score']} (difference {FROZEN_RESULTS['delta']}); paired 95% interval {FROZEN_RESULTS['interval']}; S615 lower bound vs P-E4 {FROZEN_RESULTS['S615_vs_P_E4_lower_bound']}; registered interpretation **neither**.\n"
+        "- **Mechanism:** tactical/phase strata and actor-specific outcome summaries are descriptive associations. They do not identify causal effects or establish action quality; available evidence is insufficient to identify a specific mechanism.\n\n"
+        f"Evidence bindings: freeze `{auth['freeze_sha256']}`; B512 `{CHECKPOINTS['B512']}`; S615 `{CHECKPOINTS['S615']}`; P-E4 `{SERVING}`.\n\n"
+        "Recorded outcome labels `challenger`, `current`, and `draw` are from each game's candidate perspective. `diagnostic.json` contains the full authenticated source-hash map and hashes of all JSONL outputs; each JSONL row carries the same source/checkpoint provenance.\n\n"
+        "The recorded games were independently verified before reconstruction. Matched games share opening and candidate seat, but their numeric seeds differ because candidate identity is part of the seed contract. First action divergence is therefore not uniquely attributable to the model intervention.\n\n"
+        "When canonical states overlap between cohorts, registered opening states take precedence and are counted only in the primary cohort. The primary cohort remains all 1,024 registered states; divergence states are deduplicated against it and each other.\n\n"
+        "The training intervention increased effective source-opening-group diversity while also changing actual training-state membership. This evaluation therefore compares a changed sampling/allocation strategy; it does not isolate a single diversity statistic.\n\n"
+        "Policy-prior metrics describe the original network policy distributions on identical states. They do not describe MCTS-selected actions, counterfactual outcomes, or action quality. Tactical indicators use ordinary Kalah consequences only; no new exact solve was run. Post-hoc associations are descriptive, not significance tests or causal evidence. No candidate is selected or promoted.\n"
+    ).encode()
+    publish_create_only(
+        output,
+        {
+            **payloads,
+            "diagnostic.json": summary_payload,
+            "README.md": readme_payload,
+        },
     )
     print(json.dumps({"output": str(output), **summary}, sort_keys=True, indent=2))
 

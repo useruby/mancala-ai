@@ -16,6 +16,8 @@ Recorded outcome labels `challenger`, `current`, and `draw` are from each game's
 
 The recorded games were independently verified before reconstruction. Matched games share opening and candidate seat, but their numeric seeds differ because candidate identity is part of the seed contract. First action divergence is therefore not uniquely attributable to the model intervention.
 
+When canonical states overlap between cohorts, registered opening states take precedence and are counted only in the primary cohort. The primary cohort remains all 1,024 registered states; divergence states are deduplicated against it and each other.
+
 The training intervention increased effective source-opening-group diversity while also changing actual training-state membership. This evaluation therefore compares a changed sampling/allocation strategy; it does not isolate a single diversity statistic.
 
 Policy-prior metrics describe the original network policy distributions on identical states. They do not describe MCTS-selected actions, counterfactual outcomes, or action quality. Tactical indicators use ordinary Kalah consequences only; no new exact solve was run. Post-hoc associations are descriptive, not significance tests or causal evidence. No candidate is selected or promoted.

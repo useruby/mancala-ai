@@ -3,12 +3,52 @@
 from __future__ import annotations
 
 import unittest
+import tempfile
+from pathlib import Path
 
 import numpy as np
 
 from ml.alphazero_lite import seed615_policy_divergence_diagnostic as diagnostic
 from ml.alphazero_lite.kalah_rules import KalahGame, move_consequence_table
 from ml.alphazero_lite import verify_seed615_evaluation as verifier
+
+
+def synthetic_divergence_games(
+    b_moves: list[int], s_moves: list[int]
+) -> tuple[tuple[dict, dict, list[int]], tuple[dict, dict, list[int]]]:
+    game = KalahGame.from_state(
+        {
+            "player_pits": [4] * 6,
+            "opponent_pits": [4] * 6,
+            "player_store": 0,
+            "opponent_store": 0,
+            "current_player": 0,
+        }
+    )
+    prefix = [0, 3, 1, 2, 0, 0, 1, 0, 5, 0, 2, 4]
+    for move in prefix:
+        game.move(game.pit_index(move))
+    common_move = 6
+    b_assignment = {
+        "opening_index": 7,
+        "candidate_seat": 0,
+        "candidate": "B512",
+        "opening_identity": "identity",
+        "game_seed": 101,
+    }
+    s_assignment = {
+        "opening_index": 7,
+        "candidate_seat": 0,
+        "candidate": "S615",
+        "opening_identity": "identity",
+        "game_seed": 202,
+    }
+    b_row = {"opening_prefix_moves": prefix, "winner": "challenger"}
+    s_row = {"opening_prefix_moves": prefix, "winner": "current"}
+    return (
+        (b_assignment, b_row, [common_move, *b_moves]),
+        (s_assignment, s_row, [common_move, *s_moves]),
+    )
 
 
 class Seed615PolicyDivergenceDiagnosticTests(unittest.TestCase):
@@ -134,6 +174,27 @@ class Seed615PolicyDivergenceDiagnosticTests(unittest.TestCase):
             diagnostic.sha256_bytes(payload), diagnostic.sha256_bytes(payload)
         )
 
+    def test_create_only_publication_exposes_complete_directory_and_refuses_replace(
+        self,
+    ):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            output = Path(temporary_directory) / "published"
+            with self.assertRaises(TypeError):
+                diagnostic.publish_create_only(
+                    output,
+                    {"partial.json": b"a", "invalid.json": "not-bytes"},  # type: ignore[dict-item]
+                )
+            self.assertFalse(output.exists())
+            self.assertFalse(output.with_name(f".{output.name}.publish-lock").exists())
+            diagnostic.publish_create_only(output, {"a.json": b"a", "b.json": b"b"})
+            self.assertEqual((output / "a.json").read_bytes(), b"a")
+            self.assertEqual((output / "b.json").read_bytes(), b"b")
+            with self.assertRaisesRegex(FileExistsError, "create_only_output_exists"):
+                diagnostic.publish_create_only(output, {"replacement": b"no"})
+            self.assertEqual(
+                sorted(path.name for path in output.iterdir()), ["a.json", "b.json"]
+            )
+
     def test_missing_or_duplicate_assignment_evidence_fails_closed(self):
         rows = [{"game_id": str(index)} for index in range(4096)]
         with self.assertRaisesRegex(
@@ -159,53 +220,34 @@ class Seed615PolicyDivergenceDiagnosticTests(unittest.TestCase):
             )
 
     def test_first_difference_is_found_after_shared_recorded_move(self):
-        game = KalahGame.from_state(
-            {
-                "player_pits": [4] * 6,
-                "opponent_pits": [4] * 6,
-                "player_store": 0,
-                "opponent_store": 0,
-                "current_player": 0,
-            }
-        )
-        prefix = [0, 3, 1, 2, 0, 0, 1, 0, 5, 0, 2, 4]
-        for move in prefix:
-            self.assertIn(move, game.possible_moves())
-            game.move(game.pit_index(move))
-        legal_absolute = [game.pit_index(move) for move in game.possible_moves()]
-        if len(legal_absolute) < 2:
-            self.skipTest("synthetic opening has one legal move")
-        shared, changed_b, changed_s = (
-            legal_absolute[0],
-            legal_absolute[0],
-            legal_absolute[1],
-        )
-        after_shared = game.clone()
-        after_shared.move(shared)
-        actor_seat = after_shared.current_player
-        b_assignment = {
-            "opening_index": 7,
-            "candidate_seat": actor_seat,
-            "candidate": "B512",
-            "opening_identity": "identity",
-            "game_seed": 101,
-        }
-        s_assignment = {
-            "opening_index": 7,
-            "candidate_seat": actor_seat,
-            "candidate": "S615",
-            "opening_identity": "identity",
-            "game_seed": 202,
-        }
-        b_row = {"opening_prefix_moves": prefix, "winner": "challenger"}
-        s_row = {"opening_prefix_moves": prefix, "winner": "current"}
+        b_game, s_game = synthetic_divergence_games([0], [1])
         result = diagnostic.build_divergence(
-            (b_assignment, b_row, [shared, changed_b]),
-            (s_assignment, s_row, [shared, changed_s]),
+            b_game,
+            s_game,
         )
         self.assertEqual(result["first_differing_move_index"], 1)
         self.assertEqual(result["actor"], "candidate")
         self.assertNotEqual(result["b512_seed"], result["s615_seed"])
+
+    def test_first_divergence_rejects_illegal_and_wrong_player_actions_for_both_models(
+        self,
+    ):
+        for bad_side in ("B512", "S615"):
+            for bad_move, expected_error in (
+                (4, f"first_divergence_move_illegal:{bad_side}"),
+                (6, f"first_divergence_move_wrong_player:{bad_side}"),
+            ):
+                with self.subTest(side=bad_side, move=bad_move):
+                    b_actions = [0]
+                    s_actions = [1]
+                    if bad_side == "B512":
+                        b_actions = [bad_move]
+                    else:
+                        s_actions = [bad_move]
+                    with self.assertRaisesRegex(ValueError, expected_error):
+                        diagnostic.build_divergence(
+                            *synthetic_divergence_games(b_actions, s_actions)
+                        )
 
     def test_first_divergence_after_shared_extra_turn_replay(self):
         # Synthetic prefix position: both histories agree on an extra-turn move,

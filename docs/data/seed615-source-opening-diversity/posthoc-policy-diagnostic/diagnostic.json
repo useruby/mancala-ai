@@ -17,6 +17,7 @@
       "passed": true
     }
   },
+  "cohort_deduplication": "registered_opening_states_take_precedence_over_first_divergence_states",
   "descriptive_divergence_associations": {
     "actor": {
       "candidate": {
@@ -130,9 +131,9 @@
     "worse": 81
   },
   "output_sha256": {
-    "first-divergences.jsonl": "6dd8fa89a37d9bc4813ead1909bdc313f5f52cc57444596022667f9e6de1440b",
-    "paired-opening-outcomes.jsonl": "dee434d96f6a7879fae18e05e1a915331bf6c401e0590c03b4488ed85f77bce3",
-    "policy-prior-comparison.jsonl": "65c7ffd892b13d0f5ce6c67641938544a56d9f1adbb67b09359983d5728ab961"
+    "first-divergences.jsonl": "05cc496f17c530727aac05173dfcd508385800bddb3ed3dce9357528dcb3a72c",
+    "paired-opening-outcomes.jsonl": "30cca94e5a84aea64219806b84b94b8965830c3da0c591321ef386b2c6ba9973",
+    "policy-prior-comparison.jsonl": "00857989a6d4d86c6f6009669a54ec9776f441a665c36be7f3faa878221c9fb4"
   },
   "policy_metrics_by_cohort": {
     "first_divergence": {
@@ -179,7 +180,7 @@
     "ml/alphazero_lite/runtime_search_policy.py": "ccf7cba630a1f852fc603c74cded1ee406b34ed2224e026fedc4cb627f9b16f9",
     "ml/alphazero_lite/seed604_evaluation.py": "e51a416599050a385559c0f0bfe3714cfcffdb7a1659f70a1297bd067e2f170e",
     "ml/alphazero_lite/seed615_evaluation.py": "47e96de9edc1b2e0699886b0059b9cc0388483dc77336ee72755aa38f323ccdf",
-    "ml/alphazero_lite/seed615_policy_divergence_diagnostic.py": "2b59110238a928ce9fd3f1e9b19296325ee4836449f2314cbc71bd2df1ca035d",
+    "ml/alphazero_lite/seed615_policy_divergence_diagnostic.py": "d0f6dc7c2c408ed30b9aa3c89621b9beb8451c58083fdf5183c88de32f0679b3",
     "ml/alphazero_lite/seed615_training_executor.py": "56083e900845556f51796d562c192dad6a2b7e15a4cea2dd3a86fb63263dfe84",
     "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
     "ml/alphazero_lite/test_seed615_evaluation.py": "37eb85a7954e7386207886115054efa2095dc4d4b54b59815360f73ef28d62bc",
