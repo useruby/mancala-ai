@@ -1,0 +1,32 @@
+{
+  "bootstrap": {
+    "paired_opening_indices": true,
+    "primary_quantiles": [
+      0.025,
+      0.975
+    ],
+    "quantile_method": "numpy.quantile(method='linear')",
+    "random_generator": "numpy.random.default_rng(615)",
+    "resamples": 20000,
+    "seat_outcomes_preserved": true,
+    "seed": 615,
+    "serving_lower_quantile": 0.05
+  },
+  "capped_games": 0,
+  "games": 4096,
+  "opening_clusters": 1024,
+  "results": {
+    "B512_score": 0.502197265625,
+    "S615_minus_B512_interval": [
+      -0.01611328125,
+      0.00439453125
+    ],
+    "S615_score": 0.496337890625,
+    "S615_vs_P_E4_one_sided_lower_bound": 0.486572265625,
+    "absolute_strength_pass": false,
+    "automatic_promotion": false,
+    "incremental_improvement_pass": false,
+    "interpretation": "neither"
+  },
+  "schema": "seed615-cluster-bootstrap-analysis-v1"
+}

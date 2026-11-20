@@ -1,0 +1,10 @@
+{
+  "schema": "seed615-evaluation-authorization-v1",
+  "status": "authorized-for-evaluation",
+  "evaluation_freeze_sha256": "ba30f5e3efadf3358db9f03c7b4eba4f69b23e2f95dcb4089723a1fb9664f32b",
+  "authorization": {
+    "type": "explicit-project-owner-authorization",
+    "authorized_by": "useruby",
+    "run_games": true
+  }
+}
