@@ -7,10 +7,14 @@ generation is deliberately guarded by an explicit authorization record.
 from __future__ import annotations
 
 import hashlib
+import importlib.metadata
 import json
 import random
 import subprocess
 import sys
+import time
+import tracemalloc
+from sys import getsizeof
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -29,8 +33,18 @@ GAMES_PER_OPENING = 8
 PREFIX_ACTIONS = 8
 MAX_CONTINUATION_ACTIONS = 200
 STONE_TARGETS = {17: 103, 18: 103, 19: 102, 20: 102, 21: 102}
+STONE_BIN_WEIGHTS = {str(stones): 0.2 for stones in STONE_TARGETS}
 BIN_ORDER = tuple(STONE_TARGETS)
 MIN_OPENING_CLUSTERS = 128
+MAX_SELECTION_CANDIDATES = 10_240
+MAX_SELECTION_INPUT_BYTES = 128 * 1024 * 1024
+MAX_SELECTION_NODES = 250_000
+MAX_SELECTION_SECONDS = 30
+MAX_SELECTION_WORKING_BYTES = 64 * 1024 * 1024
+# Trust anchors are provisioned only through a reviewed source change. An empty
+# production allowlist deliberately prevents approval by caller-supplied keys.
+TRUSTED_PROJECT_OWNER_KEYS: dict[str, dict[str, str]] = {}
+EXECUTION_SCOPE = "model-independent-generation-and-screening"
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE_FILES = (
     "ml/alphazero_lite/seed624_prospective_benchmark.py",
@@ -38,11 +52,32 @@ SOURCE_FILES = (
     "ml/alphazero_lite/kalah_rules.py",
     "ml/alphazero_lite/input_encodings.py",
     "ml/alphazero_lite/self_play.py",
+    "ml/alphazero_lite/requirements-seed624-prospective.txt",
 )
 
 
 def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+
+
+def deep_size_bytes(value: Any) -> int:
+    """Return cycle-safe retained Python object size for a frozen input bundle."""
+    pending = [value]
+    visited: set[int] = set()
+    total = 0
+    while pending:
+        item = pending.pop()
+        identity = id(item)
+        if identity in visited:
+            continue
+        visited.add(identity)
+        total += getsizeof(item)
+        if isinstance(item, dict):
+            pending.extend(item.keys())
+            pending.extend(item.values())
+        elif isinstance(item, (list, tuple, set, frozenset)):
+            pending.extend(item)
+    return total
 
 
 def canonical_bytes(value: Any) -> bytes:
@@ -59,11 +94,16 @@ def identities(state: dict[str, Any]) -> tuple[str, str]:
 
 
 def runtime_identity() -> dict[str, str]:
+    try:
+        crypto_version = importlib.metadata.version("cryptography")
+    except importlib.metadata.PackageNotFoundError:
+        crypto_version = "unavailable"
     return {
         "python": sys.version,
         "numpy": np.__version__,
         "prng": f"random.Random/MT19937; Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
-        "optimizer": "seed624-dfs-v1",
+        "optimizer": "seed624-dfs-bounded-v2",
+        "cryptography": crypto_version,
     }
 
 
@@ -79,6 +119,41 @@ def current_git_commit() -> str:
         capture_output=True,
         text=True,
     ).stdout.strip()
+
+
+def verify_owner_approval_record(
+    record: dict[str, Any], freeze_sha256: str, execution_scope: str
+) -> str:
+    """Validate Ed25519 approval against repository-pinned trust anchors."""
+    if (
+        record.get("schema") != "seed624-owner-approval-v1"
+        or record.get("freeze_sha256") != freeze_sha256
+        or record.get("execution_scope") != execution_scope
+        or not isinstance(record.get("project_owner_identity"), str)
+    ):
+        raise PermissionError("owner_approval_record_binding_mismatch")
+    key_record = TRUSTED_PROJECT_OWNER_KEYS.get(str(record.get("key_id")))
+    if key_record is None or key_record.get("project_owner_identity") != record.get(
+        "project_owner_identity"
+    ):
+        raise PermissionError("owner_approval_signing_key_not_trusted")
+    try:
+        from base64 import b64decode
+        from cryptography.exceptions import InvalidSignature
+        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+    except ImportError as error:
+        raise PermissionError("owner_approval_crypto_dependency_unavailable") from error
+    try:
+        signature = b64decode(record["signature_ed25519"], validate=True)
+        payload = {
+            key: value for key, value in record.items() if key != "signature_ed25519"
+        }
+        Ed25519PublicKey.from_public_bytes(
+            bytes.fromhex(key_record["public_key_hex"])
+        ).verify(signature, canonical_bytes(payload))
+    except (KeyError, ValueError, TypeError, InvalidSignature) as error:
+        raise PermissionError("owner_approval_signature_invalid") from error
+    return str(record["project_owner_identity"])
 
 
 def derive_seed(
@@ -199,17 +274,16 @@ def generate_game(
         derive_seed(master_seed, opening_index, trajectory_index, "continuation")
     )
     trajectory: list[int] = []
-    candidates: list[dict[str, Any]] = []
-    seen_bins: set[int] = set()
+    visits_by_bin: dict[int, list[dict[str, Any]]] = {}
     for ply in range(MAX_CONTINUATION_ACTIONS):
         if game.over():
             break
         legal = game.possible_moves()
         stones = sum(game.pits)
-        if stones in STONE_TARGETS and len(legal) >= 2 and stones not in seen_bins:
+        if stones in STONE_TARGETS and len(legal) >= 2:
             state = game.to_state()
             canonical_id, float_id = identities(state)
-            candidates.append(
+            visits_by_bin.setdefault(stones, []).append(
                 {
                     "state": state,
                     "canonical_identity": canonical_id,
@@ -231,11 +305,25 @@ def generate_game(
                     ),
                 }
             )
-            seen_bins.add(stones)
         action = rng.choice(legal)
         if not game.move(game.pit_index(action)):
             raise RuntimeError("rules_engine_rejected_its_legal_action")
         trajectory.append(action)
+    candidates = []
+    for stones, visits in sorted(visits_by_bin.items()):
+        visits.sort(key=lambda row: (row["rank"], row["canonical_identity"]))
+        selected_visit = dict(visits[0])
+        selected_visit["within_game_bin_visits"] = [
+            {
+                "canonical_identity": row["canonical_identity"],
+                "production_float32_identity": row["production_float32_identity"],
+                "continuation_ply": row["continuation_ply"],
+                "rank": row["rank"],
+            }
+            for row in visits
+        ]
+        candidates.append(selected_visit)
+    terminal = game.over()
     return {
         "game_id": game_id,
         "opening_index": opening_index,
@@ -245,8 +333,10 @@ def generate_game(
         ),
         "actions": trajectory,
         "full_actions": list(opening["prefix_actions"]) + trajectory,
-        "terminal": game.over(),
-        "action_limit_reached": len(trajectory) == MAX_CONTINUATION_ACTIONS,
+        "terminal": terminal,
+        "action_limit_reached": (
+            len(trajectory) == MAX_CONTINUATION_ACTIONS and not terminal
+        ),
         "final_state": game.to_state(),
     }, candidates
 
@@ -322,7 +412,7 @@ def screen_known_exposure(
     evidence_hashes: dict[str, str] = {}
     for name in required:
         source = evidence.get(name)
-        if not isinstance(source, dict) or source.get("authenticated") is not True:
+        if not isinstance(source, dict):
             raise ValueError(f"invalid_or_unauthenticated_membership:{name}")
         rows = source.get("rows")
         if not isinstance(rows, list) or not rows:
@@ -351,7 +441,7 @@ def screen_known_exposure(
         evidence_hashes[name] = actual_hash
 
     provenance = evidence.get("source_provenance", {})
-    provenance_complete = provenance.get("authenticated") is True
+    provenance_complete = expected_provenance_hash is not None
     if provenance_complete:
         provenance_payload = {
             key: value
@@ -410,12 +500,42 @@ def screen_known_exposure(
 
 
 def select_cohort(candidates: list[dict[str, Any]]) -> dict[str, Any]:
+    tracing_was_active = tracemalloc.is_tracing()
+    if not tracing_was_active:
+        tracemalloc.start()
+    try:
+        return _select_cohort_bounded(candidates)
+    finally:
+        if not tracing_was_active:
+            tracemalloc.stop()
+
+
+def _select_cohort_bounded(candidates: list[dict[str, Any]]) -> dict[str, Any]:
     """Pinned deterministic rank-first constrained selection for frozen inventories.
 
     This exact search visits candidates in the declared within-bin rank order.
     It returns the first feasible lexicographic rank vector and has a hard
-    1-worker, 3600-second node budget. Exhaustion is a structured shortfall.
+    single-worker, node-, time-, candidate-, and memory-bounded exact search.
     """
+    if len(candidates) > MAX_SELECTION_CANDIDATES:
+        raise ShortfallError(
+            {
+                "schema": "seed624-selection-shortfall-v1",
+                "reason": "candidate_count_resource_limit",
+                "available": len(candidates),
+                "limit": MAX_SELECTION_CANDIDATES,
+            }
+        )
+    input_bytes = deep_size_bytes(candidates)
+    if input_bytes > MAX_SELECTION_INPUT_BYTES:
+        raise ShortfallError(
+            {
+                "schema": "seed624-selection-shortfall-v1",
+                "reason": "input_memory_resource_limit",
+                "input_bytes": input_bytes,
+                "limit_bytes": MAX_SELECTION_INPUT_BYTES,
+            }
+        )
     eligible = [
         row
         for row in candidates
@@ -443,12 +563,40 @@ def select_cohort(candidates: list[dict[str, Any]]) -> dict[str, Any]:
             }
         )
 
-    # Exact lexicographic depth-first feasibility search. Branches obey every
-    # quota and cap; memoization removes equivalent capacity states.
-    from time import monotonic
+    total_target = sum(STONE_TARGETS.values())
+    game_capacity = sum(
+        min(2, count)
+        for count in Counter(str(row["game_id"]) for row in eligible).values()
+    )
+    opening_capacity = sum(
+        min(4, count)
+        for count in Counter(int(row["opening_index"]) for row in eligible).values()
+    )
+    distinct_games = len({str(row["game_id"]) for row in eligible})
+    distinct_openings = len({int(row["opening_index"]) for row in eligible})
+    if (
+        game_capacity < total_target
+        or opening_capacity < total_target
+        or distinct_games < (total_target + 1) // 2
+        or distinct_openings < MIN_OPENING_CLUSTERS
+    ):
+        raise ShortfallError(
+            {
+                "schema": "seed624-selection-shortfall-v1",
+                "reason": "aggregate_cluster_capacity",
+                "target": total_target,
+                "game_capacity": game_capacity,
+                "opening_capacity": opening_capacity,
+                "distinct_games": distinct_games,
+                "distinct_openings": distinct_openings,
+            }
+        )
 
-    start = monotonic()
-    budget_seconds = 3600
+    # Exact rank-first depth-first feasibility search with hard node, time,
+    # candidate-count, and traced-working-memory ceilings. No memo table is
+    # retained, bounding auxiliary storage to counters plus the chosen path.
+    start = time.monotonic()
+    budget_seconds = MAX_SELECTION_SECONDS
     ordered = {
         stones: sorted(rows, key=lambda row: (row["rank"], row["canonical_identity"]))
         for stones, rows in by_bin.items()
@@ -458,13 +606,19 @@ def select_cohort(candidates: list[dict[str, Any]]) -> dict[str, Any]:
     game_counts: Counter[str] = Counter()
     opening_counts: Counter[int] = Counter()
     opening_set: set[int] = set()
-    failed: set[tuple[Any, ...]] = set()
+    peak_working_bytes = 0
 
     def search(bin_index: int, start_index: int) -> bool:
-        nonlocal nodes
+        nonlocal nodes, peak_working_bytes
         nodes += 1
-        if nodes % 1000 == 0 and monotonic() - start > budget_seconds:
+        if nodes > MAX_SELECTION_NODES:
+            raise TimeoutError("node_limit")
+        if nodes % 128 == 0 and time.monotonic() - start > budget_seconds:
             raise TimeoutError
+        if nodes % 128 == 0:
+            _current_bytes, peak_working_bytes = tracemalloc.get_traced_memory()
+            if peak_working_bytes > MAX_SELECTION_WORKING_BYTES:
+                raise MemoryError
         if bin_index == len(BIN_ORDER):
             return len(opening_set) >= MIN_OPENING_CLUSTERS
         stones = BIN_ORDER[bin_index]
@@ -474,26 +628,24 @@ def select_cohort(candidates: list[dict[str, Any]]) -> dict[str, Any]:
         rows = ordered[stones]
         if remaining == 0:
             return search(bin_index + 1, 0)
-        available = [
-            (index, row)
-            for index, row in enumerate(rows[start_index:], start_index)
-            if game_counts[row["game_id"]] < 2
-            and opening_counts[int(row["opening_index"])] < 4
-        ]
-        if len(available) < remaining:
-            return False
-        key = (
-            bin_index,
-            start_index,
-            remaining,
-            tuple(sorted(game_counts.items())),
-            tuple(sorted(opening_counts.items())),
+        available_count = sum(
+            1
+            for index in range(start_index, len(rows))
+            if game_counts[rows[index]["game_id"]] < 2
+            and opening_counts[int(rows[index]["opening_index"])] < 4
         )
-        if key in failed:
+        if available_count < remaining:
             return False
-        # Preserve rank order and explore include before skip. The per-bin
-        # selected rank vector is therefore lexicographically minimal.
-        for offset, (index, row) in enumerate(available):
+        # Preserve rank order and include the earliest rank whose inclusion
+        # admits a complete feasible suffix. Canonical identity breaks rank ties.
+        skipped_count = 0
+        for index in range(start_index, len(rows)):
+            row = rows[index]
+            if (
+                game_counts[row["game_id"]] >= 2
+                or opening_counts[int(row["opening_index"])] >= 4
+            ):
+                continue
             chosen.append(row)
             game_counts[row["game_id"]] += 1
             opening = int(row["opening_index"])
@@ -507,20 +659,30 @@ def select_cohort(candidates: list[dict[str, Any]]) -> dict[str, Any]:
             opening_counts[opening] -= 1
             game_counts[row["game_id"]] -= 1
             chosen.pop()
-            if len(available) - offset - 1 < remaining - 1:
+            skipped_count += 1
+            if available_count - skipped_count < remaining:
                 break
-        failed.add(key)
         return False
 
     try:
         feasible = search(0, 0)
-    except TimeoutError:
+    except (TimeoutError, MemoryError) as error:
+        limit = (
+            "working_memory_bytes"
+            if isinstance(error, MemoryError)
+            else str(error) or "time_seconds"
+        )
         raise ShortfallError(
             {
                 "schema": "seed624-selection-shortfall-v1",
                 "reason": "optimizer_resource_limit",
+                "limit": limit,
                 "nodes": nodes,
+                "elapsed_seconds": time.monotonic() - start,
+                "peak_working_bytes": peak_working_bytes,
                 "runtime_limit_seconds": budget_seconds,
+                "node_limit": MAX_SELECTION_NODES,
+                "working_memory_limit_bytes": MAX_SELECTION_WORKING_BYTES,
             }
         ) from None
     if not feasible:
@@ -529,10 +691,10 @@ def select_cohort(candidates: list[dict[str, Any]]) -> dict[str, Any]:
                 "schema": "seed624-selection-shortfall-v1",
                 "reason": "constraints_infeasible",
                 "supply": supply,
-                "distinct_openings": len(
-                    {int(row["opening_index"]) for row in eligible}
-                ),
+                "distinct_openings": distinct_openings,
                 "nodes": nodes,
+                "elapsed_seconds": time.monotonic() - start,
+                "peak_working_bytes": peak_working_bytes,
             }
         )
     selected = sorted(
@@ -550,15 +712,23 @@ def select_cohort(candidates: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "schema": "seed624-selected-cohort-v1",
         "targets": STONE_TARGETS,
-        "selection_contract": "exact rank-lexicographic feasible set; canonical identity breaks hash ties; depth-first exhaustive feasibility; implementation seed624-dfs-v1",
+        "selection_contract": "lexicographically smallest feasible per-bin rank vector; bin order 17,18,19,20,21; rank ties by canonical identity; bounded exhaustive feasibility; seed624-dfs-bounded-v2",
         "optimizer": {
-            "name": "seed624-dfs-v1",
-            "version": 1,
+            "name": "seed624-dfs-bounded-v2",
+            "version": 2,
             "workers": 1,
             "runtime_limit_seconds": budget_seconds,
+            "candidate_limit": MAX_SELECTION_CANDIDATES,
+            "input_memory_limit_bytes": MAX_SELECTION_INPUT_BYTES,
+            "input_bytes": input_bytes,
+            "node_limit": MAX_SELECTION_NODES,
+            "working_memory_limit_bytes": MAX_SELECTION_WORKING_BYTES,
+            "peak_working_bytes": peak_working_bytes,
+            "elapsed_seconds": time.monotonic() - start,
             "nodes": nodes,
         },
         "sampling_contract": "deterministic standardized selected-state population; fixed 1/5 weights per stone bin; no design-unbiased inference or inclusion-probability claim",
+        "stone_bin_weights": STONE_BIN_WEIGHTS,
         "eligible_supply": supply,
         "preferred_four_x_supply": {
             str(stones): supply[stones] >= 4 * target
@@ -576,14 +746,7 @@ def select_cohort(candidates: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def generate_population(authorization: dict[str, Any], output: Path) -> dict[str, Any]:
-    """Production entry point; cannot run absent explicit owner authorization."""
-    if (
-        authorization.get("authorized") is not True
-        or not authorization.get("project_owner_identity")
-        or not authorization.get("execution_freeze_sha256")
-        or authorization.get("scope") != "model-independent-generation-and-screening"
-    ):
-        raise PermissionError("explicit_validated_generation_authorization_required")
+    """Production entry point requiring a repository-trusted owner signature."""
     freeze_path = authorization.get("execution_freeze_path")
     if not freeze_path or not Path(freeze_path).is_file():
         raise PermissionError("execution_freeze_file_required")
@@ -591,6 +754,16 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
     if sha256(freeze_raw) != authorization["execution_freeze_sha256"]:
         raise PermissionError("execution_freeze_hash_mismatch")
     freeze = json.loads(freeze_raw)
+    approval_path = authorization.get("owner_approval_record_path")
+    if not approval_path or not Path(approval_path).is_file():
+        raise PermissionError("signed_owner_approval_record_required")
+    approval_raw = Path(approval_path).read_bytes()
+    approval_record = json.loads(approval_raw)
+    owner_identity = verify_owner_approval_record(
+        approval_record,
+        authorization["execution_freeze_sha256"],
+        EXECUTION_SCOPE,
+    )
     expected_sources = freeze.get("source_file_sha256")
     expected_runtime = freeze.get("runtime")
     rules_hash = sha256((ROOT / "ml/alphazero_lite/kalah_rules.py").read_bytes())
@@ -600,8 +773,8 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
     if (
         freeze.get("schema") != "seed624-execution-freeze-v1"
         or freeze.get("status") != "authorized"
-        or freeze.get("project_owner_authorization_identity")
-        != authorization["project_owner_identity"]
+        or freeze.get("project_owner_identity") != owner_identity
+        or freeze.get("execution_scope") != EXECUTION_SCOPE
         or str(output) not in freeze.get("create_only_output_paths", [])
         or freeze.get("git_commit") != current_git_commit()
         or not isinstance(expected_sources, dict)
@@ -631,13 +804,18 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
             "max_per_game": 2,
             "max_per_opening": 4,
             "minimum_openings": MIN_OPENING_CLUSTERS,
-            "objective": "first lexicographic feasible rank vector",
-            "optimizer": "seed624-dfs-v1",
-            "runtime_limit_seconds": 3600,
+            "objective": "lexicographically smallest feasible per-bin rank vector; bin order 17,18,19,20,21; rank ties by canonical identity",
+            "optimizer": "seed624-dfs-bounded-v2",
+            "candidate_limit": MAX_SELECTION_CANDIDATES,
+            "runtime_limit_seconds": MAX_SELECTION_SECONDS,
+            "node_limit": MAX_SELECTION_NODES,
+            "input_memory_limit_bytes": MAX_SELECTION_INPUT_BYTES,
+            "working_memory_limit_bytes": MAX_SELECTION_WORKING_BYTES,
             "workers": 1,
         }
         or freeze.get("sampling_contract")
         != "deterministic standardized selected-state population; fixed 1/5 weights per stone bin; no design-unbiased inference or inclusion-probability claim"
+        or freeze.get("stone_bin_weights") != STONE_BIN_WEIGHTS
         or freeze.get("output_schema") != SCHEMA
     ):
         raise PermissionError("execution_freeze_authorization_binding_mismatch")
@@ -671,9 +849,12 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
     bundle = {
         "schema": SCHEMA,
         "authorization": {
-            "project_owner_identity": authorization["project_owner_identity"],
+            "project_owner_identity": owner_identity,
             "execution_freeze_sha256": authorization["execution_freeze_sha256"],
             "execution_freeze_raw_utf8": freeze_raw.decode("utf-8"),
+            "owner_approval_record": approval_record,
+            "owner_approval_record_raw_utf8": approval_raw.decode("utf-8"),
+            "owner_approval_record_sha256": sha256(approval_raw),
         },
         "generation": {
             "master_seed": MASTER_SEED,
@@ -767,16 +948,33 @@ def proposed_freeze_schema() -> dict[str, Any]:
                 "max_per_game": 2,
                 "max_per_opening": 4,
                 "minimum_openings": MIN_OPENING_CLUSTERS,
-                "objective": "first lexicographic feasible rank vector",
-                "optimizer": "seed624-dfs-v1",
-                "runtime_limit_seconds": 3600,
+                "objective": "lexicographically smallest feasible per-bin rank vector; bin order 17,18,19,20,21; rank ties by canonical identity",
+                "optimizer": "seed624-dfs-bounded-v2",
+                "candidate_limit": MAX_SELECTION_CANDIDATES,
+                "runtime_limit_seconds": MAX_SELECTION_SECONDS,
+                "node_limit": MAX_SELECTION_NODES,
+                "input_memory_limit_bytes": MAX_SELECTION_INPUT_BYTES,
+                "working_memory_limit_bytes": MAX_SELECTION_WORKING_BYTES,
                 "workers": 1,
             },
             "sampling_contract": "deterministic standardized selected-state population; fixed 1/5 weights per stone bin; no design-unbiased inference or inclusion-probability claim",
+            "stone_bin_weights": STONE_BIN_WEIGHTS,
             "output_schema": SCHEMA,
             "create_only_output_paths": [],
             "outputs": {"schema": SCHEMA},
-            "verification_commands": [],
-            "project_owner_authorization_identity": None,
+            "verification_commands": [
+                "python -m ml.alphazero_lite.verify_seed624_prospective_benchmark <copied-bundle>/population.json",
+                "python -m unittest ml.alphazero_lite.test_seed624_prospective_benchmark",
+            ],
+            "project_owner_identity": None,
+            "execution_scope": EXECUTION_SCOPE,
+            "owner_approval_record": {
+                "schema": "seed624-owner-approval-v1",
+                "key_id": None,
+                "freeze_sha256": None,
+                "execution_scope": EXECUTION_SCOPE,
+                "signature_ed25519": None,
+            },
+            "trusted_key_requirement": "signing key ID must resolve only in TRUSTED_PROJECT_OWNER_KEYS from reviewed repository source; caller-supplied public keys are rejected",
         },
     }

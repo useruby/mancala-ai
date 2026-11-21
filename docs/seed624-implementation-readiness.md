@@ -18,6 +18,12 @@ protocol's PR #623 language about reporting candidate inclusion probabilities
 and applying candidate inclusion weights. A protocol amendment and owner
 acceptance are required before real generation.
 
+The explicit proposed amendment is recorded in
+[`seed624-estimand-amendment-proposal.md`](seed624-estimand-amendment-proposal.md).
+It is not approved and does not alter merged PR #623. Its incompatible
+inclusion-probability and design-unbiased-inference requirements remain in force
+until the project owner approves and merges that amendment.
+
 ## Proposed freeze status
 
 `proposed_freeze_schema()` emits a schema template only, marked
@@ -30,14 +36,34 @@ authorized freeze, the repository still needs:
 - Authenticated, identity-complete snapshots for B512, S615, protected holdout,
   and available compatible source-game/opening provenance. Missing evidence
   must fail closed; a nonmatch remains unresolved for inherited P-E4 exposure.
-- An independent review of the exhaustive selector's worst-case runtime and
-  independent reproduction of its exact rank-lexicographic selection.
-- Project-owner authorization bound to the final source hashes, snapshot hashes,
-  create-only output paths, verification commands, and resource limits.
+- An independently reviewed project-owner Ed25519 public key must be added to
+  the source-pinned trust allowlist. The allowlist is currently empty, so the
+  production entry point rejects every approval record. Caller-provided keys
+  and identity flags are not trusted.
+- Project-owner signature over the exact finalized freeze SHA-256 and the
+  `model-independent-generation-and-screening` scope, bound to the finalized
+  source hashes, snapshot hashes, create-only output paths, verifier commands,
+  and resource limits.
 
-The production entry point requires explicit authorization, a freeze digest,
-owner identity, and membership-evidence path. The implementation has not called
-that entry point.
+The production entry point verifies an Ed25519 approval against a repository-
+pinned key, exact freeze digest, and exact execution scope. The implementation
+has not called that entry point. The reviewed key is not yet provisioned.
+
+## Synthetic selector resource benchmark
+
+`seed624-dfs-bounded-v2` uses a deterministic rank-first exact search with
+candidate-count ceiling 10,240, recursively measured Python input-object ceiling
+128 MiB, 250,000 search nodes, 30 seconds, and 64 MiB traced optimizer working
+memory. On this host, a synthetic feasible 4x-supply pool of 2,048 candidates
+selected 512 states in 0.332 s wall time (0.114 s in the optimizer), 518 nodes,
+4,528,318 measured input bytes, and 3,257,184 traced working bytes; 227 opening
+clusters were represented. Rows included synthetic state objects, 64-action
+trajectory lists, and repeated-bin visit metadata. A synthetic infeasible
+4x-supply pool of 2,048 candidates concentrated in 100 openings failed its
+opening-capacity bound in 0.0630 s (game capacity 2,048; opening capacity 400;
+target 512). These are synthetic measurements, not production estimates. Other
+hard instances terminate with a structured node/time/memory shortfall rather
+than claiming infeasibility.
 
 ## Exposure language
 
@@ -51,9 +77,11 @@ little-endian `kalah_v3` float32 bytes.
 ## Remaining review blockers
 
 1. Validate the selected-population estimand change.
-2. Review and benchmark the exact selector on an independently generated
-   synthetic constraint fixture before approving its frozen resource limit.
-3. Exercise the independent verifier from a separately copied, complete
-   synthetic artifact bundle, including its optimizer rank reconstruction.
-4. Bind runtime and source identities in the final freeze; this proposal is not
-   ready or approved for production.
+2. Review the bounded selector semantics, resource limits, and synthetic
+   feasible/infeasible benchmark results.
+3. Approve and merge the estimand amendment; do not drop the existing
+   inclusion-probability wording before that approval.
+4. Provision an independently reviewed project-owner public key in the
+   allowlist, then approve a signed, finalized freeze before production.
+5. Bind final runtime/source/dependency identities in the signed freeze. This
+   implementation is not ready for production authorization.
