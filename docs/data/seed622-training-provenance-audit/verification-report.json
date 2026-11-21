@@ -1,0 +1,13 @@
+{
+  "cleared_under_verified_contract": 0,
+  "excluded_confirmed_exposure": 4,
+  "historical_seed621_inventory_sha256": "332792e07accb8856f6cd5c0b65269dcfe55b392c93560369b7b685c2f86ad29",
+  "ledger_sha256": "cef6b8a313463de59d6611b288b94064b343e86e48bd9f0b918d4db50ffc13d6",
+  "recommendation": "stop",
+  "seed599_authenticated_source_artifacts": 252,
+  "seed599_preparation_sha256": "11c580d2ebb8d4a8fc67b12f7d1f8e6d8bcbffa0d110e6549bf077d259ff751d",
+  "states": 768,
+  "status": "verified",
+  "training_or_search_started": false,
+  "unresolved_insufficient_provenance": 764
+}
