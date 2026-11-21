@@ -36,7 +36,7 @@ games, or playing strength.
    checkpoint-sourced prior function under the B512 evaluator, not an isolated
    policy-head tensor effect.
 3. **Secondary disagreement diagnostic:** among a separately declared,
-   disagreement-enriched subset of the frozen eligible population, estimate
+   disagreement-enriched subset of the frozen primary population, estimate
    prior and post-search action disagreement and paired regret contrasts. This
    is conditional diagnostic evidence, not an unbiased population estimate.
 
@@ -94,7 +94,8 @@ This is a proposed protocol, not an instruction to generate states now.
    counts, side to move, and explicit rule ID; separately store SHA-256 of
    canonical state bytes and of the exact production float32 input bytes
    (little-endian, fixed feature order and shape). Reject a state if canonical
-   identity or encoded float32 identity duplicates any earlier selected row.
+   identity or encoded float32 identity duplicates any earlier eligible
+   candidate row.
 2. **Generation seeds:** preregister master seed `62320261121`; derive seeds
    using SHA-256 over a versioned domain separator plus `(opening_index,
    trajectory_index, phase)`, taking a fixed 64-bit prefix. Freeze algorithm,
@@ -102,45 +103,72 @@ This is a proposed protocol, not an instruction to generate states now.
    suggested constants and must be validated and frozen in a separately
    authorized execution freeze; never replace individual seeds after observing
    states or model outputs.
-3. **Opening/game coverage:** define 128 independently seeded opening
-   clusters. For each opening, create two independent legal random-play
-   continuations, for 256 source games total. Use a specified deterministic
-   uniform-over-legal-actions policy for every move; no model, checkpoint,
-   evaluation result, or model prior is available to the generator. Apply
-   opening seed to the source-game identity; use the standard initial state
-   with a fixed zero-ply prefix to avoid an additional opening policy. Continue
-   until terminal or a fixed 200-ply cap. The game state engine, random draw
-   schedule, and termination behavior are hash-bound.
-4. **Stone/position coverage:** collect all eligible visits in each of five
-   active-pit-stone bins: 17, 18, 19, 20, 21. Within each game and bin,
-   select at most one encountered state using a deterministic hash rank of
-   `(master seed, game ID, canonical state hash)`; then retain at most two
-   states per game, selected by ascending hash rank over that game's selected
-   bin candidates. Quotas
-   across the primary sample are fixed at 102 or 103 states per stone count
-   (512 total), allocated by a preregistered deterministic rank within bin,
-   with 128 openings represented and no opening contributing more than four
-   states. Require at least 80 states per stone bin and 100 opening clusters;
-   otherwise report generation shortfall without relaxing criteria. Every
-   candidate must replay legally from the initial state and be nonterminal
-   with at least two legal actions.
-5. **Freeze before inference/search:** publish the full generated candidate
-   inventory, source trajectories, opening/game cluster IDs, legal-action
-   sets, stone counts, both identity hashes, seeds, and exclusions. Freeze
-   it and compute hashes before any B512/S615 model is loaded. Check the entire
-   candidate inventory against authenticated known training and protected
-   holdout inventories before drawing the primary sample. Selection, quotas,
-   exclusions, and state IDs are fixed without prior disagreement, inference,
-   exact margins, or outcomes. If fewer than 512 remain after documented
-   overlap exclusions, stop and report the shortfall; do not fill based on
-   models or outcomes.
+3. **Opening/game coverage and oversupply:** generate 256 distinct opening
+   positions, each from an independent SHA-derived seed and exactly eight
+   uniform legal actions from the standard initial position. These 256 opening
+   positions—not trajectory batches—are the top-level provenance clusters.
+   Deduplicate opening positions by canonical and production-float32 identity;
+   continue generation only by consuming the next preregistered opening index
+   from a frozen reserve of 512 opening seeds. For every retained opening
+   position, generate eight independent continuation games (2,048 games at
+   full capacity), each with its own derived PRNG stream and uniform-over-legal-
+   actions policy. Continue to terminal or a 200-action cap. No model,
+   checkpoint, evaluation result, or prior is available to this generator.
+   Bind the game engine, prefix/game random draw schedules, and termination
+   behavior. If fewer than 256 distinct opening positions survive the frozen
+   512-seed reserve, stop with a generation shortfall.
+4. **Candidate inventory and primary quotas:** in every continuation game,
+   collect all eligible visits in each active-pit-stone bin (17, 18, 19, 20,
+   21), with at least two legal actions. Rank occurrences by SHA-256 of the
+   versioned domain separator, master seed, opening ID, game ID, bin, and
+   canonical state hash; keep at most one candidate per game/bin, then deduplicate
+   globally by canonical state and production-float32 input identity. Preserve
+   all occurrence and source-game links. After exact-known-exposure exclusions,
+   the **hard primary target** is exactly 512 states: 103 each in bins 17 and
+   18, and 102 each in bins 19, 20, and 21. Select under exact constraints of
+   at most two states per continuation game, at most four per opening cluster,
+   and representation of at least 128 distinct opening clusters. A pinned,
+   single-worker deterministic integer optimizer selects the feasible set
+   lexicographically by the within-bin candidate hash ranks (canonical state
+   hash breaks any hash-rank collision); bind optimizer name/version, settings,
+   and source hash before generation. This makes the selection reproducible
+   while satisfying all five exact quotas. The former 80-per-bin value is not
+   a sufficient acceptance gate.
+   A preferred oversupply gate is at least four times each bin's target
+   (412/412/408/408/408 unique, eligible, known-exposure-screened candidates)
+   before cluster caps. The hard minimum capacity gate is at least twice each
+   target (206/206/204/204/204), plus a successful constrained selection to
+   the exact target and the cluster/game limits above. The 4x gate is preferred,
+   not mandatory; failure of a hard gate means no primary sample.
+5. **Deterministic selection and shortfall:** freeze the full generated
+   inventory, apply only the predeclared exact-membership/provenance exclusions,
+   and select by the frozen hash rank and quotas. Do not use inferred priors,
+   exact margins, model outcomes, or search outcomes to rank, exclude, or
+   replace states. If the hard per-bin inventory, distinct opening-cluster,
+   constrained-selection, deduplication, or exact quota gate fails, publish
+   the shortfall and stop. Do not top up from other stone bins, draw ad hoc
+   seeds, or replace rows; any resampling requires a new preregistration,
+   freeze, and authorization before generation.
+6. **Freeze before inference/search:** publish candidate and selected-state
+   inventories, complete trajectories, opening/game cluster IDs, legal-action
+   sets, stone counts, canonical and float32 identities, seed derivations,
+   inclusion probabilities, exclusions, and selection ranks. Freeze and hash
+   them before any B512/S615 model is loaded. Check all candidates against the
+   authenticated available training and protected-holdout identities before
+   selecting the primary cohort.
 
 The random legal policy defines a reproducible reachable-state distribution,
 not a uniform distribution over all legal Kalah states or necessarily the
-production-game distribution. Report state inclusion probabilities and
-stone-bin/opening weights. Keep all states generated from one opening/game
-cluster together in analysis. Full candidate pool and exclusions are published
-so later auditors can reconstruct selection.
+production-game distribution. The registered target population is explicitly
+the equal-weighted mixture of the five eligible stone-count bins, with weight
+1/5 per bin and the generated opening/game process within each bin. The primary
+estimate is therefore standardized to this fixed mixture, not to the
+unstratified frequency of stone counts in random games. The sampling unit is
+the opening position; continuation games and selected states are nested within
+it. Report the opening-position generation distribution, candidate inclusion
+probabilities, fixed stone-bin weights, and each selected state's source game.
+Keep all states from an opening cluster together in uncertainty estimation.
+Publish the complete candidate pool and exclusions for reconstruction.
 
 ## Known-training-exposure exclusion contract
 
@@ -174,34 +202,36 @@ reject before execution.
 ### Primary: representative fixed-state cohort
 
 Use the 512-state hash-selected sample above after only the fixed known-exposure
-exclusions. Do not stratify, oversample, or replace states on prior or model
-behavior. Preserve the prospective quotas and inclusion weights; report the
-population estimate with those weights and a sensitivity analysis restricted
-to equally weighted states. All three search arms run on the same frozen roots.
-The primary inference is conditional on the reachable 17–21-stone population
-and known-exposure-screened sample, not historical training-disjointness.
+exclusions. Do not select or replace states on prior or model behavior. Preserve
+the exact per-bin quotas and the equal 1/5 target-bin weights; within-bin
+selection follows the frozen rank and cluster-cap rule. Report the standardized
+primary estimate and an unweighted descriptive sensitivity result. All three
+search arms run on the same frozen roots. The primary inference is conditional
+on this reachable, equal-stone-bin, known-exposure-screened population, not
+historical training-disjointness.
 
 ### Secondary: prior-disagreement diagnostic
 
-Only after the entire eligible population and primary sample are frozen, run
-deterministic legal-masked prior inference on the eligible population. Define
+Only after the primary sample is frozen, run deterministic legal-masked prior
+inference on its 512 states (the prior inference is already required for arms
+A/B/C). Define
 top-action disagreement using the existing deterministic prior tie rule and
 also report total-variation distance (TV) continuously. The diagnostic subset
-is the top 64 eligible rows by descending TV, capped at one per source game and
-four per opening; ties use SHA-256 of the frozen state ID. If fewer than 32
-unique source games qualify, report it as unavailable. Preserve a separately
-selected random 64-state reference subset using the frozen hash rank, for
-descriptive contrast only. Do not let either subset replace or reweight the
-primary estimate; do not call the enriched subset representative.
+is restricted to the primary cohort: top 64 by descending TV, capped at one per
+source game and four per opening; ties use SHA-256 of the frozen state ID. If
+fewer than 32 unique source games qualify, report it as unavailable. The full
+primary population is its descriptive reference. Do not introduce new states,
+replace or reweight the primary estimate, or call the enriched subset
+representative.
 
 No automatic 16-disagreement minimum is carried forward from Seed 620. The
-secondary estimand concerns the effect in a defined high-TV tail, so it needs
-at least 64 diagnostic states from 32 distinct games and 64 primary-population
-reference observations (potentially overlapping primary roots) to describe
-the selected-tail contrast. Report continuous TV and rank/selection rules;
-report instability if caps alter the top-64 set. This gate is about diagnostic
-precision and cluster support, not population disagreement prevalence or
-quality.
+secondary estimand concerns the effect in a defined high-TV tail. Its
+availability gate is 64 primary states from at least 32 distinct continuation
+games, subject to the one-per-game/four-per-opening caps. If unavailable,
+report the shortfall and retain the primary analysis. Report continuous TV,
+top-action disagreement, and the rank/selection rule; the enriched comparison
+is conditional diagnostic evidence and does not estimate population
+disagreement prevalence or typical quality.
 
 ## MCTS comparison and routing verification
 
@@ -238,10 +268,14 @@ contrast. B−A alone cannot identify a prior-source effect. Because S615 change
 shared-trunk tensors, C estimates switching the S615-sourced prior function,
 including its changed representation, not an isolated policy-head intervention.
 
-At 512 states × 128 simulations × 3 unique arms, planned work is 196,608
-simulations plus inference/routing verification. Excluding an exactly
-identical redundant control saves 65,536 simulations. Search is a diagnostic
-and must not consume oracle values.
+At 512 primary states × 128 simulations × 3 unique arms, planned work is
+196,608 simulations. The secondary high-TV cohort is a subset of those same
+states and uses their already planned exact margins and A/B/C searches, so it
+adds zero solver queries and zero simulations. Prior inference, per-expansion
+routing checks, and the arm-A composed-control assertions are included in the
+same 512-state execution plan. Excluding an exactly identical redundant control
+saves 65,536 simulations. Search is diagnostic and must not consume oracle
+values.
 
 ## Exact-oracle protocol and feasibility gates
 
@@ -307,44 +341,71 @@ the domain or infer coverage from stone count alone.
 
 ### Size and precision rationale
 
-Candidate primary size is **512 states in at least 100 opening clusters**.
-This is larger and less selected than the historical 64–128-state suggestion,
-and supports stone-bin coverage plus clustered uncertainty. Planning assumes
-paired regret-difference SD 1.5 seeds and intracluster correlation 0.20 with at
-most four states per opening: design effect `1 + (4−1)*0.20 = 1.6`, effective
-sample about 320. For a two-sided 5% test, a true 0.25-seed mean difference
-then has approximate standardized effect `0.25/(1.5/sqrt(320)) = 2.98`, about
-85% power by normal approximation. Approximate 95% half-width is 0.16 seeds
-under these assumptions. These are design assumptions, not empirical Seed
-623 variance estimates; conduct a blinded, model-free design audit of cluster
-counts and weights before authorization. If effective cluster sample size falls
-below 250 or any opening dominates >4 observations, revise the design before
-inference, not after viewing outcomes. No interim sample-size extension.
+Candidate primary size is **512 states from at least 128 distinct opening
+positions** (the generation target is 256). Each opening position is generated
+by an independent eight-action prefix and has up to eight independent
+continuation games; no more than four selected states can come from one opening
+and no more than two from one game. Planning uses paired regret-difference SD
+1.5 seeds and intracluster correlation 0.20. With the maximum mean cluster
+size of four and equal cluster sizes, design effect is
+`1 + (4−1)*0.20 = 1.6`, giving effective sample about 320. A true 0.25-seed
+mean difference then has approximate standardized effect
+`0.25/(1.5/sqrt(320)) = 2.98`, about 85% power by normal approximation; the
+approximate 95% half-width is 0.16 seeds. Unequal cluster sizes may increase the
+design effect, so compute the actual effective sample size from the frozen
+cluster-size distribution and registered ICC formula. These assumptions are
+not empirical Seed 623 variance estimates. Before inference, conduct a blinded,
+model-free design audit of cluster counts, stone-bin weights, and cluster-size
+imbalance. Require effective sample size of at least 250; otherwise revise or
+stop before model inference. No interim sample-size extension.
 
 ### Uncertainty and decisions
 
-Use paired resampling of opening clusters (both games and every selected state
-within a cluster travel together), with 20,000 bootstrap replicates and a
-frozen analysis seed. Apply the fixed inclusion weights inside each replicate;
-report percentile 95% intervals and a cluster-robust sensitivity interval.
+Use paired resampling of the **opening-position cluster** (its prefix, all
+continuation games, and every selected state travel together), with 20,000
+bootstrap replicates and a frozen analysis seed. Resample opening clusters
+with replacement and calculate each of the five stone-bin means within each
+replicate; average those five means with fixed weight 1/5. Apply the registered
+candidate inclusion weights within each bin. Report percentile 95% intervals
+and a cluster-robust sensitivity interval.
 Never bootstrap actions, simulations, or states as independent observations.
 Report effective cluster count, largest cluster, state counts per stone bin,
 and raw unweighted results. Predeclare multiplicity: B−A is the sole primary
 contrast at two-sided 5%; C−A and all strata are secondary, with intervals
 descriptive and no multiplicity-based promotion gate.
 
-Decision labels:
+For the WDL-inferior action-rate safeguard, define the paired risk difference
+as S615 minus B512 in the fraction of selected actions strictly worse in
+win/draw/loss class than the exact-best legal action. Use a one-sided 95%
+opening-cluster interval. This is a **non-inferiority safeguard**, not a strict
+superiority test: the preregistered maximum tolerable increase is +1 percentage
+point, chosen as a small absolute bound on harmful decision frequency. Pass
+only if the upper confidence bound is ≤ +1 percentage point. A bound above
+that margin (or one not estimable because of coverage) fails the safeguard; it
+does not prove S615 is WDL-inferior, but prevents an improvement claim. Report
+the rate difference and interval regardless. Apply the same descriptive
+safeguard to C−A, without making it a candidate-promotion criterion.
 
-- **Diagnostic improvement demonstrated:** primary B−A mean regret ≤ −0.25
-  seeds and its 95% interval upper endpoint < 0, with no increase in
-  WDL-inferior rate (difference's 95% upper bound ≤ 0). Separately apply this
-  same labeled diagnostic rule to C−A; it does not replace B−A.
-- **No demonstrated improvement:** primary interval includes zero and its
-  upper/lower limits rule out the preregistered −0.25-seed benefit (interval
-  lower endpoint > −0.25). This is not equivalence or proof of no effect.
-- **Inconclusive:** interval spans both zero and −0.25, the effective cluster
-  size/coverage gate fails, or exact oracle or routing verification is
-  incomplete. No post-hoc expansion or endpoint substitution.
+After all coverage, oracle, routing, and effective-sample gates pass, assign
+exactly one primary B−A label in this order:
+
+1. **Diagnostic improvement demonstrated** if the estimated mean regret
+   difference is ≤ −0.25 seeds, the two-sided 95% interval upper endpoint is
+   < 0, and the WDL non-inferiority safeguard passes.
+2. **No demonstrated improvement of the preregistered size** if the 95%
+   interval lower endpoint is > −0.25 seeds and the WDL non-inferiority
+   safeguard passes. This rules out the preregistered ≥0.25-seed benefit at
+   this interval level; it is not equivalence or proof of no effect.
+3. **Inconclusive** in every other case, including the interval not meeting
+   either rule, the WDL safeguard failing, or any required coverage/verification
+   gate failing. A WDL safeguard failure is not relabeled as demonstrated
+   harm. No post-hoc expansion or endpoint substitution.
+
+These rules are mutually exclusive: rule 1 requires a point estimate at or
+below −0.25, while rule 2 requires the interval's lower endpoint above −0.25;
+all boundary and remaining cases go to rule 3. Report C−A and diagnostic-tail
+contrasts as secondary estimates with intervals, not alternate primary
+decision routes.
 
 Regardless of diagnostic label, report exact-optimal and WDL-inferior action
 rates with intervals. The benchmark does not test head-to-head game outcomes,
