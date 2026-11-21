@@ -1,0 +1,2143 @@
+{
+  "counts": {
+    "by_classification_and_prior": {
+      "excluded_confirmed_exposure:agreement": 4,
+      "unresolved_insufficient_provenance:agreement": 745,
+      "unresolved_insufficient_provenance:disagreement": 19
+    },
+    "by_contamination_category": {
+      "S615_training_identity_overlap": 2,
+      "no_direct_membership_overlap": 764,
+      "protected_holdout_overlap": 2
+    },
+    "cleared_agreement": 0,
+    "cleared_disagreement": 0,
+    "cleared_under_verified_contract": 0,
+    "excluded_confirmed_exposure": 4,
+    "inventory": 768,
+    "unresolved_insufficient_provenance": 764
+  },
+  "counts_by_historical_cohort": {
+    "seed557": {
+      "excluded_confirmed_exposure:agreement": 1,
+      "unresolved_insufficient_provenance:agreement": 251,
+      "unresolved_insufficient_provenance:disagreement": 4
+    },
+    "seed559": {
+      "excluded_confirmed_exposure:agreement": 3,
+      "unresolved_insufficient_provenance:agreement": 494,
+      "unresolved_insufficient_provenance:disagreement": 15
+    }
+  },
+  "counts_by_source_game_or_opening_cluster": {
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0000.jsonl#opening_index=0": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0002.jsonl#opening_index=2": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0003.jsonl#opening_index=3": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0004.jsonl#opening_index=4": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0005.jsonl#opening_index=5": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0006.jsonl#opening_index=6": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0007.jsonl#opening_index=7": {
+      "unresolved_insufficient_provenance:disagreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0008.jsonl#opening_index=8": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0009.jsonl#opening_index=9": {
+      "excluded_confirmed_exposure:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0010.jsonl#opening_index=10": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0011.jsonl#opening_index=11": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0012.jsonl#opening_index=12": {
+      "excluded_confirmed_exposure:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0013.jsonl#opening_index=13": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0015.jsonl#opening_index=15": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0016.jsonl#opening_index=16": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0017.jsonl#opening_index=17": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0018.jsonl#opening_index=18": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0019.jsonl#opening_index=19": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0021.jsonl#opening_index=21": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0023.jsonl#opening_index=23": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0024.jsonl#opening_index=24": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0025.jsonl#opening_index=25": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0026.jsonl#opening_index=26": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0027.jsonl#opening_index=27": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0029.jsonl#opening_index=29": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0036.jsonl#opening_index=36": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0038.jsonl#opening_index=38": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0040.jsonl#opening_index=40": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0043.jsonl#opening_index=43": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0046.jsonl#opening_index=46": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0047.jsonl#opening_index=47": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0048.jsonl#opening_index=48": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0050.jsonl#opening_index=50": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0051.jsonl#opening_index=51": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0052.jsonl#opening_index=52": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0053.jsonl#opening_index=53": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0054.jsonl#opening_index=54": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0055.jsonl#opening_index=55": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0056.jsonl#opening_index=56": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0057.jsonl#opening_index=57": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0058.jsonl#opening_index=58": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0060.jsonl#opening_index=60": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0061.jsonl#opening_index=61": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0062.jsonl#opening_index=62": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0063.jsonl#opening_index=63": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0064.jsonl#opening_index=64": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0066.jsonl#opening_index=66": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0067.jsonl#opening_index=67": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0068.jsonl#opening_index=68": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0069.jsonl#opening_index=69": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0070.jsonl#opening_index=70": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0071.jsonl#opening_index=71": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0073.jsonl#opening_index=73": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0074.jsonl#opening_index=74": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0075.jsonl#opening_index=75": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0077.jsonl#opening_index=77": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0078.jsonl#opening_index=78": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0079.jsonl#opening_index=79": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0080.jsonl#opening_index=80": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0081.jsonl#opening_index=81": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0082.jsonl#opening_index=82": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0083.jsonl#opening_index=83": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0084.jsonl#opening_index=84": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0086.jsonl#opening_index=86": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0088.jsonl#opening_index=88": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0089.jsonl#opening_index=89": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0090.jsonl#opening_index=90": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0091.jsonl#opening_index=91": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0092.jsonl#opening_index=92": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0093.jsonl#opening_index=93": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0094.jsonl#opening_index=94": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0095.jsonl#opening_index=95": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0096.jsonl#opening_index=96": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0099.jsonl#opening_index=99": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0102.jsonl#opening_index=102": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0103.jsonl#opening_index=103": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0104.jsonl#opening_index=104": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0105.jsonl#opening_index=105": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0107.jsonl#opening_index=107": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0109.jsonl#opening_index=109": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0111.jsonl#opening_index=111": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0113.jsonl#opening_index=113": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0114.jsonl#opening_index=114": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0116.jsonl#opening_index=116": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0118.jsonl#opening_index=118": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0119.jsonl#opening_index=119": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0120.jsonl#opening_index=120": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0121.jsonl#opening_index=121": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0122.jsonl#opening_index=122": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0123.jsonl#opening_index=123": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0124.jsonl#opening_index=124": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0125.jsonl#opening_index=125": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0127.jsonl#opening_index=127": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0128.jsonl#opening_index=128": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0130.jsonl#opening_index=130": {
+      "unresolved_insufficient_provenance:disagreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0132.jsonl#opening_index=132": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0137.jsonl#opening_index=137": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0138.jsonl#opening_index=138": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0142.jsonl#opening_index=142": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0144.jsonl#opening_index=144": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0147.jsonl#opening_index=147": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0150.jsonl#opening_index=150": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0151.jsonl#opening_index=151": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0153.jsonl#opening_index=153": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0154.jsonl#opening_index=154": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0155.jsonl#opening_index=155": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0156.jsonl#opening_index=156": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0157.jsonl#opening_index=157": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0158.jsonl#opening_index=158": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0159.jsonl#opening_index=159": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0160.jsonl#opening_index=160": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0162.jsonl#opening_index=162": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0163.jsonl#opening_index=163": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0164.jsonl#opening_index=164": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0168.jsonl#opening_index=168": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0171.jsonl#opening_index=171": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0172.jsonl#opening_index=172": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0173.jsonl#opening_index=173": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0175.jsonl#opening_index=175": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0177.jsonl#opening_index=177": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0178.jsonl#opening_index=178": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0180.jsonl#opening_index=180": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0183.jsonl#opening_index=183": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0184.jsonl#opening_index=184": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0187.jsonl#opening_index=187": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0189.jsonl#opening_index=189": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0191.jsonl#opening_index=191": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0192.jsonl#opening_index=192": {
+      "unresolved_insufficient_provenance:disagreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0194.jsonl#opening_index=194": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0195.jsonl#opening_index=195": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0197.jsonl#opening_index=197": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0198.jsonl#opening_index=198": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0199.jsonl#opening_index=199": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0200.jsonl#opening_index=200": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0201.jsonl#opening_index=201": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0202.jsonl#opening_index=202": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0203.jsonl#opening_index=203": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0204.jsonl#opening_index=204": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0205.jsonl#opening_index=205": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0208.jsonl#opening_index=208": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0210.jsonl#opening_index=210": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0211.jsonl#opening_index=211": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0215.jsonl#opening_index=215": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0216.jsonl#opening_index=216": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0218.jsonl#opening_index=218": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0219.jsonl#opening_index=219": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0220.jsonl#opening_index=220": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0222.jsonl#opening_index=222": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0223.jsonl#opening_index=223": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0224.jsonl#opening_index=224": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0225.jsonl#opening_index=225": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0226.jsonl#opening_index=226": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0228.jsonl#opening_index=228": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0230.jsonl#opening_index=230": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0231.jsonl#opening_index=231": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0232.jsonl#opening_index=232": {
+      "excluded_confirmed_exposure:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0235.jsonl#opening_index=235": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0238.jsonl#opening_index=238": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0239.jsonl#opening_index=239": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0241.jsonl#opening_index=241": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0242.jsonl#opening_index=242": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0245.jsonl#opening_index=245": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0247.jsonl#opening_index=247": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0248.jsonl#opening_index=248": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0250.jsonl#opening_index=250": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0251.jsonl#opening_index=251": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0252.jsonl#opening_index=252": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0253.jsonl#opening_index=253": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0255.jsonl#opening_index=255": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0257.jsonl#opening_index=257": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0258.jsonl#opening_index=258": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0262.jsonl#opening_index=262": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0263.jsonl#opening_index=263": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0265.jsonl#opening_index=265": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0266.jsonl#opening_index=266": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0267.jsonl#opening_index=267": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0269.jsonl#opening_index=269": {
+      "unresolved_insufficient_provenance:disagreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0272.jsonl#opening_index=272": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0273.jsonl#opening_index=273": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0274.jsonl#opening_index=274": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0275.jsonl#opening_index=275": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0277.jsonl#opening_index=277": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0278.jsonl#opening_index=278": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0279.jsonl#opening_index=279": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0280.jsonl#opening_index=280": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0281.jsonl#opening_index=281": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0282.jsonl#opening_index=282": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0285.jsonl#opening_index=285": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0287.jsonl#opening_index=287": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0288.jsonl#opening_index=288": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0289.jsonl#opening_index=289": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0291.jsonl#opening_index=291": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0292.jsonl#opening_index=292": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0293.jsonl#opening_index=293": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0295.jsonl#opening_index=295": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0296.jsonl#opening_index=296": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0297.jsonl#opening_index=297": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0299.jsonl#opening_index=299": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0300.jsonl#opening_index=300": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0302.jsonl#opening_index=302": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0303.jsonl#opening_index=303": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0304.jsonl#opening_index=304": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0305.jsonl#opening_index=305": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0306.jsonl#opening_index=306": {
+      "unresolved_insufficient_provenance:agreement": 1,
+      "unresolved_insufficient_provenance:disagreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0307.jsonl#opening_index=307": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0308.jsonl#opening_index=308": {
+      "unresolved_insufficient_provenance:disagreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0309.jsonl#opening_index=309": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0310.jsonl#opening_index=310": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0311.jsonl#opening_index=311": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0312.jsonl#opening_index=312": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0313.jsonl#opening_index=313": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0314.jsonl#opening_index=314": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0315.jsonl#opening_index=315": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0317.jsonl#opening_index=317": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0320.jsonl#opening_index=320": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0321.jsonl#opening_index=321": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0323.jsonl#opening_index=323": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0324.jsonl#opening_index=324": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0326.jsonl#opening_index=326": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0329.jsonl#opening_index=329": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0330.jsonl#opening_index=330": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0333.jsonl#opening_index=333": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0334.jsonl#opening_index=334": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0335.jsonl#opening_index=335": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0336.jsonl#opening_index=336": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0337.jsonl#opening_index=337": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0338.jsonl#opening_index=338": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0339.jsonl#opening_index=339": {
+      "unresolved_insufficient_provenance:disagreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0340.jsonl#opening_index=340": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0341.jsonl#opening_index=341": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0343.jsonl#opening_index=343": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0345.jsonl#opening_index=345": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0346.jsonl#opening_index=346": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0350.jsonl#opening_index=350": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0352.jsonl#opening_index=352": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0353.jsonl#opening_index=353": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0354.jsonl#opening_index=354": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0355.jsonl#opening_index=355": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0356.jsonl#opening_index=356": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0357.jsonl#opening_index=357": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0359.jsonl#opening_index=359": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0360.jsonl#opening_index=360": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0362.jsonl#opening_index=362": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0363.jsonl#opening_index=363": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0365.jsonl#opening_index=365": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0367.jsonl#opening_index=367": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0370.jsonl#opening_index=370": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0371.jsonl#opening_index=371": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0372.jsonl#opening_index=372": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0373.jsonl#opening_index=373": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0374.jsonl#opening_index=374": {
+      "unresolved_insufficient_provenance:disagreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0378.jsonl#opening_index=378": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0382.jsonl#opening_index=382": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0384.jsonl#opening_index=384": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0385.jsonl#opening_index=385": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0386.jsonl#opening_index=386": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0387.jsonl#opening_index=387": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0392.jsonl#opening_index=392": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0394.jsonl#opening_index=394": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0395.jsonl#opening_index=395": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0396.jsonl#opening_index=396": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0397.jsonl#opening_index=397": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0399.jsonl#opening_index=399": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0400.jsonl#opening_index=400": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0401.jsonl#opening_index=401": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0404.jsonl#opening_index=404": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0405.jsonl#opening_index=405": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0406.jsonl#opening_index=406": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0407.jsonl#opening_index=407": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0408.jsonl#opening_index=408": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0409.jsonl#opening_index=409": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0411.jsonl#opening_index=411": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0413.jsonl#opening_index=413": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0416.jsonl#opening_index=416": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0417.jsonl#opening_index=417": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0418.jsonl#opening_index=418": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0419.jsonl#opening_index=419": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0420.jsonl#opening_index=420": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0421.jsonl#opening_index=421": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0424.jsonl#opening_index=424": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0428.jsonl#opening_index=428": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0429.jsonl#opening_index=429": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0430.jsonl#opening_index=430": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0434.jsonl#opening_index=434": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0436.jsonl#opening_index=436": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0437.jsonl#opening_index=437": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0438.jsonl#opening_index=438": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0440.jsonl#opening_index=440": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0441.jsonl#opening_index=441": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0442.jsonl#opening_index=442": {
+      "excluded_confirmed_exposure:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0443.jsonl#opening_index=443": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0444.jsonl#opening_index=444": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0445.jsonl#opening_index=445": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0446.jsonl#opening_index=446": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0449.jsonl#opening_index=449": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0450.jsonl#opening_index=450": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0451.jsonl#opening_index=451": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0454.jsonl#opening_index=454": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0455.jsonl#opening_index=455": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0457.jsonl#opening_index=457": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0459.jsonl#opening_index=459": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0460.jsonl#opening_index=460": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0461.jsonl#opening_index=461": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0462.jsonl#opening_index=462": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0463.jsonl#opening_index=463": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0466.jsonl#opening_index=466": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0467.jsonl#opening_index=467": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0468.jsonl#opening_index=468": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0469.jsonl#opening_index=469": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0471.jsonl#opening_index=471": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0473.jsonl#opening_index=473": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0474.jsonl#opening_index=474": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0476.jsonl#opening_index=476": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0479.jsonl#opening_index=479": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0480.jsonl#opening_index=480": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0481.jsonl#opening_index=481": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0484.jsonl#opening_index=484": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0486.jsonl#opening_index=486": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0488.jsonl#opening_index=488": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0490.jsonl#opening_index=490": {
+      "unresolved_insufficient_provenance:disagreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0491.jsonl#opening_index=491": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0492.jsonl#opening_index=492": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0493.jsonl#opening_index=493": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0494.jsonl#opening_index=494": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0495.jsonl#opening_index=495": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0497.jsonl#opening_index=497": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0498.jsonl#opening_index=498": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0499.jsonl#opening_index=499": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0500.jsonl#opening_index=500": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0502.jsonl#opening_index=502": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0503.jsonl#opening_index=503": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0504.jsonl#opening_index=504": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0506.jsonl#opening_index=506": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0507.jsonl#opening_index=507": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0508.jsonl#opening_index=508": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0509.jsonl#opening_index=509": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0510.jsonl#opening_index=510": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0511.jsonl#opening_index=511": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0512.jsonl#opening_index=512": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0513.jsonl#opening_index=513": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0515.jsonl#opening_index=515": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0516.jsonl#opening_index=516": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0517.jsonl#opening_index=517": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0519.jsonl#opening_index=519": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0520.jsonl#opening_index=520": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0521.jsonl#opening_index=521": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0524.jsonl#opening_index=524": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0525.jsonl#opening_index=525": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0526.jsonl#opening_index=526": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0527.jsonl#opening_index=527": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0528.jsonl#opening_index=528": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0529.jsonl#opening_index=529": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0530.jsonl#opening_index=530": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0531.jsonl#opening_index=531": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0532.jsonl#opening_index=532": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0533.jsonl#opening_index=533": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0534.jsonl#opening_index=534": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0535.jsonl#opening_index=535": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0536.jsonl#opening_index=536": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0537.jsonl#opening_index=537": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0541.jsonl#opening_index=541": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0544.jsonl#opening_index=544": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0545.jsonl#opening_index=545": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0546.jsonl#opening_index=546": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0549.jsonl#opening_index=549": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0556.jsonl#opening_index=556": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0557.jsonl#opening_index=557": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0558.jsonl#opening_index=558": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0559.jsonl#opening_index=559": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0560.jsonl#opening_index=560": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0562.jsonl#opening_index=562": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0563.jsonl#opening_index=563": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0566.jsonl#opening_index=566": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0568.jsonl#opening_index=568": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0569.jsonl#opening_index=569": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0571.jsonl#opening_index=571": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0572.jsonl#opening_index=572": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0573.jsonl#opening_index=573": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0574.jsonl#opening_index=574": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0575.jsonl#opening_index=575": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0578.jsonl#opening_index=578": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0581.jsonl#opening_index=581": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0583.jsonl#opening_index=583": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0584.jsonl#opening_index=584": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0585.jsonl#opening_index=585": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0586.jsonl#opening_index=586": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0587.jsonl#opening_index=587": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0588.jsonl#opening_index=588": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0589.jsonl#opening_index=589": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0591.jsonl#opening_index=591": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0593.jsonl#opening_index=593": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0594.jsonl#opening_index=594": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0595.jsonl#opening_index=595": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0597.jsonl#opening_index=597": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0599.jsonl#opening_index=599": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0600.jsonl#opening_index=600": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0602.jsonl#opening_index=602": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0603.jsonl#opening_index=603": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0604.jsonl#opening_index=604": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0606.jsonl#opening_index=606": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0607.jsonl#opening_index=607": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0611.jsonl#opening_index=611": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0614.jsonl#opening_index=614": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0615.jsonl#opening_index=615": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0616.jsonl#opening_index=616": {
+      "unresolved_insufficient_provenance:disagreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0617.jsonl#opening_index=617": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0619.jsonl#opening_index=619": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0620.jsonl#opening_index=620": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0621.jsonl#opening_index=621": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0623.jsonl#opening_index=623": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0624.jsonl#opening_index=624": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0626.jsonl#opening_index=626": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0627.jsonl#opening_index=627": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0628.jsonl#opening_index=628": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0629.jsonl#opening_index=629": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0630.jsonl#opening_index=630": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0631.jsonl#opening_index=631": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0632.jsonl#opening_index=632": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0633.jsonl#opening_index=633": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0634.jsonl#opening_index=634": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0635.jsonl#opening_index=635": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0637.jsonl#opening_index=637": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0638.jsonl#opening_index=638": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0639.jsonl#opening_index=639": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0640.jsonl#opening_index=640": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0641.jsonl#opening_index=641": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0643.jsonl#opening_index=643": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0644.jsonl#opening_index=644": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0645.jsonl#opening_index=645": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0646.jsonl#opening_index=646": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0649.jsonl#opening_index=649": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0651.jsonl#opening_index=651": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0652.jsonl#opening_index=652": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0654.jsonl#opening_index=654": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0655.jsonl#opening_index=655": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0658.jsonl#opening_index=658": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0660.jsonl#opening_index=660": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0661.jsonl#opening_index=661": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0662.jsonl#opening_index=662": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0664.jsonl#opening_index=664": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0665.jsonl#opening_index=665": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0667.jsonl#opening_index=667": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0668.jsonl#opening_index=668": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0669.jsonl#opening_index=669": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0670.jsonl#opening_index=670": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0671.jsonl#opening_index=671": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0672.jsonl#opening_index=672": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0673.jsonl#opening_index=673": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0674.jsonl#opening_index=674": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0675.jsonl#opening_index=675": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0678.jsonl#opening_index=678": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0679.jsonl#opening_index=679": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0680.jsonl#opening_index=680": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0681.jsonl#opening_index=681": {
+      "unresolved_insufficient_provenance:disagreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0682.jsonl#opening_index=682": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0686.jsonl#opening_index=686": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0687.jsonl#opening_index=687": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0688.jsonl#opening_index=688": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0689.jsonl#opening_index=689": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0690.jsonl#opening_index=690": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0692.jsonl#opening_index=692": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0694.jsonl#opening_index=694": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0696.jsonl#opening_index=696": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0697.jsonl#opening_index=697": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0699.jsonl#opening_index=699": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0700.jsonl#opening_index=700": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0701.jsonl#opening_index=701": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0702.jsonl#opening_index=702": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0703.jsonl#opening_index=703": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0705.jsonl#opening_index=705": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0706.jsonl#opening_index=706": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0707.jsonl#opening_index=707": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0708.jsonl#opening_index=708": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0709.jsonl#opening_index=709": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0710.jsonl#opening_index=710": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0712.jsonl#opening_index=712": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0713.jsonl#opening_index=713": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0715.jsonl#opening_index=715": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0717.jsonl#opening_index=717": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0720.jsonl#opening_index=720": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0721.jsonl#opening_index=721": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0722.jsonl#opening_index=722": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0723.jsonl#opening_index=723": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0725.jsonl#opening_index=725": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0728.jsonl#opening_index=728": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0729.jsonl#opening_index=729": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0730.jsonl#opening_index=730": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0731.jsonl#opening_index=731": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0732.jsonl#opening_index=732": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0733.jsonl#opening_index=733": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0734.jsonl#opening_index=734": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0735.jsonl#opening_index=735": {
+      "unresolved_insufficient_provenance:disagreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0737.jsonl#opening_index=737": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0738.jsonl#opening_index=738": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0739.jsonl#opening_index=739": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0740.jsonl#opening_index=740": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0741.jsonl#opening_index=741": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0744.jsonl#opening_index=744": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0745.jsonl#opening_index=745": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0746.jsonl#opening_index=746": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0747.jsonl#opening_index=747": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0748.jsonl#opening_index=748": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0749.jsonl#opening_index=749": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0750.jsonl#opening_index=750": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0752.jsonl#opening_index=752": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0753.jsonl#opening_index=753": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0754.jsonl#opening_index=754": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0755.jsonl#opening_index=755": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0756.jsonl#opening_index=756": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0757.jsonl#opening_index=757": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0758.jsonl#opening_index=758": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0759.jsonl#opening_index=759": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0760.jsonl#opening_index=760": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0761.jsonl#opening_index=761": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0762.jsonl#opening_index=762": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0763.jsonl#opening_index=763": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0765.jsonl#opening_index=765": {
+      "unresolved_insufficient_provenance:agreement": 1,
+      "unresolved_insufficient_provenance:disagreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0766.jsonl#opening_index=766": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0767.jsonl#opening_index=767": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0768.jsonl#opening_index=768": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0769.jsonl#opening_index=769": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0770.jsonl#opening_index=770": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0772.jsonl#opening_index=772": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0774.jsonl#opening_index=774": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0777.jsonl#opening_index=777": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0778.jsonl#opening_index=778": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0779.jsonl#opening_index=779": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0782.jsonl#opening_index=782": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0784.jsonl#opening_index=784": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0785.jsonl#opening_index=785": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0789.jsonl#opening_index=789": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0790.jsonl#opening_index=790": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0791.jsonl#opening_index=791": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0792.jsonl#opening_index=792": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0793.jsonl#opening_index=793": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0794.jsonl#opening_index=794": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0795.jsonl#opening_index=795": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0796.jsonl#opening_index=796": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0797.jsonl#opening_index=797": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0798.jsonl#opening_index=798": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0799.jsonl#opening_index=799": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0802.jsonl#opening_index=802": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0803.jsonl#opening_index=803": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0804.jsonl#opening_index=804": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0805.jsonl#opening_index=805": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0806.jsonl#opening_index=806": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0808.jsonl#opening_index=808": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0813.jsonl#opening_index=813": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0814.jsonl#opening_index=814": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0815.jsonl#opening_index=815": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0816.jsonl#opening_index=816": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0817.jsonl#opening_index=817": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0819.jsonl#opening_index=819": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0820.jsonl#opening_index=820": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0821.jsonl#opening_index=821": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0822.jsonl#opening_index=822": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0824.jsonl#opening_index=824": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0828.jsonl#opening_index=828": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0830.jsonl#opening_index=830": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0831.jsonl#opening_index=831": {
+      "unresolved_insufficient_provenance:disagreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0832.jsonl#opening_index=832": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0835.jsonl#opening_index=835": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0836.jsonl#opening_index=836": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0839.jsonl#opening_index=839": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0842.jsonl#opening_index=842": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0843.jsonl#opening_index=843": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0845.jsonl#opening_index=845": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0846.jsonl#opening_index=846": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0847.jsonl#opening_index=847": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0849.jsonl#opening_index=849": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0850.jsonl#opening_index=850": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0853.jsonl#opening_index=853": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0855.jsonl#opening_index=855": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0857.jsonl#opening_index=857": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0859.jsonl#opening_index=859": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0862.jsonl#opening_index=862": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0863.jsonl#opening_index=863": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0864.jsonl#opening_index=864": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0866.jsonl#opening_index=866": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0868.jsonl#opening_index=868": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0870.jsonl#opening_index=870": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0872.jsonl#opening_index=872": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0874.jsonl#opening_index=874": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0875.jsonl#opening_index=875": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0876.jsonl#opening_index=876": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0877.jsonl#opening_index=877": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0878.jsonl#opening_index=878": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0880.jsonl#opening_index=880": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0881.jsonl#opening_index=881": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0882.jsonl#opening_index=882": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0883.jsonl#opening_index=883": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0884.jsonl#opening_index=884": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0889.jsonl#opening_index=889": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0890.jsonl#opening_index=890": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0892.jsonl#opening_index=892": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0893.jsonl#opening_index=893": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0895.jsonl#opening_index=895": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0896.jsonl#opening_index=896": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0899.jsonl#opening_index=899": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0900.jsonl#opening_index=900": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0901.jsonl#opening_index=901": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0902.jsonl#opening_index=902": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0903.jsonl#opening_index=903": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0904.jsonl#opening_index=904": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0905.jsonl#opening_index=905": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0906.jsonl#opening_index=906": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0907.jsonl#opening_index=907": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0908.jsonl#opening_index=908": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0910.jsonl#opening_index=910": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0911.jsonl#opening_index=911": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0912.jsonl#opening_index=912": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0914.jsonl#opening_index=914": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0915.jsonl#opening_index=915": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0916.jsonl#opening_index=916": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0917.jsonl#opening_index=917": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0918.jsonl#opening_index=918": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0919.jsonl#opening_index=919": {
+      "unresolved_insufficient_provenance:agreement": 1,
+      "unresolved_insufficient_provenance:disagreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0920.jsonl#opening_index=920": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0921.jsonl#opening_index=921": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0922.jsonl#opening_index=922": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0923.jsonl#opening_index=923": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0928.jsonl#opening_index=928": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0929.jsonl#opening_index=929": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0930.jsonl#opening_index=930": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0932.jsonl#opening_index=932": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0934.jsonl#opening_index=934": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0935.jsonl#opening_index=935": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0939.jsonl#opening_index=939": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0941.jsonl#opening_index=941": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0943.jsonl#opening_index=943": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0944.jsonl#opening_index=944": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0946.jsonl#opening_index=946": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0950.jsonl#opening_index=950": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0954.jsonl#opening_index=954": {
+      "unresolved_insufficient_provenance:agreement": 1,
+      "unresolved_insufficient_provenance:disagreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0956.jsonl#opening_index=956": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0958.jsonl#opening_index=958": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0959.jsonl#opening_index=959": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0961.jsonl#opening_index=961": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0963.jsonl#opening_index=963": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0964.jsonl#opening_index=964": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0965.jsonl#opening_index=965": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0966.jsonl#opening_index=966": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0967.jsonl#opening_index=967": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0971.jsonl#opening_index=971": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0972.jsonl#opening_index=972": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0973.jsonl#opening_index=973": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0974.jsonl#opening_index=974": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0975.jsonl#opening_index=975": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0976.jsonl#opening_index=976": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0978.jsonl#opening_index=978": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0979.jsonl#opening_index=979": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0982.jsonl#opening_index=982": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0983.jsonl#opening_index=983": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0987.jsonl#opening_index=987": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0988.jsonl#opening_index=988": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0989.jsonl#opening_index=989": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0990.jsonl#opening_index=990": {
+      "unresolved_insufficient_provenance:disagreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0992.jsonl#opening_index=992": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0993.jsonl#opening_index=993": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0995.jsonl#opening_index=995": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-0998.jsonl#opening_index=998": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-1000.jsonl#opening_index=1000": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-1001.jsonl#opening_index=1001": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-1002.jsonl#opening_index=1002": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-1003.jsonl#opening_index=1003": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-1005.jsonl#opening_index=1005": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-1006.jsonl#opening_index=1006": {
+      "unresolved_insufficient_provenance:agreement": 2
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-1007.jsonl#opening_index=1007": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-1008.jsonl#opening_index=1008": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-1009.jsonl#opening_index=1009": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-1010.jsonl#opening_index=1010": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-1015.jsonl#opening_index=1015": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-1016.jsonl#opening_index=1016": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-1017.jsonl#opening_index=1017": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-1018.jsonl#opening_index=1018": {
+      "unresolved_insufficient_provenance:disagreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-1019.jsonl#opening_index=1019": {
+      "unresolved_insufficient_provenance:disagreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-1021.jsonl#opening_index=1021": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-1022.jsonl#opening_index=1022": {
+      "unresolved_insufficient_provenance:agreement": 1
+    },
+    "docs/data/seed556-exploratory-arena/screen-0005/batches/games-1023.jsonl#opening_index=1023": {
+      "unresolved_insufficient_provenance:agreement": 1
+    }
+  },
+  "decision_gate": {
+    "cleared_disagreement_states": 0,
+    "numerical_minimum_64_and_16_each_class": false,
+    "recommendation": "stop",
+    "source_cluster_independence": "not estimable for a cleared population; raw inventory is clustered by historical games/openings"
+  },
+  "historical_evidence_modified": false,
+  "ledger_sha256": "cef6b8a313463de59d6611b288b94064b343e86e48bd9f0b918d4db50ffc13d6",
+  "provenance_limitations": [
+    "P-E4 inherited training exposure lacks an identity-complete historical training ledger.",
+    "#580/#585 source archives authenticate provenance for candidate membership, but archive presence is not evidence that a row was consumed; this audit follows registered membership and observed minibatch traces.",
+    "The historical training executors consume membership rows directly and do not implement symmetry or state augmentation. The audit checks the exact canonical identity and encoded-input float32 identity under kalah_v3.",
+    "Source-game/source-opening similarity remains a separate risk and does not itself imply identical-state contamination."
+  ],
+  "raw_unresolved_source_cluster_summary": {
+    "distinct_source_game_opening_clusters": 675,
+    "effective_number_inverse_simpson": 619.6348195329086,
+    "interpretation": "descriptive only; clusters are not an eligible sample because contamination is unresolved",
+    "largest_cluster_states": 2
+  },
+  "read_only": true,
+  "schema": "seed622-training-provenance-audit-v1",
+  "source_corpus_authentication": {
+    "authenticated_source_artifacts": 252,
+    "preparation_sha256": "11c580d2ebb8d4a8fc67b12f7d1f8e6d8bcbffa0d110e6549bf077d259ff751d",
+    "sources": [
+      "#580",
+      "#585"
+    ]
+  },
+  "source_relationship_status": {
+    "interpretation": "training source game/opening identifiers cannot be completely crosswalked to Seed 621 source_path/opening_index; this remains separate from exact-state identity",
+    "unresolved_incompatible_historical_identifiers": 768
+  },
+  "training_contract": {
+    "B512": "2,048 membership states, 512 updates, 32-row batches",
+    "S615": "2,048 membership states, 512 updates, 32-row batches using frozen Seed 599 B index schedule",
+    "augmentation": "none specified by either executor; each row is fed via kalah_v3 encode_state",
+    "parent": "P-E4, shared by B512 and S615"
+  },
+  "training_lineage": {
+    "B512": {
+      "batch_schedule_sha256": "62edb14805d20af1cc7988d73aba95dcdf9e67842b6ea1d61a12c98a87c28599",
+      "batch_size": 32,
+      "checkpoint_sha256": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+      "execution_freeze_sha256": "bd141778461d7046b067966d7fb87188e5b0a2630d82655a321059b4ce17cad9",
+      "membership_rows": 2048,
+      "membership_sha256": "95ecc180e28945702e08815de7a5210e1bce036afdaf76d194bbd774589a4516",
+      "parent_checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "receipt_sha256": "3d81b00c438a678a2e38b9d58dcadc22f4091c0cb8e3ccbb755e1afe19ca41de",
+      "trace_sha256": "9f22328080756aa0fa2fa066164d36f935643938363059e0d0c711eb6f8f8955",
+      "unique_membership_rows_consumed": 2048,
+      "updates": 512
+    },
+    "S615": {
+      "batch_schedule_sha256": "62edb14805d20af1cc7988d73aba95dcdf9e67842b6ea1d61a12c98a87c28599",
+      "batch_size": 32,
+      "checkpoint_sha256": "cdf1e36c4c9374f28b182757b12471b3f00567eb59825bb938435cb56cf8d780",
+      "execution_freeze_sha256": "6ac9d4b4e52a6f4789ce406d9c88badd82e9c8ab7cf4b4d4d8e9c8676cd9910d",
+      "membership_rows": 2048,
+      "membership_sha256": "5ed236266ed3804a9c0e9f75b7e10b7c81ea6e290f8c72d3cea06dd225a15010",
+      "parent_checkpoint_sha256": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
+      "receipt_sha256": "0dc4d04a6be2b638abf77bb959e93d82c60355f3f9a449a49d0fef0a8bbb81f3",
+      "trace_sha256": "8ee2252f6831ea0589a19dff2c1ebc79a0f3c3447764feb9c53086ba599a8b01",
+      "unique_membership_rows_consumed": 2048,
+      "updates": 512
+    }
+  }
+}
