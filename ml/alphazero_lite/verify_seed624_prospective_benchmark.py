@@ -24,10 +24,12 @@ ROOT = Path(__file__).resolve().parents[2]
 MAX_SELECTION_CANDIDATES = 10_240
 MAX_SELECTION_NODES = 250_000
 MAX_SELECTION_SECONDS = 30
+SELECTION_TIME_CHECK_INTERVAL_NODES = 1
 MAX_SELECTION_WORKING_BYTES = 64 * 1024 * 1024
 MAX_SELECTION_INPUT_BYTES = 128 * 1024 * 1024
 TRUSTED_PROJECT_OWNER_KEYS: dict[str, dict[str, str]] = {}
 EXECUTION_SCOPE = "model-independent-generation-and-screening"
+INVALID_PREFIX_POLICY = "consume-reserve-index-skip-record-provenance-v1"
 
 
 def _sha(raw: bytes) -> str:
@@ -188,7 +190,10 @@ def _reconstruct_selection(
         node_count += 1
         if node_count > MAX_SELECTION_NODES:
             raise ValueError("verifier_optimizer_node_limit")
-        if node_count % 128 == 0 and time.monotonic() - started > MAX_SELECTION_SECONDS:
+        if (
+            node_count % SELECTION_TIME_CHECK_INTERVAL_NODES == 0
+            and time.monotonic() - started > MAX_SELECTION_SECONDS
+        ):
             raise ValueError("verifier_optimizer_resource_limit")
         if node_count % 128 == 0:
             _current_bytes, peak_bytes = tracemalloc.get_traced_memory()
@@ -266,31 +271,146 @@ def _opening_state() -> KalahGame:
     return KalahGame(pits=[4] * 12, captured_seeds=[0, 0], current_player=0)
 
 
-def _replay_opening_seed(index: int) -> dict[str, Any] | None:
+def _replay_opening_seed(index: int) -> tuple[dict[str, Any], dict[str, Any] | None]:
     game = _opening_state()
-    rng = random.Random(_seed(MASTER_SEED, index, 0, "opening"))
+    seed = _seed(MASTER_SEED, index, 0, "opening")
+    rng = random.Random(seed)
     moves = []
     for _ in range(8):
         legal = game.possible_moves()
         if not legal:
-            return None
+            terminal = game.over()
+            state = game.to_state()
+            cid, fid = _identities(state)
+            reason = (
+                "terminal_before_eight_actions"
+                if terminal
+                else "no_legal_action_before_prefix_complete"
+            )
+            return (
+                {
+                    "opening_index": index,
+                    "seed": seed,
+                    "status": "rejected_invalid_prefix",
+                    "reason": reason,
+                    "actions": moves,
+                    "terminal": terminal,
+                    "state": state,
+                    "canonical_identity": cid,
+                    "production_float32_identity": fid,
+                },
+                None,
+            )
         action = rng.choice(legal)
         if not game.move(game.pit_index(action)):
-            return None
+            raise ValueError("opening_rng_replay_failed")
         moves.append(action)
-        if game.over() and len(moves) < 8:
-            return None
-    if game.over():
-        return None
+        terminal = game.over()
+        if terminal:
+            state = game.to_state()
+            cid, fid = _identities(state)
+            reason = (
+                "terminal_at_eight_actions"
+                if len(moves) == 8
+                else "terminal_before_eight_actions"
+            )
+            return (
+                {
+                    "opening_index": index,
+                    "seed": seed,
+                    "status": "rejected_invalid_prefix",
+                    "reason": reason,
+                    "actions": moves,
+                    "terminal": True,
+                    "state": state,
+                    "canonical_identity": cid,
+                    "production_float32_identity": fid,
+                },
+                None,
+            )
     cid, fid = _identities(game.to_state())
-    return {
+    opening = {
         "opening_index": index,
-        "seed": _seed(MASTER_SEED, index, 0, "opening"),
+        "seed": seed,
         "state": game.to_state(),
         "canonical_identity": cid,
         "production_float32_identity": fid,
         "prefix_actions": moves,
     }
+    return (
+        {
+            "opening_index": index,
+            "seed": seed,
+            "status": "valid_prefix",
+            "canonical_identity": cid,
+            "production_float32_identity": fid,
+        },
+        opening,
+    )
+
+
+def _reconstruct_opening_reserve(
+    consumed: list[int], target: int
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
+    openings: list[dict[str, Any]] = []
+    attempts: list[dict[str, Any]] = []
+    rejections: list[dict[str, Any]] = []
+    canonical_seen: dict[str, int] = {}
+    float_seen: dict[str, int] = {}
+    for raw_index in consumed:
+        index = int(raw_index)
+        attempt, opening = _replay_opening_seed(index)
+        if opening is None:
+            attempts.append(attempt)
+            rejections.append(attempt)
+            continue
+        cid = opening["canonical_identity"]
+        fid = opening["production_float32_identity"]
+        if cid in canonical_seen:
+            attempt = {
+                "opening_index": index,
+                "seed": opening["seed"],
+                "status": "rejected_duplicate",
+                "reason": "canonical_identity_duplicate",
+                "duplicate_of_opening_index": canonical_seen[cid],
+                "canonical_identity": cid,
+                "production_float32_identity": fid,
+            }
+            attempts.append(attempt)
+            rejections.append(attempt)
+            continue
+        if fid in float_seen:
+            attempt = {
+                "opening_index": index,
+                "seed": opening["seed"],
+                "status": "rejected_duplicate",
+                "reason": "production_float32_identity_duplicate",
+                "duplicate_of_opening_index": float_seen[fid],
+                "canonical_identity": cid,
+                "production_float32_identity": fid,
+            }
+            attempts.append(attempt)
+            rejections.append(attempt)
+            continue
+        canonical_seen[cid] = index
+        float_seen[fid] = index
+        openings.append(opening)
+        attempts.append(
+            {
+                "opening_index": index,
+                "seed": opening["seed"],
+                "status": "accepted",
+                "canonical_identity": cid,
+                "production_float32_identity": fid,
+            }
+        )
+        if len(openings) == target:
+            if index != consumed[-1]:
+                raise ValueError("opening_reserve_consumed_after_target_reached")
+            break
+    if len(openings) != target:
+        raise ValueError("opening_reserve_distinct_valid_shortfall")
+    return openings, attempts, rejections
 
 
 def _apply_actions(game: KalahGame, actions: list[int], *, label: str) -> None:
@@ -422,10 +542,18 @@ def verify_bundle(bundle_path: Path) -> dict[str, Any]:
         or authorization.get("project_owner_identity") != owner_identity
     ):
         raise ValueError("execution_freeze_binding_mismatch")
+    production_resources = freeze.get("production_resource_limits")
+    if not isinstance(production_resources, dict) or any(
+        type(production_resources.get(name)) is not int
+        or production_resources[name] <= 0
+        for name in ("wall_seconds", "cpu_seconds", "process_rss_bytes")
+    ):
+        raise ValueError("production_resource_freeze_missing_or_invalid")
     frozen_generation = freeze.get("generation", {})
     if (
         frozen_generation.get("master_seed") != MASTER_SEED
         or frozen_generation.get("opening_reserve") != 512
+        or frozen_generation.get("invalid_prefix_policy") != INVALID_PREFIX_POLICY
         or frozen_generation.get("prefix_actions") != 8
         or frozen_generation.get("games_per_opening") != 8
         or frozen_generation.get("continuation_action_limit") != 200
@@ -493,28 +621,23 @@ def verify_bundle(bundle_path: Path) -> dict[str, Any]:
     target_openings = int(generation_contract["opening_target"])
     if target_openings <= 0 or target_openings > 256:
         raise ValueError("invalid_frozen_opening_target")
-    expected_first_openings: list[dict[str, Any]] = []
-    canonical_seen_for_reserve: set[str] = set()
-    float_seen_for_reserve: set[str] = set()
-    for index in consumed:
-        derived = _replay_opening_seed(int(index))
-        if derived is None:
-            continue
-        cid = derived["canonical_identity"]
-        fid = derived["production_float32_identity"]
-        if cid in canonical_seen_for_reserve or fid in float_seen_for_reserve:
-            continue
-        canonical_seen_for_reserve.add(cid)
-        float_seen_for_reserve.add(fid)
-        expected_first_openings.append(derived)
-        if len(expected_first_openings) == target_openings:
-            if int(index) != consumed[-1]:
-                raise ValueError("opening_reserve_consumed_after_target_reached")
-            break
-    if len(expected_first_openings) != target_openings:
-        raise ValueError("opening_reserve_distinct_valid_shortfall")
+    expected_first_openings, expected_opening_attempts, expected_opening_rejections = (
+        _reconstruct_opening_reserve(consumed, target_openings)
+    )
     if _canonical(expected_first_openings) != _canonical(openings):
         raise ValueError("opening_reserve_skipped_valid_opening")
+    if (
+        bundle["generation"].get("invalid_prefix_policy") != INVALID_PREFIX_POLICY
+        or _canonical(bundle["generation"].get("opening_attempts"))
+        != _canonical(expected_opening_attempts)
+        or _canonical(bundle["generation"].get("opening_rejections"))
+        != _canonical(expected_opening_rejections)
+    ):
+        raise ValueError("opening_attempt_provenance_mismatch")
+    if bundle.get("opening_attempts_sha256") != _sha(
+        _canonical(expected_opening_attempts)
+    ):
+        raise ValueError("opening_attempt_inventory_hash_mismatch")
     opening_by_index: dict[int, dict] = {}
     canonical_openings: set[str] = set()
     float_openings: set[str] = set()
@@ -574,6 +697,14 @@ def verify_bundle(bundle_path: Path) -> dict[str, Any]:
     classifications = Counter(row.get("classification") for row in candidate_rows)
     expected_aggregate = {
         "openings": len(openings),
+        "opening_seed_indexes_consumed": len(consumed),
+        "invalid_opening_prefixes": sum(
+            row["status"] == "rejected_invalid_prefix"
+            for row in expected_opening_rejections
+        ),
+        "duplicate_openings": sum(
+            row["status"] == "rejected_duplicate" for row in expected_opening_rejections
+        ),
         "games": len(games),
         "candidates": len(candidate_rows),
         "confirmed_known_exposure": classifications["confirmed_known_exposure"],
@@ -826,6 +957,8 @@ def verify_bundle(bundle_path: Path) -> dict[str, Any]:
             != MAX_SELECTION_INPUT_BYTES
             or frozen_selection.get("runtime_limit_seconds") != MAX_SELECTION_SECONDS
             or frozen_selection.get("node_limit") != MAX_SELECTION_NODES
+            or frozen_selection.get("time_check_interval_nodes")
+            != SELECTION_TIME_CHECK_INTERVAL_NODES
             or frozen_selection.get("working_memory_limit_bytes")
             != MAX_SELECTION_WORKING_BYTES
         ):
@@ -907,6 +1040,8 @@ def verify_bundle(bundle_path: Path) -> dict[str, Any]:
         or int(optimizer.get("input_bytes", MAX_SELECTION_INPUT_BYTES + 1))
         > MAX_SELECTION_INPUT_BYTES
         or optimizer.get("node_limit") != MAX_SELECTION_NODES
+        or optimizer.get("time_check_interval_nodes")
+        != SELECTION_TIME_CHECK_INTERVAL_NODES
         or optimizer.get("runtime_limit_seconds") != MAX_SELECTION_SECONDS
         or optimizer.get("working_memory_limit_bytes") != MAX_SELECTION_WORKING_BYTES
         or optimizer.get("nodes") != verifier_nodes

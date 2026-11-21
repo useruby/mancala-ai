@@ -16,6 +16,20 @@ population. Do not calculate, report, or apply candidate-level inclusion
 probabilities or design weights. Report descriptive unweighted results as
 sensitivity summaries only.
 
+The 512 selected roots are the complete finite population for the amended
+primary estimand. Compute the paired B−A and C−A contrasts exactly on that
+finite selected population after all required outcomes are available. Do not
+interpret a bootstrap interval as uncertainty about a larger stochastic
+population.
+
+Opening-position cluster bootstrap resampling (20,000 resamples under the frozen
+analysis seed) may be retained only as a **descriptive stability analysis**:
+resample the frozen opening clusters and report how the standardized contrast
+varies under that perturbation. Label the output `cluster-resampling stability
+interval`, not a confidence interval. It describes sensitivity to the observed
+cluster composition and does not have a confidence-coverage or design-based
+interpretation for the random-generation population.
+
 ## Proposed replacement text
 
 Replace the sentences in Seed 623 that require publishing candidate inclusion
@@ -37,6 +51,27 @@ primary endpoint as inclusion-weighted with:
 Replace the primary-endpoint wording `cluster- and inclusion-weighted mean`
 with `opening-cluster-aware, fixed-stone-bin-standardized mean`, retaining the
 registered paired contrast and the fixed `1/5` stone-bin weights.
+
+Replace the primary improvement, no-improvement, inconclusive, and WDL
+non-inferiority rules that use interval endpoints as inferential gates with this
+finite-cohort descriptive rule:
+
+1. Report `observed selected-population regret threshold met` if and only if the
+   exact B−A finite-cohort mean regret difference is at most −0.25 seeds and the
+   exact finite-cohort S615-minus-B512 WDL-inferior rate difference is at most
+   +1 percentage point.
+2. Otherwise report `observed selected-population regret threshold not met`,
+   with a separate flag if the finite-cohort WDL-inferior difference exceeds
+   +1 percentage point.
+3. If any required exact action coverage or outcome is missing, report
+   `unavailable`; do not substitute a bootstrap endpoint or another population.
+
+Report the cluster-resampling stability interval beside the exact finite-cohort
+contrast, but never use it to decide the labels above. These labels describe
+only the frozen selected population. They do not establish improvement, no
+improvement, non-inferiority, or generalization for the broader generation
+distribution. Any such stochastic-population claim requires a separately
+registered sampling design and estimand.
 
 ## Required amendment record
 

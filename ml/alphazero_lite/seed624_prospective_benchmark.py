@@ -27,6 +27,7 @@ from ml.alphazero_lite.self_play import encode_state
 SCHEMA = "seed624-prospective-population-v1"
 MASTER_SEED = 62320261121
 SEED_CONTRACT = "seed624-sha256-v1; big-endian u64 prefix; Python random.Random"
+OPENING_INVALID_PREFIX_POLICY = "consume-reserve-index-skip-record-provenance-v1"
 OPENING_RESERVE = 512
 OPENING_TARGET = 256
 GAMES_PER_OPENING = 8
@@ -40,6 +41,7 @@ MAX_SELECTION_CANDIDATES = 10_240
 MAX_SELECTION_INPUT_BYTES = 128 * 1024 * 1024
 MAX_SELECTION_NODES = 250_000
 MAX_SELECTION_SECONDS = 30
+SELECTION_TIME_CHECK_INTERVAL_NODES = 1
 MAX_SELECTION_WORKING_BYTES = 64 * 1024 * 1024
 # Trust anchors are provisioned only through a reviewed source change. An empty
 # production allowlist deliberately prevents approval by caller-supplied keys.
@@ -198,19 +200,46 @@ def _random_game(game: KalahGame, rng: random.Random, limit: int) -> list[int]:
     return actions
 
 
+class InvalidOpeningPrefix(ValueError):
+    """A deterministic opening seed failed the frozen eight-action prefix rule."""
+
+    def __init__(self, record: dict[str, Any]):
+        self.record = record
+        super().__init__(str(record.get("reason", "invalid_opening_prefix")))
+
+
 def generate_opening(master_seed: int, opening_index: int) -> dict[str, Any]:
+    seed = derive_seed(master_seed, opening_index, 0, "opening")
     game = standard_game()
-    moves = _random_game(
-        game,
-        random.Random(derive_seed(master_seed, opening_index, 0, "opening")),
-        PREFIX_ACTIONS,
-    )
-    if len(moves) != PREFIX_ACTIONS or game.over():
-        raise ValueError("opening_prefix_not_eight_nonterminal_actions")
+    moves = _random_game(game, random.Random(seed), PREFIX_ACTIONS)
+    terminal = game.over()
+    if len(moves) != PREFIX_ACTIONS or terminal:
+        reason = (
+            "terminal_before_eight_actions"
+            if terminal and len(moves) < PREFIX_ACTIONS
+            else "terminal_at_eight_actions"
+            if terminal
+            else "prefix_action_count_mismatch"
+        )
+        state = game.to_state()
+        canonical_id, float_id = identities(state)
+        raise InvalidOpeningPrefix(
+            {
+                "opening_index": opening_index,
+                "seed": seed,
+                "status": "rejected_invalid_prefix",
+                "reason": reason,
+                "actions": moves,
+                "terminal": terminal,
+                "state": state,
+                "canonical_identity": canonical_id,
+                "production_float32_identity": float_id,
+            }
+        )
     canonical_id, float_id = identities(game.to_state())
     return {
         "opening_index": opening_index,
-        "seed": derive_seed(master_seed, opening_index, 0, "opening"),
+        "seed": seed,
         "state": game.to_state(),
         "canonical_identity": canonical_id,
         "production_float32_identity": float_id,
@@ -219,23 +248,81 @@ def generate_opening(master_seed: int, opening_index: int) -> dict[str, Any]:
 
 
 def choose_distinct_openings(
-    opening_factory: Any, *, reserve: int, target: int
-) -> list[dict[str, Any]]:
-    """Consume reserve indexes in order and stop rather than drawing replacements."""
+    opening_factory: Any,
+    *,
+    reserve: int,
+    target: int,
+    master_seed: int = MASTER_SEED,
+) -> dict[str, Any]:
+    """Consume each reserve index once; skip and record invalid/duplicate prefixes."""
     chosen: list[dict[str, Any]] = []
-    canonical_seen: set[str] = set()
-    float_seen: set[str] = set()
+    canonical_seen: dict[str, int] = {}
+    float_seen: dict[str, int] = {}
+    attempts: list[dict[str, Any]] = []
+    rejections: list[dict[str, Any]] = []
     for index in range(reserve):
-        opening = opening_factory(index)
+        try:
+            opening = opening_factory(index)
+        except InvalidOpeningPrefix as error:
+            attempt = dict(error.record)
+            if (
+                int(attempt.get("opening_index", -1)) != index
+                or int(attempt.get("seed", -1))
+                != derive_seed(master_seed, index, 0, "opening")
+                or attempt.get("status") != "rejected_invalid_prefix"
+            ):
+                raise ValueError("invalid_opening_prefix_rejection_record_mismatch")
+            attempts.append(attempt)
+            rejections.append(attempt)
+            continue
         cid = opening["canonical_identity"]
         fid = opening["production_float32_identity"]
-        if cid in canonical_seen or fid in float_seen:
+        seed = derive_seed(master_seed, index, 0, "opening")
+        if cid in canonical_seen:
+            attempt = {
+                "opening_index": index,
+                "seed": seed,
+                "status": "rejected_duplicate",
+                "reason": "canonical_identity_duplicate",
+                "duplicate_of_opening_index": canonical_seen[cid],
+                "canonical_identity": cid,
+                "production_float32_identity": fid,
+            }
+            attempts.append(attempt)
+            rejections.append(attempt)
             continue
-        canonical_seen.add(cid)
-        float_seen.add(fid)
+        if fid in float_seen:
+            attempt = {
+                "opening_index": index,
+                "seed": seed,
+                "status": "rejected_duplicate",
+                "reason": "production_float32_identity_duplicate",
+                "duplicate_of_opening_index": float_seen[fid],
+                "canonical_identity": cid,
+                "production_float32_identity": fid,
+            }
+            attempts.append(attempt)
+            rejections.append(attempt)
+            continue
+        canonical_seen[cid] = index
+        float_seen[fid] = index
         chosen.append(opening)
+        attempts.append(
+            {
+                "opening_index": index,
+                "seed": seed,
+                "status": "accepted",
+                "canonical_identity": cid,
+                "production_float32_identity": fid,
+            }
+        )
         if len(chosen) == target:
-            return chosen
+            return {
+                "openings": chosen,
+                "consumed_seed_indexes": list(range(index + 1)),
+                "attempts": attempts,
+                "rejections": rejections,
+            }
     raise ShortfallError(
         {
             "schema": "seed624-generation-shortfall-v1",
@@ -243,6 +330,9 @@ def choose_distinct_openings(
             "required": target,
             "available": len(chosen),
             "reserve": reserve,
+            "consumed_seed_indexes": list(range(reserve)),
+            "attempts": attempts,
+            "rejections": rejections,
         }
     )
 
@@ -613,7 +703,10 @@ def _select_cohort_bounded(candidates: list[dict[str, Any]]) -> dict[str, Any]:
         nodes += 1
         if nodes > MAX_SELECTION_NODES:
             raise TimeoutError("node_limit")
-        if nodes % 128 == 0 and time.monotonic() - start > budget_seconds:
+        if (
+            nodes % SELECTION_TIME_CHECK_INTERVAL_NODES == 0
+            and time.monotonic() - start > budget_seconds
+        ):
             raise TimeoutError
         if nodes % 128 == 0:
             _current_bytes, peak_working_bytes = tracemalloc.get_traced_memory()
@@ -682,6 +775,7 @@ def _select_cohort_bounded(candidates: list[dict[str, Any]]) -> dict[str, Any]:
                 "peak_working_bytes": peak_working_bytes,
                 "runtime_limit_seconds": budget_seconds,
                 "node_limit": MAX_SELECTION_NODES,
+                "time_check_interval_nodes": SELECTION_TIME_CHECK_INTERVAL_NODES,
                 "working_memory_limit_bytes": MAX_SELECTION_WORKING_BYTES,
             }
         ) from None
@@ -722,6 +816,7 @@ def _select_cohort_bounded(candidates: list[dict[str, Any]]) -> dict[str, Any]:
             "input_memory_limit_bytes": MAX_SELECTION_INPUT_BYTES,
             "input_bytes": input_bytes,
             "node_limit": MAX_SELECTION_NODES,
+            "time_check_interval_nodes": SELECTION_TIME_CHECK_INTERVAL_NODES,
             "working_memory_limit_bytes": MAX_SELECTION_WORKING_BYTES,
             "peak_working_bytes": peak_working_bytes,
             "elapsed_seconds": time.monotonic() - start,
@@ -770,6 +865,11 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
     encoder_hash = sha256((ROOT / "ml/alphazero_lite/input_encodings.py").read_bytes())
     generation_contract = freeze.get("generation")
     selection_contract = freeze.get("selection")
+    production_resources = freeze.get("production_resource_limits")
+    production_resources_valid = isinstance(production_resources, dict) and all(
+        type(production_resources.get(name)) is int and production_resources[name] > 0
+        for name in ("wall_seconds", "cpu_seconds", "process_rss_bytes")
+    )
     if (
         freeze.get("schema") != "seed624-execution-freeze-v1"
         or freeze.get("status") != "authorized"
@@ -793,6 +893,7 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
             "master_seed": MASTER_SEED,
             "seed_contract": SEED_CONTRACT,
             "opening_reserve": OPENING_RESERVE,
+            "invalid_prefix_policy": OPENING_INVALID_PREFIX_POLICY,
             "opening_target": OPENING_TARGET,
             "prefix_actions": PREFIX_ACTIONS,
             "games_per_opening": GAMES_PER_OPENING,
@@ -809,10 +910,12 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
             "candidate_limit": MAX_SELECTION_CANDIDATES,
             "runtime_limit_seconds": MAX_SELECTION_SECONDS,
             "node_limit": MAX_SELECTION_NODES,
+            "time_check_interval_nodes": SELECTION_TIME_CHECK_INTERVAL_NODES,
             "input_memory_limit_bytes": MAX_SELECTION_INPUT_BYTES,
             "working_memory_limit_bytes": MAX_SELECTION_WORKING_BYTES,
             "workers": 1,
         }
+        or not production_resources_valid
         or freeze.get("sampling_contract")
         != "deterministic standardized selected-state population; fixed 1/5 weights per stone bin; no design-unbiased inference or inclusion-probability claim"
         or freeze.get("stone_bin_weights") != STONE_BIN_WEIGHTS
@@ -825,11 +928,12 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
     if not evidence_path or not Path(evidence_path).is_file():
         raise PermissionError("authenticated_membership_evidence_required")
     evidence = json.loads(Path(evidence_path).read_bytes())
-    openings = choose_distinct_openings(
+    opening_selection = choose_distinct_openings(
         lambda index: generate_opening(MASTER_SEED, index),
         reserve=OPENING_RESERVE,
         target=OPENING_TARGET,
     )
+    openings = opening_selection["openings"]
     games: list[dict[str, Any]] = []
     candidates: list[dict[str, Any]] = []
     for opening in openings:
@@ -859,9 +963,10 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
         "generation": {
             "master_seed": MASTER_SEED,
             "seed_contract": SEED_CONTRACT,
-            "opening_seeds_consumed": list(
-                range(max(int(item["opening_index"]) for item in openings) + 1)
-            ),
+            "invalid_prefix_policy": OPENING_INVALID_PREFIX_POLICY,
+            "opening_seeds_consumed": opening_selection["consumed_seed_indexes"],
+            "opening_attempts": opening_selection["attempts"],
+            "opening_rejections": opening_selection["rejections"],
         },
         "source_identity": {
             "git_commit": current_git_commit(),
@@ -872,10 +977,24 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
             },
         },
         "opening_inventory_sha256": sha256(canonical_bytes(openings)),
+        "opening_attempts_sha256": sha256(
+            canonical_bytes(opening_selection["attempts"])
+        ),
         "game_inventory_sha256": sha256(canonical_bytes(games)),
         "candidate_inventory_sha256": sha256(canonical_bytes(screened)),
         "aggregate_counts": {
             "openings": len(openings),
+            "opening_seed_indexes_consumed": len(
+                opening_selection["consumed_seed_indexes"]
+            ),
+            "invalid_opening_prefixes": sum(
+                row["status"] == "rejected_invalid_prefix"
+                for row in opening_selection["rejections"]
+            ),
+            "duplicate_openings": sum(
+                row["status"] == "rejected_duplicate"
+                for row in opening_selection["rejections"]
+            ),
             "games": len(games),
             "candidates": len(screened),
             "confirmed_known_exposure": sum(
@@ -932,6 +1051,7 @@ def proposed_freeze_schema() -> dict[str, Any]:
                 "master_seed": MASTER_SEED,
                 "seed_contract": SEED_CONTRACT,
                 "opening_reserve": OPENING_RESERVE,
+                "invalid_prefix_policy": OPENING_INVALID_PREFIX_POLICY,
                 "opening_target": OPENING_TARGET,
                 "prefix_actions": PREFIX_ACTIONS,
                 "games_per_opening": GAMES_PER_OPENING,
@@ -953,6 +1073,7 @@ def proposed_freeze_schema() -> dict[str, Any]:
                 "candidate_limit": MAX_SELECTION_CANDIDATES,
                 "runtime_limit_seconds": MAX_SELECTION_SECONDS,
                 "node_limit": MAX_SELECTION_NODES,
+                "time_check_interval_nodes": SELECTION_TIME_CHECK_INTERVAL_NODES,
                 "input_memory_limit_bytes": MAX_SELECTION_INPUT_BYTES,
                 "working_memory_limit_bytes": MAX_SELECTION_WORKING_BYTES,
                 "workers": 1,
@@ -961,6 +1082,12 @@ def proposed_freeze_schema() -> dict[str, Any]:
             "stone_bin_weights": STONE_BIN_WEIGHTS,
             "output_schema": SCHEMA,
             "create_only_output_paths": [],
+            "production_resource_limits": {
+                "wall_seconds": None,
+                "cpu_seconds": None,
+                "process_rss_bytes": None,
+                "status": "must_be_set_and_enforced_by_authorized_execution_harness",
+            },
             "outputs": {"schema": SCHEMA},
             "verification_commands": [
                 "python -m ml.alphazero_lite.verify_seed624_prospective_benchmark <copied-bundle>/population.json",

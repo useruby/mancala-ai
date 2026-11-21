@@ -49,13 +49,24 @@ The production entry point verifies an Ed25519 approval against a repository-
 pinned key, exact freeze digest, and exact execution scope. The implementation
 has not called that entry point. The reviewed key is not yet provisioned.
 
+## Opening-prefix reserve semantics
+
+An opening seed whose random prefix does not produce exactly eight legal,
+nonterminal actions consumes that reserve index and is skipped. The scan
+proceeds to the next fixed index; no seed is reused or replaced. The bundle
+records each consumed index, accepted opening, invalid-prefix rejection (seed,
+partial actions, terminal flag, resulting state, and both identities), and
+duplicate-opening rejection. The independent verifier replays the entire
+consumed reserve ledger and requires the published openings to be the first
+distinct valid entries under this rule.
+
 ## Synthetic selector resource benchmark
 
 `seed624-dfs-bounded-v2` uses a deterministic rank-first exact search with
 candidate-count ceiling 10,240, recursively measured Python input-object ceiling
 128 MiB, 250,000 search nodes, 30 seconds, and 64 MiB traced optimizer working
 memory. On this host, a synthetic feasible 4x-supply pool of 2,048 candidates
-selected 512 states in 0.332 s wall time (0.114 s in the optimizer), 518 nodes,
+selected 512 states in 0.308 s wall time (0.115 s in the optimizer), 518 nodes,
 4,528,318 measured input bytes, and 3,257,184 traced working bytes; 227 opening
 clusters were represented. Rows included synthetic state objects, 64-action
 trajectory lists, and repeated-bin visit metadata. A synthetic infeasible
@@ -64,6 +75,24 @@ opening-capacity bound in 0.0630 s (game capacity 2,048; opening capacity 400;
 target 512). These are synthetic measurements, not production estimates. Other
 hard instances terminate with a structured node/time/memory shortfall rather
 than claiming infeasibility.
+
+Additional adversarial fixtures exercise backtracking rather than the aggregate
+prechecks: a feasible five-bin fixture selects a later-ranked alternative after
+the early-rank path dead-ends; a six-bin fixture passes hard supply, total game
+capacity, opening capacity, and cluster-count gates but exhausts the exact
+search as mathematically infeasible. Repeated node-limit runs return the same
+node count and `optimizer_resource_limit`; an injected deterministic clock
+returns a time-limit shortfall at the same search node. Neither resource-limit
+result is classified as mathematical infeasibility.
+
+The 128 MiB deep-object estimate and 64 MiB tracemalloc ceiling are Python
+allocation guards, **not hard process RSS limits**; tracemalloc excludes some
+interpreter, native-library, and operating-system memory. A production freeze
+must separately register host/process RSS, CPU, and wall-time caps in its
+`production_resource_limits` record, and the authorized execution harness must
+enforce those external caps. Those values are intentionally unset in this
+proposal. Selector-specific synthetic limits do not replace execution resource
+caps.
 
 ## Exposure language
 

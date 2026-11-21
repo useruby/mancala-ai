@@ -8,6 +8,7 @@ import json
 import tempfile
 import time
 import unittest
+from collections import Counter
 from pathlib import Path
 from unittest.mock import patch
 
@@ -15,6 +16,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from ml.alphazero_lite import seed624_prospective_benchmark as seed624
+from ml.alphazero_lite import verify_seed624_prospective_benchmark as independent
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.verify_seed624_prospective_benchmark import _apply_actions
 from ml.alphazero_lite.verify_seed624_prospective_benchmark import (
@@ -85,6 +87,74 @@ class Seed624SyntheticTests(unittest.TestCase):
                 lambda index: rows[index], reserve=3, target=2
             )
         self.assertEqual(error.exception.report["available"], 1)
+        self.assertEqual(error.exception.report["consumed_seed_indexes"], [0, 1, 2])
+        self.assertEqual(len(error.exception.report["rejections"]), 2)
+
+    def test_invalid_prefix_consumes_its_index_records_failure_and_skips(self) -> None:
+        invalid_seed = seed624.derive_seed(seed624.MASTER_SEED, 0, 0, "opening")
+        terminal_state = KalahGame(
+            pits=[0] * 12, captured_seeds=[24, 24], current_player=0
+        ).to_state()
+        cid, fid = seed624.identities(terminal_state)
+
+        def factory(index: int) -> dict:
+            if index == 0:
+                raise seed624.InvalidOpeningPrefix(
+                    {
+                        "opening_index": 0,
+                        "seed": invalid_seed,
+                        "status": "rejected_invalid_prefix",
+                        "reason": "terminal_before_eight_actions",
+                        "actions": [5],
+                        "terminal": True,
+                        "state": terminal_state,
+                        "canonical_identity": cid,
+                        "production_float32_identity": fid,
+                    }
+                )
+            return seed624.generate_opening(seed624.MASTER_SEED, index)
+
+        selection = seed624.choose_distinct_openings(factory, reserve=2, target=1)
+        self.assertEqual(selection["consumed_seed_indexes"], [0, 1])
+        self.assertEqual(selection["openings"][0]["opening_index"], 1)
+        self.assertEqual(selection["attempts"][0]["status"], "rejected_invalid_prefix")
+        self.assertEqual(
+            selection["rejections"][0]["reason"], "terminal_before_eight_actions"
+        )
+
+    def test_independent_reserve_replay_skips_and_records_invalid_prefix(self) -> None:
+        invalid = {
+            "opening_index": 0,
+            "seed": independent._seed(seed624.MASTER_SEED, 0, 0, "opening"),
+            "status": "rejected_invalid_prefix",
+            "reason": "terminal_before_eight_actions",
+            "actions": [5],
+            "terminal": True,
+            "state": {},
+            "canonical_identity": "invalid-canonical",
+            "production_float32_identity": "invalid-float",
+        }
+        opening = seed624.generate_opening(seed624.MASTER_SEED, 1)
+        valid_attempt = {
+            "opening_index": 1,
+            "seed": opening["seed"],
+            "status": "valid_prefix",
+            "canonical_identity": opening["canonical_identity"],
+            "production_float32_identity": opening["production_float32_identity"],
+        }
+        with patch.object(
+            independent,
+            "_replay_opening_seed",
+            side_effect=[(invalid, None), (valid_attempt, opening)],
+        ):
+            selected, attempts, rejections = independent._reconstruct_opening_reserve(
+                [0, 1], 1
+            )
+        self.assertEqual(selected, [opening])
+        self.assertEqual(
+            [row["status"] for row in attempts], ["rejected_invalid_prefix", "accepted"]
+        )
+        self.assertEqual(rejections, [invalid])
 
     def test_opening_seed_generation_preserves_eight_action_prefix(self) -> None:
         opening = seed624.generate_opening(seed624.MASTER_SEED, 0)
@@ -443,6 +513,200 @@ class Seed624SyntheticTests(unittest.TestCase):
         self.assertEqual(len(infeasible_rows), sum(targets.values()) * 4)
         self.assertLess(infeasible_elapsed, 5.0)
 
+    def test_adversarial_feasible_pool_backtracks_from_early_rank(self) -> None:
+        targets = {stone: 1 for stone in seed624.BIN_ORDER}
+        # The rank-first path fills opening 0 and saturates game A. The final
+        # bin has no feasible candidate until the preceding bin takes rank z.
+        assignments = {
+            17: [("a", "game-a", 0), ("z", "game-b", 1)],
+            18: [("a", "game-a", 0), ("z", "game-c", 1)],
+            19: [("a", "game-d", 0), ("z", "game-e", 1)],
+            20: [("a", "game-f", 0), ("z", "game-g", 1)],
+            21: [("a", "game-h", 0), ("z", "game-a", 1)],
+        }
+        candidates = [
+            {
+                "active_pit_stones": stone,
+                "rank": rank,
+                "canonical_identity": f"{stone}-{game_id}",
+                "game_id": game_id,
+                "opening_index": opening,
+                "classification": "known_exposure_nonmatch_inherited_PE4_unresolved",
+            }
+            for stone, rows in assignments.items()
+            for rank, game_id, opening in rows
+        ]
+        with (
+            patch.object(seed624, "STONE_TARGETS", targets),
+            patch.object(seed624, "MIN_OPENING_CLUSTERS", 1),
+        ):
+            selected = seed624.select_cohort(candidates)
+        picked = {row["active_pit_stones"]: row["rank"] for row in selected["states"]}
+        self.assertEqual(picked[20], "z")
+        self.assertGreater(selected["optimizer"]["nodes"], len(targets) + 1)
+
+    def test_adversarial_infeasible_pool_passes_aggregate_gates_and_exhausts(
+        self,
+    ) -> None:
+        bins = (17, 18, 19, 20, 21, 22)
+        targets = {stone: 2 for stone in bins}
+        candidates = []
+        shared_games = ("g0", "g1", "g2", "g3")
+        game_opening = {"g0": 0, "g1": 0, "g2": 1, "g3": 1}
+        for stone in bins[:5]:
+            for rank_index, game_id in enumerate(shared_games):
+                candidates.append(
+                    {
+                        "active_pit_stones": stone,
+                        "rank": f"{rank_index:02d}",
+                        "canonical_identity": f"{stone}-{game_id}",
+                        "game_id": game_id,
+                        "opening_index": game_opening[game_id],
+                        "classification": "known_exposure_nonmatch_inherited_PE4_unresolved",
+                    }
+                )
+        for rank_index, game_id in enumerate(("g4", "g5", "g6", "g7")):
+            candidates.append(
+                {
+                    "active_pit_stones": 22,
+                    "rank": f"{rank_index:02d}",
+                    "canonical_identity": f"22-{game_id}",
+                    "game_id": game_id,
+                    "opening_index": 2 if game_id in {"g4", "g5"} else 3,
+                    "classification": "known_exposure_nonmatch_inherited_PE4_unresolved",
+                }
+            )
+
+        # All cheap necessary capacity bounds pass, but bins 17-21 need ten
+        # states from g0-g3, whose combined game capacity is only eight.
+        game_capacity = sum(
+            min(2, count)
+            for count in Counter(row["game_id"] for row in candidates).values()
+        )
+        opening_capacity = sum(
+            min(4, count)
+            for count in Counter(row["opening_index"] for row in candidates).values()
+        )
+        self.assertEqual(game_capacity, sum(targets.values()))
+        self.assertEqual(opening_capacity, sum(targets.values()))
+        with (
+            patch.object(seed624, "STONE_TARGETS", targets),
+            patch.object(seed624, "BIN_ORDER", bins),
+            patch.object(seed624, "MIN_OPENING_CLUSTERS", 4),
+        ):
+            with self.assertRaises(seed624.ShortfallError) as error:
+                seed624.select_cohort(candidates)
+        self.assertEqual(error.exception.report["reason"], "constraints_infeasible")
+        self.assertGreater(error.exception.report["nodes"], 128)
+
+    def test_adversarial_selector_node_and_time_limits_are_deterministic(self) -> None:
+        bins = (17, 18, 19, 20, 21, 22)
+        targets = {stone: 2 for stone in bins}
+        infeasible_candidates = []
+        for stone in bins[:5]:
+            for rank_index, game_id in enumerate(("g0", "g1", "g2", "g3")):
+                infeasible_candidates.append(
+                    {
+                        "active_pit_stones": stone,
+                        "rank": f"{rank_index:02d}",
+                        "canonical_identity": f"{stone}-{game_id}",
+                        "game_id": game_id,
+                        "opening_index": rank_index // 2,
+                        "classification": "known_exposure_nonmatch_inherited_PE4_unresolved",
+                    }
+                )
+        for rank_index, game_id in enumerate(("g4", "g5", "g6", "g7")):
+            infeasible_candidates.append(
+                {
+                    "active_pit_stones": 22,
+                    "rank": f"{rank_index:02d}",
+                    "canonical_identity": f"22-{game_id}",
+                    "game_id": game_id,
+                    "opening_index": 2 if game_id in {"g4", "g5"} else 3,
+                    "classification": "known_exposure_nonmatch_inherited_PE4_unresolved",
+                }
+            )
+        feasible_assignments = {
+            17: [("a", "game-a", 0), ("z", "game-b", 1)],
+            18: [("a", "game-a", 0), ("z", "game-c", 1)],
+            19: [("a", "game-d", 0), ("z", "game-e", 1)],
+            20: [("a", "game-f", 0), ("z", "game-g", 1)],
+            21: [("a", "game-h", 0), ("z", "game-a", 1)],
+        }
+        feasible_candidates = [
+            {
+                "active_pit_stones": stone,
+                "rank": rank,
+                "canonical_identity": f"{stone}-{game_id}",
+                "game_id": game_id,
+                "opening_index": opening,
+                "classification": "known_exposure_nonmatch_inherited_PE4_unresolved",
+            }
+            for stone, rows in feasible_assignments.items()
+            for rank, game_id, opening in rows
+        ]
+        cases = (
+            (
+                feasible_candidates,
+                seed624.BIN_ORDER,
+                {b: 1 for b in seed624.BIN_ORDER},
+                1,
+            ),
+            (infeasible_candidates, bins, targets, 4),
+        )
+        for pool, pool_bins, pool_targets, min_openings in cases:
+            with (
+                patch.object(seed624, "STONE_TARGETS", pool_targets),
+                patch.object(seed624, "BIN_ORDER", pool_bins),
+                patch.object(seed624, "MIN_OPENING_CLUSTERS", min_openings),
+                patch.object(seed624, "MAX_SELECTION_NODES", 8),
+            ):
+                node_reports = []
+                for _ in range(2):
+                    with self.assertRaises(seed624.ShortfallError) as error:
+                        seed624.select_cohort(pool)
+                    node_reports.append(error.exception.report)
+            self.assertEqual(node_reports[0]["reason"], "optimizer_resource_limit")
+            self.assertEqual(node_reports[0]["limit"], "node_limit")
+            self.assertEqual(node_reports[0]["nodes"], 9)
+            self.assertEqual(node_reports[0]["nodes"], node_reports[1]["nodes"])
+            with patch.object(independent, "MAX_SELECTION_NODES", 8):
+                with self.assertRaisesRegex(
+                    ValueError, "verifier_optimizer_node_limit"
+                ):
+                    independent._reconstruct_selection(pool, pool_targets, min_openings)
+            with patch(
+                "ml.alphazero_lite.verify_seed624_prospective_benchmark.time.monotonic",
+                side_effect=[0.0, 31.0, 31.0],
+            ):
+                with self.assertRaisesRegex(
+                    ValueError, "verifier_optimizer_resource_limit"
+                ):
+                    independent._reconstruct_selection(pool, pool_targets, min_openings)
+
+            for _ in range(2):
+                with (
+                    patch.object(seed624, "STONE_TARGETS", pool_targets),
+                    patch.object(seed624, "BIN_ORDER", pool_bins),
+                    patch.object(seed624, "MIN_OPENING_CLUSTERS", min_openings),
+                    patch.object(seed624, "MAX_SELECTION_NODES", 250_000),
+                    patch.object(seed624, "MAX_SELECTION_SECONDS", 30),
+                    patch(
+                        "ml.alphazero_lite.seed624_prospective_benchmark.time.monotonic",
+                        side_effect=[0.0, 31.0, 31.0],
+                    ),
+                ):
+                    with self.assertRaises(seed624.ShortfallError) as timeout_error:
+                        seed624.select_cohort(pool)
+                self.assertEqual(
+                    timeout_error.exception.report["reason"],
+                    "optimizer_resource_limit",
+                )
+                self.assertEqual(
+                    timeout_error.exception.report["limit"], "time_seconds"
+                )
+                self.assertEqual(timeout_error.exception.report["nodes"], 1)
+
     def test_invalid_authorization_cannot_start_generation(self) -> None:
         with self.assertRaisesRegex(PermissionError, "execution_freeze_file_required"):
             seed624.generate_population({}, Path("unused"))
@@ -458,6 +722,11 @@ class Seed624SyntheticTests(unittest.TestCase):
             freeze = {
                 "schema": "seed624-execution-freeze-v1",
                 "status": "authorized",
+                "production_resource_limits": {
+                    "wall_seconds": 3600,
+                    "cpu_seconds": 3600,
+                    "process_rss_bytes": 4 * 1024**3,
+                },
                 "project_owner_identity": "synthetic-fixture-owner",
                 "execution_scope": seed624.EXECUTION_SCOPE,
             }
@@ -587,6 +856,11 @@ class Seed624SyntheticTests(unittest.TestCase):
         freeze = {
             "schema": "seed624-execution-freeze-v1",
             "status": "authorized",
+            "production_resource_limits": {
+                "wall_seconds": 3600,
+                "cpu_seconds": 3600,
+                "process_rss_bytes": 4 * 1024**3,
+            },
             "project_owner_identity": "synthetic-fixture-owner",
             "execution_scope": seed624.EXECUTION_SCOPE,
             "git_commit": seed624.current_git_commit(),
@@ -596,6 +870,7 @@ class Seed624SyntheticTests(unittest.TestCase):
                 "master_seed": seed624.MASTER_SEED,
                 "opening_target": 1,
                 "opening_reserve": 512,
+                "invalid_prefix_policy": seed624.OPENING_INVALID_PREFIX_POLICY,
                 "prefix_actions": 8,
                 "games_per_opening": 8,
                 "continuation_action_limit": 200,
@@ -631,6 +906,7 @@ class Seed624SyntheticTests(unittest.TestCase):
                 "workers": 1,
                 "runtime_limit_seconds": seed624.MAX_SELECTION_SECONDS,
                 "node_limit": seed624.MAX_SELECTION_NODES,
+                "time_check_interval_nodes": seed624.SELECTION_TIME_CHECK_INTERVAL_NODES,
                 "working_memory_limit_bytes": seed624.MAX_SELECTION_WORKING_BYTES,
             },
         }
@@ -660,8 +936,36 @@ class Seed624SyntheticTests(unittest.TestCase):
             "generation": {
                 "master_seed": seed624.MASTER_SEED,
                 "opening_seeds_consumed": [0],
+                "invalid_prefix_policy": seed624.OPENING_INVALID_PREFIX_POLICY,
+                "opening_attempts": [
+                    {
+                        "opening_index": 0,
+                        "seed": opening["seed"],
+                        "status": "accepted",
+                        "canonical_identity": opening["canonical_identity"],
+                        "production_float32_identity": opening[
+                            "production_float32_identity"
+                        ],
+                    }
+                ],
+                "opening_rejections": [],
             },
             "openings": [opening],
+            "opening_attempts_sha256": seed624.sha256(
+                seed624.canonical_bytes(
+                    [
+                        {
+                            "opening_index": 0,
+                            "seed": opening["seed"],
+                            "status": "accepted",
+                            "canonical_identity": opening["canonical_identity"],
+                            "production_float32_identity": opening[
+                                "production_float32_identity"
+                            ],
+                        }
+                    ]
+                )
+            ),
             "opening_inventory_sha256": seed624.sha256(
                 seed624.canonical_bytes([opening])
             ),
@@ -673,6 +977,9 @@ class Seed624SyntheticTests(unittest.TestCase):
             ),
             "aggregate_counts": {
                 "openings": 1,
+                "opening_seed_indexes_consumed": 1,
+                "invalid_opening_prefixes": 0,
+                "duplicate_openings": 0,
                 "games": 8,
                 "candidates": len(screened),
                 "confirmed_known_exposure": 0,
@@ -693,6 +1000,7 @@ class Seed624SyntheticTests(unittest.TestCase):
                     "input_memory_limit_bytes": seed624.MAX_SELECTION_INPUT_BYTES,
                     "input_bytes": seed624.deep_size_bytes(screened),
                     "node_limit": seed624.MAX_SELECTION_NODES,
+                    "time_check_interval_nodes": seed624.SELECTION_TIME_CHECK_INTERVAL_NODES,
                     "working_memory_limit_bytes": seed624.MAX_SELECTION_WORKING_BYTES,
                     "peak_working_bytes": 0,
                     "elapsed_seconds": 0.0,
@@ -800,6 +1108,11 @@ class Seed624SyntheticTests(unittest.TestCase):
         freeze = {
             "schema": "seed624-execution-freeze-v1",
             "status": "authorized",
+            "production_resource_limits": {
+                "wall_seconds": 3600,
+                "cpu_seconds": 3600,
+                "process_rss_bytes": 4 * 1024**3,
+            },
             "project_owner_identity": "synthetic-fixture-owner",
             "execution_scope": seed624.EXECUTION_SCOPE,
             "git_commit": seed624.current_git_commit(),
@@ -809,6 +1122,7 @@ class Seed624SyntheticTests(unittest.TestCase):
                 "master_seed": seed624.MASTER_SEED,
                 "opening_target": 2,
                 "opening_reserve": 512,
+                "invalid_prefix_policy": seed624.OPENING_INVALID_PREFIX_POLICY,
                 "prefix_actions": 8,
                 "games_per_opening": 8,
                 "continuation_action_limit": 200,
@@ -842,6 +1156,7 @@ class Seed624SyntheticTests(unittest.TestCase):
                 "workers": 1,
                 "runtime_limit_seconds": seed624.MAX_SELECTION_SECONDS,
                 "node_limit": seed624.MAX_SELECTION_NODES,
+                "time_check_interval_nodes": seed624.SELECTION_TIME_CHECK_INTERVAL_NODES,
                 "working_memory_limit_bytes": seed624.MAX_SELECTION_WORKING_BYTES,
             },
             "membership_snapshot_sha256": target_hashes,
@@ -884,8 +1199,38 @@ class Seed624SyntheticTests(unittest.TestCase):
             "generation": {
                 "master_seed": seed624.MASTER_SEED,
                 "opening_seeds_consumed": [0, 1],
+                "invalid_prefix_policy": seed624.OPENING_INVALID_PREFIX_POLICY,
+                "opening_attempts": [
+                    {
+                        "opening_index": opening["opening_index"],
+                        "seed": opening["seed"],
+                        "status": "accepted",
+                        "canonical_identity": opening["canonical_identity"],
+                        "production_float32_identity": opening[
+                            "production_float32_identity"
+                        ],
+                    }
+                    for opening in openings
+                ],
+                "opening_rejections": [],
             },
             "openings": openings,
+            "opening_attempts_sha256": seed624.sha256(
+                seed624.canonical_bytes(
+                    [
+                        {
+                            "opening_index": opening["opening_index"],
+                            "seed": opening["seed"],
+                            "status": "accepted",
+                            "canonical_identity": opening["canonical_identity"],
+                            "production_float32_identity": opening[
+                                "production_float32_identity"
+                            ],
+                        }
+                        for opening in openings
+                    ]
+                )
+            ),
             "opening_inventory_sha256": seed624.sha256(
                 seed624.canonical_bytes(openings)
             ),
@@ -897,6 +1242,9 @@ class Seed624SyntheticTests(unittest.TestCase):
             ),
             "aggregate_counts": {
                 "openings": 2,
+                "opening_seed_indexes_consumed": 2,
+                "invalid_opening_prefixes": 0,
+                "duplicate_openings": 0,
                 "games": len(games),
                 "candidates": len(screened),
                 "confirmed_known_exposure": sum(
