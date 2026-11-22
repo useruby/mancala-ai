@@ -1012,7 +1012,8 @@ class Seed624SyntheticTests(unittest.TestCase):
         for source in evidence.values():
             source["sha256"] = seed624.sha256(seed624.canonical_bytes(source["rows"]))
         evidence["source_provenance"] = {
-            "authenticated": False,
+            "authenticated": True,
+            "crosswalk_status": "complete",
             "B512": [],
             "S615": [],
             "protected_holdout": [],
@@ -1029,7 +1030,7 @@ class Seed624SyntheticTests(unittest.TestCase):
         evidence["source_provenance"]["sha256"] = provenance_hash
         for source in evidence.values():
             if isinstance(source, dict) and "rows" in source:
-                source["authenticated"] = False
+                source["authenticated"] = True
         membership_hashes = {
             name: source["sha256"]
             for name, source in evidence.items()
@@ -1275,7 +1276,8 @@ class Seed624SyntheticTests(unittest.TestCase):
         for value in evidence.values():
             value["sha256"] = seed624.sha256(seed624.canonical_bytes(value["rows"]))
         provenance = {
-            "authenticated": False,
+            "authenticated": True,
+            "crosswalk_status": "complete",
             "B512": [],
             "S615": [],
             "protected_holdout": [],
@@ -1292,7 +1294,7 @@ class Seed624SyntheticTests(unittest.TestCase):
         evidence["source_provenance"] = provenance
         for source in evidence.values():
             if isinstance(source, dict) and "rows" in source:
-                source["authenticated"] = False
+                source["authenticated"] = True
         target_hashes = {
             name: evidence[name]["sha256"]
             for name in ("B512", "S615", "protected_holdout")

@@ -453,8 +453,12 @@ def _expected_screened(
             floats.add(fid)
         inventory[name] = ids, floats
     prov = evidence.get("source_provenance", {})
-    prov_complete = expected_provenance_hash is not None
-    if prov_complete:
+    prov_authenticated = expected_provenance_hash is not None
+    if prov_authenticated:
+        if not prov:
+            raise ValueError("source_provenance_missing")
+        if prov.get("authenticated") is not True:
+            raise ValueError("source_provenance_unauthenticated")
         prov_payload = {
             key: value
             for key, value in prov.items()
@@ -463,6 +467,25 @@ def _expected_screened(
         prov_hash = _sha(_canonical(prov_payload))
         if prov.get("sha256") != prov_hash or expected_provenance_hash != prov_hash:
             raise ValueError("source_provenance_hash_mismatch")
+    elif prov.get("authenticated") is True:
+        raise ValueError("source_provenance_hash_required")
+    prov_crosswalkable = (
+        prov_authenticated and prov.get("crosswalk_status") == "complete"
+    )
+    if prov_authenticated and prov.get("crosswalk_status") not in {
+        "complete",
+        "authenticated_non_crosswalkable",
+    }:
+        raise ValueError("source_provenance_crosswalk_status_invalid")
+    if (
+        prov.get("crosswalk_status") == "authenticated_non_crosswalkable"
+        and prov.get("crosswalk_rows") != []
+    ):
+        raise ValueError("source_provenance_crosswalk_claim_invalid")
+    if prov_crosswalkable and any(
+        not isinstance(prov.get(name), list) for name in names
+    ):
+        raise ValueError("source_provenance_incomplete")
     result = []
     for row in candidates:
         cid, fid = row["canonical_identity"], row["production_float32_identity"]
@@ -470,27 +493,26 @@ def _expected_screened(
             name: cid in ids or fid in floats
             for name, (ids, floats) in inventory.items()
         }
-        linked = False
-        if prov_complete:
-            for name in names:
-                entries = prov.get(name)
-                if not isinstance(entries, list):
-                    raise ValueError(f"source_provenance_missing:{name}")
-                linked |= any(
-                    entry.get("opening_identity") == row["opening_identity"]
-                    or entry.get("game_id") == row["game_id"]
-                    for entry in entries
-                )
+        linked: bool | None = False if prov_crosswalkable else None
+        if prov_crosswalkable:
+            linked = any(
+                entry.get("opening_identity") == row["opening_identity"]
+                or entry.get("game_id") == row["game_id"]
+                for name in names
+                for entry in prov[name]
+            )
         status = (
             "confirmed_known_exposure"
             if any(hits.values()) or linked
             else "known_exposure_nonmatch_inherited_PE4_unresolved"
-            if prov_complete
+            if prov_authenticated
             else "invalid_or_insufficiently_authenticated_evidence"
         )
         if (
             row.get("exposure") != hits
             or row.get("source_provenance_match") != linked
+            or row.get("source_provenance_status")
+            != prov.get("crosswalk_status", "missing_or_unauthenticated")
             or row.get("classification") != status
         ):
             raise ValueError("exposure_classification_mismatch")
@@ -847,6 +869,7 @@ def verify_bundle(bundle_path: Path) -> dict[str, Any]:
         "classification",
         "membership_evidence_sha256",
         "inherited_PE4_exposure",
+        "source_provenance_status",
     }
     if len(expected_candidates) != len(candidate_rows):
         raise ValueError("candidate_inventory_omitted_or_added_rows")
