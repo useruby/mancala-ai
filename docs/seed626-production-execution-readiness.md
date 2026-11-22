@@ -21,25 +21,31 @@ authorization requirement.
 
 ## Failure receipts and attempts
 
-The production caller must use `execute_with_failure_receipts`. It emits one
-JSON receipt via exclusive create (`O_EXCL`, mode 0600), flush, and `fsync`,
-then re-raises the original execution failure. The receipt identifies freeze
-digest, authorized run identity, category, exception and message, partial
-output path/state, and the complete structured shortfall report when available.
-Categories distinguish `opening_reserve_exhaustion`,
-`insufficient_stone_bin_supply`, `mathematical_infeasibility`,
-`selector_resource_exhaustion`, `verification_or_identity_failure`, and
-`unexpected_execution_exception`. Resource limits are never reported as
-mathematical infeasibility. Opening rejection attempts are retained in the
-structured reserve report. A receipt collision fails without replacement; an
-attempt is never retried automatically. Any already-written output files are
-left in place as forensic evidence. External `SIGKILL`/OOM termination cannot
-be caught in-process; the supervisor must write the corresponding receipt.
+The production caller must use `execute_with_failure_receipts`. Before running,
+it authenticates the exact freeze bytes and owner signature, then requires the
+caller run identity and receipt path to match the signed freeze fields exactly.
+An authenticated receipt's run identity, freeze digest, and output path are read
+only from that authenticated binding, never caller data. It uses exclusive
+creation (`O_EXCL`, mode 0600), flushes and fsyncs file contents, then fsyncs the
+pre-existing parent directory. A collision leaves the prior receipt untouched;
+the receipt writer does not create directories or alter other frozen paths.
 
-Freeze `authorized_run_identity` and a dedicated create-only receipt path before
-authorization. Receipt storage must be outside the population directory and on
-the same durable evidence volume; the supervisor additionally records its
-termination signal/reason. Preserve partial output trees without cleanup.
+Preflight errors before successful authentication use the distinct
+`seed624-unauthenticated-preflight-failure-v1` record schema, with null freeze
+digest and null authorized run identity. They must never imply that an
+authorized run began. Authenticated execution failures use
+`seed624-authenticated-execution-failure-v1`. The complete category enum shared
+by implementation, freeze template, and tests is: `opening_reserve_exhaustion`,
+`insufficient_stone_bin_supply`, `mathematical_infeasibility`,
+`selector_resource_exhaustion`, `verification_or_identity_failure`,
+`unexpected_execution_exception`, `external_resource_limit_termination`, and
+`preflight_failure`. Resource limits are never classified as mathematical
+infeasibility. Opening rejection attempts are retained in structured reserve
+diagnostics. No automatic retry occurs. If receipt writing fails, the original
+execution exception is re-raised with the receipt-write exception attached as
+an exception note; neither error is discarded and no evidence is overwritten.
+External `SIGKILL`/OOM termination is recorded by the supervisor as
+`external_resource_limit_termination`, using the same signed binding.
 
 ## External resource enforcement (required harness)
 

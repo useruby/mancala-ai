@@ -48,6 +48,18 @@ MAX_SELECTION_WORKING_BYTES = 64 * 1024 * 1024
 # production allowlist deliberately prevents approval by caller-supplied keys.
 TRUSTED_PROJECT_OWNER_KEYS: dict[str, dict[str, str]] = {}
 EXECUTION_SCOPE = "model-independent-generation-and-screening"
+FAILURE_CATEGORIES = frozenset(
+    {
+        "opening_reserve_exhaustion",
+        "insufficient_stone_bin_supply",
+        "mathematical_infeasibility",
+        "selector_resource_exhaustion",
+        "verification_or_identity_failure",
+        "unexpected_execution_exception",
+        "external_resource_limit_termination",
+        "preflight_failure",
+    }
+)
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE_FILES = (
     "ml/alphazero_lite/seed624_prospective_benchmark.py",
@@ -438,6 +450,10 @@ class ShortfallError(ValueError):
     def __init__(self, report: dict[str, Any]):
         self.report = report
         super().__init__(json.dumps(report, sort_keys=True))
+
+
+class ExternalResourceLimitError(RuntimeError):
+    """Supervisor reported termination for an independently enforced limit."""
 
 
 def deduplicate_candidates(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -882,6 +898,20 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
         or freeze.get("status") != "authorized"
         or freeze.get("project_owner_identity") != owner_identity
         or freeze.get("execution_scope") != EXECUTION_SCOPE
+        or authorization.get("authorized_run_identity")
+        != freeze.get("authorized_run_identity")
+        or authorization.get("failure_receipt_path")
+        != freeze.get("failure_receipt_contract", {}).get("create_only_path")
+        or freeze.get("failure_receipt_contract", {}).get("schema")
+        != "seed624-failure-receipt-contract-v2"
+        or freeze.get("failure_receipt_contract", {}).get("authenticated_record_schema")
+        != "seed624-authenticated-execution-failure-v1"
+        or freeze.get("failure_receipt_contract", {}).get(
+            "unauthenticated_preflight_record_schema"
+        )
+        != "seed624-unauthenticated-preflight-failure-v1"
+        or freeze.get("failure_receipt_contract", {}).get("categories")
+        != sorted(FAILURE_CATEGORIES)
         or str(output) not in freeze.get("create_only_output_paths", [])
         or freeze.get("git_commit") != current_git_commit()
         or not isinstance(expected_sources, dict)
@@ -1039,47 +1069,135 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
     }
 
 
+def _failure_receipt_binding(
+    authorization: dict[str, Any], receipt_path: Path | None = None
+) -> dict[str, Any]:
+    """Authenticate the exact freeze and caller-supplied receipt bindings."""
+    freeze_path = authorization.get("execution_freeze_path")
+    if not freeze_path or not Path(freeze_path).is_file():
+        raise PermissionError("execution_freeze_file_required")
+    freeze_raw = Path(freeze_path).read_bytes()
+    digest = sha256(freeze_raw)
+    if digest != authorization.get("execution_freeze_sha256"):
+        raise PermissionError("execution_freeze_hash_mismatch")
+    freeze = json.loads(freeze_raw)
+    approval_path = authorization.get("owner_approval_record_path")
+    if not approval_path or not Path(approval_path).is_file():
+        raise PermissionError("signed_owner_approval_record_required")
+    approval = json.loads(Path(approval_path).read_bytes())
+    owner = verify_owner_approval_record(approval, digest, EXECUTION_SCOPE)
+    if (
+        freeze.get("schema") != "seed624-execution-freeze-v1"
+        or freeze.get("status") != "authorized"
+        or freeze.get("execution_scope") != EXECUTION_SCOPE
+        or freeze.get("project_owner_identity") != owner
+        or freeze.get("failure_receipt_contract", {}).get("schema")
+        != "seed624-failure-receipt-contract-v2"
+        or freeze.get("failure_receipt_contract", {}).get("authenticated_record_schema")
+        != "seed624-authenticated-execution-failure-v1"
+        or freeze.get("failure_receipt_contract", {}).get(
+            "unauthenticated_preflight_record_schema"
+        )
+        != "seed624-unauthenticated-preflight-failure-v1"
+        or freeze.get("failure_receipt_contract", {}).get("categories")
+        != sorted(FAILURE_CATEGORIES)
+    ):
+        raise PermissionError("failure_receipt_freeze_not_authorized")
+    frozen_run_identity = freeze.get("authorized_run_identity")
+    frozen_receipt_path = freeze.get("failure_receipt_contract", {}).get(
+        "create_only_path"
+    )
+    if not isinstance(frozen_run_identity, str) or not frozen_run_identity:
+        raise PermissionError("failure_receipt_run_identity_missing_from_freeze")
+    if not isinstance(frozen_receipt_path, str) or not frozen_receipt_path:
+        raise PermissionError("failure_receipt_path_missing_from_freeze")
+    if authorization.get("authorized_run_identity") != frozen_run_identity:
+        raise PermissionError("failure_receipt_run_identity_mismatch")
+    if authorization.get("failure_receipt_path") != frozen_receipt_path:
+        raise PermissionError("failure_receipt_path_mismatch")
+    if receipt_path is not None and str(receipt_path) != frozen_receipt_path:
+        raise PermissionError("failure_receipt_path_mismatch")
+    return {
+        "freeze_sha256": digest,
+        "freeze_raw": freeze_raw,
+        "freeze": freeze,
+        "approval": approval,
+        "owner_identity": owner,
+        "authorized_run_identity": frozen_run_identity,
+        "failure_receipt_path": Path(frozen_receipt_path),
+    }
+
+
+def _create_durable_json(path: Path, payload: dict[str, Any]) -> Path:
+    """Exclusive-create JSON, fsyncing both file contents and directory entry."""
+    if not path.parent.is_dir():
+        raise FileNotFoundError(
+            f"failure_receipt_parent_directory_missing:{path.parent}"
+        )
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    try:
+        with os.fdopen(descriptor, "wb") as stream:
+            stream.write(canonical_bytes(payload) + b"\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        directory_fd = os.open(path.parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+    except BaseException:
+        # Do not remove a possibly complete or partially written forensic record.
+        raise
+    return path
+
+
 def write_failure_receipt(
     *,
     authorization: dict[str, Any],
     category: str,
     diagnostic: dict[str, Any],
-    receipt_path: Path | None = None,
 ) -> Path:
-    """Create a durable, create-only receipt for a failed execution attempt."""
-    freeze_path = authorization.get("execution_freeze_path")
-    freeze_digest = authorization.get("execution_freeze_sha256")
-    freeze: dict[str, Any] = {}
-    if freeze_path and Path(freeze_path).is_file():
-        try:
-            freeze = json.loads(Path(freeze_path).read_bytes())
-        except (OSError, json.JSONDecodeError):
-            pass
-    run_identity = authorization.get("authorized_run_identity") or freeze.get(
-        "authorized_run_identity"
-    )
-    if receipt_path is None:
-        receipt_path = Path(
-            authorization.get("failure_receipt_path", "seed624-failure-receipt.json")
-        )
+    """Write an authenticated receipt whose identity/path come from a signed freeze."""
+    if category not in FAILURE_CATEGORIES - {"preflight_failure"}:
+        raise ValueError("invalid_authenticated_failure_category")
+    binding = _failure_receipt_binding(authorization)
     payload = {
-        "schema": "seed624-failure-receipt-v1",
-        "execution_freeze_sha256": freeze_digest,
-        "authorized_run_identity": run_identity,
+        "schema": "seed624-authenticated-execution-failure-v1",
+        "execution_freeze_sha256": binding["freeze_sha256"],
+        "authorized_run_identity": binding["authorized_run_identity"],
         "failure_category": category,
         "diagnostic": diagnostic,
     }
-    receipt_path.parent.mkdir(parents=True, exist_ok=True)
-    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
-    descriptor = os.open(receipt_path, flags, 0o600)
-    with os.fdopen(descriptor, "wb") as stream:
-        stream.write(canonical_bytes(payload) + b"\n")
-        stream.flush()
-        os.fsync(stream.fileno())
-    return receipt_path
+    return _create_durable_json(binding["failure_receipt_path"], payload)
+
+
+def _write_preflight_failure(
+    *, authorization: dict[str, Any], requested_path: Path | None, error: BaseException
+) -> Path:
+    """Record an unauthenticated preflight failure without claiming a run identity."""
+    path = requested_path or Path(
+        authorization.get("failure_receipt_path", "seed624-preflight-failure.json")
+    )
+    return _create_durable_json(
+        path,
+        {
+            "schema": "seed624-unauthenticated-preflight-failure-v1",
+            "execution_freeze_sha256": None,
+            "authorized_run_identity": None,
+            "failure_category": "preflight_failure",
+            "diagnostic": {
+                "exception_type": type(error).__name__,
+                "message": str(error),
+                "claimed_freeze_sha256": authorization.get("execution_freeze_sha256"),
+                "claimed_run_identity": None,
+            },
+        },
+    )
 
 
 def _failure_category(error: BaseException) -> str:
+    if isinstance(error, ExternalResourceLimitError):
+        return "external_resource_limit_termination"
     if isinstance(error, ShortfallError):
         reason = str(error.report.get("reason", ""))
         if reason == "opening_reserve_exhausted":
@@ -1090,7 +1208,7 @@ def _failure_category(error: BaseException) -> str:
             return "mathematical_infeasibility"
         if "resource_limit" in reason:
             return "selector_resource_exhaustion"
-        return "generation_shortfall"
+        return "unexpected_execution_exception"
     if isinstance(error, (PermissionError, ValueError, KeyError, FileNotFoundError)):
         return "verification_or_identity_failure"
     return "unexpected_execution_exception"
@@ -1099,7 +1217,22 @@ def _failure_category(error: BaseException) -> str:
 def execute_with_failure_receipts(
     authorization: dict[str, Any], output: Path, *, receipt_path: Path | None = None
 ) -> dict[str, Any]:
-    """Run the production entry point and persist evidence before re-raising."""
+    """Run after authenticating receipt bindings; preserve both failures if writing fails."""
+    try:
+        _failure_receipt_binding(authorization, receipt_path)
+    except BaseException as preflight_error:
+        try:
+            _write_preflight_failure(
+                authorization=authorization,
+                requested_path=receipt_path,
+                error=preflight_error,
+            )
+        except BaseException as receipt_error:
+            preflight_error.add_note(
+                f"Unauthenticated preflight receipt also failed: "
+                f"{type(receipt_error).__name__}: {receipt_error}"
+            )
+        raise
     try:
         return generate_population(authorization, output)
     except BaseException as error:
@@ -1111,12 +1244,17 @@ def execute_with_failure_receipts(
         }
         if isinstance(error, ShortfallError):
             diagnostic["report"] = error.report
-        write_failure_receipt(
-            authorization=authorization,
-            category=_failure_category(error),
-            diagnostic=diagnostic,
-            receipt_path=receipt_path,
-        )
+        try:
+            write_failure_receipt(
+                authorization=authorization,
+                category=_failure_category(error),
+                diagnostic=diagnostic,
+            )
+        except BaseException as receipt_error:
+            error.add_note(
+                f"Authenticated failure receipt also failed: "
+                f"{type(receipt_error).__name__}: {receipt_error}"
+            )
         raise
 
 
@@ -1194,15 +1332,12 @@ def proposed_freeze_schema() -> dict[str, Any]:
             },
             "authorized_run_identity": None,
             "failure_receipt_contract": {
-                "schema": "seed624-failure-receipt-v1",
+                "schema": "seed624-failure-receipt-contract-v2",
+                "authenticated_record_schema": "seed624-authenticated-execution-failure-v1",
+                "unauthenticated_preflight_record_schema": "seed624-unauthenticated-preflight-failure-v1",
                 "create_only_path": None,
                 "categories": [
-                    "opening_reserve_exhaustion",
-                    "insufficient_stone_bin_supply",
-                    "mathematical_infeasibility",
-                    "selector_resource_exhaustion",
-                    "verification_or_identity_failure",
-                    "unexpected_execution_exception",
+                    *sorted(FAILURE_CATEGORIES),
                 ],
                 "preserve_partial_artifacts": True,
                 "automatic_retry": False,
