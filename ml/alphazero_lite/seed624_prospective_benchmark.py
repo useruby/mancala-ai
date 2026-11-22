@@ -70,6 +70,8 @@ SOURCE_FILES = (
     "ml/alphazero_lite/requirements-seed624-prospective.txt",
     "ml/alphazero_lite/seed628_authenticated_screening.py",
     "ml/alphazero_lite/verify_seed628_authenticated_screening.py",
+    "ml/alphazero_lite/seed629_execution_supervisor.py",
+    "ml/alphazero_lite/verify_seed629_supervisor.py",
 )
 
 
@@ -1327,6 +1329,15 @@ def proposed_freeze_schema() -> dict[str, Any]:
                 "version": None,
                 "sha256": None,
             },
+            "supervisor_contract": {
+                "implementation": "seed629-cgroup-v2-v1",
+                "source_file": "ml/alphazero_lite/seed629_execution_supervisor.py",
+                "source_sha256": None,
+                "evidence_verifier": "ml.alphazero_lite.verify_seed629_supervisor",
+                "execution_scope": "dedicated-cgroup-v2-with-hard-filesystem-quota",
+                "memory_contract": "memory.max is conservatively below frozen process RSS bytes; cgroup memory accounting is not RSS-equivalent",
+                "storage_contract": "hard project/filesystem quota covers output and temporary storage; unsupported quota fails closed",
+            },
             "rules_identity": {
                 "rule_id": "historical-kalah-rules",
                 "rule_version": "repository-kalah-rules-v1",
@@ -1383,6 +1394,9 @@ def proposed_freeze_schema() -> dict[str, Any]:
             "stone_bin_weights": STONE_BIN_WEIGHTS,
             "output_schema": SCHEMA,
             "create_only_output_paths": [],
+            "temporary_path": None,
+            "supervisor_result_path": None,
+            "worker_command": None,
             "production_resource_limits": {
                 "wall_seconds": None,
                 "cpu_seconds": None,
