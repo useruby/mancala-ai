@@ -1331,6 +1331,7 @@ def proposed_freeze_schema() -> dict[str, Any]:
             },
             "supervisor_contract": {
                 "implementation": "seed629-cgroup-v2-v1",
+                "launch_status": "disabled_pending_verified_hard_quota_backend",
                 "source_file": "ml/alphazero_lite/seed629_execution_supervisor.py",
                 "source_sha256": None,
                 "evidence_verifier": "ml.alphazero_lite.verify_seed629_supervisor",

@@ -17,10 +17,17 @@ LIMITS = {
 RESOURCE_CATEGORIES = {
     "cpu_exhaustion",
     "memory_oom",
+    "memory_limit",
     "wall_time_expiration",
     "storage_exhaustion",
     "concurrency_rejection",
 }
+NON_RESOURCE_CATEGORIES = {"residual_descendants", "ordinary_worker_failure"}
+TRUSTED_OS_EVIDENCE_FUTURE = (
+    "independently collected raw cgroupfs control/stat/event files plus kernel identity, "
+    "and filesystem-native quota records, captured by a separately privileged "
+    "root-owned collector and authenticated outside the publisher"
+)
 
 
 def _sha(raw: bytes) -> str:
@@ -71,13 +78,25 @@ def verify(
     events = measurements.get("memory_events", {})
     if events.get("oom_kill", 0) and result.get("breach_category") != "memory_oom":
         raise ValueError("oom_evidence_misclassified")
-    if result.get("breach_category") not in RESOURCE_CATEGORIES | {None}:
+    category = result.get("breach_category")
+    if category not in RESOURCE_CATEGORIES | NON_RESOURCE_CATEGORIES | {None} and not (
+        isinstance(category, str)
+        and category.startswith("external_termination_signal_")
+    ):
         raise ValueError("unknown_resource_category")
     if result.get("breach_category") and result.get("status") != "failure":
         raise ValueError("resource_failure_claimed_as_success")
+    resource_breach = result.get("breach_category") in RESOURCE_CATEGORIES
+    if resource_breach and receipt_path is None:
+        raise ValueError("frozen_failure_receipt_required_for_resource_termination")
     if receipt_path is not None:
+        frozen_receipt_path = freeze.get("failure_receipt_contract", {}).get(
+            "create_only_path"
+        )
+        if str(receipt_path) != frozen_receipt_path:
+            raise ValueError("failure_receipt_path_not_frozen")
         receipt = json.loads(receipt_path.read_bytes())
-        if result.get("breach_category") and (
+        if resource_breach and (
             receipt.get("schema") != "seed624-authenticated-execution-failure-v1"
             or receipt.get("failure_category") != "external_resource_limit_termination"
             or receipt.get("execution_freeze_sha256") != _sha(freeze_raw)
@@ -92,7 +111,10 @@ def verify(
         if path.exists() and path.is_symlink():
             raise ValueError("artifact_path_is_symlink")
     return {
-        "status": "verified",
+        "status": "record_consistent_not_os_enforcement_verified",
+        "verification_scope": "record-format-and-internal-consistency-only",
+        "os_enforcement_verified": False,
+        "trusted_os_evidence_required": TRUSTED_OS_EVIDENCE_FUTURE,
         "execution_freeze_sha256": _sha(freeze_raw),
         "authorized_run_identity": result["authorized_run_identity"],
         "breach_category": result.get("breach_category"),

@@ -6,60 +6,59 @@ freeze were created. The production owner allowlists remain empty.**
 
 ## Supervisor contract
 
-`ml.alphazero_lite.seed629_execution_supervisor` accepts the existing Seed 624
-authenticated authorization binding; it does not accept keys or substitute an
-authorization scheme. It requires a pre-created delegated cgroup v2 with CPU,
-memory and pids controllers, writable `cgroup.procs`, and `cgroup.kill`. It
-applies `memory.max`, `memory.oom.group=1`, CPU accounting and `pids.max`, moves
-the gated worker before releasing it, polls `cpu.stat`, `memory.current`'s
-companion peak, and `memory.events`, and kills the whole cgroup on detected
-limits. The cgroup memory ceiling is 80% of the frozen RSS value by default;
-this is a conservative cap, not an assertion that cgroup memory accounting
-equals process RSS. CPU is cumulative `usage_usec`, not `CPUQuota`. Wall time is
-monotonic and enforced by the supervisor. Separate OS `flock` slots coordinate
-independent supervisor processes.
+`ml.alphazero_lite.seed629_execution_supervisor` retains the planned API and
+validates a pre-created, dedicated, empty cgroup-v2 hierarchy, controller set,
+ownership, canonical path, writable `cgroup.procs`, `cgroup.kill`, and memory,
+CPU and PID controls. Its empty-group `cgroup.kill` probe does not establish
+successful enforcement. Final-accounting classification covers CPU, memory
+events/peak, monotonic wall duration, residual descendants, and external signal
+termination. Cgroup memory is not equivalent to RSS; the planned cap is
+conservative. CPU accounting uses cumulative `usage_usec`, not `CPUQuota`.
 
-Output and scratch paths must be create-only and placed on a pre-provisioned
-quota-limited filesystem. The caller must provide the exact quota identity and
-limit matching the freeze. A production operator must establish that quota
-outside the process and independently audit its kernel/filesystem record; no
-generic quota-control interface exists across supported Linux filesystems.
-Unsupported quota, cgroup, or privilege configurations are blockers and must
-not fall back to unconfined execution. The result record is exclusive-create,
-durable JSON; partial paths and failure receipt hash are retained. Externally
-terminated worker receipts use Seed 624's existing
-`external_resource_limit_termination` category.
+**The launch path is unconditionally disabled.** `run_authorized()` raises
+before authorization parsing, path creation, or worker creation. The
+preflight also rejects unconditionally because there is no verified hard quota
+backend. Caller-supplied quota fields, environment variables, and synthetic
+flags cannot enable it. The Seed 624 proposal template records
+`disabled_pending_verified_hard_quota_backend`.
+
+Output and scratch paths require a hard combined quota. The current supervisor
+does not implement or trust caller-provided quota assertions; absence of a
+verified quota backend permanently blocks this launch path. Unsupported quota,
+cgroup, or privilege configurations never fall back to unconfined execution.
+Future resource termination records require the existing Seed 624 frozen,
+create-only `external_resource_limit_termination` receipt.
 
 ## Evidence verification
 
 Run `python -m ml.alphazero_lite.verify_seed629_supervisor RESULT FREEZE
---receipt RECEIPT` on a physically separate copy. The verifier reconstructs
-the exact freeze digest and run identity, compares frozen limits, checks cgroup
-measurements and resource classification, checks receipt identity/hash, and
-checks artifact paths for symlinks. It does not use a publisher success flag.
+--receipt RECEIPT` on a physically separate copy. It checks record-format and
+internal consistency only, and labels its result
+`record_consistent_not_os_enforcement_verified`; it never asserts OS
+enforcement based on publisher JSON. A claimed resource termination requires
+the exact frozen Seed 624 failure receipt. Future independent OS verification
+must additionally consume raw cgroupfs controls/statistics/events and
+filesystem-native quota records collected by a separate privileged,
+root-owned collector and authenticated outside the publisher. Kernel identity
+and collector provenance must also be independently pinned.
 
 ## Synthetic report and current status
 
-The dedicated synthetic worker supports bounded success, allocation, CPU,
-sleep, file-write and child-process modes. Available local checks are the
-unit/fail-closed tests. In this environment, privileged integration was not
-run: actual delegated cgroup v2 and hard project-quota setup have not been
-established. Therefore none of the five limits is reported as OS-enforcement
-verified. CPU, memory, wall time, concurrency and storage are **unit-tested
-only** for configuration/rejection logic; actual OS enforcement is **blocked**.
-The current tests intentionally do not claim enforcement based on mocked
-measurements.
+The synthetic worker supports bounded success, allocation, CPU, sleep,
+file-write and child-process modes. Privileged integration was not run: this
+host has no delegated writable worker cgroup or hard quota setup. No limit is
+OS-enforcement verified.
 
 | Limit | Status | Evidence |
 | --- | --- | --- |
-| Process memory | Blocked | Requires delegated memory controller and privileged OOM integration run |
-| Cumulative CPU seconds | Blocked | Requires delegated cgroup and privileged controlled CPU integration run |
-| Monotonic wall deadline | Blocked | Requires privileged cgroup termination integration run |
-| Cross-process concurrency | Unit-tested only | OS `flock` slots implemented; separate-process contention test still required |
-| Combined output/scratch quota | Blocked | Hard quota backend and privileged quota exhaustion test are host/filesystem-specific |
+| Process memory | Implemented; unit-tested classification; OS enforcement blocked | cgroup preflight/final OOM evidence logic; privileged OOM run unavailable |
+| Cumulative CPU seconds | Implemented; unit-tested boundaries; OS enforcement blocked | final `cpu.stat` classification; delegated cgroup unavailable |
+| Monotonic wall deadline | Implemented; unit-tested boundary; OS enforcement blocked | monotonic final-duration classification; privileged worker termination unavailable |
+| Cross-process concurrency | Implemented; unit-tested lock lifecycle; OS enforcement unverified | `flock` slot helper; cross-process contention integration not run |
+| Combined output/scratch quota | Blocked; launch disabled | No verified hard quota backend or privileged exhaustion test |
 
-Production readiness remains blocked on a verified quota backend, fixing and
-auditing the host path/ownership policy, completing the privileged synthetic
-matrix (including restart, receipt collision, partial preservation and copied
-evidence), and independent review. The freeze template remains
+Production readiness remains blocked on implementing and independently
+authenticating a hard quota backend, host path/ownership policy, completing the
+privileged synthetic matrix (including restart, receipt collision, partial
+preservation and copied evidence), and independent review. The freeze template remains
 `proposal_not_ready_or_approved`; this change neither signs nor authorizes it.

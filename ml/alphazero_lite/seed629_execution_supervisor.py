@@ -10,6 +10,7 @@ import fcntl
 import hashlib
 import os
 import platform
+import stat
 import subprocess
 import sys
 import time
@@ -41,6 +42,127 @@ def _read_int(path: Path, field: str) -> int:
     return int(values[field])
 
 
+def _acquire_slot(lock_path: Path, slots: int) -> int:
+    """Acquire one cross-process slot; caller owns and must close the descriptor."""
+    for slot in range(slots):
+        candidate = os.open(f"{lock_path}.{slot}", os.O_CREAT | os.O_RDWR, 0o600)
+        try:
+            fcntl.flock(candidate, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            return candidate
+        except BlockingIOError:
+            os.close(candidate)
+        except BaseException:
+            os.close(candidate)
+            raise
+    raise BlockingIOError("execution_concurrency_limit_reached")
+
+
+def _release_slot(descriptor: int) -> None:
+    if descriptor >= 0:
+        os.close(descriptor)
+
+
+def _cgroup2_mount_for(path: Path) -> Path:
+    resolved = path.resolve(strict=True)
+    for line in Path("/proc/self/mountinfo").read_text().splitlines():
+        left, separator, right = line.partition(" - ")
+        fields = right.split()
+        if separator and fields and fields[0] == "cgroup2":
+            mountpoint = Path(left.split()[4].replace("\\040", " ")).resolve()
+            if resolved == mountpoint or mountpoint in resolved.parents:
+                return mountpoint
+    raise PermissionError("cgroup2_hierarchy_mount_not_found")
+
+
+def _validate_cgroup(cgroup: Path) -> dict[str, str]:
+    """Verify an empty dedicated cgroup and writable control interfaces."""
+    if cgroup.is_symlink() or cgroup.resolve(strict=True) != cgroup.absolute():
+        raise PermissionError("cgroup_path_symlink_or_noncanonical")
+    _cgroup2_mount_for(cgroup)
+    owner = cgroup.stat().st_uid
+    if owner not in {0, os.geteuid()}:
+        raise PermissionError("unsafe_cgroup_owner")
+    for parent in (cgroup, *cgroup.parents):
+        if parent == Path("/"):
+            break
+        parent_mode = parent.stat().st_mode
+        if parent_mode & stat.S_IWOTH and not parent_mode & stat.S_ISVTX:
+            raise PermissionError("world_writable_cgroup_path_component")
+    required = (
+        "cgroup.procs",
+        "cgroup.kill",
+        "memory.max",
+        "memory.oom.group",
+        "cpu.max",
+        "pids.max",
+    )
+    for name in required:
+        interface = cgroup / name
+        if not interface.is_file() or not os.access(interface, os.W_OK):
+            raise PermissionError(f"cgroup_interface_unavailable:{name}")
+        descriptor = os.open(interface, os.O_WRONLY)
+        os.close(descriptor)
+    procs = (cgroup / "cgroup.procs").read_text().strip()
+    events = dict(
+        line.split() for line in (cgroup / "cgroup.events").read_text().splitlines()
+    )
+    if procs or events.get("populated") != "0":
+        raise PermissionError("dedicated_cgroup_must_be_empty")
+    (cgroup / "cgroup.kill").write_text("1")
+    events_after_probe = dict(
+        line.split() for line in (cgroup / "cgroup.events").read_text().splitlines()
+    )
+    if (cgroup / "cgroup.procs").read_text().strip() or events_after_probe.get(
+        "populated"
+    ) != "0":
+        raise PermissionError("cgroup_kill_empty_probe_failed")
+    controllers = set((cgroup / "cgroup.controllers").read_text().split())
+    if not {"cpu", "memory", "pids"}.issubset(controllers):
+        raise PermissionError("required_cgroup_controllers_unavailable")
+    return {
+        "controllers": " ".join(sorted(controllers)),
+        "populated": events["populated"],
+    }
+
+
+def classify_final_accounting(
+    *,
+    cpu_usage_usec: int,
+    memory_peak_bytes: int,
+    memory_cap_bytes: int,
+    memory_events: dict[str, int],
+    wall_seconds: float,
+    limits: dict[str, int],
+    exit_status: int,
+    termination_signal: int | None,
+    residual_processes: bool,
+) -> str | None:
+    """Classify from final cgroup/clock observations, not just polling samples."""
+    if any(
+        memory_events.get(event, 0) for event in ("oom", "oom_kill", "oom_group_kill")
+    ):
+        return "memory_oom"
+    if cpu_usage_usec >= limits["cpu_seconds"] * 1_000_000:
+        return "cpu_exhaustion"
+    if wall_seconds >= limits["wall_seconds"]:
+        return "wall_time_expiration"
+    if memory_peak_bytes >= memory_cap_bytes:
+        return "memory_limit"
+    if residual_processes:
+        return "residual_descendants"
+    if termination_signal is not None:
+        return f"external_termination_signal_{termination_signal}"
+    if exit_status != 0:
+        return "ordinary_worker_failure"
+    return None
+
+
+def _memory_event_delta(
+    current: dict[str, int], baseline: dict[str, int]
+) -> dict[str, int]:
+    return {key: max(0, value - baseline.get(key, 0)) for key, value in current.items()}
+
+
 def _preflight(freeze: dict[str, Any], config: dict[str, Any]) -> tuple[Path, Path]:
     """Validate pre-provisioned cgroup/quota paths without creating them."""
     limits = freeze.get("production_resource_limits")
@@ -68,21 +190,14 @@ def _preflight(freeze: dict[str, Any], config: dict[str, Any]) -> tuple[Path, Pa
         raise PermissionError("cgroup_v2_unavailable")
     if not cgroup.is_dir() or not (cgroup / "cgroup.procs").is_file():
         raise PermissionError("precreated_delegated_cgroup_required")
-    controllers = (cgroup / "cgroup.controllers").read_text().split()
-    if not {"cpu", "memory", "pids"}.issubset(controllers):
-        raise PermissionError("required_cgroup_controllers_unavailable")
-    if not os.access(cgroup / "cgroup.procs", os.W_OK):
-        raise PermissionError("cgroup_write_privilege_required")
+    _validate_cgroup(cgroup)
     if output.exists() or scratch.exists():
         raise FileExistsError("output_and_temporary_paths_must_be_create_only")
     for path in (output.parent, scratch.parent):
         if not path.is_dir() or path.is_symlink():
             raise PermissionError("dedicated_path_parent_invalid")
-    if config.get("quota_enforced") is not True or not config.get("quota_identity"):
-        raise PermissionError("hard_combined_storage_quota_required")
-    if config.get("quota_bytes") != limits["output_and_temporary_storage_bytes"]:
-        raise PermissionError("storage_quota_limit_mismatch")
-    return cgroup, Path(config["coordination_lock"])
+    # Caller assertions and environment/config flags are not a trusted quota backend.
+    raise PermissionError("verified_hard_quota_backend_unavailable_launch_disabled")
 
 
 def _kill_cgroup(cgroup: Path) -> None:
@@ -110,6 +225,7 @@ def run_authorized(
     worker executes with new-session isolation and is moved into its dedicated
     cgroup before it is allowed to execute user code.
     """
+    raise PermissionError("seed629_launch_path_unavailable_pending_verified_hard_quota")
     binding = seed624._failure_receipt_binding(authorization)
     freeze = binding["freeze"]
     if not isinstance(command, list) or command != freeze.get("worker_command"):
@@ -121,30 +237,21 @@ def run_authorized(
         raise FileExistsError("execution_result_must_be_create_only")
     output = Path(config["output_path"])
     scratch = Path(config["temporary_path"])
-    lock_fd = os.open(lock_path, os.O_CREAT | os.O_RDWR, 0o600)
+    lock_fd = -1
     started = time.monotonic()
     process: subprocess.Popen[bytes] | None = None
     category: str | None = None
     cpu_usage_usec = 0
     memory_peak = 0
     memory_events: dict[str, int] = {}
+    memory_events_baseline: dict[str, int] = {}
     exit_status: int | None = None
     term_signal: int | None = None
     try:
         slots = config.get("lock_slots")
         if type(slots) is not int or slots != limits["execution_concurrency"]:
             raise PermissionError("coordination_slot_count_mismatch")
-        lock_fd = -1
-        for slot in range(slots):
-            candidate = os.open(f"{lock_path}.{slot}", os.O_CREAT | os.O_RDWR, 0o600)
-            try:
-                fcntl.flock(candidate, fcntl.LOCK_EX | fcntl.LOCK_NB)
-                lock_fd = candidate
-                break
-            except BlockingIOError:
-                os.close(candidate)
-        if lock_fd < 0:
-            raise BlockingIOError("execution_concurrency_limit_reached")
+        lock_fd = _acquire_slot(lock_path, slots)
         memory_cap = int(
             limits["process_rss_bytes"] * config.get("memory_safety_factor", 0.8)
         )
@@ -156,6 +263,13 @@ def run_authorized(
         (cgroup / "pids.max").write_text(str(config.get("tasks_max", 4096)))
         if int((cgroup / "memory.max").read_text()) != memory_cap:
             raise PermissionError("memory_ceiling_not_applied")
+        memory_events_baseline = {
+            key: int(value)
+            for key, value in (
+                line.split()
+                for line in (cgroup / "memory.events").read_text().splitlines()
+            )
+        }
         output.mkdir(mode=0o700)
         scratch.mkdir(mode=0o700)
         env = os.environ.copy()
@@ -206,10 +320,39 @@ def run_authorized(
         exit_status = process.wait()
         if exit_status < 0:
             term_signal = -exit_status
-        status = "success" if exit_status == 0 and category is None else "failure"
         cpu_usage_usec = _read_int(cgroup / "cpu.stat", "usage_usec")
         memory_peak = int((cgroup / "memory.peak").read_text())
+        memory_events = {
+            key: int(value)
+            for key, value in (
+                line.split()
+                for line in (cgroup / "memory.events").read_text().splitlines()
+            )
+        }
+        memory_events = _memory_event_delta(memory_events, memory_events_baseline)
         elapsed = time.monotonic() - started
+        residual_processes = bool((cgroup / "cgroup.procs").read_text().strip())
+        if residual_processes:
+            _kill_cgroup(cgroup)
+            residual_processes = bool((cgroup / "cgroup.procs").read_text().strip())
+        category = classify_final_accounting(
+            cpu_usage_usec=cpu_usage_usec,
+            memory_peak_bytes=memory_peak,
+            memory_cap_bytes=memory_cap,
+            memory_events=memory_events,
+            wall_seconds=elapsed,
+            limits=limits,
+            exit_status=exit_status,
+            termination_signal=term_signal,
+            residual_processes=residual_processes,
+        )
+        resource_breach = category in {
+            "memory_oom",
+            "memory_limit",
+            "cpu_exhaustion",
+            "wall_time_expiration",
+        }
+        status = "success" if exit_status == 0 and category is None else "failure"
         payload = {
             "schema": "seed629-supervisor-execution-result-v1",
             "status": status,
@@ -241,7 +384,7 @@ def run_authorized(
             "partial_artifacts": [str(output), str(scratch)],
             "receipt_sha256": None,
         }
-        if category:
+        if resource_breach:
             try:
                 receipt = seed624.write_failure_receipt(
                     authorization=authorization,
@@ -264,8 +407,7 @@ def run_authorized(
             process.wait()
         raise
     finally:
-        if lock_fd >= 0:
-            os.close(lock_fd)
+        _release_slot(lock_fd)
 
 
 def main() -> None:
