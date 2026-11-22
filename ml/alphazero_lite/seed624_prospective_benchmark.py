@@ -68,6 +68,8 @@ SOURCE_FILES = (
     "ml/alphazero_lite/input_encodings.py",
     "ml/alphazero_lite/self_play.py",
     "ml/alphazero_lite/requirements-seed624-prospective.txt",
+    "ml/alphazero_lite/seed628_authenticated_screening.py",
+    "ml/alphazero_lite/verify_seed628_authenticated_screening.py",
 )
 
 
@@ -169,6 +171,36 @@ def verify_owner_approval_record(
     except (KeyError, ValueError, TypeError, InvalidSignature) as error:
         raise PermissionError("owner_approval_signature_invalid") from error
     return str(record["project_owner_identity"])
+
+
+def authenticate_frozen_membership_evidence(
+    freeze: dict[str, Any], *, caller_evidence_path: str | None = None
+) -> dict[str, Any]:
+    """Load evidence only through the repository-pinned Seed 627 trust chain."""
+    if caller_evidence_path is not None:
+        raise PermissionError("caller_controlled_membership_evidence_forbidden")
+    from ml.alphazero_lite.seed628_authenticated_screening import (
+        authenticate_snapshot_bundle,
+        expected_provenance_hash,
+        expected_snapshot_hashes,
+    )
+
+    evidence = authenticate_snapshot_bundle()
+    if freeze.get("membership_snapshot_sha256") != expected_snapshot_hashes(evidence):
+        raise PermissionError("execution_freeze_seed627_snapshot_hash_mismatch")
+    if freeze.get("membership_snapshot_file_sha256") != {
+        name: evidence[name]["file_sha256"]
+        for name in ("B512", "S615", "protected_holdout")
+    }:
+        raise PermissionError("execution_freeze_seed627_snapshot_file_hash_mismatch")
+    if (
+        freeze.get("membership_source_manifest_sha256")
+        != evidence["authentication"]["manifest_sha256"]
+    ):
+        raise PermissionError("execution_freeze_seed627_manifest_hash_mismatch")
+    if freeze.get("source_provenance_sha256") != expected_provenance_hash(evidence):
+        raise PermissionError("execution_freeze_seed627_provenance_hash_mismatch")
+    return evidence
 
 
 def derive_seed(
@@ -519,7 +551,7 @@ def screen_known_exposure(
     evidence_hashes: dict[str, str] = {}
     for name in required:
         source = evidence.get(name)
-        if not isinstance(source, dict):
+        if not isinstance(source, dict) or source.get("authenticated") is not True:
             raise ValueError(f"invalid_or_unauthenticated_membership:{name}")
         rows = source.get("rows")
         if not isinstance(rows, list) or not rows:
@@ -548,8 +580,12 @@ def screen_known_exposure(
         evidence_hashes[name] = actual_hash
 
     provenance = evidence.get("source_provenance", {})
-    provenance_complete = expected_provenance_hash is not None
-    if provenance_complete:
+    provenance_authenticated = expected_provenance_hash is not None
+    if provenance_authenticated:
+        if not provenance:
+            raise ValueError("source_provenance_missing")
+        if provenance.get("authenticated") is not True:
+            raise ValueError("source_provenance_unauthenticated")
         provenance_payload = {
             key: value
             for key, value in provenance.items()
@@ -557,11 +593,29 @@ def screen_known_exposure(
         }
         actual_provenance_hash = sha256(canonical_bytes(provenance_payload))
         if (
-            expected_provenance_hash is None
-            or provenance.get("sha256") != actual_provenance_hash
+            provenance.get("sha256") != actual_provenance_hash
             or expected_provenance_hash != actual_provenance_hash
         ):
             raise ValueError("source_provenance_hash_mismatch")
+    elif provenance.get("authenticated") is True:
+        raise ValueError("source_provenance_hash_required")
+    provenance_crosswalkable = (
+        provenance_authenticated and provenance.get("crosswalk_status") == "complete"
+    )
+    if provenance_authenticated and provenance.get("crosswalk_status") not in {
+        "complete",
+        "authenticated_non_crosswalkable",
+    }:
+        raise ValueError("source_provenance_crosswalk_status_invalid")
+    if (
+        provenance.get("crosswalk_status") == "authenticated_non_crosswalkable"
+        and provenance.get("crosswalk_rows") != []
+    ):
+        raise ValueError("source_provenance_crosswalk_claim_invalid")
+    if provenance_crosswalkable:
+        for name in required:
+            if not isinstance(provenance.get(name), list):
+                raise ValueError(f"source_provenance_incomplete:{name}")
     screened = []
     for candidate in candidates:
         cid, fid = (
@@ -572,12 +626,10 @@ def screen_known_exposure(
             name: cid in ids or fid in floats
             for name, (ids, floats) in inventories.items()
         }
-        provenance_match = False
-        if provenance_complete:
+        provenance_match: bool | None = False if provenance_crosswalkable else None
+        if provenance_crosswalkable:
             for name in required:
                 sources = provenance.get(name)
-                if not isinstance(sources, list):
-                    raise ValueError(f"source_provenance_incomplete:{name}")
                 if any(
                     item.get("opening_identity") == candidate["opening_identity"]
                     or item.get("game_id") == candidate["game_id"]
@@ -590,7 +642,7 @@ def screen_known_exposure(
             "confirmed_known_exposure"
             if confirmed
             else "known_exposure_nonmatch_inherited_PE4_unresolved"
-            if provenance_complete
+            if provenance_authenticated
             else "invalid_or_insufficiently_authenticated_evidence"
         )
         screened.append(
@@ -598,6 +650,9 @@ def screen_known_exposure(
                 **candidate,
                 "exposure": hits,
                 "source_provenance_match": provenance_match,
+                "source_provenance_status": provenance.get(
+                    "crosswalk_status", "missing_or_unauthenticated"
+                ),
                 "classification": classification,
                 "membership_evidence_sha256": evidence_hashes,
                 "inherited_PE4_exposure": "unresolved",
@@ -961,10 +1016,10 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
         raise PermissionError("execution_freeze_authorization_binding_mismatch")
     if output.exists():
         raise FileExistsError("production_artifact_path_must_be_create_only")
-    evidence_path = authorization.get("membership_evidence_path")
-    if not evidence_path or not Path(evidence_path).is_file():
-        raise PermissionError("authenticated_membership_evidence_required")
-    evidence = json.loads(Path(evidence_path).read_bytes())
+    evidence = authenticate_frozen_membership_evidence(
+        freeze,
+        caller_evidence_path=authorization.get("membership_evidence_path"),
+    )
     opening_selection = choose_distinct_openings(
         lambda index: generate_opening(MASTER_SEED, index),
         reserve=OPENING_RESERVE,
@@ -1301,6 +1356,12 @@ def proposed_freeze_schema() -> dict[str, Any]:
                 "S615": None,
                 "protected_holdout": None,
             },
+            "membership_snapshot_file_sha256": {
+                "B512": None,
+                "S615": None,
+                "protected_holdout": None,
+            },
+            "membership_source_manifest_sha256": None,
             "source_provenance_sha256": None,
             "provenance_source_file_sha256": {},
             "selection": {
