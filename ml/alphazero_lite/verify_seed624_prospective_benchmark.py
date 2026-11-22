@@ -546,7 +546,13 @@ def verify_bundle(bundle_path: Path) -> dict[str, Any]:
     if not isinstance(production_resources, dict) or any(
         type(production_resources.get(name)) is not int
         or production_resources[name] <= 0
-        for name in ("wall_seconds", "cpu_seconds", "process_rss_bytes")
+        for name in (
+            "wall_seconds",
+            "cpu_seconds",
+            "process_rss_bytes",
+            "execution_concurrency",
+            "output_and_temporary_storage_bytes",
+        )
     ):
         raise ValueError("production_resource_freeze_missing_or_invalid")
     frozen_generation = freeze.get("generation", {})

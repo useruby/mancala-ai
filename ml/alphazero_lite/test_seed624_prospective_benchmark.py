@@ -5,6 +5,8 @@ from __future__ import annotations
 import hashlib
 import base64
 import json
+import subprocess
+import shutil
 import tempfile
 import time
 import unittest
@@ -62,6 +64,35 @@ class Seed624SyntheticTests(unittest.TestCase):
         signature = self._owner_private_key.sign(seed624.canonical_bytes(record))
         record["signature_ed25519"] = base64.b64encode(signature).decode("ascii")
         return freeze_raw, record, seed624.canonical_bytes(record)
+
+    def _receipt_authorization(self, directory: Path) -> dict:
+        receipt_path = directory / "authenticated-failure.json"
+        freeze = {
+            "schema": "seed624-execution-freeze-v1",
+            "status": "authorized",
+            "project_owner_identity": "synthetic-fixture-owner",
+            "execution_scope": seed624.EXECUTION_SCOPE,
+            "authorized_run_identity": "synthetic-run-1",
+            "failure_receipt_contract": {
+                "schema": "seed624-failure-receipt-contract-v2",
+                "authenticated_record_schema": "seed624-authenticated-execution-failure-v1",
+                "unauthenticated_preflight_record_schema": "seed624-unauthenticated-preflight-failure-v1",
+                "categories": sorted(seed624.FAILURE_CATEGORIES),
+                "create_only_path": str(receipt_path),
+            },
+        }
+        freeze_raw, approval, approval_raw = self._seal_freeze(freeze)
+        freeze_path = directory / "freeze.json"
+        approval_path = directory / "approval.json"
+        freeze_path.write_bytes(freeze_raw)
+        approval_path.write_bytes(approval_raw)
+        return {
+            "execution_freeze_path": str(freeze_path),
+            "execution_freeze_sha256": seed624.sha256(freeze_raw),
+            "owner_approval_record_path": str(approval_path),
+            "authorized_run_identity": "synthetic-run-1",
+            "failure_receipt_path": str(receipt_path),
+        }
 
     def test_seed_derivation_and_opening_are_reproducible(self) -> None:
         self.assertEqual(
@@ -711,6 +742,161 @@ class Seed624SyntheticTests(unittest.TestCase):
         with self.assertRaisesRegex(PermissionError, "execution_freeze_file_required"):
             seed624.generate_population({}, Path("unused"))
 
+    def test_failure_receipts_are_durable_create_only_and_classified(self) -> None:
+        with tempfile.TemporaryDirectory(dir=".tmp") as directory:
+            authorization = self._receipt_authorization(Path(directory))
+            receipt = Path(authorization["failure_receipt_path"])
+            shortfall = seed624.ShortfallError(
+                {"reason": "constraints_infeasible", "nodes": 17}
+            )
+            with patch.object(seed624, "generate_population", side_effect=shortfall):
+                with self.assertRaises(seed624.ShortfallError):
+                    seed624.execute_with_failure_receipts(
+                        authorization, Path(directory) / "partial"
+                    )
+            report = json.loads(receipt.read_text())
+            self.assertEqual(
+                report["schema"], "seed624-authenticated-execution-failure-v1"
+            )
+            self.assertEqual(report["failure_category"], "mathematical_infeasibility")
+            self.assertEqual(report["authorized_run_identity"], "synthetic-run-1")
+            self.assertEqual(
+                report["execution_freeze_sha256"],
+                authorization["execution_freeze_sha256"],
+            )
+            self.assertEqual(report["diagnostic"]["report"]["nodes"], 17)
+            with self.assertRaises(FileExistsError):
+                seed624.write_failure_receipt(
+                    authorization=authorization,
+                    category="unexpected_execution_exception",
+                    diagnostic={},
+                )
+
+    def test_mismatched_run_identity_and_receipt_path_are_unauthenticated(self) -> None:
+        for field, wrong_value in (
+            ("authorized_run_identity", "caller-run-forgery"),
+            ("failure_receipt_path", "caller-selected-receipt.json"),
+        ):
+            with (
+                self.subTest(field=field),
+                tempfile.TemporaryDirectory(dir=".tmp") as directory,
+            ):
+                authorization = self._receipt_authorization(Path(directory))
+                authorization[field] = wrong_value
+                requested = Path(directory) / "preflight.json"
+                with self.assertRaisesRegex(
+                    PermissionError, "failure_receipt_.*mismatch"
+                ):
+                    seed624.execute_with_failure_receipts(
+                        authorization,
+                        Path(directory) / "unused",
+                        receipt_path=requested,
+                    )
+                record = json.loads(requested.read_text())
+                self.assertEqual(
+                    record["schema"], "seed624-unauthenticated-preflight-failure-v1"
+                )
+                self.assertIsNone(record["authorized_run_identity"])
+                self.assertIsNone(record["execution_freeze_sha256"])
+
+    def test_unauthenticated_preflight_is_not_attributed_to_run(self) -> None:
+        with tempfile.TemporaryDirectory(dir=".tmp") as directory:
+            authorization = self._receipt_authorization(Path(directory))
+            authorization["execution_freeze_sha256"] = "f" * 64
+            path = Path(directory) / "preflight.json"
+            with self.assertRaisesRegex(
+                PermissionError, "execution_freeze_hash_mismatch"
+            ):
+                seed624.execute_with_failure_receipts(
+                    authorization, Path(directory) / "unused", receipt_path=path
+                )
+            record = json.loads(path.read_text())
+            self.assertEqual(
+                record["schema"], "seed624-unauthenticated-preflight-failure-v1"
+            )
+            self.assertEqual(record["failure_category"], "preflight_failure")
+            self.assertIsNone(record["authorized_run_identity"])
+
+    def test_resource_exhaustion_and_supply_have_distinct_receipt_categories(
+        self,
+    ) -> None:
+        resource = seed624.ShortfallError({"reason": "optimizer_resource_limit"})
+        supply = seed624.ShortfallError({"reason": "hard_supply"})
+        opening = seed624.ShortfallError({"reason": "opening_reserve_exhausted"})
+        self.assertEqual(
+            seed624._failure_category(resource), "selector_resource_exhaustion"
+        )
+        self.assertEqual(
+            seed624._failure_category(supply), "insufficient_stone_bin_supply"
+        )
+        self.assertEqual(
+            seed624._failure_category(opening), "opening_reserve_exhaustion"
+        )
+
+    def test_synthetic_wall_limit_termination_writes_supervisor_receipt(self) -> None:
+        with tempfile.TemporaryDirectory(dir=".tmp") as directory:
+            authorization = self._receipt_authorization(Path(directory))
+            try:
+                subprocess.run(
+                    ["python", "-c", "import time; time.sleep(2)"],
+                    check=True,
+                    timeout=0.05,
+                )
+            except subprocess.TimeoutExpired:
+                seed624.write_failure_receipt(
+                    authorization=authorization,
+                    category="external_resource_limit_termination",
+                    diagnostic={"limit": "wall_seconds", "exit_status": "terminated"},
+                )
+            receipt_data = json.loads(
+                Path(authorization["failure_receipt_path"]).read_text()
+            )
+            self.assertEqual(receipt_data["diagnostic"]["exit_status"], "terminated")
+            self.assertEqual(
+                receipt_data["failure_category"],
+                "external_resource_limit_termination",
+            )
+
+    def test_receipt_write_failure_preserves_original_execution_exception(self) -> None:
+        with tempfile.TemporaryDirectory(dir=".tmp") as directory:
+            authorization = self._receipt_authorization(Path(directory))
+            original = seed624.ShortfallError({"reason": "hard_supply"})
+            with (
+                patch.object(seed624, "generate_population", side_effect=original),
+                patch.object(
+                    seed624,
+                    "write_failure_receipt",
+                    side_effect=OSError("synthetic receipt disk failure"),
+                ),
+            ):
+                with self.assertRaises(seed624.ShortfallError) as raised:
+                    seed624.execute_with_failure_receipts(
+                        authorization, Path(directory) / "partial"
+                    )
+            self.assertIs(raised.exception, original)
+            self.assertTrue(
+                any(
+                    "synthetic receipt disk failure" in note
+                    for note in original.__notes__
+                )
+            )
+
+    def test_failure_category_enum_is_shared_with_proposed_freeze(self) -> None:
+        categories = set(
+            seed624.proposed_freeze_schema()["required"]["failure_receipt_contract"][
+                "categories"
+            ]
+        )
+        self.assertEqual(categories, seed624.FAILURE_CATEGORIES)
+
+    def test_durable_receipt_fsyncs_file_and_parent_directory(self) -> None:
+        with tempfile.TemporaryDirectory(dir=".tmp") as directory:
+            path = Path(directory) / "durability.json"
+            actual_fsync = seed624.os.fsync
+            with patch.object(seed624.os, "fsync", wraps=actual_fsync) as fsync:
+                seed624._create_durable_json(path, {"synthetic": True})
+            self.assertEqual(fsync.call_count, 2)
+
     def test_entrypoint_rejects_caller_supplied_untrusted_owner_key(self) -> None:
         attacker_key = Ed25519PrivateKey.generate()
         attacker_public_key = attacker_key.public_key().public_bytes(
@@ -726,6 +912,8 @@ class Seed624SyntheticTests(unittest.TestCase):
                     "wall_seconds": 3600,
                     "cpu_seconds": 3600,
                     "process_rss_bytes": 4 * 1024**3,
+                    "execution_concurrency": 1,
+                    "output_and_temporary_storage_bytes": 2 * 1024**3,
                 },
                 "project_owner_identity": "synthetic-fixture-owner",
                 "execution_scope": seed624.EXECUTION_SCOPE,
@@ -860,6 +1048,8 @@ class Seed624SyntheticTests(unittest.TestCase):
                 "wall_seconds": 3600,
                 "cpu_seconds": 3600,
                 "process_rss_bytes": 4 * 1024**3,
+                "execution_concurrency": 1,
+                "output_and_temporary_storage_bytes": 2 * 1024**3,
             },
             "project_owner_identity": "synthetic-fixture-owner",
             "execution_scope": seed624.EXECUTION_SCOPE,
@@ -1033,7 +1223,10 @@ class Seed624SyntheticTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(dir=".tmp") as directory:
             path = Path(directory) / "population.json"
             path.write_text(json.dumps(bundle, sort_keys=True))
-            report = verify_bundle(path)
+            physical_copy = Path(directory) / "copied-evidence" / "population.json"
+            physical_copy.parent.mkdir()
+            shutil.copyfile(path, physical_copy)
+            report = verify_bundle(physical_copy)
         self.assertEqual(report["status"], "verified")
         self.assertEqual(report["games"], 8)
         self.assertFalse(report["training_disjoint"])
@@ -1112,6 +1305,8 @@ class Seed624SyntheticTests(unittest.TestCase):
                 "wall_seconds": 3600,
                 "cpu_seconds": 3600,
                 "process_rss_bytes": 4 * 1024**3,
+                "execution_concurrency": 1,
+                "output_and_temporary_storage_bytes": 2 * 1024**3,
             },
             "project_owner_identity": "synthetic-fixture-owner",
             "execution_scope": seed624.EXECUTION_SCOPE,
