@@ -16,12 +16,22 @@ adapter then supplies the rows and evidence hashes to Seed 624 screening; it
 does not produce or modify snapshots.
 
 Seed 627's authentication runtime records NumPy 2.5.2; the proposed Seed 624
-runtime pins NumPy 2.5.3. Verification runs the historical Seed 627 checks with
-the recorded version identity while computing every canonical and float32
-identity under the actual 2.5.3 runtime. Equality is required for every row in
-B512 (2,048), S615 (2,048), and protected holdout (1,353). This establishes
-identity equivalence for these exact inputs; it does not certify other
-platforms, NumPy versions, or an execution freeze.
+runtime pins NumPy 2.5.3. The historical verifier is launched as a separate
+`.venv/bin/python` process, with its actual interpreter and installed package
+versions compared against the source manifest and the SHA-256-pinned historical
+requirements lock. The complete verifier output and actual runtime probe are
+recorded in the evidence object. No runtime metadata is monkeypatched. A
+separate process running the proposed Seed 624 NumPy 2.5.3 implementation
+recomputes every canonical and float32 identity; equality is required for every
+row in B512 (2,048), S615 (2,048), and protected holdout (1,353). This
+establishes identity equivalence for these exact inputs; it does not certify
+other platforms, NumPy versions, or an execution freeze.
+
+Seed 624 production loading reads evidence only through this pinned adapter,
+not a caller-supplied evidence JSON. The freeze binds canonical membership
+hashes, raw snapshot-file hashes, and the source-manifest hash. The independent
+Seed 624 verifier separately reconstructs Seed 627 evidence from the pinned
+source files and checks the complete embedded evidence object before screening.
 
 The independent Seed 628 verifier reconstructs the adapter evidence and
 classification outcomes without calling Seed 624's screening producer. It

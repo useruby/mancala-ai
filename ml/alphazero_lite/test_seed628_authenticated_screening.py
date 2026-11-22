@@ -3,14 +3,17 @@
 from __future__ import annotations
 
 import json
+import copy
 import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from ml.alphazero_lite import seed624_prospective_benchmark as seed624
 from ml.alphazero_lite import seed628_authenticated_screening as adapter
 from ml.alphazero_lite import verify_seed628_authenticated_screening as independent
+from ml.alphazero_lite.verify_seed627_membership_snapshots import ROOT as SEED627_ROOT
 
 
 class Seed628HandoffTests(unittest.TestCase):
@@ -45,6 +48,13 @@ class Seed628HandoffTests(unittest.TestCase):
         ]
 
     def test_authenticated_adapter_and_independent_classification_agree(self) -> None:
+        runtime = self.evidence["authentication"]["historical_runtime"]
+        self.assertEqual(runtime["numpy"], "2.5.2")
+        self.assertEqual(runtime["packages"], adapter._locked_packages())
+        self.assertEqual(
+            self.evidence["authentication"]["identity_runtime"]["screening_numpy"],
+            "2.5.3",
+        )
         candidates = self.candidates()
         screened = seed624.screen_known_exposure(
             candidates,
@@ -68,6 +78,95 @@ class Seed628HandoffTests(unittest.TestCase):
         self.assertTrue(screened[1]["exposure"]["protected_holdout"])
         self.assertIsNone(screened[2]["source_provenance_match"])
         self.assertEqual(screened[2]["inherited_PE4_exposure"], "unresolved")
+
+    def test_spoofed_runtime_metadata_is_not_accepted(self) -> None:
+        fake = copy.deepcopy(self.evidence)
+        fake["authentication"]["historical_runtime"]["numpy"] = "2.5.3"
+        with self.assertRaisesRegex(
+            ValueError, "production_evidence_does_not_match_pinned_seed627_chain"
+        ):
+            independent.require_pinned_evidence(fake, self.evidence)
+
+    def test_incorrect_historical_environment_is_rejected_by_actual_runtime_probe(
+        self,
+    ) -> None:
+        wrong_runtime = adapter._historical_runtime_probe(
+            SEED627_ROOT / ".venv-azlite/bin/python"
+        )
+        manifest = json.loads(
+            (
+                adapter.SNAPSHOT_DIR / "source-identity-lineage-manifest.json"
+            ).read_bytes()
+        )
+        with self.assertRaisesRegex(
+            ValueError, "historical_runtime_packages_do_not_match_lock"
+        ):
+            adapter._validate_historical_runtime(wrong_runtime, manifest)
+
+    def test_recomputed_forged_membership_rows_do_not_authenticate(self) -> None:
+        forged = copy.deepcopy(self.evidence)
+        source = forged["B512"]
+        row = source["rows"][0]
+        row["canonical_state"]["forged_membership_claim"] = True
+        row["canonical_identity"], row["production_float32_identity"] = (
+            seed624.identities(row["canonical_state"])
+        )
+        source["sha256"] = seed624.sha256(seed624.canonical_bytes(source["rows"]))
+        source["file_sha256"] = seed624.sha256(
+            seed624.canonical_bytes(source["rows"]) + b"\n"
+        )
+        with self.assertRaisesRegex(
+            ValueError, "production_evidence_does_not_match_pinned_seed627_chain"
+        ):
+            independent.require_pinned_evidence(forged, self.evidence)
+
+    def test_valid_looking_non_pinned_manifest_is_rejected(self) -> None:
+        forged = copy.deepcopy(self.evidence)
+        forged["authentication"]["manifest_sha256"] = "a" * 64
+        forged["source_provenance"]["source_manifest_sha256"] = "a" * 64
+        provenance = forged["source_provenance"]
+        provenance["sha256"] = seed624.sha256(
+            seed624.canonical_bytes(
+                {
+                    key: value
+                    for key, value in provenance.items()
+                    if key != "authenticated"
+                }
+            )
+        )
+        with self.assertRaisesRegex(
+            ValueError, "production_evidence_does_not_match_pinned_seed627_chain"
+        ):
+            independent.require_pinned_evidence(forged, self.evidence)
+
+    def test_caller_controlled_self_consistent_evidence_cannot_enter_production(
+        self,
+    ) -> None:
+        forged_rows = [self.evidence["B512"]["rows"][0]]
+        fake_hash = seed624.sha256(seed624.canonical_bytes(forged_rows))
+        freeze = {
+            "membership_snapshot_sha256": {name: fake_hash for name in adapter.NAMES},
+            "source_provenance_sha256": "f" * 64,
+        }
+        with tempfile.TemporaryDirectory(dir=".tmp") as temporary:
+            evidence_path = Path(temporary) / "caller-evidence.json"
+            evidence_path.write_text(
+                json.dumps({"rows": forged_rows, "sha256": fake_hash})
+            )
+            with self.assertRaisesRegex(
+                PermissionError, "caller_controlled_membership_evidence_forbidden"
+            ):
+                seed624.authenticate_frozen_membership_evidence(
+                    freeze, caller_evidence_path=str(evidence_path)
+                )
+            with patch.object(
+                adapter, "authenticate_snapshot_bundle", return_value=self.evidence
+            ):
+                with self.assertRaisesRegex(
+                    PermissionError,
+                    "execution_freeze_seed627_snapshot_hash_mismatch",
+                ):
+                    seed624.authenticate_frozen_membership_evidence(freeze)
 
     def test_tampered_snapshot_bytes_and_manifest_lineage_fail_pinned_hashes(
         self,
@@ -135,11 +234,12 @@ class Seed628HandoffTests(unittest.TestCase):
             expected_snapshot_hashes=adapter.expected_snapshot_hashes(self.evidence),
             expected_provenance_hash=adapter.expected_provenance_hash(self.evidence),
         )
+        reconstructed = independent.reconstruct_screening(candidates, self.evidence)
         screened[2]["classification"] = "confirmed_known_exposure"
         with self.assertRaisesRegex(
             ValueError, "independent_screening_reconstruction_mismatch"
         ):
-            independent.verify_screening(candidates, self.evidence, screened)
+            independent.require_screening_matches(reconstructed, screened)
 
     def test_missing_and_unauthenticated_provenance_are_distinct(self) -> None:
         candidate = self.candidates()[1:]

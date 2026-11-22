@@ -173,6 +173,36 @@ def verify_owner_approval_record(
     return str(record["project_owner_identity"])
 
 
+def authenticate_frozen_membership_evidence(
+    freeze: dict[str, Any], *, caller_evidence_path: str | None = None
+) -> dict[str, Any]:
+    """Load evidence only through the repository-pinned Seed 627 trust chain."""
+    if caller_evidence_path is not None:
+        raise PermissionError("caller_controlled_membership_evidence_forbidden")
+    from ml.alphazero_lite.seed628_authenticated_screening import (
+        authenticate_snapshot_bundle,
+        expected_provenance_hash,
+        expected_snapshot_hashes,
+    )
+
+    evidence = authenticate_snapshot_bundle()
+    if freeze.get("membership_snapshot_sha256") != expected_snapshot_hashes(evidence):
+        raise PermissionError("execution_freeze_seed627_snapshot_hash_mismatch")
+    if freeze.get("membership_snapshot_file_sha256") != {
+        name: evidence[name]["file_sha256"]
+        for name in ("B512", "S615", "protected_holdout")
+    }:
+        raise PermissionError("execution_freeze_seed627_snapshot_file_hash_mismatch")
+    if (
+        freeze.get("membership_source_manifest_sha256")
+        != evidence["authentication"]["manifest_sha256"]
+    ):
+        raise PermissionError("execution_freeze_seed627_manifest_hash_mismatch")
+    if freeze.get("source_provenance_sha256") != expected_provenance_hash(evidence):
+        raise PermissionError("execution_freeze_seed627_provenance_hash_mismatch")
+    return evidence
+
+
 def derive_seed(
     master_seed: int, opening_index: int, trajectory_index: int, phase: str
 ) -> int:
@@ -986,10 +1016,10 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
         raise PermissionError("execution_freeze_authorization_binding_mismatch")
     if output.exists():
         raise FileExistsError("production_artifact_path_must_be_create_only")
-    evidence_path = authorization.get("membership_evidence_path")
-    if not evidence_path or not Path(evidence_path).is_file():
-        raise PermissionError("authenticated_membership_evidence_required")
-    evidence = json.loads(Path(evidence_path).read_bytes())
+    evidence = authenticate_frozen_membership_evidence(
+        freeze,
+        caller_evidence_path=authorization.get("membership_evidence_path"),
+    )
     opening_selection = choose_distinct_openings(
         lambda index: generate_opening(MASTER_SEED, index),
         reserve=OPENING_RESERVE,
@@ -1326,6 +1356,12 @@ def proposed_freeze_schema() -> dict[str, Any]:
                 "S615": None,
                 "protected_holdout": None,
             },
+            "membership_snapshot_file_sha256": {
+                "B512": None,
+                "S615": None,
+                "protected_holdout": None,
+            },
+            "membership_source_manifest_sha256": None,
             "source_provenance_sha256": None,
             "provenance_source_file_sha256": {},
             "selection": {

@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
 from ml.alphazero_lite import seed624_prospective_benchmark as seed624
-from ml.alphazero_lite import verify_seed627_membership_snapshots as seed627_verifier
 
 ROOT = Path(__file__).resolve().parents[2]
 SNAPSHOT_DIR = ROOT / "docs/data/seed627-authenticated-membership/snapshots"
@@ -20,6 +21,15 @@ PINNED_FILES = {
     "source-identity-lineage-manifest.json": "e7a6af69f72780ca5ca79f9fe8214b9d347b6c6c0fb7cfea87b0617e3a16d3f3",
 }
 NAMES = ("B512", "S615", "protected_holdout")
+HISTORICAL_PYTHON = ROOT / ".venv/bin/python"
+HISTORICAL_RUNTIME_LOCK = (
+    ROOT
+    / "docs/data/seed604-replay-optimization/runtime-certification-v3/requirements-lock.txt"
+)
+HISTORICAL_RUNTIME_LOCK_SHA256 = (
+    "5762f889f9719525379f8f1321811df9c52ea3675cdb319492eba15570c94ce4"
+)
+HISTORICAL_VERIFIER_MODULE = "ml.alphazero_lite.verify_seed627_membership_snapshots"
 
 
 def sha256(raw: bytes) -> str:
@@ -32,6 +42,112 @@ def canonical_bytes(value: Any) -> bytes:
     ).encode("ascii")
 
 
+def _locked_packages() -> dict[str, str]:
+    lock_raw = HISTORICAL_RUNTIME_LOCK.read_bytes()
+    if sha256(lock_raw) != HISTORICAL_RUNTIME_LOCK_SHA256:
+        raise ValueError("historical_runtime_lock_hash_mismatch")
+    packages = {}
+    for line in lock_raw.decode("utf-8").splitlines():
+        match = re.match(r"^([A-Za-z0-9_.-]+)==([^ ]+)", line)
+        if match:
+            packages[match.group(1).lower().replace("_", "-")] = match.group(2)
+    if not packages:
+        raise ValueError("historical_runtime_lock_empty")
+    return packages
+
+
+def _historical_runtime_probe(
+    python: Path = HISTORICAL_PYTHON,
+) -> dict[str, Any]:
+    """Probe the genuine historical interpreter and all lock-pinned packages."""
+    if not python.is_file():
+        raise FileNotFoundError("pinned_historical_python_missing")
+    code = (
+        "import importlib.metadata, json, sys; "
+        "from pathlib import Path; "
+        "lock=Path(sys.argv[1]); "
+        "import re; "
+        "names=[re.match(r'^([A-Za-z0-9_.-]+)==([^ ]+)', line) "
+        "for line in lock.read_text().splitlines()]; "
+        "names=[m.group(1) for m in names if m]; "
+        "packages={name.lower().replace('_','-'): "
+        "importlib.metadata.version(name) for name in names}; "
+        "import numpy, torch; "
+        "print(json.dumps({'python':sys.version,'numpy':numpy.__version__,"
+        "'torch':torch.__version__,'packages':packages},sort_keys=True))"
+    )
+    run = subprocess.run(
+        [str(python), "-c", code, str(HISTORICAL_RUNTIME_LOCK)],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    runtime = json.loads(run.stdout)
+    runtime["probe_stdout_sha256"] = sha256(run.stdout.encode("utf-8"))
+    return runtime
+
+
+def _validate_historical_runtime(
+    runtime: dict[str, Any], manifest: dict[str, Any]
+) -> None:
+    locked = _locked_packages()
+    if runtime.get("packages") != locked:
+        raise ValueError("historical_runtime_packages_do_not_match_lock")
+    recorded = manifest.get("runtime", {})
+    if (
+        runtime.get("python") != recorded.get("python")
+        or runtime.get("numpy") != recorded.get("numpy")
+        or runtime.get("torch") != recorded.get("torch")
+        or runtime.get("numpy") != "2.5.2"
+    ):
+        raise ValueError("historical_runtime_does_not_match_pinned_evidence")
+
+
+def _run_historical_seed627_verifier(snapshot_dir: Path) -> dict[str, Any]:
+    """Execute the unchanged Seed 627 verifier under the pinned historical Python."""
+    command = [
+        str(HISTORICAL_PYTHON),
+        "-m",
+        HISTORICAL_VERIFIER_MODULE,
+        str(snapshot_dir.resolve()),
+        "--source-root",
+        str(ROOT),
+    ]
+    run = subprocess.run(command, cwd=ROOT, check=True, capture_output=True, text=True)
+    result = json.loads(run.stdout)
+    if result.get("status") != "verified":
+        raise ValueError("historical_seed627_verifier_failed")
+    return {
+        "result": result,
+        "stdout_sha256": sha256(run.stdout.encode("utf-8")),
+        "stderr_sha256": sha256(run.stderr.encode("utf-8")),
+        "command": command,
+    }
+
+
+def _proposed_runtime_probe() -> dict[str, str]:
+    code = (
+        "import json,sys,numpy; "
+        "print(json.dumps({'python':sys.version,'numpy':numpy.__version__},sort_keys=True))"
+    )
+    run = subprocess.run(
+        [sys.executable, "-c", code],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    runtime = json.loads(run.stdout)
+    if (
+        runtime.get("numpy") != "2.5.3"
+        or runtime.get("numpy") != seed624.np.__version__
+    ):
+        raise ValueError("proposed_seed624_numpy_runtime_mismatch")
+    runtime["probe_stdout_sha256"] = sha256(run.stdout.encode("utf-8"))
+    return runtime
+
+
 def authenticate_snapshot_bundle(snapshot_dir: Path = SNAPSHOT_DIR) -> dict[str, Any]:
     """Authenticate exact pinned bytes and reconstruct Seed 627 evidence read-only."""
     for filename, expected in PINNED_FILES.items():
@@ -39,36 +155,14 @@ def authenticate_snapshot_bundle(snapshot_dir: Path = SNAPSHOT_DIR) -> dict[str,
         if sha256(raw) != expected:
             raise ValueError(f"pinned_seed627_file_hash_mismatch:{filename}")
 
-    # Seed 627 was produced under NumPy 2.5.2. Its independent verifier checks
-    # runtime identity as well as reconstructing every source row. Temporarily
-    # presenting that recorded version allows its historical authentication to
-    # run; identities are then independently recomputed by the actual 2.5.3
-    # Seed 624 identity implementation below.
-    recorded_numpy = seed627_verifier.np.__version__
-    original_version = seed627_verifier.importlib.metadata.version
-    original_run = seed627_verifier.subprocess.run
-    historical_python = ROOT / ".venv/bin/python"
-
-    def historical_run(
-        command: list[str], **kwargs: Any
-    ) -> subprocess.CompletedProcess:
-        return original_run([str(historical_python), *command[1:]], **kwargs)
-
-    try:
-        seed627_verifier.np.__version__ = "2.5.2"
-        seed627_verifier.importlib.metadata.version = lambda package: (
-            "2.13.0+cu130" if package == "torch" else original_version(package)
-        )
-        seed627_verifier.subprocess.run = historical_run
-        verification = seed627_verifier.verify_bundle(snapshot_dir, source_root=ROOT)
-    finally:
-        seed627_verifier.np.__version__ = recorded_numpy
-        seed627_verifier.importlib.metadata.version = original_version
-        seed627_verifier.subprocess.run = original_run
-
     manifest = json.loads(
         (snapshot_dir / "source-identity-lineage-manifest.json").read_bytes()
     )
+    historical_runtime = _historical_runtime_probe()
+    _validate_historical_runtime(historical_runtime, manifest)
+    historical_verification = _run_historical_seed627_verifier(snapshot_dir)
+
+    proposed_runtime = _proposed_runtime_probe()
     evidence: dict[str, Any] = {}
     for name in NAMES:
         raw = (snapshot_dir / f"{name}.json").read_bytes()
@@ -112,10 +206,17 @@ def authenticate_snapshot_bundle(snapshot_dir: Path = SNAPSHOT_DIR) -> dict[str,
     evidence["source_provenance"] = prov
     evidence["authentication"] = {
         "schema": "seed628-authenticated-seed627-adapter-v1",
-        "seed627_verification": verification,
+        "historical_runtime_lock_sha256": HISTORICAL_RUNTIME_LOCK_SHA256,
+        "historical_runtime": historical_runtime,
+        "seed627_verification": historical_verification,
         "manifest_sha256": PINNED_FILES["source-identity-lineage-manifest.json"],
         "snapshot_file_sha256": {name: PINNED_FILES[f"{name}.json"] for name in NAMES},
-        "identity_runtime": {"historical_numpy": "2.5.2", "screening_numpy": "2.5.3"},
+        "identity_runtime": {
+            "historical_numpy": historical_runtime["numpy"],
+            "screening_numpy": proposed_runtime["numpy"],
+            "screening_python": proposed_runtime["python"],
+            "screening_probe_stdout_sha256": proposed_runtime["probe_stdout_sha256"],
+        },
     }
     return evidence
 

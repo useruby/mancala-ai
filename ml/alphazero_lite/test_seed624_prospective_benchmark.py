@@ -18,6 +18,8 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from ml.alphazero_lite import seed624_prospective_benchmark as seed624
+from ml.alphazero_lite import seed628_authenticated_screening as seed628
+from ml.alphazero_lite import verify_seed628_authenticated_screening as seed628_verifier
 from ml.alphazero_lite import verify_seed624_prospective_benchmark as independent
 from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.verify_seed624_prospective_benchmark import _apply_actions
@@ -1084,6 +1086,15 @@ class Seed624SyntheticTests(unittest.TestCase):
             "sampling_contract": "deterministic standardized selected-state population; fixed 1/5 weights per stone bin; no design-unbiased inference or inclusion-probability claim",
             "stone_bin_weights": seed624.STONE_BIN_WEIGHTS,
             "membership_snapshot_sha256": membership_hashes,
+            "membership_snapshot_file_sha256": {
+                name.removesuffix(".json"): digest
+                for name, digest in seed628.PINNED_FILES.items()
+                if name.endswith(".json")
+                and name != "source-identity-lineage-manifest.json"
+            },
+            "membership_source_manifest_sha256": seed628.PINNED_FILES[
+                "source-identity-lineage-manifest.json"
+            ],
             "source_provenance_sha256": provenance_hash,
             "selection": {
                 "targets": {str(stones): 0 for stones in seed624.BIN_ORDER},
@@ -1219,7 +1230,9 @@ class Seed624SyntheticTests(unittest.TestCase):
             },
         }
 
-    def test_independent_verifier_reconstructs_copied_synthetic_bundle(self) -> None:
+    def test_independent_verifier_rejects_unpinned_synthetic_membership_evidence(
+        self,
+    ) -> None:
         bundle = self._empty_replay_bundle()
         with tempfile.TemporaryDirectory(dir=".tmp") as directory:
             path = Path(directory) / "population.json"
@@ -1227,10 +1240,10 @@ class Seed624SyntheticTests(unittest.TestCase):
             physical_copy = Path(directory) / "copied-evidence" / "population.json"
             physical_copy.parent.mkdir()
             shutil.copyfile(path, physical_copy)
-            report = verify_bundle(physical_copy)
-        self.assertEqual(report["status"], "verified")
-        self.assertEqual(report["games"], 8)
-        self.assertFalse(report["training_disjoint"])
+            with self.assertRaisesRegex(
+                ValueError, "production_evidence_does_not_match_pinned_seed627_chain"
+            ):
+                verify_bundle(physical_copy)
 
     def test_independent_verifier_rejects_skipping_first_valid_opening(self) -> None:
         bundle = self._empty_replay_bundle()
@@ -1357,6 +1370,15 @@ class Seed624SyntheticTests(unittest.TestCase):
                 "working_memory_limit_bytes": seed624.MAX_SELECTION_WORKING_BYTES,
             },
             "membership_snapshot_sha256": target_hashes,
+            "membership_snapshot_file_sha256": {
+                name.removesuffix(".json"): digest
+                for name, digest in seed628.PINNED_FILES.items()
+                if name.endswith(".json")
+                and name != "source-identity-lineage-manifest.json"
+            },
+            "membership_source_manifest_sha256": seed628.PINNED_FILES[
+                "source-identity-lineage-manifest.json"
+            ],
             "source_provenance_sha256": prov_hash,
         }
         freeze_raw, approval, approval_raw = self._seal_freeze(freeze)
@@ -1465,7 +1487,12 @@ class Seed624SyntheticTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(dir=".tmp") as directory:
             path = Path(directory) / "population.json"
             path.write_text(json.dumps(bundle, sort_keys=True))
-            report = verify_bundle(path)
+            with patch.object(
+                seed628_verifier,
+                "reconstruct_evidence",
+                return_value=bundle["evidence"],
+            ):
+                report = verify_bundle(path)
         self.assertEqual(report["selected_count"], 5)
         self.assertEqual(report["opening_clusters"], 2)
         multi_visit = next(

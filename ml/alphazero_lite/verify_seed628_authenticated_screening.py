@@ -4,15 +4,30 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
 from ml.alphazero_lite import verify_seed624_prospective_benchmark as seed624_verifier
-from ml.alphazero_lite import verify_seed627_membership_snapshots as seed627_verifier
-from ml.alphazero_lite.seed628_authenticated_screening import (
-    NAMES,
-    PINNED_FILES,
+
+ROOT = Path(__file__).resolve().parents[2]
+SNAPSHOT_DIR = ROOT / "docs/data/seed627-authenticated-membership/snapshots"
+NAMES = ("B512", "S615", "protected_holdout")
+PINNED_FILES = {
+    "B512.json": "de7650a5d4f0d7a9dec11adb3d100689381a4b1539ec0c9749a0f82feda28d59",
+    "S615.json": "8ed6f059d491fa4a6bfd90c942d6e02d05ef1b6a82db65969402ad4351a084fd",
+    "protected_holdout.json": "4716976a654ecba4aadccfa336d0dc3c5fdbd354ac27786848a06485d6062610",
+    "source-identity-lineage-manifest.json": "e7a6af69f72780ca5ca79f9fe8214b9d347b6c6c0fb7cfea87b0617e3a16d3f3",
+}
+HISTORICAL_PYTHON = ROOT / ".venv/bin/python"
+HISTORICAL_RUNTIME_LOCK = (
+    ROOT
+    / "docs/data/seed604-replay-optimization/runtime-certification-v3/requirements-lock.txt"
+)
+HISTORICAL_RUNTIME_LOCK_SHA256 = (
+    "5762f889f9719525379f8f1321811df9c52ea3675cdb319492eba15570c94ce4"
 )
 
 
@@ -26,36 +41,106 @@ def _canonical(value: Any) -> bytes:
     ).encode("ascii")
 
 
-def reconstruct_evidence(snapshot_dir: Path) -> dict[str, Any]:
-    """Re-run Seed 627's pinned source reconstruction, then independently bind rows."""
+def _runtime_probe() -> dict[str, Any]:
+    code = (
+        "import importlib.metadata, json, sys; "
+        "from pathlib import Path; import re; "
+        "lock=Path(sys.argv[1]); "
+        "names=[re.match(r'^([A-Za-z0-9_.-]+)==([^ ]+)', line) "
+        "for line in lock.read_text().splitlines()]; "
+        "names=[m.group(1) for m in names if m]; "
+        "packages={name.lower().replace('_','-'): "
+        "importlib.metadata.version(name) for name in names}; "
+        "import numpy, torch; "
+        "print(json.dumps({'python':sys.version,'numpy':numpy.__version__,"
+        "'torch':torch.__version__,'packages':packages},sort_keys=True))"
+    )
+    run = subprocess.run(
+        [str(HISTORICAL_PYTHON), "-c", code, str(HISTORICAL_RUNTIME_LOCK)],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    runtime = json.loads(run.stdout)
+    runtime["probe_stdout_sha256"] = _sha(run.stdout.encode("utf-8"))
+    return runtime
+
+
+def _locked_packages() -> dict[str, str]:
+    raw = HISTORICAL_RUNTIME_LOCK.read_bytes()
+    if _sha(raw) != HISTORICAL_RUNTIME_LOCK_SHA256:
+        raise ValueError("historical_runtime_lock_hash_mismatch")
+    packages = {}
+    for line in raw.decode("utf-8").splitlines():
+        match = re.match(r"^([A-Za-z0-9_.-]+)==([^ ]+)", line)
+        if match:
+            packages[match.group(1).lower().replace("_", "-")] = match.group(2)
+    return packages
+
+
+def _proposed_runtime_probe() -> dict[str, str]:
+    run = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import json,sys,numpy; "
+            "print(json.dumps({'python':sys.version,'numpy':numpy.__version__},sort_keys=True))",
+        ],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    runtime = json.loads(run.stdout)
+    runtime["probe_stdout_sha256"] = _sha(run.stdout.encode("utf-8"))
+    return runtime
+
+
+def reconstruct_evidence(snapshot_dir: Path = SNAPSHOT_DIR) -> dict[str, Any]:
+    """Re-run historical source verification and independently bind pinned rows."""
     for filename, expected in PINNED_FILES.items():
         if _sha((snapshot_dir / filename).read_bytes()) != expected:
             raise ValueError(f"pinned_seed627_file_hash_mismatch:{filename}")
-    recorded_numpy = seed627_verifier.np.__version__
-    original_version = seed627_verifier.importlib.metadata.version
-    original_run = seed627_verifier.subprocess.run
-    historical_python = Path(__file__).resolve().parents[2] / ".venv/bin/python"
-
-    def historical_run(
-        command: list[str], **kwargs: Any
-    ) -> subprocess.CompletedProcess:
-        return original_run([str(historical_python), *command[1:]], **kwargs)
-
-    try:
-        seed627_verifier.np.__version__ = "2.5.2"
-        seed627_verifier.importlib.metadata.version = lambda package: (
-            "2.13.0+cu130" if package == "torch" else original_version(package)
-        )
-        seed627_verifier.subprocess.run = historical_run
-        verification = seed627_verifier.verify_bundle(snapshot_dir)
-    finally:
-        seed627_verifier.np.__version__ = recorded_numpy
-        seed627_verifier.importlib.metadata.version = original_version
-        seed627_verifier.subprocess.run = original_run
-
     manifest = json.loads(
         (snapshot_dir / "source-identity-lineage-manifest.json").read_bytes()
     )
+    runtime = _runtime_probe()
+    locked = _locked_packages()
+    if (
+        runtime.get("packages") != locked
+        or runtime.get("python") != manifest.get("runtime", {}).get("python")
+        or runtime.get("numpy") != manifest.get("runtime", {}).get("numpy")
+        or runtime.get("torch") != manifest.get("runtime", {}).get("torch")
+        or runtime.get("numpy") != "2.5.2"
+    ):
+        raise ValueError("historical_runtime_does_not_match_pinned_evidence")
+    proposed_runtime = _proposed_runtime_probe()
+    if (
+        proposed_runtime.get("numpy") != "2.5.3"
+        or proposed_runtime.get("numpy") != seed624_verifier.np.__version__
+    ):
+        raise ValueError("proposed_seed624_numpy_runtime_mismatch")
+    verifier_command = [
+        str(HISTORICAL_PYTHON),
+        "-m",
+        "ml.alphazero_lite.verify_seed627_membership_snapshots",
+        str(snapshot_dir.resolve()),
+        "--source-root",
+        str(ROOT),
+    ]
+    verification_run = subprocess.run(
+        verifier_command, cwd=ROOT, check=True, capture_output=True, text=True
+    )
+    verification_result = json.loads(verification_run.stdout)
+    if verification_result.get("status") != "verified":
+        raise ValueError("historical_seed627_verifier_failed")
+    verification = {
+        "result": verification_result,
+        "stdout_sha256": _sha(verification_run.stdout.encode("utf-8")),
+        "stderr_sha256": _sha(verification_run.stderr.encode("utf-8")),
+        "command": verifier_command,
+    }
     if (
         manifest.get("provenance", {}).get("source_game_opening")
         != "authenticated_but_non_crosswalkable"
@@ -110,12 +195,16 @@ def reconstruct_evidence(snapshot_dir: Path) -> dict[str, Any]:
     evidence["source_provenance"] = provenance
     evidence["authentication"] = {
         "schema": "seed628-authenticated-seed627-adapter-v1",
+        "historical_runtime_lock_sha256": HISTORICAL_RUNTIME_LOCK_SHA256,
+        "historical_runtime": runtime,
         "seed627_verification": verification,
         "manifest_sha256": PINNED_FILES["source-identity-lineage-manifest.json"],
         "snapshot_file_sha256": {name: PINNED_FILES[f"{name}.json"] for name in NAMES},
         "identity_runtime": {
-            "historical_numpy": "2.5.2",
-            "screening_numpy": "2.5.3",
+            "historical_numpy": runtime["numpy"],
+            "screening_numpy": proposed_runtime["numpy"],
+            "screening_python": proposed_runtime["python"],
+            "screening_probe_stdout_sha256": proposed_runtime["probe_stdout_sha256"],
         },
     }
     return evidence
@@ -155,7 +244,14 @@ def reconstruct_screening(
         or authentication.get("manifest_sha256")
         != PINNED_FILES["source-identity-lineage-manifest.json"]
         or authentication.get("identity_runtime")
-        != {"historical_numpy": "2.5.2", "screening_numpy": "2.5.3"}
+        != {
+            "historical_numpy": "2.5.2",
+            "screening_numpy": "2.5.3",
+            "screening_python": sys.version,
+            "screening_probe_stdout_sha256": _proposed_runtime_probe()[
+                "probe_stdout_sha256"
+            ],
+        }
         or provenance.get("crosswalk_status") != "authenticated_non_crosswalkable"
         or provenance.get("crosswalk_rows") != []
     ):
@@ -216,14 +312,33 @@ def reconstruct_screening(
     return result
 
 
+def require_pinned_evidence(
+    submitted: dict[str, Any], reconstructed: dict[str, Any]
+) -> None:
+    """Reject evidence that is not byte-for-byte the reconstructed pinned object."""
+    if _canonical(submitted) != _canonical(reconstructed):
+        raise ValueError("production_evidence_does_not_match_pinned_seed627_chain")
+
+
+def require_screening_matches(
+    reconstructed: list[dict[str, Any]], published: list[dict[str, Any]]
+) -> None:
+    """Require the published per-candidate labels to match independent results."""
+    if _canonical(reconstructed) != _canonical(published):
+        raise ValueError("independent_screening_reconstruction_mismatch")
+
+
 def verify_screening(
     candidates: list[dict[str, Any]],
     evidence: dict[str, Any],
     published: list[dict[str, Any]],
+    *,
+    snapshot_dir: Path = SNAPSHOT_DIR,
 ) -> dict[str, Any]:
+    authentic = reconstruct_evidence(snapshot_dir)
+    require_pinned_evidence(evidence, authentic)
     reconstructed = reconstruct_screening(candidates, evidence)
-    if _canonical(reconstructed) != _canonical(published):
-        raise ValueError("independent_screening_reconstruction_mismatch")
+    require_screening_matches(reconstructed, published)
     return {
         "status": "verified",
         "classifications": {
