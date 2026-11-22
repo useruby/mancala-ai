@@ -5,24 +5,21 @@
 Implementation proposal and synthetic checks only. No production population was
 generated, frozen, inferred on, searched, solved, or trained on.
 
-## Sampling and estimand amendment required
+## Active statistical contract and approval gate
 
-The proposed selector is deterministic and constrained by stone-bin quotas,
-game caps, opening caps, and opening diversity. Its unequal inclusion
-probabilities are not calculated. The defensible implementation contract is
-therefore option B: the target is the deterministic, hash-standardized selected
-population, with fixed weight 1/5 for each stone bin. There is no claim of
-design-unbiased inference over the broader random-generation population, and no
-ad hoc state-level design weights are permitted. This narrows/changes the
-protocol's PR #623 language about reporting candidate inclusion probabilities
-and applying candidate inclusion weights. A protocol amendment and owner
-acceptance are required before real generation.
+The active statistical contract in merged PR #625 is the finite 512-state
+selected-population estimand with fixed weight 1/5 for each stone bin. Opening-
+cluster resampling intervals are descriptive stability intervals, not inferential
+confidence intervals. No claim of design-unbiased inference over the broader
+random-generation population is made.
 
 The explicit proposed amendment is recorded in
 [`seed624-estimand-amendment-proposal.md`](seed624-estimand-amendment-proposal.md).
-It is not approved and does not alter merged PR #623. Its incompatible
-inclusion-probability and design-unbiased-inference requirements remain in force
-until the project owner approves and merges that amendment.
+PR #625 merged, but the available PR review record has no independent
+project-owner approval: no review, review request, or approval comment is
+recorded. The amendment's merge is not evidence of owner approval. Explicit
+project-owner approval is a blocking gate; it must be recorded independently
+before production authorization. Do not infer or issue that approval here.
 
 ## Proposed freeze status
 
@@ -30,7 +27,8 @@ until the project owner approves and merges that amendment.
 `proposal_not_ready_or_approved`. It is not an execution freeze. Before an
 authorized freeze, the repository still needs:
 
-- Independent review and acceptance of the estimand amendment above.
+- Explicit, independently recorded project-owner approval of PR #625's
+  amendment (blocking; absent in the inspected PR record).
 - Final source/runtime identities, including a supported Python/NumPy/PRNG
   contract and finalized selector runtime/resource bounds.
 - Authenticated, identity-complete snapshots for B512, S615, protected holdout,
@@ -105,11 +103,13 @@ little-endian `kalah_v3` float32 bytes.
 
 ## Remaining review blockers
 
-1. Validate the selected-population estimand change.
+1. Obtain and independently record explicit project-owner approval of the
+   merged PR #625 estimand amendment (blocking).
 2. Review the bounded selector semantics, resource limits, and synthetic
    feasible/infeasible benchmark results.
-3. Approve and merge the estimand amendment; do not drop the existing
-   inclusion-probability wording before that approval.
+3. Keep the production trust allowlist empty until a reviewed owner key is
+   provisioned through the separately documented procedure and independently
+   verified. Key provisioning alone is not execution authorization.
 4. Provision an independently reviewed project-owner public key in the
    allowlist, then approve a signed, finalized freeze before production.
 5. Bind final runtime/source/dependency identities in the signed freeze. This

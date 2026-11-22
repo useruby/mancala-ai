@@ -5,6 +5,8 @@ from __future__ import annotations
 import hashlib
 import base64
 import json
+import subprocess
+import shutil
 import tempfile
 import time
 import unittest
@@ -711,6 +713,71 @@ class Seed624SyntheticTests(unittest.TestCase):
         with self.assertRaisesRegex(PermissionError, "execution_freeze_file_required"):
             seed624.generate_population({}, Path("unused"))
 
+    def test_failure_receipts_are_durable_create_only_and_classified(self) -> None:
+        with tempfile.TemporaryDirectory(dir=".tmp") as directory:
+            receipt = Path(directory) / "failure.json"
+            authorization = {
+                "execution_freeze_sha256": "a" * 64,
+                "authorized_run_identity": "synthetic-run-1",
+            }
+            shortfall = seed624.ShortfallError(
+                {"reason": "constraints_infeasible", "nodes": 17}
+            )
+            with patch.object(seed624, "generate_population", side_effect=shortfall):
+                with self.assertRaises(seed624.ShortfallError):
+                    seed624.execute_with_failure_receipts(
+                        authorization, Path(directory) / "partial", receipt_path=receipt
+                    )
+            report = json.loads(receipt.read_text())
+            self.assertEqual(report["failure_category"], "mathematical_infeasibility")
+            self.assertEqual(report["authorized_run_identity"], "synthetic-run-1")
+            self.assertEqual(report["diagnostic"]["report"]["nodes"], 17)
+            with self.assertRaises(FileExistsError):
+                seed624.write_failure_receipt(
+                    authorization=authorization,
+                    category="unexpected_execution_exception",
+                    diagnostic={},
+                    receipt_path=receipt,
+                )
+
+    def test_resource_exhaustion_and_supply_have_distinct_receipt_categories(
+        self,
+    ) -> None:
+        resource = seed624.ShortfallError({"reason": "optimizer_resource_limit"})
+        supply = seed624.ShortfallError({"reason": "hard_supply"})
+        opening = seed624.ShortfallError({"reason": "opening_reserve_exhausted"})
+        self.assertEqual(
+            seed624._failure_category(resource), "selector_resource_exhaustion"
+        )
+        self.assertEqual(
+            seed624._failure_category(supply), "insufficient_stone_bin_supply"
+        )
+        self.assertEqual(
+            seed624._failure_category(opening), "opening_reserve_exhaustion"
+        )
+
+    def test_synthetic_wall_limit_termination_writes_supervisor_receipt(self) -> None:
+        with tempfile.TemporaryDirectory(dir=".tmp") as directory:
+            receipt = Path(directory) / "supervisor-failure.json"
+            try:
+                subprocess.run(
+                    ["python", "-c", "import time; time.sleep(2)"],
+                    check=True,
+                    timeout=0.05,
+                )
+            except subprocess.TimeoutExpired:
+                seed624.write_failure_receipt(
+                    authorization={
+                        "execution_freeze_sha256": "b" * 64,
+                        "authorized_run_identity": "synthetic-wall-limit-run",
+                    },
+                    category="execution_resource_limit_termination",
+                    diagnostic={"limit": "wall_seconds", "exit_status": "terminated"},
+                    receipt_path=receipt,
+                )
+            receipt_data = json.loads(receipt.read_text())
+            self.assertEqual(receipt_data["diagnostic"]["exit_status"], "terminated")
+
     def test_entrypoint_rejects_caller_supplied_untrusted_owner_key(self) -> None:
         attacker_key = Ed25519PrivateKey.generate()
         attacker_public_key = attacker_key.public_key().public_bytes(
@@ -726,6 +793,8 @@ class Seed624SyntheticTests(unittest.TestCase):
                     "wall_seconds": 3600,
                     "cpu_seconds": 3600,
                     "process_rss_bytes": 4 * 1024**3,
+                    "execution_concurrency": 1,
+                    "output_and_temporary_storage_bytes": 2 * 1024**3,
                 },
                 "project_owner_identity": "synthetic-fixture-owner",
                 "execution_scope": seed624.EXECUTION_SCOPE,
@@ -860,6 +929,8 @@ class Seed624SyntheticTests(unittest.TestCase):
                 "wall_seconds": 3600,
                 "cpu_seconds": 3600,
                 "process_rss_bytes": 4 * 1024**3,
+                "execution_concurrency": 1,
+                "output_and_temporary_storage_bytes": 2 * 1024**3,
             },
             "project_owner_identity": "synthetic-fixture-owner",
             "execution_scope": seed624.EXECUTION_SCOPE,
@@ -1033,7 +1104,10 @@ class Seed624SyntheticTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(dir=".tmp") as directory:
             path = Path(directory) / "population.json"
             path.write_text(json.dumps(bundle, sort_keys=True))
-            report = verify_bundle(path)
+            physical_copy = Path(directory) / "copied-evidence" / "population.json"
+            physical_copy.parent.mkdir()
+            shutil.copyfile(path, physical_copy)
+            report = verify_bundle(physical_copy)
         self.assertEqual(report["status"], "verified")
         self.assertEqual(report["games"], 8)
         self.assertFalse(report["training_disjoint"])
@@ -1112,6 +1186,8 @@ class Seed624SyntheticTests(unittest.TestCase):
                 "wall_seconds": 3600,
                 "cpu_seconds": 3600,
                 "process_rss_bytes": 4 * 1024**3,
+                "execution_concurrency": 1,
+                "output_and_temporary_storage_bytes": 2 * 1024**3,
             },
             "project_owner_identity": "synthetic-fixture-owner",
             "execution_scope": seed624.EXECUTION_SCOPE,

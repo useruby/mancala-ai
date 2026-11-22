@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import importlib.metadata
 import json
+import os
 import random
 import subprocess
 import sys
@@ -868,7 +869,13 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
     production_resources = freeze.get("production_resource_limits")
     production_resources_valid = isinstance(production_resources, dict) and all(
         type(production_resources.get(name)) is int and production_resources[name] > 0
-        for name in ("wall_seconds", "cpu_seconds", "process_rss_bytes")
+        for name in (
+            "wall_seconds",
+            "cpu_seconds",
+            "process_rss_bytes",
+            "execution_concurrency",
+            "output_and_temporary_storage_bytes",
+        )
     )
     if (
         freeze.get("schema") != "seed624-execution-freeze-v1"
@@ -1032,6 +1039,87 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
     }
 
 
+def write_failure_receipt(
+    *,
+    authorization: dict[str, Any],
+    category: str,
+    diagnostic: dict[str, Any],
+    receipt_path: Path | None = None,
+) -> Path:
+    """Create a durable, create-only receipt for a failed execution attempt."""
+    freeze_path = authorization.get("execution_freeze_path")
+    freeze_digest = authorization.get("execution_freeze_sha256")
+    freeze: dict[str, Any] = {}
+    if freeze_path and Path(freeze_path).is_file():
+        try:
+            freeze = json.loads(Path(freeze_path).read_bytes())
+        except (OSError, json.JSONDecodeError):
+            pass
+    run_identity = authorization.get("authorized_run_identity") or freeze.get(
+        "authorized_run_identity"
+    )
+    if receipt_path is None:
+        receipt_path = Path(
+            authorization.get("failure_receipt_path", "seed624-failure-receipt.json")
+        )
+    payload = {
+        "schema": "seed624-failure-receipt-v1",
+        "execution_freeze_sha256": freeze_digest,
+        "authorized_run_identity": run_identity,
+        "failure_category": category,
+        "diagnostic": diagnostic,
+    }
+    receipt_path.parent.mkdir(parents=True, exist_ok=True)
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    descriptor = os.open(receipt_path, flags, 0o600)
+    with os.fdopen(descriptor, "wb") as stream:
+        stream.write(canonical_bytes(payload) + b"\n")
+        stream.flush()
+        os.fsync(stream.fileno())
+    return receipt_path
+
+
+def _failure_category(error: BaseException) -> str:
+    if isinstance(error, ShortfallError):
+        reason = str(error.report.get("reason", ""))
+        if reason == "opening_reserve_exhausted":
+            return "opening_reserve_exhaustion"
+        if reason == "hard_supply":
+            return "insufficient_stone_bin_supply"
+        if reason in {"aggregate_cluster_capacity", "constraints_infeasible"}:
+            return "mathematical_infeasibility"
+        if "resource_limit" in reason:
+            return "selector_resource_exhaustion"
+        return "generation_shortfall"
+    if isinstance(error, (PermissionError, ValueError, KeyError, FileNotFoundError)):
+        return "verification_or_identity_failure"
+    return "unexpected_execution_exception"
+
+
+def execute_with_failure_receipts(
+    authorization: dict[str, Any], output: Path, *, receipt_path: Path | None = None
+) -> dict[str, Any]:
+    """Run the production entry point and persist evidence before re-raising."""
+    try:
+        return generate_population(authorization, output)
+    except BaseException as error:
+        diagnostic: dict[str, Any] = {
+            "exception_type": type(error).__name__,
+            "message": str(error),
+            "partial_output_path": str(output),
+            "partial_output_exists": output.exists(),
+        }
+        if isinstance(error, ShortfallError):
+            diagnostic["report"] = error.report
+        write_failure_receipt(
+            authorization=authorization,
+            category=_failure_category(error),
+            diagnostic=diagnostic,
+            receipt_path=receipt_path,
+        )
+        raise
+
+
 def proposed_freeze_schema() -> dict[str, Any]:
     """Return a schema template, never a production-ready execution freeze."""
     return {
@@ -1040,6 +1128,12 @@ def proposed_freeze_schema() -> dict[str, Any]:
         "required": {
             "git_commit": None,
             "source_file_sha256": {name: None for name in SOURCE_FILES},
+            "independent_verifier_sha256": None,
+            "external_harness_identity": {
+                "name": None,
+                "version": None,
+                "sha256": None,
+            },
             "rules_identity": {
                 "rule_id": "historical-kalah-rules",
                 "rule_version": "repository-kalah-rules-v1",
@@ -1047,6 +1141,13 @@ def proposed_freeze_schema() -> dict[str, Any]:
             },
             "encoder_identity": {"encoder": "kalah_v3", "source_sha256": None},
             "runtime": runtime_identity(),
+            "dependency_versions": {
+                "python": None,
+                "numpy": None,
+                "cryptography": None,
+                "platform": None,
+                "kernel": None,
+            },
             "generation": {
                 "master_seed": MASTER_SEED,
                 "seed_contract": SEED_CONTRACT,
@@ -1063,6 +1164,7 @@ def proposed_freeze_schema() -> dict[str, Any]:
                 "protected_holdout": None,
             },
             "source_provenance_sha256": None,
+            "provenance_source_file_sha256": {},
             "selection": {
                 "targets": STONE_TARGETS,
                 "max_per_game": 2,
@@ -1086,7 +1188,24 @@ def proposed_freeze_schema() -> dict[str, Any]:
                 "wall_seconds": None,
                 "cpu_seconds": None,
                 "process_rss_bytes": None,
+                "execution_concurrency": None,
+                "output_and_temporary_storage_bytes": None,
                 "status": "must_be_set_and_enforced_by_authorized_execution_harness",
+            },
+            "authorized_run_identity": None,
+            "failure_receipt_contract": {
+                "schema": "seed624-failure-receipt-v1",
+                "create_only_path": None,
+                "categories": [
+                    "opening_reserve_exhaustion",
+                    "insufficient_stone_bin_supply",
+                    "mathematical_infeasibility",
+                    "selector_resource_exhaustion",
+                    "verification_or_identity_failure",
+                    "unexpected_execution_exception",
+                ],
+                "preserve_partial_artifacts": True,
+                "automatic_retry": False,
             },
             "outputs": {"schema": SCHEMA},
             "verification_commands": [
@@ -1103,5 +1222,12 @@ def proposed_freeze_schema() -> dict[str, Any]:
                 "signature_ed25519": None,
             },
             "trusted_key_requirement": "signing key ID must resolve only in TRUSTED_PROJECT_OWNER_KEYS from reviewed repository source; caller-supplied public keys are rejected",
+            "approval_requirements": {
+                "project_owner_identity": None,
+                "explicit_protocol_amendment_approval_record": None,
+                "exact_freeze_digest_signature": None,
+                "execution_authorization_record": None,
+                "key_provisioning_is_authorization": False,
+            },
         },
     }
