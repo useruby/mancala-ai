@@ -1,9 +1,10 @@
 # Seed 623 — prospective exact-quality benchmark for B512 and S615
 
-**Status:** protocol and feasibility assessment only. No state generation,
-model inference, search, oracle query, solver run, training, or evaluation was
-performed. This document authorizes no execution and is not a candidate-
-promotion evaluation.
+**Status:** proposed protocol amendment; not authoritative pending explicit
+project-owner approval. Protocol and feasibility assessment only. No state
+generation, model inference, search, oracle query, solver run, training, or
+evaluation was performed. This document authorizes no execution and is not a
+candidate-promotion evaluation.
 
 ## Recommendation
 
@@ -18,6 +19,15 @@ exposure, reject this design until the P-E4 ancestry gap is repaired.
 
 ## Research questions and estimands
 
+### Amendment status
+
+This document incorporates the proposed Seed 624 estimand amendment for review.
+It becomes authoritative only after explicit project-owner approval is recorded
+with the approver identity, approval timestamp, exact amended protocol
+commit/hash, and decision to withdraw the inclusion-probability and
+design-unbiased inference requirements. This documentation change itself grants
+no execution authorization.
+
 The target domain is reachable nonterminal states from the stated generation
 distribution with 17–21 stones remaining in pits (the exact tier-21 domain),
 at least two legal actions, and complete exact legal-action coverage. Claims
@@ -25,16 +35,18 @@ are conditional on this domain and generation distribution; they do not
 generalize to all Kalah positions, opening play, higher-stone positions, full
 games, or playing strength.
 
-1. **Primary representative decision quality:** paired difference in final-score
-   exact regret between the S615 full checkpoint (arm B) and B512 full
-   checkpoint (arm A), averaged over the primary population. Positive values
-   favor B512; report S615-minus-B512 as the signed contrast (negative favors
-   S615). This estimates the whole-checkpoint effect, including policy, value,
-   and shared-trunk changes, after fixed-budget search.
-2. **Prior-source intervention:** paired S615-prior/B512-value (arm C) minus
-   B512-prior/B512-value (arm A) exact regret. This estimates switching the
-   checkpoint-sourced prior function under the B512 evaluator, not an isolated
-   policy-head tensor effect.
+1. **Primary finite-cohort decision quality:** exact B−A contrast in final-score
+   regret, S615 minus B512, over all 512 states in the frozen hash-selected
+   population. Compute the mean within each of the five stone-count bins and
+   standardize with fixed weight 1/5 per bin. Negative values favor S615. This
+   is a finite-cohort descriptive contrast, not an estimate with design-unbiased
+   inference over the broader generation process. It captures the whole-
+   checkpoint effect, including policy, value, and shared-trunk changes, after
+   fixed-budget search.
+2. **Prior-source diagnostic:** exact finite-cohort paired C−A contrast in
+   regret, standardized with the same fixed 1/5 weight for each stone-count
+   bin. This describes switching the checkpoint-sourced prior function under
+   the B512 evaluator, not an isolated policy-head tensor effect.
 3. **Secondary disagreement diagnostic:** among a separately declared,
    disagreement-enriched subset of the frozen primary population, estimate
    prior and post-search action disagreement and paired regret contrasts. This
@@ -152,23 +164,25 @@ This is a proposed protocol, not an instruction to generate states now.
 6. **Freeze before inference/search:** publish candidate and selected-state
    inventories, complete trajectories, opening/game cluster IDs, legal-action
    sets, stone counts, canonical and float32 identities, seed derivations,
-   inclusion probabilities, exclusions, and selection ranks. Freeze and hash
+   exclusions, and selection ranks. Freeze and hash
    them before any B512/S615 model is loaded. Check all candidates against the
    authenticated available training and protected-holdout identities before
    selecting the primary cohort.
 
 The random legal policy defines a reproducible reachable-state distribution,
 not a uniform distribution over all legal Kalah states or necessarily the
-production-game distribution. The registered target population is explicitly
-the equal-weighted mixture of the five eligible stone-count bins, with weight
-1/5 per bin and the generated opening/game process within each bin. The primary
-estimate is therefore standardized to this fixed mixture, not to the
-unstratified frequency of stone counts in random games. The sampling unit is
-the opening position; continuation games and selected states are nested within
-it. Report the opening-position generation distribution, candidate inclusion
-probabilities, fixed stone-bin weights, and each selected state's source game.
-Keep all states from an opening cluster together in uncertainty estimation.
-Publish the complete candidate pool and exclusions for reconstruction.
+production-game distribution. The amended primary target is the deterministic,
+hash-standardized selected-state population: the exact 512 frozen states,
+standardized to the equal-weighted mixture of the five eligible stone-count
+bins with fixed weight 1/5 per bin. The constrained hash-ranked selection is not
+a probability sample of the broader generation process. Candidate inclusion
+probabilities and design weights are neither claimed, calculated, reported, nor
+applied; results do not support design-unbiased inference over all states
+reachable under that process. Report the opening-position generation
+distribution, fixed bin weights, and each selected state's source game. Keep
+opening clusters intact for descriptive stability resampling. Publish the
+complete generated candidate inventory, all exclusions and ranks, exact
+selected set, per-bin counts, and cluster membership for reconstruction.
 
 ## Known-training-exposure exclusion contract
 
@@ -193,22 +207,23 @@ generated prospectively. The strongest defensible label is **known-exposure
 screened; inherited exposure unresolved**. Report separate counts of exact
 matches removed, provenance-linked clusters removed, and unresolved rows. No
 “training-disjoint,” “unseen,” contamination-free, or generalization claim is
-permitted. The estimand applies to the generated population under this explicit
-exposure limitation. If that limitation invalidates the intended question,
-reject before execution.
+permitted. The estimand applies to the frozen selected population under this
+explicit exposure limitation. If that limitation invalidates the intended
+question, reject before execution.
 
 ## Primary and secondary cohorts
 
-### Primary: representative fixed-state cohort
+### Primary: deterministic fixed-state cohort
 
-Use the 512-state hash-selected sample above after only the fixed known-exposure
-exclusions. Do not select or replace states on prior or model behavior. Preserve
-the exact per-bin quotas and the equal 1/5 target-bin weights; within-bin
-selection follows the frozen rank and cluster-cap rule. Report the standardized
-primary estimate and an unweighted descriptive sensitivity result. All three
-search arms run on the same frozen roots. The primary inference is conditional
-on this reachable, equal-stone-bin, known-exposure-screened population, not
-historical training-disjointness.
+Use the 512-state hash-selected cohort above after only the fixed
+known-exposure exclusions. Do not select or replace states on prior or model
+behavior. Preserve the exact per-bin quotas and fixed 1/5 bin weights;
+within-bin selection follows the frozen rank and cluster-cap rule. Compute the
+standardized primary contrast exactly over the complete selected cohort and
+report unweighted descriptive results as sensitivity summaries only. All three
+search arms run on the same frozen roots. The estimand is conditional on this
+fixed reachable, equal-stone-bin, known-exposure-screened population, not
+historical training-disjointness or the broader generation process.
 
 ### Secondary: prior-disagreement diagnostic
 
@@ -325,97 +340,91 @@ the domain or infer coverage from stone count alone.
 
 ### Endpoints
 
-- **Primary endpoint:** cluster- and inclusion-weighted mean paired exact
-  regret difference B−A (S615 minus B512); negative favors S615. The sign,
-  weighting, and comparison are fixed before oracle/action results.
-- **Key secondary:** C−A mean paired exact regret; negative favors the
-  S615-sourced prior function with B512 value fixed.
+- **Primary endpoint:** exact finite-cohort mean paired regret difference B−A
+  (S615 minus B512), standardized as the mean of the five within-bin means with
+  fixed weight 1/5 per bin; negative favors S615. Compute it over all 512
+  selected states. The sign, weights, and comparison are fixed before
+  oracle/action results.
+- **Key secondary:** exact finite-cohort C−A mean paired regret, standardized
+  with the same fixed 1/5 weight per bin; negative favors the S615-sourced prior
+  function with B512 value fixed.
 - **Secondary:** post-search selected-action disagreement for B−A and C−A;
   exact-optimal action rate; WDL-inferior action rate; prior top-action and
   optimal-action mass; prior TV; pre-search and post-search exact regret;
   per-stone-bin effects. Diagnostic-cohort effects are separately labeled and
   never substituted for the primary endpoint.
 - Report exact-optimality with ties included. Report counts and rates of
-  WDL-inferior choices plus cluster-aware intervals. Separate the oracle's
-  exact optimal action set from post-search actions and raw-prior top actions.
+  WDL-inferior choices plus descriptive stability intervals. Separate the
+  oracle's exact optimal action set from post-search actions and raw-prior top
+  actions.
 
-### Size and precision rationale
+### Finite-cohort size and structure
 
-Candidate primary size is **512 states from at least 128 distinct opening
-positions** (the generation target is 256). Each opening position is generated
-by an independent eight-action prefix and has up to eight independent
-continuation games; no more than four selected states can come from one opening
-and no more than two from one game. Planning uses paired regret-difference SD
-1.5 seeds and intracluster correlation 0.20. With the maximum mean cluster
-size of four and equal cluster sizes, design effect is
-`1 + (4−1)*0.20 = 1.6`, giving effective sample about 320. A true 0.25-seed
-mean difference then has approximate standardized effect
-`0.25/(1.5/sqrt(320)) = 2.98`, about 85% power by normal approximation; the
-approximate 95% half-width is 0.16 seeds. Unequal cluster sizes may increase the
-design effect, so compute the actual effective sample size from the frozen
-cluster-size distribution and registered ICC formula. These assumptions are
-not empirical Seed 623 variance estimates. Before inference, conduct a blinded,
-model-free design audit of cluster counts, stone-bin weights, and cluster-size
-imbalance. Require effective sample size of at least 250; otherwise revise or
-stop before model inference. No interim sample-size extension.
+The primary cohort is exactly **512 selected states**, with the frozen per-bin
+quotas and at least 128 distinct opening positions (the generation target is
+256). Each opening position is generated by an independent eight-action prefix
+and has up to eight independent continuation games; no more than four selected
+states can come from one opening and no more than two from one game. These
+constraints define the cohort and its cluster composition; they are not a
+probability-sampling or inferential precision guarantee. Before model inference,
+conduct a model-free audit of cluster counts, per-bin quotas, and cluster-size
+limits. Do not apply an effective-sample-size or power gate to this finite-
+cohort descriptive estimand. No interim sample-size extension.
 
 ### Uncertainty and decisions
 
-Use paired resampling of the **opening-position cluster** (its prefix, all
-continuation games, and every selected state travel together), with 20,000
-bootstrap replicates and a frozen analysis seed. Resample opening clusters
-with replacement and calculate each of the five stone-bin means within each
-replicate; average those five means with fixed weight 1/5. Apply the registered
-candidate inclusion weights within each bin. Report percentile 95% intervals
-and a cluster-robust sensitivity interval.
-Never bootstrap actions, simulations, or states as independent observations.
-Report effective cluster count, largest cluster, state counts per stone bin,
-and raw unweighted results. Predeclare multiplicity: B−A is the sole primary
-contrast at two-sided 5%; C−A and all strata are secondary, with intervals
-descriptive and no multiplicity-based promotion gate.
+Opening-cluster bootstrap results are **descriptive stability intervals**,
+not confidence intervals. With 20,000 replicates and the frozen analysis seed,
+resample each opening-position cluster (prefix, all continuation games, and
+selected states together); calculate the five bin means in each replicate and
+average them with fixed weight 1/5 per bin. Do not apply candidate inclusion
+weights. Report the interval to show how the standardized contrast varies under
+perturbation of the observed cluster composition. It has no confidence-coverage
+or design-based interpretation for a larger stochastic population and is never
+used as an inferential gate. Never bootstrap actions, simulations, or states as
+independent observations. Report cluster count, largest cluster, state counts
+per stone bin, and raw unweighted results. No multiplicity-based promotion
+gate applies; C−A and strata remain secondary descriptive contrasts.
 
-For the WDL-inferior action-rate safeguard, define the paired risk difference
-as S615 minus B512 in the fraction of selected actions strictly worse in
-win/draw/loss class than the exact-best legal action. Use a one-sided 95%
-opening-cluster interval. This is a **non-inferiority safeguard**, not a strict
-superiority test: the preregistered maximum tolerable increase is +1 percentage
-point, chosen as a small absolute bound on harmful decision frequency. Pass
-only if the upper confidence bound is ≤ +1 percentage point. A bound above
-that margin (or one not estimable because of coverage) fails the safeguard; it
-does not prove S615 is WDL-inferior, but prevents an improvement claim. Report
-the rate difference and interval regardless. Apply the same descriptive
-safeguard to C−A, without making it a candidate-promotion criterion.
+For the finite-cohort WDL-inferior action-rate difference, calculate the exact
+S615-minus-B512 difference in the fraction of selected actions strictly worse
+in win/draw/loss class than the exact-best legal action, standardized with fixed
+weight 1/5 across bins. The +1 percentage-point threshold is a descriptive
+decision threshold, not a non-inferiority margin or inferential test.
 
-After all coverage, oracle, routing, and effective-sample gates pass, assign
-exactly one primary B−A label in this order:
+After exact action coverage, oracle, and routing requirements pass, assign the
+finite-cohort descriptive label:
 
-1. **Diagnostic improvement demonstrated** if the estimated mean regret
-   difference is ≤ −0.25 seeds, the two-sided 95% interval upper endpoint is
-   < 0, and the WDL non-inferiority safeguard passes.
-2. **No demonstrated improvement of the preregistered size** if the 95%
-   interval lower endpoint is > −0.25 seeds and the WDL non-inferiority
-   safeguard passes. This rules out the preregistered ≥0.25-seed benefit at
-   this interval level; it is not equivalence or proof of no effect.
-3. **Inconclusive** in every other case, including the interval not meeting
-   either rule, the WDL safeguard failing, or any required coverage/verification
-   gate failing. A WDL safeguard failure is not relabeled as demonstrated
-   harm. No post-hoc expansion or endpoint substitution.
+1. **Observed selected-population regret threshold met** if and only if the
+   exact B−A finite-cohort mean regret difference is at most −0.25 seeds and
+   the exact finite-cohort S615-minus-B512 WDL-inferior rate difference is at
+   most +1 percentage point.
+2. Otherwise, report **observed selected-population regret threshold not met**,
+   with a separate flag if the finite-cohort WDL-inferior difference exceeds
+   +1 percentage point.
+3. If any required exact action coverage or outcome is missing, report
+   **unavailable**; do not substitute a stability-interval endpoint or another
+   population.
 
-These rules are mutually exclusive: rule 1 requires a point estimate at or
-below −0.25, while rule 2 requires the interval's lower endpoint above −0.25;
-all boundary and remaining cases go to rule 3. Report C−A and diagnostic-tail
-contrasts as secondary estimates with intervals, not alternate primary
-decision routes.
+Report the cluster-resampling stability interval beside the exact finite-cohort
+contrasts, but never use it to determine these labels. The labels describe only
+the frozen selected population; they do not establish improvement, no
+improvement, non-inferiority, or generalization for the broader generation
+distribution. Any such stochastic-population claim requires a separately
+registered sampling design and estimand. Report C−A and diagnostic-tail
+contrasts as secondary estimates, not alternate primary decision routes.
 
 Regardless of diagnostic label, report exact-optimal and WDL-inferior action
-rates with intervals. The benchmark does not test head-to-head game outcomes,
-full-match strength, deployment readiness, or candidate promotion. Arena
-strength improvement requires a separate prospectively registered evaluation.
+rates with descriptive stability intervals. The benchmark does not test
+head-to-head game outcomes, full-match strength, deployment readiness, or
+candidate promotion. Arena strength improvement requires a separate
+prospectively registered evaluation.
 
 Historical checkpoint exposure remains a major interpretive limitation: even a
 positive prospective-state result cannot establish performance on genuinely
 unseen states while P-E4 ancestry is unresolved. It can establish comparative
-decision quality on the generated, known-exposure-screened population only.
+decision quality on the frozen selected, known-exposure-screened population
+only.
 
 ## Stages and authorization gates
 
