@@ -25,6 +25,7 @@ from ml.alphazero_lite.seed630_xfs_project_quota import verify_shared_project_qu
 SYNTHETIC_NAMESPACE = "seed630.synthetic.v1"
 WORKER_MODULE = "ml.alphazero_lite.seed629_synthetic_worker"
 MODES = {"success", "cpu", "memory", "sleep", "write", "child"}
+_SEED631_COORDINATION_TOKEN = object()
 
 
 class _WorkerProcess:
@@ -97,6 +98,7 @@ def _fork_blocked_worker(
     stderr_fd: int,
     working_directory: Path,
     environment: dict[str, str],
+    close_fds: tuple[int, ...] = (),
 ) -> _WorkerProcess:
     """Fork a blocked child so no Python worker code runs before cgroup attach."""
     gate_read, gate_write = os.pipe2(os.O_CLOEXEC)
@@ -109,6 +111,7 @@ def _fork_blocked_worker(
     if pid == 0:
         try:
             os.close(gate_write)
+            _close_inherited_fds(close_fds)
             os.setgroups([worker_gid])
             os.setgid(worker_gid)
             os.setuid(worker_uid)
@@ -149,6 +152,12 @@ def _read_memfd(descriptor: int) -> bytes:
 
 def _worker_script() -> Path:
     return Path(__file__).with_name("seed629_synthetic_worker.py").resolve(strict=True)
+
+
+def _close_inherited_fds(descriptors: tuple[int, ...]) -> None:
+    """Drop supervisor-only descriptors in a forked worker before its gate."""
+    for descriptor in descriptors:
+        os.close(descriptor)
 
 
 def _worker_environment(scratch: Path) -> dict[str, str]:
@@ -293,7 +302,12 @@ def _load_synthetic_freeze(path: Path) -> tuple[dict[str, Any], str]:
 
 
 def run_synthetic(
-    freeze_path: Path, config: dict[str, Any], mode: str
+    freeze_path: Path,
+    config: dict[str, Any],
+    mode: str,
+    *,
+    coordination_lock_fd: int | None = None,
+    coordination_lock_token: object | None = None,
 ) -> dict[str, Any]:
     """Run one frozen worker mode after verifying kernel cgroup and XFS limits."""
     if mode not in MODES:
@@ -357,8 +371,17 @@ def run_synthetic(
         and any(scratch.iterdir())
     ):
         raise FileExistsError("synthetic_artifact_directories_must_be_empty")
-    lock_path = Path(config["lock_path"])
-    slot = supervisor._acquire_slot(lock_path, limits["concurrency"])
+    if coordination_lock_fd is not None and (
+        coordination_lock_token is not _SEED631_COORDINATION_TOKEN
+        or type(coordination_lock_fd) is not int
+    ):
+        raise PermissionError("seed631_shared_coordination_lock_required")
+    owns_slot = type(coordination_lock_fd) is not int
+    if owns_slot:
+        lock_path = Path(config["lock_path"])
+        slot = supervisor._acquire_slot(lock_path, limits["concurrency"])
+    else:
+        slot = coordination_lock_fd
     process: _WorkerProcess | None = None
     stdout_fd = -1
     stderr_fd = -1
@@ -403,6 +426,7 @@ def run_synthetic(
             stderr_fd=stderr_fd,
             working_directory=worker_script.parent,
             environment=_worker_environment(scratch),
+            close_fds=(slot,),
         )
         (cgroup / "cgroup.procs").write_text(str(process.pid))
         process.release()
@@ -544,7 +568,8 @@ def run_synthetic(
                 os.close(stdout_fd)
             if stderr_fd >= 0:
                 os.close(stderr_fd)
-            os.close(slot)
+            if owns_slot:
+                os.close(slot)
         if cleanup_error is not None:
             raise cleanup_error
 
