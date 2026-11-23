@@ -25,11 +25,24 @@ implementation defect. No experiment is reported as OS-enforcement verified.
 root-only verifier for two disjoint directories sharing one XFS project ID and
 project-inheritance flag. It checks the real mount source/type/options, rejects
 symlink and nested-mount escape paths, reads project IDs with `FS_IOC_FSGETXATTR`,
-and requires an exact finite hard limit from `xfs_quota` report output. It does
-not configure quotas and does not accept a caller-provided enforcement flag.
+requires accounting and enforcement both `ON` in `xfs_quota state -p`, and
+requires an exact finite hard limit from `xfs_quota report -p -n -b`. The
+`xfs_quota(8)` report documents block quantities as 1K blocks; the parser
+converts them using 1024 bytes per block. It does not configure quotas and does
+not accept a caller-provided enforcement flag. Preflight also rejects active
+user/group quota enforcement and project inode limits so a storage denial can be
+attributed to the project byte quota. The worker distinguishes `EDQUOT` from
+`ENOSPC` with a fixed JSON failure record and exit code; the verifier requires
+`EDQUOT`, active project enforcement, project usage near the hard limit, and
+matching raw filesystem records.
 The synthetic harness uses a dedicated namespace and only the registered
 `seed629_synthetic_worker`; production authorization is never accepted by that
-entry point.
+entry point. The freeze binds the worker source digest, and the harness starts
+its absolute source path in isolated Python mode with a sanitized environment.
+A forked child blocks before exec until the supervisor attaches it to cgroup;
+stdout/stderr go to anonymous memfds and the worker is waited/reaped without
+communicating with a closed stdin pipe. Run records are create-only, fsynced,
+and stored outside worker-writable paths.
 
 The production Seed 629 path remains blocked pending verified quota integration.
 The new harness is an integration-test implementation, not a claim that this
@@ -77,7 +90,7 @@ ID. Stop if the image, mountpoint, cgroup parent, or project ID is already in us
    after manually confirming these paths and the unique project ID:
 
    ```sh
-   BUDGET_BYTES=1073741824  # Replace with the exact synthetic freeze value.
+   BUDGET_BYTES=1073741824  # Replace with a freeze value divisible by 1024.
    printf '63001:/mnt/seed630-test/tree\n' >> /etc/projects
    printf 'seed630-test:63001\n' >> /etc/projid
    mkdir -m 0770 /mnt/seed630-test/tree
@@ -85,12 +98,14 @@ ID. Stop if the image, mountpoint, cgroup parent, or project ID is already in us
    xfs_quota -x -c 'project -s seed630-test' /mnt/seed630-test
    xfs_quota -x -c "limit -p bhard=${BUDGET_BYTES}B seed630-test" /mnt/seed630-test
    xfs_quota -x -c 'report -p -n -b' /mnt/seed630-test
+   xfs_quota -x -c 'state -p' /mnt/seed630-test
    ```
 
    Set root ownership and verify project ID plus inheritance on both child
    directories (for example with `xfs_io -c 'stat'`). Do not proceed unless
-   `xfs_quota` readback shows the exact hard limit. These `/etc` changes are for
-   the disposable VM only.
+   report readback converts to the exact frozen byte value and `state -p` shows
+   project accounting and enforcement `ON`. Accounting-only and disabled states
+   fail preflight. These `/etc` changes are for the disposable VM only.
 
 3. Provision a delegated cgroup-v2 subtree specifically for the test worker,
    with `cpu`, `memory`, and `pids` controllers enabled by its parent. Verify

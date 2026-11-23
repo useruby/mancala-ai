@@ -12,7 +12,12 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-from ml.alphazero_lite.seed630_xfs_project_quota import verify_shared_project_quota
+from ml.alphazero_lite.seed630_xfs_project_quota import (
+    _fsxattr_record,
+    _verify_nonproject_quotas_disabled,
+    _verify_project_quota_state,
+    verify_shared_project_quota,
+)
 
 VERSION = "seed630-root-os-collector-v1"
 CGROUP_FILES = (
@@ -26,8 +31,21 @@ CGROUP_FILES = (
     "memory.max",
     "memory.oom.group",
     "memory.peak",
+    "memory.stat",
+    "pids.current",
     "pids.max",
 )
+RAW_FILES = {
+    **{f"cgroup/{name}": name for name in CGROUP_FILES},
+    "host/mountinfo": "mountinfo",
+    "host/proc-version": "proc-version",
+    "filesystem/xfs-project-report": "xfs-project-report",
+    "filesystem/xfs-project-state": "xfs-project-state",
+    "filesystem/xfs-project-inode-report": "xfs-project-inode-report",
+    "filesystem/xfs-nonproject-quota-state": "xfs-nonproject-quota-state",
+    "filesystem/xfs-project-directory-identities": "xfs-project-directory-identities.json",
+    "supervisor/run-record": "supervisor-run-record.json",
+}
 
 
 def _sha(raw: bytes) -> str:
@@ -60,9 +78,14 @@ def collect(
             raise PermissionError(
                 f"{label}_must_be_root_owned_and_not_group_other_writable"
             )
+        for parent in (path.parent, *path.parent.parents):
+            parent_stat = parent.stat()
+            if parent_stat.st_uid != 0 or parent_stat.st_mode & 0o022:
+                raise PermissionError(f"{label}_parent_path_not_root_private")
 
     require_root_readonly_file(run_record_path, "supervisor_run_record")
     require_root_readonly_file(freeze_path, "synthetic_freeze")
+    require_root_readonly_file(signing_key, "collector_signing_key")
     key_stat = signing_key.stat(follow_symlinks=False)
     if (
         not stat.S_ISREG(key_stat.st_mode)
@@ -78,14 +101,32 @@ def collect(
         or run.get("schema") != "seed630-synthetic-run-v1"
         or run.get("freeze_sha256") != _sha(freeze_raw)
         or run.get("run_id") != freeze.get("run_id")
+        or str(run_record_path) != freeze.get("result_path")
         or freeze.get("quota_project_id") != project_id
+        or str(cgroup_path) != freeze.get("cgroup_path")
     ):
         raise ValueError("synthetic_run_freeze_binding_mismatch")
     if cgroup_path.is_symlink() or not cgroup_path.is_dir():
         raise PermissionError("collector_cgroup_path_invalid")
+    for parent in (destination.parent, *destination.parent.parents):
+        parent_stat = parent.stat()
+        if parent_stat.st_uid != 0 or parent_stat.st_mode & 0o022:
+            raise PermissionError("evidence_destination_parent_not_root_private")
     artifact_paths = run.get("artifacts")
-    if not isinstance(artifact_paths, list) or len(artifact_paths) != 2:
+    if not isinstance(artifact_paths, list) or artifact_paths != [
+        freeze.get("output_path"),
+        freeze.get("scratch_path"),
+    ]:
         raise ValueError("synthetic_output_and_scratch_paths_missing")
+    run_path = run_record_path.resolve(strict=True)
+    freeze_file_path = freeze_path.resolve(strict=True)
+    artifact_roots = tuple(Path(value).resolve(strict=True) for value in artifact_paths)
+    if any(
+        file_path == root or root in file_path.parents
+        for file_path in (run_path, freeze_file_path)
+        for root in artifact_roots
+    ):
+        raise PermissionError("signed_control_input_inside_worker_writable_artifacts")
     quota_observation = verify_shared_project_quota(
         Path(artifact_paths[0]),
         Path(artifact_paths[1]),
@@ -122,14 +163,73 @@ def collect(
         ).stdout
         (raw_root / "xfs-project-report").write_bytes(report)
         captured["filesystem/xfs-project-report"] = _sha(report)
+        state = subprocess.run(
+            ["xfs_quota", "-x", "-c", "state -p", str(quota_mount)],
+            check=True,
+            capture_output=True,
+            timeout=15,
+        ).stdout
+        _verify_project_quota_state(state.decode())
+        (raw_root / "xfs-project-state").write_bytes(state)
+        captured["filesystem/xfs-project-state"] = _sha(state)
+        nonproject_state = subprocess.run(
+            ["xfs_quota", "-x", "-c", "state -u -g", str(quota_mount)],
+            check=True,
+            capture_output=True,
+            timeout=15,
+        ).stdout
+        _verify_nonproject_quotas_disabled(nonproject_state.decode())
+        (raw_root / "xfs-nonproject-quota-state").write_bytes(nonproject_state)
+        captured["filesystem/xfs-nonproject-quota-state"] = _sha(nonproject_state)
+        inode_report = subprocess.run(
+            ["xfs_quota", "-x", "-c", "report -p -n -i", str(quota_mount)],
+            check=True,
+            capture_output=True,
+            timeout=15,
+        ).stdout
+        (raw_root / "xfs-project-inode-report").write_bytes(inode_report)
+        captured["filesystem/xfs-project-inode-report"] = _sha(inode_report)
+        directory_identities = []
+        for supplied_path in artifact_paths:
+            artifact_path = Path(supplied_path)
+            xflags, observed_id, raw_fsxattr = _fsxattr_record(artifact_path)
+            metadata = artifact_path.stat(follow_symlinks=False)
+            directory_identities.append(
+                {
+                    "path": str(artifact_path.resolve(strict=True)),
+                    "project_id": observed_id,
+                    "xflags": xflags,
+                    "uid": metadata.st_uid,
+                    "mode": stat.S_IMODE(metadata.st_mode),
+                    "fsxattr_hex": raw_fsxattr.hex(),
+                }
+            )
+        identity_raw = json.dumps(
+            directory_identities, sort_keys=True, separators=(",", ":")
+        ).encode()
+        (raw_root / "xfs-project-directory-identities.json").write_bytes(identity_raw)
+        captured["filesystem/xfs-project-directory-identities"] = _sha(identity_raw)
         result_raw = run_record_path.read_bytes()
         (raw_root / "supervisor-run-record.json").write_bytes(result_raw)
         captured["supervisor/run-record"] = _sha(result_raw)
-        source = Path(__file__).read_bytes()
+        source_paths = (
+            Path(__file__),
+            Path(__file__).with_name("seed630_xfs_project_quota.py"),
+            Path(__file__).with_name("seed630_synthetic_harness.py"),
+            Path(__file__).with_name("seed629_synthetic_worker.py"),
+        )
+        source_identity = {
+            source_path.name: _sha(source_path.read_bytes())
+            for source_path in source_paths
+        }
+        source_bundle_digest = _sha(
+            json.dumps(source_identity, sort_keys=True, separators=(",", ":")).encode()
+        )
         manifest = {
             "schema": "seed630-os-evidence-manifest-v1",
             "collector_version": VERSION,
-            "collector_source_sha256": _sha(source),
+            "collector_source_sha256": source_bundle_digest,
+            "source_identity": source_identity,
             "host": {
                 "platform": platform.platform(),
                 "kernel": platform.release(),
@@ -142,9 +242,14 @@ def collect(
             "worker_exit_status": run.get("exit_status"),
             "cgroup_path": str(cgroup_path.resolve(strict=True)),
             "quota_mount": str(quota_mount.resolve(strict=True)),
+            "quota_source": quota_observation.source,
             "project_id": project_id,
-            "raw_sha256": captured,
+            "raw_files": [
+                {"path": f"raw/{RAW_FILES[key]}", "sha256": digest}
+                for key, digest in sorted(captured.items())
+            ],
         }
+        os.chmod(raw_root, 0o500)
         manifest_raw = json.dumps(
             manifest, sort_keys=True, separators=(",", ":")
         ).encode()
