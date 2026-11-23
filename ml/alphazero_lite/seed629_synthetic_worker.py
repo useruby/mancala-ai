@@ -15,6 +15,7 @@ def main() -> None:
         "mode", choices=("success", "cpu", "memory", "sleep", "write", "child")
     )
     parser.add_argument("path", type=Path)
+    parser.add_argument("scratch_path", type=Path, nargs="?")
     args = parser.parse_args()
     if args.mode == "success":
         args.path.write_text("synthetic-ok\n")
@@ -28,9 +29,18 @@ def main() -> None:
     elif args.mode == "sleep":
         time.sleep(3600)
     elif args.mode == "write":
-        with args.path.open("wb") as stream:
+        paths = [args.path]
+        if args.scratch_path is not None:
+            paths.append(args.scratch_path)
+        streams = [path.open("wb") for path in paths]
+        try:
             while True:
-                stream.write(bytes(1024 * 1024))
+                for stream in streams:
+                    stream.write(bytes(1024 * 1024))
+                    stream.flush()
+        finally:
+            for stream in streams:
+                stream.close()
     elif args.mode == "child":
         child = subprocess.Popen(
             [sys.executable, "-c", "import time; time.sleep(3600)"]
