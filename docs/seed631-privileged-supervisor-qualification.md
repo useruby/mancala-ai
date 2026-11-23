@@ -51,9 +51,20 @@ restricted to the registered Seed 630 modes. It requires an externally supplied
 exact freeze digest, validates the synthetic namespace and unique UUID run ID,
 rejects production authorization, checks the frozen paths/configuration, and
 reserves an exclusive root-private attempt record before invoking the existing
-Seed 630 harness. The harness remains responsible for XFS/cgroup preflight and
-worker source-digest validation. There is no retry path, arbitrary command
-interface, or call to Seed 629 `run_authorized()`.
+Seed 630 harness. Concurrency uses the one fixed, host-level
+`/run/seed631-locks` directory, which must be provisioned root-owned and
+non-writable by the worker. Its root-owned, non-writable `slot-count` file must
+match the authenticated freeze concurrency; a freeze or config cannot select a
+different namespace or increase the available slots.
+Slot directories and files reject symlinks and unsafe owners/modes, and slot
+files are opened without following links and validated by descriptor. The
+harness accepts the acquired descriptor for Seed 631 and otherwise retains its
+Seed 630 locking behavior. On success the runner writes a separate create-only
+completion record bound to the exact result-file SHA-256. Failure and completion
+records are never overwritten or retried; a failure-record collision is noted
+without masking the original exception. The harness remains responsible for
+XFS/cgroup preflight and worker source-digest validation. There is no arbitrary
+command interface or call to Seed 629 `run_authorized()`.
 
 The runner's fail-closed boundary has unit tests only. The privileged matrix and
 failure/recovery cases remain unqualified: normal success, memory/CPU/wall
