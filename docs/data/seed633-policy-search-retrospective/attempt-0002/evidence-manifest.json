@@ -1,0 +1,58 @@
+{
+  "schema": "policy-to-search-full-trajectory-evidence-manifest-v1",
+  "attempt": "attempt-0002",
+  "status": "authenticated-and-cross-checked",
+  "pr618_seed615_execution": {
+    "merge_commit": "99a62011b55f25cfc150d8e7c32b6ae4d33b40c4",
+    "evaluation_freeze_sha256": "ba30f5e3efadf3358db9f03c7b4eba4f69b23e2f95dcb4089723a1fb9664f32b",
+    "opening_file_sha256": "77ee8bcc47fcbfb82a212c5db83bf5c9e9bad53bccc1d0e52e86fd2a48fe7079",
+    "assignment_file_sha256": "b4f78189cd2289e6dca0423ac7797ab719e79c5a727e4f8c2cc4c5f0e9cbf88e",
+    "game_records": 4096,
+    "trajectory_files_manifest_sha256": "1264a13ad3a4b0f195fa4970bb380c1fa88d9f6a2db3d9a17e219ced82d25ce7",
+    "result_files_manifest_sha256": "c5956a41e70b2ff677a30966cd3d7bca08aeb9eb33e6de845ef41c3b22f766a8",
+    "registered_checkpoint_sha256": {
+      "B512": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+      "S615": "cdf1e36c4c9374f28b182757b12471b3f00567eb59825bb938435cb56cf8d780",
+      "P-E4": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad"
+    },
+    "decision_source_code_sha256": {
+      "ml/alphazero_lite/arena.py": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+      "ml/alphazero_lite/exact_root_decision.py": "c806a7c3c3a8fd7d7be800f59fc568c670889164a46c7acbde8ff92473776905",
+      "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+      "ml/alphazero_lite/seed615_evaluation.py": "47e96de9edc1b2e0699886b0059b9cc0388483dc77336ee72755aa38f323ccdf"
+    }
+  },
+  "pr619_crosscheck": {
+    "merge_commit": "e0ca6ddeff0d676b53f68789e75c3d5f08161146",
+    "diagnostic_sha256": "bb5d8099950b16d3e8cbc0b0e9f2b9504e43949e7061aa0b5ab13357bc75f29a",
+    "first_divergences_sha256": "05cc496f17c530727aac05173dfcd508385800bddb3ed3dce9357528dcb3a72c",
+    "paired_trajectory_rows_cross_checked": 2048
+  },
+  "seed633_raw_policy_metrics": {
+    "pr632_merge_commit": "dc406188da8c108c5d42a26153e1eec7044e05ee",
+    "attempt": "attempt-0005",
+    "freeze_sha256": "bedc7d538c9d613afc543f38dd2c1dcf432c293c56aba2c4c637c6088521eb70",
+    "cohort_sha256": "303e6c38feff9868133e84a80b92421e26da480dbea36dd3a37a8f70d33e914d",
+    "per_state_metrics_sha256": "ebba7af50e154ff6e31e3afce3ee325da915295ac11f8a10a73f7a516dd2cccb",
+    "rows": 4521
+  },
+  "seed633_exact_action_margins": {
+    "pr633_merge_commit": "5ec200129bf62f0a9f28e067e6987aaca87a8d7f",
+    "attempt": "attempt-0003",
+    "freeze_sha256": "21fe37edfb691a5a707a966ef07903675e42c790881f195ee4a29e2281b312fc",
+    "per_state_results_sha256": "ead34f5772ec3880856efdddcf7597162f2b62a3b26a71dfe6a0424850003815",
+    "rows": 1481
+  },
+  "attempt_0002_outputs": {
+    "coverage.json": {
+      "sha256": "f728e0d351e25ef19f99225ff2ccd566bc6478b7fc3ef47828a30f4eb6efe9f8",
+      "reconstructed_by": "ml/alphazero_lite/verify_policy_search_historical_coverage_attempt_0002.py"
+    },
+    "trajectory-decision-coverage.jsonl.gz": {
+      "sha256": "96b985c9016d26ead95f34bb0eae5400f1d027068b64722a2a8e727d8d88e1ee",
+      "candidate_decision_occurrences": 60618
+    },
+    "README.md": "f33662aa7664530a65e92e417854c6b56f7771d352c3322356799ee688396e0e",
+    "independent-verification.json": "333dfd9c636a253f9b8abb13378af4755bdfe00b9f4d45283a2d23292c082abf"
+  }
+}

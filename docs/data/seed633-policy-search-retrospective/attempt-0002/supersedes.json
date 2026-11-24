@@ -1,0 +1,13 @@
+{
+  "schema": "policy-to-search-coverage-supersession-v1",
+  "supersedes_attempt": "attempt-0001",
+  "superseded_artifacts": [
+    "docs/data/seed633-policy-search-retrospective/coverage.json",
+    "docs/seed633-policy-search-retrospective.md"
+  ],
+  "reason": "Attempt 0001 limited Seed 615 matching to the derived PR #619 policy-prior/first-divergence cohort and did not replay the complete authenticated PR #618 trajectory archive. Attempt 0002 reconstructs every recorded game decision and joins directly to Seed 633 raw policy metrics and exact margins.",
+  "preservation": "Attempt 0001 files and its published conclusion are preserved unchanged as historical outputs.",
+  "decision_scope": "coverage only; no policy/search quality contrast or game-outcome analysis is performed",
+  "adequacy_thresholds": "unchanged from attempt-0001 frozen criteria",
+  "new_freeze": "docs/data/seed633-policy-search-retrospective/attempt-0002/freeze.json"
+}
