@@ -1,0 +1,19 @@
+{
+  "aggregate_and_bootstrap_reconstruction": true,
+  "artifact_checkpoint_sha256": {
+    "B512": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+    "S615": "cdf1e36c4c9374f28b182757b12471b3f00567eb59825bb938435cb56cf8d780"
+  },
+  "cohort_rows": 4521,
+  "independent_numpy_metric_reconstruction": true,
+  "membership_class_counts": {
+    "B512_only": 1120,
+    "S615_only": 1120,
+    "neither_training_membership": 1353,
+    "shared_training": 928
+  },
+  "p_e4_ancestry": "unresolved",
+  "playing_strength_claim": false,
+  "seed615_evaluation_freeze_sha256": "ba30f5e3efadf3358db9f03c7b4eba4f69b23e2f95dcb4089723a1fb9664f32b",
+  "status": "verified"
+}

@@ -1,0 +1,14 @@
+{
+  "schema": "seed633-attempt-failure-v1",
+  "attempt": "attempt-0001",
+  "freeze_sha256": "4c5a2462b638e13f5893caa9fc9a9152de33115a3fe4355f7aee7b66a90884f7",
+  "cohort_sha256": "303e6c38feff9868133e84a80b92421e26da480dbea36dd3a37a8f70d33e914d",
+  "stage": "summary_aggregation_after_per_state_inference",
+  "per_state_inference_completed": true,
+  "states_inferred": 4521,
+  "metric_dataset_written": false,
+  "summary_written": false,
+  "failure_type": "TypeError",
+  "failure": "NumPy does not subtract boolean arrays; teacher_top_action_agreement aggregate delta requires float conversion.",
+  "historical_inputs_modified": false
+}
