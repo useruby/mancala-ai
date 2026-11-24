@@ -1,0 +1,560 @@
+{
+  "by_subgroup": {
+    "legal_action_count": {
+      "1": {
+        "category_counts": {
+          "no_meaningful_exact_quality_change": 328
+        },
+        "metrics": {
+          "exact_optimal_action_mass": {
+            "B512_mean": 1.0,
+            "S615_mean": 1.0,
+            "S615_minus_B512": 0.0
+          },
+          "exact_optimal_top_action": {
+            "B512_mean": 1.0,
+            "S615_mean": 1.0,
+            "S615_minus_B512": 0.0
+          },
+          "teacher_cross_entropy_nats": {
+            "B512_mean": 0.0,
+            "S615_mean": 0.0,
+            "S615_minus_B512": 0.0
+          },
+          "top_policy_action_regret": {
+            "B512_mean": 0.0,
+            "S615_mean": 0.0,
+            "S615_minus_B512": 0.0
+          }
+        },
+        "source_opening_clusters": 141,
+        "states": 328
+      },
+      "2": {
+        "category_counts": {
+          "improved_imitation_and_exact_quality": 81,
+          "no_meaningful_exact_quality_change": 302,
+          "worse_imitation_and_worse_exact_quality": 88
+        },
+        "metrics": {
+          "exact_optimal_action_mass": {
+            "B512_mean": 0.8626881986388372,
+            "S615_mean": 0.8616350683745561,
+            "S615_minus_B512": -0.001053130264281039
+          },
+          "exact_optimal_top_action": {
+            "B512_mean": 0.89171974522293,
+            "S615_mean": 0.89171974522293,
+            "S615_minus_B512": 0.0
+          },
+          "teacher_cross_entropy_nats": {
+            "B512_mean": 0.3754315505230528,
+            "S615_mean": 0.37021041898685636,
+            "S615_minus_B512": -0.0052211315361964635
+          },
+          "top_policy_action_regret": {
+            "B512_mean": 0.5180467091295117,
+            "S615_mean": 0.5477707006369427,
+            "S615_minus_B512": 0.029723991507430998
+          }
+        },
+        "source_opening_clusters": 155,
+        "states": 471
+      },
+      "3": {
+        "category_counts": {
+          "improved_imitation_and_exact_quality": 100,
+          "improved_imitation_worse_exact_quality": 8,
+          "no_meaningful_exact_quality_change": 161,
+          "worse_imitation_and_worse_exact_quality": 105,
+          "worse_imitation_improved_exact_quality": 4
+        },
+        "metrics": {
+          "exact_optimal_action_mass": {
+            "B512_mean": 0.742396157418211,
+            "S615_mean": 0.740400246796873,
+            "S615_minus_B512": -0.001995910621337853
+          },
+          "exact_optimal_top_action": {
+            "B512_mean": 0.798941798941799,
+            "S615_mean": 0.8095238095238095,
+            "S615_minus_B512": 0.010582010582010581
+          },
+          "teacher_cross_entropy_nats": {
+            "B512_mean": 0.5728188243348751,
+            "S615_mean": 0.5678770518587251,
+            "S615_minus_B512": -0.004941772476150012
+          },
+          "top_policy_action_regret": {
+            "B512_mean": 0.8835978835978836,
+            "S615_mean": 0.8148148148148148,
+            "S615_minus_B512": -0.06878306878306878
+          }
+        },
+        "source_opening_clusters": 155,
+        "states": 378
+      },
+      "4": {
+        "category_counts": {
+          "improved_imitation_and_exact_quality": 39,
+          "improved_imitation_worse_exact_quality": 9,
+          "no_meaningful_exact_quality_change": 87,
+          "worse_imitation_and_worse_exact_quality": 72
+        },
+        "metrics": {
+          "exact_optimal_action_mass": {
+            "B512_mean": 0.743504668724164,
+            "S615_mean": 0.7393256357550526,
+            "S615_minus_B512": -0.004179032969111319
+          },
+          "exact_optimal_top_action": {
+            "B512_mean": 0.8260869565217391,
+            "S615_mean": 0.821256038647343,
+            "S615_minus_B512": -0.004830917874396135
+          },
+          "teacher_cross_entropy_nats": {
+            "B512_mean": 0.6211427588079155,
+            "S615_mean": 0.6318557946701262,
+            "S615_minus_B512": 0.010713035862210831
+          },
+          "top_policy_action_regret": {
+            "B512_mean": 1.0628019323671498,
+            "S615_mean": 1.0338164251207729,
+            "S615_minus_B512": -0.028985507246376812
+          }
+        },
+        "source_opening_clusters": 114,
+        "states": 207
+      },
+      "5": {
+        "category_counts": {
+          "improved_imitation_and_exact_quality": 14,
+          "improved_imitation_worse_exact_quality": 2,
+          "no_meaningful_exact_quality_change": 40,
+          "worse_imitation_and_worse_exact_quality": 26,
+          "worse_imitation_improved_exact_quality": 1
+        },
+        "metrics": {
+          "exact_optimal_action_mass": {
+            "B512_mean": 0.7880475024959104,
+            "S615_mean": 0.7795256599728922,
+            "S615_minus_B512": -0.008521842523018262
+          },
+          "exact_optimal_top_action": {
+            "B512_mean": 0.8433734939759037,
+            "S615_mean": 0.8313253012048193,
+            "S615_minus_B512": -0.012048192771084338
+          },
+          "teacher_cross_entropy_nats": {
+            "B512_mean": 0.5220636606422575,
+            "S615_mean": 0.5193422937745676,
+            "S615_minus_B512": -0.0027213668676901075
+          },
+          "top_policy_action_regret": {
+            "B512_mean": 0.963855421686747,
+            "S615_mean": 1.0843373493975903,
+            "S615_minus_B512": 0.12048192771084337
+          }
+        },
+        "source_opening_clusters": 58,
+        "states": 83
+      },
+      "6": {
+        "category_counts": {
+          "improved_imitation_and_exact_quality": 5,
+          "no_meaningful_exact_quality_change": 8,
+          "worse_imitation_and_worse_exact_quality": 1
+        },
+        "metrics": {
+          "exact_optimal_action_mass": {
+            "B512_mean": 0.8664465255025056,
+            "S615_mean": 0.8692107168388984,
+            "S615_minus_B512": 0.0027641913363928117
+          },
+          "exact_optimal_top_action": {
+            "B512_mean": 0.9285714285714286,
+            "S615_mean": 0.9285714285714286,
+            "S615_minus_B512": 0.0
+          },
+          "teacher_cross_entropy_nats": {
+            "B512_mean": 0.37595994487769246,
+            "S615_mean": 0.3747250997691164,
+            "S615_minus_B512": -0.0012348451085761017
+          },
+          "top_policy_action_regret": {
+            "B512_mean": 0.42857142857142855,
+            "S615_mean": 0.42857142857142855,
+            "S615_minus_B512": 0.0
+          }
+        },
+        "source_opening_clusters": 12,
+        "states": 14
+      }
+    },
+    "membership_class": {
+      "B512_only": {
+        "category_counts": {
+          "improved_imitation_and_exact_quality": 37,
+          "improved_imitation_worse_exact_quality": 4,
+          "no_meaningful_exact_quality_change": 258,
+          "worse_imitation_and_worse_exact_quality": 103
+        },
+        "metrics": {
+          "exact_optimal_action_mass": {
+            "B512_mean": 0.8572666966132977,
+            "S615_mean": 0.8500376242049323,
+            "S615_minus_B512": -0.007229072408365283
+          },
+          "exact_optimal_top_action": {
+            "B512_mean": 0.9079601990049752,
+            "S615_mean": 0.8980099502487562,
+            "S615_minus_B512": -0.009950248756218905
+          },
+          "teacher_cross_entropy_nats": {
+            "B512_mean": 0.349576721459852,
+            "S615_mean": 0.37480691850010567,
+            "S615_minus_B512": 0.02523019704025378
+          },
+          "top_policy_action_regret": {
+            "B512_mean": 0.43781094527363185,
+            "S615_mean": 0.4975124378109453,
+            "S615_minus_B512": 0.05970149253731343
+          }
+        },
+        "source_opening_clusters": 132,
+        "states": 402
+      },
+      "S615_only": {
+        "category_counts": {
+          "improved_imitation_and_exact_quality": 87,
+          "improved_imitation_worse_exact_quality": 3,
+          "no_meaningful_exact_quality_change": 266,
+          "worse_imitation_and_worse_exact_quality": 45,
+          "worse_imitation_improved_exact_quality": 1
+        },
+        "metrics": {
+          "exact_optimal_action_mass": {
+            "B512_mean": 0.8627796277546192,
+            "S615_mean": 0.8671335557900856,
+            "S615_minus_B512": 0.004353928035466403
+          },
+          "exact_optimal_top_action": {
+            "B512_mean": 0.9029850746268657,
+            "S615_mean": 0.9129353233830846,
+            "S615_minus_B512": 0.009950248756218905
+          },
+          "teacher_cross_entropy_nats": {
+            "B512_mean": 0.34090664438423224,
+            "S615_mean": 0.3179169641611013,
+            "S615_minus_B512": -0.022989680223130936
+          },
+          "top_policy_action_regret": {
+            "B512_mean": 0.4228855721393035,
+            "S615_mean": 0.43283582089552236,
+            "S615_minus_B512": 0.009950248756218905
+          }
+        },
+        "source_opening_clusters": 145,
+        "states": 402
+      },
+      "neither_training_membership": {
+        "category_counts": {
+          "improved_imitation_and_exact_quality": 97,
+          "improved_imitation_worse_exact_quality": 11,
+          "no_meaningful_exact_quality_change": 336,
+          "worse_imitation_and_worse_exact_quality": 119,
+          "worse_imitation_improved_exact_quality": 4
+        },
+        "metrics": {
+          "exact_optimal_action_mass": {
+            "B512_mean": 0.8145495900631782,
+            "S615_mean": 0.8121529238232721,
+            "S615_minus_B512": -0.0023966662399061266
+          },
+          "exact_optimal_top_action": {
+            "B512_mean": 0.8483245149911817,
+            "S615_mean": 0.8500881834215167,
+            "S615_minus_B512": 0.001763668430335097
+          },
+          "teacher_cross_entropy_nats": {
+            "B512_mean": 0.44614770434420564,
+            "S615_mean": 0.44163108389056516,
+            "S615_minus_B512": -0.004516620453640439
+          },
+          "top_policy_action_regret": {
+            "B512_mean": 0.8606701940035273,
+            "S615_mean": 0.8042328042328042,
+            "S615_minus_B512": -0.0564373897707231
+          }
+        },
+        "source_opening_clusters": 36,
+        "states": 567
+      },
+      "shared_training": {
+        "category_counts": {
+          "improved_imitation_and_exact_quality": 18,
+          "improved_imitation_worse_exact_quality": 1,
+          "no_meaningful_exact_quality_change": 66,
+          "worse_imitation_and_worse_exact_quality": 25
+        },
+        "metrics": {
+          "exact_optimal_action_mass": {
+            "B512_mean": 0.8462482690122635,
+            "S615_mean": 0.8437988612966542,
+            "S615_minus_B512": -0.002449407715609217
+          },
+          "exact_optimal_top_action": {
+            "B512_mean": 0.8636363636363636,
+            "S615_mean": 0.8727272727272727,
+            "S615_minus_B512": 0.00909090909090909
+          },
+          "teacher_cross_entropy_nats": {
+            "B512_mean": 0.3634998963389799,
+            "S615_mean": 0.35720471660386,
+            "S615_minus_B512": -0.0062951797351199325
+          },
+          "top_policy_action_regret": {
+            "B512_mean": 0.45454545454545453,
+            "S615_mean": 0.41818181818181815,
+            "S615_minus_B512": -0.03636363636363636
+          }
+        },
+        "source_opening_clusters": 81,
+        "states": 110
+      }
+    },
+    "optimality": {
+      "tied": {
+        "category_counts": {
+          "improved_imitation_and_exact_quality": 57,
+          "improved_imitation_worse_exact_quality": 17,
+          "no_meaningful_exact_quality_change": 465,
+          "worse_imitation_and_worse_exact_quality": 91,
+          "worse_imitation_improved_exact_quality": 5
+        },
+        "metrics": {
+          "exact_optimal_action_mass": {
+            "B512_mean": 0.9182079982033048,
+            "S615_mean": 0.9152275770264412,
+            "S615_minus_B512": -0.0029804211768637468
+          },
+          "exact_optimal_top_action": {
+            "B512_mean": 0.9511811023622048,
+            "S615_mean": 0.9480314960629921,
+            "S615_minus_B512": -0.0031496062992125984
+          },
+          "teacher_cross_entropy_nats": {
+            "B512_mean": 0.4144297773995124,
+            "S615_mean": 0.4076229999510541,
+            "S615_minus_B512": -0.0068067774484583815
+          },
+          "top_policy_action_regret": {
+            "B512_mean": 0.2173228346456693,
+            "S615_mean": 0.22677165354330708,
+            "S615_minus_B512": 0.009448818897637795
+          }
+        },
+        "source_opening_clusters": 170,
+        "states": 635
+      },
+      "unique": {
+        "category_counts": {
+          "improved_imitation_and_exact_quality": 182,
+          "improved_imitation_worse_exact_quality": 2,
+          "no_meaningful_exact_quality_change": 461,
+          "worse_imitation_and_worse_exact_quality": 201
+        },
+        "metrics": {
+          "exact_optimal_action_mass": {
+            "B512_mean": 0.784082116659545,
+            "S615_mean": 0.7830282334475585,
+            "S615_minus_B512": -0.0010538832119865935
+          },
+          "exact_optimal_top_action": {
+            "B512_mean": 0.8274231678486997,
+            "S615_mean": 0.8321513002364066,
+            "S615_minus_B512": 0.004728132387706856
+          },
+          "teacher_cross_entropy_nats": {
+            "B512_mean": 0.36331222385470896,
+            "S615_mean": 0.3656403537272588,
+            "S615_minus_B512": 0.0023281298725497984
+          },
+          "top_policy_action_regret": {
+            "B512_mean": 0.8817966903073287,
+            "S615_mean": 0.8652482269503546,
+            "S615_minus_B512": -0.016548463356973995
+          }
+        },
+        "source_opening_clusters": 179,
+        "states": 846
+      }
+    },
+    "phase": {
+      "at_most_16": {
+        "category_counts": {
+          "improved_imitation_and_exact_quality": 239,
+          "improved_imitation_worse_exact_quality": 19,
+          "no_meaningful_exact_quality_change": 926,
+          "worse_imitation_and_worse_exact_quality": 292,
+          "worse_imitation_improved_exact_quality": 5
+        },
+        "metrics": {
+          "exact_optimal_action_mass": {
+            "B512_mean": 0.8415905128650057,
+            "S615_mean": 0.8397105988578153,
+            "S615_minus_B512": -0.0018799140071905046
+          },
+          "exact_optimal_top_action": {
+            "B512_mean": 0.8804861580013504,
+            "S615_mean": 0.8818365968939905,
+            "S615_minus_B512": 0.0013504388926401081
+          },
+          "teacher_cross_entropy_nats": {
+            "B512_mean": 0.38522960839282533,
+            "S615_mean": 0.3836410156800677,
+            "S615_minus_B512": -0.0015885927127575574
+          },
+          "top_policy_action_regret": {
+            "B512_mean": 0.5968939905469277,
+            "S615_mean": 0.5914922349763673,
+            "S615_minus_B512": -0.0054017555705604325
+          }
+        },
+        "source_opening_clusters": 182,
+        "states": 1481
+      }
+    },
+    "teacher_entropy_quartile": {
+      "4": {
+        "category_counts": {
+          "improved_imitation_and_exact_quality": 239,
+          "improved_imitation_worse_exact_quality": 19,
+          "no_meaningful_exact_quality_change": 926,
+          "worse_imitation_and_worse_exact_quality": 292,
+          "worse_imitation_improved_exact_quality": 5
+        },
+        "metrics": {
+          "exact_optimal_action_mass": {
+            "B512_mean": 0.8415905128650057,
+            "S615_mean": 0.8397105988578153,
+            "S615_minus_B512": -0.0018799140071905046
+          },
+          "exact_optimal_top_action": {
+            "B512_mean": 0.8804861580013504,
+            "S615_mean": 0.8818365968939905,
+            "S615_minus_B512": 0.0013504388926401081
+          },
+          "teacher_cross_entropy_nats": {
+            "B512_mean": 0.38522960839282533,
+            "S615_mean": 0.3836410156800677,
+            "S615_minus_B512": -0.0015885927127575574
+          },
+          "top_policy_action_regret": {
+            "B512_mean": 0.5968939905469277,
+            "S615_mean": 0.5914922349763673,
+            "S615_minus_B512": -0.0054017555705604325
+          }
+        },
+        "source_opening_clusters": 182,
+        "states": 1481
+      }
+    }
+  },
+  "category_counts": {
+    "improved_imitation_and_exact_quality": 239,
+    "improved_imitation_worse_exact_quality": 19,
+    "no_meaningful_exact_quality_change": 926,
+    "worse_imitation_and_worse_exact_quality": 292,
+    "worse_imitation_improved_exact_quality": 5
+  },
+  "exact_oracle_states": 1481,
+  "freeze_sha256": "cd99f22740d6c14cf6d7f5983dc52d069e2a1028d6ae7ea57eed1153a390a447",
+  "overall_cluster_bootstrap": {
+    "exact_optimal_action_mass": {
+      "clusters": 182,
+      "interval": [
+        -0.003554260295579036,
+        -0.00027218737618640827
+      ],
+      "mean": -0.0018799140071905046
+    },
+    "exact_optimal_top_action": {
+      "clusters": 182,
+      "interval": [
+        -0.006377799966686462,
+        0.009272597888654746
+      ],
+      "mean": 0.0013504388926401081
+    },
+    "teacher_cross_entropy_nats": {
+      "clusters": 182,
+      "interval": [
+        -0.008835284796991008,
+        0.004427119705871285
+      ],
+      "mean": -0.0015885927127575572
+    },
+    "top_policy_action_regret": {
+      "clusters": 182,
+      "interval": [
+        -0.052705980956919064,
+        0.03924447312097496
+      ],
+      "mean": -0.0054017555705604325
+    }
+  },
+  "protected_holdout_cluster_bootstrap": {
+    "exact_optimal_action_mass": {
+      "clusters": 36,
+      "interval": [
+        -0.0059480813751998885,
+        0.0007916903610912827
+      ],
+      "mean": -0.002396666239906126
+    },
+    "exact_optimal_top_action": {
+      "clusters": 36,
+      "interval": [
+        -0.013233140717190811,
+        0.017544630468966725
+      ],
+      "mean": 0.001763668430335097
+    },
+    "teacher_cross_entropy_nats": {
+      "clusters": 36,
+      "interval": [
+        -0.020970096313928235,
+        0.006981203556882782
+      ],
+      "mean": -0.004516620453640441
+    },
+    "top_policy_action_regret": {
+      "clusters": 36,
+      "interval": [
+        -0.16582106388531118,
+        0.035588598005707926
+      ],
+      "mean": -0.0564373897707231
+    }
+  },
+  "results_sha256": "d645ca10c23ea1985ff6f7792643937e9d28c50269bd4a1d0d615cdfb6ae37f9",
+  "source_opening_groups": 182,
+  "teacher_ce_delta_association_with_exact_quality_delta": {
+    "exact_optimal_action_mass": {
+      "interpretation": "descriptive paired-state association; no causal or independent-state inference",
+      "n": 1481,
+      "pearson_r": -0.5932034309235399
+    },
+    "exact_optimal_top_action": {
+      "interpretation": "descriptive paired-state association; no causal or independent-state inference",
+      "n": 1481,
+      "pearson_r": -0.2023174466063865
+    },
+    "top_policy_action_regret": {
+      "interpretation": "descriptive paired-state association; no causal or independent-state inference",
+      "n": 1481,
+      "pearson_r": 0.1567965048018304
+    }
+  }
+}

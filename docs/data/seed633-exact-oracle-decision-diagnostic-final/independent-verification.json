@@ -1,0 +1,11 @@
+{
+  "all_per_state_and_subgroup_metrics_reconstructed": true,
+  "exact_oracle_states": 1481,
+  "legal_action_masks_verified": true,
+  "model_identities_bound_to_source_freeze": true,
+  "oracle_action_sets_and_values_verified": true,
+  "search_selected_actions_claimed": false,
+  "seed624_crosswalk_assumed": false,
+  "source_opening_clusters": 182,
+  "status": "verified"
+}
