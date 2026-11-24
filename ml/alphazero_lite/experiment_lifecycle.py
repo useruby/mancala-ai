@@ -32,6 +32,10 @@ DEFAULT_WORKTREE_ROOT = Path(
 DEFAULT_ARCHIVE_ROOT = Path.home() / "mancala-ai-experiment-archives"
 
 
+class _PrelaunchAuthenticationError(RuntimeError):
+    """A frozen dependency no longer matches immediately before launch."""
+
+
 def _json_bytes(value: Any) -> bytes:
     return (json.dumps(value, sort_keys=True, indent=2) + "\n").encode()
 
@@ -286,6 +290,103 @@ def _input_identity(inputs: dict[str, str]) -> dict[str, str]:
             raise ValueError(f"input_artifact_hash_mismatch:{raw_path}")
         checked[str(path)] = observed
     return checked
+
+
+def _authenticate_frozen_attempt(attempt_dir: Path, manifest: dict[str, Any]) -> None:
+    """Authenticate current source, registration, IDs, and all inputs prelaunch."""
+    worktree = Path(manifest["worktree_path"]).resolve(strict=True)
+    registration = _validate_experiment_worktree(worktree)
+    if (
+        attempt_dir.resolve(strict=True)
+        != (
+            worktree / ".experiment" / "runtime" / "attempts" / manifest["attempt_id"]
+        ).resolve()
+        or attempt_dir.name != manifest["attempt_id"]
+        or registration.get("experiment_id") != manifest.get("experiment_id")
+        or registration.get("experiment_type") != manifest.get("experiment_type")
+        or registration.get("base_commit") != manifest.get("base_commit")
+        or registration.get("authorization_reference")
+        != manifest.get("authorization_reference")
+        or registration.get("hypothesis") != manifest.get("hypothesis")
+        or registration.get("objective") != manifest.get("objective")
+        or registration.get("random_seeds") != manifest.get("random_seeds")
+        or registration.get("input_artifacts") is None
+    ):
+        raise _PrelaunchAuthenticationError("attempt_registration_identity_mismatch")
+    if _git(worktree, "status", "--porcelain", "--untracked-files=all"):
+        raise _PrelaunchAuthenticationError("execution_worktree_not_clean")
+    current_commit = _git(worktree, "rev-parse", "HEAD")
+    current_tree = _git(worktree, "rev-parse", "HEAD^{tree}")
+    if current_commit != manifest.get("source_commit") or current_tree != manifest.get(
+        "execution_source_identity"
+    ):
+        raise _PrelaunchAuthenticationError("frozen_source_commit_or_tree_changed")
+    try:
+        registered_inputs = _input_identity(registration["input_artifacts"])
+    except (OSError, ValueError) as error:
+        raise _PrelaunchAuthenticationError(
+            f"registered_input_invalid:{error}"
+        ) from error
+    if registered_inputs != manifest.get("input_artifacts"):
+        raise _PrelaunchAuthenticationError("registered_input_identity_changed")
+    if manifest.get("checkpoint_identity") != registration.get("checkpoint_identity"):
+        raise _PrelaunchAuthenticationError("checkpoint_registration_changed")
+
+
+def _verify_historical_source(attempt_dir: Path, manifest: dict[str, Any]) -> None:
+    """Verify the recorded source commit/tree in Git, independent of current HEAD."""
+    worktree = attempt_dir.parents[3]
+    registration = _validate_experiment_worktree(worktree)
+    if (
+        registration.get("experiment_id") != manifest.get("experiment_id")
+        or registration.get("experiment_type") != manifest.get("experiment_type")
+        or registration.get("authorization_reference")
+        != manifest.get("authorization_reference")
+        or registration.get("hypothesis") != manifest.get("hypothesis")
+        or registration.get("objective") != manifest.get("objective")
+        or registration.get("base_commit") != manifest.get("base_commit")
+        or registration.get("random_seeds") != manifest.get("random_seeds")
+        or registration.get("checkpoint_identity")
+        != manifest.get("checkpoint_identity")
+        or attempt_dir.name != manifest.get("attempt_id")
+        or attempt_dir.resolve(strict=True)
+        != (
+            worktree
+            / ".experiment"
+            / "runtime"
+            / "attempts"
+            / manifest.get("attempt_id", "")
+        ).resolve()
+    ):
+        raise ValueError("historical_attempt_identity_mismatch")
+    source_commit = manifest.get("source_commit")
+    if not isinstance(source_commit, str) or not re.fullmatch(
+        r"[0-9a-f]{40,64}", source_commit
+    ):
+        raise ValueError("historical_source_commit_invalid")
+    _git(worktree, "cat-file", "-e", f"{source_commit}^{{commit}}")
+    historical_tree = _git(worktree, "rev-parse", f"{source_commit}^{{tree}}")
+    if historical_tree != manifest.get("execution_source_identity"):
+        raise ValueError("historical_source_tree_identity_mismatch")
+    if subprocess.run(
+        [
+            "git",
+            "-C",
+            str(worktree),
+            "merge-base",
+            "--is-ancestor",
+            registration["base_commit"],
+            source_commit,
+        ],
+        capture_output=True,
+    ).returncode:
+        raise ValueError("historical_source_not_descended_from_registered_base")
+    registered_inputs = {
+        str(Path(path).absolute()): digest
+        for path, digest in registration["input_artifacts"].items()
+    }
+    if registered_inputs != manifest.get("input_artifacts"):
+        raise ValueError("historical_input_registration_mismatch")
 
 
 def freeze_attempt(
@@ -551,6 +652,17 @@ def execute_attempt(
         else:
             process: subprocess.Popen[bytes] | None = None
             try:
+                try:
+                    _authenticate_frozen_attempt(attempt_dir, manifest)
+                except _PrelaunchAuthenticationError:
+                    raise
+                except (
+                    OSError,
+                    ValueError,
+                    KeyError,
+                    subprocess.CalledProcessError,
+                ) as error:
+                    raise _PrelaunchAuthenticationError(str(error)) from error
                 process = _launch_command(
                     manifest["command"],
                     cwd=Path(manifest["worktree_path"]),
@@ -576,6 +688,9 @@ def execute_attempt(
                     _stop_process_group(process)
                     exit_status = process.returncode
                 status = "interrupted"
+            except _PrelaunchAuthenticationError as error:
+                reason = f"prelaunch_authentication_failed:{error}"
+                status = "failed"
             except BaseException as error:
                 if process is not None:
                     _stop_process_group(process)
@@ -588,11 +703,16 @@ def execute_attempt(
         for relative in manifest["output_paths"]:
             safe_relative = _safe_member_path(relative)
             output_path = attempt_dir.joinpath(*safe_relative.parts)
-            if output_path.is_symlink() or not output_path.is_file():
+            if output_path.is_symlink() or not output_path.exists():
                 status = "failed"
                 reason = f"declared_output_missing:{relative}"
                 break
-            output_hashes[relative] = sha256_file(output_path)
+            try:
+                output_hashes[relative] = artifact_sha256(output_path)
+            except (OSError, ValueError) as error:
+                status = "failed"
+                reason = f"declared_output_invalid:{relative}:{error}"
+                break
     finished = time.monotonic()
     usage_after = _process_usage()
     usage_delta = {
@@ -628,7 +748,9 @@ def execute_attempt(
     return result
 
 
-def verify_attempt(attempt_dir: Path) -> dict[str, Any]:
+def verify_attempt(
+    attempt_dir: Path, *, allow_changed_inputs_for_failed_attempt: bool = False
+) -> dict[str, Any]:
     """Recheck frozen input, source, log, output, and terminal-record identities."""
     manifest_path = attempt_dir / "manifest.json"
     manifest = json.loads(manifest_path.read_bytes())
@@ -650,12 +772,7 @@ def verify_attempt(attempt_dir: Path) -> dict[str, Any]:
         or terminal.get("status") != terminals[0].stem
     ):
         raise ValueError("attempt_terminal_binding_mismatch")
-    worktree = attempt_dir.parents[3]
-    _validate_experiment_worktree(worktree)
-    if _git(worktree, "rev-parse", "HEAD") != manifest.get("source_commit") or _git(
-        worktree, "rev-parse", "HEAD^{tree}"
-    ) != manifest.get("execution_source_identity"):
-        raise ValueError("attempt_worktree_source_commit_mismatch")
+    _verify_historical_source(attempt_dir, manifest)
     started_path = attempt_dir / "started.json"
     if (
         not started_path.is_file()
@@ -664,9 +781,18 @@ def verify_attempt(attempt_dir: Path) -> dict[str, Any]:
         != terminal.get("started_at")
     ):
         raise ValueError("attempt_start_record_binding_mismatch")
+    input_mismatches = []
     for path, expected_hash in manifest["input_artifacts"].items():
-        if sha256_file(Path(path)) != expected_hash:
-            raise ValueError(f"attempt_input_hash_mismatch:{path}")
+        try:
+            observed_hash = artifact_sha256(Path(path))
+        except (OSError, ValueError):
+            observed_hash = None
+        if observed_hash != expected_hash:
+            input_mismatches.append(path)
+    if input_mismatches and not (
+        allow_changed_inputs_for_failed_attempt and terminal["status"] == "failed"
+    ):
+        raise ValueError(f"input_artifact_hash_mismatch:{input_mismatches[0]}")
     if sha256_file(attempt_dir / "stdout.log") != terminal["stdout_sha256"]:
         raise ValueError("attempt_stdout_hash_mismatch")
     if sha256_file(attempt_dir / "stderr.log") != terminal["stderr_sha256"]:
@@ -675,8 +801,8 @@ def verify_attempt(attempt_dir: Path) -> dict[str, Any]:
         target = attempt_dir.joinpath(*_safe_member_path(relative).parts)
         if (
             target.is_symlink()
-            or not target.is_file()
-            or sha256_file(target) != expected_hash
+            or not target.exists()
+            or artifact_sha256(target) != expected_hash
         ):
             raise ValueError(f"attempt_output_hash_mismatch:{relative}")
     if terminal["status"] == "completed" and set(
@@ -684,12 +810,15 @@ def verify_attempt(attempt_dir: Path) -> dict[str, Any]:
     ) != set(manifest["output_paths"]):
         raise ValueError("attempt_declared_output_inventory_mismatch")
     return {
-        "verified": True,
+        "verified": not input_mismatches,
+        "integrity_verified": True,
         "experiment_id": manifest["experiment_id"],
         "attempt_id": manifest["attempt_id"],
         "status": terminal["status"],
         "manifest_sha256": sha256_file(manifest_path),
         "outputs_verified": len(terminal.get("output_sha256", {})),
+        "input_artifacts_verified": not input_mismatches,
+        "input_artifact_mismatches": input_mismatches,
     }
 
 
@@ -699,7 +828,10 @@ def attempt_inventory(attempt_dir: Path) -> list[dict[str, Any]]:
     for path in sorted(attempt_dir.rglob("*")):
         if path.is_symlink():
             raise ValueError(f"artifact_symlink_not_archivable:{path}")
-        if path.is_file() and path.name not in {"archive-reference.json"}:
+        if (
+            path.is_file()
+            and path.relative_to(attempt_dir).as_posix() != "archive-reference.json"
+        ):
             files.append(
                 {
                     "path": path.relative_to(attempt_dir).as_posix(),
@@ -708,6 +840,10 @@ def attempt_inventory(attempt_dir: Path) -> list[dict[str, Any]]:
                 }
             )
     return files
+
+
+def _artifact_inventory_digest(files: list[dict[str, Any]]) -> str:
+    return hashlib.sha256(_json_bytes(files)).hexdigest()
 
 
 def _safe_member_path(name: str) -> PurePosixPath:
@@ -807,7 +943,9 @@ def archive_attempt(attempt_dir: Path, archive_root: Path) -> dict[str, Any]:
     """Create a create-only compressed archive and verify archive plus extraction."""
     manifest_path = attempt_dir / "manifest.json"
     manifest = json.loads(manifest_path.read_bytes())
-    verify_attempt(attempt_dir)
+    attempt_verification = verify_attempt(
+        attempt_dir, allow_changed_inputs_for_failed_attempt=True
+    )
     archive_root.mkdir(parents=True, exist_ok=True)
     files = attempt_inventory(attempt_dir)
     stem = f"{manifest['experiment_id']}--{manifest['attempt_id']}"
@@ -833,6 +971,8 @@ def archive_attempt(attempt_dir: Path, archive_root: Path) -> dict[str, Any]:
                 "attempt_id": manifest["attempt_id"],
                 "source_commit": manifest["source_commit"],
                 "manifest_sha256": sha256_file(manifest_path),
+                "attempt_verification": attempt_verification,
+                "required_artifact_inventory_sha256": _artifact_inventory_digest(files),
                 "archive_format": archive_format,
                 "archive_size_bytes": staged_path.stat().st_size,
                 "archive_sha256": sha256_file(staged_path),
@@ -853,6 +993,10 @@ def archive_attempt(attempt_dir: Path, archive_root: Path) -> dict[str, Any]:
             "experiment_id": manifest["experiment_id"],
             "attempt_id": manifest["attempt_id"],
             "source_commit": manifest["source_commit"],
+            "attempt_manifest_sha256": archive_manifest["manifest_sha256"],
+            "required_artifact_inventory_sha256": archive_manifest[
+                "required_artifact_inventory_sha256"
+            ],
             "archive_path": str(final_path.resolve()),
             "archive_manifest_path": str(sidecar.resolve()),
             "archive_sha256": archive_manifest["archive_sha256"],
@@ -867,11 +1011,52 @@ def archive_attempt(attempt_dir: Path, archive_root: Path) -> dict[str, Any]:
 
 def verify_archive(archive_path: Path, manifest_path: Path) -> dict[str, Any]:
     """Verify outer archive digest/size and safely extract/hash all members."""
+    if archive_path.is_symlink() or manifest_path.is_symlink():
+        raise ValueError("archive_or_manifest_symlink_not_allowed")
     manifest = json.loads(manifest_path.read_bytes())
     if manifest.get("schema") != "mancala-experiment-archive-v1" or not isinstance(
         manifest.get("files"), list
     ):
         raise ValueError("archive_manifest_schema_invalid")
+    if (
+        not isinstance(manifest.get("experiment_id"), str)
+        or not isinstance(manifest.get("attempt_id"), str)
+        or not isinstance(manifest.get("source_commit"), str)
+        or not isinstance(manifest.get("manifest_sha256"), str)
+        or not isinstance(manifest.get("required_artifact_inventory_sha256"), str)
+        or not isinstance(manifest.get("archive_sha256"), str)
+        or not re.fullmatch(r"[0-9a-f]{40,64}", manifest.get("source_commit", ""))
+        or not re.fullmatch(r"[0-9a-f]{64}", manifest.get("manifest_sha256", ""))
+        or not re.fullmatch(
+            r"[0-9a-f]{64}",
+            manifest.get("required_artifact_inventory_sha256", ""),
+        )
+        or not re.fullmatch(r"[0-9a-f]{64}", manifest.get("archive_sha256", ""))
+        or type(manifest.get("archive_size_bytes")) is not int
+        or manifest["archive_size_bytes"] < 0
+    ):
+        raise ValueError("archive_manifest_identity_invalid")
+    archive_files = manifest["files"]
+    if any(
+        not isinstance(item, dict)
+        or set(item) != {"path", "size_bytes", "sha256"}
+        or not isinstance(item.get("path"), str)
+        or not isinstance(item.get("sha256"), str)
+        or not re.fullmatch(r"[0-9a-f]{64}", item.get("sha256", ""))
+        or type(item.get("size_bytes")) is not int
+        or item["size_bytes"] < 0
+        for item in archive_files
+    ) or len({item["path"] for item in archive_files}) != len(archive_files):
+        raise ValueError("archive_manifest_file_inventory_invalid")
+    for item in archive_files:
+        _safe_member_path(item["path"])
+    if manifest.get("required_artifact_inventory_sha256") != _artifact_inventory_digest(
+        manifest["files"]
+    ):
+        raise ValueError("archive_manifest_artifact_inventory_digest_mismatch")
+    expected_format = "tar.zst" if archive_path.name.endswith(".tar.zst") else "tar.gz"
+    if manifest.get("archive_format") != expected_format:
+        raise ValueError("archive_manifest_format_mismatch")
     if (
         archive_path.stat().st_size != manifest["archive_size_bytes"]
         or sha256_file(archive_path) != manifest["archive_sha256"]
@@ -886,8 +1071,13 @@ def verify_archive(archive_path: Path, manifest_path: Path) -> dict[str, Any]:
         "experiment_id": manifest["experiment_id"],
         "attempt_id": manifest["attempt_id"],
         "source_commit": manifest["source_commit"],
+        "manifest_sha256": manifest["manifest_sha256"],
+        "required_artifact_inventory_sha256": manifest[
+            "required_artifact_inventory_sha256"
+        ],
         "archive_sha256": manifest["archive_sha256"],
         "files_verified": len(manifest["files"]),
+        "files": manifest["files"],
     }
 
 
@@ -895,7 +1085,9 @@ def prepare_publication(attempt_dir: Path, destination: Path) -> dict[str, Any]:
     """Copy selected records, results, logs, and archive receipt into a PR bundle."""
     if destination.exists():
         raise FileExistsError("publication_directory_must_be_create_only")
-    verification = verify_attempt(attempt_dir)
+    verification = verify_attempt(
+        attempt_dir, allow_changed_inputs_for_failed_attempt=True
+    )
     destination.mkdir(parents=True)
     manifest = json.loads((attempt_dir / "manifest.json").read_bytes())
     terminal = attempt_dir / f"{verification['status']}.json"
@@ -918,19 +1110,38 @@ def prepare_publication(attempt_dir: Path, destination: Path) -> dict[str, Any]:
         files.append(sidecar_path)
     inventory = []
     for source in files:
-        if source.is_symlink() or not source.is_file():
+        if (
+            source.is_symlink()
+            or not source.exists()
+            or not (source.is_file() or source.is_dir())
+        ):
             raise ValueError(f"publication_file_missing_or_unsafe:{source}")
         target = destination / source.name
         if target.exists():
             raise FileExistsError("publication_filename_collision")
-        shutil.copy2(source, target)
-        inventory.append(
-            {
-                "path": target.name,
-                "size_bytes": target.stat().st_size,
-                "sha256": sha256_file(target),
-            }
-        )
+        if source.is_dir():
+            shutil.copytree(source, target, symlinks=True)
+            for member in sorted(target.rglob("*")):
+                if member.is_symlink() or not member.is_file():
+                    if member.is_symlink():
+                        raise ValueError(f"publication_symlink_not_allowed:{member}")
+                    continue
+                inventory.append(
+                    {
+                        "path": member.relative_to(destination).as_posix(),
+                        "size_bytes": member.stat().st_size,
+                        "sha256": sha256_file(member),
+                    }
+                )
+        else:
+            shutil.copy2(source, target)
+            inventory.append(
+                {
+                    "path": target.name,
+                    "size_bytes": target.stat().st_size,
+                    "sha256": sha256_file(target),
+                }
+            )
     publication = {
         "schema": "mancala-experiment-publication-v1",
         "experiment_id": manifest["experiment_id"],
@@ -996,20 +1207,71 @@ def safe_remove_worktree(repo_root: Path, worktree: Path, *, merged_into: str) -
         if result_records and not reference_path.is_file():
             raise ValueError("required_attempt_artifacts_not_archived")
         if reference_path.is_file():
+            if reference_path.is_symlink():
+                raise ValueError("archive_reference_symlink_not_allowed")
             reference = json.loads(reference_path.read_bytes())
             verified = verify_archive(
                 Path(reference["archive_path"]),
                 Path(reference["archive_manifest_path"]),
             )
+            manifest_path = attempt_dir / "manifest.json"
+            current_inventory = attempt_inventory(attempt_dir)
             if (
                 verified["experiment_id"] != reference["experiment_id"]
                 or verified["attempt_id"] != reference["attempt_id"]
                 or verified["source_commit"] != reference["source_commit"]
+                or reference["experiment_id"] != registration["experiment_id"]
+                or reference["attempt_id"] != frozen_attempt["attempt_id"]
+                or reference["source_commit"] != frozen_attempt["source_commit"]
+                or reference["attempt_manifest_sha256"] != sha256_file(manifest_path)
+                or verified["manifest_sha256"] != sha256_file(manifest_path)
+                or verified["files"] != current_inventory
+                or reference["required_artifact_inventory_sha256"]
+                != _artifact_inventory_digest(current_inventory)
+                or verified["required_artifact_inventory_sha256"]
+                != _artifact_inventory_digest(current_inventory)
                 or verified["archive_sha256"] != reference["archive_sha256"]
                 or sha256_file(Path(reference["archive_manifest_path"]))
                 != reference["archive_manifest_sha256"]
             ):
                 raise ValueError("archive_reference_identity_mismatch")
+            tracked_paths = _git(worktree, "ls-files", "-z").split("\0")
+            published_references = []
+            published_manifests = []
+            for relative in tracked_paths:
+                if not relative:
+                    continue
+                tracked_path = worktree / relative
+                if tracked_path.name == "archive-reference.json":
+                    if tracked_path.is_symlink():
+                        raise ValueError("published_archive_reference_symlink")
+                    try:
+                        published_references.append(
+                            json.loads(tracked_path.read_bytes())
+                        )
+                    except (OSError, json.JSONDecodeError):
+                        continue
+                elif tracked_path.name.endswith(".archive-manifest.json"):
+                    if tracked_path.is_symlink():
+                        raise ValueError("published_archive_manifest_symlink")
+                    if (
+                        sha256_file(tracked_path)
+                        == reference["archive_manifest_sha256"]
+                    ):
+                        published_manifests.append(
+                            json.loads(tracked_path.read_bytes())
+                        )
+            if (
+                reference not in published_references
+                or len(published_manifests) != 1
+                or published_manifests[0].get("experiment_id")
+                != registration["experiment_id"]
+                or published_manifests[0].get("attempt_id")
+                != frozen_attempt["attempt_id"]
+                or published_manifests[0].get("source_commit")
+                != frozen_attempt["source_commit"]
+            ):
+                raise ValueError("archive_publication_anchor_missing_or_substituted")
     subprocess.run(
         ["git", "-C", str(repo_root), "worktree", "remove", str(worktree)],
         check=True,

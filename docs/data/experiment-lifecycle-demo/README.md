@@ -9,9 +9,14 @@ the command, verifies its output/log identities, creates and independently
 extracts a `.tar.zst` (or `.tar.gz` fallback) archive, prepares publication
 files, verifies dirty-worktree cleanup refusal, merges the experiment branch,
 and removes the now-clean worktree only after archive verification. The
-companion tests preserve timeout/failure, interrupted process cleanup, input
-tampering, archive tampering, duplicate archive, and duplicate experiment-ID
-behavior.
+companion tests preserve timeout/launch/disk failures, interrupted process
+cleanup, post-freeze source/HEAD/file-and-directory-input changes, directory
+model artifacts, two historical attempts across source and publication commits,
+archive/reference tampering and inventory drift, duplicate archive, and duplicate
+experiment/attempt identity behavior. Prelaunch authentication rejects modified
+dependencies; archive verification records input-mismatch failures as
+unverified while preserving their runtime evidence. Cleanup compares the full
+runtime inventory to its attempt-bound archive and committed publication anchor.
 
 Reproduce from the repository root with:
 

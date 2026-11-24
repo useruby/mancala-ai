@@ -31,7 +31,11 @@ class ExperimentLifecycleTests(unittest.TestCase):
         (self.repo / "README.md").write_text("fixture repository\n")
         self.input_path = self.repo / "input.json"
         self.input_path.write_text('{"input":1}\n')
-        self._git("add", "README.md", "input.json")
+        self.dataset_dir = self.repo / "dataset"
+        self.dataset_dir.mkdir()
+        self.dataset_member = self.dataset_dir / "shard.jsonl"
+        self.dataset_member.write_text('{"sample":1}\n')
+        self._git("add", "README.md", "input.json", "dataset/shard.jsonl")
         self._git("commit", "-m", "initial fixture")
         self.base_commit = self._git("rev-parse", "HEAD")
         self.worktrees = self.root / "worktrees"
@@ -49,7 +53,8 @@ class ExperimentLifecycleTests(unittest.TestCase):
             input_artifacts={
                 str(self.input_path): hashlib.sha256(
                     self.input_path.read_bytes()
-                ).hexdigest()
+                ).hexdigest(),
+                str(self.dataset_dir): lifecycle.artifact_sha256(self.dataset_dir),
             },
             checkpoint_identity=None,
             acceptance_criteria=["result JSON has answer 42"],
@@ -86,14 +91,22 @@ class ExperimentLifecycleTests(unittest.TestCase):
         )
         return result.stdout.strip()
 
-    def _freeze(self, attempt_id: str, code: str, *, timeout: int = 15) -> Path:
+    def _freeze(
+        self,
+        attempt_id: str,
+        code: str,
+        *,
+        timeout: int = 15,
+        output_path: str = "result.json",
+    ) -> Path:
+        output_relative = output_path
         output_path = (
             self.worktree
             / ".experiment"
             / "runtime"
             / "attempts"
             / attempt_id
-            / "result.json"
+            / output_path
         )
         command = [sys.executable, "-c", code, str(output_path)]
         registered_inputs = json.loads(
@@ -110,8 +123,8 @@ class ExperimentLifecycleTests(unittest.TestCase):
             expected_runtime_seconds=1,
             wall_time_limit_seconds=timeout,
             minimum_free_disk_bytes=0,
-            outputs=["result.json"],
-            publication_outputs=["result.json"],
+            outputs=[output_relative],
+            publication_outputs=[output_relative],
             input_artifacts=registered_inputs,
             random_seeds=[17],
         )
@@ -158,6 +171,35 @@ class ExperimentLifecycleTests(unittest.TestCase):
         self._git(
             "merge", "--no-ff", "experiment/demo-001", "-m", "merge lifecycle fixture"
         )
+        archive_reference_path = attempt_dir / "archive-reference.json"
+        archive_reference_bytes = archive_reference_path.read_bytes()
+        result_path = attempt_dir / "result.json"
+        result_bytes = result_path.read_bytes()
+        result_path.write_bytes(result_bytes + b"tamper")
+        with self.assertRaisesRegex(ValueError, "archive_reference_identity_mismatch"):
+            lifecycle.safe_remove_worktree(self.repo, self.worktree, merged_into="main")
+        result_path.write_bytes(result_bytes)
+        result_path.unlink()
+        with self.assertRaisesRegex(ValueError, "archive_reference_identity_mismatch"):
+            lifecycle.safe_remove_worktree(self.repo, self.worktree, merged_into="main")
+        result_path.write_bytes(result_bytes)
+        extra_path = attempt_dir / "post-archive-extra.bin"
+        extra_path.write_bytes(b"new artifact")
+        with self.assertRaisesRegex(ValueError, "archive_reference_identity_mismatch"):
+            lifecycle.safe_remove_worktree(self.repo, self.worktree, merged_into="main")
+        extra_path.unlink()
+        substituted_reference = json.loads(archive_reference_bytes)
+        substituted_reference["archive_sha256"] = "0" * 64
+        archive_reference_path.write_text(json.dumps(substituted_reference))
+        with self.assertRaisesRegex(ValueError, "archive_reference_identity_mismatch"):
+            lifecycle.safe_remove_worktree(self.repo, self.worktree, merged_into="main")
+        archive_reference_path.write_bytes(archive_reference_bytes)
+        archive_reference_path.unlink()
+        archive_reference_path.symlink_to(publication_dir / "archive-reference.json")
+        with self.assertRaisesRegex(ValueError, "archive_reference_symlink"):
+            lifecycle.safe_remove_worktree(self.repo, self.worktree, merged_into="main")
+        archive_reference_path.unlink()
+        archive_reference_path.write_bytes(archive_reference_bytes)
         lifecycle.safe_remove_worktree(self.repo, self.worktree, merged_into="main")
         self.assertFalse(self.worktree.exists())
         with self.assertRaisesRegex(FileExistsError, "already_registered"):
@@ -218,6 +260,154 @@ class ExperimentLifecycleTests(unittest.TestCase):
             ValueError, "required_attempt_artifacts_not_archived"
         ):
             lifecycle.safe_remove_worktree(self.repo, self.worktree, merged_into="main")
+
+    def test_execution_rejects_dirty_source_after_freeze(self) -> None:
+        attempt_dir = self._freeze(
+            "attempt-source-dirty",
+            "import sys; from pathlib import Path; Path(sys.argv[1]).write_text('result')",
+        )
+        (self.worktree / "README.md").write_text("modified after freeze\n")
+        result = self._execute(attempt_dir)
+        self.assertEqual(result["status"], "failed")
+        self.assertIn("execution_worktree_not_clean", result["reason"])
+        self.assertFalse((attempt_dir / "result.json").exists())
+
+    def test_execution_rejects_changed_head_after_freeze(self) -> None:
+        attempt_dir = self._freeze(
+            "attempt-head-changed",
+            "import sys; from pathlib import Path; Path(sys.argv[1]).write_text('result')",
+        )
+        (self.worktree / "README.md").write_text("new source commit\n")
+        self._git_at(self.worktree, "add", "README.md")
+        self._git_at(self.worktree, "commit", "-m", "change source after freeze")
+        result = self._execute(attempt_dir)
+        self.assertEqual(result["status"], "failed")
+        self.assertIn("frozen_source_commit_or_tree_changed", result["reason"])
+        self.assertFalse((attempt_dir / "result.json").exists())
+        self.assertEqual(lifecycle.verify_attempt(attempt_dir)["status"], "failed")
+
+    def test_execution_rejects_changed_input_after_freeze(self) -> None:
+        attempt_dir = self._freeze(
+            "attempt-input-changed",
+            "import sys; from pathlib import Path; Path(sys.argv[1]).write_text('result')",
+        )
+        self.dataset_member.write_text('{"sample":2}\n')
+        result = self._execute(attempt_dir)
+        self.assertEqual(result["status"], "failed")
+        self.assertIn("input_artifact_hash_mismatch", result["reason"])
+        self.assertFalse((attempt_dir / "result.json").exists())
+
+    def test_directory_inputs_hash_verify_and_reject_changed_members(self) -> None:
+        attempt_dir = self._freeze(
+            "attempt-directory-input",
+            "import sys; from pathlib import Path; Path(sys.argv[1]).write_text('result')",
+        )
+        frozen_directory_hash = lifecycle.artifact_sha256(self.dataset_dir)
+        self.assertEqual(
+            json.loads((attempt_dir / "manifest.json").read_bytes())["input_artifacts"][
+                str(self.dataset_dir)
+            ],
+            frozen_directory_hash,
+        )
+        self._execute(attempt_dir)
+        lifecycle.verify_attempt(attempt_dir)
+        self.dataset_member.write_text('{"sample":changed}\n')
+        with self.assertRaisesRegex(ValueError, "input_artifact_hash_mismatch"):
+            lifecycle.verify_attempt(attempt_dir)
+        self.dataset_member.write_text('{"sample":1}\n')
+
+        changed_before_launch = self._freeze(
+            "attempt-directory-modified-before-run",
+            "import sys; from pathlib import Path; Path(sys.argv[1]).write_text('result')",
+        )
+        self.dataset_member.write_text('{"sample":3}\n')
+        result = self._execute(changed_before_launch)
+        self.assertEqual(result["status"], "failed")
+        self.assertIn("input_artifact_hash_mismatch", result["reason"])
+        self.assertFalse((changed_before_launch / "result.json").exists())
+        failed_archive = lifecycle.archive_attempt(changed_before_launch, self.archives)
+        failed_archive_manifest = json.loads(
+            Path(failed_archive["archive_manifest_path"]).read_bytes()
+        )
+        self.assertFalse(
+            failed_archive_manifest["attempt_verification"]["input_artifacts_verified"]
+        )
+        self.assertEqual(
+            failed_archive_manifest["attempt_verification"][
+                "input_artifact_mismatches"
+            ],
+            [str(self.dataset_dir)],
+        )
+        self.dataset_member.write_text('{"sample":1}\n')
+
+        directory_output = self._freeze(
+            "attempt-directory-output",
+            "import sys; from pathlib import Path; output=Path(sys.argv[1]); output.mkdir(); (output/'weights.bin').write_bytes(b'model')",
+            output_path="model-artifact",
+        )
+        self.assertEqual(self._execute(directory_output)["status"], "completed")
+        self.assertEqual(
+            lifecycle.verify_attempt(directory_output)["outputs_verified"], 1
+        )
+        reference = lifecycle.archive_attempt(directory_output, self.archives)
+        sidecar = json.loads(Path(reference["archive_manifest_path"]).read_bytes())
+        self.assertIn(
+            "model-artifact/weights.bin", {item["path"] for item in sidecar["files"]}
+        )
+        publication = lifecycle.prepare_publication(
+            directory_output, self.worktree / "docs" / "data" / "directory-model-output"
+        )
+        self.assertIn(
+            "model-artifact/weights.bin",
+            {item["path"] for item in publication["files"]},
+        )
+
+    def test_historical_attempts_survive_source_and_publication_commits(self) -> None:
+        attempt_a = self._freeze(
+            "attempt-0001",
+            "import sys; from pathlib import Path; Path(sys.argv[1]).write_text('A')",
+        )
+        result_a = self._execute(attempt_a)
+        self.assertEqual(result_a["status"], "completed")
+        commit_a = json.loads((attempt_a / "manifest.json").read_bytes())[
+            "source_commit"
+        ]
+
+        (self.worktree / "README.md").write_text("implementation commit B\n")
+        self._git_at(self.worktree, "add", "README.md")
+        self._git_at(self.worktree, "commit", "-m", "update implementation to B")
+        commit_b = self._git_at(self.worktree, "rev-parse", "HEAD")
+        self.assertNotEqual(commit_a, commit_b)
+
+        attempt_b = self._freeze(
+            "attempt-0002",
+            "import sys; from pathlib import Path; Path(sys.argv[1]).write_text('B')",
+        )
+        result_b = self._execute(attempt_b)
+        self.assertEqual(result_b["status"], "completed")
+        self.assertEqual(
+            json.loads((attempt_b / "manifest.json").read_bytes())["source_commit"],
+            commit_b,
+        )
+
+        lifecycle.archive_attempt(attempt_a, self.archives)
+        lifecycle.archive_attempt(attempt_b, self.archives)
+        self.assertEqual(lifecycle.verify_attempt(attempt_a)["status"], "completed")
+        self.assertEqual(lifecycle.verify_attempt(attempt_b)["status"], "completed")
+        lifecycle.prepare_publication(
+            attempt_a, self.worktree / "docs" / "data" / "demo-001" / "attempt-0001"
+        )
+        lifecycle.prepare_publication(
+            attempt_b, self.worktree / "docs" / "data" / "demo-001" / "attempt-0002"
+        )
+        self._git_at(self.worktree, "add", "docs/data/demo-001")
+        self._git_at(self.worktree, "commit", "-m", "publish both historical attempts")
+        self.assertEqual(lifecycle.verify_attempt(attempt_a)["status"], "completed")
+        self.assertEqual(lifecycle.verify_attempt(attempt_b)["status"], "completed")
+        self._git(
+            "merge", "--no-ff", "experiment/demo-001", "-m", "merge both attempts"
+        )
+        lifecycle.safe_remove_worktree(self.repo, self.worktree, merged_into="main")
 
     def test_timeout_is_recorded_and_archived_without_retry(self) -> None:
         attempt_dir = self._freeze(
