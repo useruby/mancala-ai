@@ -1,0 +1,48 @@
+{
+  "schema": "seed633-exact-oracle-decision-diagnostic-supersession-v1",
+  "status": "authoritative_corrected_retrospective_reproduction",
+  "supersedes": "docs/data/seed633-exact-oracle-decision-diagnostic-final/",
+  "reason": [
+    "The prior verifier reused the producer subgroup/bootstrap summary implementation.",
+    "Neutral imitation deltas were not represented distinctly in joint directional categories.",
+    "The prior output described its protocol as prospectively frozen despite being computed first.",
+    "Source identity was not anchored independently of its self-described source freeze."
+  ],
+  "historical_artifacts": "The superseded output and all Seed 633 attempt-5 historical source artifacts are preserved unchanged.",
+  "differences": {
+    "paired_metric_values_changed": false,
+    "subgroup_means_changed": false,
+    "bootstrap_intervals_changed": false,
+    "decision_classification_changed": false,
+    "directional_category_labels_and_counts_changed": true,
+    "prior_category_counts": {
+      "improved_imitation_and_exact_quality": 239,
+      "improved_imitation_worse_exact_quality": 19,
+      "no_meaningful_exact_quality_change": 926,
+      "worse_imitation_and_worse_exact_quality": 292,
+      "worse_imitation_improved_exact_quality": 5
+    },
+    "corrected_category_counts": {
+      "improved_imitation_and_improved_exact_quality": 239,
+      "improved_imitation_and_neutral_exact_quality": 279,
+      "improved_imitation_and_worse_exact_quality": 19,
+      "neutral_imitation_and_neutral_exact_quality": 328,
+      "worse_imitation_and_improved_exact_quality": 5,
+      "worse_imitation_and_neutral_exact_quality": 319,
+      "worse_imitation_and_worse_exact_quality": 292
+    }
+  },
+  "evidence_sha256": {
+    "freeze.json": "21fe37edfb691a5a707a966ef07903675e42c790881f195ee4a29e2281b312fc",
+    "per-state-results.jsonl": "ead34f5772ec3880856efdddcf7597162f2b62a3b26a71dfe6a0424850003815",
+    "summary.json": "cc714bd373b02239f07bd20483c9bfb1caab0d1f91e15fd73dba80e4c2774ea6",
+    "independent-verification.json": "0b49092180716e91c1715bd02653d6a04b46dbb5b56e230a44cc1a496a4348d5"
+  },
+  "fixed_source_authentication_anchors": {
+    "attempt-0005-freeze.json": "bedc7d538c9d613afc543f38dd2c1dcf432c293c56aba2c4c637c6088521eb70",
+    "attempt-0005-cohort.jsonl": "303e6c38feff9868133e84a80b92421e26da480dbea36dd3a37a8f70d33e914d",
+    "attempt-0005-per-state-metrics.jsonl": "ebba7af50e154ff6e31e3afce3ee325da915295ac11f8a10a73f7a516dd2cccb",
+    "attempt-0005-summary.json": "b9301d5bfcb7d80cdea8b311247637a8ef21c33820b0eedfe3776a2d3b2ccf29",
+    "attempt-0005-independent-verification.json": "34aa59dea2547c81aba439aeaef2fb8e8dc56d307f2dbda686d2fb2b45aba639"
+  }
+}

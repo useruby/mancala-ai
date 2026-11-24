@@ -1,0 +1,38 @@
+{
+  "analysis_source_sha256": {
+    "ml/alphazero_lite/seed633_exact_oracle_decision_diagnostic.py": "0ee17ad90f6be845b7248c7024cf51ab90f8d0a7e0681b104da1ca2942f0096b",
+    "ml/alphazero_lite/verify_seed633_exact_oracle_decision_diagnostic.py": "cf2feb9df89c45aa64dcf69394897daccb9a08d92aeb6b86022fd6fb48093db2"
+  },
+  "checkpoint_sha256": {
+    "B512": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+    "S615": "cdf1e36c4c9374f28b182757b12471b3f00567eb59825bb938435cb56cf8d780"
+  },
+  "cohort_sha256": "303e6c38feff9868133e84a80b92421e26da480dbea36dd3a37a8f70d33e914d",
+  "definitions": {
+    "CE_tolerance_nats": 1e-06,
+    "bootstrap": {
+      "interpretation": "descriptive cluster stability only",
+      "interval": [
+        0.025,
+        0.975
+      ],
+      "replicates": 20000,
+      "seed": 633,
+      "unit": "source-opening group"
+    },
+    "classification_rule": "exact quality improves/worsens if any of optimal mass exceeds tolerance, top action changes correctness, or regret changes strictly; buckets report joint directional categories",
+    "delta_direction": "S615 minus B512; negative CE is improved imitation; positive optimal mass and top-action accuracy are better; negative regret is better",
+    "optimal_mass_tolerance": 0.005,
+    "optimal_set": "all actions tied at maximum authenticated exact_action_margin",
+    "policy_decision": "legal-masked unsearched model argmax with NumPy argmax lowest-index tie break",
+    "regret": "max authenticated action margin minus chosen action margin, outcome-point scale",
+    "regret_tolerance_points": 0.0,
+    "search_decisions": "not observed; no search is rerun",
+    "source_opening_identity": "used only as authenticated historical cluster; no Seed 624 crosswalk assumed"
+  },
+  "schema": "seed633-exact-oracle-decision-freeze-v1",
+  "selected_population": "all Seed 633 exact_root_tablebase states with authenticated outcome and legal action margins",
+  "source_freeze_sha256": "bedc7d538c9d613afc543f38dd2c1dcf432c293c56aba2c4c637c6088521eb70",
+  "source_metrics_sha256": "ebba7af50e154ff6e31e3afce3ee325da915295ac11f8a10a73f7a516dd2cccb",
+  "status": "frozen_before_analysis"
+}

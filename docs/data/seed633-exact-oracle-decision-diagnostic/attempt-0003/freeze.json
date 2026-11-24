@@ -1,0 +1,46 @@
+{
+  "analysis_source_sha256": {
+    "ml/alphazero_lite/seed633_exact_oracle_decision_diagnostic.py": "f3030d2cbffa9bb17758afb13d7786dcb5cb9ce657801900bba8021b0bf3d321",
+    "ml/alphazero_lite/verify_seed633_exact_oracle_decision_diagnostic.py": "69b60312841742dcbcefa7bbc80adc9d63431c67ea14131827690a6093a8645a"
+  },
+  "checkpoint_sha256": {
+    "B512": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+    "S615": "cdf1e36c4c9374f28b182757b12471b3f00567eb59825bb938435cb56cf8d780"
+  },
+  "cohort_sha256": "303e6c38feff9868133e84a80b92421e26da480dbea36dd3a37a8f70d33e914d",
+  "definitions": {
+    "CE_tolerance_nats": 1e-06,
+    "bootstrap": {
+      "interpretation": "descriptive cluster stability only",
+      "interval": [
+        0.025,
+        0.975
+      ],
+      "replicates": 20000,
+      "seed": 633,
+      "unit": "source-opening group"
+    },
+    "classification_rule": "teacher CE direction uses \u00b11e-6 nats; exact quality is lexicographic: regret direction, then top-action correctness, then optimal-action mass outside \u00b10.005; both axes independently classify as improved/worse/neutral",
+    "delta_direction": "S615 minus B512; negative CE is improved imitation; positive optimal mass and top-action accuracy are better; negative regret is better",
+    "optimal_mass_tolerance": 0.005,
+    "optimal_set": "all actions tied at maximum authenticated exact_action_margin",
+    "policy_decision": "legal-masked unsearched model argmax with NumPy argmax lowest-index tie break",
+    "regret": "max authenticated action margin minus chosen action margin, outcome-point scale",
+    "regret_tolerance_points": 0.0,
+    "search_decisions": "not observed; no search is rerun",
+    "source_opening_identity": "used only as authenticated historical cluster; no Seed 624 crosswalk assumed"
+  },
+  "historical_source_authentication_sha256": {
+    "cohort.jsonl": "303e6c38feff9868133e84a80b92421e26da480dbea36dd3a37a8f70d33e914d",
+    "freeze.json": "bedc7d538c9d613afc543f38dd2c1dcf432c293c56aba2c4c637c6088521eb70",
+    "independent-verification.json": "34aa59dea2547c81aba439aeaef2fb8e8dc56d307f2dbda686d2fb2b45aba639",
+    "per-state-metrics.jsonl": "ebba7af50e154ff6e31e3afce3ee325da915295ac11f8a10a73f7a516dd2cccb",
+    "summary.json": "b9301d5bfcb7d80cdea8b311247637a8ef21c33820b0eedfe3776a2d3b2ccf29"
+  },
+  "protocol_timing": "The original exact-oracle analysis was computed and published in attempt 0001 before this corrected protocol record. This record is retrospective; it does not claim prospective registration or a pre-outcome freeze.",
+  "schema": "seed633-exact-oracle-decision-protocol-record-v2",
+  "selected_population": "all Seed 633 exact_root_tablebase states with authenticated outcome and legal action margins",
+  "source_freeze_sha256": "bedc7d538c9d613afc543f38dd2c1dcf432c293c56aba2c4c637c6088521eb70",
+  "source_metrics_sha256": "ebba7af50e154ff6e31e3afce3ee325da915295ac11f8a10a73f7a516dd2cccb",
+  "status": "retrospective_reproduction"
+}
