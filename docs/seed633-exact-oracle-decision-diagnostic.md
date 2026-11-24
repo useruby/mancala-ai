@@ -7,16 +7,25 @@ action mass moved in the wrong direction, while top-policy accuracy and regret
 were essentially unchanged. There is no evidence here about playing strength
 after search.
 
-## Design and evidence freeze
+## Design, evidence authentication, and protocol record
 
 This retrospective, paired analysis uses the merged Seed 633 authenticated
-cohort and the already-published B512/S615 NumPy policy metrics. Before
-calculating diagnostic outcomes, the analysis froze the source run, cohort and
-metric hashes; both checkpoint identities; exact-oracle inclusion rule;
-tie-handling; tolerances; subgroup definitions; and bootstrap procedure.
-Seed 633's original independent verifier authenticated the 4,521-state source
-bundle and independently reconstructed model metrics. This diagnostic verifier
-then independently reconstructs all derived exact-only metrics and summaries.
+cohort and the already-published B512/S615 NumPy policy metrics. The initial
+exact-oracle analysis had already been computed before a formal protocol record
+was written. The original record was therefore not a prospective freeze. The
+corrected protocol record explicitly documents this timing and is a
+retrospective reproduction record, not a pre-outcome registration. The original
+published bundle is preserved unchanged.
+
+The source is anchored to fixed SHA-256 identities for the Seed 633 attempt-5
+freeze, cohort, per-state metrics, summary, and its independent-verification
+record. That record attests to independently reconstructed model metrics,
+membership, and the 4,521-row cohort; the verifier rejects any source whose
+bytes differ from those immutable identities, even if a replacement source
+freeze and replacement files are internally self-consistent. Model checkpoint
+identities are bound in that anchored freeze and verification record. The
+follow-on verifier independently reconstructs the exact-only subgroup and
+cluster summaries; it does not import or call the producer's summarizer.
 
 Primary analysis includes only the 1,481 rows labeled
 `exact_root_tablebase` with the authenticated full legal-action margin map.
@@ -27,7 +36,7 @@ lowest-action-index tie break. Search-selected actions are unavailable and are
 not inferred. Regret is the exact authenticated best margin minus the chosen
 top-policy action's margin, in recorded outcome-point units.
 
-Numerical rules frozen in `freeze.json`:
+Numerical rules recorded in the retrospective attempt-0003 `freeze.json`:
 
 - Teacher-imitation improvement: S615-minus-B512 CE `< -1e-6` nats; worse is
   `> +1e-6` nats.
@@ -67,13 +76,20 @@ are both better, the latter is directionally consistent with imitation
 improvement often accompanying worse regret. These unclustered correlations
 are descriptive only and not inferential evidence.
 
-The predeclared joint categories count 239 states with improved imitation and
+The corrected joint categories count 239 states with improved imitation and
 better exact quality, 19 with improved imitation but worse exact quality, and
-5 with worse imitation but improved exact quality. 926 had no meaningful exact
-quality movement under the frozen thresholds. For completeness, 292 had both
-worse imitation and worse exact quality; they do not fit the four discordance /
-no-change cases named in the request. Every row has its own category in the
-per-state output.
+5 with worse imitation but improved exact quality. 926 had neutral exact
+quality, split into 279 with improved imitation, 328 with neutral imitation,
+and 319 with worse imitation. Another 292 had both worse imitation and worse
+exact quality. This explicitly preserves neutral imitation changes instead of
+implicitly treating them as deterioration. Synthetic tests cover all nine
+combinations of improved, worse, and neutral imitation and exact-quality
+directions. Every row has its own category in the corrected per-state output.
+
+The category counts are corrected from the original output; paired metric
+values, cluster intervals, subgroup means, and the overall classification are
+unchanged. The new immutable attempt and its supersession record explain this
+categorization correction. The original output and artifacts remain unchanged.
 
 By original membership class, exact-optimal mass changed −0.007229 on B512-only
 (402 rows), +0.004354 on S615-only (402), −0.002449 on shared (110), and
@@ -110,23 +126,27 @@ strength result.
 
 ## Reproduction and verification
 
-The frozen bundle is `docs/data/seed633-exact-oracle-decision-diagnostic-final/`.
-Its source bundle is Seed 633 attempt 5, whose historical independent
-verification record is preserved alongside its frozen cohort and per-state
-source metrics. Reproduce the derived bundle with:
+The original bundle is preserved at
+`docs/data/seed633-exact-oracle-decision-diagnostic-final/`. The corrected
+immutable reproduction is
+`docs/data/seed633-exact-oracle-decision-diagnostic/attempt-0003/`. Its source
+is Seed 633 attempt 5, whose historical independent verification record is
+preserved with its cohort and per-state metrics. Reproduce the corrected
+attempt with:
 
 ```sh
 python -m ml.alphazero_lite.seed633_exact_oracle_decision_diagnostic \
   --source docs/data/seed633-teacher-target-learning/attempt-0005 \
-  --output docs/data/seed633-exact-oracle-decision-diagnostic-new
+  --output docs/data/seed633-exact-oracle-decision-diagnostic/new-attempt
 python -m ml.alphazero_lite.verify_seed633_exact_oracle_decision_diagnostic \
   --source docs/data/seed633-teacher-target-learning/attempt-0005 \
-  --output docs/data/seed633-exact-oracle-decision-diagnostic-new
+  --output docs/data/seed633-exact-oracle-decision-diagnostic/new-attempt
 ```
 
-The verifier rechecks legal actions and action-margin/optimal-set correspondence,
-the model checkpoint hashes bound by the authenticated source freeze, every
-per-state derived metric, and all subgroup/bootstrap results. Regression tests
-cover altered oracle labels, action masks, model-row identity, and membership
-preservation. Per-state policies and outputs are top-policy diagnostics only;
-no games, model training, search, or new solving were performed.
+The verifier rechecks the fixed historical source anchors, legal actions and
+action-margin/optimal-set correspondence, model identities, every per-state
+derived metric, and independently rebuilt subgroup/bootstrap results.
+Regression tests reject altered source identities and summary statistics,
+altered oracle labels and legal masks, and exercise all nine joint direction
+categories. Per-state policies and outputs are top-policy diagnostics only; no
+games, model training, search, or new solving were performed.

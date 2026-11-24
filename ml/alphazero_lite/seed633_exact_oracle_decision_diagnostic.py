@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +19,13 @@ SEED = 633
 CE_TOLERANCE = 1e-6
 MASS_TOLERANCE = 0.005
 REGRET_TOLERANCE = 0.0
+SOURCE_ANCHOR_SHA256 = {
+    "freeze.json": "bedc7d538c9d613afc543f38dd2c1dcf432c293c56aba2c4c637c6088521eb70",
+    "cohort.jsonl": "303e6c38feff9868133e84a80b92421e26da480dbea36dd3a37a8f70d33e914d",
+    "per-state-metrics.jsonl": "ebba7af50e154ff6e31e3afce3ee325da915295ac11f8a10a73f7a516dd2cccb",
+    "summary.json": "b9301d5bfcb7d80cdea8b311247637a8ef21c33820b0eedfe3776a2d3b2ccf29",
+    "independent-verification.json": "34aa59dea2547c81aba439aeaef2fb8e8dc56d307f2dbda686d2fb2b45aba639",
+}
 
 
 def digest(raw: bytes) -> str:
@@ -31,6 +38,56 @@ def canonical(value: Any) -> bytes:
     return json.dumps(
         value, sort_keys=True, separators=(",", ":"), ensure_ascii=True
     ).encode("ascii")
+
+
+def authenticate_source(source: Path) -> dict[str, str]:
+    """Require the fixed historical Seed 633 authentication anchor."""
+    observed = {}
+    for name, expected in SOURCE_ANCHOR_SHA256.items():
+        actual = digest((source / name).read_bytes())
+        if actual != expected:
+            raise ValueError(f"historical_source_anchor_mismatch:{name}")
+        observed[name] = actual
+    record = json.loads((source / "independent-verification.json").read_bytes())
+    if (
+        record.get("status") != "verified"
+        or record.get("cohort_rows") != 4521
+        or record.get("independent_numpy_metric_reconstruction") is not True
+        or record.get("aggregate_and_bootstrap_reconstruction") is not True
+    ):
+        raise ValueError("historical_source_verification_record_invalid")
+    return observed
+
+
+def directional_category(
+    ce_delta: float,
+    regret_delta: float,
+    agreement_delta: int,
+    optimal_mass_delta: float,
+) -> str:
+    """Classify both axes into improved, worse, or neutral directions."""
+    imitation = (
+        "improved"
+        if ce_delta < -CE_TOLERANCE
+        else "worse"
+        if ce_delta > CE_TOLERANCE
+        else "neutral"
+    )
+    if regret_delta < -REGRET_TOLERANCE:
+        quality = "improved"
+    elif regret_delta > REGRET_TOLERANCE:
+        quality = "worse"
+    elif agreement_delta > 0:
+        quality = "improved"
+    elif agreement_delta < 0:
+        quality = "worse"
+    elif optimal_mass_delta > MASS_TOLERANCE:
+        quality = "improved"
+    elif optimal_mass_delta < -MASS_TOLERANCE:
+        quality = "worse"
+    else:
+        quality = "neutral"
+    return f"{imitation}_imitation_and_{quality}_exact_quality"
 
 
 def derive(
@@ -90,34 +147,8 @@ def derive(
             per_model["S615"]["top_policy_action_regret"]
             - per_model["B512"]["top_policy_action_regret"]
         )
-        imitation_better = ce_delta < -CE_TOLERANCE
-        quality_direction = (
-            -1
-            if regret_delta > REGRET_TOLERANCE
-            else 1
-            if regret_delta < -REGRET_TOLERANCE
-            else agreement_delta
-        )
-        if quality_direction == 0:
-            quality_direction = (
-                1
-                if mass_delta > MASS_TOLERANCE
-                else -1
-                if mass_delta < -MASS_TOLERANCE
-                else 0
-            )
-        quality_better = quality_direction > 0
-        quality_worse = quality_direction < 0
-        category = (
-            "improved_imitation_and_exact_quality"
-            if imitation_better and quality_better
-            else "improved_imitation_worse_exact_quality"
-            if imitation_better and quality_worse
-            else "worse_imitation_improved_exact_quality"
-            if ce_delta > CE_TOLERANCE and quality_better
-            else "no_meaningful_exact_quality_change"
-            if not quality_better and not quality_worse
-            else "worse_imitation_and_worse_exact_quality"
+        category = directional_category(
+            ce_delta, regret_delta, agreement_delta, mass_delta
         )
         result.append(
             {
@@ -227,11 +258,7 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
                     )
                 },
                 "category_counts": dict(
-                    sorted(
-                        __import__("collections")
-                        .Counter(row["category"] for row in subset)
-                        .items()
-                    )
+                    sorted(Counter(row["category"] for row in subset).items())
                 ),
             }
     ce_delta = np.asarray(
@@ -284,11 +311,7 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
             )
         },
         "category_counts": dict(
-            sorted(
-                __import__("collections")
-                .Counter(row["category"] for row in rows)
-                .items()
-            )
+            sorted(Counter(row["category"] for row in rows).items())
         ),
         "teacher_ce_delta_association_with_exact_quality_delta": association,
     }
@@ -298,9 +321,8 @@ def run(source: Path, output: Path) -> dict[str, Any]:
     """Create a frozen, hash-bound diagnostic output directory."""
     if output.exists():
         raise FileExistsError("diagnostic_output_create_only")
+    authenticated_source = authenticate_source(source)
     freeze = json.loads((source / "freeze.json").read_bytes())
-    if freeze.get("status") != "frozen_before_inference":
-        raise ValueError("source_freeze_not_authenticated")
     cohort_raw = (source / "cohort.jsonl").read_bytes()
     metric_raw = (source / "per-state-metrics.jsonl").read_bytes()
     cohort = [json.loads(line) for line in cohort_raw.splitlines() if line]
@@ -308,8 +330,10 @@ def run(source: Path, output: Path) -> dict[str, Any]:
     rows = derive(cohort, metrics)
     rows_raw = b"".join(canonical(row) + b"\n" for row in rows)
     plan = {
-        "schema": "seed633-exact-oracle-decision-freeze-v1",
-        "status": "frozen_before_analysis",
+        "schema": "seed633-exact-oracle-decision-protocol-record-v2",
+        "status": "retrospective_reproduction",
+        "protocol_timing": "The original exact-oracle analysis was computed and published in attempt 0001 before this corrected protocol record. This record is retrospective; it does not claim prospective registration or a pre-outcome freeze.",
+        "historical_source_authentication_sha256": authenticated_source,
         "analysis_source_sha256": {
             "ml/alphazero_lite/seed633_exact_oracle_decision_diagnostic.py": digest(
                 Path(__file__).read_bytes()
@@ -335,7 +359,7 @@ def run(source: Path, output: Path) -> dict[str, Any]:
             "CE_tolerance_nats": CE_TOLERANCE,
             "optimal_mass_tolerance": MASS_TOLERANCE,
             "regret_tolerance_points": REGRET_TOLERANCE,
-            "classification_rule": "exact quality improves/worsens if any of optimal mass exceeds tolerance, top action changes correctness, or regret changes strictly; buckets report joint directional categories",
+            "classification_rule": "teacher CE direction uses ±1e-6 nats; exact quality is lexicographic: regret direction, then top-action correctness, then optimal-action mass outside ±0.005; both axes independently classify as improved/worse/neutral",
             "bootstrap": {
                 "unit": "source-opening group",
                 "replicates": REPLICATES,
