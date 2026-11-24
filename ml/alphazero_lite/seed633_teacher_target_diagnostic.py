@@ -60,6 +60,7 @@ SOURCE_PATHS = (
     "ml/alphazero_lite/seed615_evaluation.py",
     "ml/alphazero_lite/seed615_policy_divergence_diagnostic.py",
     "ml/alphazero_lite/seed599_training_executor.py",
+    "ml/alphazero_lite/self_play.py",
     "ml/alphazero_lite/seed622_training_provenance_audit.py",
     "ml/alphazero_lite/verify_seed599_training_result.py",
     "ml/alphazero_lite/verify_seed615_evaluation.py",

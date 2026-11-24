@@ -40,6 +40,10 @@ EXPECTED_CHECKPOINTS = {
 EXPECTED_EVALUATION_FREEZE = (
     "ba30f5e3efadf3358db9f03c7b4eba4f69b23e2f95dcb4089723a1fb9664f32b"
 )
+SELF_PLAY_SOURCE = "ml/alphazero_lite/self_play.py"
+EXPECTED_SELF_PLAY_SHA256 = (
+    "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c"
+)
 MEMBERSHIP_PATHS = {
     "B512": S599 / "treatment-membership.json",
     "S615": S615 / "candidate-membership.jsonl",
@@ -249,45 +253,89 @@ def reconstruct_cohort(root: Path) -> list[dict[str, Any]]:
     return result
 
 
-def validate_artifact_identity(
+def validate_numpy_artifact_binding(
     label: str,
-    model_hash: str,
-    weights_hash: str,
-    metadata_hash: str,
-    expected: dict[str, Any],
+    seed_record: dict[str, Any],
+    evaluation_record: dict[str, Any],
+    actual_directory: Path,
+    root: Path,
+    actual_hashes: dict[str, str],
+    metadata: dict[str, Any],
+    checkpoint_sha256: str,
 ) -> None:
-    """Require frozen NumPy exports to remain byte-bound to historical checkpoints."""
+    """Authenticate exports against the fixed Seed 615 evaluation freeze."""
+    expected_directory = evaluation_record.get("directory")
     if (
-        model_hash != expected["model_npz_sha256"]
-        or weights_hash != expected["weights_json_sha256"]
-        or metadata_hash != expected["metadata_sha256"]
-        or model_hash != expected["checkpoint_sha256"]
+        not isinstance(expected_directory, str)
+        or seed_record.get("artifact_directory") != expected_directory
+        or actual_directory.resolve() != (root / expected_directory).resolve()
+    ):
+        raise ValueError(f"seed633_artifact_directory_identity_mismatch:{label}")
+    for field in ("model_npz_sha256", "weights_json_sha256", "metadata_sha256"):
+        expected = evaluation_record.get(field)
+        if seed_record.get(field) != expected or actual_hashes.get(field) != expected:
+            raise ValueError(f"seed633_artifact_identity_mismatch:{label}:{field}")
+    if (
+        checkpoint_sha256 != EXPECTED_CHECKPOINTS[label]
+        or actual_hashes.get("model_npz_sha256") != checkpoint_sha256
+        or seed_record.get("checkpoint_sha256") != checkpoint_sha256
     ):
         raise ValueError(f"seed633_artifact_identity_mismatch:{label}")
+    artifact_metadata = metadata.get("artifacts", {})
+    if (
+        metadata.get("framework") != "numpy"
+        or artifact_metadata.get("weights_file") != "weights.json"
+        or artifact_metadata.get("weights_sha256") != checkpoint_sha256
+        or artifact_metadata.get("weights_json_sha256")
+        != actual_hashes.get("weights_json_sha256")
+    ):
+        raise ValueError(f"seed633_artifact_metadata_binding_mismatch:{label}")
+
+
+def validate_self_play_source_identity(
+    actual_sha256: str, seed_freeze_sha256: str, evaluation_freeze_sha256: str
+) -> None:
+    """Pin the input encoder implementation to the authenticated Seed 615 freeze."""
+    if (
+        actual_sha256 != EXPECTED_SELF_PLAY_SHA256
+        or seed_freeze_sha256 != EXPECTED_SELF_PLAY_SHA256
+        or evaluation_freeze_sha256 != EXPECTED_SELF_PLAY_SHA256
+    ):
+        raise ValueError("seed633_self_play_source_identity_mismatch")
 
 
 def _load_model(
-    root: Path, label: str, freeze: dict[str, Any]
+    root: Path,
+    label: str,
+    freeze: dict[str, Any],
+    evaluation_freeze: dict[str, Any],
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     directory = root / ARTIFACTS / label
-    identities = freeze["numpy_artifacts"][label]
+    record = freeze["numpy_artifacts"][label]
+    evaluation_record = evaluation_freeze["runtime_artifacts"][label]
+    registered_model = evaluation_freeze["registration"]["models"][label]
     model_hash = digest((directory / "model.npz").read_bytes())
     weights_raw = (directory / "weights.json").read_bytes()
     metadata_raw = (directory / "metadata.json").read_bytes()
-    validate_artifact_identity(
-        label,
-        model_hash,
-        digest(weights_raw),
-        digest(metadata_raw),
-        identities,
-    )
     metadata = json.loads(metadata_raw)
-    if (
-        metadata.get("framework") != "numpy"
-        or metadata.get("artifacts", {}).get("weights_sha256")
-        != EXPECTED_CHECKPOINTS[label]
-    ):
-        raise ValueError(f"seed633_artifact_metadata_invalid:{label}")
+    checkpoint_sha256 = digest((root / registered_model["path"]).read_bytes())
+    if registered_model.get("sha256") != EXPECTED_CHECKPOINTS[label]:
+        raise ValueError(f"seed633_registered_checkpoint_identity_mismatch:{label}")
+    actual_hashes = {
+        "model_npz_sha256": model_hash,
+        "weights_json_sha256": digest(weights_raw),
+        "metadata_sha256": digest(metadata_raw),
+    }
+    validate_numpy_artifact_binding(
+        label,
+        record,
+        evaluation_record,
+        directory,
+        root,
+        actual_hashes,
+        metadata,
+        checkpoint_sha256,
+    )
     return json.loads(weights_raw), metadata
 
 
@@ -542,12 +590,23 @@ def verify_bundle(root: Path = ROOT, output: Path | None = None) -> dict[str, An
         or freeze.get("status") != "frozen_before_inference"
     ):
         raise ValueError("seed633_protocol_freeze_invalid")
+    evaluation_freeze_raw = (
+        root / EVALUATION / "execution-freeze-v4.json"
+    ).read_bytes()
+    if digest(evaluation_freeze_raw) != EXPECTED_EVALUATION_FREEZE:
+        raise ValueError("seed633_evaluation_freeze_hash_mismatch")
+    evaluation_freeze = json.loads(evaluation_freeze_raw)
     for relative, expected in freeze["input_sha256"].items():
         if digest((root / relative).read_bytes()) != expected:
             raise ValueError(f"seed633_input_hash_mismatch:{relative}")
     for relative, expected in freeze["source_sha256"].items():
         if digest((root / relative).read_bytes()) != expected:
             raise ValueError(f"seed633_source_hash_mismatch:{relative}")
+    validate_self_play_source_identity(
+        digest((root / SELF_PLAY_SOURCE).read_bytes()),
+        freeze.get("source_sha256", {}).get(SELF_PLAY_SOURCE),
+        evaluation_freeze.get("source_sha256", {}).get(SELF_PLAY_SOURCE),
+    )
     runtime = freeze.get("runtime", {})
     torch_version, torch_threads = _torch_runtime_identity()
     observed_runtime = {
@@ -555,9 +614,7 @@ def verify_bundle(root: Path = ROOT, output: Path | None = None) -> dict[str, An
         "numpy": np.__version__,
         "torch_version_identity_only": torch_version,
         "torch_thread_count_identity_only": torch_threads,
-        "registered_evaluation_runtime": load_json(
-            root / EVALUATION / "execution-freeze-v4.json"
-        )["runtime"],
+        "registered_evaluation_runtime": evaluation_freeze["runtime"],
         "platform": platform.platform(),
         "device": "cpu",
         "backend": "NumPy ArtifactEvaluator",
@@ -589,17 +646,10 @@ def verify_bundle(root: Path = ROOT, output: Path | None = None) -> dict[str, An
     published_cohort = [json.loads(line) for line in cohort_raw.splitlines() if line]
     expected_cohort = reconstruct_cohort(root)
     validate_cohort_rows(published_cohort, expected_cohort)
-    evaluation_freeze_raw = (
-        root / EVALUATION / "execution-freeze-v4.json"
-    ).read_bytes()
-    if digest(evaluation_freeze_raw) != EXPECTED_EVALUATION_FREEZE:
-        raise ValueError("seed633_evaluation_freeze_hash_mismatch")
-    models = {name: _load_model(root, name, freeze) for name in ("B512", "S615")}
-    artifact_records = {}
-    for name in models:
-        artifact_records[name] = freeze["numpy_artifacts"][name]
-        if artifact_records[name]["checkpoint_sha256"] != EXPECTED_CHECKPOINTS[name]:
-            raise ValueError(f"seed633_checkpoint_hash_mismatch:{name}")
+    models = {
+        name: _load_model(root, name, freeze, evaluation_freeze)
+        for name in ("B512", "S615")
+    }
     metrics_raw = (output / "per-state-metrics.jsonl").read_bytes()
     metrics = [json.loads(line) for line in metrics_raw.splitlines() if line]
     if len(metrics) != len(expected_cohort):

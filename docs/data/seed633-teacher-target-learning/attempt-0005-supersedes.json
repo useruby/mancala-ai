@@ -1,0 +1,9 @@
+{
+  "schema": "seed633-attempt-supersession-v1",
+  "attempt": "attempt-0005",
+  "freeze_sha256": "bedc7d538c9d613afc543f38dd2c1dcf432c293c56aba2c4c637c6088521eb70",
+  "supersedes_attempt": "attempt-0004",
+  "reason": "Independent verification now binds B512/S615 model, weights, metadata, and artifact-directory identities directly to the exact Seed 615 evaluation freeze; validates metadata's internal weights digest; and pins self_play.py to the evaluation freeze source hash.",
+  "historical_attempt_0004_modified": false,
+  "scientific_result_changed": false
+}

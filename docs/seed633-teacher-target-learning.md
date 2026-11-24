@@ -160,35 +160,42 @@ composition changed together.
 ## Evidence and verification
 
 Successful, final-source frozen run:
-`docs/data/seed633-teacher-target-learning/attempt-0004/`.
+`docs/data/seed633-teacher-target-learning/attempt-0005/`.
 
 | Evidence | SHA-256 |
 | --- | --- |
-| Freeze | `72e847696338777dd278ee676471033e11dd2345869f4f7b7cce46632bd74719` |
+| Freeze | `bedc7d538c9d613afc543f38dd2c1dcf432c293c56aba2c4c637c6088521eb70` |
 | Frozen cohort JSONL | `303e6c38feff9868133e84a80b92421e26da480dbea36dd3a37a8f70d33e914d` |
 | Per-state metric JSONL | `ebba7af50e154ff6e31e3afce3ee325da915295ac11f8a10a73f7a516dd2cccb` |
-| Machine summary | `3be38d7f930f3f5fd06e750f6bf02c0d2dcb9edb453e1e3a244cf9b8b5bf8634` |
+| Machine summary | `b9301d5bfcb7d80cdea8b311247637a8ef21c33820b0eedfe3776a2d3b2ccf29` |
 | Independent verification evidence | `34aa59dea2547c81aba439aeaef2fb8e8dc56d307f2dbda686d2fb2b45aba639` |
 
 The independent verifier reconstructs the cohort from the historical source
-memberships and snapshots, verifies artifact and input digests, independently
-recomputes policy probabilities and all per-state metrics in NumPy, then
-rebuilds subgroup aggregates and bootstrap results. Its five synthetic tests
-reject substituted model artifacts, changed teacher targets, invalid legal
-masks, altered membership, and illegal target mass. Verification status is
-`verified` for 4,521 rows; no playing-strength claim is made.
+memberships and snapshots, checks B512/S615 model, weights, metadata, and
+artifact-directory identities directly against the exact Seed 615 evaluation
+freeze, and validates each metadata file's internal weights digest. It also
+checks that `self_play.py` matches the evaluation-freeze source digest before
+using its state encoder. It independently recomputes policy probabilities and
+all per-state metrics in NumPy, then rebuilds subgroup aggregates and bootstrap
+results. Its 11 synthetic tests reject substituted model/weights/metadata,
+changed teacher targets, invalid legal masks, altered membership, and
+substituted `self_play.py`. Verification status is `verified` for 4,521 rows; no
+playing-strength claim is made.
 
 Attempt 1 is retained at the top-level data directory. It completed per-state
 inference but failed during summary aggregation because boolean agreement arrays
-were subtracted; it wrote no metric dataset or summary. Attempt 2 completed and
-was independently verified, but the repository's required Ruff formatter later
-changed source bytes bound by that freeze. Attempt 3 completed after formatting
-and was independently verified, then the verifier was strengthened to
-reconstruct teacher entropy and legal-action count per state. The intermediate
-attempt outputs remain in the local workspace and are not included in the
-published bundle. Attempt 4 was frozen after both changes, rerun, and
-independently verified; it is authoritative. The published failure record is
+were subtracted; it wrote no metric dataset or summary. Attempts 2 and 3 were
+completed and verified but superseded after formatter and verifier refinements;
+their outputs remain in the local workspace and are not included in the
+published bundle. Attempt 4 was independently verified before the review found
+the artifact/source binding gaps. Attempt 5 was frozen after those bindings and
+the requested negative tests were added, rerun, and independently verified; it
+is authoritative and supersedes attempt 4. Attempt 4 remains unchanged. The
+published failure record is
 `docs/data/seed633-teacher-target-learning/attempt-0001-failure.json`.
+
+The supersession record is
+`docs/data/seed633-teacher-target-learning/attempt-0005-supersedes.json`.
 
 Reproduce the successful bundle in the pinned Seed 615 evaluation environment
 (using a new create-only attempt directory):
@@ -196,11 +203,11 @@ Reproduce the successful bundle in the pinned Seed 615 evaluation environment
 ```sh
 PYTHONHASHSEED=615 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 CUDA_VISIBLE_DEVICES='' \
   python -m ml.alphazero_lite.seed633_teacher_target_diagnostic \
-  --freeze --output docs/data/seed633-teacher-target-learning/attempt-0005
+  --freeze --output docs/data/seed633-teacher-target-learning/attempt-0006
 PYTHONHASHSEED=615 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 CUDA_VISIBLE_DEVICES='' \
   python -m ml.alphazero_lite.seed633_teacher_target_diagnostic \
-  --run --output docs/data/seed633-teacher-target-learning/attempt-0005
+  --run --output docs/data/seed633-teacher-target-learning/attempt-0006
 PYTHONHASHSEED=615 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 CUDA_VISIBLE_DEVICES='' \
   python -m ml.alphazero_lite.verify_seed633_teacher_target_diagnostic \
-  --output docs/data/seed633-teacher-target-learning/attempt-0005
+  --output docs/data/seed633-teacher-target-learning/attempt-0006
 ```
