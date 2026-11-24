@@ -122,6 +122,7 @@ def create_worktree(
     checkpoint_identity: dict[str, str] | None,
     acceptance_criteria: list[str],
     worktree_root: Path = DEFAULT_WORKTREE_ROOT,
+    registration_metadata: dict[str, Any] | None = None,
 ) -> Path:
     """Create and register a dedicated worktree at an exact base commit."""
     experiment_id = _safe_identity(experiment_id, "experiment_id")
@@ -183,6 +184,12 @@ def create_worktree(
         "acceptance_criteria": acceptance_criteria,
         "registered_at": datetime.now(timezone.utc).isoformat(),
     }
+    if registration_metadata is not None:
+        if not isinstance(registration_metadata, dict) or set(
+            registration_metadata
+        ).intersection(registration):
+            raise ValueError("experiment_registration_metadata_invalid")
+        registration.update(registration_metadata)
     _write_create_only(registry_path, registration)
     try:
         subprocess.run(
@@ -1365,6 +1372,7 @@ def main() -> None:
             checkpoint_identity=spec.get("checkpoint_identity"),
             acceptance_criteria=spec["acceptance_criteria"],
             worktree_root=args.worktree_root,
+            registration_metadata=spec.get("registration_metadata"),
         )
         print(path)
     elif args.action == "freeze":

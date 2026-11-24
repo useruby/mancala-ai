@@ -59,7 +59,17 @@ class ExperimentLifecycleTests(unittest.TestCase):
             checkpoint_identity=None,
             acceptance_criteria=["result JSON has answer 42"],
             worktree_root=self.worktrees,
+            registration_metadata={
+                "approved_protocol_revision": self.base_commit,
+                "protocol_documents": {"docs/protocol.md": "a" * 64},
+                "approved_decisions": ["synthetic-only"],
+            },
         )
+        registration = json.loads(
+            (self.worktree / ".experiment" / "registration.json").read_bytes()
+        )
+        self.assertEqual(registration["approved_protocol_revision"], self.base_commit)
+        self.assertEqual(registration["approved_decisions"], ["synthetic-only"])
         self._git_at(
             self.worktree,
             "add",

@@ -16,10 +16,11 @@ random-generation population is made.
 The explicit proposed amendment is recorded in
 [`seed624-estimand-amendment-proposal.md`](seed624-estimand-amendment-proposal.md).
 PR #625 merged, but the available PR review record has no independent
-project-owner approval: no review, review request, or approval comment is
-recorded. The amendment's merge is not evidence of owner approval. Explicit
-project-owner approval is a blocking gate; it must be recorded independently
-before production authorization. Do not infer or issue that approval here.
+project-owner approval. The amendment's merge is not evidence of owner approval.
+The Seed 636 migration accepts only a GitHub owner comment that binds the exact
+experiment-registration digest, protocol revision/document hashes, and
+generation/screening-only scope. Until such approval is recorded, generation
+remains blocked.
 
 ## Proposed freeze status
 
@@ -34,18 +35,19 @@ authorized freeze, the repository still needs:
 - Authenticated, identity-complete snapshots for B512, S615, protected holdout,
   and available compatible source-game/opening provenance. Missing evidence
   must fail closed; a nonmatch remains unresolved for inherited P-E4 exposure.
-- An independently reviewed project-owner Ed25519 public key must be added to
-  the source-pinned trust allowlist. The allowlist is currently empty, so the
-  production entry point rejects every approval record. Caller-provided keys
-  and identity flags are not trusted.
-- Project-owner signature over the exact finalized freeze SHA-256 and the
-  `model-independent-generation-and-screening` scope, bound to the finalized
-  source hashes, snapshot hashes, create-only output paths, verifier commands,
-  and resource limits.
+- An auditable GitHub project-owner comment must approve the exact registration
+  digest, approved protocol revision and document hashes, and
+  `model-independent-generation-and-screening-only` scope.
+- A standard Seed 635 lifecycle freeze must bind the clean worktree source tree,
+  exact command/configuration, inputs, runtime, resource budget, and output paths.
 
-The production entry point verifies an Ed25519 approval against a repository-
-pinned key, exact freeze digest, and exact execution scope. The implementation
-has not called that entry point. The reviewed key is not yet provisioned.
+The production entry point verifies the GitHub comment through `gh api`, then
+checks its owner identity, exact comment URL/timestamp/body, registration digest,
+protocol revision/document hashes, and execution scope. It also requires the
+Seed 635 lifecycle runner's frozen and started attempt, current source tree, and
+input identities. Failed attempts are preserved by the lifecycle terminal
+record and attempt directory. The legacy Seed 629 production launch guard is
+unchanged and is not called by this generation path.
 
 ## Opening-prefix reserve semantics
 
@@ -103,14 +105,12 @@ little-endian `kalah_v3` float32 bytes.
 
 ## Remaining review blockers
 
-1. Obtain and independently record explicit project-owner approval of the
-   merged PR #625 estimand amendment (blocking).
+1. Obtain and record explicit GitHub project-owner approval of the Seed 625
+   estimand amendment, Seed 635 execution-contract amendment, unresolved P-E4
+   exposure limitation, and generation/screening-only scope (blocking).
 2. Review the bounded selector semantics, resource limits, and synthetic
    feasible/infeasible benchmark results.
-3. Keep the production trust allowlist empty until a reviewed owner key is
-   provisioned through the separately documented procedure and independently
-   verified. Key provisioning alone is not execution authorization.
-4. Provision an independently reviewed project-owner public key in the
-   allowlist, then approve a signed, finalized freeze before production.
-5. Bind final runtime/source/dependency identities in the signed freeze. This
-   implementation is not ready for production authorization.
+3. Freeze the final runtime/source/dependency/input identities and resource
+   budget in the standard lifecycle attempt before any population generation.
+4. Preserve the failed attempt and stop if any preregistered gate fails. This
+   migration does not itself authorize execution.

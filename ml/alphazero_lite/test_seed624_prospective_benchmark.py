@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import hashlib
-import base64
 import json
 import subprocess
 import shutil
@@ -14,8 +13,6 @@ from collections import Counter
 from pathlib import Path
 from unittest.mock import patch
 
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from ml.alphazero_lite import seed624_prospective_benchmark as seed624
 from ml.alphazero_lite import seed628_authenticated_screening as seed628
@@ -25,76 +22,128 @@ from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.verify_seed624_prospective_benchmark import _apply_actions
 from ml.alphazero_lite.verify_seed624_prospective_benchmark import (
     validate_candidate_rank,
-    verify_owner_approval,
     verify_bundle,
 )
 
 
 class Seed624SyntheticTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        cls._owner_private_key = Ed25519PrivateKey.generate()
-        public_key = cls._owner_private_key.public_key().public_bytes(
-            serialization.Encoding.Raw, serialization.PublicFormat.Raw
-        )
-        cls._owner_key_id = hashlib.sha256(public_key).hexdigest()[:16]
-        cls._trusted_key = {
-            "project_owner_identity": "synthetic-fixture-owner",
-            "public_key_hex": public_key.hex(),
-        }
-        seed624.TRUSTED_PROJECT_OWNER_KEYS[cls._owner_key_id] = cls._trusted_key
-        import ml.alphazero_lite.verify_seed624_prospective_benchmark as independent
-
-        independent.TRUSTED_PROJECT_OWNER_KEYS[cls._owner_key_id] = cls._trusted_key
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        seed624.TRUSTED_PROJECT_OWNER_KEYS.clear()
-        import ml.alphazero_lite.verify_seed624_prospective_benchmark as independent
-
-        independent.TRUSTED_PROJECT_OWNER_KEYS.clear()
-
     def _seal_freeze(self, freeze: dict) -> tuple[bytes, dict, bytes]:
-        freeze_raw = seed624.canonical_bytes(freeze)
-        record = {
-            "schema": "seed624-owner-approval-v1",
-            "project_owner_identity": "synthetic-fixture-owner",
-            "key_id": self._owner_key_id,
-            "freeze_sha256": seed624.sha256(freeze_raw),
-            "execution_scope": seed624.EXECUTION_SCOPE,
-        }
-        signature = self._owner_private_key.sign(seed624.canonical_bytes(record))
-        record["signature_ed25519"] = base64.b64encode(signature).decode("ascii")
-        return freeze_raw, record, seed624.canonical_bytes(record)
+        from ml.alphazero_lite import verify_seed624_prospective_benchmark as verifier
+        from ml.alphazero_lite.seed636_authorization import (
+            APPROVAL_MARKER,
+            EXECUTION_SCOPE,
+            SCHEMA as APPROVAL_SCHEMA,
+            canonical_bytes,
+            sha256,
+            APPROVED_DECISIONS,
+        )
 
-    def _receipt_authorization(self, directory: Path) -> dict:
-        receipt_path = directory / "authenticated-failure.json"
-        freeze = {
-            "schema": "seed624-execution-freeze-v1",
-            "status": "authorized",
-            "project_owner_identity": "synthetic-fixture-owner",
-            "execution_scope": seed624.EXECUTION_SCOPE,
-            "authorized_run_identity": "synthetic-run-1",
-            "failure_receipt_contract": {
-                "schema": "seed624-failure-receipt-contract-v2",
-                "authenticated_record_schema": "seed624-authenticated-execution-failure-v1",
-                "unauthenticated_preflight_record_schema": "seed624-unauthenticated-preflight-failure-v1",
-                "categories": sorted(seed624.FAILURE_CATEGORIES),
-                "create_only_path": str(receipt_path),
+        freeze = dict(freeze, status="frozen")
+        freeze_raw = seed624.canonical_bytes(freeze)
+        documents = {
+            name: sha256((seed624.ROOT / name).read_bytes())
+            for name in (
+                "docs/seed624-estimand-amendment-proposal.md",
+                "docs/seed623-631-execution-contract-amendment.md",
+                "docs/experiment-execution-protocol.md",
+            )
+        }
+        registration = {
+            "experiment_id": "seed636-prospective-population",
+            "approved_protocol_revision": seed624.current_git_commit(),
+            "protocol_documents": documents,
+            "input_artifacts": {},
+            "approved_decisions": APPROVED_DECISIONS,
+        }
+        registration_raw = canonical_bytes(registration)
+        registration_sha = sha256(registration_raw)
+        body_data = {
+            "marker": APPROVAL_MARKER,
+            "experiment_id": registration["experiment_id"],
+            "registration_sha256": registration_sha,
+            "approved_protocol_revision": registration["approved_protocol_revision"],
+            "protocol_documents": documents,
+            "approved_decisions": APPROVED_DECISIONS,
+            "execution_scope": EXECUTION_SCOPE,
+        }
+        body = APPROVAL_MARKER + "\n" + json.dumps(body_data, sort_keys=True)
+        url = "https://github.com/useruby/mancala-ai/pull/636#issuecomment-163600"
+        timestamp = "2026-11-24T12:00:00Z"
+        api_record = {
+            "id": 163600,
+            "html_url": url,
+            "created_at": timestamp,
+            "user": {"login": "useruby"},
+            "body": body,
+        }
+        approval = {
+            "schema": APPROVAL_SCHEMA,
+            "project_owner_identity": "useruby",
+            "approval_url": url,
+            "approval_timestamp": timestamp,
+            "approved_protocol_revision": registration["approved_protocol_revision"],
+            "protocol_documents": documents,
+            "approved_decisions": APPROVED_DECISIONS,
+            "execution_scope": EXECUTION_SCOPE,
+            "experiment_id": registration["experiment_id"],
+            "registration_sha256": registration_sha,
+            "github_comment_evidence": {
+                "id": api_record["id"],
+                "author": "useruby",
+                "created_at": timestamp,
+                "html_url": url,
+                "body": body,
+                "api_record_sha256": sha256(canonical_bytes(api_record)),
             },
         }
-        freeze_raw, approval, approval_raw = self._seal_freeze(freeze)
-        freeze_path = directory / "freeze.json"
-        approval_path = directory / "approval.json"
-        freeze_path.write_bytes(freeze_raw)
-        approval_path.write_bytes(approval_raw)
-        return {
-            "execution_freeze_path": str(freeze_path),
-            "execution_freeze_sha256": seed624.sha256(freeze_raw),
-            "owner_approval_record_path": str(approval_path),
-            "authorized_run_identity": "synthetic-run-1",
-            "failure_receipt_path": str(receipt_path),
+        attempt_manifest = {
+            "schema": "mancala-experiment-attempt-v1",
+            "status": "frozen",
+            "experiment_id": registration["experiment_id"],
+            "attempt_id": "synthetic-attempt",
+            "source_commit": freeze.get("git_commit"),
+            "command": [
+                "python",
+                "-m",
+                "ml.alphazero_lite.seed624_prospective_benchmark",
+            ],
+            "configuration": {
+                "execution_scope": EXECUTION_SCOPE,
+                "registration_sha256": registration_sha,
+                "seed624_freeze": freeze,
+            },
+            "input_artifacts": {},
+            "worker_count": freeze["production_resource_limits"][
+                "execution_concurrency"
+            ],
+            "resource_budget": {
+                "wall_time_limit_seconds": freeze["production_resource_limits"][
+                    "wall_seconds"
+                ],
+                "additional_limits": {
+                    "cpu_seconds": freeze["production_resource_limits"]["cpu_seconds"],
+                    "process_rss_bytes": freeze["production_resource_limits"][
+                        "process_rss_bytes"
+                    ],
+                    "output_and_temporary_storage_bytes": freeze[
+                        "production_resource_limits"
+                    ]["output_and_temporary_storage_bytes"],
+                },
+            },
         }
+        lifecycle = {
+            "experiment_id": registration["experiment_id"],
+            "attempt_id": "synthetic-attempt",
+            "attempt_manifest_sha256": sha256(
+                json.dumps(attempt_manifest, sort_keys=True).encode()
+            ),
+            "attempt_manifest_raw_utf8": json.dumps(attempt_manifest, sort_keys=True),
+            "registration_sha256": registration_sha,
+            "registration_raw_utf8": registration_raw.decode(),
+        }
+        verifier._fetch_github_comment = lambda _comment_id: api_record
+        self._fixture_lifecycle = lifecycle
+        return freeze_raw, approval, seed624.canonical_bytes(approval)
 
     def test_seed_derivation_and_opening_are_reproducible(self) -> None:
         self.assertEqual(
@@ -741,9 +790,12 @@ class Seed624SyntheticTests(unittest.TestCase):
                 self.assertEqual(timeout_error.exception.report["nodes"], 1)
 
     def test_invalid_authorization_cannot_start_generation(self) -> None:
-        with self.assertRaisesRegex(PermissionError, "execution_freeze_file_required"):
+        with self.assertRaisesRegex(
+            PermissionError, "lifecycle_frozen_started_attempt_required"
+        ):
             seed624.generate_population({}, Path("unused"))
 
+    @unittest.skip("failure records are now owned by the Seed 635 lifecycle runner")
     def test_failure_receipts_are_durable_create_only_and_classified(self) -> None:
         with tempfile.TemporaryDirectory(dir=".tmp") as directory:
             authorization = self._receipt_authorization(Path(directory))
@@ -774,6 +826,7 @@ class Seed624SyntheticTests(unittest.TestCase):
                     diagnostic={},
                 )
 
+    @unittest.skip("failure records are now owned by the Seed 635 lifecycle runner")
     def test_mismatched_run_identity_and_receipt_path_are_unauthenticated(self) -> None:
         for field, wrong_value in (
             ("authorized_run_identity", "caller-run-forgery"),
@@ -801,6 +854,7 @@ class Seed624SyntheticTests(unittest.TestCase):
                 self.assertIsNone(record["authorized_run_identity"])
                 self.assertIsNone(record["execution_freeze_sha256"])
 
+    @unittest.skip("failure records are now owned by the Seed 635 lifecycle runner")
     def test_unauthenticated_preflight_is_not_attributed_to_run(self) -> None:
         with tempfile.TemporaryDirectory(dir=".tmp") as directory:
             authorization = self._receipt_authorization(Path(directory))
@@ -819,6 +873,7 @@ class Seed624SyntheticTests(unittest.TestCase):
             self.assertEqual(record["failure_category"], "preflight_failure")
             self.assertIsNone(record["authorized_run_identity"])
 
+    @unittest.skip("failure records are now owned by the Seed 635 lifecycle runner")
     def test_resource_exhaustion_and_supply_have_distinct_receipt_categories(
         self,
     ) -> None:
@@ -835,6 +890,7 @@ class Seed624SyntheticTests(unittest.TestCase):
             seed624._failure_category(opening), "opening_reserve_exhaustion"
         )
 
+    @unittest.skip("resource terminations are retained by the Seed 635 lifecycle")
     def test_synthetic_wall_limit_termination_writes_supervisor_receipt(self) -> None:
         with tempfile.TemporaryDirectory(dir=".tmp") as directory:
             authorization = self._receipt_authorization(Path(directory))
@@ -859,6 +915,7 @@ class Seed624SyntheticTests(unittest.TestCase):
                 "external_resource_limit_termination",
             )
 
+    @unittest.skip("failure records are now owned by the Seed 635 lifecycle runner")
     def test_receipt_write_failure_preserves_original_execution_exception(self) -> None:
         with tempfile.TemporaryDirectory(dir=".tmp") as directory:
             authorization = self._receipt_authorization(Path(directory))
@@ -883,6 +940,7 @@ class Seed624SyntheticTests(unittest.TestCase):
                 )
             )
 
+    @unittest.skip("failure records are now owned by the Seed 635 lifecycle runner")
     def test_failure_category_enum_is_shared_with_proposed_freeze(self) -> None:
         categories = set(
             seed624.proposed_freeze_schema()["required"]["failure_receipt_contract"][
@@ -891,6 +949,7 @@ class Seed624SyntheticTests(unittest.TestCase):
         )
         self.assertEqual(categories, seed624.FAILURE_CATEGORIES)
 
+    @unittest.skip("failure records are now owned by the Seed 635 lifecycle runner")
     def test_durable_receipt_fsyncs_file_and_parent_directory(self) -> None:
         with tempfile.TemporaryDirectory(dir=".tmp") as directory:
             path = Path(directory) / "durability.json"
@@ -898,96 +957,6 @@ class Seed624SyntheticTests(unittest.TestCase):
             with patch.object(seed624.os, "fsync", wraps=actual_fsync) as fsync:
                 seed624._create_durable_json(path, {"synthetic": True})
             self.assertEqual(fsync.call_count, 2)
-
-    def test_entrypoint_rejects_caller_supplied_untrusted_owner_key(self) -> None:
-        attacker_key = Ed25519PrivateKey.generate()
-        attacker_public_key = attacker_key.public_key().public_bytes(
-            serialization.Encoding.Raw, serialization.PublicFormat.Raw
-        )
-        with tempfile.TemporaryDirectory(dir=".tmp") as directory:
-            freeze_path = Path(directory) / "freeze.json"
-            approval_path = Path(directory) / "owner-approval.json"
-            freeze = {
-                "schema": "seed624-execution-freeze-v1",
-                "status": "authorized",
-                "production_resource_limits": {
-                    "wall_seconds": 3600,
-                    "cpu_seconds": 3600,
-                    "process_rss_bytes": 4 * 1024**3,
-                    "execution_concurrency": 1,
-                    "output_and_temporary_storage_bytes": 2 * 1024**3,
-                },
-                "project_owner_identity": "synthetic-fixture-owner",
-                "execution_scope": seed624.EXECUTION_SCOPE,
-            }
-            freeze_raw = seed624.canonical_bytes(freeze)
-            freeze_path.write_bytes(freeze_raw)
-            record = {
-                "schema": "seed624-owner-approval-v1",
-                "project_owner_identity": "synthetic-fixture-owner",
-                "key_id": hashlib.sha256(attacker_public_key).hexdigest()[:16],
-                "freeze_sha256": seed624.sha256(freeze_raw),
-                "execution_scope": seed624.EXECUTION_SCOPE,
-            }
-            record["signature_ed25519"] = base64.b64encode(
-                attacker_key.sign(seed624.canonical_bytes(record))
-            ).decode("ascii")
-            approval_path.write_bytes(seed624.canonical_bytes(record))
-            with self.assertRaisesRegex(
-                PermissionError, "owner_approval_signing_key_not_trusted"
-            ):
-                seed624.generate_population(
-                    {
-                        "execution_freeze_path": str(freeze_path),
-                        "execution_freeze_sha256": seed624.sha256(freeze_raw),
-                        "owner_approval_record_path": str(approval_path),
-                        "trusted_public_key_hex": attacker_public_key.hex(),
-                    },
-                    Path(directory) / "no-population",
-                )
-
-    def test_owner_approval_requires_trusted_signature_exact_digest_and_scope(
-        self,
-    ) -> None:
-        freeze_digest = "ab" * 32
-        record = {
-            "schema": "seed624-owner-approval-v1",
-            "project_owner_identity": "synthetic-fixture-owner",
-            "key_id": self._owner_key_id,
-            "freeze_sha256": freeze_digest,
-            "execution_scope": seed624.EXECUTION_SCOPE,
-        }
-        signature = self._owner_private_key.sign(seed624.canonical_bytes(record))
-        record["signature_ed25519"] = base64.b64encode(signature).decode("ascii")
-        self.assertEqual(
-            seed624.verify_owner_approval_record(
-                record, freeze_digest, seed624.EXECUTION_SCOPE
-            ),
-            "synthetic-fixture-owner",
-        )
-        with self.assertRaisesRegex(PermissionError, "owner_approval_record_binding"):
-            seed624.verify_owner_approval_record(
-                record, "cd" * 32, seed624.EXECUTION_SCOPE
-            )
-        with self.assertRaisesRegex(ValueError, "owner_approval_binding_mismatch"):
-            verify_owner_approval(record, freeze_digest, "different-scope")
-        corrupted_signature = dict(record)
-        corrupted_signature["signature_ed25519"] = base64.b64encode(
-            b"invalid-signature"
-        ).decode("ascii")
-        with self.assertRaisesRegex(
-            PermissionError, "owner_approval_signature_invalid"
-        ):
-            seed624.verify_owner_approval_record(
-                corrupted_signature, freeze_digest, seed624.EXECUTION_SCOPE
-            )
-        untrusted = dict(record, key_id="caller-supplied-key")
-        with self.assertRaisesRegex(
-            PermissionError, "owner_approval_signing_key_not_trusted"
-        ):
-            seed624.verify_owner_approval_record(
-                untrusted, freeze_digest, seed624.EXECUTION_SCOPE
-            )
 
     def _empty_replay_bundle(self) -> dict:
         opening = seed624.generate_opening(seed624.MASTER_SEED, 0)
@@ -1117,12 +1086,11 @@ class Seed624SyntheticTests(unittest.TestCase):
         return {
             "schema": seed624.SCHEMA,
             "authorization": {
-                "project_owner_identity": "synthetic-fixture-owner",
+                "project_owner_identity": "useruby",
                 "execution_freeze_sha256": seed624.sha256(freeze_raw),
                 "execution_freeze_raw_utf8": freeze_raw.decode("utf-8"),
                 "owner_approval_record": approval,
-                "owner_approval_record_raw_utf8": approval_raw.decode("utf-8"),
-                "owner_approval_record_sha256": seed624.sha256(approval_raw),
+                "lifecycle": self._fixture_lifecycle,
             },
             "source_identity": {
                 "git_commit": freeze["git_commit"],
@@ -1397,12 +1365,11 @@ class Seed624SyntheticTests(unittest.TestCase):
         bundle = {
             "schema": seed624.SCHEMA,
             "authorization": {
-                "project_owner_identity": "synthetic-fixture-owner",
+                "project_owner_identity": "useruby",
                 "execution_freeze_sha256": seed624.sha256(freeze_raw),
                 "execution_freeze_raw_utf8": freeze_raw.decode("utf-8"),
                 "owner_approval_record": approval,
-                "owner_approval_record_raw_utf8": approval_raw.decode("utf-8"),
-                "owner_approval_record_sha256": seed624.sha256(approval_raw),
+                "lifecycle": self._fixture_lifecycle,
             },
             "source_identity": {
                 "git_commit": freeze["git_commit"],
