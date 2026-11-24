@@ -1,0 +1,67 @@
+{
+  "schema": "policy-to-search-historical-coverage-verification-v1",
+  "attempt": "attempt-0002",
+  "status": "verified",
+  "seed615_game_ledger": {
+    "existing_independent_verifier": "ml/alphazero_lite/verify_seed615_evaluation.py::verify_one_result",
+    "verified_game_records": 4096,
+    "execution_freeze_sha256": "ba30f5e3efadf3358db9f03c7b4eba4f69b23e2f95dcb4089723a1fb9664f32b"
+  },
+  "attempt_0002_replay_checks": {
+    "verifier": "ml/alphazero_lite/verify_policy_search_historical_coverage_attempt_0002.py",
+    "all_trajectories_replayed": true,
+    "action_legality_and_player_perspective_checked": true,
+    "candidate_seat_attribution_checked": true,
+    "opening_identity_and_prefix_checked": true,
+    "terminal_margin_winner_and_result_hash_chain_checked": true,
+    "seed_derivation_and_candidate_identity_checked": true,
+    "pr619_first_divergence_pairs_cross_checked": 2048,
+    "seed633_raw_policy_and_exact_margin_source_hashes_checked": true,
+    "exact_root_handoffs_reconciled_to_replayed_eligibility": {
+      "all_player_eligible_turns": 55889,
+      "recorded_handoffs": 55889,
+      "unresolved_candidate_decision_sources": 0
+    },
+    "occurrence_duplicates_retained_and_paired_one_to_one": true,
+    "cartesian_pairing_used": false
+  },
+  "seed633_exact_oracle_verification": {
+    "verifier": "ml/alphazero_lite/verify_seed633_exact_oracle_decision_diagnostic.py",
+    "status": "verified",
+    "exact_states": 1481,
+    "legal_masks_and_action_margins_reconstructed": true
+  },
+  "published_outputs": {
+    "coverage.json": "f728e0d351e25ef19f99225ff2ccd566bc6478b7fc3ef47828a30f4eb6efe9f8",
+    "trajectory-decision-coverage.jsonl.gz": "96b985c9016d26ead95f34bb0eae5400f1d027068b64722a2a8e727d8d88e1ee"
+  },
+  "negative_tests": {
+    "suite": "ml/alphazero_lite/test_policy_search_historical_coverage_attempt_0002.py",
+    "cases": [
+      "duplicate_source_identity_rejected",
+      "incomplete_candidate_intersection_not_paired",
+      "repeated_occurrences_paired_one_to_one_not_cartesian",
+      "opponent_decisions_not_candidate_actions",
+      "ineligible_player_action_rejected",
+      "exact_root_eligibility_without_handoff_remains_unknown",
+      "recorded_exact_root_handoff_not_classified_as_mcts",
+      "incomplete_handoff_telemetry_does_not_overclassify_solver_actions"
+    ],
+    "passed": 9
+  },
+  "adequacy": {
+    "mcts_paired_exact_margin_roots": 0,
+    "threshold": 50,
+    "passed": false,
+    "final_classification": "historical_evidence_insufficient"
+  },
+  "scope_attestation": {
+    "regret_or_optimal_action_quality_calculated": false,
+    "outcome_association_calculated": false,
+    "model_inference_run": false,
+    "mcts_run": false,
+    "tablebase_probes_or_solves_run": false,
+    "games_generated": false,
+    "training_run": false
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "attempt": "attempt-0002",
+  "decision_occurrence_artifact": {
+    "candidate_decision_occurrences": 60618,
+    "encoding": "deterministic gzip of compact canonical JSONL; one row per candidate decision occurrence",
+    "path": "docs/data/seed633-policy-search-retrospective/attempt-0002/trajectory-decision-coverage.jsonl.gz",
+    "sha256": "96b985c9016d26ead95f34bb0eae5400f1d027068b64722a2a8e727d8d88e1ee"
+  },
+  "decision_source_coverage": {
+    "all_player_exact_root_eligible_turn_occurrences": 55889,
+    "candidate_decision_occurrences": 60618,
+    "candidate_occurrences_at_exact_root_eligible_states": 28164,
+    "candidate_occurrences_by_checkpoint": {
+      "B512": 30384,
+      "S615": 30234
+    },
+    "candidate_occurrences_by_decision_source": {
+      "exact_root_solver": 28164,
+      "mcts": 32454,
+      "other_registered": 0,
+      "unknown": 0
+    },
+    "candidate_occurrences_by_decision_source_and_checkpoint": {
+      "B512": {
+        "exact_root_solver": 14145,
+        "mcts": 16239,
+        "unknown": 0
+      },
+      "S615": {
+        "exact_root_solver": 14019,
+        "mcts": 16215,
+        "unknown": 0
+      }
+    },
+    "candidate_occurrences_with_both_raw_policies": 437,
+    "candidate_occurrences_with_exact_margins": 437,
+    "candidate_unique_roots_with_exact_margins": 133,
+    "candidate_unique_roots_with_raw_policies": 133,
+    "exact_root_handoff_telemetry": {
+      "identified_candidate_solver_actions": 28164,
+      "identified_opponent_solver_actions": 27725,
+      "total_handoff_calls": 55889,
+      "unknown_eligible_total": 0
+    },
+    "opponent_decision_occurrences_not_attributed_to_candidate": 60118,
+    "opponent_exact_root_eligible_unknown_actions": 0,
+    "opponent_exact_root_solver_actions": 27725
+  },
+  "final_classification": "historical_evidence_insufficient",
+  "go_no_go": {
+    "minimum_membership_classes_with_nonzero_exact_coverage": 2,
+    "minimum_paired_unique_roots_with_both_raw_policies_and_both_authenticated_mcts_actions": 100,
+    "minimum_paired_unique_roots_with_exact_margins_and_both_authenticated_mcts_actions": 50,
+    "minimum_phase_strata_with_nonzero_exact_coverage": 1,
+    "minimum_seed615_opening_groups": 20,
+    "passed": false
+  },
+  "limits": [
+    "No action regret, optimal-action agreement, mechanism effect, or outcome association was calculated.",
+    "Seed 615 B512/S615 candidate seeds differ; no causal attribution is made.",
+    "The historical source-opening to Seed 624 opening crosswalk remains unresolved and unused.",
+    "Repeated occurrences are preserved in occurrence counts; exact-root pairs are matched one-to-one without Cartesian joins."
+  ],
+  "paired_decision_coverage": {
+    "by_membership_class_for_all_exact_margin_pairs": {
+      "B512_only": 43,
+      "S615_only": 31,
+      "neither_training_membership": 60,
+      "shared_training": 21
+    },
+    "by_membership_class_for_exact_margin_mcts_pairs": {},
+    "by_membership_class_for_exact_margin_solver_pairs": {
+      "B512_only": 43,
+      "S615_only": 31,
+      "neither_training_membership": 60,
+      "shared_training": 21
+    },
+    "by_phase_for_all_exact_margin_pairs": {
+      "at_most_16": 155
+    },
+    "by_phase_for_exact_margin_mcts_pairs": {},
+    "by_phase_for_exact_margin_solver_pairs": {
+      "at_most_16": 155
+    },
+    "matched_occurrences_with_both_authenticated_mcts_actions": 0,
+    "matched_occurrences_with_both_exact_solver_actions": 155,
+    "matched_occurrences_with_both_raw_policies": 155,
+    "matched_occurrences_with_exact_margins": 155,
+    "matched_occurrences_with_exact_margins_and_both_exact_solver_actions": 155,
+    "matched_occurrences_with_exact_margins_and_both_mcts_actions": 0,
+    "one_to_one_same_opening_seat_state_occurrence_pairs": 23641,
+    "opening_groups_with_exact_margins": 94,
+    "opening_groups_with_exact_margins_and_both_exact_solver_actions": 94,
+    "opening_groups_with_exact_margins_and_both_mcts_actions": 0,
+    "unique_matched_roots": 23251,
+    "unique_matched_roots_with_both_raw_policies": 92,
+    "unique_matched_roots_with_exact_margins": 92,
+    "unique_roots_with_both_exact_solver_actions": 92,
+    "unique_roots_with_both_raw_policies_and_mcts_actions": 0,
+    "unique_roots_with_exact_margins_and_both_exact_solver_actions": 92,
+    "unique_roots_with_exact_margins_and_both_mcts_actions": 0
+  },
+  "schema": "policy-to-search-historical-coverage-v2",
+  "scope": "retrospective evidence coverage only",
+  "source_coverage": {
+    "pr619_first_divergences_cross_checked": 2048,
+    "seed615_candidate_paired_trajectories": 2048,
+    "seed615_divergent_trajectories": 715,
+    "seed615_games": 4096,
+    "seed615_identical_trajectories": 1333,
+    "seed633_exact_cohort_by_membership_class": {
+      "B512_only": 402,
+      "S615_only": 402,
+      "neither_training_membership": 567,
+      "shared_training": 110
+    },
+    "seed633_exact_cohort_by_phase": {
+      "at_most_16": 1481
+    },
+    "seed633_exact_margin_states": 1481,
+    "seed633_raw_policy_metric_states": 4521
+  }
+}

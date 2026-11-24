@@ -1,13 +1,23 @@
 # B512/S615 policy-to-search historical evidence feasibility
 
-**Decision: stop at the historical-evidence gate. Final classification:
-`historical_evidence_insufficient`.** This bounded retrospective found only two
-identical canonical states that connect Seed 615 raw policies and recorded
-candidate actions to Seed 633 authenticated exact legal-action margins. That is
-far below the preregistered adequacy requirements. No policy-to-search regret
-contrast, mechanism classification, or game-outcome association was computed.
+**Updated decision: stop at the historical-evidence gate. Final classification:
+`historical_evidence_insufficient`.** Attempt 0002 supersedes the narrow
+attempt-0001 crosswalk by replaying all 4,096 authenticated Seed 615 games and
+joining every candidate decision directly to Seed 633 attempt-0005 raw policies
+and attempt-0003 exact margins. It finds 92 unique paired exact-margin roots,
+but all are exact-root-solver decisions; there are zero paired roots with both
+models' authenticated MCTS-selected actions and exact margins. No regret or
+outcome association is calculated.
 
-## Scope and authentication
+See the immutable full-trajectory report at
+`docs/data/seed633-policy-search-retrospective/attempt-0002/README.md`, its
+coverage data, evidence manifest, decision-occurrence ledger, and independent
+replay verifier. The original attempt-0001 report is retained below as a
+superseded historical record.
+
+## Attempt 0001 — superseded historical record
+
+### Scope and authentication
 
 This assessment uses the merged PR #619 and PR #633 evidence, plus the
 Seed 633 attempt-0005 source cohort from PR #632, authenticated by the fixed
@@ -38,7 +48,7 @@ identifiers is assumed. The Seed 560 root-search bundle is excluded: its
 execution freeze binds a different P-E4/initializer composition and search
 budgets, not the B512 and S615 checkpoints.
 
-## Frozen adequacy criteria
+### Frozen adequacy criteria
 
 Proceed only with at least 100 unique identical roots that have both raw
 policies and both recorded search actions, at least 50 such roots with
@@ -55,7 +65,7 @@ rules are recorded in the freeze. The one-point margin is a conservative
 minimum interpretable change on the exact score-margin scale. These criteria
 were not applied to decision-quality results because the coverage gate failed.
 
-## Coverage
+### Coverage
 
 | Evidence component | Unique states / occurrences | Exact margins | Both raw policies | Both recorded search actions | Opening groups |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -78,7 +88,7 @@ recorded candidate seeds. The Seed 560 root-search freeze instead binds a
 P-E4/initializer policy composition, fresh-tree 128/512 searches, and shared
 same-root search seeds; it cannot provide search actions for B512/S615.
 
-### Exact intersection coverage by membership and phase
+#### Exact intersection coverage by membership and phase
 
 | Membership class | Phase | Matched states with policies, exact margins, and recorded actions |
 | --- | --- | ---: |
@@ -109,7 +119,7 @@ aggregation implementation. Regression tests reject substituted source bytes,
 incorrect identity matching, player-perspective errors, altered exact margins,
 and substituted recorded actions.
 
-## Missing or incompatible evidence
+### Missing or incompatible evidence
 
 - The exact intersection is two states, not enough for a stable paired
   policy-to-search quality comparison or source-opening-cluster intervals.
@@ -131,7 +141,7 @@ for the original PR #619 descriptive outcome question; they do not supply exact
 action margins for the trajectory decisions needed here. No causal,
 independent-population, or playing-strength conclusion follows.
 
-## Stop decision
+### Attempt-0001 stop decision
 
 Because the frozen matched-coverage thresholds fail, stages 3–5 stop here. Raw
 top-policy regret, search-selected-action regret, search correction, optimal
