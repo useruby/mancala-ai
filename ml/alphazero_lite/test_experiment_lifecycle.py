@@ -139,6 +139,24 @@ class ExperimentLifecycleTests(unittest.TestCase):
             **kwargs,
         )
 
+    def _publish_and_merge_attempt(self, attempt_id: str) -> Path:
+        attempt_dir = self._freeze(
+            attempt_id,
+            "import sys; from pathlib import Path; Path(sys.argv[1]).write_text('result')",
+        )
+        self._execute(attempt_dir)
+        lifecycle.archive_attempt(attempt_dir, self.archives)
+        lifecycle.prepare_publication(
+            attempt_dir,
+            self.worktree / "docs" / "data" / "demo-001" / attempt_id,
+        )
+        self._git_at(self.worktree, "add", "docs/data/demo-001")
+        self._git_at(self.worktree, "commit", "-m", f"publish {attempt_id}")
+        self._git(
+            "merge", "--no-ff", "experiment/demo-001", "-m", f"merge {attempt_id}"
+        )
+        return attempt_dir
+
     def test_success_archive_publication_and_safe_cleanup(self) -> None:
         with self.assertRaisesRegex(ValueError, "registered_linked_worktree"):
             lifecycle._validate_experiment_worktree(self.repo)
@@ -176,11 +194,17 @@ class ExperimentLifecycleTests(unittest.TestCase):
         result_path = attempt_dir / "result.json"
         result_bytes = result_path.read_bytes()
         result_path.write_bytes(result_bytes + b"tamper")
-        with self.assertRaisesRegex(ValueError, "archive_reference_identity_mismatch"):
+        with self.assertRaisesRegex(
+            ValueError,
+            "attempt_output_hash_mismatch|archive_reference_identity_mismatch",
+        ):
             lifecycle.safe_remove_worktree(self.repo, self.worktree, merged_into="main")
         result_path.write_bytes(result_bytes)
         result_path.unlink()
-        with self.assertRaisesRegex(ValueError, "archive_reference_identity_mismatch"):
+        with self.assertRaisesRegex(
+            ValueError,
+            "attempt_output_hash_mismatch|archive_reference_identity_mismatch",
+        ):
             lifecycle.safe_remove_worktree(self.repo, self.worktree, merged_into="main")
         result_path.write_bytes(result_bytes)
         extra_path = attempt_dir / "post-archive-extra.bin"
@@ -258,6 +282,44 @@ class ExperimentLifecycleTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(
             ValueError, "required_attempt_artifacts_not_archived"
+        ):
+            lifecycle.safe_remove_worktree(self.repo, self.worktree, merged_into="main")
+
+    def test_cleanup_enumerates_attempt_directories_missing_manifest(self) -> None:
+        self._publish_and_merge_attempt("attempt-manifest-missing")
+        invalid_attempt = (
+            self.worktree
+            / ".experiment"
+            / "runtime"
+            / "attempts"
+            / "attempt-no-manifest"
+        )
+        invalid_attempt.mkdir()
+        with self.assertRaisesRegex(ValueError, "attempt_manifest_missing"):
+            lifecycle.safe_remove_worktree(self.repo, self.worktree, merged_into="main")
+
+    def test_cleanup_rejects_runtime_files_outside_attempt_directories(self) -> None:
+        self._publish_and_merge_attempt("attempt-orphan-runtime")
+        orphan = self.worktree / ".experiment" / "runtime" / "orphan.json"
+        orphan.write_text("unaccounted\n")
+        with self.assertRaisesRegex(ValueError, "unaccounted_runtime_artifact"):
+            lifecycle.safe_remove_worktree(self.repo, self.worktree, merged_into="main")
+
+    def test_cleanup_rejects_attempt_directory_identity_mismatch(self) -> None:
+        self._publish_and_merge_attempt("attempt-identity-source")
+        attempts_root = self.worktree / ".experiment" / "runtime" / "attempts"
+        invalid_attempt = attempts_root / "attempt-identity-substitution"
+        invalid_attempt.mkdir()
+        source_manifest = attempts_root / "attempt-identity-source" / "manifest.json"
+        (invalid_attempt / "manifest.json").write_bytes(source_manifest.read_bytes())
+        with self.assertRaisesRegex(ValueError, "attempt_directory_identity_invalid"):
+            lifecycle.safe_remove_worktree(self.repo, self.worktree, merged_into="main")
+
+    def test_cleanup_rejects_inconsistent_terminal_records(self) -> None:
+        attempt_dir = self._publish_and_merge_attempt("attempt-terminal-conflict")
+        (attempt_dir / "failed.json").write_text("{}\n")
+        with self.assertRaisesRegex(
+            ValueError, "attempt_lifecycle_records_inconsistent"
         ):
             lifecycle.safe_remove_worktree(self.repo, self.worktree, merged_into="main")
 

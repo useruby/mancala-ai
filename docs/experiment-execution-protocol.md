@@ -70,7 +70,7 @@ its declared amendment procedure.
 | 9. Prepare and publish PR | Author includes registration/specification, implementation, tests, frozen manifest, logs/outputs intended for Git, scientific report, aggregate results, verification code/procedure, and external archive manifest/reference. | Focused PR against `main`; PR binds external archive URI/path, size, digest, and file manifest. | Do not report unverified numbers or claim scientific success from passing infrastructure checks. No automatic merge. |
 | 10. Independent review | Reviewer examines protocol and approval, source/input/checkpoint identities, command/config freeze, attempt history, verifier, archive and scientific conclusions. | Review comments and accepted/rejected classification. | Address substantive issues in a new commit/attempt as appropriate; do not rewrite prior evidence. |
 | 11. Merge | Authorized maintainer merges reviewed PR under project policy. | Merged publication and retained archive. | A passing run does not grant merge or candidate promotion. |
-| 12. Safe cleanup | Operator checks merged commit ancestry, clean worktree, terminal record, committed PR reference/sidecar, and exact runtime-to-archive inventory equality for every started attempt, then calls `safe_remove_worktree`. | Removed worktree; identity registry and external archive remain. | Dirty/unpublished changes, missing terminal record/artifact, substituted reference, changed/new runtime file, failed archive verification, or unmerged commit refuses removal. |
+| 12. Safe cleanup | Operator checks merged commit ancestry and clean worktree. `safe_remove_worktree` enumerates the entire runtime root, validates every attempt directory and lifecycle record, then checks committed PR references/sidecars and exact runtime-to-archive inventory equality. | Removed worktree; identity registry and external archive remain. | Dirty/unpublished changes, unaccounted runtime paths, missing attempt manifest/terminal/artifact, inconsistent lifecycle records, substituted reference, changed/new runtime file, failed archive verification, or unmerged commit refuses removal. |
 
 ### Manifest and attempt records
 
@@ -216,9 +216,12 @@ python -m ml.alphazero_lite.experiment_lifecycle remove \
   --repo "$PWD" --worktree /path/to/.worktrees/my-study --merged-into origin/main
 ```
 
-Cleanup refuses dirty worktrees, unmerged commits, started attempts lacking
-exactly one terminal receipt, and attempts without independently verified archive
-references. External archives and registry history are retained.
+Cleanup enumerates the runtime root rather than only discovered manifests. It
+refuses unaccounted runtime files, attempt directories without a valid identity
+and manifest, frozen attempts with no execution disposition, inconsistent start/
+log/terminal records, dirty worktrees, unmerged commits, and attempts without a
+matching committed archive reference/sidecar whose inventory exactly covers the
+current attempt files. External archives and registry history are retained.
 
 ## Artifact classes and retention
 
