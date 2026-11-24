@@ -1,0 +1,75 @@
+{
+  "schema": "policy-to-search-historical-feasibility-freeze-v1",
+  "status": "frozen-before-cross-source-join",
+  "analysis_type": "bounded_retrospective_feasibility",
+  "question": "Can already-authenticated B512/S615 records be joined on identical exact canonical states to compare raw policy choice, recorded search choice, exact action margins, and paired recorded game outcomes?",
+  "source_inventory": {
+    "pr619": {
+      "merge_commit": "e0ca6ddeff0d676b53f68789e75c3d5f08161146",
+      "diagnostic_source_sha256": "d0f6dc7c2c408ed30b9aa3c89621b9beb8451c58083fdf5183c88de32f0679b3",
+      "evaluation_freeze_sha256": "ba30f5e3efadf3358db9f03c7b4eba4f69b23e2f95dcb4089723a1fb9664f32b",
+      "outputs": {
+        "first-divergences.jsonl": "05cc496f17c530727aac05173dfcd508385800bddb3ed3dce9357528dcb3a72c",
+        "paired-opening-outcomes.jsonl": "30cca94e5a84aea64219806b84b94b8965830c3da0c591321ef386b2c6ba9973",
+        "policy-prior-comparison.jsonl": "00857989a6d4d86c6f6009669a54ec9776f441a665c36be7f3faa878221c9fb4"
+      },
+      "registered_models": {
+        "B512": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+        "S615": "cdf1e36c4c9374f28b182757b12471b3f00567eb59825bb938435cb56cf8d780"
+      }
+    },
+    "pr633": {
+      "merge_commit": "5ec200129bf62f0a9f28e067e6987aaca87a8d7f",
+      "attempt_0003_freeze_sha256": "21fe37edfb691a5a707a966ef07903675e42c790881f195ee4a29e2281b312fc",
+      "attempt_0005_source_cohort_sha256": "303e6c38feff9868133e84a80b92421e26da480dbea36dd3a37a8f70d33e914d",
+      "attempt_0005_source_metrics_sha256": "ebba7af50e154ff6e31e3afce3ee325da915ac11f8a10a73f7a516dd2cccb",
+      "attempt_0003_exact_states": 1481,
+      "search_selected_actions": "not observed"
+    },
+    "registered_search_records": {
+      "seed560_run0004_root_searches": "docs/data/seed560-paired-first-action/run-0004/root-searches.jsonl",
+      "admissibility": "exclude unless an authenticated freeze independently binds both checkpoint identities, matching exact canonical roots, recorded decisions, search settings, and seed identities"
+    }
+  },
+  "matching_rules": {
+    "primary_key": "exact canonical state identity including player-to-move perspective, as recorded by the authenticated evidence producers",
+    "trajectory_reconstruction": "replay only the recorded Seed 615 move sequence from its authenticated opening state; do not run model inference, search, solving, or tablebase probes",
+    "policy_join": "exact identity equality only; no approximate float comparison",
+    "search_action_join": "only the action actually present at the matched decision in the authenticated game trajectory; never infer it from a prior, visits absent from the record, or a regenerated search",
+    "opening_group": "use only authenticated Seed 615 opening identifiers; do not crosswalk source-opening labels to Seed 624 identifiers",
+    "duplicates": "retain repeated occurrences in occurrence-level evidence; summarize unique canonical states separately; do not treat repeats as independent positions",
+    "perspective": "match and score margins from the root player-to-move perspective; reject a mismatch rather than normalize by guess"
+  },
+  "go_no_go_criteria": {
+    "minimum_unique_matched_roots_with_both_models_policy_and_recorded_search_actions": 100,
+    "minimum_unique_roots_with_authenticated_exact_margins_for_both_models": 50,
+    "minimum_authenticated_seed615_opening_groups": 20,
+    "minimum_membership_classes_with_nonzero_exact_action_coverage": 2,
+    "minimum_phase_strata_with_nonzero_exact_action_coverage": 1,
+    "requirements": [
+      "all required values are present on identical exact canonical states",
+      "both candidate-specific trajectory occurrences are authenticated and match their registered checkpoint",
+      "the exact-optimal action set can be reconstructed including ties",
+      "the search configuration and distinct candidate-specific seeds are authenticated",
+      "adequacy is evaluated from coverage only, before any action-quality or outcome differences are computed"
+    ],
+    "decision": "If any criterion fails, publish coverage and stop without computing decision-quality contrasts or mechanism diagnostics."
+  },
+  "mechanism_thresholds_if_gate_passes": {
+    "effect_scale": "mean paired difference in exact regret points; report cluster-bootstrap stability interval",
+    "practical_equivalence_margin": 1,
+    "equalization": "both searched model regrets have absolute mean <= 1 point and the absolute B512/S615 searched-regret difference is <= 1 point, while raw regret difference is >= 2 points",
+    "preservation": "searched regret difference has the same sign as raw regret difference, absolute magnitude at least 1 point, and searched/raw magnitude ratio in [0.5, 1.5]",
+    "amplification": "searched regret difference has the same sign as raw regret difference and magnitude at least 2 times the raw regret difference, with searched absolute difference >= 1 point",
+    "mixed": "none of the above and cluster stability interval spans both practically meaningful directions (-1,+1) or subgroup directions robustly differ",
+    "justification": "One outcome point is a conservative minimum practically interpretable change on the exact score-margin scale; thresholds avoid assigning a mechanism to statistically non-robust or negligible movement."
+  },
+  "outcome_analysis": "Only if the gate passes and exact trajectory correspondence exists; first-divergence-selected states remain a separate selected cohort, opening-clustered descriptive association only, not causal inference.",
+  "prohibitions": [
+    "no training, model inference, MCTS, games, solving, or tablebase probes",
+    "no checkpoint or search configuration changes",
+    "no candidate promotion or execution authorization",
+    "no inferred search action from a policy prior",
+    "no independent-population, causal, or general playing-strength claim"
+  ]
+}

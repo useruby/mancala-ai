@@ -1,0 +1,49 @@
+{
+  "schema": "policy-to-search-retrospective-evidence-manifest-v1",
+  "status": "authenticated_source_inventory",
+  "external_identities": {
+    "pr619": {
+      "merge_commit": "e0ca6ddeff0d676b53f68789e75c3d5f08161146",
+      "published_diagnostic": "docs/data/seed615-source-opening-diversity/posthoc-policy-diagnostic/diagnostic.json",
+      "diagnostic_sha256": "bb5d8099950b16d3e8cbc0b0e9f2b9504e43949e7061aa0b5ab13357bc75f29a",
+      "evaluation_freeze_sha256": "ba30f5e3efadf3358db9f03c7b4eba4f69b23e2f95dcb4089723a1fb9664f32b",
+      "data_sha256": {
+        "first-divergences.jsonl": "05cc496f17c530727aac05173dfcd508385800bddb3ed3dce9357528dcb3a72c",
+        "paired-opening-outcomes.jsonl": "30cca94e5a84aea64219806b84b94b8965830c3da0c591321ef386b2c6ba9973",
+        "policy-prior-comparison.jsonl": "00857989a6d4d86c6f6009669a54ec9776f441a665c36be7f3faa878221c9fb4"
+      },
+      "checkpoint_sha256": {
+        "B512": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+        "S615": "cdf1e36c4c9374f28b182757b12471b3f00567eb59825bb938435cb56cf8d780"
+      },
+      "independently_recorded_decisions": "first-divergence rows contain actual B512/S615 game actions, candidate-specific seeds, root player, canonical identity, and paired outcomes; see source verifier and source hashes"
+    },
+    "pr633": {
+      "merge_commit": "5ec200129bf62f0a9f28e067e6987aaca87a8d7f",
+      "source_cohort_merge_commit": "dc406188da8c108c5d42a26153e1eec7044e05ee",
+      "attempt_0003_freeze_sha256": "21fe37edfb691a5a707a966ef07903675e42c790881f195ee4a29e2281b312fc",
+      "attempt_0005_historical_source": {
+        "cohort.jsonl": "303e6c38feff9868133e84a80b92421e26da480dbea36dd3a37a8f70d33e914d",
+        "per-state-metrics.jsonl": "ebba7af50e154ff6e31e3afce3ee325da915295ac11f8a10a73f7a516dd2cccb",
+        "summary.json": "b9301d5bfcb7d80cdea8b311247637a8ef21c33820b0eedfe3776a2d3b2ccf29",
+        "independent-verification.json": "34aa59dea2547c81aba439aeaef2fb8e8dc56d307f2dbda686d2fb2b45aba639"
+      },
+      "attempt_0003_exact_results_sha256": "ead34f5772ec3880856efdddcf7597162f2b62a3b26a71dfe6a0424850003815",
+      "checkpoint_sha256": {
+        "B512": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+        "S615": "cdf1e36c4c9374f28b182757b12471b3f00567eb59825bb938435cb56cf8d780"
+      },
+      "search_action_availability": "unavailable in attempt-0003 exact-oracle evidence"
+    },
+    "seed560_root_searches": {
+      "execution_freeze": "docs/data/seed560-paired-first-action/run-0004/execution-freeze.json",
+      "admissibility": "excluded: freeze searches different artifacts (P-E4 plus initializer) at 128/512 simulations; it does not bind B512 and S615 candidate checkpoint identities"
+    }
+  },
+  "verification": {
+    "attempt_0003_reconstructed_independently": true,
+    "attempt_0003_verifier": "ml/alphazero_lite/verify_seed633_exact_oracle_decision_diagnostic.py",
+    "policy_to_exact_join": "independently reconstructed by verify_policy_search_historical_coverage.py using exact identity string equality",
+    "seed624_opening_crosswalk": "not authenticated; not used"
+  }
+}
