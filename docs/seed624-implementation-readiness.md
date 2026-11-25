@@ -49,6 +49,11 @@ input identities. Failed attempts are preserved by the lifecycle terminal
 record and attempt directory. The legacy Seed 629 production launch guard is
 unchanged and is not called by this generation path.
 
+The privileged Seed 629 supervisor remains disabled and is superseded for
+ordinary experiments by the Seed 635 worktree lifecycle. Its unconditional
+`run_authorized()` launch guard remains unchanged; the Seed 624 generation path
+does not call or bypass it.
+
 ## Opening-prefix reserve semantics
 
 An opening seed whose random prefix does not produce exactly eight legal,

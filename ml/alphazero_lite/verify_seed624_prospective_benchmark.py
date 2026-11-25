@@ -52,6 +52,14 @@ def _fetch_github_comment(comment_id: str) -> dict[str, Any]:
     )
 
 
+def _git_blob(revision: str, path: str) -> bytes:
+    return subprocess.run(
+        ["git", "-C", str(ROOT), "show", f"{revision}:{path}"],
+        check=True,
+        capture_output=True,
+    ).stdout
+
+
 def verify_owner_approval(record: dict[str, Any], lifecycle: dict[str, Any]) -> str:
     """Independently validate recorded GitHub owner-comment evidence."""
     approval_marker = "SEED636-APPROVAL-V1"
@@ -65,6 +73,7 @@ def verify_owner_approval(record: dict[str, Any], lifecycle: dict[str, Any]) -> 
     ]
     required_documents = {
         "docs/seed624-estimand-amendment-proposal.md",
+        "docs/seed623-prospective-exact-quality-benchmark.md",
         "docs/seed623-631-execution-contract-amendment.md",
         "docs/experiment-execution-protocol.md",
     }
@@ -88,26 +97,57 @@ def verify_owner_approval(record: dict[str, Any], lifecycle: dict[str, Any]) -> 
         or record.get("approved_decisions") != approved_decisions
     ):
         raise ValueError("github_approval_decision_scope_mismatch")
-    for name, expected_digest in registration.get("protocol_documents", {}).items():
-        raw_document = ROOT / name
-        document = raw_document.resolve(strict=True)
-        if (
-            raw_document.is_symlink()
-            or not document.is_file()
-            or not document.is_relative_to(ROOT)
-            or _sha(document.read_bytes()) != expected_digest
-        ):
-            raise ValueError("github_approval_protocol_document_hash_mismatch")
     if record.get("approved_protocol_revision") != registration.get(
         "approved_protocol_revision"
     ):
         raise ValueError("github_approval_protocol_revision_mismatch")
+    approved_revision = str(record.get("approved_protocol_revision", ""))
+    if approved_revision != registration.get("base_commit"):
+        raise ValueError("github_approval_protocol_revision_not_base_commit")
     if not required_documents.issubset(
         record.get("protocol_documents", {})
-    ) or not re.fullmatch(
-        r"[0-9a-f]{40,64}", str(record.get("approved_protocol_revision", ""))
-    ):
+    ) or not re.fullmatch(r"[0-9a-f]{40,64}", approved_revision):
         raise ValueError("github_approval_protocol_identity_invalid")
+    try:
+        resolved_revision = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(ROOT),
+                "rev-parse",
+                "--verify",
+                f"{approved_revision}^{{commit}}",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+    except subprocess.CalledProcessError as error:
+        raise ValueError("github_approval_protocol_revision_missing") from error
+    if resolved_revision != approved_revision:
+        raise ValueError("github_approval_protocol_revision_not_canonical")
+    for name, expected_digest in record["protocol_documents"].items():
+        raw_document = ROOT / name
+        if (
+            name.startswith("/")
+            or ".." in Path(name).parts
+            or raw_document.is_symlink()
+        ):
+            raise ValueError("github_approval_protocol_document_path_invalid")
+        document = raw_document.resolve(strict=True)
+        try:
+            approved_blob = _git_blob(approved_revision, name)
+        except subprocess.CalledProcessError as error:
+            raise ValueError(
+                "github_approval_protocol_document_missing_at_revision"
+            ) from error
+        if (
+            not document.is_file()
+            or not document.is_relative_to(ROOT)
+            or _sha(approved_blob) != expected_digest
+            or document.read_bytes() != approved_blob
+        ):
+            raise ValueError("github_approval_protocol_document_hash_mismatch")
     comment = record.get("github_comment_evidence", {})
     if (
         comment.get("author") != project_owner
@@ -126,11 +166,12 @@ def verify_owner_approval(record: dict[str, Any], lifecycle: dict[str, Any]) -> 
         raise ValueError("github_approval_comment_url_invalid")
     api_record = _fetch_github_comment(match.group(2))
     if (
-        api_record.get("user", {}).get("login") != project_owner
+        api_record.get("id") != int(match.group(2))
+        or comment.get("id") != int(match.group(2))
+        or api_record.get("user", {}).get("login") != project_owner
         or api_record.get("created_at") != record.get("approval_timestamp")
         or api_record.get("html_url") != record.get("approval_url")
         or api_record.get("body") != comment.get("body")
-        or _sha(_canonical(api_record)) != comment.get("api_record_sha256")
     ):
         raise ValueError("github_approval_live_record_mismatch")
     expected = {

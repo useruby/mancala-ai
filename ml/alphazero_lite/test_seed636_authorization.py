@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -13,7 +14,25 @@ from ml.alphazero_lite import seed636_authorization as authorization
 
 class Seed636AuthorizationTests(unittest.TestCase):
     def _fixture(self, root: Path) -> tuple[Path, Path, dict, dict]:
-        (root / "docs").mkdir()
+        subprocess.run(
+            ["git", "-C", str(root), "init", "-b", "main"],
+            check=True,
+            capture_output=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(root), "config", "user.name", "Seed636 test"], check=True
+        )
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                str(root),
+                "config",
+                "user.email",
+                "seed636-test@example.invalid",
+            ],
+            check=True,
+        )
         experiment_dir = root / ".experiment"
         experiment_dir.mkdir()
         document_names = sorted(authorization.REQUIRED_PROTOCOL_DOCUMENTS)
@@ -23,12 +42,25 @@ class Seed636AuthorizationTests(unittest.TestCase):
             document.parent.mkdir(parents=True, exist_ok=True)
             document.write_text("approved protocol\n")
             documents[name] = authorization.sha256(document.read_bytes())
+        subprocess.run(["git", "-C", str(root), "add", "docs"], check=True)
+        subprocess.run(
+            ["git", "-C", str(root), "commit", "-m", "approved protocol fixture"],
+            check=True,
+            capture_output=True,
+        )
+        revision = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
         input_path = root / "registered-input.json"
         input_path.write_text('{"input":true}\n')
         protocol_documents = documents
         registration = {
             "experiment_id": "seed636-prospective-population",
-            "approved_protocol_revision": "a" * 40,
+            "base_commit": revision,
+            "approved_protocol_revision": revision,
             "protocol_documents": protocol_documents,
             "input_artifacts": {
                 str(input_path): authorization.sha256(input_path.read_bytes())
@@ -77,6 +109,39 @@ class Seed636AuthorizationTests(unittest.TestCase):
         approval_path.write_text(json.dumps(record))
         return registration_path, approval_path, record, comment
 
+    def _rewrite_revision(
+        self,
+        registration_path: Path,
+        approval_path: Path,
+        record: dict,
+        comment: dict,
+        *,
+        revision: str,
+        base_commit: str,
+    ) -> None:
+        registration = json.loads(registration_path.read_text())
+        registration["base_commit"] = base_commit
+        registration["approved_protocol_revision"] = revision
+        registration_raw = json.dumps(registration, sort_keys=True).encode()
+        registration_path.write_bytes(registration_raw)
+        record["approved_protocol_revision"] = revision
+        record["registration_sha256"] = authorization.sha256(registration_raw)
+        approval_path.write_text(json.dumps(record))
+        body_record = {
+            "marker": authorization.APPROVAL_MARKER,
+            "experiment_id": registration["experiment_id"],
+            "registration_sha256": authorization.sha256(registration_raw),
+            "approved_protocol_revision": revision,
+            "protocol_documents": registration["protocol_documents"],
+            "approved_decisions": authorization.APPROVED_DECISIONS,
+            "execution_scope": authorization.EXECUTION_SCOPE,
+        }
+        comment["body"] = (
+            authorization.APPROVAL_MARKER
+            + "\n"
+            + json.dumps(body_record, sort_keys=True)
+        )
+
     def test_valid_github_owner_approval_is_bound_to_registration_and_documents(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -118,13 +183,81 @@ class Seed636AuthorizationTests(unittest.TestCase):
                         approval_path,
                         comment_fetcher=lambda _comment_id: comment,
                     )
+
             approval_path.write_text(json.dumps(record))
+            registration_value = json.loads(registration.read_text())
+            registration_value["objective"] = "changed after approval"
+            registration.write_text(json.dumps(registration_value, sort_keys=True))
+            with self.assertRaisesRegex(
+                PermissionError, "registration_identity_mismatch"
+            ):
+                authorization.validate_approval(
+                    registration,
+                    approval_path,
+                    comment_fetcher=lambda _comment_id: comment,
+                )
+
+    def test_nonexistent_and_substituted_protocol_revisions_are_rejected(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            registration_path, approval_path, record, comment = self._fixture(root)
+            fake_revision = "f" * 40
+            self._rewrite_revision(
+                registration_path,
+                approval_path,
+                record,
+                comment,
+                revision=fake_revision,
+                base_commit=fake_revision,
+            )
+            with self.assertRaisesRegex(PermissionError, "protocol_revision_missing"):
+                authorization.validate_approval(
+                    registration_path,
+                    approval_path,
+                    comment_fetcher=lambda _id: comment,
+                )
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            registration_path, approval_path, record, comment = self._fixture(root)
+            original_revision = json.loads(registration_path.read_text())["base_commit"]
+            changed_doc = root / "docs/seed623-prospective-exact-quality-benchmark.md"
+            changed_doc.write_text("substituted scientific protocol\n")
+            subprocess.run(["git", "-C", str(root), "add", "docs"], check=True)
+            subprocess.run(
+                ["git", "-C", str(root), "commit", "-m", "substitute protocol"],
+                check=True,
+                capture_output=True,
+            )
+            substituted_revision = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+            self.assertNotEqual(original_revision, substituted_revision)
+            self._rewrite_revision(
+                registration_path,
+                approval_path,
+                record,
+                comment,
+                revision=substituted_revision,
+                base_commit=substituted_revision,
+            )
+            with self.assertRaisesRegex(
+                PermissionError, "protocol_document_hash_mismatch"
+            ):
+                authorization.validate_approval(
+                    registration_path,
+                    approval_path,
+                    comment_fetcher=lambda _id: comment,
+                )
             (root / "docs" / "experiment-execution-protocol.md").write_text("altered\n")
             with self.assertRaisesRegex(
                 PermissionError, "protocol_document_hash_mismatch"
             ):
                 authorization.validate_approval(
-                    registration,
+                    registration_path,
                     approval_path,
                     comment_fetcher=lambda _comment_id: comment,
                 )
@@ -238,7 +371,17 @@ class Seed636AuthorizationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             registration, approval, _record, comment = self._fixture(root)
+            comment["reactions"] = {"total_count": 0, "+1": 0}
+            comment["updated_at"] = "2026-11-25T13:00:00Z"
+            comment["performed_via_github_app"] = {"id": 99, "slug": "metadata"}
+            loaded_registration, loaded_approval = authorization.validate_approval(
+                registration, approval, comment_fetcher=lambda _id: comment
+            )
+            self.assertEqual(
+                loaded_approval["github_comment_evidence"]["body"], comment["body"]
+            )
             for field, value, message in (
+                ("id", 9999, "comment_identity_mismatch"),
                 ("user", {"login": "not-owner"}, "comment_author_mismatch"),
                 ("created_at", "2026-11-25T12:00:00Z", "timestamp_mismatch"),
                 ("body", "approved", "comment_text_invalid"),

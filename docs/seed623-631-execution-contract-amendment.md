@@ -55,6 +55,10 @@ reviewed code change, and an explicit decision on how production launches are
 authorized. A general worktree utility cannot itself authorize a protected
 production workload.
 
+The privileged Seed 629 execution path remains disabled and is superseded for
+ordinary research experiments by the Seed 635 worktree lifecycle. Its
+unconditional guard remains intact for its historical protected workload.
+
 ## Migration path after owner approval
 
 1. Record the owner's GitHub identity, issue/PR comment URL and timestamp,

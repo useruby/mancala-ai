@@ -23,6 +23,7 @@ APPROVED_DECISIONS = [
 ]
 REQUIRED_PROTOCOL_DOCUMENTS = {
     "docs/seed624-estimand-amendment-proposal.md",
+    "docs/seed623-prospective-exact-quality-benchmark.md",
     "docs/seed623-631-execution-contract-amendment.md",
     "docs/experiment-execution-protocol.md",
 }
@@ -34,6 +35,14 @@ def sha256(raw: bytes) -> str:
 
 def canonical_bytes(value: Any) -> bytes:
     return json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+
+
+def _git_bytes(root: Path, *args: str) -> bytes:
+    return subprocess.run(
+        ["git", "-C", str(root), *args],
+        check=True,
+        capture_output=True,
+    ).stdout
 
 
 def fetch_github_comment(comment_id: str) -> dict[str, Any]:
@@ -78,6 +87,11 @@ def validate_approval(
         "approved_protocol_revision"
     ):
         raise PermissionError("github_approval_protocol_revision_mismatch")
+    approved_revision = str(approval.get("approved_protocol_revision", ""))
+    if approved_revision != registration.get("base_commit"):
+        raise PermissionError("github_approval_protocol_revision_not_base_commit")
+    if not re.fullmatch(r"[0-9a-f]{40,64}", approved_revision):
+        raise PermissionError("github_approval_protocol_revision_invalid")
     if approval.get("protocol_documents") != registration.get("protocol_documents"):
         raise PermissionError("github_approval_protocol_document_mismatch")
     if (
@@ -92,17 +106,40 @@ def validate_approval(
         raise PermissionError("github_approval_protocol_documents_missing")
     if not REQUIRED_PROTOCOL_DOCUMENTS.issubset(approval["protocol_documents"]):
         raise PermissionError("github_approval_protocol_documents_incomplete")
-    if not re.fullmatch(
-        r"[0-9a-f]{40,64}", str(approval.get("approved_protocol_revision", ""))
-    ):
-        raise PermissionError("github_approval_protocol_revision_invalid")
+    try:
+        resolved_revision = (
+            _git_bytes(
+                registration_path.resolve().parents[1],
+                "rev-parse",
+                "--verify",
+                f"{approved_revision}^{{commit}}",
+            )
+            .decode()
+            .strip()
+        )
+    except subprocess.CalledProcessError as error:
+        raise PermissionError("github_approval_protocol_revision_missing") from error
+    if resolved_revision != approved_revision:
+        raise PermissionError("github_approval_protocol_revision_not_canonical")
     repository_root = registration_path.resolve().parents[1]
     for name, digest in approval["protocol_documents"].items():
-        document = (repository_root / name).resolve(strict=True)
+        document_path = repository_root / name
+        document = document_path.resolve(strict=True)
+        if name.startswith("/") or ".." in Path(name).parts:
+            raise PermissionError("github_approval_protocol_document_path_invalid")
+        try:
+            approved_blob = _git_bytes(
+                repository_root, "show", f"{approved_revision}:{name}"
+            )
+        except subprocess.CalledProcessError as error:
+            raise PermissionError(
+                "github_approval_protocol_document_missing_at_revision"
+            ) from error
         if (
-            (repository_root / name).is_symlink()
+            document_path.is_symlink()
             or not document.is_relative_to(repository_root)
-            or sha256(document.read_bytes()) != digest
+            or sha256(approved_blob) != digest
+            or document.read_bytes() != approved_blob
         ):
             raise PermissionError("github_approval_protocol_document_hash_mismatch")
     url = approval.get("approval_url")
@@ -113,6 +150,12 @@ def validate_approval(
     if not match:
         raise PermissionError("github_approval_comment_url_invalid")
     comment = comment_fetcher(match.group(2))
+    try:
+        comment_id = int(match.group(2))
+    except ValueError as error:
+        raise PermissionError("github_approval_comment_url_invalid") from error
+    if comment.get("id") != comment_id:
+        raise PermissionError("github_approval_comment_identity_mismatch")
     expected_body = {
         "marker": APPROVAL_MARKER,
         "experiment_id": registration["experiment_id"],
@@ -152,7 +195,6 @@ def validate_approval(
         "created_at": comment.get("created_at"),
         "html_url": comment.get("html_url"),
         "body": body,
-        "api_record_sha256": sha256(canonical_bytes(comment)),
     }
     return registration, approval
 

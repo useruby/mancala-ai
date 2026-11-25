@@ -24,7 +24,8 @@ The owner comment and registration must bind these exact artifacts:
 | Artifact | Revision | SHA-256 |
 |---|---|---|
 | `docs/seed624-estimand-amendment-proposal.md` | Seed 625 merge `72a266ed73db02da2cebb7ffe99575d4761ccaaa`, with authorization notes proposed in this PR | `9fe2b129b748fc050526a99ea2ac896ecf7ead23536835381cea0337120ba170` |
-| `docs/seed623-631-execution-contract-amendment.md` | Seed 635 merge `f400d9757bee792370306a4448914f2049ff77d8`, with GitHub authorization binding proposed in this PR | `b0ceb1254a990b830ddc2f256fccca27ea898645f569bee162a70364dd35df05` |
+| `docs/seed623-prospective-exact-quality-benchmark.md` | Seed 623 authoritative scientific protocol, as present at the approved base revision | `1cbff5b508dc045e87e2b7ba21853c35e882d3038ad5f8a99687605b962d809b` |
+| `docs/seed623-631-execution-contract-amendment.md` | Seed 635 merge `f400d9757bee792370306a4448914f2049ff77d8`, with GitHub authorization binding proposed in this PR | `de4ea32fb5234418f63fdafcce565b9cd5e313864ac8eb6034238f33ede0b81b` |
 | `docs/experiment-execution-protocol.md` | Seed 635 merge `f400d9757bee792370306a4448914f2049ff77d8`, with GitHub owner mechanism proposed in this PR | `93ecf7a16b6a5f1925deaff0c58402d45ea1213b85ac272a0f1c149de5053255` |
 
 The SHA-256 values above are for the exact proposal documents in this PR. The
@@ -50,7 +51,8 @@ SEED636-APPROVAL-V1
   "approved_protocol_revision": "<full pinned main commit SHA>",
   "protocol_documents": {
     "docs/seed624-estimand-amendment-proposal.md": "9fe2b129b748fc050526a99ea2ac896ecf7ead23536835381cea0337120ba170",
-    "docs/seed623-631-execution-contract-amendment.md": "b0ceb1254a990b830ddc2f256fccca27ea898645f569bee162a70364dd35df05",
+    "docs/seed623-prospective-exact-quality-benchmark.md": "1cbff5b508dc045e87e2b7ba21853c35e882d3038ad5f8a99687605b962d809b",
+    "docs/seed623-631-execution-contract-amendment.md": "de4ea32fb5234418f63fdafcce565b9cd5e313864ac8eb6034238f33ede0b81b",
     "docs/experiment-execution-protocol.md": "93ecf7a16b6a5f1925deaff0c58402d45ea1213b85ac272a0f1c149de5053255"
   },
   "approved_decisions": [
@@ -80,7 +82,8 @@ in the registration input's `registration_metadata` object:
   "approved_protocol_revision": "<full pinned main commit SHA>",
   "protocol_documents": {
     "docs/seed624-estimand-amendment-proposal.md": "9fe2b129b748fc050526a99ea2ac896ecf7ead23536835381cea0337120ba170",
-    "docs/seed623-631-execution-contract-amendment.md": "b0ceb1254a990b830ddc2f256fccca27ea898645f569bee162a70364dd35df05",
+    "docs/seed623-prospective-exact-quality-benchmark.md": "1cbff5b508dc045e87e2b7ba21853c35e882d3038ad5f8a99687605b962d809b",
+    "docs/seed623-631-execution-contract-amendment.md": "de4ea32fb5234418f63fdafcce565b9cd5e313864ac8eb6034238f33ede0b81b",
     "docs/experiment-execution-protocol.md": "93ecf7a16b6a5f1925deaff0c58402d45ea1213b85ac272a0f1c149de5053255"
   },
   "approved_decisions": [
@@ -111,3 +114,17 @@ Keep the lifecycle worker count at one. Execute only through
 `experiment_lifecycle run`; the generator requires the runner-created
 `started.json` and committed attempt source. Lifecycle terminal records preserve
 completed, failed, and interrupted attempts without automatic retry.
+
+The registered `population` output directory is created before opening
+generation. It incrementally retains `opening-attempts.jsonl`, accepted opening
+states, continuation action records, completed games, and candidate occurrences.
+After each stage it records the deduplicated candidate inventory, authenticated
+membership evidence, screened inventory and exclusions, and constrained
+selection diagnostics. A gate failure writes `failure.json` with the stage,
+classification, and structured reason; it does not write a qualified
+`population.json`. Lifecycle archive/verification covers these partial outputs
+and terminal failure record.
+
+The privileged Seed 629 supervisor remains disabled and superseded for ordinary
+experiments by this worktree lifecycle. Its unconditional production launch
+guard remains unchanged.

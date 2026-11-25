@@ -242,6 +242,7 @@ def choose_distinct_openings(
     reserve: int,
     target: int,
     master_seed: int = MASTER_SEED,
+    on_attempt=None,
 ) -> dict[str, Any]:
     """Consume each reserve index once; skip and record invalid/duplicate prefixes."""
     chosen: list[dict[str, Any]] = []
@@ -263,6 +264,8 @@ def choose_distinct_openings(
                 raise ValueError("invalid_opening_prefix_rejection_record_mismatch")
             attempts.append(attempt)
             rejections.append(attempt)
+            if on_attempt is not None:
+                on_attempt(attempt, None)
             continue
         cid = opening["canonical_identity"]
         fid = opening["production_float32_identity"]
@@ -279,6 +282,8 @@ def choose_distinct_openings(
             }
             attempts.append(attempt)
             rejections.append(attempt)
+            if on_attempt is not None:
+                on_attempt(attempt, None)
             continue
         if fid in float_seen:
             attempt = {
@@ -292,19 +297,22 @@ def choose_distinct_openings(
             }
             attempts.append(attempt)
             rejections.append(attempt)
+            if on_attempt is not None:
+                on_attempt(attempt, None)
             continue
         canonical_seen[cid] = index
         float_seen[fid] = index
         chosen.append(opening)
-        attempts.append(
-            {
-                "opening_index": index,
-                "seed": seed,
-                "status": "accepted",
-                "canonical_identity": cid,
-                "production_float32_identity": fid,
-            }
-        )
+        attempt = {
+            "opening_index": index,
+            "seed": seed,
+            "status": "accepted",
+            "canonical_identity": cid,
+            "production_float32_identity": fid,
+        }
+        attempts.append(attempt)
+        if on_attempt is not None:
+            on_attempt(attempt, opening)
         if len(chosen) == target:
             return {
                 "openings": chosen,
@@ -320,6 +328,7 @@ def choose_distinct_openings(
             "available": len(chosen),
             "reserve": reserve,
             "consumed_seed_indexes": list(range(reserve)),
+            "openings": chosen,
             "attempts": attempts,
             "rejections": rejections,
         }
@@ -344,14 +353,19 @@ def _candidate_rank(
 
 
 def generate_game(
-    opening: dict[str, Any], master_seed: int, trajectory_index: int
+    opening: dict[str, Any],
+    master_seed: int,
+    trajectory_index: int,
+    *,
+    on_action=None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     opening_index = int(opening["opening_index"])
     game_id = f"o{opening_index:04d}-g{trajectory_index:02d}"
     game = KalahGame.from_state(opening["state"])
-    rng = random.Random(
-        derive_seed(master_seed, opening_index, trajectory_index, "continuation")
+    continuation_seed = derive_seed(
+        master_seed, opening_index, trajectory_index, "continuation"
     )
+    rng = random.Random(continuation_seed)
     trajectory: list[int] = []
     visits_by_bin: dict[int, list[dict[str, Any]]] = {}
     for ply in range(MAX_CONTINUATION_ACTIONS):
@@ -388,6 +402,17 @@ def generate_game(
         if not game.move(game.pit_index(action)):
             raise RuntimeError("rules_engine_rejected_its_legal_action")
         trajectory.append(action)
+        if on_action is not None:
+            on_action(
+                {
+                    "game_id": game_id,
+                    "opening_index": opening_index,
+                    "trajectory_index": trajectory_index,
+                    "seed": continuation_seed,
+                    "continuation_ply": ply,
+                    "action": action,
+                }
+            )
     candidates = []
     for stones, visits in sorted(visits_by_bin.items()):
         visits.sort(key=lambda row: (row["rank"], row["canonical_identity"]))
@@ -407,9 +432,7 @@ def generate_game(
         "game_id": game_id,
         "opening_index": opening_index,
         "opening_identity": opening["canonical_identity"],
-        "seed": derive_seed(
-            master_seed, opening_index, trajectory_index, "continuation"
-        ),
+        "seed": continuation_seed,
         "actions": trajectory,
         "full_actions": list(opening["prefix_actions"]) + trajectory,
         "terminal": terminal,
@@ -426,6 +449,168 @@ class ShortfallError(ValueError):
     def __init__(self, report: dict[str, Any]):
         self.report = report
         super().__init__(json.dumps(report, sort_keys=True))
+
+
+def _write_json_create_only(path: Path, value: Any) -> None:
+    with path.open("xb") as stream:
+        stream.write(canonical_bytes(value) + b"\n")
+        stream.flush()
+
+
+def _write_jsonl_create_only(path: Path, rows: list[dict[str, Any]]) -> None:
+    with path.open("xb") as stream:
+        for row in rows:
+            stream.write(canonical_bytes(row) + b"\n")
+        stream.flush()
+
+
+def _shortfall_classification(report: dict[str, Any]) -> str:
+    reason = str(report.get("reason", ""))
+    if reason in {"opening_reserve_exhausted", "hard_supply"}:
+        return "insufficient_candidate_supply"
+    if reason in {"aggregate_cluster_capacity", "constraints_infeasible"}:
+        return "mathematical_infeasibility"
+    if "resource_limit" in reason or reason in {
+        "candidate_count_resource_limit",
+        "input_memory_resource_limit",
+    }:
+        return "resource_exhaustion"
+    return "verification_failure"
+
+
+def _write_failure_record(
+    output: Path,
+    *,
+    stage: str,
+    classification: str,
+    reason: dict[str, Any],
+) -> None:
+    _write_json_create_only(
+        output / "failure.json",
+        {
+            "schema": "seed624-population-generation-failure-v1",
+            "status": "failed",
+            "stage": stage,
+            "classification": classification,
+            "reason": reason,
+            "qualified_population": False,
+        },
+    )
+
+
+def _run_selection_with_evidence(
+    output: Path, screened: list[dict[str, Any]]
+) -> dict[str, Any]:
+    eligible = [
+        row
+        for row in screened
+        if row.get("classification")
+        == "known_exposure_nonmatch_inherited_PE4_unresolved"
+    ]
+    supply = Counter(int(row["active_pit_stones"]) for row in eligible)
+    diagnostics = {
+        "schema": "seed624-selection-input-diagnostics-v1",
+        "candidate_count": len(screened),
+        "eligible_candidate_count": len(eligible),
+        "eligible_supply": {str(stones): supply[stones] for stones in BIN_ORDER},
+        "hard_minimum_supply": {
+            str(stones): 2 * target for stones, target in STONE_TARGETS.items()
+        },
+        "preferred_four_x_supply": {
+            str(stones): supply[stones] >= 4 * target
+            for stones, target in STONE_TARGETS.items()
+        },
+        "candidate_inventory_sha256": sha256(canonical_bytes(screened)),
+        "selection_contract": {
+            "targets": {str(stones): count for stones, count in STONE_TARGETS.items()},
+            "minimum_openings": MIN_OPENING_CLUSTERS,
+            "max_per_opening": 4,
+            "max_per_game": 2,
+            "workers": 1,
+            "optimizer": "seed624-dfs-bounded-v2",
+            "candidate_limit": MAX_SELECTION_CANDIDATES,
+            "input_memory_limit_bytes": MAX_SELECTION_INPUT_BYTES,
+            "node_limit": MAX_SELECTION_NODES,
+            "runtime_limit_seconds": MAX_SELECTION_SECONDS,
+            "working_memory_limit_bytes": MAX_SELECTION_WORKING_BYTES,
+        },
+    }
+    _write_json_create_only(output / "selection-input-diagnostics.json", diagnostics)
+    try:
+        selection = select_cohort(screened)
+    except ShortfallError as error:
+        _write_json_create_only(
+            output / "selection-diagnostics.json",
+            {
+                "schema": "seed624-selection-shortfall-v1",
+                "status": "shortfall",
+                "failure_classification": _shortfall_classification(error.report),
+                "input": diagnostics,
+                "selector_report": error.report,
+                "qualified_population": False,
+            },
+        )
+        _write_failure_record(
+            output,
+            stage="constrained_selection",
+            classification=_shortfall_classification(error.report),
+            reason=error.report,
+        )
+        raise
+    except BaseException as error:
+        failure = {
+            "exception_type": type(error).__name__,
+            "message": str(error),
+        }
+        _write_json_create_only(
+            output / "selection-diagnostics.json",
+            {
+                "schema": "seed624-selection-failure-v1",
+                "status": "failed",
+                "input": diagnostics,
+                "failure": failure,
+                "qualified_population": False,
+            },
+        )
+        _write_failure_record(
+            output,
+            stage="constrained_selection",
+            classification="verification_failure",
+            reason=failure,
+        )
+        raise
+    _write_json_create_only(
+        output / "selection-diagnostics.json",
+        {
+            "schema": "seed624-selection-result-v1",
+            "status": "selected",
+            "input": diagnostics,
+            "selection": selection,
+        },
+    )
+    return selection
+
+
+def _persist_screened_stages_and_select(
+    output: Path,
+    screened_candidates: list[dict[str, Any]],
+    *,
+    inventories_already_persisted: bool = False,
+) -> dict[str, Any]:
+    if not inventories_already_persisted:
+        _write_jsonl_create_only(
+            output / "screened-candidates.jsonl", screened_candidates
+        )
+        _write_jsonl_create_only(
+            output / "exclusions.jsonl",
+            [
+                row
+                for row in screened_candidates
+                if row["classification"]
+                != "known_exposure_nonmatch_inherited_PE4_unresolved"
+            ],
+        )
+    return _run_selection_with_evidence(output, screened_candidates)
 
 
 def deduplicate_candidates(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -484,6 +669,7 @@ def screen_known_exposure(
     *,
     expected_snapshot_hashes: dict[str, str] | None = None,
     expected_provenance_hash: str | None = None,
+    on_screened=None,
 ) -> list[dict[str, Any]]:
     """Fail closed unless every required identity inventory is authenticated."""
     required = ("B512", "S615", "protected_holdout")
@@ -585,19 +771,20 @@ def screen_known_exposure(
             if provenance_authenticated
             else "invalid_or_insufficiently_authenticated_evidence"
         )
-        screened.append(
-            {
-                **candidate,
-                "exposure": hits,
-                "source_provenance_match": provenance_match,
-                "source_provenance_status": provenance.get(
-                    "crosswalk_status", "missing_or_unauthenticated"
-                ),
-                "classification": classification,
-                "membership_evidence_sha256": evidence_hashes,
-                "inherited_PE4_exposure": "unresolved",
-            }
-        )
+        screened_row = {
+            **candidate,
+            "exposure": hits,
+            "source_provenance_match": provenance_match,
+            "source_provenance_status": provenance.get(
+                "crosswalk_status", "missing_or_unauthenticated"
+            ),
+            "classification": classification,
+            "membership_evidence_sha256": evidence_hashes,
+            "inherited_PE4_exposure": "unresolved",
+        }
+        screened.append(screened_row)
+        if on_screened is not None:
+            on_screened(screened_row)
     return screened
 
 
@@ -979,28 +1166,171 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
         freeze,
         caller_evidence_path=authorization.get("membership_evidence_path"),
     )
-    opening_selection = choose_distinct_openings(
-        lambda index: generate_opening(MASTER_SEED, index),
-        reserve=OPENING_RESERVE,
-        target=OPENING_TARGET,
+    output.mkdir(parents=True)
+    _write_json_create_only(
+        output / "generation-configuration.json",
+        {
+            "master_seed": MASTER_SEED,
+            "seed_contract": SEED_CONTRACT,
+            "opening_reserve": OPENING_RESERVE,
+            "opening_target": OPENING_TARGET,
+            "games_per_opening": GAMES_PER_OPENING,
+            "continuation_action_limit": MAX_CONTINUATION_ACTIONS,
+            "freeze_sha256": sha256(freeze_raw),
+        },
     )
+    _write_json_create_only(output / "authenticated-membership-evidence.json", evidence)
+    try:
+        with (
+            (output / "opening-attempts.jsonl").open("xb") as attempts_stream,
+            (output / "accepted-openings.jsonl").open("xb") as openings_stream,
+        ):
+
+            def record_opening_attempt(
+                attempt: dict[str, Any], opening: dict[str, Any] | None
+            ) -> None:
+                attempts_stream.write(canonical_bytes(attempt) + b"\n")
+                attempts_stream.flush()
+                if opening is not None:
+                    openings_stream.write(canonical_bytes(opening) + b"\n")
+                    openings_stream.flush()
+
+            opening_selection = choose_distinct_openings(
+                lambda index: generate_opening(MASTER_SEED, index),
+                reserve=OPENING_RESERVE,
+                target=OPENING_TARGET,
+                on_attempt=record_opening_attempt,
+            )
+    except ShortfallError as error:
+        report = error.report
+        _write_json_create_only(
+            output / "opening-attempts.json", report.get("attempts", [])
+        )
+        _write_json_create_only(
+            output / "opening-rejections.json", report.get("rejections", [])
+        )
+        _write_json_create_only(output / "openings.json", report.get("openings", []))
+        _write_json_create_only(
+            output / "opening-selection-shortfall.json",
+            {
+                "schema": "seed624-opening-selection-shortfall-v1",
+                "report": report,
+            },
+        )
+        _write_failure_record(
+            output,
+            stage="opening_generation",
+            classification=_shortfall_classification(report),
+            reason=report,
+        )
+        raise
+    except BaseException as error:
+        _write_failure_record(
+            output,
+            stage="opening_generation",
+            classification="verification_failure",
+            reason={"exception_type": type(error).__name__, "message": str(error)},
+        )
+        raise
     openings = opening_selection["openings"]
+    _write_json_create_only(
+        output / "opening-attempts.json", opening_selection["attempts"]
+    )
+    _write_json_create_only(
+        output / "opening-rejections.json", opening_selection["rejections"]
+    )
+    _write_json_create_only(output / "openings.json", openings)
     games: list[dict[str, Any]] = []
     candidates: list[dict[str, Any]] = []
-    for opening in openings:
-        for trajectory_index in range(GAMES_PER_OPENING):
-            game, occurrences = generate_game(opening, MASTER_SEED, trajectory_index)
-            game["opening_prefix_actions"] = opening["prefix_actions"]
-            games.append(game)
-            candidates.extend(occurrences)
-    unique = deduplicate_candidates(candidates)
-    screened = screen_known_exposure(
-        unique,
-        evidence,
-        expected_snapshot_hashes=freeze.get("membership_snapshot_sha256"),
-        expected_provenance_hash=freeze.get("source_provenance_sha256"),
+    action_count = [0]
+    try:
+        with (
+            (output / "games.jsonl").open("xb") as games_stream,
+            (output / "candidate-occurrences.jsonl").open("xb") as occurrence_stream,
+            (output / "continuation-action-stream.jsonl").open("xb") as actions_stream,
+        ):
+
+            def record_continuation_action(action_record: dict[str, Any]) -> None:
+                actions_stream.write(canonical_bytes(action_record) + b"\n")
+                actions_stream.flush()
+                action_count[0] += 1
+
+            for opening in openings:
+                for trajectory_index in range(GAMES_PER_OPENING):
+                    game, occurrences = generate_game(
+                        opening,
+                        MASTER_SEED,
+                        trajectory_index,
+                        on_action=record_continuation_action,
+                    )
+                    game["opening_prefix_actions"] = opening["prefix_actions"]
+                    games.append(game)
+                    candidates.extend(occurrences)
+                    games_stream.write(canonical_bytes(game) + b"\n")
+                    for occurrence in occurrences:
+                        occurrence_stream.write(canonical_bytes(occurrence) + b"\n")
+                    games_stream.flush()
+                    occurrence_stream.flush()
+    except BaseException as error:
+        _write_failure_record(
+            output,
+            stage="trajectory_generation",
+            classification="verification_failure",
+            reason={
+                "exception_type": type(error).__name__,
+                "message": str(error),
+                "completed_games": len(games),
+                "recorded_candidate_occurrences": len(candidates),
+                "recorded_continuation_actions": action_count[0],
+            },
+        )
+        raise
+    try:
+        unique = deduplicate_candidates(candidates)
+    except BaseException as error:
+        _write_failure_record(
+            output,
+            stage="candidate_deduplication",
+            classification="verification_failure",
+            reason={"exception_type": type(error).__name__, "message": str(error)},
+        )
+        raise
+    _write_jsonl_create_only(output / "candidate-inventory.jsonl", unique)
+    try:
+        with (
+            (output / "screened-candidates.jsonl").open("xb") as screened_stream,
+            (output / "exclusions.jsonl").open("xb") as exclusions_stream,
+        ):
+
+            def record_screening_result(row: dict[str, Any]) -> None:
+                serialized = canonical_bytes(row) + b"\n"
+                screened_stream.write(serialized)
+                screened_stream.flush()
+                if (
+                    row["classification"]
+                    != "known_exposure_nonmatch_inherited_PE4_unresolved"
+                ):
+                    exclusions_stream.write(serialized)
+                    exclusions_stream.flush()
+
+            screened = screen_known_exposure(
+                unique,
+                evidence,
+                expected_snapshot_hashes=freeze.get("membership_snapshot_sha256"),
+                expected_provenance_hash=freeze.get("source_provenance_sha256"),
+                on_screened=record_screening_result,
+            )
+    except BaseException as error:
+        _write_failure_record(
+            output,
+            stage="membership_screening",
+            classification="verification_failure",
+            reason={"exception_type": type(error).__name__, "message": str(error)},
+        )
+        raise
+    selection = _persist_screened_stages_and_select(
+        output, screened, inventories_already_persisted=True
     )
-    selection = select_cohort(screened)
     bundle = {
         "schema": SCHEMA,
         "authorization": {
@@ -1067,11 +1397,9 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
         "selection": selection,
         "evidence": evidence,
     }
-    output.mkdir(parents=True)
-    (output / "population.json").write_bytes(canonical_bytes(bundle) + b"\n")
-    (output / "population.sha256").write_text(
-        sha256((output / "population.json").read_bytes()) + "\n"
-    )
+    _write_json_create_only(output / "population.json", bundle)
+    with (output / "population.sha256").open("x", encoding="ascii") as stream:
+        stream.write(sha256((output / "population.json").read_bytes()) + "\n")
     return {
         "schema": SCHEMA,
         "openings": len(openings),

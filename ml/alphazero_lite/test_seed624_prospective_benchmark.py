@@ -31,25 +31,23 @@ class Seed624SyntheticTests(unittest.TestCase):
         from ml.alphazero_lite import verify_seed624_prospective_benchmark as verifier
         from ml.alphazero_lite.seed636_authorization import (
             APPROVAL_MARKER,
+            APPROVED_DECISIONS,
             EXECUTION_SCOPE,
+            REQUIRED_PROTOCOL_DOCUMENTS,
             SCHEMA as APPROVAL_SCHEMA,
             canonical_bytes,
             sha256,
-            APPROVED_DECISIONS,
         )
 
         freeze = dict(freeze, status="frozen")
         freeze_raw = seed624.canonical_bytes(freeze)
         documents = {
             name: sha256((seed624.ROOT / name).read_bytes())
-            for name in (
-                "docs/seed624-estimand-amendment-proposal.md",
-                "docs/seed623-631-execution-contract-amendment.md",
-                "docs/experiment-execution-protocol.md",
-            )
+            for name in sorted(REQUIRED_PROTOCOL_DOCUMENTS)
         }
         registration = {
             "experiment_id": "seed636-prospective-population",
+            "base_commit": seed624.current_git_commit(),
             "approved_protocol_revision": seed624.current_git_commit(),
             "protocol_documents": documents,
             "input_artifacts": {},
@@ -75,6 +73,9 @@ class Seed624SyntheticTests(unittest.TestCase):
             "created_at": timestamp,
             "user": {"login": "useruby"},
             "body": body,
+            "reactions": {"total_count": 0, "+1": 0},
+            "updated_at": "2026-11-25T13:00:00Z",
+            "performed_via_github_app": {"id": 99, "slug": "metadata"},
         }
         approval = {
             "schema": APPROVAL_SCHEMA,
@@ -93,7 +94,6 @@ class Seed624SyntheticTests(unittest.TestCase):
                 "created_at": timestamp,
                 "html_url": url,
                 "body": body,
-                "api_record_sha256": sha256(canonical_bytes(api_record)),
             },
         }
         attempt_manifest = {
@@ -249,7 +249,18 @@ class Seed624SyntheticTests(unittest.TestCase):
 
     def test_within_game_bin_uses_minimum_rank_across_all_visits(self) -> None:
         opening = seed624.generate_opening(seed624.MASTER_SEED, 0)
-        _game, rows = seed624.generate_game(opening, seed624.MASTER_SEED, 1)
+        action_records = []
+        game, rows = seed624.generate_game(
+            opening,
+            seed624.MASTER_SEED,
+            1,
+            on_action=action_records.append,
+        )
+        self.assertEqual([row["action"] for row in action_records], game["actions"])
+        self.assertEqual(
+            [row["continuation_ply"] for row in action_records],
+            list(range(len(game["actions"]))),
+        )
         candidate = next(row for row in rows if row["active_pit_stones"] == 19)
         visits = candidate["within_game_bin_visits"]
         self.assertEqual(len(visits), 3)
@@ -364,13 +375,16 @@ class Seed624SyntheticTests(unittest.TestCase):
             "opening_identity": "opening",
             "game_id": "game",
         }
+        screening_records = []
         result = seed624.screen_known_exposure(
             [candidate],
             evidence,
             expected_snapshot_hashes={
                 name: source["sha256"] for name, source in evidence.items()
             },
+            on_screened=screening_records.append,
         )[0]
+        self.assertEqual(screening_records, [result])
         self.assertEqual(result["classification"], "confirmed_known_exposure")
         self.assertEqual(result["inherited_PE4_exposure"], "unresolved")
         evidence["protected_holdout"]["rows"] = [member]
@@ -794,6 +808,88 @@ class Seed624SyntheticTests(unittest.TestCase):
             PermissionError, "lifecycle_frozen_started_attempt_required"
         ):
             seed624.generate_population({}, Path("unused"))
+
+    def test_selection_shortfall_keeps_synthetic_generation_and_screening_evidence(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory(dir=".tmp") as temporary:
+            output = Path(temporary) / "population"
+            output.mkdir()
+            opening_attempt = {"opening_index": 0, "status": "accepted"}
+            game = {"game_id": "o0000-g00", "actions": [1, 2, 3]}
+            candidate = {
+                "canonical_identity": "state-a",
+                "active_pit_stones": 17,
+                "game_id": "o0000-g00",
+                "opening_index": 0,
+                "classification": "known_exposure_nonmatch_inherited_PE4_unresolved",
+            }
+            exposed = {
+                "canonical_identity": "state-b",
+                "active_pit_stones": 18,
+                "game_id": "o0000-g01",
+                "opening_index": 0,
+                "classification": "confirmed_known_exposure",
+            }
+            seed624._write_json_create_only(
+                output / "opening-attempts.json", [opening_attempt]
+            )
+            seed624._write_jsonl_create_only(output / "games.jsonl", [game])
+            seed624._write_jsonl_create_only(
+                output / "candidate-occurrences.jsonl", [candidate, exposed]
+            )
+            seed624._write_jsonl_create_only(
+                output / "candidate-inventory.jsonl", [candidate, exposed]
+            )
+            shortfall = seed624.ShortfallError(
+                {"schema": "seed624-selection-shortfall-v1", "reason": "hard_supply"}
+            )
+            with patch.object(seed624, "select_cohort", side_effect=shortfall):
+                with self.assertRaises(seed624.ShortfallError):
+                    seed624._persist_screened_stages_and_select(
+                        output, [candidate, exposed]
+                    )
+            self.assertEqual(
+                json.loads((output / "opening-attempts.json").read_text()),
+                [opening_attempt],
+            )
+            self.assertEqual(json.loads((output / "games.jsonl").read_text()), game)
+            self.assertEqual(
+                [
+                    json.loads(line)
+                    for line in (output / "candidate-occurrences.jsonl")
+                    .read_text()
+                    .splitlines()
+                ],
+                [candidate, exposed],
+            )
+            self.assertEqual(
+                json.loads((output / "failure.json").read_text())["classification"],
+                "insufficient_candidate_supply",
+            )
+            self.assertFalse(
+                json.loads((output / "selection-diagnostics.json").read_text())[
+                    "qualified_population"
+                ]
+            )
+
+    def test_shortfall_classification_distinguishes_supply_math_resource_and_verifier(
+        self,
+    ) -> None:
+        cases = {
+            "hard_supply": "insufficient_candidate_supply",
+            "opening_reserve_exhausted": "insufficient_candidate_supply",
+            "constraints_infeasible": "mathematical_infeasibility",
+            "aggregate_cluster_capacity": "mathematical_infeasibility",
+            "optimizer_resource_limit": "resource_exhaustion",
+            "candidate_count_resource_limit": "resource_exhaustion",
+            "identity_replay_mismatch": "verification_failure",
+        }
+        for reason, expected in cases.items():
+            with self.subTest(reason=reason):
+                self.assertEqual(
+                    seed624._shortfall_classification({"reason": reason}), expected
+                )
 
     @unittest.skip("failure records are now owned by the Seed 635 lifecycle runner")
     def test_failure_receipts_are_durable_create_only_and_classified(self) -> None:
