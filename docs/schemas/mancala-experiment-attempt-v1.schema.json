@@ -9,7 +9,6 @@
     "experiment_id",
     "attempt_id",
     "experiment_type",
-    "authorization_reference",
     "hypothesis",
     "objective",
     "source_commit",
@@ -37,7 +36,14 @@
     "experiment_id": {"type": "string", "minLength": 1},
     "attempt_id": {"type": "string", "minLength": 1},
     "experiment_type": {"type": "string", "minLength": 1},
-    "authorization_reference": {"type": "string", "minLength": 1},
+    "authorization_reference": {
+      "anyOf": [
+        {"type": "string", "minLength": 1},
+        {"type": "null"}
+      ]
+    },
+    "registration_path": {"type": "string", "minLength": 1},
+    "registration_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "hypothesis": {"type": "string", "minLength": 1},
     "objective": {"type": "string", "minLength": 1},
     "source_commit": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"},

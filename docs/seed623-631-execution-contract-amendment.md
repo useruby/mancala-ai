@@ -1,8 +1,8 @@
 # Proposed amendment: Seed 623–631 execution requirements
 
-**Status:** proposed for explicit project-owner approval; this amendment does not
-authorize Seed 623 execution, change a production launch guard, or alter archived
-Seed 623–631 evidence.
+**Status:** approved for the Seed 636 registered population-generation scope
+when its registration PR is merged into `main` by `useruby`. It does not change a
+production launch guard or alter archived Seed 623–631 evidence.
 
 ## Proposed replacement
 
@@ -12,8 +12,8 @@ project-quota filesystem, disposable VM, root collector, or test signing key a
 prerequisite for ordinary experiment execution with the common procedure in
 [`experiment-execution-protocol.md`](experiment-execution-protocol.md).
 
-After explicit project-owner approval recorded as a GitHub issue/PR comment,
-each future experiment remains subject to:
+After the experiment's registration PR is merged by the project owner, each
+experiment remains subject to:
 
 - the Seed 623 scientific preregistration, population definition, known-exposure
   limitation and all relevant authorization gates;
@@ -28,8 +28,8 @@ each future experiment remains subject to:
   required by the scientific protocol;
 - independent reproduction of scientific calculations from archived inputs and
   outputs; and
-- explicit owner authorization recorded on GitHub and independent scientific
-  review before each newly gated stage.
+- a separate owner-merged registration PR for each newly gated scientific
+  stage, plus independent scientific review where specified.
 
 The Seed 623 requirements for the 512-state cohort, 17–21 stone domain, five
 equal-weight bins, cluster caps, known-exposure screening, all-legal-action
@@ -42,11 +42,11 @@ does not waive them.
 
 Keep Seeds 629–631 source, tests, and historical readiness reports unchanged as
 historical implementations and evidence. Do not run or remove them as a side
-effect of this proposal. If the owner approves this amendment, subsequent
-experiment registrations may use the common worktree-based protocol rather than
-the privileged Seed 631 qualification matrix. The Seed 624 generation path is
-migrated separately to require a frozen, started lifecycle attempt and a
-GitHub-authenticated project-owner approval record bound to the registration.
+effect of this proposal. Subsequent experiment registrations may use the common
+worktree-based protocol rather than the privileged Seed 631 qualification
+matrix. The Seed 624 generation path requires a frozen, started lifecycle
+attempt and a project-owner-merged registration PR bound to the registration's
+exact Git objects.
 
 In particular, the Seed 629 `run_authorized()` launch guard remains
 unconditional. This protocol neither calls it nor bypasses it. A future request
@@ -59,27 +59,18 @@ The privileged Seed 629 execution path remains disabled and is superseded for
 ordinary research experiments by the Seed 635 worktree lifecycle. Its
 unconditional guard remains intact for its historical protected workload.
 
-## Migration path after owner approval
+## Current execution contract
 
-1. Record the owner's GitHub identity, issue/PR comment URL and timestamp,
-   effective protocol revision, document SHA-256 values, scope, and registration
-   digest in the relevant prospective registration and approval artifact.
-2. Prepare a Seed 623 experiment worktree from the approved base commit and
-   preserve its proposed registration. Do not generate states yet.
-3. Authenticate the exact required inputs, checkpoints, rules and solver
-   identities; validate the complete input/cohort freeze and independent
-   verifier before authorizing any next stage.
-4. Freeze the specific stage's worktree source commit, command, parameters,
-   resources and acceptance rules using the common attempt manifest. Obtain the
-   separate execution authorization required for that stage.
-5. Execute only that authorized stage; preserve every failure as a distinct
-   attempt; verify independently; archive large artifacts and publish the
-   report, verifier, results and archive receipt through a PR.
-6. Advance to inference, calibration, full oracle work, or search only after the
-   original Seed 623 stage-specific acceptance and approval gates are met.
+All experiment worktree, registration PR, independent review, owner-merge
+authorization, freeze, execution, verification, archive, results publication,
+and cleanup requirements are defined by the mandatory
+[`experiment-execution-protocol.md`](experiment-execution-protocol.md). This
+amendment adds Seed 623 scientific requirements only; it does not define a
+separate approval-comment mechanism or weaken the common lifecycle.
 
-Until owner approval and the relevant stage authorization are recorded, Seed
-623 remains unexecuted. Approval is an explicit GitHub owner comment matching
-the exact registration digest, approved protocol revision/document hashes, and
-stage scope; merge of an implementation PR is not approval. This proposal makes
-no scientific claim and does not qualify a production supervisor.
+The Seed 636 registration PR approves the finite-cohort estimand, this
+worktree-based execution contract, the inherited P-E4 limitation, and the
+model-independent generation/screening scope. Later Seed 623 inference,
+calibration, exact solving, or search work requires its own registration and
+owner-merged authorization under the common protocol. This amendment makes no
+scientific result claim and does not qualify a production supervisor.

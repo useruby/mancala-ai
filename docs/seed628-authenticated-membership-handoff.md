@@ -4,6 +4,12 @@
 blocked.** No production benchmark states were generated. No inference, MCTS,
 solving, training, key provisioning, or execution authorization occurred.
 
+**Protocol note:** the status below records what this handoff supplied at the
+time and remains historical evidence. For ordinary research, the mandatory
+[`experiment-execution-protocol.md`](experiment-execution-protocol.md) now
+defines authorization: only a project-owner-merged registration PR authorizes
+its declared scope. This handoff itself is not that registration PR.
+
 ## Adapter and verification
 
 `seed628_authenticated_screening.authenticate_snapshot_bundle()` consumes the

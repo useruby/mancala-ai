@@ -26,6 +26,7 @@ from typing import Any
 
 SCHEMA = "mancala-experiment-attempt-v1"
 REGISTRATION_SCHEMA = "mancala-experiment-registration-v1"
+WORKTREE_REGISTRATION_SCHEMA = "mancala-experiment-worktree-registration-v1"
 DEFAULT_WORKTREE_ROOT = Path(
     os.environ.get("MANCALA_EXPERIMENT_WORKTREE_ROOT", ".worktrees")
 )
@@ -96,6 +97,14 @@ def _git(root: Path, *args: str, check: bool = True) -> str:
     return result.stdout.strip()
 
 
+def _git_bytes(root: Path, *args: str) -> bytes:
+    return subprocess.run(
+        ["git", "-C", str(root), *args],
+        check=True,
+        capture_output=True,
+    ).stdout
+
+
 def _safe_identity(value: str, label: str) -> str:
     if not value or any(
         char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-"
@@ -107,6 +116,12 @@ def _safe_identity(value: str, label: str) -> str:
     return value
 
 
+def registration_repository_path(experiment_id: str) -> str:
+    """Return the permanent, reviewable path for one experiment registration."""
+    experiment_id = _safe_identity(experiment_id, "experiment_id")
+    return f"docs/experiments/{experiment_id}/registration.json"
+
+
 def create_worktree(
     repo_root: Path,
     experiment_id: str,
@@ -116,7 +131,7 @@ def create_worktree(
     hypothesis: str,
     objective: str,
     experiment_type: str,
-    authorization_reference: str,
+    authorization_reference: str | None = None,
     random_seeds: list[int],
     input_artifacts: dict[str, str],
     checkpoint_identity: dict[str, str] | None,
@@ -128,12 +143,12 @@ def create_worktree(
     experiment_id = _safe_identity(experiment_id, "experiment_id")
     if any(
         not isinstance(value, str) or not value.strip()
-        for value in (
-            branch,
-            hypothesis,
-            objective,
-            experiment_type,
-            authorization_reference,
+        for value in (branch, hypothesis, objective, experiment_type)
+    ) or (
+        authorization_reference is not None
+        and (
+            not isinstance(authorization_reference, str)
+            or not authorization_reference.strip()
         )
     ):
         raise ValueError("experiment_registration_text_fields_required")
@@ -208,9 +223,21 @@ def create_worktree(
             capture_output=True,
             text=True,
         )
-        _write_create_only(target / ".experiment" / "registration.json", registration)
-        (target / ".experiment" / ".gitignore").write_text(
-            "/runtime/\n", encoding="utf-8"
+        operational_metadata = target / ".experiment"
+        permanent_relative = registration_repository_path(experiment_id)
+        permanent_registration = target / permanent_relative
+        _write_create_only(permanent_registration, registration)
+        _write_create_only(
+            operational_metadata / "registration.json",
+            {
+                "schema": WORKTREE_REGISTRATION_SCHEMA,
+                "experiment_id": experiment_id,
+                "registration_path": permanent_relative,
+                "base_commit": resolved_base,
+            },
+        )
+        (operational_metadata / ".gitignore").write_text(
+            "/runtime/\n/registration.json\n/base-commit.json\n", encoding="utf-8"
         )
         (target / ".experiment" / "runtime" / "attempts").mkdir(
             parents=True, exist_ok=True
@@ -248,19 +275,52 @@ def inspect_worktrees(repo_root: Path) -> list[dict[str, Any]]:
         if not path_text:
             continue
         path = Path(path_text)
-        registration_path = path / ".experiment" / "registration.json"
-        if not registration_path.is_file():
+        metadata_path = path / ".experiment" / "registration.json"
+        if not metadata_path.is_file():
             continue
-        registration = json.loads(registration_path.read_bytes())
+        registration, registration_path = load_worktree_registration(path)
         records.append(
             {
                 **registration,
+                "registration_path": registration_path,
                 "worktree_path": str(path),
                 "head": fields.get("HEAD"),
                 "dirty": bool(_git(path, "status", "--porcelain")),
             }
         )
     return records
+
+
+def load_worktree_registration(worktree: Path) -> tuple[dict[str, Any], str]:
+    """Resolve local worktree metadata to its permanent registration file.
+
+    Historical worktrees may still contain the old committed registration at
+    `.experiment/registration.json`; new worktrees store a pointer there and
+    keep the reviewable registration at `docs/experiments/<id>/registration.json`.
+    """
+    metadata_path = worktree / ".experiment" / "registration.json"
+    if metadata_path.is_symlink() or not metadata_path.is_file():
+        raise ValueError("experiment_worktree_registration_missing")
+    metadata = json.loads(metadata_path.read_bytes())
+    if metadata.get("schema") == REGISTRATION_SCHEMA:
+        return metadata, ".experiment/registration.json"
+    if metadata.get("schema") != WORKTREE_REGISTRATION_SCHEMA:
+        raise ValueError("experiment_worktree_registration_invalid")
+    experiment_id = _safe_identity(metadata.get("experiment_id", ""), "experiment_id")
+    registration_path = registration_repository_path(experiment_id)
+    if metadata.get("registration_path") != registration_path:
+        raise ValueError("experiment_worktree_registration_path_invalid")
+    permanent_path = worktree / registration_path
+    if permanent_path.is_symlink() or not permanent_path.is_file():
+        raise ValueError("permanent_experiment_registration_missing")
+    registration = json.loads(permanent_path.read_bytes())
+    if (
+        registration.get("schema") != REGISTRATION_SCHEMA
+        or registration.get("experiment_id") != experiment_id
+        or registration.get("base_commit") != metadata.get("base_commit")
+    ):
+        raise ValueError("permanent_experiment_registration_identity_mismatch")
+    return registration, registration_path
 
 
 def _validate_experiment_worktree(worktree: Path) -> dict[str, Any]:
@@ -273,12 +333,11 @@ def _validate_experiment_worktree(worktree: Path) -> dict[str, Any]:
     ]
     if not entries or worktree not in entries or worktree == entries[0]:
         raise ValueError("experiment_execution_requires_registered_linked_worktree")
-    registration_path = worktree / ".experiment" / "registration.json"
-    if not registration_path.is_file():
-        raise ValueError("experiment_worktree_registration_missing")
-    registration = json.loads(registration_path.read_bytes())
-    if registration.get("schema") != REGISTRATION_SCHEMA:
-        raise ValueError("experiment_worktree_registration_invalid")
+    registration, registration_path = load_worktree_registration(worktree)
+    try:
+        _git(worktree, "ls-files", "--error-unmatch", registration_path)
+    except subprocess.CalledProcessError as error:
+        raise ValueError("permanent_registration_not_committed") from error
     return registration
 
 
@@ -302,7 +361,8 @@ def _input_identity(inputs: dict[str, str]) -> dict[str, str]:
 def _authenticate_frozen_attempt(attempt_dir: Path, manifest: dict[str, Any]) -> None:
     """Authenticate current source, registration, IDs, and all inputs prelaunch."""
     worktree = Path(manifest["worktree_path"]).resolve(strict=True)
-    registration = _validate_experiment_worktree(worktree)
+    registration, registration_path = load_worktree_registration(worktree)
+    _validate_experiment_worktree(worktree)
     if (
         attempt_dir.resolve(strict=True)
         != (
@@ -320,6 +380,15 @@ def _authenticate_frozen_attempt(attempt_dir: Path, manifest: dict[str, Any]) ->
         or registration.get("input_artifacts") is None
     ):
         raise _PrelaunchAuthenticationError("attempt_registration_identity_mismatch")
+    registration_digest = sha256_file(worktree / registration_path)
+    if (
+        manifest.get("registration_path", registration_path) != registration_path
+        or manifest.get("registration_sha256", registration_digest)
+        != registration_digest
+    ):
+        raise _PrelaunchAuthenticationError(
+            "attempt_registration_path_or_digest_mismatch"
+        )
     if _git(worktree, "status", "--porcelain", "--untracked-files=all"):
         raise _PrelaunchAuthenticationError("execution_worktree_not_clean")
     current_commit = _git(worktree, "rev-parse", "HEAD")
@@ -343,7 +412,8 @@ def _authenticate_frozen_attempt(attempt_dir: Path, manifest: dict[str, Any]) ->
 def _verify_historical_source(attempt_dir: Path, manifest: dict[str, Any]) -> None:
     """Verify the recorded source commit/tree in Git, independent of current HEAD."""
     worktree = attempt_dir.parents[3]
-    registration = _validate_experiment_worktree(worktree)
+    registration, registration_path = load_worktree_registration(worktree)
+    _validate_experiment_worktree(worktree)
     if (
         registration.get("experiment_id") != manifest.get("experiment_id")
         or registration.get("experiment_type") != manifest.get("experiment_type")
@@ -375,6 +445,20 @@ def _verify_historical_source(attempt_dir: Path, manifest: dict[str, Any]) -> No
     historical_tree = _git(worktree, "rev-parse", f"{source_commit}^{{tree}}")
     if historical_tree != manifest.get("execution_source_identity"):
         raise ValueError("historical_source_tree_identity_mismatch")
+    manifested_registration_path = manifest.get("registration_path")
+    if manifested_registration_path is not None:
+        if manifested_registration_path != registration_path:
+            raise ValueError("historical_registration_path_mismatch")
+        registered_bytes = (worktree / registration_path).read_bytes()
+        if (
+            _git_bytes(
+                worktree, "show", f"{source_commit}:{manifested_registration_path}"
+            )
+            != registered_bytes
+            or manifest.get("registration_sha256")
+            != hashlib.sha256(registered_bytes).hexdigest()
+        ):
+            raise ValueError("historical_permanent_registration_mismatch")
     if subprocess.run(
         [
             "git",
@@ -456,9 +540,7 @@ def freeze_attempt(
     status = _git(worktree, "status", "--porcelain", "--untracked-files=all")
     if status:
         raise ValueError("source_worktree_must_be_committed_before_freeze")
-    registration = json.loads(
-        (worktree / ".experiment" / "registration.json").read_bytes()
-    )
+    registration, registration_path = load_worktree_registration(worktree)
     validated_registration = _validate_experiment_worktree(worktree)
     if validated_registration["experiment_id"] != registration["experiment_id"]:
         raise ValueError("experiment_worktree_registration_mismatch")
@@ -484,7 +566,9 @@ def freeze_attempt(
         "experiment_id": registration["experiment_id"],
         "attempt_id": attempt_id,
         "experiment_type": registration["experiment_type"],
-        "authorization_reference": registration["authorization_reference"],
+        "authorization_reference": registration.get("authorization_reference"),
+        "registration_path": registration_path,
+        "registration_sha256": sha256_file(worktree / registration_path),
         "hypothesis": registration["hypothesis"],
         "objective": registration["objective"],
         "source_commit": source_commit,
@@ -1167,12 +1251,7 @@ def safe_remove_worktree(repo_root: Path, worktree: Path, *, merged_into: str) -
     worktree = worktree.resolve(strict=True)
     if worktree == repo_root:
         raise ValueError("cannot_remove_primary_repository_worktree")
-    registration_path = worktree / ".experiment" / "registration.json"
-    if not registration_path.is_file():
-        raise ValueError("worktree_experiment_registration_missing")
-    registration = json.loads(registration_path.read_bytes())
-    if registration.get("schema") != REGISTRATION_SCHEMA:
-        raise ValueError("worktree_experiment_registration_invalid")
+    registration, _registration_path = load_worktree_registration(worktree)
     registered_worktrees = {
         Path(line.split(" ", 1)[1]).resolve()
         for line in _git(repo_root, "worktree", "list", "--porcelain").splitlines()
@@ -1366,7 +1445,7 @@ def main() -> None:
             hypothesis=spec["hypothesis"],
             objective=spec["objective"],
             experiment_type=spec["experiment_type"],
-            authorization_reference=spec["authorization_reference"],
+            authorization_reference=spec.get("authorization_reference"),
             random_seeds=spec["random_seeds"],
             input_artifacts=spec["input_artifacts"],
             checkpoint_identity=spec.get("checkpoint_identity"),

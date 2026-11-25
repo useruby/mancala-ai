@@ -1,0 +1,85 @@
+{
+  "acceptance_criteria": [
+    "Generate exactly 256 distinct opening positions, using the registered reserve and frozen deterministic generation contract.",
+    "Generate exactly 2,048 independent continuation games, eight per retained opening.",
+    "Authenticate and screen all membership against Seed 627 B512, S615, and protected-holdout snapshots; provenance remains authenticated non-crosswalkable and inherited P-E4 exposure unresolved.",
+    "Complete canonical-state and production float32 identity deduplication before selection.",
+    "After exact-known-exposure exclusions, satisfy minimum eligible supply of 206/206/204/204/204 for 17/18/19/20/21 active pit stones, respectively.",
+    "Select exactly 512 states with stone-bin quotas 103/103/102/102/102 and at least 128 distinct opening clusters.",
+    "Enforce maximum four selected states per opening and maximum two per continuation game.",
+    "Independent verifier reproduces all generation, screening, candidate supply, deduplication, and selected-population evidence.",
+    "Any mandatory gate failure is retained as evidence and stops execution without parameter changes or automatic retry.",
+    "Scope excludes inference, MCTS, exact solving, tablebase probes, training, and candidate promotion."
+  ],
+  "approved_decisions": [
+    "seed625-finite-cohort-estimand-amendment",
+    "seed635-worktree-execution-contract-amendment",
+    "known-exposure-screened-inherited-PE4-unresolved",
+    "model-independent-population-generation-and-screening-only"
+  ],
+  "authorization_contract": "seed636-registration-pr-authorization-v1",
+  "authorization_reference": null,
+  "base_commit": "e010276acae9499bce7e644e94269ada6848a0c7",
+  "branch": "experiment/seed636-prospective-population",
+  "checkpoint_identity": null,
+  "experiment_id": "seed636-prospective-population",
+  "experiment_type": "prospective_population_generation",
+  "execution_scope": "model-independent-generation-and-screening-only",
+  "hypothesis": "A deterministic model-independent generation and authenticated known-exposure screen can produce an independently reproducible 512-state finite cohort from 256 distinct openings and 2,048 continuation games, satisfying all registered stone-bin supply and cluster constraints.",
+  "input_artifacts": {
+    "/home/alex/Mancala/ai/docs/data/seed604-replay-optimization/runtime-certification-v3/requirements-lock.txt": "5762f889f9719525379f8f1321811df9c52ea3675cdb319492eba15570c94ce4",
+    "/home/alex/Mancala/ai/docs/data/seed627-authenticated-membership/snapshots": "73fab70b5f4db459a684cf4c6567cd857d4c76673a53acd61fb41d12613e3085"
+  },
+  "objective": "Generate and independently verify the Seed 623 prospective benchmark population only; preserve known-exposure-screened classification with inherited P-E4 exposure unresolved.",
+  "protocol_documents": {
+    "docs/experiment-execution-protocol.md": "69a77cdc24e2828f92d8d9eb96c75f619aa594240910c1684835fc1245519d6b",
+    "docs/seed623-631-execution-contract-amendment.md": "633742139061227f1543ff7c1360f5d8e5b97eafb50a4755b2a7b47afcc033eb",
+    "docs/seed623-prospective-exact-quality-benchmark.md": "f01df9467dfc4a1088796f583551e203f8b045a00498363f4038b3ffac87f400",
+    "docs/seed624-estimand-amendment-proposal.md": "52dd4612da6cecf7ae1605d158289f78d44ef12fe3a107f3d937c9b12f95b4d0",
+    "docs/seed636-owner-approval.md": "9830332295423e94f2840eab286d741669e9827768bbf4143496399a9bdc8450"
+  },
+  "random_seeds": [
+    62320261121
+  ],
+  "registered_at": "2026-11-25T08:41:32.011728+00:00",
+  "resource_budgets": {
+    "cpu_time_limit_seconds": 10800,
+    "execution_concurrency": 1,
+    "output_and_temporary_storage_limit_bytes": 21474836480,
+    "process_rss_limit_bytes": 17179869184,
+    "selection_optimizer_workers": 1,
+    "wall_time_limit_seconds": 14400
+  },
+  "schema": "mancala-experiment-registration-v1",
+  "scientific_acceptance": {
+    "continuation_games": 2048,
+    "deduplication": [
+      "canonical_state",
+      "production_float32_input"
+    ],
+    "exposure_classification": "known-exposure-screened; inherited P-E4 exposure unresolved",
+    "failure_policy": "preserve_evidence_and_stop_without_parameter_change_or_automatic_retry",
+    "authenticated_known_exposure_screening": true,
+    "independent_reproduction_required": true,
+    "max_states_per_continuation_game": 2,
+    "max_states_per_opening": 4,
+    "minimum_distinct_opening_clusters": 128,
+    "minimum_eligible_candidate_supply": {
+      "17": 206,
+      "18": 206,
+      "19": 204,
+      "20": 204,
+      "21": 204
+    },
+    "openings": 256,
+    "selected_states": 512,
+    "no_inference_mcts_exact_solving_tablebase_probes_training_or_promotion": true,
+    "stone_bin_quotas": {
+      "17": 103,
+      "18": 103,
+      "19": 102,
+      "20": 102,
+      "21": 102
+    }
+  }
+}

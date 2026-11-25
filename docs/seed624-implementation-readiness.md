@@ -2,10 +2,12 @@
 
 ## Status
 
-Implementation proposal and synthetic checks only. No production population was
-generated, frozen, inferred on, searched, solved, or trained on.
+Implementation proposal, authenticated input handoff, and synthetic checks only.
+Seed 627 membership snapshots have been authenticated and registered as inputs.
+No production population was generated or frozen; no inference, search, solving,
+or training was performed.
 
-## Active statistical contract and approval gate
+## Statistical contract and authorization status
 
 The active statistical contract in merged PR #625 is the finite 512-state
 selected-population estimand with fixed weight 1/5 for each stone bin. Opening-
@@ -13,41 +15,33 @@ cluster resampling intervals are descriptive stability intervals, not inferentia
 confidence intervals. No claim of design-unbiased inference over the broader
 random-generation population is made.
 
-The explicit proposed amendment is recorded in
+The amendment record is recorded in
 [`seed624-estimand-amendment-proposal.md`](seed624-estimand-amendment-proposal.md).
-PR #625 merged, but the available PR review record has no independent
-project-owner approval. The amendment's merge is not evidence of owner approval.
-The Seed 636 migration accepts only a GitHub owner comment that binds the exact
-experiment-registration digest, protocol revision/document hashes, and
-generation/screening-only scope. Until such approval is recorded, generation
-remains blocked.
+The Seed 636 registration PR includes the amendment and binds the named
+population-generation and membership-screening scope. Its authorization becomes
+effective only when `useruby` merges it into `main`, as required by the
+mandatory [`experiment-execution-protocol.md`](experiment-execution-protocol.md).
 
 ## Proposed freeze status
 
 `proposed_freeze_schema()` emits a schema template only, marked
 `proposal_not_ready_or_approved`. It is not an execution freeze. Before an
-authorized freeze, the repository still needs:
+authorized attempt:
 
-- Explicit, independently recorded project-owner approval of PR #625's
-  amendment (blocking; absent in the inspected PR record).
 - Final source/runtime identities, including a supported Python/NumPy/PRNG
   contract and finalized selector runtime/resource bounds.
-- Authenticated, identity-complete snapshots for B512, S615, protected holdout,
-  and available compatible source-game/opening provenance. Missing evidence
-  must fail closed; a nonmatch remains unresolved for inherited P-E4 exposure.
-- An auditable GitHub project-owner comment must approve the exact registration
-  digest, approved protocol revision and document hashes, and
-  `model-independent-generation-and-screening-only` scope.
+- Reauthenticate the committed B512, S615, and protected-holdout snapshots with
+  the pinned Seed 627/628 chain. Their source game/opening provenance is
+  authenticated but non-crosswalkable; a nonmatch remains unresolved for
+  inherited P-E4 exposure.
 - A standard Seed 635 lifecycle freeze must bind the clean worktree source tree,
   exact command/configuration, inputs, runtime, resource budget, and output paths.
 
-The production entry point verifies the GitHub comment through `gh api`, then
-checks its owner identity, exact comment URL/timestamp/body, registration digest,
-protocol revision/document hashes, and execution scope. It also requires the
-Seed 635 lifecycle runner's frozen and started attempt, current source tree, and
-input identities. Failed attempts are preserved by the lifecycle terminal
-record and attempt directory. The legacy Seed 629 production launch guard is
-unchanged and is not called by this generation path.
+Seed 636 authorization, source and protocol-object checks, the Seed 635 frozen
+and started attempt, and input authentication follow the mandatory execution
+protocol. Failed attempts are preserved by the lifecycle terminal record and
+attempt directory. The legacy Seed 629 production launch guard is unchanged and
+is not called by this generation path.
 
 The privileged Seed 629 supervisor remains disabled and is superseded for
 ordinary experiments by the Seed 635 worktree lifecycle. Its unconditional
@@ -92,12 +86,11 @@ result is classified as mathematical infeasibility.
 
 The 128 MiB deep-object estimate and 64 MiB tracemalloc ceiling are Python
 allocation guards, **not hard process RSS limits**; tracemalloc excludes some
-interpreter, native-library, and operating-system memory. A production freeze
-must separately register host/process RSS, CPU, and wall-time caps in its
-`production_resource_limits` record, and the authorized execution harness must
-enforce those external caps. Those values are intentionally unset in this
-proposal. Selector-specific synthetic limits do not replace execution resource
-caps.
+interpreter, native-library, and operating-system memory. The Seed 636
+registration now includes process RSS, CPU, wall-time, concurrency, and storage
+budgets. The per-attempt freeze must bind those exact registered limits and the
+runtime/source identities before execution. Selector-specific synthetic limits
+do not replace execution resource caps.
 
 ## Exposure language
 
@@ -110,12 +103,12 @@ little-endian `kalah_v3` float32 bytes.
 
 ## Remaining review blockers
 
-1. Obtain and record explicit GitHub project-owner approval of the Seed 625
-   estimand amendment, Seed 635 execution-contract amendment, unresolved P-E4
-   exposure limitation, and generation/screening-only scope (blocking).
+1. Merge the Seed 636 registration PR into `main` as project owner `useruby`;
+   execution verifies the merge metadata and committed registration/protocol
+   blobs automatically.
 2. Review the bounded selector semantics, resource limits, and synthetic
    feasible/infeasible benchmark results.
 3. Freeze the final runtime/source/dependency/input identities and resource
    budget in the standard lifecycle attempt before any population generation.
-4. Preserve the failed attempt and stop if any preregistered gate fails. This
-   migration does not itself authorize execution.
+4. Preserve the failed attempt and stop if any preregistered gate fails. No
+   parameter changes or automatic retries are permitted.
