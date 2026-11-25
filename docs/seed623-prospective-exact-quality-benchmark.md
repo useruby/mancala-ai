@@ -97,7 +97,11 @@ Neither prior disagreement nor arena outcomes may determine primary selection.
 
 ## Deterministic, model-independent state generation
 
-This is a proposed protocol, not an instruction to generate states now.
+This generation contract is executable only after the Seed 636 registration PR
+containing it is merged by `useruby`, and only within its registered
+model-independent generation and membership-screening scope. The mandatory
+experiment execution lifecycle is defined in
+[`experiment-execution-protocol.md`](experiment-execution-protocol.md).
 
 1. **Rules and identities:** bind the canonical rules implementation and source
    commit/hash, rule version, initial state, legal move semantics (including
@@ -112,10 +116,9 @@ This is a proposed protocol, not an instruction to generate states now.
 2. **Generation seeds:** preregister master seed `62320261121`; derive seeds
    using SHA-256 over a versioned domain separator plus `(opening_index,
    trajectory_index, phase)`, taking a fixed 64-bit prefix. Freeze algorithm,
-   byte order, and seed derivation before generation. These are prospective
-   suggested constants and must be validated and frozen in a separately
-   authorized execution freeze; never replace individual seeds after observing
-   states or model outputs.
+   byte order, and seed derivation before generation. These constants are bound
+   by the registration and must be validated in the mandatory execution freeze;
+   never replace individual seeds after observing states or model outputs.
 3. **Opening/game coverage and oversupply:** generate 256 distinct opening
    positions, each from an independent SHA-derived seed and exactly eight
    uniform legal actions from the standard initial position. These 256 opening
@@ -160,8 +163,8 @@ This is a proposed protocol, not an instruction to generate states now.
    replace states. If the hard per-bin inventory, distinct opening-cluster,
    constrained-selection, deduplication, or exact quota gate fails, publish
    the shortfall and stop. Do not top up from other stone bins, draw ad hoc
-   seeds, or replace rows; any resampling requires a new preregistration,
-   freeze, and authorization before generation.
+   seeds, or replace rows; any resampling requires a revised registration PR,
+    owner merge, and new freeze before generation.
 6. **Freeze before inference/search:** publish candidate and selected-state
    inventories, complete trajectories, opening/game cluster IDs, legal-action
    sets, stone counts, canonical and float32 identities, seed derivations,
@@ -295,8 +298,9 @@ values.
 
 ## Exact-oracle protocol and feasibility gates
 
-Oracle work requires separate authorization after the model-independent state
-population is frozen. No solver was run for this assessment.
+Oracle work is a later scientific stage and requires its own registration PR
+merged by `useruby` after the model-independent population is frozen. No solver
+was run for this assessment.
 
 - Reuse the authenticated native Kalah exact tablebase/probe used by #559 only
   if an independent audit proves exact compatibility with the canonical rules,
@@ -431,29 +435,31 @@ only.
 
 1. **Review this protocol:** independent review of estimands, game/rule/source
    identity, generation distribution, exclusion contract, and the P-E4
-   limitation. No execution authorized here.
-2. **Prepare a generation/exclusion freeze:** separately authorize deterministic
-   model-independent generation and membership screening only. Bind code,
-   PRNG, seeds, rules, serializers, hash-rank procedures, and protected/training
-   membership snapshots before generation. Stop on missing identities,
-   replay mismatch, or source hashes changing.
+   limitation. No execution is authorized until its registration PR is merged.
+2. **Prepare a generation/exclusion freeze:** the Seed 636 registration PR, when
+   merged by `useruby`, authorizes deterministic model-independent generation
+   and membership screening only. Bind code, PRNG, seeds, rules, serializers,
+   hash-rank procedures, and protected/training membership snapshots before
+   generation. Stop on missing identities, replay mismatch, or source hashes
+   changing.
 3. **Freeze and audit population:** independently replay all trajectories,
    verify canonical and float32 deduplication, reproduce quotas/selection,
    check exposure classifications, and publish inventory. No inference until
    review accepts the unresolved exposure contract and population gates pass.
-4. **Prior classification and diagnostic subset:** separately authorize
-   B512/S615 inference after state freeze. Freeze priors, classes, and selected
-   diagnostic subset before any search. The primary sample remains unchanged.
-5. **Solver calibration:** separate authorization for 20-state feasibility
-   calibration after source/tablebase audit. Pass runtime, resources, exact
-   coverage, determinism, and independent agreement gates before authorizing
-   complete oracle work.
-6. **Oracle freeze:** authorize complete all-legal-action solve and independent
-   verification. Any gaps or disagreement stop the benchmark; no state
-   replacement.
+4. **Prior classification and diagnostic subset:** prepare a separate
+   registration PR for B512/S615 inference after state freeze; owner merge is
+   required before execution. Freeze priors, classes, and selected diagnostic
+   subset before any search. The primary sample remains unchanged.
+5. **Solver calibration:** prepare and merge a separate registration PR for
+   20-state feasibility calibration after source/tablebase audit. Pass runtime,
+   resources, exact coverage, determinism, and independent agreement gates
+   before registering complete oracle work.
+6. **Oracle freeze:** a separate owner-merged registration PR authorizes the
+   complete all-legal-action solve and independent verification. Any gaps or
+   disagreement stop the benchmark; no state replacement.
 7. **Search registration and execution:** only after population, oracle,
-   runtime, routing, analysis code, and resource caps are frozen; separate
-   authorization required. Bind workers and runtime. Search workers remain
+   runtime, routing, analysis code, and resource caps are frozen; a separate
+   owner-merged registration PR is required. Bind workers and runtime. Search workers remain
    one per state/arm; pair-level concurrency and CPU/memory limits must be
    frozen before execution under repository arena policy.
 8. **Independent report/review:** verify from a physical copy, reproduce all

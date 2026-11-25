@@ -32,11 +32,11 @@
   },
   "objective": "Generate and independently verify the Seed 623 prospective benchmark population only; preserve known-exposure-screened classification with inherited P-E4 exposure unresolved.",
   "protocol_documents": {
-    "docs/experiment-execution-protocol.md": "bf9627561397c013b3c7794cadddabe6155d64e03a6ca08a401b40a669251ca5",
-    "docs/seed623-631-execution-contract-amendment.md": "2501ad7fb52d999618e0e76f1d81872385162eeabf6745c82acf33d29cd8c74a",
-    "docs/seed623-prospective-exact-quality-benchmark.md": "dcf2235623b1459a6b46b32eb3c35f921c7b2e8f823915ffbfbf6b00ef1f100b",
+    "docs/experiment-execution-protocol.md": "7ab6ec5fd50b841c8c973c753796b0cd797ea18a297fe506902ef8e4922ddfe0",
+    "docs/seed623-631-execution-contract-amendment.md": "633742139061227f1543ff7c1360f5d8e5b97eafb50a4755b2a7b47afcc033eb",
+    "docs/seed623-prospective-exact-quality-benchmark.md": "f01df9467dfc4a1088796f583551e203f8b045a00498363f4038b3ffac87f400",
     "docs/seed624-estimand-amendment-proposal.md": "52dd4612da6cecf7ae1605d158289f78d44ef12fe3a107f3d937c9b12f95b4d0",
-    "docs/seed636-owner-approval.md": "6e3e36f444c376b32beabd0776af0e5e6478d46a4d93f89a42200b8a248af113"
+    "docs/seed636-owner-approval.md": "8751127686b3740b6ef49d10e32a989b45b68248e59c4c5d30c3b0f5b0972d2a"
   },
   "random_seeds": [
     62320261121

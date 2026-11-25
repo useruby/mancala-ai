@@ -7,7 +7,7 @@ Seed 627 membership snapshots have been authenticated and registered as inputs.
 No production population was generated or frozen; no inference, search, solving,
 or training was performed.
 
-## Active statistical contract and approval gate
+## Statistical contract and authorization status
 
 The active statistical contract in merged PR #625 is the finite 512-state
 selected-population estimand with fixed weight 1/5 for each stone bin. Opening-
@@ -17,10 +17,10 @@ random-generation population is made.
 
 The amendment record is recorded in
 [`seed624-estimand-amendment-proposal.md`](seed624-estimand-amendment-proposal.md).
-The Seed 636 registration PR explicitly includes this amendment, its scientific
-scope, resource budget, acceptance criteria, and stop conditions. Merging that
-registration PR into `main` by `useruby` authorizes the named
-model-independent generation and membership-screening scope.
+The Seed 636 registration PR includes the amendment and binds the named
+population-generation and membership-screening scope. Its authorization becomes
+effective only when `useruby` merges it into `main`, as required by the
+mandatory [`experiment-execution-protocol.md`](experiment-execution-protocol.md).
 
 ## Proposed freeze status
 
@@ -34,19 +34,14 @@ authorized attempt:
   the pinned Seed 627/628 chain. Their source game/opening provenance is
   authenticated but non-crosswalkable; a nonmatch remains unresolved for
   inherited P-E4 exposure.
-- An owner-merged registration PR must bind the exact protocol documents, the
-  `model-independent-generation-and-screening-only` scope, and the registered
-  resource and scientific gates.
 - A standard Seed 635 lifecycle freeze must bind the clean worktree source tree,
   exact command/configuration, inputs, runtime, resource budget, and output paths.
 
-The production entry point verifies the merged PR metadata through `gh api`,
-then checks the owner identity, merge commit/timestamp, committed registration
-digest, protocol blobs, and execution scope using Git objects. It also requires
-the Seed 635 lifecycle runner's frozen and started attempt, current source tree,
-and input identities. Failed attempts are preserved by the lifecycle terminal
-record and attempt directory. The legacy Seed 629 production launch guard is
-unchanged and is not called by this generation path.
+Seed 636 authorization, source and protocol-object checks, the Seed 635 frozen
+and started attempt, and input authentication follow the mandatory execution
+protocol. Failed attempts are preserved by the lifecycle terminal record and
+attempt directory. The legacy Seed 629 production launch guard is unchanged and
+is not called by this generation path.
 
 The privileged Seed 629 supervisor remains disabled and is superseded for
 ordinary experiments by the Seed 635 worktree lifecycle. Its unconditional

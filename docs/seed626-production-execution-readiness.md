@@ -3,6 +3,13 @@
 **Status: preparation only. No production states, games, inference, search,
 solving, or training were run. The freeze remains non-authorized.**
 
+**Protocol note:** this document preserves the production-specific readiness and
+approval record as assessed at the time. Ordinary research experiment
+registration and authorization now follow the mandatory
+[`experiment-execution-protocol.md`](experiment-execution-protocol.md). This
+does not change or waive the privileged Seed 629 production launch guard or its
+separate production requirements.
+
 ## Protocol and owner approval gate
 
 Merged PRs #623–#625 leave the active protocol at a finite selected population

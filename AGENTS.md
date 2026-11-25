@@ -1,5 +1,36 @@
 # AGENTS
 
+## Mandatory experiment execution protocol
+
+All research experiments MUST follow
+[`docs/experiment-execution-protocol.md`](docs/experiment-execution-protocol.md).
+Before planning, implementing, executing, resuming, verifying, publishing, or
+cleaning up an experiment, agents MUST read and follow that document.
+
+This requirement applies to all experiments, including training, self-play,
+evaluation, benchmark generation, exact solving, retrospective diagnostics,
+ablations, and feasibility studies.
+
+Agents MUST NOT:
+
+- Execute experiments directly from the main checkout.
+- Execute an experiment without its registration PR being merged by the project
+  owner.
+- Modify frozen experiment parameters after observing results.
+- Overwrite previous attempt artifacts.
+- Perform unauthorized retries.
+- Delete worktrees containing unpublished or unarchived experiment artifacts.
+- Merge their own experiment PRs.
+- Bypass the protocol for small or inexpensive experiments.
+
+An experiment-specific instruction may add scientific requirements but MUST NOT
+weaken the standard execution protocol. If the protocol cannot be followed,
+stop and report the concrete blocker. Do not silently bypass it or invent
+alternative infrastructure.
+
+Ordinary unit tests and synthetic implementation regression tests are not
+research experiments and do not require experiment registration.
+
 ## Arena Execution
 
 - Run arena opening pairs with 18-way pair-level parallelism by default, using the registered CPU and memory limits for the experiment. Keep the search worker count inside each game at the preregistered value (normally one); pair-level concurrency must not silently change per-game search semantics.

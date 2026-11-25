@@ -59,26 +59,18 @@ The privileged Seed 629 execution path remains disabled and is superseded for
 ordinary research experiments by the Seed 635 worktree lifecycle. Its
 unconditional guard remains intact for its historical protected workload.
 
-## Migration path after owner approval
+## Current execution contract
 
-1. Record the scientific protocol, exact document/input identities, scope,
-   resource budget, and acceptance/stop rules in a prospective registration.
-2. Prepare a Seed 623 experiment worktree from the registered base commit and
-   preserve its proposed registration. Do not generate states yet.
-3. Authenticate the exact required inputs, checkpoints, rules and solver
-   identities; validate the complete input/cohort freeze and independent
-   verifier before authorizing any next stage.
-4. Merge the registration PR as project owner. Verify merge metadata and
-   committed registration/protocol blobs, then freeze the stage's source commit,
-   command, parameters, resources, and acceptance rules in the attempt manifest.
-5. Execute only that authorized stage; preserve every failure as a distinct
-   attempt; verify independently; archive large artifacts and publish the
-   report, verifier, results and archive receipt through a PR.
-6. Advance to inference, calibration, full oracle work, or search only after the
-   original Seed 623 stage-specific acceptance and approval gates are met.
+All experiment worktree, registration PR, independent review, owner-merge
+authorization, freeze, execution, verification, archive, results publication,
+and cleanup requirements are defined by the mandatory
+[`experiment-execution-protocol.md`](experiment-execution-protocol.md). This
+amendment adds Seed 623 scientific requirements only; it does not define a
+separate approval-comment mechanism or weaken the common lifecycle.
 
-Until the relevant registration PR is merged by `useruby`, that experiment stage
-remains unexecuted. Execution verifies the PR number, merge commit, merged-by
-identity, merge timestamp, registration digest, scope, and protocol blobs from
-GitHub metadata and committed Git objects. This amendment makes no scientific
-claim and does not qualify a production supervisor.
+The Seed 636 registration PR approves the finite-cohort estimand, this
+worktree-based execution contract, the inherited P-E4 limitation, and the
+model-independent generation/screening scope. Later Seed 623 inference,
+calibration, exact solving, or search work requires its own registration and
+owner-merged authorization under the common protocol. This amendment makes no
+scientific result claim and does not qualify a production supervisor.
