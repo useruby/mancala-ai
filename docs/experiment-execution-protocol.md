@@ -59,7 +59,7 @@ its declared amendment procedure.
 
 | Stage | Required inputs and responsible person | Durable outputs | Failure behavior |
 |---|---|---|---|
-| 1. Register and approve | Owner/researcher states hypothesis, objective, type, estimand, cohort, exclusions, acceptance/stop rules, seeds, resource budget, required inputs, and artifact-retention class. Owner records explicit execution authorization. | `registration.json`, approvals/authorization reference, protocol version. | No worktree workload execution before approval. Ambiguity or missing provenance blocks registration. |
+| 1. Register and approve | Owner/researcher states hypothesis, objective, type, estimand, cohort, exclusions, acceptance/stop rules, seeds, resource budget, required inputs, and artifact-retention class. For ordinary experiments, a registration PR merged into `main` by repository owner `useruby` is execution authorization for exactly its declared scope. | `registration.json`, protocol version, and authorization receipt derived from merged PR metadata/Git objects. | No worktree workload execution before the registration PR is merged by the owner. Ambiguity or missing provenance blocks registration. |
 | 2. Create worktree | Operator supplies repository, unique experiment ID/branch, exact base commit, registration, and input hashes. | Dedicated branch/worktree, `.experiment/registration.json`, pinned `.experiment/base-commit.json`, standard ignored `.experiment/runtime/attempts/`. | Existing experiment ID, branch, or path is a hard collision. Never reuse a different worktree or silently retarget the base. |
 | 3. Implement and regress | Implementer uses only that worktree, runs applicable tests/lint, commits implementation and registration. | Focused commits, tests, implementation and verification source. | Failed checks block freeze. Do not implement from or execute in the main checkout. |
 | 4. Authenticate inputs | Experiment owner/verifier checks every input, checkpoint, cohort, rules/tablebase, dataset, and prior receipt with the relevant experiment-specific verifier and SHA-256. | Authenticated input inventory and receipts referenced by registration/freeze. | Missing, changed, ambiguous, or unavailable identity stops before workload. |
@@ -136,7 +136,6 @@ The registration input is JSON with these required fields:
   "experiment_type": "retrospective_diagnostic",
   "hypothesis": "State the falsifiable hypothesis.",
   "objective": "Name the primary question and estimand.",
-  "authorization_reference": "owner-approved issue or decision record",
   "random_seeds": [63501],
   "input_artifacts": {"/trusted/input.json": "<64-character-sha256>"},
   "checkpoint_identity": null,
@@ -242,21 +241,20 @@ current attempt files. External archives and registry history are retained.
 
 ### GitHub project-owner authorization
 
-For ordinary research experiments in `useruby/mancala-ai`, the accepted owner
-authorization is an explicit GitHub comment by repository owner `useruby` on an
-issue or pull request. The auditable record includes the GitHub login, comment
-URL and server timestamp, exact approved protocol revision and document
-SHA-256s, execution scope, and SHA-256 of the committed experiment registration.
-The comment text must bind all of those fields. The experiment-specific entry
-point retrieves the comment through GitHub's API and rejects a mismatched author,
-URL, timestamp, body, registration, protocol identity, or scope. A PR merge,
-review-request, or unrelated approval comment is not authorization.
+For ordinary research experiments in `useruby/mancala-ai`, a registration PR
+merged into `main` by repository owner `useruby` is sufficient authorization.
+The PR must contain the experiment registration, execution scope, scientific
+protocol, resource budgets, acceptance criteria, and stop conditions. Execution
+code obtains PR metadata from GitHub and checks the registration and protocol
+blobs in the merge commit using Git objects. It automatically records the PR
+number, merge commit, merged-by identity, merge timestamp, and registration
+digest in the execution evidence. No separate comment, manually authored
+approval JSON, copied hash, or authorization reference is required.
 
-The authorization record belongs in the experiment registration/worktree and is
-carried into the execution evidence. It authorizes only the named experiment
-scope; each later scientifically gated stage requires its own explicit owner
-authorization. This ordinary research mechanism does not authorize or modify
-Seed 629 privileged production launches.
+Authorization applies only to the scope declared in the merged registration.
+Each later scientifically gated stage requires its own registration PR merged by
+the owner. This ordinary research mechanism does not authorize or modify Seed
+629 privileged production launches.
 
 Every experiment PR reports (a) registered hypotheses and estimands, (b)
 observations with evidence links, (c) acceptance criteria and whether each
@@ -267,6 +265,7 @@ passing regression suite is not a positive scientific result.
 
 Training, evaluation, self-play, retrospective diagnostics, exact solving, and
 benchmarks all use this common lifecycle but retain their own domain-specific
-preregistration and verification. Explicit owner authorization is required at
-the scientific gates relevant to each study. Nothing here authorizes Seed 623,
-generation, inference, search, exact solving, training, or evaluation games.
+preregistration and verification. Owner-merged registration is required at the
+scientific gates relevant to each study. A Seed 636 registration authorizes only
+its named population-generation and membership-screening scope, not inference,
+search, exact solving, training, or evaluation games.

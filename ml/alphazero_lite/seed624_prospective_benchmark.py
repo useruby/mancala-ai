@@ -1040,7 +1040,7 @@ def _select_cohort_bounded(candidates: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def generate_population(authorization: dict[str, Any], output: Path) -> dict[str, Any]:
-    """Generate only from a GitHub-approved, frozen lifecycle attempt."""
+    """Generate only from a frozen attempt with an owner-merged registration PR."""
     from ml.alphazero_lite.seed636_authorization import validate_attempt
 
     attempt_dir = Path(authorization.get("attempt_dir", ""))
@@ -1057,8 +1057,8 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
     if not isinstance(freeze, dict):
         raise PermissionError("seed624_generation_configuration_missing")
     freeze_raw = canonical_bytes(freeze)
-    approval_record = evidence["approval"]
-    owner_identity = approval_record["project_owner_identity"]
+    registration_pr_authorization = evidence["authorization"]
+    owner_identity = registration_pr_authorization["merged_by"]
     attempt_manifest_raw = (attempt_dir / "manifest.json").read_bytes()
     lifecycle_auth = {
         "attempt_manifest_sha256": sha256(attempt_manifest_raw),
@@ -1091,6 +1091,19 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
     )
     resource_values = (
         production_resources if isinstance(production_resources, dict) else {}
+    )
+    registered_budget = evidence["registration"].get("resource_budgets", {})
+    registered_resources_match = (
+        resource_values.get("wall_seconds")
+        == registered_budget.get("wall_time_limit_seconds")
+        and resource_values.get("cpu_seconds")
+        == registered_budget.get("cpu_time_limit_seconds")
+        and resource_values.get("process_rss_bytes")
+        == registered_budget.get("process_rss_limit_bytes")
+        and resource_values.get("execution_concurrency")
+        == registered_budget.get("execution_concurrency")
+        and resource_values.get("output_and_temporary_storage_bytes")
+        == registered_budget.get("output_and_temporary_storage_limit_bytes")
     )
     lifecycle_budget = manifest.get("resource_budget", {})
     additional_limits = lifecycle_budget.get("additional_limits", {})
@@ -1154,6 +1167,7 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
             "workers": 1,
         }
         or not resource_bindings_match
+        or not registered_resources_match
         or freeze.get("sampling_contract")
         != "deterministic standardized selected-state population; fixed 1/5 weights per stone bin; no design-unbiased inference or inclusion-probability claim"
         or freeze.get("stone_bin_weights") != STONE_BIN_WEIGHTS
@@ -1335,9 +1349,9 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
         "schema": SCHEMA,
         "authorization": {
             "project_owner_identity": owner_identity,
+            "registration_pr_authorization": registration_pr_authorization,
             "execution_freeze_sha256": sha256(freeze_raw),
             "execution_freeze_raw_utf8": freeze_raw.decode("utf-8"),
-            "owner_approval_record": approval_record,
             "lifecycle": lifecycle_auth,
         },
         "generation": {
@@ -1488,11 +1502,11 @@ def proposed_freeze_schema() -> dict[str, Any]:
                 "python -m unittest ml.alphazero_lite.test_seed624_prospective_benchmark",
             ],
             "execution_scope": EXECUTION_SCOPE,
-            "approval_requirements": {
+            "authorization_requirements": {
+                "contract": "seed636-registration-pr-authorization-v1",
+                "repository": "useruby/mancala-ai",
                 "project_owner_identity": "useruby",
-                "github_approval_comment_url": None,
-                "approved_protocol_revision": None,
-                "protocol_document_sha256": None,
+                "registration_pr_merged_into": "main",
                 "execution_scope": EXECUTION_SCOPE,
                 "registration_sha256": None,
             },

@@ -1,20 +1,18 @@
-"""GitHub-owner authorization for Seed 636 research execution."""
+"""Verify Seed 636 authorization from a project-owner-merged registration PR."""
 
 from __future__ import annotations
 
 import hashlib
 import json
-import re
 import subprocess
-from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
-SCHEMA = "seed636-github-owner-approval-v1"
+SCHEMA = "seed636-registration-pr-authorization-v1"
 REPOSITORY = "useruby/mancala-ai"
 PROJECT_OWNER = "useruby"
 EXECUTION_SCOPE = "model-independent-generation-and-screening-only"
-APPROVAL_MARKER = "SEED636-APPROVAL-V1"
+EXPERIMENT_ID = "seed636-prospective-population"
 APPROVED_DECISIONS = [
     "seed625-finite-cohort-estimand-amendment",
     "seed635-worktree-execution-contract-amendment",
@@ -26,15 +24,12 @@ REQUIRED_PROTOCOL_DOCUMENTS = {
     "docs/seed623-prospective-exact-quality-benchmark.md",
     "docs/seed623-631-execution-contract-amendment.md",
     "docs/experiment-execution-protocol.md",
+    "docs/seed636-owner-approval.md",
 }
 
 
 def sha256(raw: bytes) -> str:
     return hashlib.sha256(raw).hexdigest()
-
-
-def canonical_bytes(value: Any) -> bytes:
-    return json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
 
 
 def _git_bytes(root: Path, *args: str) -> bytes:
@@ -45,164 +40,158 @@ def _git_bytes(root: Path, *args: str) -> bytes:
     ).stdout
 
 
-def fetch_github_comment(comment_id: str) -> dict[str, Any]:
-    """Fetch the authoritative GitHub issue-comment record using the gh CLI."""
+def _github_json(endpoint: str) -> Any:
     result = subprocess.run(
-        ["gh", "api", f"repos/{REPOSITORY}/issues/comments/{comment_id}"],
-        check=True,
-        capture_output=True,
-        text=True,
+        ["gh", "api", endpoint], check=True, capture_output=True, text=True
     )
-    value = json.loads(result.stdout)
-    if not isinstance(value, dict):
-        raise ValueError("github_approval_comment_record_invalid")
-    return value
+    return json.loads(result.stdout)
 
 
-def validate_approval(
+def _validate_registration(registration: dict[str, Any]) -> None:
+    if (
+        registration.get("schema") != "mancala-experiment-registration-v1"
+        or registration.get("experiment_id") != EXPERIMENT_ID
+        or registration.get("execution_scope") != EXECUTION_SCOPE
+        or registration.get("authorization_contract") != SCHEMA
+        or registration.get("random_seeds") != [62320261121]
+        or registration.get("approved_decisions") != APPROVED_DECISIONS
+        or not REQUIRED_PROTOCOL_DOCUMENTS.issubset(
+            registration.get("protocol_documents", {})
+        )
+    ):
+        raise PermissionError("merged_registration_scope_or_protocol_invalid")
+
+    budgets = registration.get("resource_budgets", {})
+    if (
+        not budgets
+        or any(type(value) is not int or value <= 0 for value in budgets.values())
+        or budgets.get("execution_concurrency") != 1
+        or budgets.get("selection_optimizer_workers") != 1
+    ):
+        raise PermissionError("merged_registration_resource_budget_invalid")
+
+    criteria = registration.get("scientific_acceptance", {})
+    if (
+        criteria.get("openings") != 256
+        or criteria.get("continuation_games") != 2048
+        or criteria.get("selected_states") != 512
+        or criteria.get("stone_bin_quotas")
+        != {"17": 103, "18": 103, "19": 102, "20": 102, "21": 102}
+        or criteria.get("minimum_eligible_candidate_supply")
+        != {"17": 206, "18": 206, "19": 204, "20": 204, "21": 204}
+        or criteria.get("minimum_distinct_opening_clusters") != 128
+        or criteria.get("max_states_per_opening") != 4
+        or criteria.get("max_states_per_continuation_game") != 2
+        or criteria.get("deduplication")
+        != ["canonical_state", "production_float32_input"]
+        or criteria.get("authenticated_known_exposure_screening") is not True
+        or criteria.get(
+            "no_inference_mcts_exact_solving_tablebase_probes_training_or_promotion"
+        )
+        is not True
+        or criteria.get("exposure_classification")
+        != "known-exposure-screened; inherited P-E4 exposure unresolved"
+        or criteria.get("independent_reproduction_required") is not True
+        or criteria.get("failure_policy")
+        != "preserve_evidence_and_stop_without_parameter_change_or_automatic_retry"
+    ):
+        raise PermissionError("merged_registration_scientific_criteria_invalid")
+
+
+def authorize_registration(
     registration_path: Path,
-    approval_path: Path,
+    source_commit: str,
     *,
-    comment_fetcher=fetch_github_comment,
-) -> tuple[dict[str, Any], dict[str, Any]]:
-    """Verify approval identity, scope, documents and registration binding."""
+    associated_prs: list[dict[str, Any]] | None = None,
+    pr_fetcher: Callable[[int], dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Return a create-time receipt for the unique owner-merged registration PR."""
     if registration_path.is_symlink() or not registration_path.is_file():
         raise PermissionError("experiment_registration_file_invalid")
+    repository_root = registration_path.resolve().parents[1]
     registration_raw = registration_path.read_bytes()
     registration = json.loads(registration_raw)
-    if approval_path.is_symlink() or not approval_path.is_file():
-        raise PermissionError("github_owner_approval_missing_or_invalid")
-    approval = json.loads(approval_path.read_bytes())
-    if approval.get("schema") != SCHEMA:
-        raise PermissionError("github_owner_approval_missing_or_invalid")
-    if approval.get("project_owner_identity") != PROJECT_OWNER:
-        raise PermissionError("github_project_owner_identity_mismatch")
-    if approval.get("execution_scope") != EXECUTION_SCOPE:
-        raise PermissionError("github_approval_execution_scope_mismatch")
-    if approval.get("experiment_id") != registration.get("experiment_id"):
-        raise PermissionError("github_approval_experiment_identity_mismatch")
-    if approval.get("registration_sha256") != sha256(registration_raw):
-        raise PermissionError("github_approval_registration_identity_mismatch")
-    if approval.get("approved_protocol_revision") != registration.get(
-        "approved_protocol_revision"
-    ):
-        raise PermissionError("github_approval_protocol_revision_mismatch")
-    approved_revision = str(approval.get("approved_protocol_revision", ""))
-    if approved_revision != registration.get("base_commit"):
-        raise PermissionError("github_approval_protocol_revision_not_base_commit")
-    if not re.fullmatch(r"[0-9a-f]{40,64}", approved_revision):
-        raise PermissionError("github_approval_protocol_revision_invalid")
-    if approval.get("protocol_documents") != registration.get("protocol_documents"):
-        raise PermissionError("github_approval_protocol_document_mismatch")
-    if (
-        registration.get("approved_decisions") != APPROVED_DECISIONS
-        or approval.get("approved_decisions") != APPROVED_DECISIONS
-    ):
-        raise PermissionError("github_approval_decision_scope_mismatch")
-    if (
-        not isinstance(approval.get("protocol_documents"), dict)
-        or not approval["protocol_documents"]
-    ):
-        raise PermissionError("github_approval_protocol_documents_missing")
-    if not REQUIRED_PROTOCOL_DOCUMENTS.issubset(approval["protocol_documents"]):
-        raise PermissionError("github_approval_protocol_documents_incomplete")
-    try:
-        resolved_revision = (
-            _git_bytes(
-                registration_path.resolve().parents[1],
-                "rev-parse",
-                "--verify",
-                f"{approved_revision}^{{commit}}",
-            )
-            .decode()
-            .strip()
+    _validate_registration(registration)
+    registration_digest = sha256(registration_raw)
+
+    resolved_commit = (
+        _git_bytes(
+            repository_root, "rev-parse", "--verify", f"{source_commit}^{{commit}}"
         )
-    except subprocess.CalledProcessError as error:
-        raise PermissionError("github_approval_protocol_revision_missing") from error
-    if resolved_revision != approved_revision:
-        raise PermissionError("github_approval_protocol_revision_not_canonical")
-    repository_root = registration_path.resolve().parents[1]
-    for name, digest in approval["protocol_documents"].items():
-        document_path = repository_root / name
-        document = document_path.resolve(strict=True)
-        if name.startswith("/") or ".." in Path(name).parts:
-            raise PermissionError("github_approval_protocol_document_path_invalid")
-        try:
-            approved_blob = _git_bytes(
-                repository_root, "show", f"{approved_revision}:{name}"
-            )
-        except subprocess.CalledProcessError as error:
-            raise PermissionError(
-                "github_approval_protocol_document_missing_at_revision"
-            ) from error
-        if (
-            document_path.is_symlink()
-            or not document.is_relative_to(repository_root)
-            or sha256(approved_blob) != digest
-            or document.read_bytes() != approved_blob
-        ):
-            raise PermissionError("github_approval_protocol_document_hash_mismatch")
-    url = approval.get("approval_url")
-    match = re.fullmatch(
-        r"https://github\.com/useruby/mancala-ai/(?:issues|pull)/(\d+)#issuecomment-(\d+)",
-        str(url),
+        .decode()
+        .strip()
     )
-    if not match:
-        raise PermissionError("github_approval_comment_url_invalid")
-    comment = comment_fetcher(match.group(2))
-    try:
-        comment_id = int(match.group(2))
-    except ValueError as error:
-        raise PermissionError("github_approval_comment_url_invalid") from error
-    if comment.get("id") != comment_id:
-        raise PermissionError("github_approval_comment_identity_mismatch")
-    expected_body = {
-        "marker": APPROVAL_MARKER,
-        "experiment_id": registration["experiment_id"],
-        "registration_sha256": sha256(registration_raw),
-        "approved_protocol_revision": registration["approved_protocol_revision"],
-        "protocol_documents": registration["protocol_documents"],
-        "approved_decisions": APPROVED_DECISIONS,
-        "execution_scope": EXECUTION_SCOPE,
-    }
-    body = str(comment.get("body", ""))
-    prefix = APPROVAL_MARKER + "\n"
-    if not body.startswith(prefix):
-        raise PermissionError("github_approval_comment_text_invalid")
-    try:
-        body_record = json.loads(body[len(prefix) :])
-    except json.JSONDecodeError as error:
-        raise PermissionError("github_approval_comment_text_invalid") from error
-    if body_record != expected_body:
-        raise PermissionError("github_approval_comment_binding_mismatch")
-    if comment.get("user", {}).get("login") != PROJECT_OWNER:
-        raise PermissionError("github_approval_comment_author_mismatch")
-    if comment.get("html_url") != url:
-        raise PermissionError("github_approval_comment_url_mismatch")
-    if comment.get("created_at") != approval.get("approval_timestamp"):
-        raise PermissionError("github_approval_timestamp_mismatch")
-    try:
-        parsed_timestamp = datetime.fromisoformat(
-            str(approval["approval_timestamp"]).replace("Z", "+00:00")
+    if resolved_commit != source_commit:
+        raise PermissionError("registration_pr_source_commit_invalid")
+
+    candidate_prs = associated_prs
+    if candidate_prs is None:
+        candidate_prs = _github_json(
+            f"repos/{REPOSITORY}/commits/{source_commit}/pulls"
         )
-    except (KeyError, ValueError) as error:
-        raise PermissionError("github_approval_timestamp_invalid") from error
-    if parsed_timestamp.tzinfo is None:
-        raise PermissionError("github_approval_timestamp_invalid")
-    approval["github_comment_evidence"] = {
-        "id": comment.get("id"),
-        "author": comment.get("user", {}).get("login"),
-        "created_at": comment.get("created_at"),
-        "html_url": comment.get("html_url"),
-        "body": body,
+    fetch_pr = pr_fetcher or (
+        lambda number: _github_json(f"repos/{REPOSITORY}/pulls/{number}")
+    )
+
+    matches: list[dict[str, Any]] = []
+    for association in candidate_prs:
+        number = association.get("number")
+        if type(number) is not int:
+            continue
+        pull = fetch_pr(number)
+        base = pull.get("base", {})
+        merge_commit = pull.get("merge_commit_sha")
+        if (
+            pull.get("number") != number
+            or pull.get("state") != "closed"
+            or not pull.get("merged_at")
+            or pull.get("merged_by", {}).get("login") != PROJECT_OWNER
+            or base.get("ref") != "main"
+            or base.get("repo", {}).get("full_name") != REPOSITORY
+            or merge_commit != source_commit
+        ):
+            continue
+        try:
+            committed_registration = _git_bytes(
+                repository_root,
+                "show",
+                f"{merge_commit}:.experiment/registration.json",
+            )
+        except subprocess.CalledProcessError:
+            continue
+        if committed_registration != registration_raw:
+            continue
+        for path, expected in registration["protocol_documents"].items():
+            if path.startswith("/") or ".." in Path(path).parts:
+                raise PermissionError("registration_protocol_path_invalid")
+            try:
+                blob = _git_bytes(repository_root, "show", f"{merge_commit}:{path}")
+            except subprocess.CalledProcessError as error:
+                raise PermissionError("registration_protocol_blob_missing") from error
+            if sha256(blob) != expected:
+                raise PermissionError("registration_protocol_blob_hash_mismatch")
+        matches.append(pull)
+
+    if len(matches) != 1:
+        raise PermissionError("owner_merged_registration_pr_not_unique")
+    pull = matches[0]
+    return {
+        "schema": SCHEMA,
+        "repository": REPOSITORY,
+        "experiment_id": EXPERIMENT_ID,
+        "execution_scope": EXECUTION_SCOPE,
+        "approved_decisions": APPROVED_DECISIONS,
+        "registration_sha256": registration_digest,
+        "pr_number": pull["number"],
+        "pr_url": pull["html_url"],
+        "merge_commit": pull["merge_commit_sha"],
+        "merged_by": pull["merged_by"]["login"],
+        "merge_timestamp": pull["merged_at"],
     }
-    return registration, approval
 
 
-def validate_attempt(
-    attempt_dir: Path, *, comment_fetcher=fetch_github_comment
-) -> tuple[dict[str, Any], dict[str, Any]]:
-    """Require lifecycle execution context and verify the frozen argv binding."""
+def validate_attempt(attempt_dir: Path) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Require a frozen lifecycle attempt and verify its merged registration PR."""
     attempt_dir = attempt_dir.resolve(strict=True)
     manifest_path = attempt_dir / "manifest.json"
     started_path = attempt_dir / "started.json"
@@ -224,43 +213,36 @@ def validate_attempt(
         raise PermissionError("lifecycle_attempt_path_binding_mismatch")
     if (
         manifest.get("status") != "frozen"
-        or manifest.get("experiment_id") != "seed636-prospective-population"
+        or manifest.get("experiment_id") != EXPERIMENT_ID
     ):
         raise PermissionError("lifecycle_attempt_identity_mismatch")
-    command = manifest.get("command", [])
-    if not any("seed624_prospective_benchmark" in item for item in command):
+    if not any(
+        "seed624_prospective_benchmark" in item for item in manifest.get("command", [])
+    ):
         raise PermissionError("lifecycle_command_binding_mismatch")
+
     registration_path = worktree / ".experiment" / "registration.json"
-    approval_path = worktree / ".experiment" / "seed636-owner-approval.json"
-    registration, approval = validate_approval(
-        registration_path, approval_path, comment_fetcher=comment_fetcher
-    )
+    registration = json.loads(registration_path.read_bytes())
     from ml.alphazero_lite.experiment_lifecycle import (
         _validate_experiment_worktree,
+        artifact_sha256,
     )
 
     registered_worktree = _validate_experiment_worktree(worktree)
-    if registered_worktree.get("experiment_id") != registration.get("experiment_id"):
+    if registered_worktree.get("experiment_id") != EXPERIMENT_ID:
         raise PermissionError("lifecycle_worktree_registration_mismatch")
-    try:
-        _git(
-            worktree,
-            "ls-files",
-            "--error-unmatch",
-            ".experiment/seed636-owner-approval.json",
-        )
-    except subprocess.CalledProcessError as error:
-        raise PermissionError("lifecycle_approval_record_not_committed") from error
-    if manifest.get("source_commit") != _git(worktree, "rev-parse", "HEAD"):
-        raise PermissionError("lifecycle_source_commit_mismatch")
-    if manifest.get("execution_source_identity") != _git(
+    registration_digest = sha256(registration_path.read_bytes())
+    if manifest.get("source_commit") != _git(
+        worktree, "rev-parse", "HEAD"
+    ) or manifest.get("execution_source_identity") != _git(
         worktree, "rev-parse", "HEAD^{tree}"
     ):
-        raise PermissionError("lifecycle_source_tree_mismatch")
+        raise PermissionError("lifecycle_source_commit_or_tree_mismatch")
     if manifest.get("configuration", {}).get("execution_scope") != EXECUTION_SCOPE:
         raise PermissionError("lifecycle_configuration_scope_mismatch")
-    if manifest.get("configuration", {}).get("registration_sha256") != sha256(
-        registration_path.read_bytes()
+    if (
+        manifest.get("configuration", {}).get("registration_sha256")
+        != registration_digest
     ):
         raise PermissionError("lifecycle_registration_identity_mismatch")
     registered_inputs = {
@@ -271,16 +253,14 @@ def validate_attempt(
         raise PermissionError("lifecycle_input_registration_mismatch")
     if _git(worktree, "status", "--porcelain", "--untracked-files=all"):
         raise PermissionError("lifecycle_source_worktree_dirty")
-    from ml.alphazero_lite.experiment_lifecycle import artifact_sha256
-
     for raw_path, expected in manifest.get("input_artifacts", {}).items():
         if artifact_sha256(Path(raw_path)) != expected:
             raise PermissionError("lifecycle_input_identity_mismatch")
-    if not manifest.get("output_paths"):
-        raise PermissionError("lifecycle_output_paths_missing")
-    if manifest.get("worker_count") != 1:
-        raise PermissionError("lifecycle_worker_count_mismatch")
-    return manifest, {"registration": registration, "approval": approval}
+    if not manifest.get("output_paths") or manifest.get("worker_count") != 1:
+        raise PermissionError("lifecycle_output_or_worker_binding_invalid")
+
+    receipt = authorize_registration(registration_path, manifest["source_commit"])
+    return manifest, {"registration": registration, "authorization": receipt}
 
 
 def _git(root: Path, *args: str) -> str:

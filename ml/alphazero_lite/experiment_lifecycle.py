@@ -116,7 +116,7 @@ def create_worktree(
     hypothesis: str,
     objective: str,
     experiment_type: str,
-    authorization_reference: str,
+    authorization_reference: str | None = None,
     random_seeds: list[int],
     input_artifacts: dict[str, str],
     checkpoint_identity: dict[str, str] | None,
@@ -128,12 +128,12 @@ def create_worktree(
     experiment_id = _safe_identity(experiment_id, "experiment_id")
     if any(
         not isinstance(value, str) or not value.strip()
-        for value in (
-            branch,
-            hypothesis,
-            objective,
-            experiment_type,
-            authorization_reference,
+        for value in (branch, hypothesis, objective, experiment_type)
+    ) or (
+        authorization_reference is not None
+        and (
+            not isinstance(authorization_reference, str)
+            or not authorization_reference.strip()
         )
     ):
         raise ValueError("experiment_registration_text_fields_required")
@@ -1366,7 +1366,7 @@ def main() -> None:
             hypothesis=spec["hypothesis"],
             objective=spec["objective"],
             experiment_type=spec["experiment_type"],
-            authorization_reference=spec["authorization_reference"],
+            authorization_reference=spec.get("authorization_reference"),
             random_seeds=spec["random_seeds"],
             input_artifacts=spec["input_artifacts"],
             checkpoint_identity=spec.get("checkpoint_identity"),

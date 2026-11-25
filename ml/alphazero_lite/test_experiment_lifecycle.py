@@ -48,7 +48,7 @@ class ExperimentLifecycleTests(unittest.TestCase):
             hypothesis="The deterministic fixture emits its registered result.",
             objective="Exercise process and artifact lifecycle only.",
             experiment_type="synthetic_lifecycle_test",
-            authorization_reference="test-owner-approval:synthetic-only",
+            authorization_reference=None,
             random_seeds=[17],
             input_artifacts={
                 str(self.input_path): hashlib.sha256(
@@ -70,6 +70,7 @@ class ExperimentLifecycleTests(unittest.TestCase):
         )
         self.assertEqual(registration["approved_protocol_revision"], self.base_commit)
         self.assertEqual(registration["approved_decisions"], ["synthetic-only"])
+        self.assertIsNone(registration["authorization_reference"])
         self._git_at(
             self.worktree,
             "add",

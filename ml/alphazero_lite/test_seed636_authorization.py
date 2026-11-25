@@ -1,4 +1,4 @@
-"""Synthetic checks for Seed 636 GitHub approval and lifecycle bindings."""
+"""Synthetic checks for Seed 636 merged-registration authorization."""
 
 from __future__ import annotations
 
@@ -10,17 +10,19 @@ from pathlib import Path
 from unittest.mock import patch
 
 from ml.alphazero_lite import seed636_authorization as authorization
+from ml.alphazero_lite import verify_seed624_prospective_benchmark as verifier
 
 
-class Seed636AuthorizationTests(unittest.TestCase):
-    def _fixture(self, root: Path) -> tuple[Path, Path, dict, dict]:
+class Seed636RegistrationAuthorizationTests(unittest.TestCase):
+    def _fixture(self, root: Path) -> tuple[Path, str, dict, dict]:
         subprocess.run(
             ["git", "-C", str(root), "init", "-b", "main"],
             check=True,
             capture_output=True,
         )
         subprocess.run(
-            ["git", "-C", str(root), "config", "user.name", "Seed636 test"], check=True
+            ["git", "-C", str(root), "config", "user.name", "Seed636 test"],
+            check=True,
         )
         subprocess.run(
             [
@@ -33,367 +35,192 @@ class Seed636AuthorizationTests(unittest.TestCase):
             ],
             check=True,
         )
-        experiment_dir = root / ".experiment"
-        experiment_dir.mkdir()
-        document_names = sorted(authorization.REQUIRED_PROTOCOL_DOCUMENTS)
-        documents = {}
-        for name in document_names:
-            document = root / name
-            document.parent.mkdir(parents=True, exist_ok=True)
-            document.write_text("approved protocol\n")
-            documents[name] = authorization.sha256(document.read_bytes())
-        subprocess.run(["git", "-C", str(root), "add", "docs"], check=True)
+
+        docs = {}
+        for name in sorted(authorization.REQUIRED_PROTOCOL_DOCUMENTS):
+            path = root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(f"pinned protocol: {name}\n")
+            docs[name] = authorization.sha256(path.read_bytes())
+
+        registration = {
+            "schema": "mancala-experiment-registration-v1",
+            "experiment_id": authorization.EXPERIMENT_ID,
+            "authorization_contract": authorization.SCHEMA,
+            "execution_scope": authorization.EXECUTION_SCOPE,
+            "random_seeds": [62320261121],
+            "approved_decisions": authorization.APPROVED_DECISIONS,
+            "protocol_documents": docs,
+            "resource_budgets": {
+                "wall_time_limit_seconds": 14400,
+                "cpu_time_limit_seconds": 10800,
+                "process_rss_limit_bytes": 17179869184,
+                "output_and_temporary_storage_limit_bytes": 21474836480,
+                "execution_concurrency": 1,
+                "selection_optimizer_workers": 1,
+            },
+            "scientific_acceptance": {
+                "openings": 256,
+                "continuation_games": 2048,
+                "selected_states": 512,
+                "stone_bin_quotas": {
+                    "17": 103,
+                    "18": 103,
+                    "19": 102,
+                    "20": 102,
+                    "21": 102,
+                },
+                "minimum_eligible_candidate_supply": {
+                    "17": 206,
+                    "18": 206,
+                    "19": 204,
+                    "20": 204,
+                    "21": 204,
+                },
+                "minimum_distinct_opening_clusters": 128,
+                "max_states_per_opening": 4,
+                "max_states_per_continuation_game": 2,
+                "exposure_classification": "known-exposure-screened; inherited P-E4 exposure unresolved",
+                "deduplication": ["canonical_state", "production_float32_input"],
+                "authenticated_known_exposure_screening": True,
+                "independent_reproduction_required": True,
+                "no_inference_mcts_exact_solving_tablebase_probes_training_or_promotion": True,
+                "failure_policy": "preserve_evidence_and_stop_without_parameter_change_or_automatic_retry",
+            },
+        }
+        registration_path = root / ".experiment/registration.json"
+        registration_path.parent.mkdir(parents=True, exist_ok=True)
+        registration_path.write_text(json.dumps(registration, sort_keys=True) + "\n")
         subprocess.run(
-            ["git", "-C", str(root), "commit", "-m", "approved protocol fixture"],
+            ["git", "-C", str(root), "add", "."], check=True, capture_output=True
+        )
+        subprocess.run(
+            ["git", "-C", str(root), "commit", "-m", "merge registered experiment"],
             check=True,
             capture_output=True,
         )
-        revision = subprocess.run(
+        merge_commit = subprocess.run(
             ["git", "-C", str(root), "rev-parse", "HEAD"],
             check=True,
             capture_output=True,
             text=True,
         ).stdout.strip()
-        input_path = root / "registered-input.json"
-        input_path.write_text('{"input":true}\n')
-        protocol_documents = documents
-        registration = {
-            "experiment_id": "seed636-prospective-population",
-            "base_commit": revision,
-            "approved_protocol_revision": revision,
-            "protocol_documents": protocol_documents,
-            "input_artifacts": {
-                str(input_path): authorization.sha256(input_path.read_bytes())
-            },
-            "approved_decisions": authorization.APPROVED_DECISIONS,
+        digest = authorization.sha256(registration_path.read_bytes())
+        pull = {
+            "number": 84,
+            "state": "closed",
+            "merged_at": "2026-11-25T12:30:00Z",
+            "merged_by": {"login": "useruby"},
+            "base": {"ref": "main", "repo": {"full_name": "useruby/mancala-ai"}},
+            "merge_commit_sha": merge_commit,
+            "html_url": "https://github.com/useruby/mancala-ai/pull/84",
         }
-        registration_path = experiment_dir / "registration.json"
-        registration_raw = json.dumps(registration, sort_keys=True).encode()
-        registration_path.write_bytes(registration_raw)
-        body_record = {
-            "marker": authorization.APPROVAL_MARKER,
-            "experiment_id": registration["experiment_id"],
-            "registration_sha256": authorization.sha256(registration_raw),
-            "approved_protocol_revision": registration["approved_protocol_revision"],
-            "protocol_documents": protocol_documents,
-            "approved_decisions": authorization.APPROVED_DECISIONS,
-            "execution_scope": authorization.EXECUTION_SCOPE,
-        }
-        body = (
-            authorization.APPROVAL_MARKER
-            + "\n"
-            + json.dumps(body_record, sort_keys=True)
-        )
-        url = "https://github.com/useruby/mancala-ai/pull/636#issuecomment-1234"
-        timestamp = "2026-11-24T12:00:00Z"
-        comment = {
-            "id": 1234,
-            "html_url": url,
-            "created_at": timestamp,
-            "user": {"login": authorization.PROJECT_OWNER},
-            "body": body,
-        }
-        record = {
-            "schema": authorization.SCHEMA,
-            "project_owner_identity": authorization.PROJECT_OWNER,
-            "approval_url": url,
-            "approval_timestamp": timestamp,
-            "approved_protocol_revision": registration["approved_protocol_revision"],
-            "protocol_documents": protocol_documents,
-            "approved_decisions": authorization.APPROVED_DECISIONS,
-            "execution_scope": authorization.EXECUTION_SCOPE,
-            "experiment_id": registration["experiment_id"],
-            "registration_sha256": authorization.sha256(registration_raw),
-        }
-        approval_path = root / "approval.json"
-        approval_path.write_text(json.dumps(record))
-        return registration_path, approval_path, record, comment
+        return registration_path, merge_commit, pull, {"registration_sha256": digest}
 
-    def _rewrite_revision(
-        self,
-        registration_path: Path,
-        approval_path: Path,
-        record: dict,
-        comment: dict,
-        *,
-        revision: str,
-        base_commit: str,
-    ) -> None:
-        registration = json.loads(registration_path.read_text())
-        registration["base_commit"] = base_commit
-        registration["approved_protocol_revision"] = revision
-        registration_raw = json.dumps(registration, sort_keys=True).encode()
-        registration_path.write_bytes(registration_raw)
-        record["approved_protocol_revision"] = revision
-        record["registration_sha256"] = authorization.sha256(registration_raw)
-        approval_path.write_text(json.dumps(record))
-        body_record = {
-            "marker": authorization.APPROVAL_MARKER,
-            "experiment_id": registration["experiment_id"],
-            "registration_sha256": authorization.sha256(registration_raw),
-            "approved_protocol_revision": revision,
-            "protocol_documents": registration["protocol_documents"],
-            "approved_decisions": authorization.APPROVED_DECISIONS,
-            "execution_scope": authorization.EXECUTION_SCOPE,
-        }
-        comment["body"] = (
-            authorization.APPROVAL_MARKER
-            + "\n"
-            + json.dumps(body_record, sort_keys=True)
+    def _authorize(self, registration: Path, commit: str, pull: dict) -> dict:
+        return authorization.authorize_registration(
+            registration,
+            commit,
+            associated_prs=[{"number": pull["number"]}],
+            pr_fetcher=lambda _number: pull,
         )
 
-    def test_valid_github_owner_approval_is_bound_to_registration_and_documents(self):
+    def test_owner_merged_pr_records_complete_authorization_receipt(self):
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
-            registration, approval, _record, comment = self._fixture(root)
-            loaded_registration, loaded_approval = authorization.validate_approval(
-                registration, approval, comment_fetcher=lambda _comment_id: comment
-            )
+            registration, merge_commit, pull, expected = self._fixture(Path(temporary))
+            receipt = self._authorize(registration, merge_commit, pull)
+            self.assertEqual(receipt["schema"], authorization.SCHEMA)
+            self.assertEqual(receipt["pr_number"], 84)
+            self.assertEqual(receipt["merge_commit"], merge_commit)
+            self.assertEqual(receipt["merged_by"], "useruby")
+            self.assertEqual(receipt["merge_timestamp"], "2026-11-25T12:30:00Z")
             self.assertEqual(
-                loaded_registration["experiment_id"],
-                "seed636-prospective-population",
-            )
-            self.assertEqual(
-                loaded_approval["github_comment_evidence"]["author"], "useruby"
+                receipt["registration_sha256"], expected["registration_sha256"]
             )
 
-    def test_missing_wrong_identity_scope_and_changed_documents_fail_closed(self):
+    def test_non_owner_unmerged_or_wrong_base_pr_is_rejected(self):
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
-            registration, approval_path, record, comment = self._fixture(root)
-            with self.assertRaisesRegex(PermissionError, "approval_missing"):
-                authorization.validate_approval(
-                    registration,
-                    root / ".experiment" / "missing.json",
-                    comment_fetcher=lambda _comment_id: comment,
-                )
-            for field, value, message in (
-                ("project_owner_identity", "not-owner", "identity_mismatch"),
-                ("execution_scope", "all-experiments", "scope_mismatch"),
-                ("approved_protocol_revision", "b" * 40, "protocol_revision_mismatch"),
+            registration, merge_commit, pull, _expected = self._fixture(Path(temporary))
+            for field, value in (
+                ("merged_by", {"login": "another-user"}),
+                ("merged_at", None),
+                (
+                    "base",
+                    {"ref": "develop", "repo": {"full_name": "useruby/mancala-ai"}},
+                ),
             ):
-                changed = dict(record, **{field: value})
-                approval_path.write_text(json.dumps(changed))
+                modified = dict(pull, **{field: value})
                 with (
                     self.subTest(field=field),
-                    self.assertRaisesRegex(PermissionError, message),
-                ):
-                    authorization.validate_approval(
-                        registration,
-                        approval_path,
-                        comment_fetcher=lambda _comment_id: comment,
-                    )
-
-            approval_path.write_text(json.dumps(record))
-            registration_value = json.loads(registration.read_text())
-            registration_value["objective"] = "changed after approval"
-            registration.write_text(json.dumps(registration_value, sort_keys=True))
-            with self.assertRaisesRegex(
-                PermissionError, "registration_identity_mismatch"
-            ):
-                authorization.validate_approval(
-                    registration,
-                    approval_path,
-                    comment_fetcher=lambda _comment_id: comment,
-                )
-
-    def test_nonexistent_and_substituted_protocol_revisions_are_rejected(self):
-        with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
-            registration_path, approval_path, record, comment = self._fixture(root)
-            fake_revision = "f" * 40
-            self._rewrite_revision(
-                registration_path,
-                approval_path,
-                record,
-                comment,
-                revision=fake_revision,
-                base_commit=fake_revision,
-            )
-            with self.assertRaisesRegex(PermissionError, "protocol_revision_missing"):
-                authorization.validate_approval(
-                    registration_path,
-                    approval_path,
-                    comment_fetcher=lambda _id: comment,
-                )
-
-        with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
-            registration_path, approval_path, record, comment = self._fixture(root)
-            original_revision = json.loads(registration_path.read_text())["base_commit"]
-            changed_doc = root / "docs/seed623-prospective-exact-quality-benchmark.md"
-            changed_doc.write_text("substituted scientific protocol\n")
-            subprocess.run(["git", "-C", str(root), "add", "docs"], check=True)
-            subprocess.run(
-                ["git", "-C", str(root), "commit", "-m", "substitute protocol"],
-                check=True,
-                capture_output=True,
-            )
-            substituted_revision = subprocess.run(
-                ["git", "-C", str(root), "rev-parse", "HEAD"],
-                check=True,
-                capture_output=True,
-                text=True,
-            ).stdout.strip()
-            self.assertNotEqual(original_revision, substituted_revision)
-            self._rewrite_revision(
-                registration_path,
-                approval_path,
-                record,
-                comment,
-                revision=substituted_revision,
-                base_commit=substituted_revision,
-            )
-            with self.assertRaisesRegex(
-                PermissionError, "protocol_document_hash_mismatch"
-            ):
-                authorization.validate_approval(
-                    registration_path,
-                    approval_path,
-                    comment_fetcher=lambda _id: comment,
-                )
-            (root / "docs" / "experiment-execution-protocol.md").write_text("altered\n")
-            with self.assertRaisesRegex(
-                PermissionError, "protocol_document_hash_mismatch"
-            ):
-                authorization.validate_approval(
-                    registration_path,
-                    approval_path,
-                    comment_fetcher=lambda _comment_id: comment,
-                )
-
-    def test_lifecycle_attempt_rejects_changed_source_and_input_identities(self):
-        with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
-            registration_path, approval_path, record, comment = self._fixture(root)
-            experiment_dir = root / ".experiment"
-            (experiment_dir / "seed636-owner-approval.json").write_text(
-                json.dumps(record)
-            )
-            attempt_dir = experiment_dir / "runtime" / "attempts" / "attempt-0001"
-            attempt_dir.mkdir(parents=True)
-            (attempt_dir / "started.json").write_text("{}")
-            registration = json.loads(registration_path.read_text())
-            manifest = {
-                "status": "frozen",
-                "experiment_id": registration["experiment_id"],
-                "attempt_id": "attempt-0001",
-                "worktree_path": str(root),
-                "source_commit": "b" * 40,
-                "execution_source_identity": "c" * 40,
-                "command": [
-                    "python",
-                    "-m",
-                    "ml.alphazero_lite.seed624_prospective_benchmark",
-                ],
-                "configuration": {
-                    "execution_scope": authorization.EXECUTION_SCOPE,
-                    "registration_sha256": authorization.sha256(
-                        registration_path.read_bytes()
+                    self.assertRaisesRegex(
+                        PermissionError, "owner_merged_registration_pr_not_unique"
                     ),
-                },
-                "input_artifacts": registration["input_artifacts"],
-                "output_paths": [
-                    ".experiment/runtime/attempts/attempt-0001/output/population"
-                ],
-                "worker_count": 1,
-            }
-            (attempt_dir / "manifest.json").write_text(json.dumps(manifest))
-            with (
-                patch(
-                    "ml.alphazero_lite.experiment_lifecycle._validate_experiment_worktree",
-                    return_value=registration,
-                ),
-                patch.object(
-                    authorization,
-                    "_git",
-                    side_effect=[
-                        ".experiment/seed636-owner-approval.json",
-                        "b" * 40,
-                        "c" * 40,
-                        "",
-                    ],
-                ),
-            ):
-                loaded, _ = authorization.validate_attempt(
-                    attempt_dir, comment_fetcher=lambda _id: comment
-                )
-            self.assertEqual(loaded["attempt_id"], "attempt-0001")
+                ):
+                    self._authorize(registration, merge_commit, modified)
 
-            input_file = Path(next(iter(registration["input_artifacts"])))
-            input_file.write_text("changed input\n")
-            with (
-                patch(
-                    "ml.alphazero_lite.experiment_lifecycle._validate_experiment_worktree",
-                    return_value=registration,
-                ),
-                patch.object(
-                    authorization,
-                    "_git",
-                    side_effect=[
-                        ".experiment/seed636-owner-approval.json",
-                        "b" * 40,
-                        "c" * 40,
-                        "",
-                    ],
-                ),
-                self.assertRaisesRegex(
-                    PermissionError, "lifecycle_input_identity_mismatch"
-                ),
+    def test_registration_and_protocol_must_match_merge_commit_blobs(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            registration, merge_commit, pull, _expected = self._fixture(Path(temporary))
+            registration.write_text(registration.read_text() + " ")
+            with self.assertRaisesRegex(
+                PermissionError, "owner_merged_registration_pr_not_unique"
             ):
-                authorization.validate_attempt(
-                    attempt_dir, comment_fetcher=lambda _id: comment
-                )
+                self._authorize(registration, merge_commit, pull)
 
-            input_file.write_text('{"input":true}\n')
-            with (
-                patch(
-                    "ml.alphazero_lite.experiment_lifecycle._validate_experiment_worktree",
-                    return_value=registration,
-                ),
-                patch.object(
-                    authorization,
-                    "_git",
-                    side_effect=[
-                        ".experiment/seed636-owner-approval.json",
-                        "d" * 40,
-                    ],
-                ),
-                self.assertRaisesRegex(
-                    PermissionError, "lifecycle_source_commit_mismatch"
-                ),
+    def test_unapproved_scope_or_budget_cannot_be_authorized(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            registration, merge_commit, pull, _expected = self._fixture(Path(temporary))
+            value = json.loads(registration.read_text())
+            value["execution_scope"] = "model-inference"
+            registration.write_text(json.dumps(value))
+            with self.assertRaisesRegex(
+                PermissionError, "merged_registration_scope_or_protocol_invalid"
             ):
-                authorization.validate_attempt(
-                    attempt_dir, comment_fetcher=lambda _id: comment
-                )
+                self._authorize(registration, merge_commit, pull)
 
-    def test_github_comment_author_timestamp_and_body_are_authoritative(self):
+    def test_independent_verifier_rechecks_live_pr_metadata_and_git_blobs(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            registration, approval, _record, comment = self._fixture(root)
-            comment["reactions"] = {"total_count": 0, "+1": 0}
-            comment["updated_at"] = "2026-11-25T13:00:00Z"
-            comment["performed_via_github_app"] = {"id": 99, "slug": "metadata"}
-            loaded_registration, loaded_approval = authorization.validate_approval(
-                registration, approval, comment_fetcher=lambda _id: comment
-            )
-            self.assertEqual(
-                loaded_approval["github_comment_evidence"]["body"], comment["body"]
-            )
-            for field, value, message in (
-                ("id", 9999, "comment_identity_mismatch"),
-                ("user", {"login": "not-owner"}, "comment_author_mismatch"),
-                ("created_at", "2026-11-25T12:00:00Z", "timestamp_mismatch"),
-                ("body", "approved", "comment_text_invalid"),
+            registration, merge_commit, pull, expected = self._fixture(root)
+            receipt = self._authorize(registration, merge_commit, pull)
+            registration_raw = registration.read_bytes()
+            lifecycle = {
+                "registration_sha256": expected["registration_sha256"],
+                "registration_raw_utf8": registration_raw.decode(),
+            }
+            with (
+                patch.object(verifier, "_fetch_pull_associations", return_value={84}),
+                patch.object(verifier, "_fetch_github_pull", return_value=pull),
+                patch.object(
+                    verifier,
+                    "_git_blob",
+                    side_effect=lambda revision, path: (
+                        subprocess.run(
+                            ["git", "-C", str(root), "show", f"{revision}:{path}"],
+                            check=True,
+                            capture_output=True,
+                        ).stdout
+                    ),
+                ),
             ):
-                altered = dict(comment, **{field: value})
-                with (
-                    self.subTest(field=field),
-                    self.assertRaisesRegex(PermissionError, message),
-                ):
-                    authorization.validate_approval(
-                        registration, approval, comment_fetcher=lambda _id: altered
-                    )
+                self.assertEqual(
+                    verifier.verify_registration_pr_authorization(
+                        receipt, lifecycle, merge_commit
+                    ),
+                    "useruby",
+                )
+
+            tampered = dict(receipt, merge_timestamp="2026-11-26T00:00:00Z")
+            with (
+                patch.object(verifier, "_fetch_pull_associations", return_value={84}),
+                patch.object(verifier, "_fetch_github_pull", return_value=pull),
+                self.assertRaisesRegex(
+                    ValueError, "registration_pr_live_metadata_mismatch"
+                ),
+            ):
+                verifier.verify_registration_pr_authorization(
+                    tampered, lifecycle, merge_commit
+                )
 
 
 if __name__ == "__main__":

@@ -22,20 +22,24 @@ from ml.alphazero_lite.kalah_rules import KalahGame
 from ml.alphazero_lite.verify_seed624_prospective_benchmark import _apply_actions
 from ml.alphazero_lite.verify_seed624_prospective_benchmark import (
     validate_candidate_rank,
-    verify_bundle,
 )
+
+
+def verify_bundle(bundle_path: Path) -> dict:
+    """Keep population tests offline; PR evidence has dedicated unit tests."""
+    with patch.object(
+        independent, "verify_registration_pr_authorization", return_value="useruby"
+    ):
+        return independent.verify_bundle(bundle_path)
 
 
 class Seed624SyntheticTests(unittest.TestCase):
     def _seal_freeze(self, freeze: dict) -> tuple[bytes, dict, bytes]:
-        from ml.alphazero_lite import verify_seed624_prospective_benchmark as verifier
         from ml.alphazero_lite.seed636_authorization import (
-            APPROVAL_MARKER,
             APPROVED_DECISIONS,
             EXECUTION_SCOPE,
             REQUIRED_PROTOCOL_DOCUMENTS,
-            SCHEMA as APPROVAL_SCHEMA,
-            canonical_bytes,
+            SCHEMA as AUTHORIZATION_SCHEMA,
             sha256,
         )
 
@@ -46,55 +50,76 @@ class Seed624SyntheticTests(unittest.TestCase):
             for name in sorted(REQUIRED_PROTOCOL_DOCUMENTS)
         }
         registration = {
+            "schema": "mancala-experiment-registration-v1",
             "experiment_id": "seed636-prospective-population",
             "base_commit": seed624.current_git_commit(),
-            "approved_protocol_revision": seed624.current_git_commit(),
+            "authorization_contract": AUTHORIZATION_SCHEMA,
+            "execution_scope": EXECUTION_SCOPE,
+            "random_seeds": [seed624.MASTER_SEED],
             "protocol_documents": documents,
             "input_artifacts": {},
             "approved_decisions": APPROVED_DECISIONS,
-        }
-        registration_raw = canonical_bytes(registration)
-        registration_sha = sha256(registration_raw)
-        body_data = {
-            "marker": APPROVAL_MARKER,
-            "experiment_id": registration["experiment_id"],
-            "registration_sha256": registration_sha,
-            "approved_protocol_revision": registration["approved_protocol_revision"],
-            "protocol_documents": documents,
-            "approved_decisions": APPROVED_DECISIONS,
-            "execution_scope": EXECUTION_SCOPE,
-        }
-        body = APPROVAL_MARKER + "\n" + json.dumps(body_data, sort_keys=True)
-        url = "https://github.com/useruby/mancala-ai/pull/636#issuecomment-163600"
-        timestamp = "2026-11-24T12:00:00Z"
-        api_record = {
-            "id": 163600,
-            "html_url": url,
-            "created_at": timestamp,
-            "user": {"login": "useruby"},
-            "body": body,
-            "reactions": {"total_count": 0, "+1": 0},
-            "updated_at": "2026-11-25T13:00:00Z",
-            "performed_via_github_app": {"id": 99, "slug": "metadata"},
-        }
-        approval = {
-            "schema": APPROVAL_SCHEMA,
-            "project_owner_identity": "useruby",
-            "approval_url": url,
-            "approval_timestamp": timestamp,
-            "approved_protocol_revision": registration["approved_protocol_revision"],
-            "protocol_documents": documents,
-            "approved_decisions": APPROVED_DECISIONS,
-            "execution_scope": EXECUTION_SCOPE,
-            "experiment_id": registration["experiment_id"],
-            "registration_sha256": registration_sha,
-            "github_comment_evidence": {
-                "id": api_record["id"],
-                "author": "useruby",
-                "created_at": timestamp,
-                "html_url": url,
-                "body": body,
+            "resource_budgets": {
+                "wall_time_limit_seconds": freeze["production_resource_limits"][
+                    "wall_seconds"
+                ],
+                "cpu_time_limit_seconds": freeze["production_resource_limits"][
+                    "cpu_seconds"
+                ],
+                "process_rss_limit_bytes": freeze["production_resource_limits"][
+                    "process_rss_bytes"
+                ],
+                "output_and_temporary_storage_limit_bytes": freeze[
+                    "production_resource_limits"
+                ]["output_and_temporary_storage_bytes"],
+                "execution_concurrency": freeze["production_resource_limits"][
+                    "execution_concurrency"
+                ],
+                "selection_optimizer_workers": 1,
             },
+            "scientific_acceptance": {
+                "openings": 256,
+                "continuation_games": 2048,
+                "selected_states": 512,
+                "stone_bin_quotas": {
+                    "17": 103,
+                    "18": 103,
+                    "19": 102,
+                    "20": 102,
+                    "21": 102,
+                },
+                "minimum_eligible_candidate_supply": {
+                    "17": 206,
+                    "18": 206,
+                    "19": 204,
+                    "20": 204,
+                    "21": 204,
+                },
+                "minimum_distinct_opening_clusters": 128,
+                "max_states_per_opening": 4,
+                "max_states_per_continuation_game": 2,
+                "exposure_classification": "known-exposure-screened; inherited P-E4 exposure unresolved",
+                "deduplication": ["canonical_state", "production_float32_input"],
+                "authenticated_known_exposure_screening": True,
+                "independent_reproduction_required": True,
+                "no_inference_mcts_exact_solving_tablebase_probes_training_or_promotion": True,
+                "failure_policy": "preserve_evidence_and_stop_without_parameter_change_or_automatic_retry",
+            },
+        }
+        registration_raw = json.dumps(registration, sort_keys=True).encode()
+        registration_sha = sha256(registration_raw)
+        authorization_record = {
+            "schema": AUTHORIZATION_SCHEMA,
+            "repository": "useruby/mancala-ai",
+            "experiment_id": registration["experiment_id"],
+            "execution_scope": EXECUTION_SCOPE,
+            "approved_decisions": APPROVED_DECISIONS,
+            "registration_sha256": registration_sha,
+            "pr_number": 84,
+            "pr_url": "https://github.com/useruby/mancala-ai/pull/84",
+            "merge_commit": seed624.current_git_commit(),
+            "merged_by": "useruby",
+            "merge_timestamp": "2026-11-25T12:30:00Z",
         }
         attempt_manifest = {
             "schema": "mancala-experiment-attempt-v1",
@@ -141,9 +166,12 @@ class Seed624SyntheticTests(unittest.TestCase):
             "registration_sha256": registration_sha,
             "registration_raw_utf8": registration_raw.decode(),
         }
-        verifier._fetch_github_comment = lambda _comment_id: api_record
         self._fixture_lifecycle = lifecycle
-        return freeze_raw, approval, seed624.canonical_bytes(approval)
+        return (
+            freeze_raw,
+            authorization_record,
+            seed624.canonical_bytes(authorization_record),
+        )
 
     def test_seed_derivation_and_opening_are_reproducible(self) -> None:
         self.assertEqual(
@@ -1177,7 +1205,7 @@ class Seed624SyntheticTests(unittest.TestCase):
                 "working_memory_limit_bytes": seed624.MAX_SELECTION_WORKING_BYTES,
             },
         }
-        freeze_raw, approval, approval_raw = self._seal_freeze(freeze)
+        freeze_raw, authorization_receipt, _receipt_raw = self._seal_freeze(freeze)
         empty_targets = {stones: 0 for stones in seed624.BIN_ORDER}
         return {
             "schema": seed624.SCHEMA,
@@ -1185,7 +1213,7 @@ class Seed624SyntheticTests(unittest.TestCase):
                 "project_owner_identity": "useruby",
                 "execution_freeze_sha256": seed624.sha256(freeze_raw),
                 "execution_freeze_raw_utf8": freeze_raw.decode("utf-8"),
-                "owner_approval_record": approval,
+                "registration_pr_authorization": authorization_receipt,
                 "lifecycle": self._fixture_lifecycle,
             },
             "source_identity": {
@@ -1445,7 +1473,7 @@ class Seed624SyntheticTests(unittest.TestCase):
             ],
             "source_provenance_sha256": prov_hash,
         }
-        freeze_raw, approval, approval_raw = self._seal_freeze(freeze)
+        freeze_raw, authorization_receipt, _receipt_raw = self._seal_freeze(freeze)
         screened = seed624.screen_known_exposure(
             unique,
             evidence,
@@ -1464,7 +1492,7 @@ class Seed624SyntheticTests(unittest.TestCase):
                 "project_owner_identity": "useruby",
                 "execution_freeze_sha256": seed624.sha256(freeze_raw),
                 "execution_freeze_raw_utf8": freeze_raw.decode("utf-8"),
-                "owner_approval_record": approval,
+                "registration_pr_authorization": authorization_receipt,
                 "lifecycle": self._fixture_lifecycle,
             },
             "source_identity": {

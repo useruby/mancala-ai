@@ -17,28 +17,26 @@
     "known-exposure-screened-inherited-PE4-unresolved",
     "model-independent-population-generation-and-screening-only"
   ],
-  "approved_protocol_revision": "e010276acae9499bce7e644e94269ada6848a0c7",
-  "authorization_reference": "Pending explicit repository-owner authorization comment on PR #636; registration preparation only",
+  "authorization_contract": "seed636-registration-pr-authorization-v1",
+  "authorization_reference": null,
   "base_commit": "e010276acae9499bce7e644e94269ada6848a0c7",
   "branch": "experiment/seed636-prospective-population",
   "checkpoint_identity": null,
   "experiment_id": "seed636-prospective-population",
   "experiment_type": "prospective_population_generation",
+  "execution_scope": "model-independent-generation-and-screening-only",
   "hypothesis": "A deterministic model-independent generation and authenticated known-exposure screen can produce an independently reproducible 512-state finite cohort from 256 distinct openings and 2,048 continuation games, satisfying all registered stone-bin supply and cluster constraints.",
   "input_artifacts": {
     "/home/alex/Mancala/ai/docs/data/seed604-replay-optimization/runtime-certification-v3/requirements-lock.txt": "5762f889f9719525379f8f1321811df9c52ea3675cdb319492eba15570c94ce4",
-    "/home/alex/Mancala/ai/docs/data/seed627-authenticated-membership/snapshots": "73fab70b5f4db459a684cf4c6567cd857d4c76673a53acd61fb41d12613e3085",
-    "/home/alex/Mancala/ai/docs/experiment-execution-protocol.md": "93ecf7a16b6a5f1925deaff0c58402d45ea1213b85ac272a0f1c149de5053255",
-    "/home/alex/Mancala/ai/docs/seed623-631-execution-contract-amendment.md": "de4ea32fb5234418f63fdafcce565b9cd5e313864ac8eb6034238f33ede0b81b",
-    "/home/alex/Mancala/ai/docs/seed623-prospective-exact-quality-benchmark.md": "1cbff5b508dc045e87e2b7ba21853c35e882d3038ad5f8a99687605b962d809b",
-    "/home/alex/Mancala/ai/docs/seed624-estimand-amendment-proposal.md": "9fe2b129b748fc050526a99ea2ac896ecf7ead23536835381cea0337120ba170"
+    "/home/alex/Mancala/ai/docs/data/seed627-authenticated-membership/snapshots": "73fab70b5f4db459a684cf4c6567cd857d4c76673a53acd61fb41d12613e3085"
   },
   "objective": "Generate and independently verify the Seed 623 prospective benchmark population only; preserve known-exposure-screened classification with inherited P-E4 exposure unresolved.",
   "protocol_documents": {
-    "docs/experiment-execution-protocol.md": "93ecf7a16b6a5f1925deaff0c58402d45ea1213b85ac272a0f1c149de5053255",
-    "docs/seed623-631-execution-contract-amendment.md": "de4ea32fb5234418f63fdafcce565b9cd5e313864ac8eb6034238f33ede0b81b",
-    "docs/seed623-prospective-exact-quality-benchmark.md": "1cbff5b508dc045e87e2b7ba21853c35e882d3038ad5f8a99687605b962d809b",
-    "docs/seed624-estimand-amendment-proposal.md": "9fe2b129b748fc050526a99ea2ac896ecf7ead23536835381cea0337120ba170"
+    "docs/experiment-execution-protocol.md": "bf9627561397c013b3c7794cadddabe6155d64e03a6ca08a401b40a669251ca5",
+    "docs/seed623-631-execution-contract-amendment.md": "2501ad7fb52d999618e0e76f1d81872385162eeabf6745c82acf33d29cd8c74a",
+    "docs/seed623-prospective-exact-quality-benchmark.md": "dcf2235623b1459a6b46b32eb3c35f921c7b2e8f823915ffbfbf6b00ef1f100b",
+    "docs/seed624-estimand-amendment-proposal.md": "52dd4612da6cecf7ae1605d158289f78d44ef12fe3a107f3d937c9b12f95b4d0",
+    "docs/seed636-owner-approval.md": "6e3e36f444c376b32beabd0776af0e5e6478d46a4d93f89a42200b8a248af113"
   },
   "random_seeds": [
     62320261121
@@ -61,6 +59,7 @@
     ],
     "exposure_classification": "known-exposure-screened; inherited P-E4 exposure unresolved",
     "failure_policy": "preserve_evidence_and_stop_without_parameter_change_or_automatic_retry",
+    "authenticated_known_exposure_screening": true,
     "independent_reproduction_required": true,
     "max_states_per_continuation_game": 2,
     "max_states_per_opening": 4,
@@ -74,6 +73,7 @@
     },
     "openings": 256,
     "selected_states": 512,
+    "no_inference_mcts_exact_solving_tablebase_probes_training_or_promotion": true,
     "stone_bin_quotas": {
       "17": 103,
       "18": 103,

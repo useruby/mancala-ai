@@ -1,9 +1,11 @@
 # Seed 623 — prospective exact-quality benchmark for B512 and S615
 
-**Status:** proposed protocol amendment; not authoritative pending explicit
-project-owner approval. Protocol and feasibility assessment only. No state
+**Status:** the Seed 625 finite-cohort estimand amendment and Seed 635 execution
+contract are approved for the Seed 636 registration scope when its registration
+PR is merged by `useruby`. This protocol authorizes only its registered
+model-independent population generation and membership screening. No state
 generation, model inference, search, oracle query, solver run, training, or
-evaluation was performed. This document authorizes no execution and is not a
+evaluation was performed in preparing this registration. This is not a
 candidate-promotion evaluation.
 
 ## Recommendation
@@ -21,12 +23,11 @@ exposure, reject this design until the P-E4 ancestry gap is repaired.
 
 ### Amendment status
 
-This document incorporates the proposed Seed 624 estimand amendment for review.
-It becomes authoritative only after explicit project-owner approval is recorded
-with the approver identity, approval timestamp, exact amended protocol
-commit/hash, and decision to withdraw the inclusion-probability and
-design-unbiased inference requirements. This documentation change itself grants
-no execution authorization.
+This document incorporates the Seed 624 estimand amendment. For Seed 636, the
+amendment becomes authoritative when the owner merges the PR containing the
+experiment registration and these bound protocol documents. The registration
+authorizes population generation and membership screening only; subsequent
+inference, solving, and search stages remain separately gated.
 
 The target domain is reachable nonterminal states from the stated generation
 distribution with 17–21 stones remaining in pits (the exact tier-21 domain),
