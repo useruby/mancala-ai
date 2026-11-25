@@ -1,0 +1,24 @@
+{
+  "archive_sha256": "d6e454f889e6155d7dccf3bf81e6769989896389d401fc5bf4cbd058059c8bf1",
+  "checks": {
+    "archive_hash": true,
+    "archive_sidecar_identity": true,
+    "canonical_ids_unique": true,
+    "exposure_binding": true,
+    "float32_ids_unique": true,
+    "game_cap": true,
+    "opening_cap": true,
+    "population_member_hash": true,
+    "projection_matches_archived_rows": true,
+    "selected_count": true,
+    "selected_inventory_hash": true,
+    "sidecar_hash": true,
+    "stone_quotas": true
+  },
+  "manifest_sha256": "d7e095f749c14a429162be91dd3bb5f67b685fab04808658f7f26ac7882c8fab",
+  "population_member_sha256": "689269182824d86d55261b8c89141bbc578867339cc1adce695f57da2c7fc6fc",
+  "schema": "seed636-selected-state-manifest-verification-v1",
+  "selected_count": 512,
+  "selected_inventory_sha256": "6c6b1f680b2177cb67c79a9a642216703f160131034fbf8fe86e8130910ed077",
+  "status": "verified"
+}

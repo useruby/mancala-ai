@@ -1,6 +1,6 @@
 # Seed 636 prospective population generation — attempt 0001
 
-## Outcome and classification
+## Scientific outcome and exposure classification
 
 The registered deterministic generation, authenticated known-exposure screening,
 deduplication, and population selection completed. The final classification is
@@ -8,6 +8,13 @@ deduplication, and population selection completed. The final classification is
 model-independent finite-cohort population artifact only. No inference, MCTS,
 exact solving, tablebase probing, training, evaluation games, or candidate
 promotion was run.
+
+- Scientific outcome: `prospective_population_qualified`.
+- Exposure classification: `known-exposure-screened; inherited P-E4 exposure unresolved`.
+
+The explicit scientific outcome qualifies the registered prospective population
+generation and membership-screening gates only; it does not clear the separately
+reported inherited-exposure limitation or authorize a downstream stage.
 
 ## Authorization and frozen execution
 
@@ -46,6 +53,36 @@ The exact independent verifier reproduced opening/game generation, membership
 screening, candidate supply, both deduplication identities, optimizer selection,
 quotas, and cluster caps. Its output is recorded in `domain-verification.json`.
 
+## Selected-state cohort binding
+
+`selected-state-manifest.json` contains all 512 selected-state canonical and
+production-float32 identities, stone counts, opening and continuation-game
+provenance, continuation plies, and selection ranks. It binds to the exact
+archived population member and selected inventory:
+
+- Selected-inventory SHA-256:
+  `6c6b1f680b2177cb67c79a9a642216703f160131034fbf8fe86e8130910ed077`.
+- Selected-state manifest SHA-256:
+  `d7e095f749c14a429162be91dd3bb5f67b685fab04808658f7f26ac7882c8fab`.
+- Archived population member SHA-256:
+  `689269182824d86d55261b8c89141bbc578867339cc1adce695f57da2c7fc6fc`.
+
+`selected-state-manifest-verification.json` records successful verification
+against the `population/population.json` member read directly from the verified
+archive. The verifier matched every manifest row to the archived selected row
+projection, checked both archive bindings, inventory digest, 512-state count,
+identity uniqueness, quotas, cluster caps, and retained exposure labels. No
+states were regenerated.
+
+## Operational cleanup accounting
+
+The Seed 624 generation environment (NumPy 2.5.3) and the original freeze-spec
+file were preserved outside `.experiment/runtime` at
+`$HOME/.cache/mancala-ai-experiment-envs/`. The worktree runtime root now contains
+only the accounted `attempts/attempt-0001` directory. No attempt manifest,
+terminal record, output, or archive member was changed by relocating these
+operational files. Worktree cleanup remains gated on the results PR merge.
+
 ## Lifecycle and archive verification
 
 The lifecycle verifier passed with registered inputs verified and one declared
@@ -81,7 +118,10 @@ work requires its own registration PR and owner merge.
    archive and sidecar paths above.
 3. Independently verify the archived bundle with:
    `python -m ml.alphazero_lite.verify_seed624_prospective_benchmark <extracted-attempt>/population/population.json`.
-4. Reauthenticate Seed 627 input evidence using the unchanged
+4. Verify `selected-state-manifest.json` by comparing its state projection and
+   selected-inventory digest against the archived population member, as recorded
+   in `selected-state-manifest-verification.json`; do not regenerate the cohort.
+5. Reauthenticate Seed 627 input evidence using the unchanged
    `ml.alphazero_lite.seed628_authenticated_screening.authenticate_snapshot_bundle`
    path under the pinned historical runtime and the frozen NumPy 2.5.3
    generation runtime.
