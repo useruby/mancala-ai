@@ -40,6 +40,24 @@ def _git_bytes(root: Path, *args: str) -> bytes:
     ).stdout
 
 
+def _git_is_ancestor(root: Path, ancestor: str, descendant: str) -> bool:
+    return (
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                str(root),
+                "merge-base",
+                "--is-ancestor",
+                ancestor,
+                descendant,
+            ],
+            capture_output=True,
+        ).returncode
+        == 0
+    )
+
+
 def _github_json(endpoint: str) -> Any:
     result = subprocess.run(
         ["gh", "api", endpoint], check=True, capture_output=True, text=True
@@ -108,11 +126,27 @@ def authorize_registration(
     """Return a create-time receipt for the unique owner-merged registration PR."""
     if registration_path.is_symlink() or not registration_path.is_file():
         raise PermissionError("experiment_registration_file_invalid")
-    repository_root = registration_path.resolve().parents[1]
+    repository_root = Path(
+        _git_bytes(registration_path.parent, "rev-parse", "--show-toplevel")
+        .decode()
+        .strip()
+    )
     registration_raw = registration_path.read_bytes()
     registration = json.loads(registration_raw)
     _validate_registration(registration)
     registration_digest = sha256(registration_raw)
+    from ml.alphazero_lite.experiment_lifecycle import registration_repository_path
+
+    permanent_registration_path = registration_repository_path(
+        registration["experiment_id"]
+    )
+    permanent_registration = repository_root / permanent_registration_path
+    if (
+        permanent_registration.is_symlink()
+        or not permanent_registration.is_file()
+        or permanent_registration.read_bytes() != registration_raw
+    ):
+        raise PermissionError("permanent_registration_snapshot_mismatch")
 
     resolved_commit = (
         _git_bytes(
@@ -155,11 +189,41 @@ def authorize_registration(
             committed_registration = _git_bytes(
                 repository_root,
                 "show",
-                f"{merge_commit}:.experiment/registration.json",
+                f"{merge_commit}:{permanent_registration_path}",
             )
         except subprocess.CalledProcessError:
             continue
         if committed_registration != registration_raw:
+            continue
+        base_commit = base.get("sha")
+        if not isinstance(base_commit, str):
+            continue
+        try:
+            resolved_base = (
+                _git_bytes(
+                    repository_root,
+                    "rev-parse",
+                    "--verify",
+                    f"{base_commit}^{{commit}}",
+                )
+                .decode()
+                .strip()
+            )
+        except subprocess.CalledProcessError:
+            continue
+        if resolved_base != base_commit:
+            continue
+        if not _git_is_ancestor(repository_root, base_commit, source_commit):
+            continue
+        try:
+            base_registration = _git_bytes(
+                repository_root,
+                "show",
+                f"{base_commit}:{permanent_registration_path}",
+            )
+        except subprocess.CalledProcessError:
+            base_registration = None
+        if base_registration == committed_registration:
             continue
         for path, expected in registration["protocol_documents"].items():
             if path.startswith("/") or ".." in Path(path).parts:
@@ -179,6 +243,7 @@ def authorize_registration(
         "schema": SCHEMA,
         "repository": REPOSITORY,
         "experiment_id": EXPERIMENT_ID,
+        "registration_path": permanent_registration_path,
         "execution_scope": EXECUTION_SCOPE,
         "approved_decisions": APPROVED_DECISIONS,
         "registration_sha256": registration_digest,
@@ -221,17 +286,23 @@ def validate_attempt(attempt_dir: Path) -> tuple[dict[str, Any], dict[str, Any]]
     ):
         raise PermissionError("lifecycle_command_binding_mismatch")
 
-    registration_path = worktree / ".experiment" / "registration.json"
-    registration = json.loads(registration_path.read_bytes())
     from ml.alphazero_lite.experiment_lifecycle import (
         _validate_experiment_worktree,
         artifact_sha256,
+        load_worktree_registration,
     )
 
+    registration, registration_relative_path = load_worktree_registration(worktree)
     registered_worktree = _validate_experiment_worktree(worktree)
     if registered_worktree.get("experiment_id") != EXPERIMENT_ID:
         raise PermissionError("lifecycle_worktree_registration_mismatch")
+    registration_path = worktree / registration_relative_path
     registration_digest = sha256(registration_path.read_bytes())
+    if (
+        manifest.get("registration_path") != registration_relative_path
+        or manifest.get("registration_sha256") != registration_digest
+    ):
+        raise PermissionError("lifecycle_permanent_registration_binding_mismatch")
     if manifest.get("source_commit") != _git(
         worktree, "rev-parse", "HEAD"
     ) or manifest.get("execution_source_identity") != _git(

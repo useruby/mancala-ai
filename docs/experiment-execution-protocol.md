@@ -46,6 +46,13 @@ attempt files are under `.experiment/runtime/` and ignored by the experiment
 worktree's local `.experiment/.gitignore`. Registration and publication files
 remain ordinary reviewable repository files.
 
+The permanent, reviewable registration is stored at
+`docs/experiments/<experiment_id>/registration.json`. The worktree-local
+`.experiment/registration.json` and `.experiment/base-commit.json` are
+operational metadata only and MUST remain ignored; they are never copied into
+the permanent registration directory or committed to `main` at fixed shared
+paths.
+
 Experiment-specific scripts MUST retain the resource controls that matter to their
 workload, including pair-level concurrency, per-game/search workers, checkpoint
 cadence, solver budgets, and stop conditions. The privileged Seed 629
@@ -74,8 +81,8 @@ is no implicit authorization, parameter change, or retry.
 
 | Stage | Mandatory requirements | Durable outputs and failure behavior |
 |---|---|---|---|
-| 1. Create a dedicated experiment worktree | The operator MUST create a unique linked worktree from the exact current `main` base commit using `experiment_lifecycle create`. A draft registration may seed worktree creation and MUST be finalized in the worktree. Implementation and experiment workloads MUST NOT run in the main checkout. | Dedicated branch/worktree, `.experiment/registration.json`, pinned `.experiment/base-commit.json`, and ignored runtime directory. An identity, branch, or path collision is a hard stop; never retarget or reuse another worktree. |
-| 2. Prepare the registration, implementation, and tests | In the worktree, the researcher MUST specify the hypothesis, estimand, cohort, exclusions, inputs, seeds, resource budgets, retention class, acceptance criteria, and stop conditions. The researcher MUST implement and run relevant unit, synthetic-regression, and static checks, then commit the registration and implementation. | Reviewable registration, implementation, tests, and verification source. Failed checks block PR publication. Synthetic implementation tests may run before authorization; research workloads may not. |
+| 1. Create a dedicated experiment worktree | The operator MUST create a unique linked worktree from the exact current `main` base commit using `experiment_lifecycle create`. A draft registration may seed worktree creation and MUST be finalized in the worktree. Implementation and experiment workloads MUST NOT run in the main checkout. | Dedicated branch/worktree, local `.experiment/registration.json` pointer and `.experiment/base-commit.json` operational metadata, permanent registration path `docs/experiments/<experiment_id>/registration.json`, and ignored runtime directory. An identity, branch, or permanent-path collision is a hard stop; never retarget or reuse another worktree. |
+| 2. Prepare the registration, implementation, and tests | In the worktree, the researcher MUST specify the hypothesis, estimand, cohort, exclusions, inputs, seeds, resource budgets, retention class, acceptance criteria, and stop conditions in the permanent experiment-specific registration. The researcher MUST implement and run relevant unit, synthetic-regression, and static checks, then commit the registration and implementation. | Reviewable permanent registration, implementation, tests, and verification source. Failed checks block PR publication. Synthetic implementation tests may run before authorization; research workloads may not. |
 | 3. Publish the registration PR | The author MUST publish a PR against `main` containing the registration, execution scope, protocol/input identities, resource budgets, acceptance criteria, stop conditions, implementation, and tests. | Registration PR and GitHub metadata. Do not launch or resume the registered experiment while this PR is open or unmerged. |
 | 4. Obtain independent review | A reviewer other than the PR author MUST review the registration, scientific protocol, scope, source, tests, inputs, and resource/stop criteria. The author MUST address review feedback before requesting owner merge. | Review record and focused follow-up commits. Unresolved scientific or implementation blockers stop the process. |
 | 5. Project owner merges the registration PR | For `useruby/mancala-ai`, only repository owner `useruby` merging the registration PR into `main` authorizes its explicitly registered scope. The execution entry point MUST verify GitHub PR metadata and registration/protocol blobs in the merge commit. When that entry point requires the exact merge commit as source, stage 6 MUST freeze that commit. The PR author MUST NOT merge their own PR. No separate owner comment, manually prepared approval JSON, copied hash, or authorization reference is required. | Automatically recorded PR number, merge commit, merged-by identity, merge timestamp, and registration digest. A PR not merged by the owner, into `main`, or with mismatched committed objects is unauthorized. Never auto-merge. |
@@ -164,6 +171,11 @@ The registration input is JSON with these required fields:
 }
 ```
 
+`experiment_lifecycle create` writes the permanent registration under its
+experiment-specific path and a separate local pointer under `.experiment/`.
+Later experiments therefore add a new permanent path and cannot overwrite or
+collide with earlier registrations.
+
 Then work only in the printed worktree: finish and commit the registration,
 implementation, and tests there. Authenticate the inputs after owner merge and
 before freezing, using the existing verifier for each artifact domain. Inspect
@@ -173,8 +185,10 @@ active registered worktrees with:
 python -m ml.alphazero_lite.experiment_lifecycle list --repo "$PWD"
 ```
 
-The worktree registry reserves an experiment ID even after its worktree is
-removed. Do not recycle IDs; use a new identity for a genuinely new study.
+The `list` command resolves each active worktree's local metadata pointer and
+reports its permanent registration path. The worktree registry reserves an
+experiment ID even after its worktree is removed. Do not recycle IDs; use a new
+identity for a genuinely new study.
 
 ### Publish and authorize the registration (stages 3–5)
 

@@ -42,6 +42,20 @@ class Seed636RegistrationAuthorizationTests(unittest.TestCase):
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(f"pinned protocol: {name}\n")
             docs[name] = authorization.sha256(path.read_bytes())
+        subprocess.run(
+            ["git", "-C", str(root), "add", "docs"], check=True, capture_output=True
+        )
+        subprocess.run(
+            ["git", "-C", str(root), "commit", "-m", "base protocol"],
+            check=True,
+            capture_output=True,
+        )
+        base_commit = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
 
         registration = {
             "schema": "mancala-experiment-registration-v1",
@@ -88,14 +102,18 @@ class Seed636RegistrationAuthorizationTests(unittest.TestCase):
                 "failure_policy": "preserve_evidence_and_stop_without_parameter_change_or_automatic_retry",
             },
         }
-        registration_path = root / ".experiment/registration.json"
+        registration_path = (
+            root / "docs/experiments/seed636-prospective-population/registration.json"
+        )
         registration_path.parent.mkdir(parents=True, exist_ok=True)
         registration_path.write_text(json.dumps(registration, sort_keys=True) + "\n")
         subprocess.run(
-            ["git", "-C", str(root), "add", "."], check=True, capture_output=True
+            ["git", "-C", str(root), "add", "docs/experiments"],
+            check=True,
+            capture_output=True,
         )
         subprocess.run(
-            ["git", "-C", str(root), "commit", "-m", "merge registered experiment"],
+            ["git", "-C", str(root), "commit", "-m", "register experiment"],
             check=True,
             capture_output=True,
         )
@@ -111,11 +129,23 @@ class Seed636RegistrationAuthorizationTests(unittest.TestCase):
             "state": "closed",
             "merged_at": "2026-11-25T12:30:00Z",
             "merged_by": {"login": "useruby"},
-            "base": {"ref": "main", "repo": {"full_name": "useruby/mancala-ai"}},
+            "base": {
+                "ref": "main",
+                "sha": base_commit,
+                "repo": {"full_name": "useruby/mancala-ai"},
+            },
             "merge_commit_sha": merge_commit,
             "html_url": "https://github.com/useruby/mancala-ai/pull/84",
         }
-        return registration_path, merge_commit, pull, {"registration_sha256": digest}
+        return (
+            registration_path,
+            merge_commit,
+            pull,
+            {
+                "registration_sha256": digest,
+                "registration_path": "docs/experiments/seed636-prospective-population/registration.json",
+            },
+        )
 
     def _authorize(self, registration: Path, commit: str, pull: dict) -> dict:
         return authorization.authorize_registration(
@@ -134,6 +164,9 @@ class Seed636RegistrationAuthorizationTests(unittest.TestCase):
             self.assertEqual(receipt["merge_commit"], merge_commit)
             self.assertEqual(receipt["merged_by"], "useruby")
             self.assertEqual(receipt["merge_timestamp"], "2026-11-25T12:30:00Z")
+            self.assertEqual(
+                receipt["registration_path"], expected["registration_path"]
+            )
             self.assertEqual(
                 receipt["registration_sha256"], expected["registration_sha256"]
             )
@@ -167,6 +200,94 @@ class Seed636RegistrationAuthorizationTests(unittest.TestCase):
             ):
                 self._authorize(registration, merge_commit, pull)
 
+    def test_unrelated_later_pr_cannot_reauthorize_inherited_registration(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            registration, registration_merge, _registration_pr, expected = (
+                self._fixture(root)
+            )
+            unrelated = root / "unrelated.txt"
+            unrelated.write_text("unrelated change\n")
+            subprocess.run(
+                ["git", "-C", str(root), "add", "unrelated.txt"],
+                check=True,
+                capture_output=True,
+            )
+            subprocess.run(
+                ["git", "-C", str(root), "commit", "-m", "unrelated later PR"],
+                check=True,
+                capture_output=True,
+            )
+            later_merge = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+            later_pull = {
+                "number": 85,
+                "state": "closed",
+                "merged_at": "2026-11-25T13:30:00Z",
+                "merged_by": {"login": "useruby"},
+                "base": {
+                    "ref": "main",
+                    "sha": registration_merge,
+                    "repo": {"full_name": "useruby/mancala-ai"},
+                },
+                "merge_commit_sha": later_merge,
+                "html_url": "https://github.com/useruby/mancala-ai/pull/85",
+            }
+            with self.assertRaisesRegex(
+                PermissionError, "owner_merged_registration_pr_not_unique"
+            ):
+                self._authorize(registration, later_merge, later_pull)
+
+            registration_raw = registration.read_bytes()
+            inherited_receipt = {
+                "schema": authorization.SCHEMA,
+                "repository": authorization.REPOSITORY,
+                "experiment_id": authorization.EXPERIMENT_ID,
+                "registration_path": expected["registration_path"],
+                "execution_scope": authorization.EXECUTION_SCOPE,
+                "approved_decisions": authorization.APPROVED_DECISIONS,
+                "registration_sha256": expected["registration_sha256"],
+                "pr_number": 85,
+                "pr_url": later_pull["html_url"],
+                "merge_commit": later_merge,
+                "merged_by": "useruby",
+                "merge_timestamp": later_pull["merged_at"],
+            }
+            lifecycle = {
+                "registration_sha256": expected["registration_sha256"],
+                "registration_path": expected["registration_path"],
+                "registration_raw_utf8": registration_raw.decode(),
+            }
+            with (
+                patch.object(verifier, "_fetch_pull_associations", return_value={85}),
+                patch.object(verifier, "_fetch_github_pull", return_value=later_pull),
+                patch.object(
+                    verifier, "_resolve_git_commit", return_value=registration_merge
+                ),
+                patch.object(verifier, "_git_is_ancestor", return_value=True),
+                patch.object(
+                    verifier,
+                    "_git_blob",
+                    side_effect=lambda revision, path: (
+                        subprocess.run(
+                            ["git", "-C", str(root), "show", f"{revision}:{path}"],
+                            check=True,
+                            capture_output=True,
+                        ).stdout
+                    ),
+                ),
+                self.assertRaisesRegex(
+                    ValueError, "registration_pr_inherited_registration_not_authorized"
+                ),
+            ):
+                verifier.verify_registration_pr_authorization(
+                    inherited_receipt, lifecycle, later_merge
+                )
+
     def test_unapproved_scope_or_budget_cannot_be_authorized(self):
         with tempfile.TemporaryDirectory() as temporary:
             registration, merge_commit, pull, _expected = self._fixture(Path(temporary))
@@ -186,11 +307,16 @@ class Seed636RegistrationAuthorizationTests(unittest.TestCase):
             registration_raw = registration.read_bytes()
             lifecycle = {
                 "registration_sha256": expected["registration_sha256"],
+                "registration_path": expected["registration_path"],
                 "registration_raw_utf8": registration_raw.decode(),
             }
             with (
                 patch.object(verifier, "_fetch_pull_associations", return_value={84}),
                 patch.object(verifier, "_fetch_github_pull", return_value=pull),
+                patch.object(
+                    verifier, "_resolve_git_commit", return_value=pull["base"]["sha"]
+                ),
+                patch.object(verifier, "_git_is_ancestor", return_value=True),
                 patch.object(
                     verifier,
                     "_git_blob",
@@ -214,6 +340,10 @@ class Seed636RegistrationAuthorizationTests(unittest.TestCase):
             with (
                 patch.object(verifier, "_fetch_pull_associations", return_value={84}),
                 patch.object(verifier, "_fetch_github_pull", return_value=pull),
+                patch.object(
+                    verifier, "_resolve_git_commit", return_value=pull["base"]["sha"]
+                ),
+                patch.object(verifier, "_git_is_ancestor", return_value=True),
                 self.assertRaisesRegex(
                     ValueError, "registration_pr_live_metadata_mismatch"
                 ),

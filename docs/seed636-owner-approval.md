@@ -3,6 +3,10 @@
 Seed 636 follows the mandatory lifecycle and merge-based authorization in
 [`experiment-execution-protocol.md`](experiment-execution-protocol.md).
 
+The permanent registration is
+`docs/experiments/seed636-prospective-population/registration.json`. The
+worktree-local `.experiment/registration.json` is operational metadata only.
+
 Its registration PR explicitly approves the Seed 625 finite-cohort estimand
 amendment, Seed 635 worktree execution contract, unresolved inherited P-E4
 exposure limitation, and model-independent population generation and membership

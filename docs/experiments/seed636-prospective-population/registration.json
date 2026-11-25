@@ -32,11 +32,11 @@
   },
   "objective": "Generate and independently verify the Seed 623 prospective benchmark population only; preserve known-exposure-screened classification with inherited P-E4 exposure unresolved.",
   "protocol_documents": {
-    "docs/experiment-execution-protocol.md": "7ab6ec5fd50b841c8c973c753796b0cd797ea18a297fe506902ef8e4922ddfe0",
+    "docs/experiment-execution-protocol.md": "69a77cdc24e2828f92d8d9eb96c75f619aa594240910c1684835fc1245519d6b",
     "docs/seed623-631-execution-contract-amendment.md": "633742139061227f1543ff7c1360f5d8e5b97eafb50a4755b2a7b47afcc033eb",
     "docs/seed623-prospective-exact-quality-benchmark.md": "f01df9467dfc4a1088796f583551e203f8b045a00498363f4038b3ffac87f400",
     "docs/seed624-estimand-amendment-proposal.md": "52dd4612da6cecf7ae1605d158289f78d44ef12fe3a107f3d937c9b12f95b4d0",
-    "docs/seed636-owner-approval.md": "8751127686b3740b6ef49d10e32a989b45b68248e59c4c5d30c3b0f5b0972d2a"
+    "docs/seed636-owner-approval.md": "9830332295423e94f2840eab286d741669e9827768bbf4143496399a9bdc8450"
   },
   "random_seeds": [
     62320261121

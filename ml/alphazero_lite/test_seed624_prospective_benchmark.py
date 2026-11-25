@@ -108,6 +108,9 @@ class Seed624SyntheticTests(unittest.TestCase):
         }
         registration_raw = json.dumps(registration, sort_keys=True).encode()
         registration_sha = sha256(registration_raw)
+        registration_path = (
+            "docs/experiments/seed636-prospective-population/registration.json"
+        )
         authorization_record = {
             "schema": AUTHORIZATION_SCHEMA,
             "repository": "useruby/mancala-ai",
@@ -115,6 +118,7 @@ class Seed624SyntheticTests(unittest.TestCase):
             "execution_scope": EXECUTION_SCOPE,
             "approved_decisions": APPROVED_DECISIONS,
             "registration_sha256": registration_sha,
+            "registration_path": registration_path,
             "pr_number": 84,
             "pr_url": "https://github.com/useruby/mancala-ai/pull/84",
             "merge_commit": seed624.current_git_commit(),
@@ -138,6 +142,8 @@ class Seed624SyntheticTests(unittest.TestCase):
                 "seed624_freeze": freeze,
             },
             "input_artifacts": {},
+            "registration_path": registration_path,
+            "registration_sha256": registration_sha,
             "worker_count": freeze["production_resource_limits"][
                 "execution_concurrency"
             ],
@@ -164,6 +170,7 @@ class Seed624SyntheticTests(unittest.TestCase):
             ),
             "attempt_manifest_raw_utf8": json.dumps(attempt_manifest, sort_keys=True),
             "registration_sha256": registration_sha,
+            "registration_path": registration_path,
             "registration_raw_utf8": registration_raw.decode(),
         }
         self._fixture_lifecycle = lifecycle

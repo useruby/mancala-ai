@@ -1060,17 +1060,16 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
     registration_pr_authorization = evidence["authorization"]
     owner_identity = registration_pr_authorization["merged_by"]
     attempt_manifest_raw = (attempt_dir / "manifest.json").read_bytes()
+    registration_path = attempt_dir.parents[3] / manifest["registration_path"]
+    registration_raw = registration_path.read_bytes()
     lifecycle_auth = {
         "attempt_manifest_sha256": sha256(attempt_manifest_raw),
         "attempt_manifest_raw_utf8": attempt_manifest_raw.decode("utf-8"),
         "experiment_id": manifest["experiment_id"],
         "attempt_id": manifest["attempt_id"],
-        "registration_sha256": sha256(
-            (attempt_dir.parents[3] / ".experiment" / "registration.json").read_bytes()
-        ),
-        "registration_raw_utf8": (
-            attempt_dir.parents[3] / ".experiment" / "registration.json"
-        ).read_text(),
+        "registration_sha256": sha256(registration_raw),
+        "registration_path": registration_pr_authorization["registration_path"],
+        "registration_raw_utf8": registration_raw.decode("utf-8"),
     }
     expected_sources = freeze.get("source_file_sha256")
     expected_runtime = freeze.get("runtime")

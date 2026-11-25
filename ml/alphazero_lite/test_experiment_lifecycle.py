@@ -12,6 +12,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from jsonschema import Draft202012Validator
+
 from ml.alphazero_lite import experiment_lifecycle as lifecycle
 
 REPO = Path(__file__).parents[2]
@@ -48,7 +50,6 @@ class ExperimentLifecycleTests(unittest.TestCase):
             hypothesis="The deterministic fixture emits its registered result.",
             objective="Exercise process and artifact lifecycle only.",
             experiment_type="synthetic_lifecycle_test",
-            authorization_reference=None,
             random_seeds=[17],
             input_artifacts={
                 str(self.input_path): hashlib.sha256(
@@ -65,18 +66,20 @@ class ExperimentLifecycleTests(unittest.TestCase):
                 "approved_decisions": ["synthetic-only"],
             },
         )
-        registration = json.loads(
-            (self.worktree / ".experiment" / "registration.json").read_bytes()
+        registration, registration_path = lifecycle.load_worktree_registration(
+            self.worktree
         )
         self.assertEqual(registration["approved_protocol_revision"], self.base_commit)
         self.assertEqual(registration["approved_decisions"], ["synthetic-only"])
         self.assertIsNone(registration["authorization_reference"])
+        self.assertEqual(
+            registration_path, "docs/experiments/demo-001/registration.json"
+        )
         self._git_at(
             self.worktree,
             "add",
-            ".experiment/registration.json",
             ".experiment/.gitignore",
-            ".experiment/base-commit.json",
+            "docs/experiments/demo-001/registration.json",
         )
         self._git_at(self.worktree, "commit", "-m", "register synthetic experiment")
 
@@ -120,9 +123,9 @@ class ExperimentLifecycleTests(unittest.TestCase):
             / output_path
         )
         command = [sys.executable, "-c", code, str(output_path)]
-        registered_inputs = json.loads(
-            (self.worktree / ".experiment" / "registration.json").read_bytes()
-        )["input_artifacts"]
+        registered_inputs = lifecycle.load_worktree_registration(self.worktree)[0][
+            "input_artifacts"
+        ]
         return lifecycle.freeze_attempt(
             self.worktree,
             attempt_id=attempt_id,
@@ -237,6 +240,108 @@ class ExperimentLifecycleTests(unittest.TestCase):
         archive_reference_path.write_bytes(archive_reference_bytes)
         lifecycle.safe_remove_worktree(self.repo, self.worktree, merged_into="main")
         self.assertFalse(self.worktree.exists())
+
+    def test_consecutive_experiment_registrations_are_permanent_and_distinct(self):
+        registration_a = self.worktree / "docs/experiments/demo-001/registration.json"
+        bytes_a = registration_a.read_bytes()
+        self._git("merge", "--no-ff", "experiment/demo-001", "-m", "merge experiment A")
+        main_after_a = self._git("rev-parse", "HEAD")
+        main_registration_a = self.repo / "docs/experiments/demo-001/registration.json"
+        self.assertEqual(main_registration_a.read_bytes(), bytes_a)
+
+        worktree_b = lifecycle.create_worktree(
+            self.repo,
+            "demo-002",
+            "experiment/demo-002",
+            main_after_a,
+            hypothesis="A second experiment registration remains independently stored.",
+            objective="Exercise consecutive experiment registration identities.",
+            experiment_type="synthetic_lifecycle_test",
+            random_seeds=[23],
+            input_artifacts={
+                str(self.input_path): hashlib.sha256(
+                    self.input_path.read_bytes()
+                ).hexdigest(),
+            },
+            checkpoint_identity=None,
+            acceptance_criteria=["Both permanent registrations remain unchanged"],
+            worktree_root=self.worktrees,
+            registration_metadata={
+                "resource_budgets": {"wall_time_limit_seconds": 60},
+                "stop_conditions": ["Stop if either registration is missing"],
+            },
+        )
+        registration_a_in_b = worktree_b / "docs/experiments/demo-001/registration.json"
+        registration_b = worktree_b / "docs/experiments/demo-002/registration.json"
+        self.assertEqual(registration_a_in_b.read_bytes(), bytes_a)
+        self.assertEqual(
+            json.loads(registration_b.read_bytes())["experiment_id"], "demo-002"
+        )
+        worktree_metadata = json.loads(
+            (worktree_b / ".experiment/registration.json").read_bytes()
+        )
+        self.assertEqual(worktree_metadata["experiment_id"], "demo-002")
+        self.assertEqual(
+            worktree_metadata["registration_path"],
+            "docs/experiments/demo-002/registration.json",
+        )
+        self.assertEqual(self._git_at(worktree_b, "rev-parse", "HEAD"), main_after_a)
+        self._git_at(
+            worktree_b,
+            "add",
+            "docs/experiments/demo-002/registration.json",
+        )
+        self._git_at(worktree_b, "commit", "-m", "register experiment B")
+        registration_b_on_branch = self._git_at(
+            worktree_b,
+            "show",
+            "HEAD:docs/experiments/demo-002/registration.json",
+        )
+        self.assertEqual(
+            json.loads(registration_b_on_branch)["experiment_id"], "demo-002"
+        )
+        self.assertEqual(main_registration_a.read_bytes(), bytes_a)
+        self.assertEqual(registration_a_in_b.read_bytes(), bytes_a)
+        self.assertEqual(registration_a.read_bytes(), bytes_a)
+        worktree_records = {
+            item["experiment_id"]: item
+            for item in lifecycle.inspect_worktrees(self.repo)
+        }
+        identities = set(worktree_records)
+        self.assertTrue({"demo-001", "demo-002"}.issubset(identities))
+        self.assertEqual(
+            worktree_records["demo-001"]["registration_path"],
+            "docs/experiments/demo-001/registration.json",
+        )
+        self.assertEqual(
+            worktree_records["demo-002"]["registration_path"],
+            "docs/experiments/demo-002/registration.json",
+        )
+
+    def test_synthetic_freeze_and_legacy_authorization_reference_validate_schema(self):
+        attempt_dir = self._freeze(
+            "schema-attempt",
+            "import sys; from pathlib import Path; Path(sys.argv[1]).write_text('ok')",
+        )
+        schema = json.loads(
+            (
+                REPO / "docs/schemas/mancala-experiment-attempt-v1.schema.json"
+            ).read_bytes()
+        )
+        validator = Draft202012Validator(schema)
+        manifest = json.loads((attempt_dir / "manifest.json").read_bytes())
+        validator.validate(manifest)
+        self.assertIsNone(manifest["authorization_reference"])
+
+        new_contract_manifest = dict(manifest)
+        new_contract_manifest.pop("authorization_reference")
+        validator.validate(new_contract_manifest)
+
+        historical_manifest = dict(manifest)
+        historical_manifest["authorization_reference"] = "historic-owner-approval"
+        historical_manifest.pop("registration_path")
+        historical_manifest.pop("registration_sha256")
+        validator.validate(historical_manifest)
         with self.assertRaisesRegex(FileExistsError, "already_registered"):
             lifecycle.create_worktree(
                 self.repo,

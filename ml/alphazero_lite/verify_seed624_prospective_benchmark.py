@@ -75,6 +75,33 @@ def _git_blob(revision: str, path: str) -> bytes:
     ).stdout
 
 
+def _resolve_git_commit(revision: str) -> str:
+    return subprocess.run(
+        ["git", "-C", str(ROOT), "rev-parse", "--verify", f"{revision}^{{commit}}"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+
+def _git_is_ancestor(ancestor: str, descendant: str) -> bool:
+    return (
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                str(ROOT),
+                "merge-base",
+                "--is-ancestor",
+                ancestor,
+                descendant,
+            ],
+            capture_output=True,
+        ).returncode
+        == 0
+    )
+
+
 def verify_registration_pr_authorization(
     record: dict[str, Any], lifecycle: dict[str, Any], source_commit: str
 ) -> str:
@@ -97,6 +124,14 @@ def verify_registration_pr_authorization(
     }
     registration_raw = lifecycle.get("registration_raw_utf8", "").encode()
     registration = json.loads(registration_raw)
+    if (
+        registration.get("schema") != "mancala-experiment-registration-v1"
+        or registration.get("experiment_id") != "seed636-prospective-population"
+    ):
+        raise ValueError("registration_pr_registration_identity_invalid")
+    expected_registration_path = (
+        f"docs/experiments/{registration.get('experiment_id')}/registration.json"
+    )
     if _sha(registration_raw) != lifecycle.get("registration_sha256"):
         raise ValueError("registration_pr_registration_hash_mismatch")
     if record.get("schema") != schema:
@@ -114,6 +149,8 @@ def verify_registration_pr_authorization(
         or registration.get("execution_scope") != EXECUTION_SCOPE
         or registration.get("approved_decisions") != approved_decisions
         or record.get("approved_decisions") != approved_decisions
+        or record.get("registration_path") != expected_registration_path
+        or lifecycle.get("registration_path") != expected_registration_path
     ):
         raise ValueError("registration_pr_approved_scope_mismatch")
     protocol_documents = registration.get("protocol_documents", {})
@@ -175,7 +212,7 @@ def verify_registration_pr_authorization(
     ):
         raise ValueError("registration_pr_live_metadata_mismatch")
     try:
-        merged_registration = _git_blob(source_commit, ".experiment/registration.json")
+        merged_registration = _git_blob(source_commit, expected_registration_path)
     except subprocess.CalledProcessError as error:
         raise ValueError("registration_pr_committed_registration_missing") from error
     if (
@@ -183,6 +220,23 @@ def verify_registration_pr_authorization(
         or _sha(merged_registration) != record["registration_sha256"]
     ):
         raise ValueError("registration_pr_committed_registration_mismatch")
+    base_commit = api_record.get("base", {}).get("sha")
+    if not isinstance(base_commit, str):
+        raise ValueError("registration_pr_base_commit_missing")
+    try:
+        resolved_base = _resolve_git_commit(base_commit)
+    except subprocess.CalledProcessError as error:
+        raise ValueError("registration_pr_base_commit_invalid") from error
+    if resolved_base != base_commit:
+        raise ValueError("registration_pr_base_commit_invalid")
+    if not _git_is_ancestor(base_commit, source_commit):
+        raise ValueError("registration_pr_base_not_merge_ancestor")
+    try:
+        base_registration = _git_blob(base_commit, expected_registration_path)
+    except subprocess.CalledProcessError:
+        base_registration = None
+    if base_registration == merged_registration:
+        raise ValueError("registration_pr_inherited_registration_not_authorized")
     for name, expected_digest in protocol_documents.items():
         try:
             committed_blob = _git_blob(source_commit, name)
@@ -685,6 +739,10 @@ def verify_bundle(bundle_path: Path) -> dict[str, Any]:
         or attempt_manifest.get("experiment_id") != registration.get("experiment_id")
         or attempt_manifest.get("attempt_id") != lifecycle_auth.get("attempt_id")
         or attempt_manifest.get("worker_count") != 1
+        or attempt_manifest.get("registration_path")
+        != lifecycle_auth.get("registration_path")
+        or attempt_manifest.get("registration_sha256")
+        != lifecycle_auth.get("registration_sha256")
         or attempt_manifest.get("source_commit")
         != bundle.get("source_identity", {}).get("git_commit")
         or attempt_manifest.get("configuration", {}).get("execution_scope")
