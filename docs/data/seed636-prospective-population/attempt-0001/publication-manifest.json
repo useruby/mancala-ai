@@ -1,0 +1,49 @@
+{
+  "attempt_id": "attempt-0001",
+  "attempt_verification": {
+    "attempt_id": "attempt-0001",
+    "experiment_id": "seed636-prospective-population",
+    "input_artifact_mismatches": [],
+    "input_artifacts_verified": true,
+    "integrity_verified": true,
+    "manifest_sha256": "712feba653d6b1c867bcd43045b5c97223d208386ef743dcf32d8c19a0121c7b",
+    "outputs_verified": 1,
+    "status": "completed",
+    "verified": true
+  },
+  "experiment_id": "seed636-prospective-population",
+  "files": [
+    {
+      "path": "manifest.json",
+      "sha256": "712feba653d6b1c867bcd43045b5c97223d208386ef743dcf32d8c19a0121c7b",
+      "size_bytes": 11013
+    },
+    {
+      "path": "completed.json",
+      "sha256": "2e4ea1809a64ecf7e2a9475b5d3f84cd0dac562f75104c84518b5a1d840bd1be",
+      "size_bytes": 1426
+    },
+    {
+      "path": "stdout.log",
+      "sha256": "6cc4cb81bb33b49505f5318bef50095f18e7d5297b92b26d7c08e674cdf756a7",
+      "size_bytes": 270
+    },
+    {
+      "path": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "archive-reference.json",
+      "sha256": "9803a1a9c973c183f7384467495fc895aad480fbb473b54855e08b84631c5b14",
+      "size_bytes": 871
+    },
+    {
+      "path": "seed636-prospective-population--attempt-0001.archive-manifest.json",
+      "sha256": "057358aad2d72b733a29019c21f7a3f0a9b7d68e37cd5ea2954660e59c366bc5",
+      "size_bytes": 4747
+    }
+  ],
+  "schema": "mancala-experiment-publication-v1",
+  "source_commit": "51e1699829f841e8c0cf0a483f66a4cbc9ba1071"
+}

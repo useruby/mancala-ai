@@ -1,0 +1,13 @@
+{
+  "archive_manifest_path": "/home/alex/mancala-ai-experiment-archives/seed636-prospective-population--attempt-0001.archive-manifest.json",
+  "archive_manifest_sha256": "057358aad2d72b733a29019c21f7a3f0a9b7d68e37cd5ea2954660e59c366bc5",
+  "archive_path": "/home/alex/mancala-ai-experiment-archives/seed636-prospective-population--attempt-0001.tar.zst",
+  "archive_sha256": "d6e454f889e6155d7dccf3bf81e6769989896389d401fc5bf4cbd058059c8bf1",
+  "attempt_id": "attempt-0001",
+  "attempt_manifest_sha256": "712feba653d6b1c867bcd43045b5c97223d208386ef743dcf32d8c19a0121c7b",
+  "experiment_id": "seed636-prospective-population",
+  "required_artifact_inventory_sha256": "a4ae4728e87e37a97a37d3abb51687c48f251736f77da1b1af82cd64c5dbd148",
+  "schema": "mancala-experiment-archive-reference-v1",
+  "source_commit": "51e1699829f841e8c0cf0a483f66a4cbc9ba1071",
+  "verified": true
+}

@@ -1,0 +1,36 @@
+{
+  "attempt_id": "attempt-0001",
+  "completed_at": "2026-11-25T20:53:08.506016+00:00",
+  "elapsed_seconds": 68.53995219804347,
+  "exit_status": 0,
+  "experiment_id": "seed636-prospective-population",
+  "free_disk_bytes_before": 594037829632,
+  "manifest_sha256": "712feba653d6b1c867bcd43045b5c97223d208386ef743dcf32d8c19a0121c7b",
+  "output_sha256": {
+    "population": "b51465499e45ca1de4b49a9a34a14227ab02e343e6ce5c42904e2fde890a236b"
+  },
+  "reason": null,
+  "resource_usage_after": {
+    "max_rss_platform_units": 671044,
+    "system_cpu_seconds": 2.259421,
+    "user_cpu_seconds": 65.586805
+  },
+  "resource_usage_before": {
+    "max_rss_platform_units": 53200,
+    "system_cpu_seconds": 0.008274,
+    "user_cpu_seconds": 0.010371
+  },
+  "resource_usage_delta": {
+    "max_rss_platform_units": 671044,
+    "max_rss_scope": "supervisor_children_high_water_including_prior_children",
+    "system_cpu_seconds": 2.251147,
+    "user_cpu_seconds": 65.57643399999999
+  },
+  "schema": "mancala-experiment-attempt-result-v1",
+  "source_commit": "51e1699829f841e8c0cf0a483f66a4cbc9ba1071",
+  "started_at": "2026-11-25T20:51:59.965128+00:00",
+  "started_sha256": "55f8de4bad6656584ac18d752be877bb6b66d1454f75fe01f987062623266061",
+  "status": "completed",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_sha256": "6cc4cb81bb33b49505f5318bef50095f18e7d5297b92b26d7c08e674cdf756a7"
+}

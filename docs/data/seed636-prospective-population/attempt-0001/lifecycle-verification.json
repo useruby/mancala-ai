@@ -1,0 +1,11 @@
+{
+  "attempt_id": "attempt-0001",
+  "experiment_id": "seed636-prospective-population",
+  "input_artifact_mismatches": [],
+  "input_artifacts_verified": true,
+  "integrity_verified": true,
+  "manifest_sha256": "712feba653d6b1c867bcd43045b5c97223d208386ef743dcf32d8c19a0121c7b",
+  "outputs_verified": 1,
+  "status": "completed",
+  "verified": true
+}

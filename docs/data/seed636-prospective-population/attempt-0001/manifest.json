@@ -1,0 +1,200 @@
+{
+  "acceptance_criteria": [
+    "Generate exactly 256 distinct opening positions, using the registered reserve and frozen deterministic generation contract.",
+    "Generate exactly 2,048 independent continuation games, eight per retained opening.",
+    "Authenticate and screen all membership against Seed 627 B512, S615, and protected-holdout snapshots; provenance remains authenticated non-crosswalkable and inherited P-E4 exposure unresolved.",
+    "Complete canonical-state and production float32 identity deduplication before selection.",
+    "After exact-known-exposure exclusions, satisfy minimum eligible supply of 206/206/204/204/204 for 17/18/19/20/21 active pit stones, respectively.",
+    "Select exactly 512 states with stone-bin quotas 103/103/102/102/102 and at least 128 distinct opening clusters.",
+    "Enforce maximum four selected states per opening and maximum two per continuation game.",
+    "Independent verifier reproduces all generation, screening, candidate supply, deduplication, and selected-population evidence.",
+    "Any mandatory gate failure is retained as evidence and stops execution without parameter changes or automatic retry.",
+    "Scope excludes inference, MCTS, exact solving, tablebase probes, training, and candidate promotion."
+  ],
+  "attempt_id": "attempt-0001",
+  "authorization_reference": null,
+  "base_commit": "e010276acae9499bce7e644e94269ada6848a0c7",
+  "checkpoint_identity": null,
+  "command": [
+    "/home/alex/Mancala/ai/.worktrees/seed636-prospective-population/.experiment/runtime/seed624-venv/bin/python",
+    "-m",
+    "ml.alphazero_lite.seed624_prospective_benchmark",
+    "--attempt-dir",
+    "/home/alex/Mancala/ai/.worktrees/seed636-prospective-population/.experiment/runtime/attempts/attempt-0001",
+    "--output",
+    "/home/alex/Mancala/ai/.worktrees/seed636-prospective-population/.experiment/runtime/attempts/attempt-0001/population"
+  ],
+  "configuration": {
+    "execution_scope": "model-independent-generation-and-screening-only",
+    "registration_sha256": "5e177839ba3697fd1e85960f6b1a33717fbf1925d86f348ed26e752d93e8f658",
+    "seed624_freeze": {
+      "authorization_requirements": {
+        "contract": "seed636-registration-pr-authorization-v1",
+        "execution_scope": "model-independent-generation-and-screening-only",
+        "project_owner_identity": "useruby",
+        "registration_pr_merged_into": "main",
+        "registration_sha256": "5e177839ba3697fd1e85960f6b1a33717fbf1925d86f348ed26e752d93e8f658",
+        "repository": "useruby/mancala-ai"
+      },
+      "create_only_output_paths": [
+        "/home/alex/Mancala/ai/.worktrees/seed636-prospective-population/.experiment/runtime/attempts/attempt-0001/population"
+      ],
+      "dependency_versions": {
+        "numpy": "2.5.3",
+        "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+        "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]"
+      },
+      "encoder_identity": {
+        "encoder": "kalah_v3",
+        "source_sha256": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe"
+      },
+      "execution_scope": "model-independent-generation-and-screening-only",
+      "generation": {
+        "continuation_action_limit": 200,
+        "games_per_opening": 8,
+        "invalid_prefix_policy": "consume-reserve-index-skip-record-provenance-v1",
+        "master_seed": 62320261121,
+        "opening_reserve": 512,
+        "opening_target": 256,
+        "prefix_actions": 8,
+        "seed_contract": "seed624-sha256-v1; big-endian u64 prefix; Python random.Random"
+      },
+      "git_commit": "51e1699829f841e8c0cf0a483f66a4cbc9ba1071",
+      "independent_verifier_sha256": "6bc9e0c13c9b93a235937b26f3c6686ad6ca56e2452805183e2c1895ea6cca31",
+      "membership_snapshot_file_sha256": {
+        "B512": "de7650a5d4f0d7a9dec11adb3d100689381a4b1539ec0c9749a0f82feda28d59",
+        "S615": "8ed6f059d491fa4a6bfd90c942d6e02d05ef1b6a82db65969402ad4351a084fd",
+        "protected_holdout": "4716976a654ecba4aadccfa336d0dc3c5fdbd354ac27786848a06485d6062610"
+      },
+      "membership_snapshot_sha256": {
+        "B512": "a879794ac184ee522c33ae6ed2d47c75030cec988f6eb0375344c269bbac624d",
+        "S615": "75e2ad3c71de2ba50ba270db2303e85cb55dc5df79235794711aa7795484ab8c",
+        "protected_holdout": "4ff36b52eec52c4162817d843d119689ec74863223e2267a1ce28fab203217d3"
+      },
+      "membership_source_manifest_sha256": "e7a6af69f72780ca5ca79f9fe8214b9d347b6c6c0fb7cfea87b0617e3a16d3f3",
+      "output_schema": "seed624-prospective-population-v1",
+      "production_resource_limits": {
+        "cpu_seconds": 10800,
+        "execution_concurrency": 1,
+        "output_and_temporary_storage_bytes": 21474836480,
+        "process_rss_bytes": 17179869184,
+        "wall_seconds": 14400
+      },
+      "provenance_source_file_sha256": {
+        "B512": "e7a6af69f72780ca5ca79f9fe8214b9d347b6c6c0fb7cfea87b0617e3a16d3f3",
+        "S615": "e7a6af69f72780ca5ca79f9fe8214b9d347b6c6c0fb7cfea87b0617e3a16d3f3",
+        "protected_holdout": "e7a6af69f72780ca5ca79f9fe8214b9d347b6c6c0fb7cfea87b0617e3a16d3f3"
+      },
+      "rules_identity": {
+        "rule_id": "historical-kalah-rules",
+        "rule_version": "repository-kalah-rules-v1",
+        "source_sha256": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036"
+      },
+      "runtime": {
+        "numpy": "2.5.3",
+        "optimizer": "seed624-dfs-bounded-v2",
+        "prng": "random.Random/MT19937; Python 3.14.7",
+        "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]"
+      },
+      "sampling_contract": "deterministic standardized selected-state population; fixed 1/5 weights per stone bin; no design-unbiased inference or inclusion-probability claim",
+      "schema": "seed624-execution-freeze-v1",
+      "selection": {
+        "candidate_limit": 10240,
+        "input_memory_limit_bytes": 134217728,
+        "max_per_game": 2,
+        "max_per_opening": 4,
+        "minimum_openings": 128,
+        "node_limit": 250000,
+        "objective": "lexicographically smallest feasible per-bin rank vector; bin order 17,18,19,20,21; rank ties by canonical identity",
+        "optimizer": "seed624-dfs-bounded-v2",
+        "runtime_limit_seconds": 30,
+        "targets": {
+          "17": 103,
+          "18": 103,
+          "19": 102,
+          "20": 102,
+          "21": 102
+        },
+        "time_check_interval_nodes": 1,
+        "workers": 1,
+        "working_memory_limit_bytes": 67108864
+      },
+      "source_file_sha256": {
+        "ml/alphazero_lite/input_encodings.py": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe",
+        "ml/alphazero_lite/kalah_rules.py": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+        "ml/alphazero_lite/requirements-seed624-prospective.txt": "5c12d85e7c08038d1dd9ffbf8119d12ce808885230a47e2bf65dcd9f114659d5",
+        "ml/alphazero_lite/seed624_prospective_benchmark.py": "8250ce670c146fdc014c3b722d98ef0aea7f56b468b0c6d0e0cf02a8e8257dc0",
+        "ml/alphazero_lite/seed628_authenticated_screening.py": "b0856e6b26d6f4a17947d17e16bad611606632651f77b8f6f8ade81df4ea507d",
+        "ml/alphazero_lite/seed636_authorization.py": "7ed3e594a68faacbf04f6bf5482eeec8a18ca0f0fc16c976f95b2bebaf5427ee",
+        "ml/alphazero_lite/self_play.py": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
+        "ml/alphazero_lite/verify_seed624_prospective_benchmark.py": "6bc9e0c13c9b93a235937b26f3c6686ad6ca56e2452805183e2c1895ea6cca31",
+        "ml/alphazero_lite/verify_seed628_authenticated_screening.py": "204a22ddfd1292852ad54b4e6479d9d47bbd7ba9c42676e8a43197cb572b4cce"
+      },
+      "source_provenance_sha256": "a52595b66b96d2072c7467c0af133c81c5b88ac841cccc952446a1e457b9a402",
+      "status": "frozen",
+      "stone_bin_weights": {
+        "17": 0.2,
+        "18": 0.2,
+        "19": 0.2,
+        "20": 0.2,
+        "21": 0.2
+      },
+      "temporary_path": "/home/alex/Mancala/ai/.worktrees/seed636-prospective-population/.experiment/runtime/attempts/attempt-0001",
+      "verification_commands": [
+        "python -m ml.alphazero_lite.verify_seed624_prospective_benchmark .experiment/runtime/attempts/attempt-0001/population/population.json"
+      ]
+    }
+  },
+  "device": {
+    "architecture": "x86_64",
+    "type": "cpu"
+  },
+  "environment": {
+    "HOME": "/home/alex",
+    "LANG": "en_US.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PATH": "/home/alex/.local/share/mise/installs/gh/2.93.0/gh_2.93.0_linux_amd64/bin:/home/alex/.local/share/mise/installs/github-astral-sh-ruff/0.15.13:/home/alex/.local/share/mise/installs/npm/latest/package/bin:/home/alex/.local/share/mise/installs/node/latest/bin:/home/alex/.local/share/mise/installs/opencode/latest:/home/alex/.local/bin:/usr/local/bin:/usr/bin"
+  },
+  "execution_source_identity": "f3a36fb6252e91ee8823cd09a2997f9de7c773fa",
+  "experiment_id": "seed636-prospective-population",
+  "experiment_type": "prospective_population_generation",
+  "frozen_at": "2026-11-25T20:51:10.285855+00:00",
+  "hypothesis": "A deterministic model-independent generation and authenticated known-exposure screen can produce an independently reproducible 512-state finite cohort from 256 distinct openings and 2,048 continuation games, satisfying all registered stone-bin supply and cluster constraints.",
+  "input_artifacts": {
+    "/home/alex/Mancala/ai/docs/data/seed604-replay-optimization/runtime-certification-v3/requirements-lock.txt": "5762f889f9719525379f8f1321811df9c52ea3675cdb319492eba15570c94ce4",
+    "/home/alex/Mancala/ai/docs/data/seed627-authenticated-membership/snapshots": "73fab70b5f4db459a684cf4c6567cd857d4c76673a53acd61fb41d12613e3085"
+  },
+  "objective": "Generate and independently verify the Seed 623 prospective benchmark population only; preserve known-exposure-screened classification with inherited P-E4 exposure unresolved.",
+  "output_paths": [
+    "population"
+  ],
+  "publication_outputs": [],
+  "random_seeds": [
+    62320261121
+  ],
+  "registration_path": "docs/experiments/seed636-prospective-population/registration.json",
+  "registration_sha256": "5e177839ba3697fd1e85960f6b1a33717fbf1925d86f348ed26e752d93e8f658",
+  "resource_budget": {
+    "additional_limits": {
+      "cpu_seconds": 10800,
+      "output_and_temporary_storage_bytes": 21474836480,
+      "process_rss_bytes": 17179869184
+    },
+    "expected_runtime_seconds": 7200,
+    "minimum_free_disk_bytes": 32212254720,
+    "wall_time_limit_seconds": 14400
+  },
+  "runtime_versions": {
+    "generator": "seed624-deterministic-population-v1",
+    "numpy": "2.5.3",
+    "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+    "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]"
+  },
+  "schema": "mancala-experiment-attempt-v1",
+  "source_commit": "51e1699829f841e8c0cf0a483f66a4cbc9ba1071",
+  "status": "frozen",
+  "worker_count": 1,
+  "worktree_path": "/home/alex/Mancala/ai/.worktrees/seed636-prospective-population"
+}

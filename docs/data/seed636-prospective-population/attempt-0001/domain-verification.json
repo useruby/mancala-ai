@@ -1,0 +1,18 @@
+{
+  "candidate_count": 5623,
+  "game_clusters": 459,
+  "games": 2048,
+  "opening_clusters": 218,
+  "openings": 256,
+  "sampling_contract": "deterministic standardized selected-state population; fixed 1/5 weights per stone bin; no design-unbiased inference or inclusion-probability claim",
+  "selected_count": 512,
+  "status": "verified",
+  "stone_bin_counts": {
+    "17": 103,
+    "18": 103,
+    "19": 102,
+    "20": 102,
+    "21": 102
+  },
+  "training_disjoint": false
+}
