@@ -240,6 +240,24 @@ current attempt files. External archives and registry history are retained.
 
 ## Scientific reporting and authorization
 
+### GitHub project-owner authorization
+
+For ordinary research experiments in `useruby/mancala-ai`, the accepted owner
+authorization is an explicit GitHub comment by repository owner `useruby` on an
+issue or pull request. The auditable record includes the GitHub login, comment
+URL and server timestamp, exact approved protocol revision and document
+SHA-256s, execution scope, and SHA-256 of the committed experiment registration.
+The comment text must bind all of those fields. The experiment-specific entry
+point retrieves the comment through GitHub's API and rejects a mismatched author,
+URL, timestamp, body, registration, protocol identity, or scope. A PR merge,
+review-request, or unrelated approval comment is not authorization.
+
+The authorization record belongs in the experiment registration/worktree and is
+carried into the execution evidence. It authorizes only the named experiment
+scope; each later scientifically gated stage requires its own explicit owner
+authorization. This ordinary research mechanism does not authorize or modify
+Seed 629 privileged production launches.
+
 Every experiment PR reports (a) registered hypotheses and estimands, (b)
 observations with evidence links, (c) acceptance criteria and whether each
 passed, (d) final scientific classification, (e) limitations, and (f) the next

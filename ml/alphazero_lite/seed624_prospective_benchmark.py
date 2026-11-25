@@ -7,9 +7,7 @@ generation is deliberately guarded by an explicit authorization record.
 from __future__ import annotations
 
 import hashlib
-import importlib.metadata
 import json
-import os
 import random
 import subprocess
 import sys
@@ -44,22 +42,7 @@ MAX_SELECTION_NODES = 250_000
 MAX_SELECTION_SECONDS = 30
 SELECTION_TIME_CHECK_INTERVAL_NODES = 1
 MAX_SELECTION_WORKING_BYTES = 64 * 1024 * 1024
-# Trust anchors are provisioned only through a reviewed source change. An empty
-# production allowlist deliberately prevents approval by caller-supplied keys.
-TRUSTED_PROJECT_OWNER_KEYS: dict[str, dict[str, str]] = {}
-EXECUTION_SCOPE = "model-independent-generation-and-screening"
-FAILURE_CATEGORIES = frozenset(
-    {
-        "opening_reserve_exhaustion",
-        "insufficient_stone_bin_supply",
-        "mathematical_infeasibility",
-        "selector_resource_exhaustion",
-        "verification_or_identity_failure",
-        "unexpected_execution_exception",
-        "external_resource_limit_termination",
-        "preflight_failure",
-    }
-)
+EXECUTION_SCOPE = "model-independent-generation-and-screening-only"
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE_FILES = (
     "ml/alphazero_lite/seed624_prospective_benchmark.py",
@@ -70,8 +53,7 @@ SOURCE_FILES = (
     "ml/alphazero_lite/requirements-seed624-prospective.txt",
     "ml/alphazero_lite/seed628_authenticated_screening.py",
     "ml/alphazero_lite/verify_seed628_authenticated_screening.py",
-    "ml/alphazero_lite/seed629_execution_supervisor.py",
-    "ml/alphazero_lite/verify_seed629_supervisor.py",
+    "ml/alphazero_lite/seed636_authorization.py",
 )
 
 
@@ -113,16 +95,11 @@ def identities(state: dict[str, Any]) -> tuple[str, str]:
 
 
 def runtime_identity() -> dict[str, str]:
-    try:
-        crypto_version = importlib.metadata.version("cryptography")
-    except importlib.metadata.PackageNotFoundError:
-        crypto_version = "unavailable"
     return {
         "python": sys.version,
         "numpy": np.__version__,
         "prng": f"random.Random/MT19937; Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
         "optimizer": "seed624-dfs-bounded-v2",
-        "cryptography": crypto_version,
     }
 
 
@@ -138,41 +115,6 @@ def current_git_commit() -> str:
         capture_output=True,
         text=True,
     ).stdout.strip()
-
-
-def verify_owner_approval_record(
-    record: dict[str, Any], freeze_sha256: str, execution_scope: str
-) -> str:
-    """Validate Ed25519 approval against repository-pinned trust anchors."""
-    if (
-        record.get("schema") != "seed624-owner-approval-v1"
-        or record.get("freeze_sha256") != freeze_sha256
-        or record.get("execution_scope") != execution_scope
-        or not isinstance(record.get("project_owner_identity"), str)
-    ):
-        raise PermissionError("owner_approval_record_binding_mismatch")
-    key_record = TRUSTED_PROJECT_OWNER_KEYS.get(str(record.get("key_id")))
-    if key_record is None or key_record.get("project_owner_identity") != record.get(
-        "project_owner_identity"
-    ):
-        raise PermissionError("owner_approval_signing_key_not_trusted")
-    try:
-        from base64 import b64decode
-        from cryptography.exceptions import InvalidSignature
-        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
-    except ImportError as error:
-        raise PermissionError("owner_approval_crypto_dependency_unavailable") from error
-    try:
-        signature = b64decode(record["signature_ed25519"], validate=True)
-        payload = {
-            key: value for key, value in record.items() if key != "signature_ed25519"
-        }
-        Ed25519PublicKey.from_public_bytes(
-            bytes.fromhex(key_record["public_key_hex"])
-        ).verify(signature, canonical_bytes(payload))
-    except (KeyError, ValueError, TypeError, InvalidSignature) as error:
-        raise PermissionError("owner_approval_signature_invalid") from error
-    return str(record["project_owner_identity"])
 
 
 def authenticate_frozen_membership_evidence(
@@ -300,6 +242,7 @@ def choose_distinct_openings(
     reserve: int,
     target: int,
     master_seed: int = MASTER_SEED,
+    on_attempt=None,
 ) -> dict[str, Any]:
     """Consume each reserve index once; skip and record invalid/duplicate prefixes."""
     chosen: list[dict[str, Any]] = []
@@ -321,6 +264,8 @@ def choose_distinct_openings(
                 raise ValueError("invalid_opening_prefix_rejection_record_mismatch")
             attempts.append(attempt)
             rejections.append(attempt)
+            if on_attempt is not None:
+                on_attempt(attempt, None)
             continue
         cid = opening["canonical_identity"]
         fid = opening["production_float32_identity"]
@@ -337,6 +282,8 @@ def choose_distinct_openings(
             }
             attempts.append(attempt)
             rejections.append(attempt)
+            if on_attempt is not None:
+                on_attempt(attempt, None)
             continue
         if fid in float_seen:
             attempt = {
@@ -350,19 +297,22 @@ def choose_distinct_openings(
             }
             attempts.append(attempt)
             rejections.append(attempt)
+            if on_attempt is not None:
+                on_attempt(attempt, None)
             continue
         canonical_seen[cid] = index
         float_seen[fid] = index
         chosen.append(opening)
-        attempts.append(
-            {
-                "opening_index": index,
-                "seed": seed,
-                "status": "accepted",
-                "canonical_identity": cid,
-                "production_float32_identity": fid,
-            }
-        )
+        attempt = {
+            "opening_index": index,
+            "seed": seed,
+            "status": "accepted",
+            "canonical_identity": cid,
+            "production_float32_identity": fid,
+        }
+        attempts.append(attempt)
+        if on_attempt is not None:
+            on_attempt(attempt, opening)
         if len(chosen) == target:
             return {
                 "openings": chosen,
@@ -378,6 +328,7 @@ def choose_distinct_openings(
             "available": len(chosen),
             "reserve": reserve,
             "consumed_seed_indexes": list(range(reserve)),
+            "openings": chosen,
             "attempts": attempts,
             "rejections": rejections,
         }
@@ -402,14 +353,19 @@ def _candidate_rank(
 
 
 def generate_game(
-    opening: dict[str, Any], master_seed: int, trajectory_index: int
+    opening: dict[str, Any],
+    master_seed: int,
+    trajectory_index: int,
+    *,
+    on_action=None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     opening_index = int(opening["opening_index"])
     game_id = f"o{opening_index:04d}-g{trajectory_index:02d}"
     game = KalahGame.from_state(opening["state"])
-    rng = random.Random(
-        derive_seed(master_seed, opening_index, trajectory_index, "continuation")
+    continuation_seed = derive_seed(
+        master_seed, opening_index, trajectory_index, "continuation"
     )
+    rng = random.Random(continuation_seed)
     trajectory: list[int] = []
     visits_by_bin: dict[int, list[dict[str, Any]]] = {}
     for ply in range(MAX_CONTINUATION_ACTIONS):
@@ -446,6 +402,17 @@ def generate_game(
         if not game.move(game.pit_index(action)):
             raise RuntimeError("rules_engine_rejected_its_legal_action")
         trajectory.append(action)
+        if on_action is not None:
+            on_action(
+                {
+                    "game_id": game_id,
+                    "opening_index": opening_index,
+                    "trajectory_index": trajectory_index,
+                    "seed": continuation_seed,
+                    "continuation_ply": ply,
+                    "action": action,
+                }
+            )
     candidates = []
     for stones, visits in sorted(visits_by_bin.items()):
         visits.sort(key=lambda row: (row["rank"], row["canonical_identity"]))
@@ -465,9 +432,7 @@ def generate_game(
         "game_id": game_id,
         "opening_index": opening_index,
         "opening_identity": opening["canonical_identity"],
-        "seed": derive_seed(
-            master_seed, opening_index, trajectory_index, "continuation"
-        ),
+        "seed": continuation_seed,
         "actions": trajectory,
         "full_actions": list(opening["prefix_actions"]) + trajectory,
         "terminal": terminal,
@@ -486,8 +451,166 @@ class ShortfallError(ValueError):
         super().__init__(json.dumps(report, sort_keys=True))
 
 
-class ExternalResourceLimitError(RuntimeError):
-    """Supervisor reported termination for an independently enforced limit."""
+def _write_json_create_only(path: Path, value: Any) -> None:
+    with path.open("xb") as stream:
+        stream.write(canonical_bytes(value) + b"\n")
+        stream.flush()
+
+
+def _write_jsonl_create_only(path: Path, rows: list[dict[str, Any]]) -> None:
+    with path.open("xb") as stream:
+        for row in rows:
+            stream.write(canonical_bytes(row) + b"\n")
+        stream.flush()
+
+
+def _shortfall_classification(report: dict[str, Any]) -> str:
+    reason = str(report.get("reason", ""))
+    if reason in {"opening_reserve_exhausted", "hard_supply"}:
+        return "insufficient_candidate_supply"
+    if reason in {"aggregate_cluster_capacity", "constraints_infeasible"}:
+        return "mathematical_infeasibility"
+    if "resource_limit" in reason or reason in {
+        "candidate_count_resource_limit",
+        "input_memory_resource_limit",
+    }:
+        return "resource_exhaustion"
+    return "verification_failure"
+
+
+def _write_failure_record(
+    output: Path,
+    *,
+    stage: str,
+    classification: str,
+    reason: dict[str, Any],
+) -> None:
+    _write_json_create_only(
+        output / "failure.json",
+        {
+            "schema": "seed624-population-generation-failure-v1",
+            "status": "failed",
+            "stage": stage,
+            "classification": classification,
+            "reason": reason,
+            "qualified_population": False,
+        },
+    )
+
+
+def _run_selection_with_evidence(
+    output: Path, screened: list[dict[str, Any]]
+) -> dict[str, Any]:
+    eligible = [
+        row
+        for row in screened
+        if row.get("classification")
+        == "known_exposure_nonmatch_inherited_PE4_unresolved"
+    ]
+    supply = Counter(int(row["active_pit_stones"]) for row in eligible)
+    diagnostics = {
+        "schema": "seed624-selection-input-diagnostics-v1",
+        "candidate_count": len(screened),
+        "eligible_candidate_count": len(eligible),
+        "eligible_supply": {str(stones): supply[stones] for stones in BIN_ORDER},
+        "hard_minimum_supply": {
+            str(stones): 2 * target for stones, target in STONE_TARGETS.items()
+        },
+        "preferred_four_x_supply": {
+            str(stones): supply[stones] >= 4 * target
+            for stones, target in STONE_TARGETS.items()
+        },
+        "candidate_inventory_sha256": sha256(canonical_bytes(screened)),
+        "selection_contract": {
+            "targets": {str(stones): count for stones, count in STONE_TARGETS.items()},
+            "minimum_openings": MIN_OPENING_CLUSTERS,
+            "max_per_opening": 4,
+            "max_per_game": 2,
+            "workers": 1,
+            "optimizer": "seed624-dfs-bounded-v2",
+            "candidate_limit": MAX_SELECTION_CANDIDATES,
+            "input_memory_limit_bytes": MAX_SELECTION_INPUT_BYTES,
+            "node_limit": MAX_SELECTION_NODES,
+            "runtime_limit_seconds": MAX_SELECTION_SECONDS,
+            "working_memory_limit_bytes": MAX_SELECTION_WORKING_BYTES,
+        },
+    }
+    _write_json_create_only(output / "selection-input-diagnostics.json", diagnostics)
+    try:
+        selection = select_cohort(screened)
+    except ShortfallError as error:
+        _write_json_create_only(
+            output / "selection-diagnostics.json",
+            {
+                "schema": "seed624-selection-shortfall-v1",
+                "status": "shortfall",
+                "failure_classification": _shortfall_classification(error.report),
+                "input": diagnostics,
+                "selector_report": error.report,
+                "qualified_population": False,
+            },
+        )
+        _write_failure_record(
+            output,
+            stage="constrained_selection",
+            classification=_shortfall_classification(error.report),
+            reason=error.report,
+        )
+        raise
+    except BaseException as error:
+        failure = {
+            "exception_type": type(error).__name__,
+            "message": str(error),
+        }
+        _write_json_create_only(
+            output / "selection-diagnostics.json",
+            {
+                "schema": "seed624-selection-failure-v1",
+                "status": "failed",
+                "input": diagnostics,
+                "failure": failure,
+                "qualified_population": False,
+            },
+        )
+        _write_failure_record(
+            output,
+            stage="constrained_selection",
+            classification="verification_failure",
+            reason=failure,
+        )
+        raise
+    _write_json_create_only(
+        output / "selection-diagnostics.json",
+        {
+            "schema": "seed624-selection-result-v1",
+            "status": "selected",
+            "input": diagnostics,
+            "selection": selection,
+        },
+    )
+    return selection
+
+
+def _persist_screened_stages_and_select(
+    output: Path,
+    screened_candidates: list[dict[str, Any]],
+    *,
+    inventories_already_persisted: bool = False,
+) -> dict[str, Any]:
+    if not inventories_already_persisted:
+        _write_jsonl_create_only(
+            output / "screened-candidates.jsonl", screened_candidates
+        )
+        _write_jsonl_create_only(
+            output / "exclusions.jsonl",
+            [
+                row
+                for row in screened_candidates
+                if row["classification"]
+                != "known_exposure_nonmatch_inherited_PE4_unresolved"
+            ],
+        )
+    return _run_selection_with_evidence(output, screened_candidates)
 
 
 def deduplicate_candidates(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -546,6 +669,7 @@ def screen_known_exposure(
     *,
     expected_snapshot_hashes: dict[str, str] | None = None,
     expected_provenance_hash: str | None = None,
+    on_screened=None,
 ) -> list[dict[str, Any]]:
     """Fail closed unless every required identity inventory is authenticated."""
     required = ("B512", "S615", "protected_holdout")
@@ -647,19 +771,20 @@ def screen_known_exposure(
             if provenance_authenticated
             else "invalid_or_insufficiently_authenticated_evidence"
         )
-        screened.append(
-            {
-                **candidate,
-                "exposure": hits,
-                "source_provenance_match": provenance_match,
-                "source_provenance_status": provenance.get(
-                    "crosswalk_status", "missing_or_unauthenticated"
-                ),
-                "classification": classification,
-                "membership_evidence_sha256": evidence_hashes,
-                "inherited_PE4_exposure": "unresolved",
-            }
-        )
+        screened_row = {
+            **candidate,
+            "exposure": hits,
+            "source_provenance_match": provenance_match,
+            "source_provenance_status": provenance.get(
+                "crosswalk_status", "missing_or_unauthenticated"
+            ),
+            "classification": classification,
+            "membership_evidence_sha256": evidence_hashes,
+            "inherited_PE4_exposure": "unresolved",
+        }
+        screened.append(screened_row)
+        if on_screened is not None:
+            on_screened(screened_row)
     return screened
 
 
@@ -915,24 +1040,38 @@ def _select_cohort_bounded(candidates: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def generate_population(authorization: dict[str, Any], output: Path) -> dict[str, Any]:
-    """Production entry point requiring a repository-trusted owner signature."""
-    freeze_path = authorization.get("execution_freeze_path")
-    if not freeze_path or not Path(freeze_path).is_file():
-        raise PermissionError("execution_freeze_file_required")
-    freeze_raw = Path(freeze_path).read_bytes()
-    if sha256(freeze_raw) != authorization["execution_freeze_sha256"]:
-        raise PermissionError("execution_freeze_hash_mismatch")
-    freeze = json.loads(freeze_raw)
-    approval_path = authorization.get("owner_approval_record_path")
-    if not approval_path or not Path(approval_path).is_file():
-        raise PermissionError("signed_owner_approval_record_required")
-    approval_raw = Path(approval_path).read_bytes()
-    approval_record = json.loads(approval_raw)
-    owner_identity = verify_owner_approval_record(
-        approval_record,
-        authorization["execution_freeze_sha256"],
-        EXECUTION_SCOPE,
-    )
+    """Generate only from a GitHub-approved, frozen lifecycle attempt."""
+    from ml.alphazero_lite.seed636_authorization import validate_attempt
+
+    attempt_dir = Path(authorization.get("attempt_dir", ""))
+    manifest, evidence = validate_attempt(attempt_dir)
+    output = output.resolve()
+    declared_outputs = {
+        (attempt_dir / item).resolve() for item in manifest.get("output_paths", [])
+    }
+    if output not in declared_outputs or not output.is_relative_to(
+        attempt_dir.resolve()
+    ):
+        raise PermissionError("lifecycle_output_path_binding_mismatch")
+    freeze = manifest.get("configuration", {}).get("seed624_freeze")
+    if not isinstance(freeze, dict):
+        raise PermissionError("seed624_generation_configuration_missing")
+    freeze_raw = canonical_bytes(freeze)
+    approval_record = evidence["approval"]
+    owner_identity = approval_record["project_owner_identity"]
+    attempt_manifest_raw = (attempt_dir / "manifest.json").read_bytes()
+    lifecycle_auth = {
+        "attempt_manifest_sha256": sha256(attempt_manifest_raw),
+        "attempt_manifest_raw_utf8": attempt_manifest_raw.decode("utf-8"),
+        "experiment_id": manifest["experiment_id"],
+        "attempt_id": manifest["attempt_id"],
+        "registration_sha256": sha256(
+            (attempt_dir.parents[3] / ".experiment" / "registration.json").read_bytes()
+        ),
+        "registration_raw_utf8": (
+            attempt_dir.parents[3] / ".experiment" / "registration.json"
+        ).read_text(),
+    }
     expected_sources = freeze.get("source_file_sha256")
     expected_runtime = freeze.get("runtime")
     rules_hash = sha256((ROOT / "ml/alphazero_lite/kalah_rules.py").read_bytes())
@@ -950,25 +1089,30 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
             "output_and_temporary_storage_bytes",
         )
     )
+    resource_values = (
+        production_resources if isinstance(production_resources, dict) else {}
+    )
+    lifecycle_budget = manifest.get("resource_budget", {})
+    additional_limits = lifecycle_budget.get("additional_limits", {})
+    resource_bindings_match = False
+    if production_resources_valid:
+        resource_bindings_match = (
+            resource_values["wall_seconds"]
+            == lifecycle_budget.get("wall_time_limit_seconds")
+            and resource_values["cpu_seconds"] == additional_limits.get("cpu_seconds")
+            and resource_values["process_rss_bytes"]
+            == additional_limits.get("process_rss_bytes")
+            and resource_values["execution_concurrency"] == manifest.get("worker_count")
+            and resource_values["output_and_temporary_storage_bytes"]
+            == additional_limits.get("output_and_temporary_storage_bytes")
+        )
     if (
         freeze.get("schema") != "seed624-execution-freeze-v1"
-        or freeze.get("status") != "authorized"
-        or freeze.get("project_owner_identity") != owner_identity
+        or freeze.get("status") != "frozen"
         or freeze.get("execution_scope") != EXECUTION_SCOPE
-        or authorization.get("authorized_run_identity")
-        != freeze.get("authorized_run_identity")
-        or authorization.get("failure_receipt_path")
-        != freeze.get("failure_receipt_contract", {}).get("create_only_path")
-        or freeze.get("failure_receipt_contract", {}).get("schema")
-        != "seed624-failure-receipt-contract-v2"
-        or freeze.get("failure_receipt_contract", {}).get("authenticated_record_schema")
-        != "seed624-authenticated-execution-failure-v1"
-        or freeze.get("failure_receipt_contract", {}).get(
-            "unauthenticated_preflight_record_schema"
-        )
-        != "seed624-unauthenticated-preflight-failure-v1"
-        or freeze.get("failure_receipt_contract", {}).get("categories")
-        != sorted(FAILURE_CATEGORIES)
+        or manifest.get("configuration", {}).get("execution_scope") != EXECUTION_SCOPE
+        or manifest.get("configuration", {}).get("registration_sha256")
+        != lifecycle_auth["registration_sha256"]
         or str(output) not in freeze.get("create_only_output_paths", [])
         or freeze.get("git_commit") != current_git_commit()
         or not isinstance(expected_sources, dict)
@@ -1009,7 +1153,7 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
             "working_memory_limit_bytes": MAX_SELECTION_WORKING_BYTES,
             "workers": 1,
         }
-        or not production_resources_valid
+        or not resource_bindings_match
         or freeze.get("sampling_contract")
         != "deterministic standardized selected-state population; fixed 1/5 weights per stone bin; no design-unbiased inference or inclusion-probability claim"
         or freeze.get("stone_bin_weights") != STONE_BIN_WEIGHTS
@@ -1022,37 +1166,179 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
         freeze,
         caller_evidence_path=authorization.get("membership_evidence_path"),
     )
-    opening_selection = choose_distinct_openings(
-        lambda index: generate_opening(MASTER_SEED, index),
-        reserve=OPENING_RESERVE,
-        target=OPENING_TARGET,
+    output.mkdir(parents=True)
+    _write_json_create_only(
+        output / "generation-configuration.json",
+        {
+            "master_seed": MASTER_SEED,
+            "seed_contract": SEED_CONTRACT,
+            "opening_reserve": OPENING_RESERVE,
+            "opening_target": OPENING_TARGET,
+            "games_per_opening": GAMES_PER_OPENING,
+            "continuation_action_limit": MAX_CONTINUATION_ACTIONS,
+            "freeze_sha256": sha256(freeze_raw),
+        },
     )
+    _write_json_create_only(output / "authenticated-membership-evidence.json", evidence)
+    try:
+        with (
+            (output / "opening-attempts.jsonl").open("xb") as attempts_stream,
+            (output / "accepted-openings.jsonl").open("xb") as openings_stream,
+        ):
+
+            def record_opening_attempt(
+                attempt: dict[str, Any], opening: dict[str, Any] | None
+            ) -> None:
+                attempts_stream.write(canonical_bytes(attempt) + b"\n")
+                attempts_stream.flush()
+                if opening is not None:
+                    openings_stream.write(canonical_bytes(opening) + b"\n")
+                    openings_stream.flush()
+
+            opening_selection = choose_distinct_openings(
+                lambda index: generate_opening(MASTER_SEED, index),
+                reserve=OPENING_RESERVE,
+                target=OPENING_TARGET,
+                on_attempt=record_opening_attempt,
+            )
+    except ShortfallError as error:
+        report = error.report
+        _write_json_create_only(
+            output / "opening-attempts.json", report.get("attempts", [])
+        )
+        _write_json_create_only(
+            output / "opening-rejections.json", report.get("rejections", [])
+        )
+        _write_json_create_only(output / "openings.json", report.get("openings", []))
+        _write_json_create_only(
+            output / "opening-selection-shortfall.json",
+            {
+                "schema": "seed624-opening-selection-shortfall-v1",
+                "report": report,
+            },
+        )
+        _write_failure_record(
+            output,
+            stage="opening_generation",
+            classification=_shortfall_classification(report),
+            reason=report,
+        )
+        raise
+    except BaseException as error:
+        _write_failure_record(
+            output,
+            stage="opening_generation",
+            classification="verification_failure",
+            reason={"exception_type": type(error).__name__, "message": str(error)},
+        )
+        raise
     openings = opening_selection["openings"]
+    _write_json_create_only(
+        output / "opening-attempts.json", opening_selection["attempts"]
+    )
+    _write_json_create_only(
+        output / "opening-rejections.json", opening_selection["rejections"]
+    )
+    _write_json_create_only(output / "openings.json", openings)
     games: list[dict[str, Any]] = []
     candidates: list[dict[str, Any]] = []
-    for opening in openings:
-        for trajectory_index in range(GAMES_PER_OPENING):
-            game, occurrences = generate_game(opening, MASTER_SEED, trajectory_index)
-            game["opening_prefix_actions"] = opening["prefix_actions"]
-            games.append(game)
-            candidates.extend(occurrences)
-    unique = deduplicate_candidates(candidates)
-    screened = screen_known_exposure(
-        unique,
-        evidence,
-        expected_snapshot_hashes=freeze.get("membership_snapshot_sha256"),
-        expected_provenance_hash=freeze.get("source_provenance_sha256"),
+    action_count = [0]
+    try:
+        with (
+            (output / "games.jsonl").open("xb") as games_stream,
+            (output / "candidate-occurrences.jsonl").open("xb") as occurrence_stream,
+            (output / "continuation-action-stream.jsonl").open("xb") as actions_stream,
+        ):
+
+            def record_continuation_action(action_record: dict[str, Any]) -> None:
+                actions_stream.write(canonical_bytes(action_record) + b"\n")
+                actions_stream.flush()
+                action_count[0] += 1
+
+            for opening in openings:
+                for trajectory_index in range(GAMES_PER_OPENING):
+                    game, occurrences = generate_game(
+                        opening,
+                        MASTER_SEED,
+                        trajectory_index,
+                        on_action=record_continuation_action,
+                    )
+                    game["opening_prefix_actions"] = opening["prefix_actions"]
+                    games.append(game)
+                    candidates.extend(occurrences)
+                    games_stream.write(canonical_bytes(game) + b"\n")
+                    for occurrence in occurrences:
+                        occurrence_stream.write(canonical_bytes(occurrence) + b"\n")
+                    games_stream.flush()
+                    occurrence_stream.flush()
+    except BaseException as error:
+        _write_failure_record(
+            output,
+            stage="trajectory_generation",
+            classification="verification_failure",
+            reason={
+                "exception_type": type(error).__name__,
+                "message": str(error),
+                "completed_games": len(games),
+                "recorded_candidate_occurrences": len(candidates),
+                "recorded_continuation_actions": action_count[0],
+            },
+        )
+        raise
+    try:
+        unique = deduplicate_candidates(candidates)
+    except BaseException as error:
+        _write_failure_record(
+            output,
+            stage="candidate_deduplication",
+            classification="verification_failure",
+            reason={"exception_type": type(error).__name__, "message": str(error)},
+        )
+        raise
+    _write_jsonl_create_only(output / "candidate-inventory.jsonl", unique)
+    try:
+        with (
+            (output / "screened-candidates.jsonl").open("xb") as screened_stream,
+            (output / "exclusions.jsonl").open("xb") as exclusions_stream,
+        ):
+
+            def record_screening_result(row: dict[str, Any]) -> None:
+                serialized = canonical_bytes(row) + b"\n"
+                screened_stream.write(serialized)
+                screened_stream.flush()
+                if (
+                    row["classification"]
+                    != "known_exposure_nonmatch_inherited_PE4_unresolved"
+                ):
+                    exclusions_stream.write(serialized)
+                    exclusions_stream.flush()
+
+            screened = screen_known_exposure(
+                unique,
+                evidence,
+                expected_snapshot_hashes=freeze.get("membership_snapshot_sha256"),
+                expected_provenance_hash=freeze.get("source_provenance_sha256"),
+                on_screened=record_screening_result,
+            )
+    except BaseException as error:
+        _write_failure_record(
+            output,
+            stage="membership_screening",
+            classification="verification_failure",
+            reason={"exception_type": type(error).__name__, "message": str(error)},
+        )
+        raise
+    selection = _persist_screened_stages_and_select(
+        output, screened, inventories_already_persisted=True
     )
-    selection = select_cohort(screened)
     bundle = {
         "schema": SCHEMA,
         "authorization": {
             "project_owner_identity": owner_identity,
-            "execution_freeze_sha256": authorization["execution_freeze_sha256"],
+            "execution_freeze_sha256": sha256(freeze_raw),
             "execution_freeze_raw_utf8": freeze_raw.decode("utf-8"),
             "owner_approval_record": approval_record,
-            "owner_approval_record_raw_utf8": approval_raw.decode("utf-8"),
-            "owner_approval_record_sha256": sha256(approval_raw),
+            "lifecycle": lifecycle_auth,
         },
         "generation": {
             "master_seed": MASTER_SEED,
@@ -1111,11 +1397,9 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
         "selection": selection,
         "evidence": evidence,
     }
-    output.mkdir(parents=True)
-    (output / "population.json").write_bytes(canonical_bytes(bundle) + b"\n")
-    (output / "population.sha256").write_text(
-        sha256((output / "population.json").read_bytes()) + "\n"
-    )
+    _write_json_create_only(output / "population.json", bundle)
+    with (output / "population.sha256").open("x", encoding="ascii") as stream:
+        stream.write(sha256((output / "population.json").read_bytes()) + "\n")
     return {
         "schema": SCHEMA,
         "openings": len(openings),
@@ -1124,195 +1408,6 @@ def generate_population(authorization: dict[str, Any], output: Path) -> dict[str
         "selected": len(selection["states"]),
         "output": str(output),
     }
-
-
-def _failure_receipt_binding(
-    authorization: dict[str, Any], receipt_path: Path | None = None
-) -> dict[str, Any]:
-    """Authenticate the exact freeze and caller-supplied receipt bindings."""
-    freeze_path = authorization.get("execution_freeze_path")
-    if not freeze_path or not Path(freeze_path).is_file():
-        raise PermissionError("execution_freeze_file_required")
-    freeze_raw = Path(freeze_path).read_bytes()
-    digest = sha256(freeze_raw)
-    if digest != authorization.get("execution_freeze_sha256"):
-        raise PermissionError("execution_freeze_hash_mismatch")
-    freeze = json.loads(freeze_raw)
-    approval_path = authorization.get("owner_approval_record_path")
-    if not approval_path or not Path(approval_path).is_file():
-        raise PermissionError("signed_owner_approval_record_required")
-    approval = json.loads(Path(approval_path).read_bytes())
-    owner = verify_owner_approval_record(approval, digest, EXECUTION_SCOPE)
-    if (
-        freeze.get("schema") != "seed624-execution-freeze-v1"
-        or freeze.get("status") != "authorized"
-        or freeze.get("execution_scope") != EXECUTION_SCOPE
-        or freeze.get("project_owner_identity") != owner
-        or freeze.get("failure_receipt_contract", {}).get("schema")
-        != "seed624-failure-receipt-contract-v2"
-        or freeze.get("failure_receipt_contract", {}).get("authenticated_record_schema")
-        != "seed624-authenticated-execution-failure-v1"
-        or freeze.get("failure_receipt_contract", {}).get(
-            "unauthenticated_preflight_record_schema"
-        )
-        != "seed624-unauthenticated-preflight-failure-v1"
-        or freeze.get("failure_receipt_contract", {}).get("categories")
-        != sorted(FAILURE_CATEGORIES)
-    ):
-        raise PermissionError("failure_receipt_freeze_not_authorized")
-    frozen_run_identity = freeze.get("authorized_run_identity")
-    frozen_receipt_path = freeze.get("failure_receipt_contract", {}).get(
-        "create_only_path"
-    )
-    if not isinstance(frozen_run_identity, str) or not frozen_run_identity:
-        raise PermissionError("failure_receipt_run_identity_missing_from_freeze")
-    if not isinstance(frozen_receipt_path, str) or not frozen_receipt_path:
-        raise PermissionError("failure_receipt_path_missing_from_freeze")
-    if authorization.get("authorized_run_identity") != frozen_run_identity:
-        raise PermissionError("failure_receipt_run_identity_mismatch")
-    if authorization.get("failure_receipt_path") != frozen_receipt_path:
-        raise PermissionError("failure_receipt_path_mismatch")
-    if receipt_path is not None and str(receipt_path) != frozen_receipt_path:
-        raise PermissionError("failure_receipt_path_mismatch")
-    return {
-        "freeze_sha256": digest,
-        "freeze_raw": freeze_raw,
-        "freeze": freeze,
-        "approval": approval,
-        "owner_identity": owner,
-        "authorized_run_identity": frozen_run_identity,
-        "failure_receipt_path": Path(frozen_receipt_path),
-    }
-
-
-def _create_durable_json(path: Path, payload: dict[str, Any]) -> Path:
-    """Exclusive-create JSON, fsyncing both file contents and directory entry."""
-    if not path.parent.is_dir():
-        raise FileNotFoundError(
-            f"failure_receipt_parent_directory_missing:{path.parent}"
-        )
-    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-    try:
-        with os.fdopen(descriptor, "wb") as stream:
-            stream.write(canonical_bytes(payload) + b"\n")
-            stream.flush()
-            os.fsync(stream.fileno())
-        directory_fd = os.open(path.parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
-        try:
-            os.fsync(directory_fd)
-        finally:
-            os.close(directory_fd)
-    except BaseException:
-        # Do not remove a possibly complete or partially written forensic record.
-        raise
-    return path
-
-
-def write_failure_receipt(
-    *,
-    authorization: dict[str, Any],
-    category: str,
-    diagnostic: dict[str, Any],
-) -> Path:
-    """Write an authenticated receipt whose identity/path come from a signed freeze."""
-    if category not in FAILURE_CATEGORIES - {"preflight_failure"}:
-        raise ValueError("invalid_authenticated_failure_category")
-    binding = _failure_receipt_binding(authorization)
-    payload = {
-        "schema": "seed624-authenticated-execution-failure-v1",
-        "execution_freeze_sha256": binding["freeze_sha256"],
-        "authorized_run_identity": binding["authorized_run_identity"],
-        "failure_category": category,
-        "diagnostic": diagnostic,
-    }
-    return _create_durable_json(binding["failure_receipt_path"], payload)
-
-
-def _write_preflight_failure(
-    *, authorization: dict[str, Any], requested_path: Path | None, error: BaseException
-) -> Path:
-    """Record an unauthenticated preflight failure without claiming a run identity."""
-    path = requested_path or Path(
-        authorization.get("failure_receipt_path", "seed624-preflight-failure.json")
-    )
-    return _create_durable_json(
-        path,
-        {
-            "schema": "seed624-unauthenticated-preflight-failure-v1",
-            "execution_freeze_sha256": None,
-            "authorized_run_identity": None,
-            "failure_category": "preflight_failure",
-            "diagnostic": {
-                "exception_type": type(error).__name__,
-                "message": str(error),
-                "claimed_freeze_sha256": authorization.get("execution_freeze_sha256"),
-                "claimed_run_identity": None,
-            },
-        },
-    )
-
-
-def _failure_category(error: BaseException) -> str:
-    if isinstance(error, ExternalResourceLimitError):
-        return "external_resource_limit_termination"
-    if isinstance(error, ShortfallError):
-        reason = str(error.report.get("reason", ""))
-        if reason == "opening_reserve_exhausted":
-            return "opening_reserve_exhaustion"
-        if reason == "hard_supply":
-            return "insufficient_stone_bin_supply"
-        if reason in {"aggregate_cluster_capacity", "constraints_infeasible"}:
-            return "mathematical_infeasibility"
-        if "resource_limit" in reason:
-            return "selector_resource_exhaustion"
-        return "unexpected_execution_exception"
-    if isinstance(error, (PermissionError, ValueError, KeyError, FileNotFoundError)):
-        return "verification_or_identity_failure"
-    return "unexpected_execution_exception"
-
-
-def execute_with_failure_receipts(
-    authorization: dict[str, Any], output: Path, *, receipt_path: Path | None = None
-) -> dict[str, Any]:
-    """Run after authenticating receipt bindings; preserve both failures if writing fails."""
-    try:
-        _failure_receipt_binding(authorization, receipt_path)
-    except BaseException as preflight_error:
-        try:
-            _write_preflight_failure(
-                authorization=authorization,
-                requested_path=receipt_path,
-                error=preflight_error,
-            )
-        except BaseException as receipt_error:
-            preflight_error.add_note(
-                f"Unauthenticated preflight receipt also failed: "
-                f"{type(receipt_error).__name__}: {receipt_error}"
-            )
-        raise
-    try:
-        return generate_population(authorization, output)
-    except BaseException as error:
-        diagnostic: dict[str, Any] = {
-            "exception_type": type(error).__name__,
-            "message": str(error),
-            "partial_output_path": str(output),
-            "partial_output_exists": output.exists(),
-        }
-        if isinstance(error, ShortfallError):
-            diagnostic["report"] = error.report
-        try:
-            write_failure_receipt(
-                authorization=authorization,
-                category=_failure_category(error),
-                diagnostic=diagnostic,
-            )
-        except BaseException as receipt_error:
-            error.add_note(
-                f"Authenticated failure receipt also failed: "
-                f"{type(receipt_error).__name__}: {receipt_error}"
-            )
-        raise
 
 
 def proposed_freeze_schema() -> dict[str, Any]:
@@ -1324,21 +1419,6 @@ def proposed_freeze_schema() -> dict[str, Any]:
             "git_commit": None,
             "source_file_sha256": {name: None for name in SOURCE_FILES},
             "independent_verifier_sha256": None,
-            "external_harness_identity": {
-                "name": None,
-                "version": None,
-                "sha256": None,
-            },
-            "supervisor_contract": {
-                "implementation": "seed629-cgroup-v2-v1",
-                "launch_status": "disabled_pending_verified_hard_quota_backend",
-                "source_file": "ml/alphazero_lite/seed629_execution_supervisor.py",
-                "source_sha256": None,
-                "evidence_verifier": "ml.alphazero_lite.verify_seed629_supervisor",
-                "execution_scope": "dedicated-cgroup-v2-with-hard-filesystem-quota",
-                "memory_contract": "memory.max is conservatively below frozen process RSS bytes; cgroup memory accounting is not RSS-equivalent",
-                "storage_contract": "hard project/filesystem quota covers output and temporary storage; unsupported quota fails closed",
-            },
             "rules_identity": {
                 "rule_id": "historical-kalah-rules",
                 "rule_version": "repository-kalah-rules-v1",
@@ -1349,9 +1429,7 @@ def proposed_freeze_schema() -> dict[str, Any]:
             "dependency_versions": {
                 "python": None,
                 "numpy": None,
-                "cryptography": None,
                 "platform": None,
-                "kernel": None,
             },
             "generation": {
                 "master_seed": MASTER_SEED,
@@ -1396,49 +1474,43 @@ def proposed_freeze_schema() -> dict[str, Any]:
             "output_schema": SCHEMA,
             "create_only_output_paths": [],
             "temporary_path": None,
-            "supervisor_result_path": None,
-            "worker_command": None,
             "production_resource_limits": {
                 "wall_seconds": None,
                 "cpu_seconds": None,
                 "process_rss_bytes": None,
                 "execution_concurrency": None,
                 "output_and_temporary_storage_bytes": None,
-                "status": "must_be_set_and_enforced_by_authorized_execution_harness",
-            },
-            "authorized_run_identity": None,
-            "failure_receipt_contract": {
-                "schema": "seed624-failure-receipt-contract-v2",
-                "authenticated_record_schema": "seed624-authenticated-execution-failure-v1",
-                "unauthenticated_preflight_record_schema": "seed624-unauthenticated-preflight-failure-v1",
-                "create_only_path": None,
-                "categories": [
-                    *sorted(FAILURE_CATEGORIES),
-                ],
-                "preserve_partial_artifacts": True,
-                "automatic_retry": False,
+                "status": "registered_in_lifecycle_attempt_and_monitored_by_operator",
             },
             "outputs": {"schema": SCHEMA},
             "verification_commands": [
                 "python -m ml.alphazero_lite.verify_seed624_prospective_benchmark <copied-bundle>/population.json",
                 "python -m unittest ml.alphazero_lite.test_seed624_prospective_benchmark",
             ],
-            "project_owner_identity": None,
             "execution_scope": EXECUTION_SCOPE,
-            "owner_approval_record": {
-                "schema": "seed624-owner-approval-v1",
-                "key_id": None,
-                "freeze_sha256": None,
-                "execution_scope": EXECUTION_SCOPE,
-                "signature_ed25519": None,
-            },
-            "trusted_key_requirement": "signing key ID must resolve only in TRUSTED_PROJECT_OWNER_KEYS from reviewed repository source; caller-supplied public keys are rejected",
             "approval_requirements": {
-                "project_owner_identity": None,
-                "explicit_protocol_amendment_approval_record": None,
-                "exact_freeze_digest_signature": None,
-                "execution_authorization_record": None,
-                "key_provisioning_is_authorization": False,
+                "project_owner_identity": "useruby",
+                "github_approval_comment_url": None,
+                "approved_protocol_revision": None,
+                "protocol_document_sha256": None,
+                "execution_scope": EXECUTION_SCOPE,
+                "registration_sha256": None,
             },
         },
     }
+
+
+def main() -> None:
+    """Lifecycle-runner entry point; direct runs lack the required started receipt."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--attempt-dir", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    result = generate_population({"attempt_dir": str(args.attempt_dir)}, args.output)
+    print(json.dumps(result, sort_keys=True, indent=2))
+
+
+if __name__ == "__main__":
+    main()

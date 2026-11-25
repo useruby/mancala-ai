@@ -80,3 +80,13 @@ identity, approval timestamp, exact amended protocol commit/hash, and the
 explicit decision to withdraw the inclusion-probability and design-unbiased
 inference requirements. Approval must be independent of this implementation
 PR. No generation authorization is requested here.
+
+For execution under Seed 636, record the decision as a GitHub comment on an
+issue or pull request in `useruby/mancala-ai`. The approval artifact must bind
+the GitHub owner identity, comment URL and timestamp, exact protocol revision,
+SHA-256 for this proposal and the Seed 623–631 execution-contract amendment,
+the experiment-registration SHA-256, and the explicit
+`model-independent-generation-and-screening-only` scope. A merge alone is not
+approval. The Seed 636 approval template provides the required comment body and
+record structure; until the owner comment is present and verified, the Seed 624
+execution entry point remains blocked.

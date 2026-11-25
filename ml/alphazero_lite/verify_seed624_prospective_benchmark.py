@@ -5,6 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 import random
+import re
+import subprocess
 import time
 import tracemalloc
 from collections import Counter
@@ -27,8 +29,7 @@ MAX_SELECTION_SECONDS = 30
 SELECTION_TIME_CHECK_INTERVAL_NODES = 1
 MAX_SELECTION_WORKING_BYTES = 64 * 1024 * 1024
 MAX_SELECTION_INPUT_BYTES = 128 * 1024 * 1024
-TRUSTED_PROJECT_OWNER_KEYS: dict[str, dict[str, str]] = {}
-EXECUTION_SCOPE = "model-independent-generation-and-screening"
+EXECUTION_SCOPE = "model-independent-generation-and-screening-only"
 INVALID_PREFIX_POLICY = "consume-reserve-index-skip-record-provenance-v1"
 
 
@@ -36,38 +37,157 @@ def _sha(raw: bytes) -> str:
     return hashlib.sha256(raw).hexdigest()
 
 
-def verify_owner_approval(
-    record: dict[str, Any], freeze_digest: str, execution_scope: str
-) -> str:
-    """Independently verify the owner signature using verifier-pinned keys."""
-    if (
-        record.get("schema") != "seed624-owner-approval-v1"
-        or record.get("freeze_sha256") != freeze_digest
-        or record.get("execution_scope") != execution_scope
-    ):
-        raise ValueError("owner_approval_binding_mismatch")
-    key = TRUSTED_PROJECT_OWNER_KEYS.get(str(record.get("key_id")))
-    if key is None or key.get("project_owner_identity") != record.get(
-        "project_owner_identity"
-    ):
-        raise ValueError("owner_approval_key_not_independently_trusted")
-    try:
-        from base64 import b64decode
-        from cryptography.exceptions import InvalidSignature
-        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
-    except ImportError as error:
-        raise ValueError("owner_approval_crypto_dependency_unavailable") from error
-    payload = {
-        field: value for field, value in record.items() if field != "signature_ed25519"
+def _fetch_github_comment(comment_id: str) -> dict[str, Any]:
+    return json.loads(
+        subprocess.run(
+            [
+                "gh",
+                "api",
+                f"repos/useruby/mancala-ai/issues/comments/{comment_id}",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout
+    )
+
+
+def _git_blob(revision: str, path: str) -> bytes:
+    return subprocess.run(
+        ["git", "-C", str(ROOT), "show", f"{revision}:{path}"],
+        check=True,
+        capture_output=True,
+    ).stdout
+
+
+def verify_owner_approval(record: dict[str, Any], lifecycle: dict[str, Any]) -> str:
+    """Independently validate recorded GitHub owner-comment evidence."""
+    approval_marker = "SEED636-APPROVAL-V1"
+    project_owner = "useruby"
+    repository = "useruby/mancala-ai"
+    approved_decisions = [
+        "seed625-finite-cohort-estimand-amendment",
+        "seed635-worktree-execution-contract-amendment",
+        "known-exposure-screened-inherited-PE4-unresolved",
+        "model-independent-population-generation-and-screening-only",
+    ]
+    required_documents = {
+        "docs/seed624-estimand-amendment-proposal.md",
+        "docs/seed623-prospective-exact-quality-benchmark.md",
+        "docs/seed623-631-execution-contract-amendment.md",
+        "docs/experiment-execution-protocol.md",
     }
+
+    registration_raw = lifecycle.get("registration_raw_utf8", "").encode()
+    registration = json.loads(registration_raw)
+    if _sha(registration_raw) != lifecycle.get("registration_sha256"):
+        raise ValueError("approval_registration_hash_mismatch")
+    if record.get("schema") != "seed636-github-owner-approval-v1":
+        raise ValueError("github_owner_approval_missing_or_invalid")
+    if record.get("project_owner_identity") != project_owner:
+        raise ValueError("github_project_owner_identity_mismatch")
+    if record.get("execution_scope") != EXECUTION_SCOPE:
+        raise ValueError("github_approval_execution_scope_mismatch")
+    if record.get("registration_sha256") != lifecycle.get("registration_sha256"):
+        raise ValueError("github_approval_registration_identity_mismatch")
+    if record.get("protocol_documents") != registration.get("protocol_documents"):
+        raise ValueError("github_approval_protocol_document_mismatch")
+    if (
+        registration.get("approved_decisions") != approved_decisions
+        or record.get("approved_decisions") != approved_decisions
+    ):
+        raise ValueError("github_approval_decision_scope_mismatch")
+    if record.get("approved_protocol_revision") != registration.get(
+        "approved_protocol_revision"
+    ):
+        raise ValueError("github_approval_protocol_revision_mismatch")
+    approved_revision = str(record.get("approved_protocol_revision", ""))
+    if approved_revision != registration.get("base_commit"):
+        raise ValueError("github_approval_protocol_revision_not_base_commit")
+    if not required_documents.issubset(
+        record.get("protocol_documents", {})
+    ) or not re.fullmatch(r"[0-9a-f]{40,64}", approved_revision):
+        raise ValueError("github_approval_protocol_identity_invalid")
     try:
-        signature = b64decode(record["signature_ed25519"], validate=True)
-        Ed25519PublicKey.from_public_bytes(bytes.fromhex(key["public_key_hex"])).verify(
-            signature, _canonical(payload)
+        resolved_revision = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(ROOT),
+                "rev-parse",
+                "--verify",
+                f"{approved_revision}^{{commit}}",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+    except subprocess.CalledProcessError as error:
+        raise ValueError("github_approval_protocol_revision_missing") from error
+    if resolved_revision != approved_revision:
+        raise ValueError("github_approval_protocol_revision_not_canonical")
+    for name, expected_digest in record["protocol_documents"].items():
+        raw_document = ROOT / name
+        if (
+            name.startswith("/")
+            or ".." in Path(name).parts
+            or raw_document.is_symlink()
+        ):
+            raise ValueError("github_approval_protocol_document_path_invalid")
+        document = raw_document.resolve(strict=True)
+        try:
+            approved_blob = _git_blob(approved_revision, name)
+        except subprocess.CalledProcessError as error:
+            raise ValueError(
+                "github_approval_protocol_document_missing_at_revision"
+            ) from error
+        if (
+            not document.is_file()
+            or not document.is_relative_to(ROOT)
+            or _sha(approved_blob) != expected_digest
+            or document.read_bytes() != approved_blob
+        ):
+            raise ValueError("github_approval_protocol_document_hash_mismatch")
+    comment = record.get("github_comment_evidence", {})
+    if (
+        comment.get("author") != project_owner
+        or comment.get("created_at") != record.get("approval_timestamp")
+        or comment.get("html_url") != record.get("approval_url")
+        or not str(comment.get("html_url", "")).startswith(
+            f"https://github.com/{repository}/"
         )
-    except (KeyError, ValueError, TypeError, InvalidSignature) as error:
-        raise ValueError("owner_approval_signature_invalid") from error
-    return str(record["project_owner_identity"])
+    ):
+        raise ValueError("github_approval_comment_evidence_mismatch")
+    match = re.fullmatch(
+        r"https://github\.com/useruby/mancala-ai/(?:issues|pull)/(\d+)#issuecomment-(\d+)",
+        str(record.get("approval_url", "")),
+    )
+    if not match:
+        raise ValueError("github_approval_comment_url_invalid")
+    api_record = _fetch_github_comment(match.group(2))
+    if (
+        api_record.get("id") != int(match.group(2))
+        or comment.get("id") != int(match.group(2))
+        or api_record.get("user", {}).get("login") != project_owner
+        or api_record.get("created_at") != record.get("approval_timestamp")
+        or api_record.get("html_url") != record.get("approval_url")
+        or api_record.get("body") != comment.get("body")
+    ):
+        raise ValueError("github_approval_live_record_mismatch")
+    expected = {
+        "marker": approval_marker,
+        "experiment_id": registration.get("experiment_id"),
+        "registration_sha256": lifecycle.get("registration_sha256"),
+        "approved_protocol_revision": registration.get("approved_protocol_revision"),
+        "protocol_documents": registration.get("protocol_documents"),
+        "approved_decisions": approved_decisions,
+        "execution_scope": EXECUTION_SCOPE,
+    }
+    body = str(comment.get("body", ""))
+    prefix = approval_marker + "\n"
+    if not body.startswith(prefix) or json.loads(body[len(prefix) :]) != expected:
+        raise ValueError("github_approval_comment_binding_mismatch")
+    return project_owner
 
 
 def _canonical(value: Any) -> bytes:
@@ -544,24 +664,62 @@ def verify_bundle(bundle_path: Path) -> dict[str, Any]:
     if _sha(freeze_raw) != authorization.get("execution_freeze_sha256"):
         raise ValueError("execution_freeze_hash_mismatch")
     freeze = json.loads(freeze_raw)
-    approval_raw = authorization.get("owner_approval_record_raw_utf8", "").encode(
-        "utf-8"
-    )
     approval_record = authorization.get("owner_approval_record", {})
+    lifecycle_auth = authorization.get("lifecycle", {})
+    owner_identity = verify_owner_approval(approval_record, lifecycle_auth)
+    attempt_raw = lifecycle_auth.get("attempt_manifest_raw_utf8", "").encode()
+    if _sha(attempt_raw) != lifecycle_auth.get("attempt_manifest_sha256"):
+        raise ValueError("lifecycle_attempt_manifest_hash_mismatch")
+    attempt_manifest = json.loads(attempt_raw)
+    registration = json.loads(lifecycle_auth["registration_raw_utf8"])
     if (
-        _sha(approval_raw) != authorization.get("owner_approval_record_sha256")
-        or json.loads(approval_raw) != approval_record
+        attempt_manifest.get("schema") != "mancala-experiment-attempt-v1"
+        or attempt_manifest.get("status") != "frozen"
+        or attempt_manifest.get("experiment_id") != registration.get("experiment_id")
+        or attempt_manifest.get("attempt_id") != lifecycle_auth.get("attempt_id")
+        or attempt_manifest.get("worker_count") != 1
+        or attempt_manifest.get("source_commit")
+        != bundle.get("source_identity", {}).get("git_commit")
+        or attempt_manifest.get("configuration", {}).get("execution_scope")
+        != EXECUTION_SCOPE
+        or attempt_manifest.get("configuration", {}).get("registration_sha256")
+        != lifecycle_auth.get("registration_sha256")
+        or attempt_manifest.get("configuration", {}).get("seed624_freeze") != freeze
+        or not any(
+            "seed624_prospective_benchmark" in item
+            for item in attempt_manifest.get("command", [])
+        )
     ):
-        raise ValueError("owner_approval_record_hash_mismatch")
-    owner_identity = verify_owner_approval(
-        approval_record, _sha(freeze_raw), EXECUTION_SCOPE
-    )
+        raise ValueError("lifecycle_attempt_manifest_binding_mismatch")
+    registered_inputs = {
+        str(Path(path).absolute()): digest
+        for path, digest in registration.get("input_artifacts", {}).items()
+    }
+    if registered_inputs != attempt_manifest.get("input_artifacts"):
+        raise ValueError("lifecycle_attempt_input_binding_mismatch")
+    registered_resources = freeze.get("production_resource_limits", {})
+    attempt_resources = attempt_manifest.get("resource_budget", {})
+    additional_resources = attempt_resources.get("additional_limits", {})
+    if (
+        registered_resources.get("wall_seconds")
+        != attempt_resources.get("wall_time_limit_seconds")
+        or registered_resources.get("cpu_seconds")
+        != additional_resources.get("cpu_seconds")
+        or registered_resources.get("process_rss_bytes")
+        != additional_resources.get("process_rss_bytes")
+        or registered_resources.get("execution_concurrency")
+        != attempt_manifest.get("worker_count")
+        or registered_resources.get("output_and_temporary_storage_bytes")
+        != additional_resources.get("output_and_temporary_storage_bytes")
+    ):
+        raise ValueError("lifecycle_attempt_resource_binding_mismatch")
     if (
         freeze.get("schema") != "seed624-execution-freeze-v1"
-        or freeze.get("status") != "authorized"
+        or freeze.get("status") != "frozen"
         or freeze.get("execution_scope") != EXECUTION_SCOPE
-        or freeze.get("project_owner_identity") != owner_identity
         or authorization.get("project_owner_identity") != owner_identity
+        or lifecycle_auth.get("experiment_id") != "seed636-prospective-population"
+        or not lifecycle_auth.get("attempt_manifest_sha256")
     ):
         raise ValueError("execution_freeze_binding_mismatch")
     production_resources = freeze.get("production_resource_limits")
