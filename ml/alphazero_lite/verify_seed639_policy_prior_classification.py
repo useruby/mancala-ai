@@ -416,8 +416,12 @@ def verify_attempt(
     """Run the independent, authenticated verifier over a completed attempt."""
     from ml.alphazero_lite import arena
     from ml.alphazero_lite import experiment_lifecycle
+    from ml.alphazero_lite import seed639_policy_prior_classification as producer
     from ml.alphazero_lite.kalah_rules import KalahGame
-    from ml.alphazero_lite.seed639_authorization import validate_attempt
+    from ml.alphazero_lite.seed639_authorization import (
+        HISTORICAL_VERIFIER_RUNTIME,
+        validate_attempt,
+    )
 
     manifest, authorization = validate_attempt(
         attempt_dir, associated_prs=associated_prs, pr_fetcher=pr_fetcher
@@ -526,11 +530,20 @@ def verify_attempt(
 
     seed615_freeze_path = input_path("/evaluation-preparation/execution-freeze-v4.json")
     seed615_root = seed615_freeze_path.parents[4]
-    from ml.alphazero_lite import seed615_policy_divergence_diagnostic as seed615
-
-    historical = seed615.authenticate(seed615_root)
+    historical = producer.authenticate_seed615_in_subprocess(
+        seed615_root=seed615_root,
+        archive_path=archive_path,
+        registered_runtime=registration.get("execution_amendment", {}).get(
+            "historical_verifier_runtime", HISTORICAL_VERIFIER_RUNTIME
+        ),
+    )
     if historical.get("freeze_sha256") != EXPECTED_SEED615_FREEZE_SHA256:
         raise ValueError("seed639_verifier_seed615_freeze_mismatch")
+    authentication_receipt = json.loads(
+        (output_dir / "authentication.json").read_bytes()
+    )
+    if authentication_receipt.get("seed615_authentication") != historical:
+        raise ValueError("seed639_verifier_historical_authentication_mismatch")
     artifact_root = (
         seed615_root
         / "docs/data/seed615-source-opening-diversity/evaluation-preparation/runtime-artifacts"
@@ -661,6 +674,8 @@ def verify_attempt(
         or results.get("selected_inventory_sha256") != SELECTED_INVENTORY_SHA256
         or results.get("summary") != expected_summary
         or results.get("subset_relationship") != expected_relationship
+        or results.get("historical_verifier_runtime")
+        != historical["historical_runtime"]
         or results.get("diagnostic_subset", {}).get("available")
         != subset_check["available"]
     ):

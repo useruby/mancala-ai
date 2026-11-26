@@ -40,6 +40,52 @@ REGISTERED_ENVIRONMENT = {
     "OPENBLAS_NUM_THREADS": "1",
     "CUDA_VISIBLE_DEVICES": "",
 }
+HISTORICAL_RUNTIME_LOCK_PATH = (
+    "/home/alex/Mancala/ai/.worktrees/seed639-prospective-policy-prior-classification/docs/experiments/"
+    "seed639-prospective-policy-prior-classification/historical-verifier-runtime-lock.txt"
+)
+HISTORICAL_RUNTIME_LOCK_SHA256 = (
+    "4ac15303ded8e4a2616c89eb5108ca700c6e5382bf3257904aba5c20632194c6"
+)
+SEED615_DEPENDENCY_LOCK_SHA256 = (
+    "5950f891ea746be6058af5fae4c414ac0aca872bec064a7d28c383f795e2fa79"
+)
+HISTORICAL_VERIFIER_RUNTIME = {
+    "interpreter": "/home/alex/Mancala/ai/.tmp/seed639-historical-verifier-venv/bin/python",
+    "python_version": "3.14.7",
+    "numpy_version": "2.5.3",
+    "torch_version": "2.14.0+cu130",
+    "device": "cpu",
+    "cuda_available": False,
+    "thread_environment": REGISTERED_ENVIRONMENT,
+    "torch_threads": 1,
+    "deterministic_algorithms": True,
+    "runtime_lock_path": HISTORICAL_RUNTIME_LOCK_PATH,
+    "runtime_lock_sha256": HISTORICAL_RUNTIME_LOCK_SHA256,
+    "seed615_dependency_lock_path": "/home/alex/Mancala/ai-seed615-authorized-eval/ml/alphazero_lite/requirements-seed599-evaluation.txt",
+    "seed615_dependency_lock_sha256": SEED615_DEPENDENCY_LOCK_SHA256,
+    "worktree_dependency_lock": "ml/alphazero_lite/requirements-seed599-evaluation.txt",
+    "worktree_dependency_lock_sha256": SEED615_DEPENDENCY_LOCK_SHA256,
+    "entrypoint_module": "ml.alphazero_lite.seed639_historical_authentication",
+    "execution_mode": "separate_read_only_python_subprocess",
+}
+EXECUTION_AMENDMENT = {
+    "schema": "seed639-execution-amendment-v1",
+    "amendment_id": "attempt-0002-historical-verifier-runtime-correction",
+    "reason": "attempt-0001 stopped before inference because the historical Seed 615 verifier dependency was missing from the inference runtime",
+    "preserved_attempt_ids": ["attempt-0001"],
+    "authorized_attempt_ids": ["attempt-0002"],
+    "historical_verifier_runtime": HISTORICAL_VERIFIER_RUNTIME,
+    "historical_authentication_preflight_required_before_freeze": True,
+    "prospective_inference_runtime_unchanged": True,
+}
+AMENDMENT_RUNTIME_INPUTS = {
+    HISTORICAL_RUNTIME_LOCK_PATH: HISTORICAL_RUNTIME_LOCK_SHA256,
+    "/home/alex/Mancala/ai/.worktrees/seed639-prospective-policy-prior-classification/ml/alphazero_lite/requirements-seed599-evaluation.txt": SEED615_DEPENDENCY_LOCK_SHA256,
+    HISTORICAL_VERIFIER_RUNTIME[
+        "seed615_dependency_lock_path"
+    ]: SEED615_DEPENDENCY_LOCK_SHA256,
+}
 CHECKPOINT_IDENTITY = {
     "B512": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
     "S615": "cdf1e36c4c9374f28b182757b12471b3f00567eb59825bb938435cb56cf8d780",
@@ -130,16 +176,24 @@ def _validate_registration(registration: dict[str, Any]) -> None:
         raise PermissionError("seed639_registered_protocol_bindings_invalid")
     if set(registration.get("input_artifacts", {})) == set():
         raise PermissionError("seed639_registered_inputs_missing")
+    amendment = registration.get("execution_amendment")
+    if amendment is not None:
+        if amendment != EXECUTION_AMENDMENT or any(
+            registration.get("input_artifacts", {}).get(path) != digest
+            for path, digest in AMENDMENT_RUNTIME_INPUTS.items()
+        ):
+            raise PermissionError("seed639_execution_amendment_invalid")
 
 
 def authorize_registration(
     registration_path: Path,
     source_commit: str,
     *,
+    expected_registration_sha256: str | None = None,
     associated_prs: list[dict[str, Any]] | None = None,
     pr_fetcher: Callable[[int], dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Authenticate the unique owner-merged PR and its exact Git blobs."""
+    """Authenticate the owner-merged registration revision bound to a source."""
     if registration_path.is_symlink() or not registration_path.is_file():
         raise PermissionError("seed639_registration_file_invalid")
     repo = Path(
@@ -147,14 +201,14 @@ def authorize_registration(
         .decode()
         .strip()
     )
-    raw = registration_path.read_bytes()
-    registration = json.loads(raw)
-    _validate_registration(registration)
+    current_raw = registration_path.read_bytes()
+    current_registration = json.loads(current_raw)
+    _validate_registration(current_registration)
     permanent = repo / REGISTRATION_PATH
     if (
         permanent.is_symlink()
         or not permanent.is_file()
-        or permanent.read_bytes() != raw
+        or permanent.read_bytes() != current_raw
     ):
         raise PermissionError("seed639_permanent_registration_mismatch")
     resolved_source = (
@@ -164,6 +218,17 @@ def authorize_registration(
     )
     if resolved_source != source_commit:
         raise PermissionError("seed639_source_commit_invalid")
+    try:
+        source_raw = _git_bytes(repo, "show", f"{source_commit}:{REGISTRATION_PATH}")
+    except subprocess.CalledProcessError as error:
+        raise PermissionError("seed639_source_registration_missing") from error
+    source_digest = sha256(source_raw)
+    _validate_registration(json.loads(source_raw))
+    if (
+        expected_registration_sha256 is not None
+        and source_digest != expected_registration_sha256
+    ):
+        raise PermissionError("seed639_source_registration_digest_mismatch")
 
     prs = associated_prs
     if prs is None:
@@ -195,7 +260,7 @@ def authorize_registration(
             )
         except subprocess.CalledProcessError:
             continue
-        if committed_registration != raw:
+        if committed_registration != source_raw:
             continue
         base_commit = base.get("sha")
         if not isinstance(base_commit, str):
@@ -235,7 +300,8 @@ def authorize_registration(
         "repository": REPOSITORY,
         "experiment_id": EXPERIMENT_ID,
         "registration_path": REGISTRATION_PATH,
-        "registration_sha256": sha256(raw),
+        "registration_sha256": source_digest,
+        "current_registration_sha256": sha256(current_raw),
         "pr_number": pr["number"],
         "pr_url": pr["html_url"],
         "merge_commit": pr["merge_commit_sha"],
@@ -280,16 +346,39 @@ def validate_attempt(
     registration, registration_path = load_worktree_registration(worktree)
     _validate_registration(registration)
     _validate_experiment_worktree(worktree)
-    digest = sha256((worktree / registration_path).read_bytes())
+    amendment = registration.get("execution_amendment")
+    attempt_id = manifest.get("attempt_id")
+    if attempt_id == "attempt-0002" and (
+        amendment != EXECUTION_AMENDMENT
+        or attempt_id not in amendment.get("authorized_attempt_ids", [])
+        or manifest.get("configuration", {}).get("historical_verifier_runtime")
+        != HISTORICAL_VERIFIER_RUNTIME
+    ):
+        raise PermissionError("seed639_attempt_0002_runtime_amendment_mismatch")
+    has_terminal = any(
+        (attempt_dir / f"{status}.json").is_file()
+        for status in ("completed", "failed", "interrupted")
+    )
+    source_tree = (
+        _git_bytes(worktree, "rev-parse", f"{manifest.get('source_commit')}^{{tree}}")
+        .decode()
+        .strip()
+    )
     if (
         manifest.get("experiment_id") != EXPERIMENT_ID
         or manifest.get("status") != "frozen"
         or manifest.get("registration_path") != registration_path
-        or manifest.get("registration_sha256") != digest
-        or manifest.get("source_commit")
-        != _git_bytes(worktree, "rev-parse", "HEAD").decode().strip()
-        or manifest.get("execution_source_identity")
-        != _git_bytes(worktree, "rev-parse", "HEAD^{tree}").decode().strip()
+        or (
+            not has_terminal
+            and manifest.get("source_commit")
+            != _git_bytes(worktree, "rev-parse", "HEAD").decode().strip()
+        )
+        or (
+            not has_terminal
+            and manifest.get("execution_source_identity")
+            != _git_bytes(worktree, "rev-parse", "HEAD^{tree}").decode().strip()
+        )
+        or manifest.get("execution_source_identity") != source_tree
         or manifest.get("configuration", {}).get("execution_scope") != EXECUTION_SCOPE
         or manifest.get("configuration", {}).get("input_encoding") != "kalah_v3"
         or manifest.get("configuration", {}).get("inference_batch_size") != 1
@@ -302,7 +391,8 @@ def validate_attempt(
         or manifest.get("configuration", {}).get("thread_configuration")
         != {"environment": REGISTERED_ENVIRONMENT, "threads_per_pool": 1}
         or manifest.get("device", {}).get("type") != "cpu"
-        or manifest.get("configuration", {}).get("registration_sha256") != digest
+        or manifest.get("configuration", {}).get("registration_sha256")
+        != manifest.get("registration_sha256")
         or manifest.get("worker_count") != 1
         or manifest.get("resource_budget", {}).get("wall_time_limit_seconds")
         != RESOURCE_BUDGETS["wall_time_limit_seconds"]
@@ -342,6 +432,9 @@ def validate_attempt(
         str(Path(path).absolute()): digest
         for path, digest in registration["input_artifacts"].items()
     }
+    if attempt_id == "attempt-0001" and amendment == EXECUTION_AMENDMENT:
+        for path in AMENDMENT_RUNTIME_INPUTS:
+            registered_inputs.pop(str(Path(path).absolute()), None)
     if registered_inputs != manifest.get("input_artifacts"):
         raise PermissionError("seed639_lifecycle_input_binding_invalid")
     for path, expected in manifest["input_artifacts"].items():
@@ -355,9 +448,10 @@ def validate_attempt(
     authorization = authorize_registration(
         worktree / registration_path,
         manifest["source_commit"],
+        expected_registration_sha256=manifest.get("registration_sha256"),
         associated_prs=associated_prs,
         pr_fetcher=pr_fetcher,
     )
-    if authorization["registration_sha256"] != digest:
+    if authorization["registration_sha256"] != manifest.get("registration_sha256"):
         raise PermissionError("seed639_authorization_registration_digest_mismatch")
     return manifest, {"registration": registration, "authorization": authorization}

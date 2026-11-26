@@ -446,17 +446,28 @@ def _verify_historical_source(attempt_dir: Path, manifest: dict[str, Any]) -> No
     if historical_tree != manifest.get("execution_source_identity"):
         raise ValueError("historical_source_tree_identity_mismatch")
     manifested_registration_path = manifest.get("registration_path")
+    source_registration = registration
     if manifested_registration_path is not None:
         if manifested_registration_path != registration_path:
             raise ValueError("historical_registration_path_mismatch")
-        registered_bytes = (worktree / registration_path).read_bytes()
+        registered_bytes = _git_bytes(
+            worktree, "show", f"{source_commit}:{manifested_registration_path}"
+        )
+        source_registration = json.loads(registered_bytes)
         if (
-            _git_bytes(
-                worktree, "show", f"{source_commit}:{manifested_registration_path}"
-            )
-            != registered_bytes
-            or manifest.get("registration_sha256")
+            manifest.get("registration_sha256")
             != hashlib.sha256(registered_bytes).hexdigest()
+            or source_registration.get("experiment_id") != manifest.get("experiment_id")
+            or source_registration.get("experiment_type")
+            != manifest.get("experiment_type")
+            or source_registration.get("authorization_reference")
+            != manifest.get("authorization_reference")
+            or source_registration.get("hypothesis") != manifest.get("hypothesis")
+            or source_registration.get("objective") != manifest.get("objective")
+            or source_registration.get("base_commit") != manifest.get("base_commit")
+            or source_registration.get("random_seeds") != manifest.get("random_seeds")
+            or source_registration.get("checkpoint_identity")
+            != manifest.get("checkpoint_identity")
         ):
             raise ValueError("historical_permanent_registration_mismatch")
     if subprocess.run(
@@ -474,7 +485,7 @@ def _verify_historical_source(attempt_dir: Path, manifest: dict[str, Any]) -> No
         raise ValueError("historical_source_not_descended_from_registered_base")
     registered_inputs = {
         str(Path(path).absolute()): digest
-        for path, digest in registration["input_artifacts"].items()
+        for path, digest in source_registration["input_artifacts"].items()
     }
     if registered_inputs != manifest.get("input_artifacts"):
         raise ValueError("historical_input_registration_mismatch")
