@@ -1,0 +1,135 @@
+{
+  "archive_format": "tar.zst",
+  "archive_sha256": "d6e454f889e6155d7dccf3bf81e6769989896389d401fc5bf4cbd058059c8bf1",
+  "archive_size_bytes": 8066427,
+  "attempt_id": "attempt-0001",
+  "attempt_verification": {
+    "attempt_id": "attempt-0001",
+    "experiment_id": "seed636-prospective-population",
+    "input_artifact_mismatches": [],
+    "input_artifacts_verified": true,
+    "integrity_verified": true,
+    "manifest_sha256": "712feba653d6b1c867bcd43045b5c97223d208386ef743dcf32d8c19a0121c7b",
+    "outputs_verified": 1,
+    "status": "completed",
+    "verified": true
+  },
+  "created_at": "2026-11-25T20:55:21.105174+00:00",
+  "experiment_id": "seed636-prospective-population",
+  "files": [
+    {
+      "path": "completed.json",
+      "sha256": "2e4ea1809a64ecf7e2a9475b5d3f84cd0dac562f75104c84518b5a1d840bd1be",
+      "size_bytes": 1426
+    },
+    {
+      "path": "manifest.json",
+      "sha256": "712feba653d6b1c867bcd43045b5c97223d208386ef743dcf32d8c19a0121c7b",
+      "size_bytes": 11013
+    },
+    {
+      "path": "population/accepted-openings.jsonl",
+      "sha256": "0c37999f0df1ea24139938e154aeab38c3dc17a58cfbe1b08a79c00c012b8931",
+      "size_bytes": 100350
+    },
+    {
+      "path": "population/authenticated-membership-evidence.json",
+      "sha256": "0a9ed77b672f2ed5c65d6878a99dd6de2deb6b57e8ca181cb750da30f451e15c",
+      "size_bytes": 3057940
+    },
+    {
+      "path": "population/candidate-inventory.jsonl",
+      "sha256": "9f0815f92c8ac8c08ae14234190fa03b86efd1663a34cbf9a0a47994061d1077",
+      "size_bytes": 7600763
+    },
+    {
+      "path": "population/candidate-occurrences.jsonl",
+      "sha256": "a3778cbf0f726733f7cefbc93c58be0d1bf332d89f858edc90488d92adca8290",
+      "size_bytes": 6728477
+    },
+    {
+      "path": "population/continuation-action-stream.jsonl",
+      "sha256": "a64e381ae3081b6bb080dda8547fb67a9a145e29fe7ac5a42f9f77af01172bb8",
+      "size_bytes": 9701373
+    },
+    {
+      "path": "population/exclusions.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "population/games.jsonl",
+      "sha256": "fe77d5b3a1f5222b80d515eeb67337c84a2deb1c9754a9fc1d09cb61e3bf88cc",
+      "size_bytes": 1173288
+    },
+    {
+      "path": "population/generation-configuration.json",
+      "sha256": "585507045de8d79c21f2c338c9117bd3aacd5c764e84b65cdc100fb7cab11a61",
+      "size_bytes": 289
+    },
+    {
+      "path": "population/opening-attempts.json",
+      "sha256": "459fc7fbb727e919158ae050707064f607ccee2c7fa7a9f853bb4280977fa419",
+      "size_bytes": 65007
+    },
+    {
+      "path": "population/opening-attempts.jsonl",
+      "sha256": "ec069804bf9d1ce6fbed3d8e2e115b2c05c8bb3565a55dda7d4a72c01ce6156b",
+      "size_bytes": 65005
+    },
+    {
+      "path": "population/opening-rejections.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "size_bytes": 3
+    },
+    {
+      "path": "population/openings.json",
+      "sha256": "eb3b09ddb46f72399faa81ddabbcaf8c6bbc4e2e0496380d3c586421a945278c",
+      "size_bytes": 100352
+    },
+    {
+      "path": "population/population.json",
+      "sha256": "689269182824d86d55261b8c89141bbc578867339cc1adce695f57da2c7fc6fc",
+      "size_bytes": 16388455
+    },
+    {
+      "path": "population/population.sha256",
+      "sha256": "f0990c1eca7287151f5ef6613d893d4cd3f813538e48733627751cb035689070",
+      "size_bytes": 65
+    },
+    {
+      "path": "population/screened-candidates.jsonl",
+      "sha256": "422d56ffb3223d0904123d939b49ff118e8637df90297762b4640328ef44c8c4",
+      "size_bytes": 10575330
+    },
+    {
+      "path": "population/selection-diagnostics.json",
+      "sha256": "2bc3f7a12a08003f604642c6b912f6c3dde62ac721bc964c58e68b6642fa8deb",
+      "size_bytes": 1054136
+    },
+    {
+      "path": "population/selection-input-diagnostics.json",
+      "sha256": "f63cb67c4b79f4a6e5fdf07f869ffe1489731b05342122e45a3e1f36d67c4c10",
+      "size_bytes": 755
+    },
+    {
+      "path": "started.json",
+      "sha256": "55f8de4bad6656584ac18d752be877bb6b66d1454f75fe01f987062623266061",
+      "size_bytes": 91
+    },
+    {
+      "path": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "stdout.log",
+      "sha256": "6cc4cb81bb33b49505f5318bef50095f18e7d5297b92b26d7c08e674cdf756a7",
+      "size_bytes": 270
+    }
+  ],
+  "manifest_sha256": "712feba653d6b1c867bcd43045b5c97223d208386ef743dcf32d8c19a0121c7b",
+  "required_artifact_inventory_sha256": "a4ae4728e87e37a97a37d3abb51687c48f251736f77da1b1af82cd64c5dbd148",
+  "schema": "mancala-experiment-archive-v1",
+  "source_commit": "51e1699829f841e8c0cf0a483f66a4cbc9ba1071"
+}

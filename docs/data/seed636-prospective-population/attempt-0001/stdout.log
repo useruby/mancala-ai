@@ -1,0 +1,8 @@
+{
+  "eligible_candidates": 5623,
+  "games": 2048,
+  "openings": 256,
+  "output": "/home/alex/Mancala/ai/.worktrees/seed636-prospective-population/.experiment/runtime/attempts/attempt-0001/population",
+  "schema": "seed624-prospective-population-v1",
+  "selected": 512
+}
