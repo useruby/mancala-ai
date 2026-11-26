@@ -1,0 +1,136 @@
+{
+  "acceptance_criteria": [
+    "Authenticate the exact B512 and S615 artifacts against the historical Seed 615 evaluation freeze and authenticate the Seed 636 selected-state manifest, external archive and sidecar, population member, and selected inventory SHA-256 6c6b1f680b2177cb67c79a9a642216703f160131034fbf8fe86e8130910ed077.",
+    "Before inference, independently authenticate all 512 selected states, canonical and production-float32 identities, legal-action sets, continuation/opening provenance, and exact stone-bin quotas; reject the population before any evaluator call if any check fails.",
+    "Evaluate exactly those 512 states with both models, without replacement, filtering, or reweighting; do not modify the primary population.",
+    "Record deterministic legal-masked B512 and S615 probabilities for every legal action; reject nonfinite, negative, unnormalized, or illegal-action probability mass.",
+    "Reproduce top-action disagreement with the existing deterministic first-index tie rule and total-variation distance from the complete recorded probability vectors.",
+    "Apply the Seed 623 secondary subset contract exactly: sort by descending TV, cap at one state per continuation game and four per opening cluster, and resolve ties by SHA-256 of the frozen state ID; select 64 when available, reporting unavailable if fewer than 32 distinct source games qualify.",
+    "Report overall and per-stone-bin disagreement, TV distribution including quantiles and mean, fixed 1/5-per-bin standardized summaries, policy entropy differences, diagnostic subset coverage and cluster composition, and its relationship to the complete primary population.",
+    "The independent verifier reruns both authenticated evaluators over all 512 states (1,024 model-state evaluations) and requires bitwise-equal IEEE-754 binary64 complete legal-masked vectors and exact reproduction of TV, entropy, top-action classes, summaries, standardized summaries, subset ordering, coverage, and composition.",
+    "Run and verifier entry points authenticate owner-merged PR metadata, registration/protocol Git blobs, frozen lifecycle attempt/source/tree, registered inputs, execution scope, runtime configuration, and resource budgets before loading models or evaluating states.",
+    "Persist each completed state record as an exclusive create-only attempt artifact; retain partial records and a structured create-only failure receipt on inference failure.",
+    "Retain exposure classification: known-exposure-screened; inherited P-E4 exposure unresolved. Interpret all findings as descriptive policy differences, not strength evidence.",
+    "No population regeneration, MCTS, exact solving, tablebase probes, training, evaluation games, or candidate promotion. Stop on authentication or verification failure; preserve evidence and do not retry automatically."
+  ],
+  "attempt_id": "attempt-0001",
+  "authorization_reference": null,
+  "base_commit": "7b46fa148c2dcee53b63a2e3cfc3d7a10fe5d990",
+  "checkpoint_identity": {
+    "B512": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+    "S615": "cdf1e36c4c9374f28b182757b12471b3f00567eb59825bb938435cb56cf8d780",
+    "historical_seed615_evaluation_freeze_sha256": "ba30f5e3efadf3358db9f03c7b4eba4f69b23e2f95dcb4089723a1fb9664f32b"
+  },
+  "command": [
+    "/usr/bin/python3.14",
+    "-m",
+    "ml.alphazero_lite.seed639_policy_prior_classification",
+    "run",
+    "--attempt-dir",
+    "/home/alex/Mancala/ai/.worktrees/seed639-prospective-policy-prior-classification/.experiment/runtime/attempts/attempt-0001"
+  ],
+  "configuration": {
+    "environment": {
+      "CUDA_VISIBLE_DEVICES": "",
+      "MKL_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "PYTHONHASHSEED": "615"
+    },
+    "evaluation_cache": false,
+    "execution_concurrency": 1,
+    "execution_scope": "B512/S615 deterministic legal-masked prior inference, descriptive policy comparison, and frozen secondary subset selection on exactly the authenticated 512-state Seed 636 population; no additional states or primary-population modification.",
+    "inference_batch_size": 1,
+    "input_encoding": "kalah_v3",
+    "numerical_backend": "NumPy ArtifactEvaluator",
+    "registration_sha256": "5141ddb16771dbbf7356dae88ba13ed3248bd0406c45dce527445510f00c7571",
+    "thread_configuration": {
+      "environment": {
+        "CUDA_VISIBLE_DEVICES": "",
+        "MKL_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "PYTHONHASHSEED": "615"
+      },
+      "threads_per_pool": 1
+    }
+  },
+  "device": {
+    "type": "cpu"
+  },
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "HOME": "/home/alex",
+    "LANG": "en_US.UTF-8",
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PATH": "/home/alex/.local/share/mise/installs/gh/2.93.0/gh_2.93.0_linux_amd64/bin:/home/alex/.local/share/mise/installs/github-astral-sh-ruff/0.15.13:/home/alex/.local/share/mise/installs/npm/latest/package/bin:/home/alex/.local/share/mise/installs/node/latest/bin:/home/alex/.local/share/mise/installs/opencode/latest:/home/alex/.local/bin:/usr/local/bin:/usr/bin",
+    "PYTHONHASHSEED": "615"
+  },
+  "execution_source_identity": "d4635202837b5744c4db08caecb6ce75e3ae20cc",
+  "experiment_id": "seed639-prospective-policy-prior-classification",
+  "experiment_type": "retrospective_diagnostic",
+  "frozen_at": "2026-11-26T19:57:55.404690+00:00",
+  "hypothesis": "On the fixed, authenticated Seed 636 selected-state population, B512 and S615 produce descriptively measurable legal-masked policy differences that can be characterized without changing the primary population.",
+  "input_artifacts": {
+    "/home/alex/Mancala/ai-seed615-authorized-eval/docs/data/seed615-source-opening-diversity/evaluation-preparation/execution-freeze-v4.json": "ba30f5e3efadf3358db9f03c7b4eba4f69b23e2f95dcb4089723a1fb9664f32b",
+    "/home/alex/Mancala/ai-seed615-authorized-eval/docs/data/seed615-source-opening-diversity/evaluation-preparation/runtime-artifacts/B512/metadata.json": "510d4d5056d1b68ddd83eed89a4e8da13e9305d2fa39a46eefcebcf13334dce6",
+    "/home/alex/Mancala/ai-seed615-authorized-eval/docs/data/seed615-source-opening-diversity/evaluation-preparation/runtime-artifacts/B512/model.npz": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+    "/home/alex/Mancala/ai-seed615-authorized-eval/docs/data/seed615-source-opening-diversity/evaluation-preparation/runtime-artifacts/B512/weights.json": "d3effd234fe657fd8be3e3896153441d75ba338e83e83b66d7541936b3c01ccd",
+    "/home/alex/Mancala/ai-seed615-authorized-eval/docs/data/seed615-source-opening-diversity/evaluation-preparation/runtime-artifacts/S615/metadata.json": "24e42998824856d0242e04ff8a98431b139375e0bc4540d759373ccb335983b3",
+    "/home/alex/Mancala/ai-seed615-authorized-eval/docs/data/seed615-source-opening-diversity/evaluation-preparation/runtime-artifacts/S615/model.npz": "cdf1e36c4c9374f28b182757b12471b3f00567eb59825bb938435cb56cf8d780",
+    "/home/alex/Mancala/ai-seed615-authorized-eval/docs/data/seed615-source-opening-diversity/evaluation-preparation/runtime-artifacts/S615/weights.json": "8f36140461390d317e7e5bcf604357ca65fa1b605bd1e9562bf923b840e13433",
+    "/home/alex/Mancala/ai/docs/data/seed636-prospective-population/attempt-0001/selected-state-manifest-verification.json": "4c4c177d2fd4bf8b4e0b37e65584b9c6a62ca1949c6c114b6bf891fefd15c09a",
+    "/home/alex/Mancala/ai/docs/data/seed636-prospective-population/attempt-0001/selected-state-manifest.json": "d7e095f749c14a429162be91dd3bb5f67b685fab04808658f7f26ac7882c8fab",
+    "/home/alex/mancala-ai-experiment-archives/seed636-prospective-population--attempt-0001.archive-manifest.json": "057358aad2d72b733a29019c21f7a3f0a9b7d68e37cd5ea2954660e59c366bc5",
+    "/home/alex/mancala-ai-experiment-archives/seed636-prospective-population--attempt-0001.tar.zst": "d6e454f889e6155d7dccf3bf81e6769989896389d401fc5bf4cbd058059c8bf1"
+  },
+  "objective": "Characterize B512/S615 policy prior differences on all 512 Seed 636 states and freeze the Seed 623 high-total-variation secondary diagnostic subset; all conclusions are descriptive and are not evidence of relative playing strength.",
+  "output_paths": [
+    "seed639-output",
+    "seed639-output/runtime.json",
+    "seed639-output/authentication.json",
+    "seed639-output/population-preflight.json",
+    "seed639-output/population-preflight.jsonl",
+    "seed639-output/diagnostic-subset.json",
+    "seed639-output/summary.json",
+    "seed639-output/subset-relationship.json",
+    "seed639-output/results.json"
+  ],
+  "publication_outputs": [
+    "seed639-output/runtime.json",
+    "seed639-output/authentication.json",
+    "seed639-output/population-preflight.json",
+    "seed639-output/population-preflight.jsonl",
+    "seed639-output/diagnostic-subset.json",
+    "seed639-output/summary.json",
+    "seed639-output/subset-relationship.json",
+    "seed639-output/results.json"
+  ],
+  "random_seeds": [],
+  "registration_path": "docs/experiments/seed639-prospective-policy-prior-classification/registration.json",
+  "registration_sha256": "5141ddb16771dbbf7356dae88ba13ed3248bd0406c45dce527445510f00c7571",
+  "resource_budget": {
+    "additional_limits": {
+      "cpu_time_limit_seconds": 10800,
+      "output_and_temporary_storage_limit_bytes": 5368709120,
+      "process_rss_limit_bytes": 8589934592
+    },
+    "expected_runtime_seconds": 1800,
+    "minimum_free_disk_bytes": 5368709120,
+    "wall_time_limit_seconds": 14400
+  },
+  "runtime_versions": {
+    "numerical_backend": "NumPy ArtifactEvaluator",
+    "numpy": "2.5.3",
+    "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+    "python": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+    "python_version": "3.14.7"
+  },
+  "schema": "mancala-experiment-attempt-v1",
+  "source_commit": "5f4dc090bf57ce1757c4695313cfe28749600771",
+  "status": "frozen",
+  "worker_count": 1,
+  "worktree_path": "/home/alex/Mancala/ai/.worktrees/seed639-prospective-policy-prior-classification"
+}

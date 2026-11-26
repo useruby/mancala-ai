@@ -1,0 +1,102 @@
+{
+  "backend": "NumPy ArtifactEvaluator",
+  "device": "cpu",
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONHASHSEED": "615"
+  },
+  "evaluation_cache": false,
+  "inference_batch_size": 1,
+  "numpy_build_configuration": {
+    "Build Dependencies": {
+      "blas": {
+        "detection method": "pkgconfig",
+        "found": true,
+        "include directory": "/opt/_internal/cpython-3.14.6/lib/python3.14/site-packages/scipy_openblas64/include",
+        "lib directory": "/opt/_internal/cpython-3.14.6/lib/python3.14/site-packages/scipy_openblas64/lib",
+        "name": "scipy-openblas",
+        "openblas configuration": "OpenBLAS 0.3.34.106.0  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+        "pc file directory": "/project/.openblas",
+        "version": "0.3.34.106.0"
+      },
+      "lapack": {
+        "detection method": "pkgconfig",
+        "found": true,
+        "include directory": "/opt/_internal/cpython-3.14.6/lib/python3.14/site-packages/scipy_openblas64/include",
+        "lib directory": "/opt/_internal/cpython-3.14.6/lib/python3.14/site-packages/scipy_openblas64/lib",
+        "name": "scipy-openblas",
+        "openblas configuration": "OpenBLAS 0.3.34.106.0  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+        "pc file directory": "/project/.openblas",
+        "version": "0.3.34.106.0"
+      }
+    },
+    "Compilers": {
+      "c": {
+        "commands": "cc",
+        "linker": "ld.bfd",
+        "name": "gcc",
+        "version": "14.2.1"
+      },
+      "c++": {
+        "commands": "c++",
+        "linker": "ld.bfd",
+        "name": "gcc",
+        "version": "14.2.1"
+      },
+      "cython": {
+        "commands": "cython",
+        "linker": "cython",
+        "name": "cython",
+        "version": "3.3.0"
+      }
+    },
+    "Machine Information": {
+      "build": {
+        "cpu": "x86_64",
+        "endian": "little",
+        "family": "x86_64",
+        "system": "linux"
+      },
+      "host": {
+        "cpu": "x86_64",
+        "endian": "little",
+        "family": "x86_64",
+        "system": "linux"
+      }
+    },
+    "Python Information": {
+      "path": "/tmp/build-env-1yb2qye7/bin/python",
+      "version": "3.14"
+    },
+    "SIMD Extensions": {
+      "baseline": [
+        "X86_V2"
+      ],
+      "found": [
+        "X86_V3"
+      ],
+      "not found": [
+        "X86_V4",
+        "AVX512_ICL",
+        "AVX512_SPR"
+      ]
+    }
+  },
+  "numpy_version": "2.5.3",
+  "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+  "python_full_version": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+  "python_version": "3.14.7",
+  "thread_configuration": {
+    "environment": {
+      "CUDA_VISIBLE_DEVICES": "",
+      "MKL_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "PYTHONHASHSEED": "615"
+    },
+    "limit_per_pool": 1
+  }
+}

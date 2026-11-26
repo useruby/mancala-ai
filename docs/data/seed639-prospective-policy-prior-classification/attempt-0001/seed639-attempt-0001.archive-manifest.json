@@ -1,0 +1,60 @@
+{
+  "archive_format": "tar.zst",
+  "archive_sha256": "7c8bd3fd7bd19dc03d5ff966aa96abe78bb55d595b5613da2f10cc42ec4d4ebf",
+  "archive_size_bytes": 5937,
+  "attempt_id": "attempt-0001",
+  "attempt_verification": {
+    "attempt_id": "attempt-0001",
+    "experiment_id": "seed639-prospective-policy-prior-classification",
+    "input_artifact_mismatches": [],
+    "input_artifacts_verified": true,
+    "integrity_verified": true,
+    "manifest_sha256": "acb10005043bd5b180236d6c27fb8fe4b16298ed3223690d6215a0fbbe4801a4",
+    "outputs_verified": 0,
+    "status": "failed",
+    "verified": true
+  },
+  "created_at": "2026-11-26T19:59:21.648147+00:00",
+  "experiment_id": "seed639-prospective-policy-prior-classification",
+  "files": [
+    {
+      "path": "failed.json",
+      "sha256": "f13ac5af95e332ebc640efbaf1115830826f76301cb178fa2a399f92a2372c23",
+      "size_bytes": 1373
+    },
+    {
+      "path": "manifest.json",
+      "sha256": "acb10005043bd5b180236d6c27fb8fe4b16298ed3223690d6215a0fbbe4801a4",
+      "size_bytes": 10083
+    },
+    {
+      "path": "seed639-output/failure.json",
+      "sha256": "62ed36791bf1046de0789cde1283e61564b60eca4914ade649da3bfcbf9e392f",
+      "size_bytes": 386
+    },
+    {
+      "path": "seed639-output/runtime.json",
+      "sha256": "b00f0a632dd4ca81bcbb167e7cfa77206a3a11d665030f5db7994028b316a8e8",
+      "size_bytes": 2960
+    },
+    {
+      "path": "started.json",
+      "sha256": "3b5fd8f944dafee15c4f685c05368c3d03a90d186903f6dd7edd83e7c5726186",
+      "size_bytes": 91
+    },
+    {
+      "path": "stderr.log",
+      "sha256": "95a798e55855638fde5fd0285ab63fcaf62b6e909344a79ed1ae8957c6ff16f3",
+      "size_bytes": 2998
+    },
+    {
+      "path": "stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    }
+  ],
+  "manifest_sha256": "acb10005043bd5b180236d6c27fb8fe4b16298ed3223690d6215a0fbbe4801a4",
+  "required_artifact_inventory_sha256": "e491ce8e2c81e2feaaf1ea0c5b157d15da1b7443ed6b7d0d5ea97f3645965d8b",
+  "schema": "mancala-experiment-archive-v1",
+  "source_commit": "5f4dc090bf57ce1757c4695313cfe28749600771"
+}
