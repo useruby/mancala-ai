@@ -4,10 +4,14 @@ from __future__ import annotations
 
 import unittest
 import hashlib
+import io
 import json
+import os
+import platform
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 from pathlib import Path
 
@@ -297,8 +301,6 @@ class Seed639PolicyPriorClassificationTests(unittest.TestCase):
                 ).read_bytes()
             )
             registration_path = repo / authorization.REGISTRATION_PATH
-            registration_path.parent.mkdir(parents=True)
-            registration_path.write_text(json.dumps(registration))
             source_root = Path(__file__).resolve().parents[2]
             for protocol in authorization.REQUIRED_PROTOCOLS:
                 target = repo / protocol
@@ -321,6 +323,26 @@ class Seed639PolicyPriorClassificationTests(unittest.TestCase):
                 check=True,
                 capture_output=True,
             )
+            base_commit = run_git(repo, "rev-parse", "HEAD")
+            registration_path.parent.mkdir(parents=True)
+            registration_path.write_text(json.dumps(registration))
+            run_git(repo, "add", authorization.REGISTRATION_PATH)
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(repo),
+                    "-c",
+                    "user.name=Seed 639 test",
+                    "-c",
+                    "user.email=seed639-test@example.invalid",
+                    "commit",
+                    "-m",
+                    "introduce experiment registration",
+                ],
+                check=True,
+                capture_output=True,
+            )
             source_commit = run_git(repo, "rev-parse", "HEAD")
             pull = {
                 "number": 639,
@@ -329,6 +351,7 @@ class Seed639PolicyPriorClassificationTests(unittest.TestCase):
                 "merged_by": {"login": "useruby"},
                 "merge_commit_sha": source_commit,
                 "base": {
+                    "sha": base_commit,
                     "ref": "main",
                     "repo": {"full_name": "useruby/mancala-ai"},
                 },
@@ -344,6 +367,14 @@ class Seed639PolicyPriorClassificationTests(unittest.TestCase):
                     pr_fetcher=lambda _number: pull,
                 )
             pull = {**pull, "state": "closed", "merged_at": "2026-11-26T00:00:00Z"}
+            accepted = authorization.authorize_registration(
+                registration_path,
+                source_commit,
+                associated_prs=[{"number": 639}],
+                pr_fetcher=lambda _number: pull,
+            )
+            self.assertEqual(accepted["merge_commit"], source_commit)
+            pull = {**pull, "state": "closed", "merged_at": "2026-11-26T00:00:00Z"}
             pull["merged_by"] = {"login": "untrusted-contributor"}
             with self.assertRaisesRegex(
                 PermissionError, "owner_merged_registration_not_unique"
@@ -351,6 +382,48 @@ class Seed639PolicyPriorClassificationTests(unittest.TestCase):
                 authorization.authorize_registration(
                     registration_path,
                     source_commit,
+                    associated_prs=[{"number": 639}],
+                    pr_fetcher=lambda _number: pull,
+                )
+
+            registered_commit = source_commit
+            (repo / "unrelated.txt").write_text("unrelated change\n")
+            run_git(repo, "add", "unrelated.txt")
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(repo),
+                    "-c",
+                    "user.name=Seed 639 test",
+                    "-c",
+                    "user.email=seed639-test@example.invalid",
+                    "commit",
+                    "-m",
+                    "unrelated change inheriting registration",
+                ],
+                check=True,
+                capture_output=True,
+            )
+            inherited_commit = run_git(repo, "rev-parse", "HEAD")
+            pull = {
+                **pull,
+                "state": "closed",
+                "merged_at": "2026-11-26T00:00:00Z",
+                "merged_by": {"login": "useruby"},
+                "merge_commit_sha": inherited_commit,
+                "base": {
+                    "sha": registered_commit,
+                    "ref": "main",
+                    "repo": {"full_name": "useruby/mancala-ai"},
+                },
+            }
+            with self.assertRaisesRegex(
+                PermissionError, "owner_merged_registration_not_unique"
+            ):
+                authorization.authorize_registration(
+                    registration_path,
+                    inherited_commit,
                     associated_prs=[{"number": 639}],
                     pr_fetcher=lambda _number: pull,
                 )
@@ -444,7 +517,9 @@ print(json.dumps({"passed": True, "states": len(records), "model_state_evaluatio
             repository = Path(temporary) / "repo"
             repository.mkdir()
             run_git(repository, "init", "--initial-branch=main")
-            (repository / ".gitignore").write_text("/.worktrees/\n")
+            (repository / ".gitignore").write_text(
+                "/.worktrees/\n**/__pycache__/\n*.pyc\n"
+            )
             package = repository / "ml/alphazero_lite"
             package.mkdir(parents=True)
             (repository / "ml/__init__.py").write_text("")
@@ -546,7 +621,11 @@ print(json.dumps({"passed": True, "states": len(records), "model_state_evaluatio
                     freeze / "manifest.json"
                 ),
             )
-            self.assertEqual(terminal["status"], "completed")
+            self.assertEqual(
+                terminal["status"],
+                "completed",
+                f"{terminal}\n{(freeze / 'stderr.log').read_text()}",
+            )
             lifecycle_receipt = experiment_lifecycle.verify_attempt(freeze)
             self.assertTrue(lifecycle_receipt["integrity_verified"])
             self.assertEqual(lifecycle_receipt["outputs_verified"], 1)
@@ -561,6 +640,1014 @@ print(json.dumps({"passed": True, "states": len(records), "model_state_evaluatio
             self.assertTrue(independent_result["passed"])
             self.assertEqual(independent_result["states"], 512)
             self.assertEqual(independent_result["model_state_evaluations"], 1024)
+
+    def test_actual_run_attempt_and_verify_attempt_with_synthetic_numpy_artifacts(self):
+        from ml.alphazero_lite import seed639_authorization as authorization
+
+        source_root = Path(__file__).resolve().parents[2]
+        scratch = source_root / ".tmp"
+        scratch.mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=scratch) as temporary:
+            repository = Path(temporary) / "repo"
+            repository.mkdir()
+            run_git(repository, "init", "--initial-branch=main")
+            (repository / ".gitignore").write_text(
+                "/.worktrees/\n**/__pycache__/\n*.pyc\n"
+            )
+            shutil.copytree(
+                source_root / "ml/alphazero_lite",
+                repository / "ml/alphazero_lite",
+                ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".pytest_cache"),
+            )
+            (repository / "ml/__init__.py").write_text("")
+            for relative in authorization.REQUIRED_PROTOCOLS:
+                target = repository / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(source_root / relative, target)
+
+            synthetic_rows = synthetic_population()
+            inventory_sha = hashlib.sha256(
+                diagnostic.canonical_json(synthetic_rows)
+            ).hexdigest()
+            seed615_root = repository / "synthetic-seed615"
+            eval_root = (
+                seed615_root
+                / "docs/data/seed615-source-opening-diversity/evaluation-preparation"
+            )
+            artifact_root = eval_root / "runtime-artifacts"
+            model_hashes = {}
+            runtime_records = {}
+            for model, biases in (
+                ("B512", [0.6, 0.5, 0.4, 0.3, 0.2, 0.1]),
+                ("S615", [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]),
+            ):
+                model_directory = artifact_root / model
+                model_directory.mkdir(parents=True)
+                model_bytes = f"synthetic-{model}-npz".encode()
+                weights_bytes = json.dumps(
+                    {
+                        "w1": [[0.0, 0.0] for _ in range(27)],
+                        "b1": [0.0, 0.0],
+                        "w2": [[0.0, 0.0], [0.0, 0.0]],
+                        "b2": [0.0, 0.0],
+                        "w_policy": [[0.0] * 6, [0.0] * 6],
+                        "b_policy": biases,
+                        "w_value": [[0.0], [0.0]],
+                        "b_value": [0.0],
+                    },
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode()
+                model_sha = hashlib.sha256(model_bytes).hexdigest()
+                weights_sha = hashlib.sha256(weights_bytes).hexdigest()
+                metadata = {
+                    "schema_version": "azlite_model_v1",
+                    "game": "kalah",
+                    "rules_version": "kalah_v1",
+                    "input_encoding": "kalah_v3",
+                    "architecture": {"model_type": "mlp_v1"},
+                    "framework": "numpy",
+                    "artifacts": {
+                        "weights_file": "weights.json",
+                        "weights_fallback_file": "model.npz",
+                        "weights_sha256": model_sha,
+                        "weights_json_sha256": weights_sha,
+                    },
+                }
+                metadata_bytes = json.dumps(metadata, sort_keys=True).encode()
+                (model_directory / "model.npz").write_bytes(model_bytes)
+                (model_directory / "weights.json").write_bytes(weights_bytes)
+                (model_directory / "metadata.json").write_bytes(metadata_bytes)
+                metadata_sha = hashlib.sha256(metadata_bytes).hexdigest()
+                model_hashes[model] = {
+                    "model.npz": model_sha,
+                    "weights.json": weights_sha,
+                    "metadata.json": metadata_sha,
+                }
+                runtime_records[model] = {
+                    "model_npz_sha256": model_sha,
+                    "weights_json_sha256": weights_sha,
+                    "metadata_sha256": metadata_sha,
+                }
+
+            freeze_path = eval_root / "execution-freeze-v4.json"
+            freeze_path.write_text(
+                json.dumps({"runtime_artifacts": runtime_records}, sort_keys=True)
+            )
+            freeze_sha = hashlib.sha256(freeze_path.read_bytes()).hexdigest()
+            p_e4_sha = diagnostic.INHERITED_P_E4_SHA256
+            checkpoint_identity = {
+                "B512": model_hashes["B512"]["model.npz"],
+                "S615": model_hashes["S615"]["model.npz"],
+                "historical_seed615_evaluation_freeze_sha256": freeze_sha,
+            }
+
+            seed636_attempt = (
+                repository / "docs/data/seed636-prospective-population/attempt-0001"
+            )
+            seed636_attempt.mkdir(parents=True)
+            population_member = diagnostic.canonical_json(
+                {"selection": {"states": synthetic_rows}}
+            )
+            member_sha = hashlib.sha256(population_member).hexdigest()
+            selected_manifest = {
+                "schema": "seed636-selected-state-manifest-v1",
+                "selected_count": 512,
+                "selected_inventory_sha256": inventory_sha,
+                "exposure_classification": "known-exposure-screened; inherited P-E4 exposure unresolved",
+                "distinct_opening_clusters": 512,
+                "max_per_game": 1,
+                "max_per_opening": 1,
+                "states": [
+                    {
+                        "i": index,
+                        **{
+                            name: row[name]
+                            for name in (
+                                "canonical_identity",
+                                "production_float32_identity",
+                                "active_pit_stones",
+                                "game_id",
+                                "opening_identity",
+                                "opening_index",
+                                "continuation_ply",
+                            )
+                        },
+                    }
+                    for index, row in enumerate(synthetic_rows)
+                ],
+            }
+            selected_manifest_path = seed636_attempt / "selected-state-manifest.json"
+            selected_manifest_path.write_text(
+                json.dumps(selected_manifest, sort_keys=True)
+            )
+            selected_manifest_sha = hashlib.sha256(
+                selected_manifest_path.read_bytes()
+            ).hexdigest()
+            selected_verification = {
+                "schema": "seed636-selected-state-manifest-verification-v1",
+                "status": "verified",
+                "selected_count": 512,
+                "selected_inventory_sha256": inventory_sha,
+                "manifest_sha256": selected_manifest_sha,
+                "population_member_sha256": member_sha,
+                "checks": {
+                    key: True
+                    for key in (
+                        "archive_hash",
+                        "archive_sidecar_identity",
+                        "canonical_ids_unique",
+                        "exposure_binding",
+                        "float32_ids_unique",
+                        "game_cap",
+                        "opening_cap",
+                        "population_member_hash",
+                        "projection_matches_archived_rows",
+                        "selected_count",
+                        "selected_inventory_hash",
+                        "sidecar_hash",
+                        "stone_quotas",
+                    )
+                },
+            }
+            selected_verification_path = (
+                seed636_attempt / "selected-state-manifest-verification.json"
+            )
+            selected_verification_path.write_text(
+                json.dumps(selected_verification, sort_keys=True)
+            )
+            archive_path = repository / "synthetic-archive/seed636-attempt-0001.tar.zst"
+            archive_path.parent.mkdir(parents=True)
+            with tarfile.open(archive_path, "w:gz") as archive:
+                info = tarfile.TarInfo("population/population.json")
+                info.size = len(population_member)
+                archive.addfile(info, io.BytesIO(population_member))
+            sidecar_path = (
+                repository
+                / "synthetic-archive/seed636-attempt-0001.archive-manifest.json"
+            )
+            sidecar_path.write_text('{"synthetic":true}\n')
+
+            input_paths = {
+                str(freeze_path): hashlib.sha256(freeze_path.read_bytes()).hexdigest(),
+                **{
+                    str(artifact_root / model / filename): digest
+                    for model, files_for_model in model_hashes.items()
+                    for filename, digest in files_for_model.items()
+                },
+                str(selected_manifest_path): selected_manifest_sha,
+                str(selected_verification_path): hashlib.sha256(
+                    selected_verification_path.read_bytes()
+                ).hexdigest(),
+                str(archive_path): hashlib.sha256(
+                    archive_path.read_bytes()
+                ).hexdigest(),
+                str(sidecar_path): hashlib.sha256(
+                    sidecar_path.read_bytes()
+                ).hexdigest(),
+            }
+            external_hashes = {
+                "selected_manifest": input_paths[str(selected_manifest_path)],
+                "selected_verification": input_paths[str(selected_verification_path)],
+                "archive": input_paths[str(archive_path)],
+                "archive_manifest": input_paths[str(sidecar_path)],
+                "population_member": member_sha,
+            }
+            fixture = {
+                "model_hashes": model_hashes,
+                "input_hashes": external_hashes,
+                "checkpoint_identity": checkpoint_identity,
+                "selected_inventory_sha256": inventory_sha,
+                "seed615_freeze_sha256": input_paths[str(freeze_path)],
+                "p_e4_sha256": p_e4_sha,
+                "archive_member_size": len(population_member),
+            }
+            fixture_path = repository / "synthetic-entrypoint-fixture.json"
+            fixture_path.write_text(json.dumps(fixture, sort_keys=True))
+
+            controls_source = """
+import json
+from collections import Counter
+from contextlib import contextmanager, ExitStack
+from pathlib import Path
+from unittest.mock import patch
+from ml.alphazero_lite import arena, experiment_lifecycle, seed639_authorization, seed639_policy_prior_classification as producer
+from ml.alphazero_lite import verify_seed639_policy_prior_classification as verifier
+from ml.alphazero_lite import seed615_policy_divergence_diagnostic as historical
+
+@contextmanager
+def controls(attempt_dir, fixture_path):
+    attempt = Path(attempt_dir)
+    fixture = json.loads(Path(fixture_path).read_bytes())
+    manifest = json.loads((attempt / "manifest.json").read_bytes())
+    pull = {"number": 639, "state": "closed", "merged_at": "2026-11-26T00:00:00Z",
+            "merged_by": {"login": "useruby"}, "merge_commit_sha": manifest["source_commit"],
+            "base": {"sha": manifest["base_commit"], "ref": "main",
+                     "repo": {"full_name": "useruby/mancala-ai"}},
+            "html_url": "https://example.invalid/pull/639"}
+    def gh(endpoint):
+        if "/commits/" in endpoint: return [{"number": 639}]
+        if endpoint.endswith("/pulls/639"): return pull
+        raise AssertionError(endpoint)
+    def historical_auth(_root):
+        return {"freeze_sha256": fixture["seed615_freeze_sha256"],
+                "checkpoint_sha256": {"B512": fixture["model_hashes"]["B512"]["model.npz"],
+                                      "S615": fixture["model_hashes"]["S615"]["model.npz"],
+                                      "P-E4": fixture["p_e4_sha256"]}}
+    def archive_verify(_archive, _sidecar):
+        return {"experiment_id": "seed636-prospective-population", "attempt_id": "attempt-0001",
+                "files": [{"path": "population/population.json",
+                           "size_bytes": fixture["archive_member_size"],
+                           "sha256": fixture["input_hashes"]["population_member"]}]}
+    original = arena.ArtifactEvaluator
+    class CountingEvaluator(original):
+        calls = Counter()
+        def __init__(self, directory):
+            super().__init__(directory)
+            self.label = Path(directory).name
+        def evaluate(self, game):
+            type(self).calls[self.label] += 1
+            return super().evaluate(game)
+    patches = [
+        patch.object(seed639_authorization, "_github_json", side_effect=gh),
+        patch.object(experiment_lifecycle, "verify_archive", side_effect=archive_verify),
+        patch.object(historical, "authenticate", side_effect=historical_auth),
+        patch.object(arena, "ArtifactEvaluator", CountingEvaluator),
+        patch.object(producer, "REGISTERED_INPUT_SHA256", fixture["input_hashes"]),
+        patch.object(producer, "MODEL_ARTIFACTS", fixture["model_hashes"]),
+        patch.object(producer, "SELECTED_INVENTORY_SHA256", fixture["selected_inventory_sha256"]),
+        patch.object(producer, "SEED615_EVALUATION_FREEZE_SHA256", fixture["seed615_freeze_sha256"]),
+        patch.object(seed639_authorization, "CHECKPOINT_IDENTITY", fixture["checkpoint_identity"]),
+        patch.object(seed639_authorization, "SELECTED_INVENTORY_SHA256", fixture["selected_inventory_sha256"]),
+        patch.object(verifier, "EXPECTED_MODEL_FILES", fixture["model_hashes"]),
+        patch.object(verifier, "SELECTED_INVENTORY_SHA256", fixture["selected_inventory_sha256"]),
+        patch.object(verifier, "EXPECTED_SELECTED_MANIFEST_SHA256", fixture["input_hashes"]["selected_manifest"]),
+        patch.object(verifier, "EXPECTED_SELECTED_VERIFICATION_SHA256", fixture["input_hashes"]["selected_verification"]),
+        patch.object(verifier, "EXPECTED_SEED615_FREEZE_SHA256", fixture["seed615_freeze_sha256"]),
+    ]
+    with ExitStack() as stack:
+        for item in patches: stack.enter_context(item)
+        yield fixture, CountingEvaluator
+"""
+            worker_source = """
+import json, sys
+from ml.alphazero_lite import seed639_policy_prior_classification as producer
+from synthetic_entrypoint_controls import controls
+with controls(sys.argv[1], sys.argv[2]) as (fixture, evaluator):
+    result = producer.run_attempt(__import__("pathlib").Path(sys.argv[1]))
+    print(json.dumps({"result": result, "evaluator_calls": dict(evaluator.calls)}, sort_keys=True))
+"""
+            verify_source = """
+import json, sys
+from ml.alphazero_lite import verify_seed639_policy_prior_classification as verifier
+from synthetic_entrypoint_controls import controls
+with controls(sys.argv[1], sys.argv[2]) as (fixture, evaluator):
+    result = verifier.verify_attempt(__import__("pathlib").Path(sys.argv[1]))
+    print(json.dumps({"result": result, "evaluator_calls": dict(evaluator.calls)}, sort_keys=True))
+"""
+            (repository / "synthetic_entrypoint_controls.py").write_text(
+                controls_source
+            )
+            (
+                repository / "synthetic_seed639_policy_prior_classification_worker.py"
+            ).write_text(worker_source)
+            (repository / "synthetic_seed639_verify_worker.py").write_text(
+                verify_source
+            )
+            run_git(repository, "add", ".")
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(repository),
+                    "-c",
+                    "user.name=Seed639 test",
+                    "-c",
+                    "user.email=seed639@example.invalid",
+                    "commit",
+                    "-m",
+                    "synthetic base",
+                ],
+                check=True,
+                capture_output=True,
+            )
+            base_commit = run_git(repository, "rev-parse", "HEAD")
+
+            registration = json.loads(
+                (
+                    source_root
+                    / "docs/experiments/seed639-prospective-policy-prior-classification/registration.json"
+                ).read_bytes()
+            )
+            reserved = {
+                "schema",
+                "experiment_id",
+                "experiment_type",
+                "authorization_reference",
+                "hypothesis",
+                "objective",
+                "base_commit",
+                "branch",
+                "random_seeds",
+                "input_artifacts",
+                "checkpoint_identity",
+                "acceptance_criteria",
+                "registered_at",
+            }
+            metadata = {
+                key: value for key, value in registration.items() if key not in reserved
+            }
+            metadata["scientific_acceptance"] = {
+                **metadata["scientific_acceptance"],
+                "selected_inventory_sha256": inventory_sha,
+            }
+            worktree = experiment_lifecycle.create_worktree(
+                repository,
+                authorization.EXPERIMENT_ID,
+                "experiment/seed639-actual-entrypoints-synthetic",
+                base_commit,
+                hypothesis=registration["hypothesis"],
+                objective=registration["objective"],
+                experiment_type=registration["experiment_type"],
+                random_seeds=[],
+                input_artifacts=input_paths,
+                checkpoint_identity=checkpoint_identity,
+                acceptance_criteria=registration["acceptance_criteria"],
+                worktree_root=repository / ".worktrees",
+                registration_metadata=metadata,
+            )
+            run_git(worktree, "add", ".experiment/.gitignore", "docs/experiments")
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(worktree),
+                    "-c",
+                    "user.name=Seed639 test",
+                    "-c",
+                    "user.email=seed639@example.invalid",
+                    "commit",
+                    "-m",
+                    "introduce registration",
+                ],
+                check=True,
+                capture_output=True,
+            )
+            permanent_registration = worktree / authorization.REGISTRATION_PATH
+            registration_sha = hashlib.sha256(
+                permanent_registration.read_bytes()
+            ).hexdigest()
+            environment = diagnostic.PINNED_ENVIRONMENT.copy()
+            configuration = {
+                "registration_sha256": registration_sha,
+                "execution_scope": authorization.EXECUTION_SCOPE,
+                "input_encoding": "kalah_v3",
+                "inference_batch_size": 1,
+                "evaluation_cache": False,
+                "execution_concurrency": 1,
+                "environment": environment,
+                "numerical_backend": "NumPy ArtifactEvaluator",
+                "thread_configuration": {
+                    "environment": environment,
+                    "threads_per_pool": 1,
+                },
+            }
+            attempt = worktree / ".experiment/runtime/attempts/attempt-0001"
+            freeze = experiment_lifecycle.freeze_attempt(
+                worktree,
+                attempt_id="attempt-0001",
+                command=[
+                    sys.executable,
+                    "synthetic_seed639_policy_prior_classification_worker.py",
+                    str(attempt),
+                    str(fixture_path),
+                ],
+                configuration=configuration,
+                runtime_versions={
+                    "python_version": platform.python_version(),
+                    "numpy": np.__version__,
+                    "numerical_backend": "NumPy ArtifactEvaluator",
+                },
+                device={"type": "cpu"},
+                worker_count=1,
+                expected_runtime_seconds=600,
+                wall_time_limit_seconds=14_400,
+                minimum_free_disk_bytes=5_368_709_120,
+                outputs=["seed639-output"],
+                input_artifacts=input_paths,
+                random_seeds=[],
+                additional_resource_limits={
+                    "cpu_time_limit_seconds": 10_800,
+                    "process_rss_limit_bytes": 8_589_934_592,
+                    "output_and_temporary_storage_limit_bytes": 5_368_709_120,
+                },
+                environment=environment,
+            )
+            executed = experiment_lifecycle.execute_attempt(
+                freeze,
+                expected_manifest_sha256=experiment_lifecycle.sha256_file(
+                    freeze / "manifest.json"
+                ),
+            )
+            self.assertEqual(executed["status"], "completed")
+            producer_report = json.loads(
+                (freeze / "stdout.log").read_bytes().splitlines()[-1]
+            )
+            self.assertEqual(
+                producer_report["evaluator_calls"], {"B512": 512, "S615": 512}
+            )
+            self.assertTrue(
+                experiment_lifecycle.verify_attempt(freeze)["integrity_verified"]
+            )
+
+            verify_environment = os.environ.copy() | environment
+            independent = subprocess.run(
+                [
+                    sys.executable,
+                    "synthetic_seed639_verify_worker.py",
+                    str(freeze),
+                    str(fixture_path),
+                ],
+                cwd=worktree,
+                check=True,
+                capture_output=True,
+                text=True,
+                env=verify_environment,
+            )
+            verify_report = json.loads(independent.stdout)
+            self.assertTrue(verify_report["result"]["passed"])
+            self.assertEqual(verify_report["result"]["states_verified"], 512)
+            self.assertEqual(
+                verify_report["result"]["model_state_evaluations_reproduced"], 1024
+            )
+            self.assertEqual(
+                verify_report["evaluator_calls"], {"B512": 512, "S615": 512}
+            )
+
+    def test_actual_run_and_independent_verify_entrypoints_with_synthetic_artifacts(
+        self,
+    ):
+        from ml.alphazero_lite import seed639_authorization as authorization
+
+        source_root = Path(__file__).resolve().parents[2]
+        worktree_temp_root = source_root / ".tmp"
+        created_scratch_parent = not worktree_temp_root.exists()
+        worktree_temp_root.mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=worktree_temp_root) as temporary:
+            repository = Path(temporary) / "repo"
+            repository.mkdir()
+            run_git(repository, "init", "--initial-branch=main")
+            (repository / ".gitignore").write_text(
+                "/.worktrees/\n**/__pycache__/\n*.pyc\n"
+            )
+            shutil.copytree(
+                source_root / "ml/alphazero_lite",
+                repository / "ml/alphazero_lite",
+                ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".pytest_cache"),
+            )
+            (repository / "ml/__init__.py").write_text("")
+            for relative in authorization.REQUIRED_PROTOCOLS:
+                target = repository / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(source_root / relative, target)
+
+            seed615_root = repository / "synthetic-seed615"
+            eval_root = (
+                seed615_root
+                / "docs/data/seed615-source-opening-diversity/evaluation-preparation"
+            )
+            artifacts_root = eval_root / "runtime-artifacts"
+            rows = synthetic_population()
+            selected_inventory_sha256 = hashlib.sha256(
+                diagnostic.canonical_json(rows)
+            ).hexdigest()
+            model_hashes = {}
+            model_records = {}
+            for model, biases in (
+                ("B512", [0.6, 0.5, 0.4, 0.3, 0.2, 0.1]),
+                ("S615", [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]),
+            ):
+                artifact_dir = artifacts_root / model
+                artifact_dir.mkdir(parents=True)
+                model_bytes = f"synthetic-{model}-checkpoint".encode()
+                weights_doc = {
+                    "w1": [[0.0, 0.0] for _ in range(27)],
+                    "b1": [0.0, 0.0],
+                    "w2": [[0.0, 0.0], [0.0, 0.0]],
+                    "b2": [0.0, 0.0],
+                    "w_policy": [[0.0] * 6, [0.0] * 6],
+                    "b_policy": biases,
+                    "w_value": [[0.0], [0.0]],
+                    "b_value": [0.0],
+                }
+                weights_bytes = json.dumps(
+                    weights_doc, sort_keys=True, separators=(",", ":")
+                ).encode()
+                model_sha = hashlib.sha256(model_bytes).hexdigest()
+                weights_sha = hashlib.sha256(weights_bytes).hexdigest()
+                metadata_doc = {
+                    "schema_version": "azlite_model_v1",
+                    "game": "kalah",
+                    "rules_version": "kalah_v1",
+                    "input_encoding": "kalah_v3",
+                    "architecture": {"model_type": "mlp_v1"},
+                    "framework": "numpy",
+                    "artifacts": {
+                        "weights_file": "weights.json",
+                        "weights_fallback_file": "model.npz",
+                        "weights_sha256": model_sha,
+                        "weights_json_sha256": weights_sha,
+                    },
+                }
+                (artifact_dir / "model.npz").write_bytes(model_bytes)
+                (artifact_dir / "weights.json").write_bytes(weights_bytes)
+                (artifact_dir / "metadata.json").write_text(
+                    json.dumps(metadata_doc, sort_keys=True)
+                )
+                metadata_sha = hashlib.sha256(
+                    (artifact_dir / "metadata.json").read_bytes()
+                ).hexdigest()
+                model_hashes[model] = {
+                    "model.npz": model_sha,
+                    "weights.json": weights_sha,
+                    "metadata.json": metadata_sha,
+                }
+                model_records[model] = {
+                    "model_npz_sha256": model_sha,
+                    "weights_json_sha256": weights_sha,
+                    "metadata_sha256": metadata_sha,
+                }
+
+            freeze_path = eval_root / "execution-freeze-v4.json"
+            freeze_path.write_text(
+                json.dumps({"runtime_artifacts": model_records}, sort_keys=True)
+            )
+            freeze_sha = hashlib.sha256(freeze_path.read_bytes()).hexdigest()
+            p_e4_sha = diagnostic.INHERITED_P_E4_SHA256
+            checkpoint_identity = {
+                "B512": model_hashes["B512"]["model.npz"],
+                "S615": model_hashes["S615"]["model.npz"],
+                "historical_seed615_evaluation_freeze_sha256": freeze_sha,
+            }
+
+            seed636_attempt = (
+                repository / "docs/data/seed636-prospective-population/attempt-0001"
+            )
+            seed636_attempt.mkdir(parents=True)
+            selected_manifest = {
+                "schema": "seed636-selected-state-manifest-v1",
+                "selected_count": 512,
+                "selected_inventory_sha256": selected_inventory_sha256,
+                "exposure_classification": "known-exposure-screened; inherited P-E4 exposure unresolved",
+                "distinct_opening_clusters": 512,
+                "max_per_game": 1,
+                "max_per_opening": 1,
+                "states": [
+                    {
+                        "i": index,
+                        **{
+                            key: row[key]
+                            for key in (
+                                "canonical_identity",
+                                "production_float32_identity",
+                                "active_pit_stones",
+                                "game_id",
+                                "opening_identity",
+                                "opening_index",
+                                "continuation_ply",
+                            )
+                        },
+                    }
+                    for index, row in enumerate(rows)
+                ],
+            }
+            selected_manifest_path = seed636_attempt / "selected-state-manifest.json"
+            selected_manifest_path.write_text(
+                json.dumps(selected_manifest, sort_keys=True)
+            )
+            selected_manifest_sha = hashlib.sha256(
+                selected_manifest_path.read_bytes()
+            ).hexdigest()
+            population_bundle = {"selection": {"states": rows}}
+            population_bytes = diagnostic.canonical_json(population_bundle)
+            population_sha = hashlib.sha256(population_bytes).hexdigest()
+            archive_path = repository / "synthetic-archive/seed636-attempt-0001.tar.zst"
+            archive_path.parent.mkdir(parents=True)
+            with tarfile.open(archive_path, "w:gz") as archive:
+                member_info = tarfile.TarInfo("population/population.json")
+                member_info.size = len(population_bytes)
+                archive.addfile(member_info, io.BytesIO(population_bytes))
+            archive_manifest_path = (
+                repository
+                / "synthetic-archive/seed636-attempt-0001.archive-manifest.json"
+            )
+            archive_manifest_path.write_text('{"synthetic":true}\n')
+            archive_sha = hashlib.sha256(archive_path.read_bytes()).hexdigest()
+            archive_manifest_sha = hashlib.sha256(
+                archive_manifest_path.read_bytes()
+            ).hexdigest()
+            check_names = (
+                "archive_hash",
+                "archive_sidecar_identity",
+                "canonical_ids_unique",
+                "exposure_binding",
+                "float32_ids_unique",
+                "game_cap",
+                "opening_cap",
+                "population_member_hash",
+                "projection_matches_archived_rows",
+                "selected_count",
+                "selected_inventory_hash",
+                "sidecar_hash",
+                "stone_quotas",
+            )
+            selected_verification = {
+                "schema": "seed636-selected-state-manifest-verification-v1",
+                "status": "verified",
+                "selected_count": 512,
+                "selected_inventory_sha256": selected_inventory_sha256,
+                "manifest_sha256": selected_manifest_sha,
+                "population_member_sha256": population_sha,
+                "checks": {name: True for name in check_names},
+            }
+            selected_verification_path = (
+                seed636_attempt / "selected-state-manifest-verification.json"
+            )
+            selected_verification_path.write_text(
+                json.dumps(selected_verification, sort_keys=True)
+            )
+
+            input_paths = {
+                str(freeze_path): freeze_sha,
+                **{
+                    str(artifacts_root / model / filename): digest
+                    for model, model_files in model_hashes.items()
+                    for filename, digest in model_files.items()
+                },
+                str(selected_manifest_path): selected_manifest_sha,
+                str(selected_verification_path): hashlib.sha256(
+                    selected_verification_path.read_bytes()
+                ).hexdigest(),
+                str(archive_path): archive_sha,
+                str(archive_manifest_path): archive_manifest_sha,
+            }
+            fixture = {
+                "model_hashes": model_hashes,
+                "input_hashes": {
+                    "selected_manifest": selected_manifest_sha,
+                    "selected_verification": input_paths[
+                        str(selected_verification_path)
+                    ],
+                    "archive": archive_sha,
+                    "archive_manifest": archive_manifest_sha,
+                    "population_member": population_sha,
+                },
+                "checkpoint_identity": checkpoint_identity,
+                "selected_inventory_sha256": selected_inventory_sha256,
+                "seed615_freeze_sha256": freeze_sha,
+                "p_e4_sha256": p_e4_sha,
+                "archive_member_size": len(population_bytes),
+            }
+            fixture_path = repository / "synthetic-seed639-fixture.json"
+            fixture_path.write_text(json.dumps(fixture, sort_keys=True))
+
+            worker_source = """
+import json, sys
+from pathlib import Path
+from collections import Counter
+from unittest.mock import patch
+from ml.alphazero_lite import experiment_lifecycle, seed639_authorization, seed639_policy_prior_classification as producer
+from ml.alphazero_lite import verify_seed639_policy_prior_classification as verifier
+from ml.alphazero_lite import arena, seed615_policy_divergence_diagnostic as historical
+
+attempt = Path(sys.argv[1])
+fixture = json.loads(Path(sys.argv[2]).read_bytes())
+manifest = json.loads((attempt / "manifest.json").read_bytes())
+pull = {"number": 639, "state": "closed", "merged_at": "2026-11-26T00:00:00Z",
+        "merged_by": {"login": "useruby"}, "merge_commit_sha": manifest["source_commit"],
+        "base": {"sha": manifest["base_commit"], "ref": "main",
+                 "repo": {"full_name": "useruby/mancala-ai"}},
+        "html_url": "https://example.invalid/pull/639"}
+def gh(endpoint):
+    if "/commits/" in endpoint:
+        return [{"number": 639}]
+    if endpoint.endswith("/pulls/639"):
+        return pull
+    raise AssertionError(endpoint)
+def historical_auth(_root):
+    return {"freeze_sha256": fixture["seed615_freeze_sha256"],
+            "checkpoint_sha256": {"B512": fixture["model_hashes"]["B512"]["model.npz"],
+                                  "S615": fixture["model_hashes"]["S615"]["model.npz"],
+                                  "P-E4": fixture["p_e4_sha256"]}}
+def archive_verify(_archive, _sidecar):
+    return {"experiment_id": "seed636-prospective-population", "attempt_id": "attempt-0001",
+            "files": [{"path": "population/population.json",
+                       "size_bytes": fixture["archive_member_size"],
+                       "sha256": fixture["input_hashes"]["population_member"]}]}
+original_evaluator = arena.ArtifactEvaluator
+class CountingEvaluator(original_evaluator):
+    calls = Counter()
+    def __init__(self, artifact_dir):
+        super().__init__(artifact_dir)
+        self.model_name = Path(artifact_dir).name
+    def evaluate(self, game):
+        type(self).calls[self.model_name] += 1
+        return super().evaluate(game)
+with patch.object(seed639_authorization, "_github_json", side_effect=gh), \\
+     patch.object(experiment_lifecycle, "verify_archive", side_effect=archive_verify), \\
+     patch.object(historical, "authenticate", side_effect=historical_auth), \\
+     patch.object(arena, "ArtifactEvaluator", CountingEvaluator), \\
+     patch.object(producer, "REGISTERED_INPUT_SHA256", fixture["input_hashes"]), \\
+     patch.object(producer, "MODEL_ARTIFACTS", fixture["model_hashes"]), \\
+     patch.object(producer, "SELECTED_INVENTORY_SHA256", fixture["selected_inventory_sha256"]), \\
+     patch.object(producer, "SEED615_EVALUATION_FREEZE_SHA256", fixture["seed615_freeze_sha256"]), \\
+     patch.object(seed639_authorization, "CHECKPOINT_IDENTITY", fixture["checkpoint_identity"]), \\
+     patch.object(seed639_authorization, "SELECTED_INVENTORY_SHA256", fixture["selected_inventory_sha256"]):
+    result = producer.run_attempt(attempt)
+    print(json.dumps({"result": result, "producer_evaluator_calls": dict(CountingEvaluator.calls)}, sort_keys=True))
+"""
+            verifier_source = """
+import json, sys
+from pathlib import Path
+from collections import Counter
+from unittest.mock import patch
+from ml.alphazero_lite import experiment_lifecycle, seed639_authorization, seed639_policy_prior_classification as producer
+from ml.alphazero_lite import verify_seed639_policy_prior_classification as verifier
+from ml.alphazero_lite import arena, seed615_policy_divergence_diagnostic as historical
+
+attempt = Path(sys.argv[1])
+fixture = json.loads(Path(sys.argv[2]).read_bytes())
+manifest = json.loads((attempt / "manifest.json").read_bytes())
+pull = {"number": 639, "state": "closed", "merged_at": "2026-11-26T00:00:00Z",
+        "merged_by": {"login": "useruby"}, "merge_commit_sha": manifest["source_commit"],
+        "base": {"sha": manifest["base_commit"], "ref": "main",
+                 "repo": {"full_name": "useruby/mancala-ai"}},
+        "html_url": "https://example.invalid/pull/639"}
+def gh(endpoint):
+    if "/commits/" in endpoint:
+        return [{"number": 639}]
+    if endpoint.endswith("/pulls/639"):
+        return pull
+    raise AssertionError(endpoint)
+def historical_auth(_root):
+    return {"freeze_sha256": fixture["seed615_freeze_sha256"],
+            "checkpoint_sha256": {"B512": fixture["model_hashes"]["B512"]["model.npz"],
+                                  "S615": fixture["model_hashes"]["S615"]["model.npz"],
+                                  "P-E4": fixture["p_e4_sha256"]}}
+def archive_verify(_archive, _sidecar):
+    return {"experiment_id": "seed636-prospective-population", "attempt_id": "attempt-0001",
+            "files": [{"path": "population/population.json",
+                       "size_bytes": fixture["archive_member_size"],
+                       "sha256": fixture["input_hashes"]["population_member"]}]}
+original_evaluator = arena.ArtifactEvaluator
+class CountingEvaluator(original_evaluator):
+    calls = Counter()
+    def __init__(self, artifact_dir):
+        super().__init__(artifact_dir)
+        self.model_name = Path(artifact_dir).name
+    def evaluate(self, game):
+        type(self).calls[self.model_name] += 1
+        return super().evaluate(game)
+with patch.object(seed639_authorization, "_github_json", side_effect=gh), \\
+     patch.object(experiment_lifecycle, "verify_archive", side_effect=archive_verify), \\
+     patch.object(historical, "authenticate", side_effect=historical_auth), \\
+     patch.object(arena, "ArtifactEvaluator", CountingEvaluator), \\
+     patch.object(producer, "REGISTERED_INPUT_SHA256", fixture["input_hashes"]), \\
+     patch.object(producer, "MODEL_ARTIFACTS", fixture["model_hashes"]), \\
+     patch.object(producer, "SELECTED_INVENTORY_SHA256", fixture["selected_inventory_sha256"]), \\
+     patch.object(producer, "SEED615_EVALUATION_FREEZE_SHA256", fixture["seed615_freeze_sha256"]), \\
+     patch.object(verifier, "EXPECTED_MODEL_FILES", fixture["model_hashes"]), \\
+     patch.object(verifier, "SELECTED_INVENTORY_SHA256", fixture["selected_inventory_sha256"]), \\
+     patch.object(verifier, "EXPECTED_SELECTED_MANIFEST_SHA256", fixture["input_hashes"]["selected_manifest"]), \\
+     patch.object(verifier, "EXPECTED_SELECTED_VERIFICATION_SHA256", fixture["input_hashes"]["selected_verification"]), \\
+     patch.object(verifier, "EXPECTED_SEED615_FREEZE_SHA256", fixture["seed615_freeze_sha256"]), \\
+     patch.object(seed639_authorization, "CHECKPOINT_IDENTITY", fixture["checkpoint_identity"]), \\
+     patch.object(seed639_authorization, "SELECTED_INVENTORY_SHA256", fixture["selected_inventory_sha256"]):
+    result = verifier.verify_attempt(attempt)
+    print(json.dumps({"result": result, "verifier_evaluator_calls": dict(CountingEvaluator.calls)}, sort_keys=True))
+"""
+            (
+                repository / "synthetic_seed639_policy_prior_classification_worker.py"
+            ).write_text(worker_source)
+            (repository / "synthetic_seed639_verify_worker.py").write_text(
+                verifier_source
+            )
+            run_git(repository, "add", ".")
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(repository),
+                    "-c",
+                    "user.name=Seed639 test",
+                    "-c",
+                    "user.email=seed639@example.invalid",
+                    "commit",
+                    "-m",
+                    "synthetic base",
+                ],
+                check=True,
+                capture_output=True,
+            )
+            base_commit = run_git(repository, "rev-parse", "HEAD")
+
+            synthetic_registration = json.loads(
+                (
+                    source_root
+                    / "docs/experiments/seed639-prospective-policy-prior-classification/registration.json"
+                ).read_bytes()
+            )
+            reserved = {
+                "schema",
+                "experiment_id",
+                "experiment_type",
+                "authorization_reference",
+                "hypothesis",
+                "objective",
+                "base_commit",
+                "branch",
+                "random_seeds",
+                "input_artifacts",
+                "checkpoint_identity",
+                "acceptance_criteria",
+                "registered_at",
+            }
+            registration_metadata = {
+                key: value
+                for key, value in synthetic_registration.items()
+                if key not in reserved
+            }
+            registration_metadata["scientific_acceptance"] = {
+                **registration_metadata["scientific_acceptance"],
+                "selected_inventory_sha256": selected_inventory_sha256,
+            }
+            checkpoint_identity = {
+                "B512": model_hashes["B512"]["model.npz"],
+                "S615": model_hashes["S615"]["model.npz"],
+                "historical_seed615_evaluation_freeze_sha256": freeze_sha,
+            }
+            worktree = experiment_lifecycle.create_worktree(
+                repository,
+                authorization.EXPERIMENT_ID,
+                "experiment/seed639-actual-entrypoints-synthetic",
+                base_commit,
+                hypothesis=synthetic_registration["hypothesis"],
+                objective=synthetic_registration["objective"],
+                experiment_type="retrospective_diagnostic",
+                random_seeds=[],
+                input_artifacts=input_paths,
+                checkpoint_identity=checkpoint_identity,
+                acceptance_criteria=synthetic_registration["acceptance_criteria"],
+                worktree_root=repository / ".worktrees",
+                registration_metadata=registration_metadata,
+            )
+            run_git(worktree, "add", ".experiment/.gitignore", "docs/experiments")
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(worktree),
+                    "-c",
+                    "user.name=Seed639 test",
+                    "-c",
+                    "user.email=seed639@example.invalid",
+                    "commit",
+                    "-m",
+                    "introduce registration",
+                ],
+                check=True,
+                capture_output=True,
+            )
+            registration_path = worktree / authorization.REGISTRATION_PATH
+            registration_sha = hashlib.sha256(
+                registration_path.read_bytes()
+            ).hexdigest()
+            environment = diagnostic.PINNED_ENVIRONMENT.copy()
+            configuration = {
+                "registration_sha256": registration_sha,
+                "execution_scope": authorization.EXECUTION_SCOPE,
+                "input_encoding": "kalah_v3",
+                "inference_batch_size": 1,
+                "evaluation_cache": False,
+                "execution_concurrency": 1,
+                "environment": environment,
+                "numerical_backend": "NumPy ArtifactEvaluator",
+                "thread_configuration": {
+                    "environment": environment,
+                    "threads_per_pool": 1,
+                },
+            }
+            attempt_id = "attempt-0001"
+            attempt_path = worktree / ".experiment/runtime/attempts" / attempt_id
+            attempt = experiment_lifecycle.freeze_attempt(
+                worktree,
+                attempt_id=attempt_id,
+                command=[
+                    sys.executable,
+                    "synthetic_seed639_policy_prior_classification_worker.py",
+                    str(attempt_path),
+                    str(fixture_path),
+                ],
+                configuration=configuration,
+                runtime_versions={
+                    "python_version": platform.python_version(),
+                    "numpy": np.__version__,
+                    "numerical_backend": "NumPy ArtifactEvaluator",
+                },
+                device={"type": "cpu"},
+                worker_count=1,
+                expected_runtime_seconds=600,
+                wall_time_limit_seconds=14_400,
+                minimum_free_disk_bytes=5_368_709_120,
+                outputs=["seed639-output"],
+                input_artifacts=input_paths,
+                random_seeds=[],
+                additional_resource_limits={
+                    "cpu_time_limit_seconds": 10_800,
+                    "process_rss_limit_bytes": 8_589_934_592,
+                    "output_and_temporary_storage_limit_bytes": 5_368_709_120,
+                },
+                environment=environment,
+            )
+            terminal = experiment_lifecycle.execute_attempt(
+                attempt,
+                expected_manifest_sha256=experiment_lifecycle.sha256_file(
+                    attempt / "manifest.json"
+                ),
+            )
+            self.assertEqual(
+                terminal["status"],
+                "completed",
+                f"{terminal}\n{(attempt / 'stderr.log').read_text()}",
+            )
+            self.assertTrue(
+                experiment_lifecycle.verify_attempt(attempt)["integrity_verified"]
+            )
+            test_environment = os.environ.copy() | environment
+            verify = subprocess.run(
+                [
+                    sys.executable,
+                    "synthetic_seed639_verify_worker.py",
+                    str(attempt),
+                    str(fixture_path),
+                ],
+                cwd=worktree,
+                check=True,
+                capture_output=True,
+                text=True,
+                env=test_environment,
+            )
+            verified = json.loads(verify.stdout)
+            self.assertTrue(verified["result"]["passed"])
+            self.assertEqual(verified["result"]["states_verified"], 512)
+            self.assertEqual(
+                verified["result"]["model_state_evaluations_reproduced"], 1024
+            )
+            self.assertEqual(
+                verified["verifier_evaluator_calls"], {"B512": 512, "S615": 512}
+            )
+        if created_scratch_parent:
+            worktree_temp_root.rmdir()
 
     def test_inference_failure_keeps_incremental_records_and_failure_receipt(self):
         population = synthetic_population()[:3]

@@ -18,6 +18,15 @@ EXPERIMENT_ID = "seed639-prospective-policy-prior-classification"
 SELECTED_INVENTORY_SHA256 = (
     "6c6b1f680b2177cb67c79a9a642216703f160131034fbf8fe86e8130910ed077"
 )
+EXPECTED_SELECTED_MANIFEST_SHA256 = (
+    "d7e095f749c14a429162be91dd3bb5f67b685fab04808658f7f26ac7882c8fab"
+)
+EXPECTED_SELECTED_VERIFICATION_SHA256 = (
+    "4c4c177d2fd4bf8b4e0b37e65584b9c6a62ca1949c6c114b6bf891fefd15c09a"
+)
+EXPECTED_SEED615_FREEZE_SHA256 = (
+    "ba30f5e3efadf3358db9f03c7b4eba4f69b23e2f95dcb4089723a1fb9664f32b"
+)
 REGISTERED_ENVIRONMENT = {
     "PYTHONHASHSEED": "615",
     "OMP_NUM_THREADS": "1",
@@ -447,9 +456,9 @@ def verify_attempt(
     selected_verification = json.loads(selected_verification_path.read_bytes())
     if (
         _sha256(selected_manifest_path.read_bytes())
-        != "d7e095f749c14a429162be91dd3bb5f67b685fab04808658f7f26ac7882c8fab"
+        != EXPECTED_SELECTED_MANIFEST_SHA256
         or _sha256(selected_verification_path.read_bytes())
-        != "4c4c177d2fd4bf8b4e0b37e65584b9c6a62ca1949c6c114b6bf891fefd15c09a"
+        != EXPECTED_SELECTED_VERIFICATION_SHA256
         or manifest_doc.get("selected_inventory_sha256") != SELECTED_INVENTORY_SHA256
         or selected_verification.get("status") != "verified"
     ):
@@ -515,15 +524,12 @@ def verify_attempt(
     ):
         raise ValueError("seed639_verifier_manifest_cluster_summary_mismatch")
 
-    seed615_freeze_path = input_path("/execution-preparation/execution-freeze-v4.json")
+    seed615_freeze_path = input_path("/evaluation-preparation/execution-freeze-v4.json")
     seed615_root = seed615_freeze_path.parents[4]
     from ml.alphazero_lite import seed615_policy_divergence_diagnostic as seed615
 
     historical = seed615.authenticate(seed615_root)
-    if (
-        historical.get("freeze_sha256")
-        != "ba30f5e3efadf3358db9f03c7b4eba4f69b23e2f95dcb4089723a1fb9664f32b"
-    ):
+    if historical.get("freeze_sha256") != EXPECTED_SEED615_FREEZE_SHA256:
         raise ValueError("seed639_verifier_seed615_freeze_mismatch")
     artifact_root = (
         seed615_root

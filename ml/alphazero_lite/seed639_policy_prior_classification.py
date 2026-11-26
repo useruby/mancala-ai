@@ -57,6 +57,19 @@ PINNED_ENVIRONMENT = {
     "OPENBLAS_NUM_THREADS": "1",
     "CUDA_VISIBLE_DEVICES": "",
 }
+REGISTERED_INPUT_SHA256 = {
+    "selected_manifest": "d7e095f749c14a429162be91dd3bb5f67b685fab04808658f7f26ac7882c8fab",
+    "selected_verification": "4c4c177d2fd4bf8b4e0b37e65584b9c6a62ca1949c6c114b6bf891fefd15c09a",
+    "archive": "d6e454f889e6155d7dccf3bf81e6769989896389d401fc5bf4cbd058059c8bf1",
+    "archive_manifest": "057358aad2d72b733a29019c21f7a3f0a9b7d68e37cd5ea2954660e59c366bc5",
+    "population_member": "689269182824d86d55261b8c89141bbc578867339cc1adce695f57da2c7fc6fc",
+}
+SEED615_EVALUATION_FREEZE_SHA256 = (
+    "ba30f5e3efadf3358db9f03c7b4eba4f69b23e2f95dcb4089723a1fb9664f32b"
+)
+INHERITED_P_E4_SHA256 = (
+    "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad"
+)
 
 
 def sha256_bytes(payload: bytes) -> str:
@@ -84,13 +97,7 @@ def authenticate_inputs(
     from ml.alphazero_lite import experiment_lifecycle
     from ml.alphazero_lite import seed615_policy_divergence_diagnostic as seed615
 
-    expected_hashes = {
-        "selected_manifest": "d7e095f749c14a429162be91dd3bb5f67b685fab04808658f7f26ac7882c8fab",
-        "selected_verification": "4c4c177d2fd4bf8b4e0b37e65584b9c6a62ca1949c6c114b6bf891fefd15c09a",
-        "archive": "d6e454f889e6155d7dccf3bf81e6769989896389d401fc5bf4cbd058059c8bf1",
-        "archive_manifest": "057358aad2d72b733a29019c21f7a3f0a9b7d68e37cd5ea2954660e59c366bc5",
-        "population_member": "689269182824d86d55261b8c89141bbc578867339cc1adce695f57da2c7fc6fc",
-    }
+    expected_hashes = REGISTERED_INPUT_SHA256
     actual_paths = {
         "selected_manifest": selected_manifest_path,
         "selected_verification": selected_verification_path,
@@ -220,16 +227,15 @@ def authenticate_inputs(
         raise ValueError("seed636_independent_verification_checks_invalid")
 
     seed615_authentication = seed615.authenticate(seed615_root)
-    if (
-        seed615_authentication.get("freeze_sha256")
-        != "ba30f5e3efadf3358db9f03c7b4eba4f69b23e2f95dcb4089723a1fb9664f32b"
-        or seed615_authentication.get("checkpoint_sha256")
-        != {
-            "B512": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
-            "S615": "cdf1e36c4c9374f28b182757b12471b3f00567eb59825bb938435cb56cf8d780",
-            "P-E4": "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad",
-        }
-    ):
+    if seed615_authentication.get(
+        "freeze_sha256"
+    ) != SEED615_EVALUATION_FREEZE_SHA256 or seed615_authentication.get(
+        "checkpoint_sha256"
+    ) != {
+        "B512": MODEL_ARTIFACTS["B512"]["model.npz"],
+        "S615": MODEL_ARTIFACTS["S615"]["model.npz"],
+        "P-E4": INHERITED_P_E4_SHA256,
+    }:
         raise ValueError("seed615_historical_authentication_mismatch")
     evaluation_freeze_path = (
         seed615_root
@@ -286,6 +292,11 @@ def authenticate_inputs(
         "numpy_artifact_bindings": artifact_bindings,
         "approved_model_source_bindings": source_bindings,
         "population_member_sha256": expected_hashes["population_member"],
+        "checkpoint_identity": {
+            "B512": MODEL_ARTIFACTS["B512"]["model.npz"],
+            "S615": MODEL_ARTIFACTS["S615"]["model.npz"],
+            "historical_seed615_evaluation_freeze_sha256": SEED615_EVALUATION_FREEZE_SHA256,
+        },
         "exposure_classification": selected_manifest["exposure_classification"],
     }
 
@@ -951,7 +962,7 @@ def run_attempt(attempt_dir: Path) -> dict[str, Any]:
         _create_only_json(output / "runtime.json", runtime)
 
         seed615_freeze_path = _input_path(
-            registration, "/execution-preparation/execution-freeze-v4.json"
+            registration, "/evaluation-preparation/execution-freeze-v4.json"
         )
         seed615_root = seed615_freeze_path.parents[4]
         input_auth = authenticate_inputs(
@@ -967,6 +978,10 @@ def run_attempt(attempt_dir: Path) -> dict[str, Any]:
                 registration, "attempt-0001.archive-manifest.json"
             ),
         )
+        if registration.get("checkpoint_identity") != input_auth.get(
+            "checkpoint_identity"
+        ):
+            raise ValueError("seed639_registered_checkpoint_identity_mismatch")
         population_rows = input_auth["selected_population_rows"]
         preflight = validate_population(population_rows)
         archive_verification = input_auth["seed636_archive_verification"]

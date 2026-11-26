@@ -11,6 +11,9 @@ from typing import Any, Callable
 REPOSITORY = "useruby/mancala-ai"
 PROJECT_OWNER = "useruby"
 EXPERIMENT_ID = "seed639-prospective-policy-prior-classification"
+SELECTED_INVENTORY_SHA256 = (
+    "6c6b1f680b2177cb67c79a9a642216703f160131034fbf8fe86e8130910ed077"
+)
 EXECUTION_SCOPE = (
     "B512/S615 deterministic legal-masked prior inference, descriptive policy "
     "comparison, and frozen secondary subset selection on exactly the authenticated "
@@ -36,6 +39,11 @@ REGISTERED_ENVIRONMENT = {
     "MKL_NUM_THREADS": "1",
     "OPENBLAS_NUM_THREADS": "1",
     "CUDA_VISIBLE_DEVICES": "",
+}
+CHECKPOINT_IDENTITY = {
+    "B512": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+    "S615": "cdf1e36c4c9374f28b182757b12471b3f00567eb59825bb938435cb56cf8d780",
+    "historical_seed615_evaluation_freeze_sha256": "ba30f5e3efadf3358db9f03c7b4eba4f69b23e2f95dcb4089723a1fb9664f32b",
 }
 
 
@@ -81,6 +89,7 @@ def _validate_registration(registration: dict[str, Any]) -> None:
         or registration.get("execution_scope") != EXECUTION_SCOPE
         or registration.get("random_seeds") != []
         or registration.get("resource_budgets") != RESOURCE_BUDGETS
+        or registration.get("checkpoint_identity") != CHECKPOINT_IDENTITY
         or registration.get("approved_model_implementation", {}).get("input_encoding")
         != "kalah_v3"
         or registration.get("approved_model_implementation", {}).get("evaluation_cache")
@@ -114,7 +123,7 @@ def _validate_registration(registration: dict[str, Any]) -> None:
         or registration.get("scientific_acceptance", {}).get(
             "selected_inventory_sha256"
         )
-        != "6c6b1f680b2177cb67c79a9a642216703f160131034fbf8fe86e8130910ed077"
+        != SELECTED_INVENTORY_SHA256
     ):
         raise PermissionError("seed639_registration_scope_or_budget_invalid")
     if registration.get("protocol_documents") != REQUIRED_PROTOCOLS:
@@ -187,6 +196,29 @@ def authorize_registration(
         except subprocess.CalledProcessError:
             continue
         if committed_registration != raw:
+            continue
+        base_commit = base.get("sha")
+        if not isinstance(base_commit, str):
+            continue
+        try:
+            resolved_base = (
+                _git_bytes(repo, "rev-parse", "--verify", f"{base_commit}^{{commit}}")
+                .decode()
+                .strip()
+            )
+        except subprocess.CalledProcessError:
+            continue
+        if resolved_base != base_commit or not _git_is_ancestor(
+            repo, base_commit, source_commit
+        ):
+            continue
+        try:
+            base_registration = _git_bytes(
+                repo, "show", f"{base_commit}:{REGISTRATION_PATH}"
+            )
+        except subprocess.CalledProcessError:
+            base_registration = None
+        if base_registration == committed_registration:
             continue
         for path, expected in REQUIRED_PROTOCOLS.items():
             try:
@@ -301,8 +333,11 @@ def validate_attempt(
     command = manifest.get("command", [])
     if not any("seed639_policy_prior_classification" in token for token in command):
         raise PermissionError("seed639_frozen_command_invalid")
-    if _git_bytes(worktree, "status", "--porcelain", "--untracked-files=all"):
-        raise PermissionError("seed639_source_worktree_dirty")
+    dirty_status = _git_bytes(
+        worktree, "status", "--porcelain", "--untracked-files=all"
+    ).decode()
+    if dirty_status:
+        raise PermissionError(f"seed639_source_worktree_dirty:{dirty_status}")
     registered_inputs = {
         str(Path(path).absolute()): digest
         for path, digest in registration["input_artifacts"].items()
