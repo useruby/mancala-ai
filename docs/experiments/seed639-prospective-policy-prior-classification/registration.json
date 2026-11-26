@@ -1,12 +1,15 @@
 {
   "acceptance_criteria": [
     "Authenticate the exact B512 and S615 artifacts against the historical Seed 615 evaluation freeze and authenticate the Seed 636 selected-state manifest, external archive and sidecar, population member, and selected inventory SHA-256 6c6b1f680b2177cb67c79a9a642216703f160131034fbf8fe86e8130910ed077.",
-    "Evaluate exactly the 512 selected states, without replacement, filtering, or reweighting; independently recompute canonical and production-float32 identities and legal actions for every state.",
+    "Before inference, independently authenticate all 512 selected states, canonical and production-float32 identities, legal-action sets, continuation/opening provenance, and exact stone-bin quotas; reject the population before any evaluator call if any check fails.",
+    "Evaluate exactly those 512 states with both models, without replacement, filtering, or reweighting; do not modify the primary population.",
     "Record deterministic legal-masked B512 and S615 probabilities for every legal action; reject nonfinite, negative, unnormalized, or illegal-action probability mass.",
     "Reproduce top-action disagreement with the existing deterministic first-index tie rule and total-variation distance from the complete recorded probability vectors.",
     "Apply the Seed 623 secondary subset contract exactly: sort by descending TV, cap at one state per continuation game and four per opening cluster, and resolve ties by SHA-256 of the frozen state ID; select 64 when available, reporting unavailable if fewer than 32 distinct source games qualify.",
     "Report overall and per-stone-bin disagreement, TV distribution including quantiles and mean, fixed 1/5-per-bin standardized summaries, policy entropy differences, diagnostic subset coverage and cluster composition, and its relationship to the complete primary population.",
-    "Independent deterministic reproduction matches identities, legal masks, complete probability vectors, TV, disagreement classifications, summary calculations, and diagnostic subset membership exactly.",
+    "The independent verifier reruns both authenticated evaluators over all 512 states (1,024 model-state evaluations) and requires bitwise-equal IEEE-754 binary64 complete legal-masked vectors and exact reproduction of TV, entropy, top-action classes, summaries, standardized summaries, subset ordering, coverage, and composition.",
+    "Run and verifier entry points authenticate owner-merged PR metadata, registration/protocol Git blobs, frozen lifecycle attempt/source/tree, registered inputs, execution scope, runtime configuration, and resource budgets before loading models or evaluating states.",
+    "Persist each completed state record as an exclusive create-only attempt artifact; retain partial records and a structured create-only failure receipt on inference failure.",
     "Retain exposure classification: known-exposure-screened; inherited P-E4 exposure unresolved. Interpret all findings as descriptive policy differences, not strength evidence.",
     "No population regeneration, MCTS, exact solving, tablebase probes, training, evaluation games, or candidate promotion. Stop on authentication or verification failure; preserve evidence and do not retry automatically."
   ],
@@ -26,7 +29,11 @@
   "input_artifacts": {
     "/home/alex/Mancala/ai-seed615-authorized-eval/docs/data/seed615-source-opening-diversity/evaluation-preparation/execution-freeze-v4.json": "ba30f5e3efadf3358db9f03c7b4eba4f69b23e2f95dcb4089723a1fb9664f32b",
     "/home/alex/Mancala/ai-seed615-authorized-eval/docs/data/seed615-source-opening-diversity/evaluation-preparation/runtime-artifacts/B512/model.npz": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+    "/home/alex/Mancala/ai-seed615-authorized-eval/docs/data/seed615-source-opening-diversity/evaluation-preparation/runtime-artifacts/B512/weights.json": "d3effd234fe657fd8be3e3896153441d75ba338e83e83b66d7541936b3c01ccd",
+    "/home/alex/Mancala/ai-seed615-authorized-eval/docs/data/seed615-source-opening-diversity/evaluation-preparation/runtime-artifacts/B512/metadata.json": "510d4d5056d1b68ddd83eed89a4e8da13e9305d2fa39a46eefcebcf13334dce6",
     "/home/alex/Mancala/ai-seed615-authorized-eval/docs/data/seed615-source-opening-diversity/evaluation-preparation/runtime-artifacts/S615/model.npz": "cdf1e36c4c9374f28b182757b12471b3f00567eb59825bb938435cb56cf8d780",
+    "/home/alex/Mancala/ai-seed615-authorized-eval/docs/data/seed615-source-opening-diversity/evaluation-preparation/runtime-artifacts/S615/weights.json": "8f36140461390d317e7e5bcf604357ca65fa1b605bd1e9562bf923b840e13433",
+    "/home/alex/Mancala/ai-seed615-authorized-eval/docs/data/seed615-source-opening-diversity/evaluation-preparation/runtime-artifacts/S615/metadata.json": "24e42998824856d0242e04ff8a98431b139375e0bc4540d759373ccb335983b3",
     "/home/alex/Mancala/ai/docs/data/seed636-prospective-population/attempt-0001/selected-state-manifest-verification.json": "4c4c177d2fd4bf8b4e0b37e65584b9c6a62ca1949c6c114b6bf891fefd15c09a",
     "/home/alex/Mancala/ai/docs/data/seed636-prospective-population/attempt-0001/selected-state-manifest.json": "d7e095f749c14a429162be91dd3bb5f67b685fab04808658f7f26ac7882c8fab",
     "/home/alex/mancala-ai-experiment-archives/seed636-prospective-population--attempt-0001.archive-manifest.json": "057358aad2d72b733a29019c21f7a3f0a9b7d68e37cd5ea2954660e59c366bc5",
@@ -64,7 +71,8 @@
     ],
     "population_size": 512,
     "primary_population_immutable": true,
-    "selected_inventory_sha256": "6c6b1f680b2177cb67c79a9a642216703f160131034fbf8fe86e8130910ed077"
+    "selected_inventory_sha256": "6c6b1f680b2177cb67c79a9a642216703f160131034fbf8fe86e8130910ed077",
+    "numerical_reproducibility": "bitwise-equal IEEE-754 binary64 complete legal-masked vectors under the authenticated NumPy ArtifactEvaluator, pinned source, kalah_v3 encoding, batch size 1, CPU, and one BLAS thread; exact top-action and subset classification equality"
   },
   "scientific_protocol": "Seed 623 prospective exact-quality benchmark, section Secondary: prior-disagreement diagnostic; analyze only the frozen Seed 636 512-state cohort. Top-64 descending-TV selection, max one per continuation game, max four per opening, tie-break SHA-256 of frozen state ID; availability requires at least 32 distinct games.",
   "stop_conditions": [
@@ -72,5 +80,37 @@
     "Stop if the authenticated cohort is not exactly 512 states or any recomputed identity, legal-action set, or provenance binding differs.",
     "Stop on invalid probabilities, illegal-action mass, nondeterministic outputs, or any mismatch in independent reproduction; do not filter, replace, reweight, or retry states.",
     "Preserve failed or partial evidence; do not run search, solver, tablebase, training, evaluation games, population regeneration, or promotion."
-  ]
+  ],
+  "approved_model_implementation": {
+    "evaluator": "ml.alphazero_lite.arena.ArtifactEvaluator",
+    "arena_py_sha256": "c16a668e8f90bd87b59dbc08f6a1ddb3b5ffc912e21cc0564efaceba37e03fe2",
+    "self_play_py_sha256": "76718efde7ccfb708f4bb0a4314f812bab746d1364cb75ce5c8b3551b635fc0c",
+    "input_encodings_py_sha256": "0a4f56ed60f0c2ed6b93a673dbc0850a966a907912dc26edd092bfd1ac209dbe",
+    "kalah_rules_py_sha256": "6e5338ef9a85b690f51b6d0d184c8bc0f54c2b28ac084a4a17a88f9f552ad036",
+    "input_encoding": "kalah_v3",
+    "batch_size": 1,
+    "evaluation_cache": false,
+    "device": "cpu",
+    "blas_threads": 1,
+    "python_version": "3.14.7",
+    "numpy_version": "2.5.3",
+    "numerical_backend": "NumPy ArtifactEvaluator; capture NumPy build/BLAS configuration in runtime receipt",
+    "thread_configuration": {
+      "environment": {
+        "PYTHONHASHSEED": "615",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "CUDA_VISIBLE_DEVICES": ""
+      },
+      "threads_per_pool": 1
+    },
+    "environment": {
+      "PYTHONHASHSEED": "615",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "CUDA_VISIBLE_DEVICES": ""
+    }
+  }
 }
