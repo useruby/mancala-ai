@@ -1,0 +1,76 @@
+{
+  "acceptance_criteria": [
+    "Authenticate the exact B512 and S615 artifacts against the historical Seed 615 evaluation freeze and authenticate the Seed 636 selected-state manifest, external archive and sidecar, population member, and selected inventory SHA-256 6c6b1f680b2177cb67c79a9a642216703f160131034fbf8fe86e8130910ed077.",
+    "Evaluate exactly the 512 selected states, without replacement, filtering, or reweighting; independently recompute canonical and production-float32 identities and legal actions for every state.",
+    "Record deterministic legal-masked B512 and S615 probabilities for every legal action; reject nonfinite, negative, unnormalized, or illegal-action probability mass.",
+    "Reproduce top-action disagreement with the existing deterministic first-index tie rule and total-variation distance from the complete recorded probability vectors.",
+    "Apply the Seed 623 secondary subset contract exactly: sort by descending TV, cap at one state per continuation game and four per opening cluster, and resolve ties by SHA-256 of the frozen state ID; select 64 when available, reporting unavailable if fewer than 32 distinct source games qualify.",
+    "Report overall and per-stone-bin disagreement, TV distribution including quantiles and mean, fixed 1/5-per-bin standardized summaries, policy entropy differences, diagnostic subset coverage and cluster composition, and its relationship to the complete primary population.",
+    "Independent deterministic reproduction matches identities, legal masks, complete probability vectors, TV, disagreement classifications, summary calculations, and diagnostic subset membership exactly.",
+    "Retain exposure classification: known-exposure-screened; inherited P-E4 exposure unresolved. Interpret all findings as descriptive policy differences, not strength evidence.",
+    "No population regeneration, MCTS, exact solving, tablebase probes, training, evaluation games, or candidate promotion. Stop on authentication or verification failure; preserve evidence and do not retry automatically."
+  ],
+  "artifact_retention_class": "Git report and small reproducibility outputs plus verified external archive of complete per-state inference evidence",
+  "authorization_reference": null,
+  "base_commit": "7b46fa148c2dcee53b63a2e3cfc3d7a10fe5d990",
+  "branch": "experiment/seed639-prospective-policy-prior-classification",
+  "checkpoint_identity": {
+    "B512": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+    "S615": "cdf1e36c4c9374f28b182757b12471b3f00567eb59825bb938435cb56cf8d780",
+    "historical_seed615_evaluation_freeze_sha256": "ba30f5e3efadf3358db9f03c7b4eba4f69b23e2f95dcb4089723a1fb9664f32b"
+  },
+  "execution_scope": "B512/S615 deterministic legal-masked prior inference, descriptive policy comparison, and frozen secondary subset selection on exactly the authenticated 512-state Seed 636 population; no additional states or primary-population modification.",
+  "experiment_id": "seed639-prospective-policy-prior-classification",
+  "experiment_type": "retrospective_diagnostic",
+  "hypothesis": "On the fixed, authenticated Seed 636 selected-state population, B512 and S615 produce descriptively measurable legal-masked policy differences that can be characterized without changing the primary population.",
+  "input_artifacts": {
+    "/home/alex/Mancala/ai-seed615-authorized-eval/docs/data/seed615-source-opening-diversity/evaluation-preparation/execution-freeze-v4.json": "ba30f5e3efadf3358db9f03c7b4eba4f69b23e2f95dcb4089723a1fb9664f32b",
+    "/home/alex/Mancala/ai-seed615-authorized-eval/docs/data/seed615-source-opening-diversity/evaluation-preparation/runtime-artifacts/B512/model.npz": "bd181ef6c9ea99902d0a02bec1fa30b7b73c0827f5a38b06e839d1ab3375824c",
+    "/home/alex/Mancala/ai-seed615-authorized-eval/docs/data/seed615-source-opening-diversity/evaluation-preparation/runtime-artifacts/S615/model.npz": "cdf1e36c4c9374f28b182757b12471b3f00567eb59825bb938435cb56cf8d780",
+    "/home/alex/Mancala/ai/docs/data/seed636-prospective-population/attempt-0001/selected-state-manifest-verification.json": "4c4c177d2fd4bf8b4e0b37e65584b9c6a62ca1949c6c114b6bf891fefd15c09a",
+    "/home/alex/Mancala/ai/docs/data/seed636-prospective-population/attempt-0001/selected-state-manifest.json": "d7e095f749c14a429162be91dd3bb5f67b685fab04808658f7f26ac7882c8fab",
+    "/home/alex/mancala-ai-experiment-archives/seed636-prospective-population--attempt-0001.archive-manifest.json": "057358aad2d72b733a29019c21f7a3f0a9b7d68e37cd5ea2954660e59c366bc5",
+    "/home/alex/mancala-ai-experiment-archives/seed636-prospective-population--attempt-0001.tar.zst": "d6e454f889e6155d7dccf3bf81e6769989896389d401fc5bf4cbd058059c8bf1"
+  },
+  "objective": "Characterize B512/S615 policy prior differences on all 512 Seed 636 states and freeze the Seed 623 high-total-variation secondary diagnostic subset; all conclusions are descriptive and are not evidence of relative playing strength.",
+  "protocol_documents": {
+    "docs/experiment-execution-protocol.md": "69a77cdc24e2828f92d8d9eb96c75f619aa594240910c1684835fc1245519d6b",
+    "docs/seed623-631-execution-contract-amendment.md": "633742139061227f1543ff7c1360f5d8e5b97eafb50a4755b2a7b47afcc033eb",
+    "docs/seed623-prospective-exact-quality-benchmark.md": "f01df9467dfc4a1088796f583551e203f8b045a00498363f4038b3ffac87f400"
+  },
+  "random_seeds": [],
+  "registered_at": "2026-11-26T11:38:39.258041+00:00",
+  "resource_budgets": {
+    "cpu_time_limit_seconds": 10800,
+    "execution_concurrency": 1,
+    "inference_batch_size": 1,
+    "output_and_temporary_storage_limit_bytes": 5368709120,
+    "process_rss_limit_bytes": 8589934592,
+    "wall_time_limit_seconds": 14400
+  },
+  "schema": "mancala-experiment-registration-v1",
+  "scientific_acceptance": {
+    "complete_legal_action_probabilities_required": true,
+    "descriptive_only_no_strength_claim": true,
+    "diagnostic_subset_size": 64,
+    "exposure_classification": "known-exposure-screened; inherited P-E4 exposure unresolved",
+    "independent_deterministic_reproduction_required": true,
+    "max_states_per_continuation_game": 1,
+    "max_states_per_opening_cluster": 4,
+    "minimum_distinct_continuation_games": 32,
+    "models": [
+      "B512",
+      "S615"
+    ],
+    "population_size": 512,
+    "primary_population_immutable": true,
+    "selected_inventory_sha256": "6c6b1f680b2177cb67c79a9a642216703f160131034fbf8fe86e8130910ed077"
+  },
+  "scientific_protocol": "Seed 623 prospective exact-quality benchmark, section Secondary: prior-disagreement diagnostic; analyze only the frozen Seed 636 512-state cohort. Top-64 descending-TV selection, max one per continuation game, max four per opening, tie-break SHA-256 of frozen state ID; availability requires at least 32 distinct games.",
+  "stop_conditions": [
+    "Stop before inference if any registered model, Seed 615 freeze, Seed 636 archive, sidecar, population member, manifest, or selected inventory identity fails authentication.",
+    "Stop if the authenticated cohort is not exactly 512 states or any recomputed identity, legal-action set, or provenance binding differs.",
+    "Stop on invalid probabilities, illegal-action mass, nondeterministic outputs, or any mismatch in independent reproduction; do not filter, replace, reweight, or retry states.",
+    "Preserve failed or partial evidence; do not run search, solver, tablebase, training, evaluation games, population regeneration, or promotion."
+  ]
+}
