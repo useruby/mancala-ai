@@ -50,6 +50,9 @@ HISTORICAL_RUNTIME_LOCK_SHA256 = (
 SEED615_DEPENDENCY_LOCK_SHA256 = (
     "5950f891ea746be6058af5fae4c414ac0aca872bec064a7d28c383f795e2fa79"
 )
+PREFLIGHT_RECEIPT_PATH = (
+    "/home/alex/Mancala/ai/.tmp/seed639-attempt-0002-preflight.json"
+)
 HISTORICAL_VERIFIER_RUNTIME = {
     "interpreter": "/home/alex/Mancala/ai/.tmp/seed639-historical-verifier-venv/bin/python",
     "python_version": "3.14.7",
@@ -75,6 +78,7 @@ EXECUTION_AMENDMENT = {
     "reason": "attempt-0001 stopped before inference because the historical Seed 615 verifier dependency was missing from the inference runtime",
     "preserved_attempt_ids": ["attempt-0001"],
     "authorized_attempt_ids": ["attempt-0002"],
+    "preflight_receipt_path": PREFLIGHT_RECEIPT_PATH,
     "historical_verifier_runtime": HISTORICAL_VERIFIER_RUNTIME,
     "historical_authentication_preflight_required_before_freeze": True,
     "prospective_inference_runtime_unchanged": True,
@@ -183,6 +187,106 @@ def _validate_registration(registration: dict[str, Any]) -> None:
             for path, digest in AMENDMENT_RUNTIME_INPUTS.items()
         ):
             raise PermissionError("seed639_execution_amendment_invalid")
+
+
+def authorize_attempt_identity(
+    registration: dict[str, Any], attempt_id: str, purpose: str
+) -> None:
+    """Separate the amended execution grant from historical receipt verification."""
+    if purpose not in {"execute", "verify"}:
+        raise ValueError("seed639_attempt_purpose_invalid")
+    amendment = registration.get("execution_amendment")
+    if amendment == EXECUTION_AMENDMENT:
+        if purpose == "execute":
+            allowed = EXECUTION_AMENDMENT["authorized_attempt_ids"]
+        else:
+            allowed = (
+                EXECUTION_AMENDMENT["preserved_attempt_ids"]
+                + EXECUTION_AMENDMENT["authorized_attempt_ids"]
+            )
+    else:
+        # The original registration authorized attempt-0001; the amendment
+        # narrows new execution to attempt-0002 without removing historical proof.
+        allowed = ["attempt-0001"]
+    if attempt_id not in allowed:
+        raise PermissionError(
+            f"seed639_attempt_identity_not_authorized:{purpose}:{attempt_id}"
+        )
+
+
+def validate_preflight_receipt(
+    receipt_binding: Any,
+    *,
+    attempt_id: str,
+    source_commit: str,
+    registration_sha256: str,
+    input_artifacts: dict[str, str],
+    checkpoint_identity: dict[str, str],
+) -> dict[str, Any]:
+    """Verify the completed read-only preflight and its frozen receipt binding."""
+    if not isinstance(receipt_binding, dict):
+        raise PermissionError("seed639_preflight_receipt_binding_invalid")
+    receipt_path = receipt_binding.get("path")
+    receipt_sha256 = receipt_binding.get("sha256")
+    if (
+        receipt_path != PREFLIGHT_RECEIPT_PATH
+        or not isinstance(receipt_sha256, str)
+        or len(receipt_sha256) != 64
+        or any(character not in "0123456789abcdef" for character in receipt_sha256)
+    ):
+        raise PermissionError("seed639_preflight_receipt_binding_invalid")
+    path = Path(PREFLIGHT_RECEIPT_PATH)
+    if path.is_symlink() or not path.is_file():
+        raise PermissionError("seed639_preflight_receipt_missing_or_unsafe")
+    raw = path.read_bytes()
+    if sha256(raw) != receipt_sha256:
+        raise PermissionError("seed639_preflight_receipt_hash_mismatch")
+    try:
+        receipt = json.loads(raw)
+    except json.JSONDecodeError as error:
+        raise PermissionError("seed639_preflight_receipt_invalid_json") from error
+    required_checks = {
+        "owner_merge_authorized",
+        "registered_inputs_rehashed",
+        "historical_authentication_passed",
+        "checkpoint_identity_matches_registration",
+        "population_validated",
+        "archive_reading_verified",
+    }
+    if (
+        receipt.get("schema") != "seed639-attempt-0002-read-only-preflight-v1"
+        or receipt.get("status") != "passed"
+        or receipt.get("experiment_id") != EXPERIMENT_ID
+        or receipt.get("attempt_id") != attempt_id
+        or attempt_id != "attempt-0002"
+        or receipt.get("source_commit") != source_commit
+        or receipt.get("registration_sha256") != registration_sha256
+        or receipt.get("registered_input_artifacts") != input_artifacts
+        or receipt.get("checkpoint_identity") != checkpoint_identity
+        or receipt.get("selected_inventory_sha256") != SELECTED_INVENTORY_SHA256
+        or set(receipt.get("checks", {})) != required_checks
+        or any(value is not True for value in receipt["checks"].values())
+        or receipt.get("prospective_model_inference_performed") is not False
+        or receipt.get("population_preflight", {}).get("states_authenticated") != 512
+        or receipt.get("population_preflight", {}).get("canonical_identity_count")
+        != 512
+        or receipt.get("population_preflight", {}).get(
+            "production_float32_identity_count"
+        )
+        != 512
+        or receipt.get("population_preflight", {}).get("stone_bin_counts")
+        != {"17": 103, "18": 103, "19": 102, "20": 102, "21": 102}
+        or receipt.get("population_preflight", {}).get("continuation_games", 0) < 32
+        or receipt.get("population_preflight", {}).get("opening_clusters", 0) < 128
+        or not isinstance(receipt.get("population_state_bindings_sha256"), str)
+        or len(receipt["population_state_bindings_sha256"]) != 64
+        or any(
+            character not in "0123456789abcdef"
+            for character in receipt["population_state_bindings_sha256"]
+        )
+    ):
+        raise PermissionError("seed639_preflight_receipt_contract_invalid")
+    return receipt
 
 
 def authorize_registration(
@@ -313,6 +417,7 @@ def authorize_registration(
 def validate_attempt(
     attempt_dir: Path,
     *,
+    purpose: str = "verify",
     associated_prs: list[dict[str, Any]] | None = None,
     pr_fetcher: Callable[[int], dict[str, Any]] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -348,6 +453,7 @@ def validate_attempt(
     _validate_experiment_worktree(worktree)
     amendment = registration.get("execution_amendment")
     attempt_id = manifest.get("attempt_id")
+    authorize_attempt_identity(registration, attempt_id, purpose)
     if attempt_id == "attempt-0002" and (
         amendment != EXECUTION_AMENDMENT
         or attempt_id not in amendment.get("authorized_attempt_ids", [])
@@ -364,6 +470,20 @@ def validate_attempt(
         .decode()
         .strip()
     )
+    if (purpose == "execute" and has_terminal) or (
+        purpose == "verify" and not has_terminal
+    ):
+        raise PermissionError("seed639_attempt_terminal_purpose_mismatch")
+    preflight_receipt = None
+    if attempt_id == "attempt-0002":
+        preflight_receipt = validate_preflight_receipt(
+            manifest.get("configuration", {}).get("preflight_receipt"),
+            attempt_id=attempt_id,
+            source_commit=manifest.get("source_commit"),
+            registration_sha256=manifest.get("registration_sha256"),
+            input_artifacts=manifest.get("input_artifacts", {}),
+            checkpoint_identity=registration.get("checkpoint_identity"),
+        )
     if (
         manifest.get("experiment_id") != EXPERIMENT_ID
         or manifest.get("status") != "frozen"
@@ -417,6 +537,16 @@ def validate_attempt(
         or manifest.get("runtime_versions", {}).get("numerical_backend")
         != "NumPy ArtifactEvaluator"
         or "seed639-output" not in manifest.get("output_paths", [])
+        or (
+            attempt_id == "attempt-0002"
+            and "seed639-output/preflight-receipt.json"
+            not in manifest.get("output_paths", [])
+        )
+        or (
+            attempt_id == "attempt-0002"
+            and "seed639-output/preflight-receipt.json"
+            not in manifest.get("publication_outputs", [])
+        )
         or manifest.get("random_seeds") != []
     ):
         raise PermissionError("seed639_lifecycle_manifest_binding_invalid")
@@ -454,4 +584,13 @@ def validate_attempt(
     )
     if authorization["registration_sha256"] != manifest.get("registration_sha256"):
         raise PermissionError("seed639_authorization_registration_digest_mismatch")
-    return manifest, {"registration": registration, "authorization": authorization}
+    if attempt_id == "attempt-0002" and (
+        preflight_receipt is None
+        or preflight_receipt.get("authorization") != authorization
+    ):
+        raise PermissionError("seed639_preflight_owner_authorization_mismatch")
+    return manifest, {
+        "registration": registration,
+        "authorization": authorization,
+        "preflight_receipt": preflight_receipt,
+    }

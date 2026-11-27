@@ -424,7 +424,10 @@ def verify_attempt(
     )
 
     manifest, authorization = validate_attempt(
-        attempt_dir, associated_prs=associated_prs, pr_fetcher=pr_fetcher
+        attempt_dir,
+        purpose="verify",
+        associated_prs=associated_prs,
+        pr_fetcher=pr_fetcher,
     )
     attempt_dir = attempt_dir.resolve(strict=True)
     lifecycle_check = experiment_lifecycle.verify_attempt(attempt_dir)
@@ -436,6 +439,18 @@ def verify_attempt(
     output_dir = attempt_dir / "seed639-output"
     if not output_dir.is_dir() or (output_dir / "failure.json").exists():
         raise ValueError("seed639_attempt_not_completed")
+    preflight_receipt = authorization.get("preflight_receipt")
+    if manifest["attempt_id"] == "attempt-0002":
+        receipt_binding = manifest["configuration"]["preflight_receipt"]
+        embedded_preflight = output_dir / "preflight-receipt.json"
+        receipt_bytes = Path(receipt_binding["path"]).read_bytes()
+        if (
+            not embedded_preflight.is_file()
+            or embedded_preflight.read_bytes() != receipt_bytes
+            or _sha256(receipt_bytes) != receipt_binding["sha256"]
+            or json.loads(receipt_bytes) != preflight_receipt
+        ):
+            raise ValueError("seed639_preflight_receipt_copy_mismatch")
 
     registration = authorization["registration"]
     root = Path(__file__).resolve().parents[2]
@@ -539,6 +554,12 @@ def verify_attempt(
     )
     if historical.get("freeze_sha256") != EXPECTED_SEED615_FREEZE_SHA256:
         raise ValueError("seed639_verifier_seed615_freeze_mismatch")
+    if (
+        manifest["attempt_id"] == "attempt-0002"
+        and preflight_receipt["historical_authentication"].get("seed615_authentication")
+        != historical
+    ):
+        raise ValueError("seed639_verifier_preflight_historical_auth_mismatch")
     authentication_receipt = json.loads(
         (output_dir / "authentication.json").read_bytes()
     )
@@ -606,6 +627,28 @@ def verify_attempt(
         raise ValueError("seed639_verifier_record_coverage_invalid")
     records = [json.loads(path.read_bytes()) for path in record_paths]
     verifier_population = verify_policy_records(population, records)
+    if manifest["attempt_id"] == "attempt-0002":
+        binding_sha256 = _sha256(_canonical(verifier_population["state_bindings"]))
+        expected_preflight_population = {
+            "states_authenticated": verifier_population["states_verified"],
+            "canonical_identity_count": verifier_population["canonical_identities"],
+            "production_float32_identity_count": verifier_population[
+                "production_float32_identities"
+            ],
+            "stone_bin_counts": verifier_population["stone_bin_counts"],
+            "continuation_games": verifier_population["continuation_games"],
+            "opening_clusters": verifier_population["opening_clusters"],
+            "state_bindings_sha256": binding_sha256,
+        }
+        if (
+            preflight_receipt["population_state_bindings_sha256"] != binding_sha256
+            or preflight_receipt["population_preflight"]
+            != expected_preflight_population
+            or preflight_receipt["registered_input_artifacts"]
+            != manifest["input_artifacts"]
+            or not all(preflight_receipt["checks"].values())
+        ):
+            raise ValueError("seed639_preflight_population_binding_mismatch")
     preflight_path = output_dir / "population-preflight.jsonl"
     preflight_rows = [
         json.loads(line)
@@ -676,6 +719,8 @@ def verify_attempt(
         or results.get("subset_relationship") != expected_relationship
         or results.get("historical_verifier_runtime")
         != historical["historical_runtime"]
+        or results.get("preflight_receipt_sha256")
+        != manifest.get("configuration", {}).get("preflight_receipt", {}).get("sha256")
         or results.get("diagnostic_subset", {}).get("available")
         != subset_check["available"]
     ):

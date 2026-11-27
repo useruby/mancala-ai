@@ -34,6 +34,7 @@
     "reason": "attempt-0001 stopped before inference because the historical Seed 615 verifier dependency was missing from the inference runtime",
     "preserved_attempt_ids": ["attempt-0001"],
     "authorized_attempt_ids": ["attempt-0002"],
+    "preflight_receipt_path": "/home/alex/Mancala/ai/.tmp/seed639-attempt-0002-preflight.json",
     "historical_verifier_runtime": {
       "interpreter": "/home/alex/Mancala/ai/.tmp/seed639-historical-verifier-venv/bin/python",
       "python_version": "3.14.7",
