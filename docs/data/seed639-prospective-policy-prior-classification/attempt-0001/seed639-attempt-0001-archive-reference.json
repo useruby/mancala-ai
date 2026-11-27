@@ -1,0 +1,13 @@
+{
+  "schema": "mancala-experiment-archive-reference-v1",
+  "experiment_id": "seed639-prospective-policy-prior-classification",
+  "attempt_id": "attempt-0001",
+  "source_commit": "5f4dc090bf57ce1757c4695313cfe28749600771",
+  "attempt_manifest_sha256": "acb10005043bd5b180236d6c27fb8fe4b16298ed3223690d6215a0fbbe4801a4",
+  "archive_path": "/home/alex/mancala-ai-experiment-archives/seed639-prospective-policy-prior-classification--attempt-0001.tar.zst",
+  "archive_sha256": "7c8bd3fd7bd19dc03d5ff966aa96abe78bb55d595b5613da2f10cc42ec4d4ebf",
+  "archive_manifest_path": "/home/alex/mancala-ai-experiment-archives/seed639-prospective-policy-prior-classification--attempt-0001.archive-manifest.json",
+  "archive_manifest_sha256": "6badb02885b4c2e626c0169124847c51bbf5b8bbc1492a7714a91bfa193bd98b",
+  "archive_verified": true,
+  "required_artifact_inventory_sha256": "e491ce8e2c81e2feaaf1ea0c5b157d15da1b7443ed6b7d0d5ea97f3645965d8b"
+}
