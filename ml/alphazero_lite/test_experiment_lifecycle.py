@@ -587,6 +587,36 @@ class ExperimentLifecycleTests(unittest.TestCase):
         )
         lifecycle.safe_remove_worktree(self.repo, self.worktree, merged_into="main")
 
+    def test_historical_attempt_uses_registration_revision_from_its_source_commit(
+        self,
+    ) -> None:
+        attempt_dir = self._freeze(
+            "attempt-before-registration-amendment",
+            "import sys; from pathlib import Path; Path(sys.argv[1]).write_text('ok')",
+        )
+        self.assertEqual(self._execute(attempt_dir)["status"], "completed")
+        registration_path = (
+            self.worktree / "docs/experiments/demo-001/registration.json"
+        )
+        original_sha256 = lifecycle.sha256_file(registration_path)
+
+        amended = json.loads(registration_path.read_bytes())
+        amended["runtime_amendment"] = {"authorized_retry": "attempt-0002"}
+        registration_path.write_text(json.dumps(amended, sort_keys=True) + "\n")
+        self._git_at(
+            self.worktree, "add", "docs/experiments/demo-001/registration.json"
+        )
+        self._git_at(
+            self.worktree, "commit", "-m", "amend synthetic runtime registration"
+        )
+
+        manifest = json.loads((attempt_dir / "manifest.json").read_bytes())
+        self.assertEqual(manifest["registration_sha256"], original_sha256)
+        self.assertNotEqual(
+            lifecycle.sha256_file(registration_path), manifest["registration_sha256"]
+        )
+        self.assertEqual(lifecycle.verify_attempt(attempt_dir)["status"], "completed")
+
     def test_timeout_is_recorded_and_archived_without_retry(self) -> None:
         attempt_dir = self._freeze(
             "attempt-timeout", "import time; time.sleep(30)", timeout=1

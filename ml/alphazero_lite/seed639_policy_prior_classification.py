@@ -12,6 +12,7 @@ import json
 import math
 import os
 import platform
+import subprocess
 import sys
 import tarfile
 import time
@@ -67,6 +68,7 @@ REGISTERED_INPUT_SHA256 = {
 SEED615_EVALUATION_FREEZE_SHA256 = (
     "ba30f5e3efadf3358db9f03c7b4eba4f69b23e2f95dcb4089723a1fb9664f32b"
 )
+HISTORICAL_VERIFIER_MODULE = "ml.alphazero_lite.seed639_historical_authentication"
 INHERITED_P_E4_SHA256 = (
     "2ecc98ac7e7cd3968d08b599be96da883387b62f9c47b134b9ff11b2ac3edbad"
 )
@@ -92,10 +94,10 @@ def authenticate_inputs(
     archive_path: Path,
     archive_manifest_path: Path,
     population_member_path: Path | None = None,
+    historical_verifier_runtime: dict[str, Any],
 ) -> dict[str, Any]:
     """Authenticate the fixed cohort bundle and historical model evaluation."""
     from ml.alphazero_lite import experiment_lifecycle
-    from ml.alphazero_lite import seed615_policy_divergence_diagnostic as seed615
 
     expected_hashes = REGISTERED_INPUT_SHA256
     actual_paths = {
@@ -226,7 +228,11 @@ def authenticate_inputs(
     }:
         raise ValueError("seed636_independent_verification_checks_invalid")
 
-    seed615_authentication = seed615.authenticate(seed615_root)
+    seed615_authentication = authenticate_seed615_in_subprocess(
+        seed615_root=seed615_root,
+        archive_path=archive_path,
+        registered_runtime=historical_verifier_runtime,
+    )
     if seed615_authentication.get(
         "freeze_sha256"
     ) != SEED615_EVALUATION_FREEZE_SHA256 or seed615_authentication.get(
@@ -298,6 +304,87 @@ def authenticate_inputs(
             "historical_seed615_evaluation_freeze_sha256": SEED615_EVALUATION_FREEZE_SHA256,
         },
         "exposure_classification": selected_manifest["exposure_classification"],
+    }
+
+
+def authenticate_seed615_in_subprocess(
+    *,
+    seed615_root: Path,
+    archive_path: Path,
+    registered_runtime: dict[str, Any],
+) -> dict[str, Any]:
+    """Run read-only Seed 615 authentication in the pinned historical runtime."""
+    from ml.alphazero_lite.seed639_authorization import HISTORICAL_VERIFIER_RUNTIME
+
+    if registered_runtime != HISTORICAL_VERIFIER_RUNTIME:
+        raise ValueError("seed639_historical_runtime_registration_mismatch")
+    command = [
+        registered_runtime["interpreter"],
+        "-m",
+        HISTORICAL_VERIFIER_MODULE,
+        "--archive",
+        str(archive_path.resolve(strict=True)),
+        "--seed615-root",
+        str(seed615_root.resolve(strict=True)),
+    ]
+    environment = {
+        key: os.environ[key]
+        for key in ("PATH", "HOME", "LANG", "LC_ALL")
+        if key in os.environ
+    } | registered_runtime["thread_environment"]
+    completed = subprocess.run(
+        command,
+        cwd=Path(__file__).resolve().parents[2],
+        env=environment,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=14_400,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            "seed639_historical_authentication_subprocess_failed:"
+            f"exit={completed.returncode}; stderr={completed.stderr[-4000:]}"
+        )
+    response = json.loads(completed.stdout)
+    runtime = response.get("runtime", {})
+    if (
+        response.get("schema") != "seed639-seed615-historical-authentication-v1"
+        or runtime.get("python_executable") != registered_runtime["interpreter"]
+        or runtime.get("python_version") != registered_runtime["python_version"]
+        or runtime.get("numpy_version") != registered_runtime["numpy_version"]
+        or runtime.get("torch_version") != registered_runtime["torch_version"]
+        or runtime.get("device") != registered_runtime["device"]
+        or runtime.get("cuda_available") is not registered_runtime["cuda_available"]
+        or runtime.get("thread_environment") != registered_runtime["thread_environment"]
+        or runtime.get("torch_threads") != registered_runtime["torch_threads"]
+        or runtime.get("deterministic_algorithms")
+        is not registered_runtime["deterministic_algorithms"]
+        or runtime.get("runtime_lock_path") != registered_runtime["runtime_lock_path"]
+        or runtime.get("runtime_lock_sha256")
+        != registered_runtime["runtime_lock_sha256"]
+        or runtime.get("seed615_dependency_lock_path")
+        != registered_runtime["seed615_dependency_lock_path"]
+        or runtime.get("seed615_dependency_lock_sha256")
+        != registered_runtime["seed615_dependency_lock_sha256"]
+        or runtime.get("worktree_seed615_dependency_lock_path")
+        != str(
+            Path(__file__).resolve().parents[2]
+            / registered_runtime["worktree_dependency_lock"]
+        )
+        or runtime.get("worktree_seed615_dependency_lock_sha256")
+        != registered_runtime["worktree_dependency_lock_sha256"]
+    ):
+        raise ValueError("seed639_historical_runtime_probe_mismatch")
+    authentication = response.get("authentication")
+    if not isinstance(authentication, dict):
+        raise ValueError("seed639_historical_authentication_receipt_invalid")
+    return {
+        **authentication,
+        "historical_runtime": runtime,
+        "subprocess_command": command,
+        "subprocess_stdout_sha256": sha256_bytes(completed.stdout.encode("utf-8")),
+        "subprocess_stderr_sha256": sha256_bytes(completed.stderr.encode("utf-8")),
     }
 
 
@@ -841,6 +928,14 @@ def _create_only_json(path: Path, value: Any) -> None:
         os.fsync(stream.fileno())
 
 
+def _create_only_bytes(path: Path, payload: bytes) -> None:
+    """Persist exact source bytes without replacing an existing artifact."""
+    with path.open("xb") as stream:
+        stream.write(payload)
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
 def _create_only_record(path: Path, value: Any) -> None:
     payload = canonical_json(value) + b"\n"
     with path.open("xb") as stream:
@@ -856,6 +951,209 @@ def _input_path(registration: dict[str, Any], suffix: str) -> Path:
     if len(matches) != 1:
         raise ValueError(f"seed639_registered_input_path_not_unique:{suffix}")
     return matches[0]
+
+
+def rehash_registered_inputs(input_artifacts: dict[str, str]) -> dict[str, str]:
+    """Independently rehash every file and directory named by the registration."""
+    from ml.alphazero_lite.experiment_lifecycle import artifact_sha256
+
+    observed = {}
+    for raw_path, expected_digest in input_artifacts.items():
+        path = Path(raw_path)
+        actual_digest = artifact_sha256(path)
+        if actual_digest != expected_digest:
+            raise ValueError(f"seed639_preflight_registered_input_mismatch:{raw_path}")
+        observed[str(path.absolute())] = actual_digest
+    return observed
+
+
+def validate_preflight_population(
+    population_rows: list[dict[str, Any]],
+) -> tuple[dict[str, Any], str, list[dict[str, Any]]]:
+    """Validate the whole frozen cohort and return its exact binding digest."""
+    summary = validate_population(population_rows)
+    bindings = summary.pop("state_bindings")
+    summary["state_bindings_sha256"] = sha256_bytes(canonical_json(bindings))
+    return summary, summary["state_bindings_sha256"], bindings
+
+
+def run_attempt_0002_preflight(receipt_path: Path | None = None) -> dict[str, Any]:
+    """Authenticate owner merge and all registered inputs without model inference."""
+    from ml.alphazero_lite.seed639_authorization import (
+        EXECUTION_AMENDMENT,
+        HISTORICAL_VERIFIER_RUNTIME,
+        PREFLIGHT_RECEIPT_PATH,
+        REGISTRATION_PATH,
+        authorize_registration,
+    )
+
+    root = Path(__file__).resolve().parents[2]
+    receipt_path = (
+        Path(PREFLIGHT_RECEIPT_PATH) if receipt_path is None else receipt_path
+    )
+    if receipt_path != Path(PREFLIGHT_RECEIPT_PATH):
+        raise ValueError("seed639_attempt_0002_preflight_path_not_registered")
+    if receipt_path.exists() or receipt_path.is_symlink():
+        raise FileExistsError("seed639_attempt_0002_preflight_receipt_exists")
+    registration_path = root / REGISTRATION_PATH
+    registration = json.loads(registration_path.read_bytes())
+    if registration.get("execution_amendment") != EXECUTION_AMENDMENT:
+        raise PermissionError("seed639_attempt_0002_amendment_not_registered")
+    source_commit = subprocess.run(
+        ["git", "-C", str(root), "rev-parse", "HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    dirty_status = subprocess.run(
+        ["git", "-C", str(root), "status", "--porcelain", "--untracked-files=all"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    if dirty_status:
+        raise PermissionError("seed639_attempt_0002_preflight_worktree_dirty")
+    authorization = authorize_registration(registration_path, source_commit)
+    if authorization.get("merge_commit") != source_commit or authorization.get(
+        "registration_sha256"
+    ) != sha256_bytes(registration_path.read_bytes()):
+        raise PermissionError("seed639_attempt_0002_owner_merge_source_mismatch")
+
+    registered_input_artifacts = rehash_registered_inputs(
+        registration["input_artifacts"]
+    )
+
+    runtime = runtime_identity()
+    seed615_freeze_path = _input_path(
+        registration, "/evaluation-preparation/execution-freeze-v4.json"
+    )
+    seed615_root = seed615_freeze_path.parents[4]
+    archive_path = _input_path(registration, "attempt-0001.tar.zst")
+    authentication = authenticate_inputs(
+        seed615_root=seed615_root,
+        selected_manifest_path=_input_path(
+            registration, "/selected-state-manifest.json"
+        ),
+        selected_verification_path=_input_path(
+            registration, "/selected-state-manifest-verification.json"
+        ),
+        archive_path=archive_path,
+        archive_manifest_path=_input_path(
+            registration, "attempt-0001.archive-manifest.json"
+        ),
+        historical_verifier_runtime=HISTORICAL_VERIFIER_RUNTIME,
+    )
+    if registration.get("checkpoint_identity") != authentication.get(
+        "checkpoint_identity"
+    ):
+        raise ValueError("seed639_preflight_checkpoint_identity_mismatch")
+    (
+        population_preflight,
+        population_bindings_sha256,
+        _,
+    ) = validate_preflight_population(authentication["selected_population_rows"])
+    archive_verification = authentication["seed636_archive_verification"]
+    receipt = {
+        "schema": "seed639-attempt-0002-read-only-preflight-v1",
+        "status": "passed",
+        "experiment_id": EXPERIMENT_ID,
+        "attempt_id": "attempt-0002",
+        "source_commit": source_commit,
+        "registration_sha256": authorization["registration_sha256"],
+        "authorization": authorization,
+        "runtime": runtime,
+        "registered_input_artifacts": registered_input_artifacts,
+        "checkpoint_identity": authentication["checkpoint_identity"],
+        "selected_inventory_sha256": SELECTED_INVENTORY_SHA256,
+        "checks": {
+            "owner_merge_authorized": True,
+            "registered_inputs_rehashed": True,
+            "historical_authentication_passed": True,
+            "checkpoint_identity_matches_registration": True,
+            "population_validated": True,
+            "archive_reading_verified": True,
+        },
+        "historical_authentication": {
+            key: value
+            for key, value in authentication.items()
+            if key not in {"selected_population_rows", "seed636_archive_verification"}
+        },
+        "seed636_archive_inventory": {
+            key: value for key, value in archive_verification.items() if key != "files"
+        },
+        "population_preflight": population_preflight,
+        "population_state_bindings_sha256": population_bindings_sha256,
+        "prospective_model_inference_performed": False,
+    }
+    _create_only_json(receipt_path, receipt)
+    return {
+        **receipt,
+        "receipt_path": str(receipt_path),
+        "receipt_sha256": sha256_bytes(receipt_path.read_bytes()),
+    }
+
+
+def freeze_attempt_0002(worktree: Path, spec: dict[str, Any]) -> dict[str, str]:
+    """Freeze only attempt-0002 after validating its retained preflight receipt."""
+    from ml.alphazero_lite import experiment_lifecycle
+    from ml.alphazero_lite.experiment_lifecycle import load_worktree_registration
+    from ml.alphazero_lite.seed639_authorization import (
+        EXECUTION_AMENDMENT,
+        HISTORICAL_VERIFIER_RUNTIME,
+        REGISTRATION_PATH,
+        _validate_registration,
+        authorize_registration,
+        validate_preflight_receipt,
+    )
+
+    worktree = worktree.resolve(strict=True)
+    registration, registration_path = load_worktree_registration(worktree)
+    _validate_registration(registration)
+    if (
+        registration_path != REGISTRATION_PATH
+        or registration.get("execution_amendment") != EXECUTION_AMENDMENT
+        or spec.get("attempt_id") != "attempt-0002"
+        or spec.get("configuration", {}).get("historical_verifier_runtime")
+        != HISTORICAL_VERIFIER_RUNTIME
+        or spec.get("input_artifacts") != registration.get("input_artifacts")
+        or spec.get("random_seeds") != registration.get("random_seeds")
+        or "seed639-output" not in spec.get("outputs", [])
+        or "seed639-output/preflight-receipt.json" not in spec.get("outputs", [])
+        or "seed639-output/preflight-receipt.json"
+        not in spec.get("publication_outputs", [])
+    ):
+        raise PermissionError("seed639_attempt_0002_freeze_registration_mismatch")
+
+    source_commit = subprocess.run(
+        ["git", "-C", str(worktree), "rev-parse", "HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    registration_sha256 = sha256_bytes((worktree / registration_path).read_bytes())
+    authorization = authorize_registration(worktree / registration_path, source_commit)
+    receipt = validate_preflight_receipt(
+        spec.get("configuration", {}).get("preflight_receipt"),
+        attempt_id="attempt-0002",
+        source_commit=source_commit,
+        registration_sha256=registration_sha256,
+        input_artifacts=spec["input_artifacts"],
+        checkpoint_identity=registration["checkpoint_identity"],
+    )
+    if (
+        authorization.get("merge_commit") != source_commit
+        or authorization.get("registration_sha256") != registration_sha256
+        or receipt.get("authorization") != authorization
+    ):
+        raise PermissionError("seed639_attempt_0002_freeze_owner_binding_mismatch")
+
+    attempt_dir = experiment_lifecycle.freeze_attempt(worktree, **spec)
+    return {
+        "attempt_dir": str(attempt_dir),
+        "manifest_sha256": experiment_lifecycle.sha256_file(
+            attempt_dir / "manifest.json"
+        ),
+    }
 
 
 def persist_inference_records(
@@ -930,16 +1228,26 @@ def write_failure_receipt(
 
 def run_attempt(attempt_dir: Path) -> dict[str, Any]:
     """Execute only after lifecycle and owner-merged registration verification."""
-    from ml.alphazero_lite.seed639_authorization import validate_attempt
+    from ml.alphazero_lite.seed639_authorization import (
+        HISTORICAL_VERIFIER_RUNTIME,
+        validate_attempt,
+    )
 
-    manifest, auth = validate_attempt(attempt_dir)
+    manifest, auth = validate_attempt(attempt_dir, purpose="execute")
     attempt_dir = attempt_dir.resolve(strict=True)
     output = attempt_dir / "seed639-output"
     output.mkdir(mode=0o700)
     started = time.time()
     completed = 0
     try:
+        if manifest["attempt_id"] == "attempt-0002":
+            receipt_binding = manifest["configuration"]["preflight_receipt"]
+            receipt_bytes = Path(receipt_binding["path"]).read_bytes()
+            _create_only_bytes(output / "preflight-receipt.json", receipt_bytes)
         registration = auth["registration"]
+        historical_verifier_runtime = registration.get("execution_amendment", {}).get(
+            "historical_verifier_runtime", HISTORICAL_VERIFIER_RUNTIME
+        )
         runtime = runtime_identity()
         declared_runtime = manifest.get("runtime_versions", {})
         if (
@@ -957,6 +1265,8 @@ def run_attempt(attempt_dir: Path) -> dict[str, Any]:
             != {"environment": PINNED_ENVIRONMENT, "threads_per_pool": 1}
             or manifest.get("configuration", {}).get("execution_scope")
             != registration["execution_scope"]
+            or manifest.get("configuration", {}).get("historical_verifier_runtime")
+            != historical_verifier_runtime
         ):
             raise ValueError("seed639_frozen_runtime_configuration_mismatch")
         _create_only_json(output / "runtime.json", runtime)
@@ -977,13 +1287,38 @@ def run_attempt(attempt_dir: Path) -> dict[str, Any]:
             archive_manifest_path=_input_path(
                 registration, "attempt-0001.archive-manifest.json"
             ),
+            historical_verifier_runtime=historical_verifier_runtime,
         )
         if registration.get("checkpoint_identity") != input_auth.get(
             "checkpoint_identity"
         ):
             raise ValueError("seed639_registered_checkpoint_identity_mismatch")
+        if manifest["attempt_id"] == "attempt-0002":
+            preflight_receipt = auth["preflight_receipt"]
+            preflight_authentication = preflight_receipt["historical_authentication"]
+            if (
+                preflight_receipt["checkpoint_identity"]
+                != input_auth["checkpoint_identity"]
+                or preflight_authentication.get("input_sha256")
+                != input_auth.get("input_sha256")
+                or preflight_authentication.get("seed615_authentication")
+                != input_auth.get("seed615_authentication")
+            ):
+                raise ValueError("seed639_frozen_preflight_authentication_mismatch")
         population_rows = input_auth["selected_population_rows"]
-        preflight = validate_population(population_rows)
+        preflight, preflight_bindings_sha256, preflight_bindings = (
+            validate_preflight_population(population_rows)
+        )
+        if manifest["attempt_id"] == "attempt-0002":
+            preflight_receipt = auth["preflight_receipt"]
+            if (
+                preflight != preflight_receipt["population_preflight"]
+                or preflight_bindings_sha256
+                != preflight_receipt["population_state_bindings_sha256"]
+                or input_auth["checkpoint_identity"]
+                != preflight_receipt["checkpoint_identity"]
+            ):
+                raise ValueError("seed639_frozen_preflight_reproduction_mismatch")
         archive_verification = input_auth["seed636_archive_verification"]
         auth_receipt = {
             key: value
@@ -995,7 +1330,6 @@ def run_attempt(attempt_dir: Path) -> dict[str, Any]:
             key: value for key, value in archive_verification.items() if key != "files"
         }
         _create_only_json(output / "authentication.json", auth_receipt)
-        preflight_bindings = preflight.pop("state_bindings")
         preflight_path = output / "population-preflight.jsonl"
         with preflight_path.open("xb") as stream:
             for binding in preflight_bindings:
@@ -1043,6 +1377,12 @@ def run_attempt(attempt_dir: Path) -> dict[str, Any]:
             "summary": summary,
             "subset_relationship": relationship,
             "runtime": runtime,
+            "historical_verifier_runtime": input_auth["seed615_authentication"][
+                "historical_runtime"
+            ],
+            "preflight_receipt_sha256": manifest.get("configuration", {})
+            .get("preflight_receipt", {})
+            .get("sha256"),
             "completed_at_epoch_seconds": time.time(),
         }
         _create_only_json(output / "results.json", result)
@@ -1065,10 +1405,24 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
+    preflight_parser = subparsers.add_parser("preflight")
+    preflight_parser.add_argument("--receipt", type=Path)
+    freeze_parser = subparsers.add_parser("freeze")
+    freeze_parser.add_argument("--worktree", type=Path, required=True)
+    freeze_parser.add_argument("--spec", type=Path, required=True)
     run_parser = subparsers.add_parser("run")
     run_parser.add_argument("--attempt-dir", type=Path, required=True)
     args = parser.parse_args()
-    if args.command == "run":
+    if args.command == "preflight":
+        print(
+            json.dumps(
+                run_attempt_0002_preflight(args.receipt), sort_keys=True, indent=2
+            )
+        )
+    elif args.command == "freeze":
+        spec = json.loads(args.spec.read_bytes())
+        print(json.dumps(freeze_attempt_0002(args.worktree, spec), sort_keys=True))
+    elif args.command == "run":
         print(json.dumps(run_attempt(args.attempt_dir), sort_keys=True, indent=2))
 
 

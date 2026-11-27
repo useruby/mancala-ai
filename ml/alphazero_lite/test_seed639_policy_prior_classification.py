@@ -99,6 +99,365 @@ def run_git(repository, *arguments):
 
 
 class Seed639PolicyPriorClassificationTests(unittest.TestCase):
+    def test_historical_authentication_uses_registered_subprocess_runtime(self):
+        from unittest.mock import patch
+
+        from ml.alphazero_lite import seed639_authorization as authorization
+
+        expected = authorization.HISTORICAL_VERIFIER_RUNTIME
+        source_root = Path(__file__).resolve().parents[2]
+        runtime = {
+            "python_executable": expected["interpreter"],
+            "python_version": expected["python_version"],
+            "numpy_version": expected["numpy_version"],
+            "torch_version": expected["torch_version"],
+            "device": expected["device"],
+            "cuda_available": expected["cuda_available"],
+            "thread_environment": expected["thread_environment"],
+            "torch_threads": expected["torch_threads"],
+            "deterministic_algorithms": expected["deterministic_algorithms"],
+            "runtime_lock_path": expected["runtime_lock_path"],
+            "runtime_lock_sha256": expected["runtime_lock_sha256"],
+            "seed615_dependency_lock_path": expected["seed615_dependency_lock_path"],
+            "seed615_dependency_lock_sha256": expected[
+                "seed615_dependency_lock_sha256"
+            ],
+            "worktree_seed615_dependency_lock_path": str(
+                source_root / expected["worktree_dependency_lock"]
+            ),
+            "worktree_seed615_dependency_lock_sha256": expected[
+                "worktree_dependency_lock_sha256"
+            ],
+        }
+        response = {
+            "schema": "seed639-seed615-historical-authentication-v1",
+            "runtime": runtime,
+            "authentication": {
+                "freeze_sha256": diagnostic.SEED615_EVALUATION_FREEZE_SHA256,
+                "checkpoint_sha256": diagnostic.MODEL_ARTIFACTS,
+            },
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            archive = root / "population.tar.zst"
+            archive.write_bytes(b"synthetic archive input")
+            historical_root = root / "seed615"
+            historical_root.mkdir()
+            completed = subprocess.CompletedProcess(
+                args=[], returncode=0, stdout=json.dumps(response), stderr=""
+            )
+            with (
+                patch.dict(os.environ, expected["thread_environment"]),
+                patch.object(
+                    diagnostic.subprocess, "run", return_value=completed
+                ) as run,
+            ):
+                result = diagnostic.authenticate_seed615_in_subprocess(
+                    seed615_root=historical_root,
+                    archive_path=archive,
+                    registered_runtime=expected,
+                )
+
+        self.assertEqual(result["historical_runtime"], runtime)
+        command = run.call_args.args[0]
+        self.assertEqual(command[0], expected["interpreter"])
+        self.assertEqual(command[1:3], ["-m", expected["entrypoint_module"]])
+        self.assertEqual(
+            command[command.index("--seed615-root") + 1], str(historical_root)
+        )
+        self.assertEqual(run.call_args.kwargs["timeout"], 14_400)
+        self.assertEqual(run.call_args.kwargs["env"]["PYTHONHASHSEED"], "615")
+
+    def test_attempt_0002_amendment_binds_only_the_corrected_runtime(self):
+        from ml.alphazero_lite import seed639_authorization as authorization
+
+        root = Path(__file__).resolve().parents[2]
+        registration = json.loads(
+            (
+                root
+                / "docs/experiments/seed639-prospective-policy-prior-classification/registration.json"
+            ).read_bytes()
+        )
+        authorization._validate_registration(registration)
+        self.assertEqual(
+            registration["execution_amendment"]["authorized_attempt_ids"],
+            ["attempt-0002"],
+        )
+
+        altered = json.loads(json.dumps(registration))
+        altered["execution_amendment"]["historical_verifier_runtime"][
+            "torch_version"
+        ] = "2.13.0+cu130"
+        with self.assertRaisesRegex(PermissionError, "execution_amendment_invalid"):
+            authorization._validate_registration(altered)
+
+        authorization.authorize_attempt_identity(
+            registration, "attempt-0002", "execute"
+        )
+        authorization.authorize_attempt_identity(registration, "attempt-0001", "verify")
+        for attempt_id in ("attempt-0001", "attempt-0003", "attempt-0004"):
+            with self.subTest(attempt_id=attempt_id):
+                with self.assertRaisesRegex(
+                    PermissionError, "attempt_identity_not_authorized"
+                ):
+                    authorization.authorize_attempt_identity(
+                        registration, attempt_id, "execute"
+                    )
+        for attempt_id in ("attempt-0003", "attempt-0004"):
+            with self.subTest(verification_attempt_id=attempt_id):
+                with self.assertRaisesRegex(
+                    PermissionError, "attempt_identity_not_authorized"
+                ):
+                    authorization.authorize_attempt_identity(
+                        registration, attempt_id, "verify"
+                    )
+
+    def test_preflight_rehashes_every_registered_input_and_fails_closed(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            input_path = Path(temporary) / "registered-input.json"
+            input_path.write_text('{"input":1}\n')
+            registered = {
+                str(input_path): diagnostic.sha256_bytes(input_path.read_bytes())
+            }
+            self.assertEqual(
+                diagnostic.rehash_registered_inputs(registered), registered
+            )
+            input_path.write_text('{"input":2}\n')
+            with self.assertRaisesRegex(
+                ValueError, "preflight_registered_input_mismatch"
+            ):
+                diagnostic.rehash_registered_inputs(registered)
+
+    def test_preflight_validates_full_population_without_evaluator_construction(self):
+        summary, bindings_digest, bindings = diagnostic.validate_preflight_population(
+            synthetic_population()
+        )
+        self.assertEqual(summary["states_authenticated"], 512)
+        self.assertEqual(
+            summary["stone_bin_counts"],
+            {"17": 103, "18": 103, "19": 102, "20": 102, "21": 102},
+        )
+        self.assertEqual(len(bindings), 512)
+        self.assertEqual(
+            summary["state_bindings_sha256"],
+            diagnostic.sha256_bytes(diagnostic.canonical_json(bindings)),
+        )
+        self.assertEqual(bindings_digest, summary["state_bindings_sha256"])
+
+    def test_read_only_attempt_0002_preflight_retains_complete_receipt_without_inference(
+        self,
+    ):
+        from unittest.mock import patch
+
+        from ml.alphazero_lite import seed639_authorization as authorization
+
+        root = Path(__file__).resolve().parents[2]
+        registration_path = (
+            root
+            / "docs/experiments/seed639-prospective-policy-prior-classification/registration.json"
+        )
+        registration = json.loads(registration_path.read_bytes())
+        original_run = subprocess.run
+
+        def git_run(command, **kwargs):
+            if "status" in command:
+                return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
+            return original_run(command, **kwargs)
+
+        def authorize(_path, source_commit):
+            return {
+                "merge_commit": source_commit,
+                "registration_sha256": diagnostic.sha256_bytes(
+                    registration_path.read_bytes()
+                ),
+                "pr_number": 641,
+                "merged_by": "useruby",
+            }
+
+        authentication = {
+            "selected_population_rows": synthetic_population(),
+            "checkpoint_identity": registration["checkpoint_identity"],
+            "seed636_archive_verification": {
+                "experiment_id": "seed636-prospective-population",
+                "attempt_id": "attempt-0001",
+                "verified": True,
+                "files": [],
+            },
+            "seed615_authentication": {"verification": {"passed": True}},
+            "input_sha256": {},
+            "exposure_classification": "known-exposure-screened; inherited P-E4 exposure unresolved",
+        }
+
+        with tempfile.TemporaryDirectory(dir=root / ".tmp") as temporary:
+            receipt_path = Path(temporary) / "attempt-0002-preflight.json"
+            with (
+                patch.object(
+                    authorization, "PREFLIGHT_RECEIPT_PATH", str(receipt_path)
+                ),
+                patch.object(
+                    authorization, "authorize_registration", side_effect=authorize
+                ),
+                patch.object(diagnostic.subprocess, "run", side_effect=git_run),
+                patch.object(
+                    diagnostic,
+                    "runtime_identity",
+                    return_value={"python_version": "3.14.7"},
+                ),
+                patch.object(
+                    diagnostic, "authenticate_inputs", return_value=authentication
+                ),
+                patch.object(
+                    diagnostic,
+                    "build_authenticated_evaluators",
+                    side_effect=AssertionError(
+                        "preflight_must_not_construct_evaluators"
+                    ),
+                ) as evaluator_factory,
+            ):
+                result = diagnostic.run_attempt_0002_preflight()
+
+            self.assertTrue(receipt_path.is_file())
+            self.assertEqual(result["status"], "passed")
+            self.assertEqual(
+                result["population_preflight"]["states_authenticated"], 512
+            )
+            self.assertFalse(result["prospective_model_inference_performed"])
+            self.assertTrue(all(result["checks"].values()))
+            self.assertEqual(
+                result["receipt_sha256"],
+                diagnostic.sha256_bytes(receipt_path.read_bytes()),
+            )
+            evaluator_factory.assert_not_called()
+
+    def test_preflight_receipt_is_hash_and_identity_bound(self):
+        from unittest.mock import patch
+
+        from ml.alphazero_lite import seed639_authorization as authorization
+
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "preflight.json"
+            inputs = {"/registered/input": "a" * 64}
+            receipt = {
+                "schema": "seed639-attempt-0002-read-only-preflight-v1",
+                "status": "passed",
+                "experiment_id": authorization.EXPERIMENT_ID,
+                "attempt_id": "attempt-0002",
+                "source_commit": "b" * 40,
+                "registration_sha256": "c" * 64,
+                "registered_input_artifacts": inputs,
+                "checkpoint_identity": authorization.CHECKPOINT_IDENTITY,
+                "selected_inventory_sha256": diagnostic.SELECTED_INVENTORY_SHA256,
+                "checks": {
+                    "owner_merge_authorized": True,
+                    "registered_inputs_rehashed": True,
+                    "historical_authentication_passed": True,
+                    "checkpoint_identity_matches_registration": True,
+                    "population_validated": True,
+                    "archive_reading_verified": True,
+                },
+                "prospective_model_inference_performed": False,
+                "population_preflight": {
+                    "states_authenticated": 512,
+                    "canonical_identity_count": 512,
+                    "production_float32_identity_count": 512,
+                    "stone_bin_counts": {
+                        "17": 103,
+                        "18": 103,
+                        "19": 102,
+                        "20": 102,
+                        "21": 102,
+                    },
+                    "continuation_games": 512,
+                    "opening_clusters": 512,
+                },
+                "population_state_bindings_sha256": "d" * 64,
+            }
+            raw = json.dumps(receipt, sort_keys=True).encode("ascii") + b"\n"
+            path.write_bytes(raw)
+            with patch.object(authorization, "PREFLIGHT_RECEIPT_PATH", str(path)):
+                verified = authorization.validate_preflight_receipt(
+                    {"path": str(path), "sha256": diagnostic.sha256_bytes(raw)},
+                    attempt_id="attempt-0002",
+                    source_commit="b" * 40,
+                    registration_sha256="c" * 64,
+                    input_artifacts=inputs,
+                    checkpoint_identity=authorization.CHECKPOINT_IDENTITY,
+                )
+                self.assertEqual(verified, receipt)
+                with self.assertRaisesRegex(
+                    PermissionError, "preflight_receipt_hash_mismatch"
+                ):
+                    authorization.validate_preflight_receipt(
+                        {"path": str(path), "sha256": "0" * 64},
+                        attempt_id="attempt-0002",
+                        source_commit="b" * 40,
+                        registration_sha256="c" * 64,
+                        input_artifacts=inputs,
+                        checkpoint_identity=authorization.CHECKPOINT_IDENTITY,
+                    )
+
+    def test_attempt_0002_freeze_refuses_to_freeze_without_preflight_receipt(self):
+        from unittest.mock import patch
+
+        from ml.alphazero_lite import experiment_lifecycle
+        from ml.alphazero_lite import seed639_authorization as authorization
+
+        repository = Path(__file__).resolve().parents[2]
+        registration_path = authorization.REGISTRATION_PATH
+        registration = json.loads((repository / registration_path).read_bytes())
+        with tempfile.TemporaryDirectory() as temporary:
+            worktree = Path(temporary)
+            local_registration = worktree / registration_path
+            local_registration.parent.mkdir(parents=True)
+            local_registration.write_bytes(
+                (repository / registration_path).read_bytes()
+            )
+            source_commit = "a" * 40
+            manifest_registration_sha = diagnostic.sha256_bytes(
+                local_registration.read_bytes()
+            )
+            spec = {
+                "attempt_id": "attempt-0002",
+                "configuration": {
+                    "historical_verifier_runtime": authorization.HISTORICAL_VERIFIER_RUNTIME
+                },
+                "input_artifacts": registration["input_artifacts"],
+                "random_seeds": [],
+                "outputs": [
+                    "seed639-output",
+                    "seed639-output/preflight-receipt.json",
+                ],
+                "publication_outputs": ["seed639-output/preflight-receipt.json"],
+            }
+            with (
+                patch.object(
+                    experiment_lifecycle,
+                    "load_worktree_registration",
+                    return_value=(registration, registration_path),
+                ),
+                patch.object(
+                    authorization,
+                    "authorize_registration",
+                    return_value={
+                        "merge_commit": source_commit,
+                        "registration_sha256": manifest_registration_sha,
+                    },
+                ),
+                patch.object(
+                    diagnostic.subprocess,
+                    "run",
+                    return_value=subprocess.CompletedProcess(
+                        args=[], returncode=0, stdout=source_commit, stderr=""
+                    ),
+                ),
+                patch.object(experiment_lifecycle, "freeze_attempt") as freeze_attempt,
+            ):
+                with self.assertRaisesRegex(
+                    PermissionError, "preflight_receipt_binding_invalid"
+                ):
+                    diagnostic.freeze_attempt_0002(worktree, spec)
+            freeze_attempt.assert_not_called()
+
     def test_legal_masking_zeroes_illegal_actions_and_normalizes(self):
         result = diagnostic.compare_legal_priors(
             [0.1, 0.2, 0.3, 0.1, 0.1, 0.2],
@@ -300,6 +659,9 @@ class Seed639PolicyPriorClassificationTests(unittest.TestCase):
                     / "docs/experiments/seed639-prospective-policy-prior-classification/registration.json"
                 ).read_bytes()
             )
+            registration.pop("execution_amendment", None)
+            for runtime_input in authorization.AMENDMENT_RUNTIME_INPUTS:
+                registration["input_artifacts"].pop(runtime_input, None)
             registration_path = repo / authorization.REGISTRATION_PATH
             source_root = Path(__file__).resolve().parents[2]
             for protocol in authorization.REQUIRED_PROTOCOLS:
@@ -873,7 +1235,6 @@ from pathlib import Path
 from unittest.mock import patch
 from ml.alphazero_lite import arena, experiment_lifecycle, seed639_authorization, seed639_policy_prior_classification as producer
 from ml.alphazero_lite import verify_seed639_policy_prior_classification as verifier
-from ml.alphazero_lite import seed615_policy_divergence_diagnostic as historical
 
 @contextmanager
 def controls(attempt_dir, fixture_path):
@@ -889,11 +1250,12 @@ def controls(attempt_dir, fixture_path):
         if "/commits/" in endpoint: return [{"number": 639}]
         if endpoint.endswith("/pulls/639"): return pull
         raise AssertionError(endpoint)
-    def historical_auth(_root):
+    def historical_auth(*, registered_runtime, **_kwargs):
         return {"freeze_sha256": fixture["seed615_freeze_sha256"],
                 "checkpoint_sha256": {"B512": fixture["model_hashes"]["B512"]["model.npz"],
                                       "S615": fixture["model_hashes"]["S615"]["model.npz"],
-                                      "P-E4": fixture["p_e4_sha256"]}}
+                                      "P-E4": fixture["p_e4_sha256"]},
+                "historical_runtime": registered_runtime}
     def archive_verify(_archive, _sidecar):
         return {"experiment_id": "seed636-prospective-population", "attempt_id": "attempt-0001",
                 "files": [{"path": "population/population.json",
@@ -911,7 +1273,7 @@ def controls(attempt_dir, fixture_path):
     patches = [
         patch.object(seed639_authorization, "_github_json", side_effect=gh),
         patch.object(experiment_lifecycle, "verify_archive", side_effect=archive_verify),
-        patch.object(historical, "authenticate", side_effect=historical_auth),
+        patch.object(producer, "authenticate_seed615_in_subprocess", side_effect=historical_auth),
         patch.object(arena, "ArtifactEvaluator", CountingEvaluator),
         patch.object(producer, "REGISTERED_INPUT_SHA256", fixture["input_hashes"]),
         patch.object(producer, "MODEL_ARTIFACTS", fixture["model_hashes"]),
@@ -979,6 +1341,9 @@ with controls(sys.argv[1], sys.argv[2]) as (fixture, evaluator):
                     / "docs/experiments/seed639-prospective-policy-prior-classification/registration.json"
                 ).read_bytes()
             )
+            registration.pop("execution_amendment", None)
+            for runtime_input in authorization.AMENDMENT_RUNTIME_INPUTS:
+                registration["input_artifacts"].pop(runtime_input, None)
             reserved = {
                 "schema",
                 "experiment_id",
@@ -1051,6 +1416,7 @@ with controls(sys.argv[1], sys.argv[2]) as (fixture, evaluator):
                     "environment": environment,
                     "threads_per_pool": 1,
                 },
+                "historical_verifier_runtime": authorization.HISTORICAL_VERIFIER_RUNTIME,
             }
             attempt = worktree / ".experiment/runtime/attempts/attempt-0001"
             freeze = experiment_lifecycle.freeze_attempt(
@@ -1358,7 +1724,7 @@ from collections import Counter
 from unittest.mock import patch
 from ml.alphazero_lite import experiment_lifecycle, seed639_authorization, seed639_policy_prior_classification as producer
 from ml.alphazero_lite import verify_seed639_policy_prior_classification as verifier
-from ml.alphazero_lite import arena, seed615_policy_divergence_diagnostic as historical
+from ml.alphazero_lite import arena
 
 attempt = Path(sys.argv[1])
 fixture = json.loads(Path(sys.argv[2]).read_bytes())
@@ -1374,11 +1740,12 @@ def gh(endpoint):
     if endpoint.endswith("/pulls/639"):
         return pull
     raise AssertionError(endpoint)
-def historical_auth(_root):
+def historical_auth(*, registered_runtime, **_kwargs):
     return {"freeze_sha256": fixture["seed615_freeze_sha256"],
             "checkpoint_sha256": {"B512": fixture["model_hashes"]["B512"]["model.npz"],
                                   "S615": fixture["model_hashes"]["S615"]["model.npz"],
-                                  "P-E4": fixture["p_e4_sha256"]}}
+                                  "P-E4": fixture["p_e4_sha256"]},
+            "historical_runtime": registered_runtime}
 def archive_verify(_archive, _sidecar):
     return {"experiment_id": "seed636-prospective-population", "attempt_id": "attempt-0001",
             "files": [{"path": "population/population.json",
@@ -1395,7 +1762,7 @@ class CountingEvaluator(original_evaluator):
         return super().evaluate(game)
 with patch.object(seed639_authorization, "_github_json", side_effect=gh), \\
      patch.object(experiment_lifecycle, "verify_archive", side_effect=archive_verify), \\
-     patch.object(historical, "authenticate", side_effect=historical_auth), \\
+     patch.object(producer, "authenticate_seed615_in_subprocess", side_effect=historical_auth), \\
      patch.object(arena, "ArtifactEvaluator", CountingEvaluator), \\
      patch.object(producer, "REGISTERED_INPUT_SHA256", fixture["input_hashes"]), \\
      patch.object(producer, "MODEL_ARTIFACTS", fixture["model_hashes"]), \\
@@ -1413,7 +1780,7 @@ from collections import Counter
 from unittest.mock import patch
 from ml.alphazero_lite import experiment_lifecycle, seed639_authorization, seed639_policy_prior_classification as producer
 from ml.alphazero_lite import verify_seed639_policy_prior_classification as verifier
-from ml.alphazero_lite import arena, seed615_policy_divergence_diagnostic as historical
+from ml.alphazero_lite import arena
 
 attempt = Path(sys.argv[1])
 fixture = json.loads(Path(sys.argv[2]).read_bytes())
@@ -1429,11 +1796,12 @@ def gh(endpoint):
     if endpoint.endswith("/pulls/639"):
         return pull
     raise AssertionError(endpoint)
-def historical_auth(_root):
+def historical_auth(*, registered_runtime, **_kwargs):
     return {"freeze_sha256": fixture["seed615_freeze_sha256"],
             "checkpoint_sha256": {"B512": fixture["model_hashes"]["B512"]["model.npz"],
                                   "S615": fixture["model_hashes"]["S615"]["model.npz"],
-                                  "P-E4": fixture["p_e4_sha256"]}}
+                                  "P-E4": fixture["p_e4_sha256"]},
+            "historical_runtime": registered_runtime}
 def archive_verify(_archive, _sidecar):
     return {"experiment_id": "seed636-prospective-population", "attempt_id": "attempt-0001",
             "files": [{"path": "population/population.json",
@@ -1450,7 +1818,7 @@ class CountingEvaluator(original_evaluator):
         return super().evaluate(game)
 with patch.object(seed639_authorization, "_github_json", side_effect=gh), \\
      patch.object(experiment_lifecycle, "verify_archive", side_effect=archive_verify), \\
-     patch.object(historical, "authenticate", side_effect=historical_auth), \\
+     patch.object(producer, "authenticate_seed615_in_subprocess", side_effect=historical_auth), \\
      patch.object(arena, "ArtifactEvaluator", CountingEvaluator), \\
      patch.object(producer, "REGISTERED_INPUT_SHA256", fixture["input_hashes"]), \\
      patch.object(producer, "MODEL_ARTIFACTS", fixture["model_hashes"]), \\
@@ -1497,6 +1865,9 @@ with patch.object(seed639_authorization, "_github_json", side_effect=gh), \\
                     / "docs/experiments/seed639-prospective-policy-prior-classification/registration.json"
                 ).read_bytes()
             )
+            synthetic_registration.pop("execution_amendment", None)
+            for runtime_input in authorization.AMENDMENT_RUNTIME_INPUTS:
+                synthetic_registration["input_artifacts"].pop(runtime_input, None)
             reserved = {
                 "schema",
                 "experiment_id",
@@ -1576,6 +1947,7 @@ with patch.object(seed639_authorization, "_github_json", side_effect=gh), \\
                     "environment": environment,
                     "threads_per_pool": 1,
                 },
+                "historical_verifier_runtime": authorization.HISTORICAL_VERIFIER_RUNTIME,
             }
             attempt_id = "attempt-0001"
             attempt_path = worktree / ".experiment/runtime/attempts" / attempt_id
