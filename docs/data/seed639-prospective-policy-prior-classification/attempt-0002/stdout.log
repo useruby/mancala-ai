@@ -1,0 +1,297 @@
+{
+  "attempt_id": "attempt-0002",
+  "completed_at_epoch_seconds": 1795871807.9121656,
+  "diagnostic_subset": {
+    "available": true,
+    "distinct_continuation_games": 64,
+    "distinct_opening_clusters": 57,
+    "selected_count": 64
+  },
+  "experiment_id": "seed639-prospective-policy-prior-classification",
+  "exposure_classification": "known-exposure-screened; inherited P-E4 exposure unresolved",
+  "historical_verifier_runtime": {
+    "archive_member_count": 22,
+    "archive_population_member_present": true,
+    "archive_read_path": "/home/alex/mancala-ai-experiment-archives/seed636-prospective-population--attempt-0001.tar.zst",
+    "cuda_available": false,
+    "deterministic_algorithms": true,
+    "device": "cpu",
+    "numpy_version": "2.5.3",
+    "package_inventory": {
+      "cuda-bindings": "13.4.1",
+      "cuda-pathfinder": "1.8.1",
+      "cuda-toolkit": "13.0.3.0",
+      "filelock": "3.32.6",
+      "fsspec": "2026.7.0",
+      "iniconfig": "2.3.0",
+      "jinja2": "3.1.6",
+      "markupsafe": "3.0.3",
+      "mpmath": "1.3.0",
+      "networkx": "3.6.1",
+      "numpy": "2.5.3",
+      "nvidia-cublas": "13.1.1.3",
+      "nvidia-cuda-cupti": "13.0.85",
+      "nvidia-cuda-nvrtc": "13.0.88",
+      "nvidia-cuda-runtime": "13.0.96",
+      "nvidia-cudnn-cu13": "9.24.0.43",
+      "nvidia-cufft": "12.0.0.61",
+      "nvidia-cufile": "1.15.1.6",
+      "nvidia-curand": "10.4.0.35",
+      "nvidia-cusolver": "12.0.4.66",
+      "nvidia-cusparse": "12.6.3.3",
+      "nvidia-cusparselt-cu13": "0.8.1",
+      "nvidia-nccl-cu13": "2.30.7",
+      "nvidia-nvjitlink": "13.4.52",
+      "nvidia-nvshmem-cu13": "3.4.5",
+      "nvidia-nvtx": "13.0.85",
+      "packaging": "26.3",
+      "pip": "26.2.1",
+      "pluggy": "1.6.0",
+      "pygments": "2.21.0",
+      "pytest": "9.1.1",
+      "setuptools": "84.0.0",
+      "sympy": "1.14.0",
+      "torch": "2.14.0",
+      "triton": "3.8.0",
+      "typing-extensions": "4.16.0"
+    },
+    "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+    "python_executable": "/home/alex/tmp/mancala-ai-venv/bin/python",
+    "python_full_version": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+    "python_version": "3.14.7",
+    "runtime_lock_path": "/home/alex/Mancala/ai/.worktrees/seed639-prospective-policy-prior-classification/docs/experiments/seed639-prospective-policy-prior-classification/historical-verifier-runtime-lock.txt",
+    "runtime_lock_sha256": "99a376de59cfd861f9be09c34a16526e57f1c0177eb2a5186444e936a09347ec",
+    "seed615_dependency_lock_path": "/home/alex/Mancala/ai-seed615-authorized-eval/ml/alphazero_lite/requirements-seed599-evaluation.txt",
+    "seed615_dependency_lock_sha256": "5950f891ea746be6058af5fae4c414ac0aca872bec064a7d28c383f795e2fa79",
+    "thread_environment": {
+      "CUDA_VISIBLE_DEVICES": "",
+      "MKL_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "PYTHONHASHSEED": "615"
+    },
+    "torch_threads": 1,
+    "torch_version": "2.14.0+cu130",
+    "worktree_seed615_dependency_lock_path": "/home/alex/Mancala/ai/.worktrees/seed639-prospective-policy-prior-classification/ml/alphazero_lite/requirements-seed599-evaluation.txt",
+    "worktree_seed615_dependency_lock_sha256": "5950f891ea746be6058af5fae4c414ac0aca872bec064a7d28c383f795e2fa79"
+  },
+  "interpretation": "descriptive policy differences only; no playing-strength claim",
+  "model_state_evaluations": 1024,
+  "preflight_receipt_sha256": "686d1228efd6ed306639150b6b8727c0c5ec50de720243c053b2e8a1fc24cfa3",
+  "registration_sha256": "0d439d1a638553c88c0509d4d2639890aabcf3059a69c11cfb67e1e220370b03",
+  "runtime": {
+    "backend": "NumPy ArtifactEvaluator",
+    "device": "cpu",
+    "environment": {
+      "CUDA_VISIBLE_DEVICES": "",
+      "MKL_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "PYTHONHASHSEED": "615"
+    },
+    "evaluation_cache": false,
+    "inference_batch_size": 1,
+    "numpy_build_configuration": {
+      "Build Dependencies": {
+        "blas": {
+          "detection method": "pkgconfig",
+          "found": true,
+          "include directory": "/opt/_internal/cpython-3.14.6/lib/python3.14/site-packages/scipy_openblas64/include",
+          "lib directory": "/opt/_internal/cpython-3.14.6/lib/python3.14/site-packages/scipy_openblas64/lib",
+          "name": "scipy-openblas",
+          "openblas configuration": "OpenBLAS 0.3.34.106.0  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+          "pc file directory": "/project/.openblas",
+          "version": "0.3.34.106.0"
+        },
+        "lapack": {
+          "detection method": "pkgconfig",
+          "found": true,
+          "include directory": "/opt/_internal/cpython-3.14.6/lib/python3.14/site-packages/scipy_openblas64/include",
+          "lib directory": "/opt/_internal/cpython-3.14.6/lib/python3.14/site-packages/scipy_openblas64/lib",
+          "name": "scipy-openblas",
+          "openblas configuration": "OpenBLAS 0.3.34.106.0  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+          "pc file directory": "/project/.openblas",
+          "version": "0.3.34.106.0"
+        }
+      },
+      "Compilers": {
+        "c": {
+          "commands": "cc",
+          "linker": "ld.bfd",
+          "name": "gcc",
+          "version": "14.2.1"
+        },
+        "c++": {
+          "commands": "c++",
+          "linker": "ld.bfd",
+          "name": "gcc",
+          "version": "14.2.1"
+        },
+        "cython": {
+          "commands": "cython",
+          "linker": "cython",
+          "name": "cython",
+          "version": "3.3.0"
+        }
+      },
+      "Machine Information": {
+        "build": {
+          "cpu": "x86_64",
+          "endian": "little",
+          "family": "x86_64",
+          "system": "linux"
+        },
+        "host": {
+          "cpu": "x86_64",
+          "endian": "little",
+          "family": "x86_64",
+          "system": "linux"
+        }
+      },
+      "Python Information": {
+        "path": "/tmp/build-env-1yb2qye7/bin/python",
+        "version": "3.14"
+      },
+      "SIMD Extensions": {
+        "baseline": [
+          "X86_V2"
+        ],
+        "found": [
+          "X86_V3"
+        ],
+        "not found": [
+          "X86_V4",
+          "AVX512_ICL",
+          "AVX512_SPR"
+        ]
+      }
+    },
+    "numpy_version": "2.5.3",
+    "platform": "Linux-7.2.6-arch2-1-x86_64-with-glibc2.44",
+    "python_full_version": "3.14.7 (main, Aug 10 2026, 07:46:56) [GCC 16.1.1 20260728]",
+    "python_version": "3.14.7",
+    "thread_configuration": {
+      "environment": {
+        "CUDA_VISIBLE_DEVICES": "",
+        "MKL_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "PYTHONHASHSEED": "615"
+      },
+      "limit_per_pool": 1
+    }
+  },
+  "schema": "seed639-policy-prior-classification-results-v1",
+  "selected_inventory_sha256": "6c6b1f680b2177cb67c79a9a642216703f160131034fbf8fe86e8130910ed077",
+  "source_commit": "d63cc1ea6026cdd860fc641de112cf90323c9615",
+  "states_evaluated": 512,
+  "subset_relationship": {
+    "available": true,
+    "diagnostic_subset": {
+      "distinct_continuation_games": 64,
+      "distinct_opening_clusters": 57,
+      "mean_entropy_difference_S615_minus_B512_bits": -0.014873387872651543,
+      "mean_total_variation": 0.07012918995598434,
+      "states": 64,
+      "stone_bin_counts": {
+        "17": 13,
+        "18": 12,
+        "19": 12,
+        "20": 17,
+        "21": 10
+      },
+      "top_action_disagreement_rate": 0.15625
+    },
+    "primary_population": {
+      "distinct_continuation_games": 459,
+      "distinct_opening_clusters": 218,
+      "mean_entropy_difference_S615_minus_B512_bits": -0.0023971477840059935,
+      "mean_total_variation": 0.02431417707016835,
+      "states": 512,
+      "stone_bin_counts": {
+        "17": 103,
+        "18": 103,
+        "19": 102,
+        "20": 102,
+        "21": 102
+      },
+      "top_action_disagreement_rate": 0.044921875
+    },
+    "primary_population_size": 512,
+    "subset_is_unweighted_descriptive_only": true,
+    "subset_size": 64
+  },
+  "summary": {
+    "by_stone_bin": {
+      "17": {
+        "mean_B512_entropy_bits": 1.0817388352541664,
+        "mean_S615_entropy_bits": 1.0806941429433992,
+        "mean_entropy_difference_S615_minus_B512_bits": -0.0010446923107672815,
+        "mean_total_variation": 0.02586191143053499,
+        "states": 103,
+        "top_action_disagreement_rate": 0.02912621359223301,
+        "top_action_disagreements": 3
+      },
+      "18": {
+        "mean_B512_entropy_bits": 1.0010388761014362,
+        "mean_S615_entropy_bits": 0.9838139508987289,
+        "mean_entropy_difference_S615_minus_B512_bits": -0.0172249252027074,
+        "mean_total_variation": 0.02235006441139626,
+        "states": 103,
+        "top_action_disagreement_rate": 0.038834951456310676,
+        "top_action_disagreements": 4
+      },
+      "19": {
+        "mean_B512_entropy_bits": 1.0308150247711063,
+        "mean_S615_entropy_bits": 1.0333478061647074,
+        "mean_entropy_difference_S615_minus_B512_bits": 0.0025327813936010307,
+        "mean_total_variation": 0.02353115329167925,
+        "states": 102,
+        "top_action_disagreement_rate": 0.029411764705882353,
+        "top_action_disagreements": 3
+      },
+      "20": {
+        "mean_B512_entropy_bits": 1.035329409229863,
+        "mean_S615_entropy_bits": 1.0415624307263736,
+        "mean_entropy_difference_S615_minus_B512_bits": 0.006233021496510139,
+        "mean_total_variation": 0.02772751524579805,
+        "states": 102,
+        "top_action_disagreement_rate": 0.058823529411764705,
+        "top_action_disagreements": 6
+      },
+      "21": {
+        "mean_B512_entropy_bits": 1.0015331603896815,
+        "mean_S615_entropy_bits": 0.9991833470924806,
+        "mean_entropy_difference_S615_minus_B512_bits": -0.0023498132972011323,
+        "mean_total_variation": 0.022104323111613658,
+        "states": 102,
+        "top_action_disagreement_rate": 0.06862745098039216,
+        "top_action_disagreements": 7
+      }
+    },
+    "fixed_one_fifth_bin_standardized": {
+      "mean_entropy_difference_S615_minus_B512_bits": -0.0023707255841129296,
+      "mean_total_variation": 0.024314993498204443,
+      "top_action_disagreement_rate": 0.044964782029316586
+    },
+    "overall": {
+      "B512_mean_entropy_bits": 1.030135193159128,
+      "S615_mean_entropy_bits": 1.027738045375122,
+      "entropy_difference_S615_minus_B512_mean_bits": -0.0023971477840059935,
+      "top_action_disagreement_rate": 0.044921875,
+      "top_action_disagreements": 23,
+      "total_variation_mean": 0.02431417707016835,
+      "total_variation_quantiles": {
+        "0": 2.3573344098046632e-05,
+        "0.25": 0.005857873497789607,
+        "0.5": 0.018958917018772968,
+        "0.75": 0.03588354987101126,
+        "0.9": 0.05462229445290983,
+        "0.95": 0.06534023045559303,
+        "0.99": 0.10179096306920964,
+        "1": 0.1678194669780497
+      }
+    },
+    "population_size": 512
+  }
+}

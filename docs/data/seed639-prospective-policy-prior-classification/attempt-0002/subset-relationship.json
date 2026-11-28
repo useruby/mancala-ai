@@ -1,0 +1,36 @@
+{
+  "available": true,
+  "diagnostic_subset": {
+    "distinct_continuation_games": 64,
+    "distinct_opening_clusters": 57,
+    "mean_entropy_difference_S615_minus_B512_bits": -0.014873387872651543,
+    "mean_total_variation": 0.07012918995598434,
+    "states": 64,
+    "stone_bin_counts": {
+      "17": 13,
+      "18": 12,
+      "19": 12,
+      "20": 17,
+      "21": 10
+    },
+    "top_action_disagreement_rate": 0.15625
+  },
+  "primary_population": {
+    "distinct_continuation_games": 459,
+    "distinct_opening_clusters": 218,
+    "mean_entropy_difference_S615_minus_B512_bits": -0.0023971477840059935,
+    "mean_total_variation": 0.02431417707016835,
+    "states": 512,
+    "stone_bin_counts": {
+      "17": 103,
+      "18": 103,
+      "19": 102,
+      "20": 102,
+      "21": 102
+    },
+    "top_action_disagreement_rate": 0.044921875
+  },
+  "primary_population_size": 512,
+  "subset_is_unweighted_descriptive_only": true,
+  "subset_size": 64
+}
