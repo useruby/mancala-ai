@@ -45,7 +45,7 @@ HISTORICAL_RUNTIME_LOCK_PATH = (
     "seed639-prospective-policy-prior-classification/historical-verifier-runtime-lock.txt"
 )
 HISTORICAL_RUNTIME_LOCK_SHA256 = (
-    "4ac15303ded8e4a2616c89eb5108ca700c6e5382bf3257904aba5c20632194c6"
+    "99a376de59cfd861f9be09c34a16526e57f1c0177eb2a5186444e936a09347ec"
 )
 SEED615_DEPENDENCY_LOCK_SHA256 = (
     "5950f891ea746be6058af5fae4c414ac0aca872bec064a7d28c383f795e2fa79"
@@ -54,7 +54,7 @@ PREFLIGHT_RECEIPT_PATH = (
     "/home/alex/Mancala/ai/.tmp/seed639-attempt-0002-preflight.json"
 )
 HISTORICAL_VERIFIER_RUNTIME = {
-    "interpreter": "/home/alex/Mancala/ai/.tmp/seed639-historical-verifier-venv/bin/python",
+    "interpreter": "/home/alex/tmp/mancala-ai-venv/bin/python",
     "python_version": "3.14.7",
     "numpy_version": "2.5.3",
     "torch_version": "2.14.0+cu130",
