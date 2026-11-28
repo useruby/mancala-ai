@@ -18,15 +18,13 @@ import numpy as np
 import torch
 
 ROOT = Path(__file__).resolve().parents[2]
-HISTORICAL_PYTHON = Path(
-    "/home/alex/Mancala/ai/.tmp/seed639-historical-verifier-venv/bin/python"
-)
+HISTORICAL_PYTHON = Path("/home/alex/tmp/mancala-ai-venv/bin/python")
 HISTORICAL_RUNTIME_LOCK = (
     ROOT
     / "docs/experiments/seed639-prospective-policy-prior-classification/historical-verifier-runtime-lock.txt"
 )
 HISTORICAL_RUNTIME_LOCK_SHA256 = (
-    "4ac15303ded8e4a2616c89eb5108ca700c6e5382bf3257904aba5c20632194c6"
+    "99a376de59cfd861f9be09c34a16526e57f1c0177eb2a5186444e936a09347ec"
 )
 WORKTREE_SEED615_DEPENDENCY_LOCK = (
     ROOT / "ml/alphazero_lite/requirements-seed599-evaluation.txt"
@@ -151,9 +149,9 @@ def runtime_probe(
 def authenticate_seed615(seed615_root: Path, archive_path: Path) -> dict[str, Any]:
     """Run the complete historical verifier after the runtime probe succeeds."""
     runtime = runtime_probe(archive_path, seed615_root)
-    from ml.alphazero_lite import seed615_policy_divergence_diagnostic as seed615
+    from ml.alphazero_lite.seed639_seed615_historical_adapter import authenticate
 
-    authentication = seed615.authenticate(seed615_root.resolve())
+    authentication = authenticate(seed615_root.resolve())
     return {
         "schema": "seed639-seed615-historical-authentication-v1",
         "runtime": runtime,
@@ -167,6 +165,11 @@ def main() -> None:
     parser.add_argument("--archive", type=Path, required=True)
     parser.add_argument("--seed615-root", type=Path)
     parser.add_argument("--probe-only", action="store_true")
+    parser.add_argument(
+        "--evidence-output",
+        type=Path,
+        help="optionally preserve a successful read-only authentication receipt create-only",
+    )
     args = parser.parse_args()
     seed615_root = args.seed615_root or DEFAULT_SEED615_ROOT
     if args.probe_only:
@@ -178,7 +181,25 @@ def main() -> None:
         if args.seed615_root is None:
             parser.error("--seed615-root is required unless --probe-only is used")
         result = authenticate_seed615(seed615_root, args.archive)
-    print(json.dumps(result, sort_keys=True, indent=2, allow_nan=False))
+    payload = (
+        json.dumps(result, sort_keys=True, indent=2, allow_nan=False).encode("utf-8")
+        + b"\n"
+    )
+    if args.evidence_output is not None:
+        with args.evidence_output.open("xb") as stream:
+            stream.write(payload)
+            stream.flush()
+            os.fsync(stream.fileno())
+        digest_path = args.evidence_output.with_suffix(
+            args.evidence_output.suffix + ".sha256"
+        )
+        with digest_path.open("xb") as stream:
+            stream.write(
+                f"{hashlib.sha256(payload).hexdigest()}  {args.evidence_output.name}\n".encode()
+            )
+            stream.flush()
+            os.fsync(stream.fileno())
+    print(payload.decode("utf-8"), end="")
 
 
 if __name__ == "__main__":
