@@ -1,0 +1,94 @@
+{
+  "attempt_id": "attempt-0002",
+  "attempt_verification": {
+    "attempt_id": "attempt-0002",
+    "experiment_id": "seed639-prospective-policy-prior-classification",
+    "input_artifact_mismatches": [],
+    "input_artifacts_verified": true,
+    "integrity_verified": true,
+    "manifest_sha256": "164060dbc000df2882796d5915ca292605b5d750761e032fc8e29ee1389f2a8d",
+    "outputs_verified": 11,
+    "status": "completed",
+    "verified": true
+  },
+  "experiment_id": "seed639-prospective-policy-prior-classification",
+  "files": [
+    {
+      "path": "manifest.json",
+      "sha256": "164060dbc000df2882796d5915ca292605b5d750761e032fc8e29ee1389f2a8d",
+      "size_bytes": 13132
+    },
+    {
+      "path": "completed.json",
+      "sha256": "0f2c891739ce5921e9e88c8df11f817ca82de62995caba49694655e2c06454ca",
+      "size_bytes": 2580
+    },
+    {
+      "path": "preflight-receipt.json",
+      "sha256": "686d1228efd6ed306639150b6b8727c0c5ec50de720243c053b2e8a1fc24cfa3",
+      "size_bytes": 29310
+    },
+    {
+      "path": "runtime.json",
+      "sha256": "b00f0a632dd4ca81bcbb167e7cfa77206a3a11d665030f5db7994028b316a8e8",
+      "size_bytes": 2960
+    },
+    {
+      "path": "authentication.json",
+      "sha256": "f25f612c08bea17d7572d209332a874bd4299c285b5ec80b29ca96e2efd54e95",
+      "size_bytes": 20413
+    },
+    {
+      "path": "population-preflight.json",
+      "sha256": "bf37eb4443fc1a4c91b8235ea085d4970c57119a6c9e1be6bfdd2eb808b8e387",
+      "size_bytes": 367
+    },
+    {
+      "path": "population-preflight.jsonl",
+      "sha256": "81f89b209aee7b6cb3317be5fc62e1e9792c78c85c9fae241f80a2f91da905be",
+      "size_bytes": 217680
+    },
+    {
+      "path": "diagnostic-subset.json",
+      "sha256": "ea42b27f1163e33be1d7adc0c7ac89136c5d9befaf7c48983c0a28fd75564497",
+      "size_bytes": 110124
+    },
+    {
+      "path": "summary.json",
+      "sha256": "5159b0a415a199afe5ca699f0761f7fcec279beaac7578c3502e66fae5397206",
+      "size_bytes": 2762
+    },
+    {
+      "path": "subset-relationship.json",
+      "sha256": "668387f6dd61f36fb464b20ce8e9ab2770772b95542e9bf4a0015d2100f1047c",
+      "size_bytes": 950
+    },
+    {
+      "path": "results.json",
+      "sha256": "46b79df9e178339ef242bb87902b193761eb3b3dd38c1341d1325e95d1237369",
+      "size_bytes": 10997
+    },
+    {
+      "path": "stdout.log",
+      "sha256": "46b79df9e178339ef242bb87902b193761eb3b3dd38c1341d1325e95d1237369",
+      "size_bytes": 10997
+    },
+    {
+      "path": "stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "archive-reference.json",
+      "sha256": "e92a74775655825ccf78424db9e6be56ec0493925c69eaa675065d10a90a0a13",
+      "size_bytes": 922
+    },
+    {
+      "path": "seed639-prospective-policy-prior-classification--attempt-0002.archive-manifest.json",
+      "sha256": "4a53be6f0a2aa231e2e0b52dde648b6fcfdbaab2999c93bf3f2645d84df34231",
+      "size_bytes": 97446
+    }
+  ],
+  "schema": "mancala-experiment-publication-v1",
+  "source_commit": "d63cc1ea6026cdd860fc641de112cf90323c9615"
+}

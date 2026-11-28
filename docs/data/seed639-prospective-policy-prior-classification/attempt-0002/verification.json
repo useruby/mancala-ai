@@ -1,0 +1,32 @@
+{
+  "schema": "seed639-independent-verification-v1",
+  "experiment_id": "seed639-prospective-policy-prior-classification",
+  "attempt_id": "attempt-0002",
+  "passed": true,
+  "states_verified": 512,
+  "model_state_evaluations_reproduced": 1024,
+  "population_preflight_verified": 512,
+  "selected_inventory_sha256": "6c6b1f680b2177cb67c79a9a642216703f160131034fbf8fe86e8130910ed077",
+  "subset_verification": {
+    "passed": true,
+    "available": true,
+    "selected_count": 64,
+    "distinct_continuation_games": 64,
+    "distinct_opening_clusters": 57
+  },
+  "summary_verified": true,
+  "exposure_classification": "known-exposure-screened; inherited P-E4 exposure unresolved",
+  "verifier": "ml.alphazero_lite.verify_seed639_policy_prior_classification",
+  "verification_runtime": {
+    "python_version": "3.14.7",
+    "numpy_version": "2.5.3",
+    "device": "cpu",
+    "thread_environment": {
+      "PYTHONHASHSEED": "615",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "CUDA_VISIBLE_DEVICES": ""
+    }
+  }
+}

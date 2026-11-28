@@ -1,0 +1,46 @@
+{
+  "attempt_id": "attempt-0002",
+  "completed_at": "2026-11-28T13:16:47.984808+00:00",
+  "elapsed_seconds": 53.79956667870283,
+  "exit_status": 0,
+  "experiment_id": "seed639-prospective-policy-prior-classification",
+  "free_disk_bytes_before": 580984541184,
+  "manifest_sha256": "164060dbc000df2882796d5915ca292605b5d750761e032fc8e29ee1389f2a8d",
+  "output_sha256": {
+    "seed639-output": "cea6d8b9c7a250763983d33ec80075d17d6c3ef3e074ab379917a131c5858aa0",
+    "seed639-output/authentication.json": "f25f612c08bea17d7572d209332a874bd4299c285b5ec80b29ca96e2efd54e95",
+    "seed639-output/diagnostic-subset.json": "ea42b27f1163e33be1d7adc0c7ac89136c5d9befaf7c48983c0a28fd75564497",
+    "seed639-output/population-preflight.json": "bf37eb4443fc1a4c91b8235ea085d4970c57119a6c9e1be6bfdd2eb808b8e387",
+    "seed639-output/population-preflight.jsonl": "81f89b209aee7b6cb3317be5fc62e1e9792c78c85c9fae241f80a2f91da905be",
+    "seed639-output/preflight-receipt.json": "686d1228efd6ed306639150b6b8727c0c5ec50de720243c053b2e8a1fc24cfa3",
+    "seed639-output/results.json": "46b79df9e178339ef242bb87902b193761eb3b3dd38c1341d1325e95d1237369",
+    "seed639-output/runtime.json": "b00f0a632dd4ca81bcbb167e7cfa77206a3a11d665030f5db7994028b316a8e8",
+    "seed639-output/state-records": "422463aab810b8530546a225cf0de69635cf3c7d2094dcada4bd60ee60cec9e2",
+    "seed639-output/subset-relationship.json": "668387f6dd61f36fb464b20ce8e9ab2770772b95542e9bf4a0015d2100f1047c",
+    "seed639-output/summary.json": "5159b0a415a199afe5ca699f0761f7fcec279beaac7578c3502e66fae5397206"
+  },
+  "reason": null,
+  "resource_usage_after": {
+    "max_rss_platform_units": 1426608,
+    "system_cpu_seconds": 2.015833,
+    "user_cpu_seconds": 50.80703
+  },
+  "resource_usage_before": {
+    "max_rss_platform_units": 53620,
+    "system_cpu_seconds": 0.014667999999999999,
+    "user_cpu_seconds": 0.008402999999999999
+  },
+  "resource_usage_delta": {
+    "max_rss_platform_units": 1426608,
+    "max_rss_scope": "supervisor_children_high_water_including_prior_children",
+    "system_cpu_seconds": 2.0011650000000003,
+    "user_cpu_seconds": 50.798626999999996
+  },
+  "schema": "mancala-experiment-attempt-result-v1",
+  "source_commit": "d63cc1ea6026cdd860fc641de112cf90323c9615",
+  "started_at": "2026-11-28T13:15:54.184042+00:00",
+  "started_sha256": "c82b8b2acee0a5b87adc85a24880a4385cdc563ceba18623a8424a51dc0ca519",
+  "status": "completed",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_sha256": "46b79df9e178339ef242bb87902b193761eb3b3dd38c1341d1325e95d1237369"
+}

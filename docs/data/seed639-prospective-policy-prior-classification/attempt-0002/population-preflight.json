@@ -1,0 +1,15 @@
+{
+  "canonical_identity_count": 512,
+  "continuation_games": 459,
+  "opening_clusters": 218,
+  "production_float32_identity_count": 512,
+  "state_bindings_sha256": "1d79983d18db5b82c4739d83de5f47d40876668a9c5bc052679bd059dfb87314",
+  "states_authenticated": 512,
+  "stone_bin_counts": {
+    "17": 103,
+    "18": 103,
+    "19": 102,
+    "20": 102,
+    "21": 102
+  }
+}

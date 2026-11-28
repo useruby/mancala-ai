@@ -1,0 +1,73 @@
+{
+  "by_stone_bin": {
+    "17": {
+      "mean_B512_entropy_bits": 1.0817388352541664,
+      "mean_S615_entropy_bits": 1.0806941429433992,
+      "mean_entropy_difference_S615_minus_B512_bits": -0.0010446923107672815,
+      "mean_total_variation": 0.02586191143053499,
+      "states": 103,
+      "top_action_disagreement_rate": 0.02912621359223301,
+      "top_action_disagreements": 3
+    },
+    "18": {
+      "mean_B512_entropy_bits": 1.0010388761014362,
+      "mean_S615_entropy_bits": 0.9838139508987289,
+      "mean_entropy_difference_S615_minus_B512_bits": -0.0172249252027074,
+      "mean_total_variation": 0.02235006441139626,
+      "states": 103,
+      "top_action_disagreement_rate": 0.038834951456310676,
+      "top_action_disagreements": 4
+    },
+    "19": {
+      "mean_B512_entropy_bits": 1.0308150247711063,
+      "mean_S615_entropy_bits": 1.0333478061647074,
+      "mean_entropy_difference_S615_minus_B512_bits": 0.0025327813936010307,
+      "mean_total_variation": 0.02353115329167925,
+      "states": 102,
+      "top_action_disagreement_rate": 0.029411764705882353,
+      "top_action_disagreements": 3
+    },
+    "20": {
+      "mean_B512_entropy_bits": 1.035329409229863,
+      "mean_S615_entropy_bits": 1.0415624307263736,
+      "mean_entropy_difference_S615_minus_B512_bits": 0.006233021496510139,
+      "mean_total_variation": 0.02772751524579805,
+      "states": 102,
+      "top_action_disagreement_rate": 0.058823529411764705,
+      "top_action_disagreements": 6
+    },
+    "21": {
+      "mean_B512_entropy_bits": 1.0015331603896815,
+      "mean_S615_entropy_bits": 0.9991833470924806,
+      "mean_entropy_difference_S615_minus_B512_bits": -0.0023498132972011323,
+      "mean_total_variation": 0.022104323111613658,
+      "states": 102,
+      "top_action_disagreement_rate": 0.06862745098039216,
+      "top_action_disagreements": 7
+    }
+  },
+  "fixed_one_fifth_bin_standardized": {
+    "mean_entropy_difference_S615_minus_B512_bits": -0.0023707255841129296,
+    "mean_total_variation": 0.024314993498204443,
+    "top_action_disagreement_rate": 0.044964782029316586
+  },
+  "overall": {
+    "B512_mean_entropy_bits": 1.030135193159128,
+    "S615_mean_entropy_bits": 1.027738045375122,
+    "entropy_difference_S615_minus_B512_mean_bits": -0.0023971477840059935,
+    "top_action_disagreement_rate": 0.044921875,
+    "top_action_disagreements": 23,
+    "total_variation_mean": 0.02431417707016835,
+    "total_variation_quantiles": {
+      "0": 2.3573344098046632e-05,
+      "0.25": 0.005857873497789607,
+      "0.5": 0.018958917018772968,
+      "0.75": 0.03588354987101126,
+      "0.9": 0.05462229445290983,
+      "0.95": 0.06534023045559303,
+      "0.99": 0.10179096306920964,
+      "1": 0.1678194669780497
+    }
+  },
+  "population_size": 512
+}
